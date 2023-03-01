@@ -10,8 +10,7 @@ environment:
   sdk: ">=2.18.0 <3.0.0"
 
 dependencies:
-  ribs_core:      #^0.0.1
-    path: ../core
+  ribs_core:      ^0.0.1
 
 dev_dependencies:
   coverage:   ^1.6.2
