@@ -267,7 +267,7 @@ extension RetryOps<A> on IO<A> {
         (err) => isWorthRetrying(err)
             ? _onFailureOrError(policy, wasSuccessful, isWorthRetrying, onError,
                 onFailure, status, action, (details) => onError(err, details))
-            : IO.failed(err.toString()),
+            : IO.raiseError(err.toString()),
         (a) => wasSuccessful(a)
             ? IO.pure(a)
             : _onFailureOrError(policy, wasSuccessful, isWorthRetrying, onError,
@@ -291,7 +291,7 @@ extension RetryOps<A> on IO<A> {
     final details = decision._detailsFromStatus(newStatus);
 
     return IO.pure(decision.isGivingUp).ifM(
-          IO.failed('Retry giving up.'),
+          IO.raiseError('Retry giving up.'),
           beforeRecurse(details).productR(IO.sleep(decision.delay)).productR(
               _retryingImpl(policy, wasSuccessful, isWorthRetrying, onError,
                   onFailure, newStatus, action)),

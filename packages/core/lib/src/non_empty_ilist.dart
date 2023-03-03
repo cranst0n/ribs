@@ -72,7 +72,11 @@ class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
 
   int get length => size;
 
-  Option<A> lift(int ix) => ix == 0 ? head.some : tail.lift(ix - 1);
+  Option<A> lift(int ix) => ix < 0
+      ? none<A>()
+      : ix == 0
+          ? head.some
+          : tail.lift(ix - 1);
 
   @override
   NonEmptyIList<B> map<B>(Function1<A, B> f) =>
@@ -120,9 +124,11 @@ class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
       f(head).flatMap(
           (h) => tail.traverseOption(f).map((t) => NonEmptyIList(h, t)));
 
-  NonEmptyIList<A> updated(int index, Function1<A, A> f) => index == 0
-      ? NonEmptyIList(f(head), tail)
-      : NonEmptyIList(head, tail.updated(index - 1, f));
+  NonEmptyIList<A> updated(int index, Function1<A, A> f) => index < 0
+      ? this
+      : index == 0
+          ? NonEmptyIList(f(head), tail)
+          : NonEmptyIList(head, tail.updated(index - 1, f));
 
   NonEmptyIList<Tuple2<A, int>> get zipWithIndex => NonEmptyIList(
       Tuple2(head, 0), tail.zipWithIndex.map((a) => Tuple2(a.$1, a.$2 + 1)));

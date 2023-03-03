@@ -17,18 +17,24 @@ class IO<A> implements Monad<A> {
   static IO<A> async<A>(Function0<A> thunk) =>
       IO(() => Future.microtask(thunk));
 
-  static IO<A> failed<A>(Object err, [StackTrace? stacktrace]) =>
+  static IO<A> raiseError<A>(Object err, [StackTrace? stacktrace]) =>
       IO(() => Future.error(err, stacktrace));
 
   static IO<A> fromEither<A>(Either<Object, A> either) =>
-      either.fold((a) => IO.failed<A>(a), IO.pure);
+      either.fold((a) => IO.raiseError<A>(a), IO.pure);
 
   static IO<A> fromFuture<A>(Function0<Future<A>> thunk) => IO(() => thunk());
 
   static IO<Unit> print(String message) =>
+      IO.sync(() => stdout.write(message)).voided;
+
+  static IO<Unit> println(String message) =>
       IO.sync(() => stdout.writeln(message)).voided;
 
   static IO<Unit> printErr(String message) =>
+      IO.sync(() => stderr.write(message)).voided;
+
+  static IO<Unit> printErrLn(String message) =>
       IO.sync(() => stderr.writeln(message)).voided;
 
   static IO<A> pure<A>(A a) => IO(() => Future.value(a));
@@ -80,7 +86,7 @@ class IO<A> implements Monad<A> {
       flatMap((a) => use(a).guarantee(release(a)));
 
   IO<A> debug({String prefix = 'DEBUG'}) =>
-      flatTap((a) => IO.print('$prefix: $a'));
+      flatTap((a) => IO.println('$prefix: $a'));
 
   IO<A> delayBy(Duration duration) => sleep(duration).productR(this);
 
@@ -143,7 +149,7 @@ class IO<A> implements Monad<A> {
 
   IO<A> timeoutTo(Duration timeLimit, IO<A> fallback) =>
       timeout(timeLimit).redeemWith(
-          (err) => err is TimeoutException ? fallback : IO.failed(err),
+          (err) => err is TimeoutException ? fallback : IO.raiseError(err),
           IO.pure);
 
   Future<A> unsafeRun() => _run();

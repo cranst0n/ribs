@@ -5,16 +5,14 @@ import 'package:test/test.dart';
 
 void main() {
   test('foo', () async {
-    final io = IO(() => fibStream().elementAt(43))
-        .flatTap((value) => IO.print('[${Isolate.current.debugName}] $value'));
+    final io = IO(() => fibStream().elementAt(43)).flatTap(
+        (value) => IO.println('[${Isolate.current.debugName}] $value'));
 
     final handle = await io.start().unsafeRun();
 
-    print('handle aquired...');
-
     handle
         .cancel()
-        .flatTap((_) => IO.print('cancel called...'))
+        .flatTap((_) => IO.println('cancel called...'))
         .delayBy(const Duration(milliseconds: 3000))
         .unsafeRunAndForget();
 
@@ -25,7 +23,7 @@ void main() {
 
   test('bar', () async {
     IO<Unit> foo(String message) => IO
-        .print(message)
+        .println(message)
         .delayBy(Duration(seconds: message.codeUnitAt(0) - 'A'.codeUnitAt(0)));
 
     final ios = ilist(['A', 'B', 'C', 'D', 'E']).parTraverseIO(foo);
