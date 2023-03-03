@@ -10,6 +10,7 @@ export 'src/monad.dart';
 export 'src/non_empty_ilist.dart';
 export 'src/option.dart';
 export 'src/state.dart';
+export 'src/stream.dart';
 export 'src/syntax.dart';
 export 'src/tuple.dart';
 export 'src/unit.dart';
