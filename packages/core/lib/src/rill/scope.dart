@@ -14,54 +14,95 @@ class Scope {
   IO<Scope> open(IO<Unit> finalizer) {
     return state.modify((state) {
       return state.fold(
-        (open) {
+        (openState) {
           final sub = Scope(Some(this), ScopeId(),
               Ref.of(ScopeState.open(finalizer, IList.empty())));
 
           return Tuple2(
-            ScopeState.open(open.finalizer, open.subScopes.append(sub)),
+            ScopeState.open(
+                openState.finalizer, openState.subScopes.append(sub)),
             IO.pure(sub),
           );
         },
         () {
-          final next = parent.fold(
+          final nextScope = parent.fold(
             () => IO.raiseError<Scope>(StateError('root scope already closed')),
             (p) => p.open(finalizer),
           );
 
-          return Tuple2(ScopeState.closed, next);
+          return Tuple2(ScopeState.closed, nextScope);
         },
       );
     }).flatten;
   }
 
-  IO<Unit> get close {
-    return state.modify((state) {
-      return state.fold(
-        (open) {
-          final finalizers =
-              open.subScopes.reverse.map((a) => a.close).append(open.finalizer);
+  IO<Unit> get close => state.modify((state) {
+        return state.fold(
+          (open) {
+            final finalizers = open.subScopes.reverse
+                .map((a) => a.close)
+                .append(open.finalizer);
 
-          // Ensure all finalizers are called, regardless of failures
-          IO<Unit> go(IList<IO<Unit>> rem, Option<IOError> error) {
-            return rem.uncons((hd, tl) {
-              return hd.fold(() {
-                return error.fold(
-                  () => IO.unit,
-                  (e) => IO.raiseError(e),
+            // Ensure all finalizers are called, regardless of failures
+            IO<Unit> go(IList<IO<Unit>> rem, Option<IOError> error) =>
+                rem.uncons(
+                  (hd, tl) => hd.fold(
+                    () => error.fold(
+                      () => IO.unit,
+                      (err) => IO.raiseError(err),
+                    ),
+                    (hd) => hd.attempt().flatMap(
+                        (res) => go(tl, error.orElse(() => res.swap.toOption))),
+                  ),
                 );
-              }, (hd) {
-                return hd.attempt().flatMap(
-                    (res) => go(tl, error.orElse(() => res.swap.toOption)));
-              });
-            });
-          }
 
-          return Tuple2(ScopeState.closed, go(finalizers, none()));
-        },
-        () => Tuple2(ScopeState.closed, IO.unit),
+            return Tuple2(ScopeState.closed, go(finalizers, none()));
+          },
+          () => Tuple2(ScopeState.closed, IO.unit),
+        );
+      }).flatten;
+
+  IO<Option<Scope>> findScope(ScopeId target) {
+    return findThisOrSubScope(target).flatMap((scope) {
+      return scope.fold(
+        () => parent.fold(
+          () => IO.pure(none()),
+          (p) => p.findScope(target),
+        ),
+        (s) => IO.pure(s.some),
       );
-    }).flatten;
+    });
+  }
+
+  IO<Option<Scope>> findThisOrSubScope(ScopeId target) {
+    if (id == target) {
+      return IO.pure(Some(this));
+    } else {
+      return state.value.flatMap((state) {
+        return state.fold(
+          (open) {
+            IO<Option<Scope>> go(IList<Scope> rem) {
+              return rem.uncons((hd, tl) {
+                return hd.fold(
+                  () => IO.pure(none()),
+                  (hd) {
+                    return hd.findThisOrSubScope(target).flatMap((scope) {
+                      return scope.fold(
+                        () => go(tl),
+                        (scope) => IO.pure(scope.some),
+                      );
+                    });
+                  },
+                );
+              });
+            }
+
+            return go(open.subScopes);
+          },
+          () => IO.pure(none()),
+        );
+      });
+    }
   }
 }
 

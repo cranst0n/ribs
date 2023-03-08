@@ -15,18 +15,9 @@ class Ref<A> {
 
   IO<Unit> setValue(A a) => IO.async(() => _underlying = a).voided;
 
-  IO<B> modify<B>(Function1<A, Tuple2<A, B>> f) {
-    B loop() {
-      final oldA = _underlying;
-      return f(oldA)((newA, result) {
-        if (newA == oldA) {
-          return result;
-        } else {
-          return loop();
-        }
-      });
-    }
-
-    return IO.async(() => loop());
-  }
+  IO<B> modify<B>(Function1<A, Tuple2<A, B>> f) =>
+      IO.async(() => f(_underlying)((newA, result) {
+            _underlying = newA;
+            return result;
+          }));
 }

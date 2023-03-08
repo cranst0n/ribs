@@ -25,6 +25,12 @@ class IO<A> implements Monad<A> {
 
   static IO<A> fromFuture<A>(Function0<Future<A>> thunk) => IO(() => thunk());
 
+  static IO<A> isolate<A>(Function0<FutureOr<A>> thunk,
+          {String? isolateName}) =>
+      IO(() => Isolate.run(thunk, debugName: isolateName));
+
+  static IO<Never> get never => IO.fromFuture(() => Completer<Never>().future);
+
   static IO<Unit> print(String message) =>
       IO.sync(() => stdout.write(message)).voided;
 
@@ -56,10 +62,6 @@ class IO<A> implements Monad<A> {
 
   static IO<Unit> sleep(Duration duration) =>
       IO.fromFuture(() => Future.delayed(duration, () => Unit()));
-
-  static IO<A> isolate<A>(Function0<FutureOr<A>> thunk,
-          {String? isolateName}) =>
-      IO(() => Isolate.run(thunk, debugName: isolateName));
 
   static IO<A> sync<A>(Function0<A> thunk) => IO(() => Future.sync(thunk));
 
