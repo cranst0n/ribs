@@ -269,6 +269,18 @@ void main() {
     expect(ilist([1]).startsWith(ilist([1, 2])), isFalse);
   });
 
+  test('IList.sequenceEither', () {
+    expect(
+      ilist([1.asRight<int>(), 2.asRight<int>(), 3.asRight<int>()]).sequence(),
+      ilist([1, 2, 3]).asRight<String>(),
+    );
+
+    expect(
+      ilist([1.asRight<int>(), 42.asLeft<int>(), 3.asRight<int>()]).sequence(),
+      42.asLeft<int>(),
+    );
+  });
+
   test('IList.traverseEither', () {
     expect(
       ilist([1, 2, 3]).traverseEither((a) => Either.pure<String, int>(a * 2)),

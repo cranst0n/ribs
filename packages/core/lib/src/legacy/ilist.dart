@@ -1,6 +1,10 @@
 import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// Use of this is not recommended due to poor performance. It's only reason for
+/// still existing is for anyone curious how you could implement a purely
+/// functional immutable list.
+
 IList<A> ilist<A>(List<A> as) => IList.of(as);
 IList<A> nil<A>() => IList.empty();
 

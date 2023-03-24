@@ -7,10 +7,10 @@ import 'package:ribs_core/ribs_core.dart';
 IList<A> ilist<A>(Iterable<A> as) => IList.of(as);
 IList<A> nil<A>() => IList.empty();
 
-// You may ask why does this exist? Seems like it's just a wrapper around a FIC
-// IList. The original IList implementation, while pure had terrible performance
-// so was replaced with this version. To ease the migration and keep the API
-// the same, this is what was created. Much credit to the FIC folks for
+// You may ask why does this exist. Seems like it's just a wrapper around a FIC
+// IList. The original IList implementation, while pure, had terrible
+// performance so was replaced with this version. To ease the migration and keep
+// the API the same, this is what was created. Much credit to the FIC folks for
 // building a useful and performant IList.
 
 class IList<A> implements Monad<A>, Foldable<A> {
@@ -98,6 +98,8 @@ class IList<A> implements Monad<A>, Foldable<A> {
 
   Option<A> lift(int ix) =>
       Option.when(() => 0 <= ix && ix < size, () => _underlying[ix]);
+
+  int get length => _underlying.length;
 
   @override
   IList<B> map<B>(covariant Function1<A, B> f) => IList.of(_underlying.map(f));
@@ -287,19 +289,17 @@ extension IListNestedOps<A> on IList<IList<A>> {
 }
 
 extension IListEitherOps<A, B> on IList<Either<A, B>> {
-  Either<A, IList<B>> sequence() => foldLeft(Either.pure(nil<B>()),
-      (a, b) => a.flatMap((a) => b.map((b) => a.prepend(b))));
+  Either<A, IList<B>> sequence() => traverseEither(id);
 }
 
 extension IListIOOps<A> on IList<IO<A>> {
-  IO<IList<A>> sequence() => foldLeft(IO.pure(nil<A>()),
-      (acc, elem) => acc.flatMap((acc) => elem.map(acc.prepend)));
+  IO<IList<A>> sequence() => traverseIO(id);
+  IO<Unit> sequence_() => traverseIO_(id);
 
-  IO<IList<A>> parSequence() => foldLeft(IO.pure(nil<A>()),
-      (acc, elem) => IO.both(acc, elem).map((a) => a.$1.prepend(a.$2)));
+  IO<IList<A>> parSequence() => parTraverseIO(id);
+  IO<Unit> parSequence_() => parTraverseIO_(id);
 }
 
 extension IListOptionOps<A> on IList<Option<A>> {
-  Option<IList<A>> sequence() => foldLeft(Option.pure(nil<A>()),
-      (acc, elem) => acc.flatMap((acc) => elem.map(acc.prepend)));
+  Option<IList<A>> sequence() => traverseOption(id);
 }

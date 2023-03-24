@@ -7,11 +7,6 @@ extension EitherSyntaxOps<A> on A {
 
 extension IterableOps<A> on Iterable<A> {
   IList<A> toIList() => ilist(toList());
-
-  IO<List<B>> parTraverseIO<B>(Function1<A, IO<B>> f) => fold(
-        IO.pure(List<B>.empty(growable: true)),
-        (acc, elem) => IO.both(acc, f(elem)).map((t) => t.$1..add(t.$2)),
-      );
 }
 
 extension OptionSyntaxOps<A> on A {
@@ -30,12 +25,24 @@ extension ValidatedSyntaxOps<A> on A {
 
 extension Tuple2IOOps<A, B> on Tuple2<IO<A>, IO<B>> {
   IO<C> mapN<C>(Function2<A, B, C> fn) => IO.map2($1, $2, fn);
-
   IO<C> parMapN<C>(Function2<A, B, C> fn) => IO.parMap2($1, $2, fn);
 }
 
 extension Tuple3IOOps<A, B, C> on Tuple3<IO<A>, IO<B>, IO<C>> {
   IO<D> mapN<D>(Function3<A, B, C, D> fn) => IO.map3($1, $2, $3, fn);
-
   IO<D> parMapN<D>(Function3<A, B, C, D> fn) => IO.parMap3($1, $2, $3, fn);
+}
+
+extension Tuple4IOOps<A, B, C, D> on Tuple4<IO<A>, IO<B>, IO<C>, IO<D>> {
+  IO<E> mapN<E>(Function4<A, B, C, D, E> fn) => IO.map4($1, $2, $3, $4, fn);
+  IO<E> parMapN<E>(Function4<A, B, C, D, E> fn) =>
+      IO.parMap4($1, $2, $3, $4, fn);
+}
+
+extension Tuple5IOOps<A, B, C, D, E>
+    on Tuple5<IO<A>, IO<B>, IO<C>, IO<D>, IO<E>> {
+  IO<F> mapN<F>(Function5<A, B, C, D, E, F> fn) =>
+      IO.map5($1, $2, $3, $4, $5, fn);
+  IO<F> parMapN<F>(Function5<A, B, C, D, E, F> fn) =>
+      IO.parMap5($1, $2, $3, $4, $5, fn);
 }
