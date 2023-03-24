@@ -1,0 +1,16 @@
+name: ribs_dartz_compat
+version: 0.0.1
+homepage: https://github.com/cranst0n/ribs
+description: >
+  Ribs / Dartz compatibility layer.
+
+environment:
+  sdk: ">=2.19.0 <3.0.0"
+
+dependencies:
+  dartz:      ^0.10.1
+  ribs_core:  ^0.0.1
+
+dev_dependencies:
+  lint:      ^2.0.1
+  test:      ^1.23.1

@@ -1,0 +1,25 @@
+name: my_project
+
+packages:
+  - packages/**
+  - examples/**
+
+scripts:
+
+  format:
+    run: melos exec dart format . --fix
+    description: Run `dart format` for all packages.
+
+  test:
+    run: melos exec -c 1 --fail-fast -- "\$MELOS_ROOT_PATH/scripts/coverage.sh"
+    description: Run all dart tests in this project.
+    packageFilters:
+      dirExists: test
+
+  coverage-report:
+    run: melos run --no-select test && find . -name coverage.lcov | xargs genhtml -o coverage-report
+    description: Run all dart tests in this project and generate code coverage report.
+
+  outdated:
+    run: melos run --no-select outdated
+    description: Print outdated dependencies.

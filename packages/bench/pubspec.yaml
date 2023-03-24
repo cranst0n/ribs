@@ -1,0 +1,21 @@
+name: ribs_bench
+version: 0.0.1
+homepage: https://github.com/cranst0n/ribs
+description: >
+  Various benchmarks.
+
+publish_to: 'none'
+
+environment:
+  sdk: ">=2.19.0 <3.0.0"
+
+dependencies:
+  benchmark_harness:          ^2.2.1
+  dartz:                      ^0.10.1
+  fast_immutable_collections: ^9.0.0
+  fpdart:                     ^0.5.0
+  ribs_core:                  ^0.0.1
+
+dev_dependencies:
+  lint:      ^2.0.1
+  test:      ^1.23.1

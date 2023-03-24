@@ -1,0 +1,6 @@
+**/.dart_tool/
+**/build/
+**/coverage.lcov
+**/coverage/
+**/coverage-report/
+**/pubspec_overrides.yaml
