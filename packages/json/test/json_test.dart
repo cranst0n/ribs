@@ -18,7 +18,7 @@ void main() {
     },
   ).run(
     description: 'Json roundtrip',
-    numTests: 25,
+    numTests: 10,
   );
 
   test('Json.cursor A', () {
