@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
 
-/// Mostly complete port of cats-retry to dartz.
+/// Mostly complete port of cats-retry.
 
 class RetryStatus {
   /// Retries attempted thus far.

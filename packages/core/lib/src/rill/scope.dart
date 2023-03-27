@@ -1,5 +1,4 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/src/rill/ref.dart';
 
 class Scope {
   final Option<Scope> parent;
@@ -9,14 +8,14 @@ class Scope {
   const Scope(this.parent, this.id, this.state);
 
   static Scope get root =>
-      Scope(none(), ScopeId(), Ref.of(ScopeState.open(IO.unit, IList.empty())));
+      Scope(none(), ScopeId(), Ref(ScopeState.open(IO.unit, IList.empty())));
 
   IO<Scope> open(IO<Unit> finalizer) {
     return state.modify((state) {
       return state.fold(
         (openState) {
           final sub = Scope(Some(this), ScopeId(),
-              Ref.of(ScopeState.open(finalizer, IList.empty())));
+              Ref(ScopeState.open(finalizer, IList.empty())));
 
           return Tuple2(
             ScopeState.open(
@@ -79,7 +78,7 @@ class Scope {
     if (id == target) {
       return IO.pure(Some(this));
     } else {
-      return state.value.flatMap((state) {
+      return state.value().flatMap((state) {
         return state.fold(
           (open) {
             IO<Option<Scope>> go(IList<Scope> rem) {

@@ -1,15 +1,16 @@
+// ignore_for_file: avoid_print, implementation_imports
+
 import 'dart:async';
 
 import 'package:benchmark_harness/benchmark_harness.dart';
 
-import 'package:ribs_core/src/function.dart';
+import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/legacy/ilist.dart' as legacy;
-import 'package:ribs_core/src/ilist.dart' as fic;
 
 const n = 2000;
 
 final legacyList = legacy.IList.tabulate(n, id);
-final ficList = fic.IList.tabulate(n, id);
+final ficList = IList.tabulate(n, id);
 
 class SimpleBenchmark extends BenchmarkBase {
   final Function0<void> f;
@@ -20,7 +21,7 @@ class SimpleBenchmark extends BenchmarkBase {
   void run() => f();
 }
 
-final sep = '  |  ';
+const sep = '  |  ';
 
 void main(List<String> args) async {
   print(
@@ -28,112 +29,111 @@ void main(List<String> args) async {
 
   print('-' * 48);
 
-  await compare(
+  compare(
     'append',
     SimpleBenchmark(() => legacyList.append(0)),
     SimpleBenchmark(() => ficList.append(0)),
   );
 
-  await compare(
+  compare(
     'concat',
     SimpleBenchmark(() => legacyList.concat(legacyList)),
     SimpleBenchmark(() => ficList.concat(ficList)),
   );
 
-  await compare(
+  compare(
     'drop',
     SimpleBenchmark(() => legacyList.drop(n ~/ 2)),
     SimpleBenchmark(() => ficList.drop(n ~/ 2)),
   );
 
-  await compare(
+  compare(
     'dropRight',
     SimpleBenchmark(() => legacyList.dropRight(n ~/ 2)),
     SimpleBenchmark(() => ficList.dropRight(n ~/ 2)),
   );
 
-  await compare(
+  compare(
     'filter',
     SimpleBenchmark(() => legacyList.filter((x) => x < n / 2)),
     SimpleBenchmark(() => ficList.filter((x) => x < n / 2)),
   );
 
-  await compare(
+  compare(
     'findLast',
     SimpleBenchmark(() => legacyList.findLast((x) => x < n / 2)),
     SimpleBenchmark(() => ficList.findLast((x) => x < n / 2)),
   );
 
-  await compare(
+  compare(
     'flatMap',
     SimpleBenchmark(
         () => legacyList.flatMap((x) => legacy.IList.of([x - 1, x, x + 1]))),
-    SimpleBenchmark(
-        () => ficList.flatMap((x) => fic.IList.of([x - 1, x, x + 1]))),
+    SimpleBenchmark(() => ficList.flatMap((x) => IList.of([x - 1, x, x + 1]))),
   );
 
-  await compare(
+  compare(
     'init',
     SimpleBenchmark(() => legacyList.init()),
     SimpleBenchmark(() => ficList.init()),
   );
 
-  await compare(
+  compare(
     'map',
     SimpleBenchmark(() => legacyList.map((x) => x + 1)),
     SimpleBenchmark(() => ficList.map((x) => x + 1)),
   );
 
-  await compare(
+  compare(
     'partition',
     SimpleBenchmark(() => legacyList.partition((x) => x.isEven)),
     SimpleBenchmark(() => ficList.partition((x) => x.isEven)),
   );
 
-  await compare(
+  compare(
     'prepend',
     SimpleBenchmark(() => legacyList.prepend(0)),
     SimpleBenchmark(() => ficList.prepend(0)),
   );
 
-  await compare(
+  compare(
     'replace',
     SimpleBenchmark(() => legacyList.replace(n ~/ 2, 0)),
     SimpleBenchmark(() => ficList.replace(n ~/ 2, 0)),
   );
 
-  await compare(
+  compare(
     'reverse',
     SimpleBenchmark(() => legacyList.reverse()),
     SimpleBenchmark(() => ficList.reverse()),
   );
 
-  await compare(
+  compare(
     'sliding',
     SimpleBenchmark(() => legacyList.sliding(3, 2)),
     SimpleBenchmark(() => ficList.sliding(3, 2)),
   );
 
-  await compare(
+  compare(
     'tabulate',
     SimpleBenchmark(() => legacy.IList.tabulate(n, id)),
-    SimpleBenchmark(() => fic.IList.tabulate(n, id)),
+    SimpleBenchmark(() => IList.tabulate(n, id)),
   );
 
-  await compare(
+  compare(
     'zipWithIndex',
     SimpleBenchmark(() => legacyList.zipWithIndex()),
     SimpleBenchmark(() => ficList.zipWithIndex()),
   );
 }
 
-Future<void> compare(
+void compare(
   String label,
   BenchmarkBase pure,
   BenchmarkBase fic,
-) async {
-  final pureMs = await pure.measure();
-  final ficMs = await fic.measure();
+) {
+  final pureMs = pure.measure();
+  final ficMs = fic.measure();
 
   final pureStr = pureMs < ficMs
       ? '\x1B[32;1m${pureMs.round().toString().padLeft(8)}µs\x1B[0m'
@@ -143,7 +143,7 @@ Future<void> compare(
       ? '\x1B[32;1m${ficMs.round().toString().padLeft(8)}µs\x1B[0m'
       : '\x1B[31;1m${ficMs.round().toString().padLeft(8)}µs\x1B[0m';
 
-  print(label.padRight(15) + '$sep${pureStr}$sep${ficStr}$sep');
+  print('${label.padRight(15)}$sep$pureStr$sep$ficStr$sep');
 }
 
 Future<double> attemptBenchmark(AsyncBenchmarkBase b) {

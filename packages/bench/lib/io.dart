@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 
 import 'package:benchmark_harness/benchmark_harness.dart';
@@ -26,7 +28,9 @@ class DartzMapBenchmark extends AsyncBenchmarkBase {
 
   DartzMapBenchmark() : super('') {
     task = dartz.Task.value(0);
-    for (int i = 0; i < n; i++) task = task.map((a) => a + 1);
+    for (int i = 0; i < n; i++) {
+      task = task.map((a) => a + 1);
+    }
   }
 
   @override
@@ -38,7 +42,9 @@ class FpdartMapBenchmark extends AsyncBenchmarkBase {
 
   FpdartMapBenchmark() : super('') {
     task = fpdart.Task.of(0);
-    for (int i = 0; i < n; i++) task = task.map((a) => a + 1);
+    for (int i = 0; i < n; i++) {
+      task = task.map((a) => a + 1);
+    }
   }
 
   @override
@@ -51,7 +57,9 @@ class FutureMapBenchmark extends AsyncBenchmarkBase {
   @override
   Future<void> run() {
     Future<int> fut = Future.value(0);
-    for (int i = 0; i < n; i++) fut = fut.then((a) => a + 1);
+    for (int i = 0; i < n; i++) {
+      fut = fut.then((a) => a + 1);
+    }
 
     return fut;
   }
@@ -62,7 +70,9 @@ class RibsMapBenchmark extends AsyncBenchmarkBase {
 
   RibsMapBenchmark() : super('') {
     io = IO.pure(0);
-    for (int i = 0; i < n; i++) io = io.map((a) => a + 1);
+    for (int i = 0; i < n; i++) {
+      io = io.map((a) => a + 1);
+    }
   }
 
   @override
@@ -117,7 +127,8 @@ class DartzAttemptHappyBenchmark extends AsyncBenchmarkBase {
 }
 
 class FpdartAttemptHappyBenchmark extends AsyncBenchmarkBase {
-  final task = fpdart.TaskEither(() async => fpdart.Right(0)).replicate_(n);
+  final task = fpdart.TaskEither(() async => const fpdart.Right<String, int>(0))
+      .replicate_(n);
 
   FpdartAttemptHappyBenchmark() : super('');
 
@@ -245,7 +256,7 @@ class RibsBothBenchmark extends AsyncBenchmarkBase {
       .unsafeRunToFuture();
 }
 
-final sep = '  |  ';
+const sep = '  |  ';
 
 void main(List<String> args) async {
   print((' ' * 17) +
@@ -317,8 +328,8 @@ void reportMeasurements(
   double ribs,
 ) {
   String mus(double mu) {
-    String green(String s) => '\x1B[32;1m${s}\x1B[0m';
-    String red(String s) => '\x1B[31;1m${s}\x1B[0m';
+    String green(String s) => '\x1B[32;1m$s\x1B[0m';
+    String red(String s) => '\x1B[31;1m$s\x1B[0m';
 
     if (mu == 0) {
       return 'n/a'.padLeft(10) + sep;
@@ -327,13 +338,13 @@ void reportMeasurements(
     } else if ([dartz, fpdart, future, ribs]
         .where((t) => t > 0)
         .all((t) => mu <= t)) {
-      return green(mu.round().toString().padLeft(8) + 'µs') + sep;
+      return green('${mu.round().toString().padLeft(8)}µs') + sep;
     } else if ([dartz, fpdart, future, ribs]
         .where((t) => t > 0)
         .all((t) => mu >= t)) {
-      return red(mu.round().toString().padLeft(8) + 'µs') + sep;
+      return red('${mu.round().toString().padLeft(8)}µs') + sep;
     } else {
-      return mu.round().toString().padLeft(8) + 'µs' + sep;
+      return '${mu.round().toString().padLeft(8)}µs$sep';
     }
   }
 

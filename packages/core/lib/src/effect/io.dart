@@ -1955,7 +1955,6 @@ class _Async<A> extends IO<A> {
 
 class _AsyncGet<A> extends IO<A> {
   Either<IOError, dynamic>? value;
-  Option<IO<Unit>> fin = none();
 
   _AsyncGet();
 
