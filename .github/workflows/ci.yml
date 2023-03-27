@@ -18,9 +18,8 @@ jobs:
 
     strategy:
       matrix:
-        include:
-          - sdk: stable
-            experimental: false
+        sdk: [stable]
+        experimental: [false]
         include:
           - sdk: beta
             experimental: true
