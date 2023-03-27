@@ -14,25 +14,14 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ${{ matrix.package_path }}
-
     strategy:
       matrix:
         sdk:
           - stable
           - beta
-        package_path:
-          - packages/check
-          - packages/core
-          - packages/optics
-          - packages/binary
-          - packages/json
-          - packages/units
 
     steps:
-      - uses: actions/checkout@v23
+      - uses: actions/checkout@v3
 
       - uses: dart-lang/setup-dart@v1
         with:
