@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+
+jobs:
+  ci:
+    name: CI
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.package_path }}
+
+    strategy:
+      matrix:
+        sdk:
+          - stable
+          - beta
+        package_path:
+          - packages/check
+          - packages/core
+          - packages/optics
+          - packages/binary
+          - packages/json
+          - packages/units
+
+    steps:
+      - uses: actions/checkout@v23
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+
+      - name: Install melos
+        run: dart pub global activate melos
+
+      - name: Install coverage
+        run: dart pub global activate coverage
+
+      - name: Melos bootstrap
+        run: melos bs
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Verify formatting
+        run: melos exec dart format --output=none --set-exit-if-changed .
+      
+      - name: Analyze project source
+        run: melos exec dart analyze
+
+      - name: Run tests (with coverage)
+        run: melos exec --dir-exists="test" dart test --coverage="coverage" && melos exec --dir-exists="test" format_coverage --lcov --in=coverage --out=coverage.lcov --packages=.dart_tool/package_config.json --report-on=lib
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: packages/check/coverage.lcov,packages/core/coverage.lcov,packages/optics/coverage.lcov,packages/binary/coverage.lcov,packages/json/coverage.lcov,packages/units/coverage.lcov
+          verbose: true
