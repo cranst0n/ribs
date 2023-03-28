@@ -1,5 +1,18 @@
 
-🧪 Experimental 🧪 set of FP packages for Dart.
+<div align="center">
+
+![Ribs](https://raw.githubusercontent.com/cranst0n/ribs/main/.github/assets/logo.jpeg)
+
+# Ribs
+
+[![CI](https://github.com/cranst0n/ribs/actions/workflows/ci.yml/badge.svg)](https://github.com/cranst0n/ribs/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/cranst0n/ribs/branch/main/graph/badge.svg?token=12627T0AO0)](https://codecov.io/gh/cranst0n/ribs)
+
+[![Reinvent the Wheel](https://raw.githubusercontent.com/cranst0n/ribs/main/.github/assets/reinventing_the_wheel.png)](https://twitter.com/rockthejvm/status/1640320394438508545)
+
+#### 🧪 Experimental FP packages for Dart 🧪
+
+</div>
 
 ### Caveats
 
@@ -8,39 +21,6 @@
 These are *very* young libraries and should be used with caution. You'll need
 to accept the possibility that there are bugs and are willing to fix them as
 they pop up.
-
-**Performance**
-
-The design is almost entirely directed at purity, so you may run into some
-performance issues. The original `IList` implementation, while pure and
-somewhat elegant, suffers from pretty terrible performance. So bad in fact
-it's unusable for many real world situations. In light of that, it was replaced
-with an implementation backed by [FIC](https://pub.dev/packages/fast_immutable_collections).
-This was done to maintain the old implementations API and behavior since
-there's quite a bit of things build on top of `IList`. Highly recommend
-checking FIC out since it solves a lot of problems while maintaining good
-performance.
-
-```
-                 |        ribs  |         fic  |  
-------------------------------------------------
-append           |       962µs  |        17µs  |  
-concat           |       635µs  |         1µs  |  
-drop             |       299µs  |       109µs  |  
-dropRight        |      1412µs  |       129µs  |  
-filter           |       851µs  |       221µs  |  
-findLast         |    972695µs  |       114µs  |  
-flatMap          |      9786µs  |      2735µs  |  
-init             |   2007336µs  |       247µs  |  
-map              |      1122µs  |       257µs  |  
-partition        |      1421µs  |       510µs  |  
-prepend          |         0µs  |       134µs  |  
-replace          |       379µs  |        69µs  |  
-reverse          |    929614µs  |       540µs  |  
-sliding          |    759597µs  |     82489µs  |  
-tabulate         |       439µs  |       105µs  |  
-zipWithIndex     |      1109µs  |      1140µs  |
-```
 
 **Documentation**
 
@@ -51,26 +31,36 @@ insight into what this project provides. If you run into an especially opaque
 piece of code, chances are it was inspired by another library that has more
 complete documentation.
 
+**Performance**
+
+The design is almost entirely directed at purity, so you may run into some
+performance issues. As an example, the original `IList` implementation, while
+pure and somewhat elegant, suffered from pretty terrible performance. So bad in
+fact, it's unusable for many real world situations. In light of that, it was
+replaced with an implementation backed by [FIC](https://pub.dev/packages/fast_immutable_collections).
+There is potential for similar situations in other structures so if you're
+seeing something that is particularly slow, raise an issue.
+
 ### Alternatives
 
 There are more battle tested libraries available that have overlapping
 features, as well as additional features not found here, so you should
-certainly consider using them. I've made certain design tradeoffs that
-may impact your mileage.
+certainly consider using them. They all bring some things to the table
+that you won't find here.
 
-[dartz](https://github.com/spebbe/dartz)
-[fpdart](https://github.com/SandroMaglione/fpdart)
+* [dartz](https://github.com/spebbe/dartz)
+* [fpdart](https://github.com/SandroMaglione/fpdart)
 
-I've also provided `compat` libraries to make it easier converting between
+There are also provided `compat` libraries to make it easier converting between
 similar types in those libraries if you want to use both.
 
 Ideally, some of the functionality in these libraries will find a home in an
-already popular library, so as not to reinvent the wheel, but it's easier to
-move fast and break things when you're working in your own sandbox.
+already popular library, but it's easier to move fast and break things when
+you're working in your own sandbox.
 
 ### Credits
 
-Much of the functionality in this repository is closely derived from
+Much of the design and functionality in this repository is closely derived from
 the following libraries.
 
 * [cats-effect](https://github.com/typelevel/cats-effect)
@@ -81,7 +71,7 @@ the following libraries.
 * [cats-retry](https://github.com/cb372/cats-retry)
 * [dart-check](https://github.com/wigahluk/dart-check)
 
-Additional functionality and inspiration was provided by:
+Additional inspiration provided by:
 
 * [FIC](https://pub.dev/packages/fast_immutable_collections)
 * [dartz](https://github.com/spebbe/dartz)
