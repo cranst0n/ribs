@@ -734,11 +734,13 @@ void main() {
     bool aCanceled = false;
     bool bCanceled = false;
 
-    final ioa = (IO.pure(42))
+    final ioa = IO
+        .pure(42)
         .delayBy(const Duration(milliseconds: 100))
         .onCancel(IO.exec(() => aCanceled = true));
 
-    final iob = (IO.pure('B'))
+    final iob = IO
+        .pure('B')
         .delayBy(const Duration(milliseconds: 180))
         .onCancel(IO.exec(() => bCanceled = true));
 

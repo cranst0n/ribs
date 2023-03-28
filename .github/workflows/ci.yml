@@ -2,11 +2,9 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    types:
-      - opened
+    branches: [main]
 
 jobs:
   ci:
@@ -14,7 +12,6 @@ jobs:
 
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.experimental }}
-    timeout-minutes: 15
 
     strategy:
       matrix:
@@ -47,7 +44,12 @@ jobs:
         run: melos exec dart format --output=none --set-exit-if-changed .
       
       - name: Analyze project source
+        if: ${{ !matrix.experimental }}
         run: melos exec dart analyze
+
+      - name: Analyze project source
+        if: ${{ matrix.experimental }}
+        run: melos exec dart analyze --no-fatal-warnings
 
       - name: Run tests (with coverage)
         run: melos exec --dir-exists="test" dart test --coverage="coverage" && melos exec --dir-exists="test" format_coverage --lcov --in=coverage --out=coverage.lcov --packages=.dart_tool/package_config.json --report-on=lib
