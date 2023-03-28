@@ -22,6 +22,8 @@ class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
 
   static NonEmptyIList<A> one<A>(A head) => of(head, []);
 
+  A operator [](int ix) => ix == 0 ? head : tail[ix - 1];
+
   @override
   NonEmptyIList<B> ap<B>(NonEmptyIList<Function1<A, B>> f) =>
       flatMap((a) => f.map((f) => f(a)));
