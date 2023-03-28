@@ -47,7 +47,7 @@ jobs:
         run: melos exec dart analyze
         if: ${{ matrix.experimental == false }}
 
-      - name: Analyze project source
+      - name: Analyze project source (No fatal)
         run: melos exec dart analyze --no-fatal-warnings
         if: ${{ matrix.experimental == true }}
 
