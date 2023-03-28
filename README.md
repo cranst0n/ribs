@@ -10,9 +10,11 @@
 
 [![Reinvent the Wheel](https://raw.githubusercontent.com/cranst0n/ribs/main/.github/assets/reinventing_the_wheel.png)](https://twitter.com/rockthejvm/status/1640320394438508545)
 
-#### 🧪 Experimental FP packages for Dart 🧪
+**🧪 Experimental FP packages for Dart 🧪**
 
 </div>
+
+---
 
 ### Caveats
 
