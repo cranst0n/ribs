@@ -45,11 +45,11 @@ jobs:
       
       - name: Analyze project source
         run: melos exec dart analyze
-        if: !matrix.experimental
+        if: ${{ matrix.experimental == false }}
 
       - name: Analyze project source
         run: melos exec dart analyze --no-fatal-warnings
-        if: matrix.experimental
+        if: ${{ matrix.experimental == true }}
 
       - name: Run tests (with coverage)
         run: melos exec --dir-exists="test" dart test --coverage="coverage" && melos exec --dir-exists="test" format_coverage --lcov --in=coverage --out=coverage.lcov --packages=.dart_tool/package_config.json --report-on=lib
