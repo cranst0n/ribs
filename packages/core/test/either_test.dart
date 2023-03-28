@@ -166,10 +166,10 @@ void main() {
         Either.left<int, int>(42).hashCode, Either.left<int, int>(42).hashCode);
   });
 
-  test('Either.map2', () {
+  test('Either.mapN', () {
     expect(
-        Either.map2(testRight, testRight, sum), Either.right<String, int>(2));
-    expect(Either.map2(testRight, testLeft, sum), testLeft);
-    expect(Either.map2(testLeft, testRight, sum), testLeft);
+        Tuple2(testRight, testRight).mapN(sum), Either.right<String, int>(2));
+    expect(Tuple2(testRight, testLeft).mapN(sum), testLeft);
+    expect(Tuple2(testLeft, testRight).mapN(sum), testLeft);
   });
 }

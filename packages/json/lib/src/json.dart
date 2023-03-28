@@ -90,9 +90,8 @@ abstract class Json {
   static Json deepMergeAll(Iterable<Json> json) =>
       json.fold(Json.obj([]), (a, b) => a.deepMerge(b));
 
-  Json deepMerge(Json that) => Option.map2(
-        asObject,
-        that.asObject,
+  Json deepMerge(Json that) => Tuple2(asObject, that.asObject)
+      .mapN(
         (lhs, rhs) => fromJsonObject(lhs.toIList().foldLeft(
               rhs,
               (acc, kv) => rhs.apply(kv.$1).fold(
@@ -100,7 +99,8 @@ abstract class Json {
                     (r) => acc.add(kv.$1, kv.$2.deepMerge(r)),
                   ),
             )),
-      ).getOrElse(() => that);
+      )
+      .getOrElse(() => that);
 
   String printWith(Printer printer) => printer.print(this);
 

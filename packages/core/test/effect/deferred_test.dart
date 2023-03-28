@@ -8,8 +8,9 @@ void main() {
     final writeA = d.complete(42).delayBy(const Duration(milliseconds: 100));
     final writeB = d.complete(43).delayBy(const Duration(milliseconds: 150));
 
-    final result =
-        await IO.parTupled3(writeA, writeB, d.value()).unsafeRunToFuture();
+    final result = await Tuple3(writeA, writeB, d.value())
+        .parSequence()
+        .unsafeRunToFuture();
 
     result((aSucceeded, bSucceeded, finalValue) {
       expect(aSucceeded, isTrue);

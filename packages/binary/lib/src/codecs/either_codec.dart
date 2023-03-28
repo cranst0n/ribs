@@ -19,11 +19,10 @@ class EitherCodec<A, B> extends Codec<Either<A, B>> {
               .map((r) => r.map((v) => Either.left(v))));
 
   @override
-  Either<Err, BitVector> encode(Either<A, B> a) => Either.map2(
+  Either<Err, BitVector> encode(Either<A, B> a) => Tuple2(
         indicator.encode(a.fold((_) => false, (_) => true)),
         a.fold((a) => leftCodec.encode(a), (b) => rightCodec.encode(b)),
-        (BitVector a, BitVector b) => a.concat(b),
-      );
+      ).mapN((a, b) => a.concat(b));
 
   @override
   String? get description => 'either($indicator, $leftCodec, $rightCodec)';

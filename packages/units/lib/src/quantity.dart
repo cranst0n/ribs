@@ -27,15 +27,14 @@ abstract class Quantity<A extends Quantity<A>> {
     String s,
     Set<UnitOfMeasure<A>> units,
   ) =>
-      Option.of(_unitsRegex(units).firstMatch(s))
-          .flatMap((match) => Option.map2(
-                Option.of(match.group(1))
-                    .flatMap((str) => Option.of(num.tryParse(str))),
-                Option.of(match.group(2)).flatMap((str) =>
-                    IList.of(units.toList())
-                        .find((a) => a.symbol == str.trim())),
-                (value, unit) => unit(value),
-              ));
+      Option.of(_unitsRegex(units).firstMatch(s)).flatMap(
+        (match) => Tuple2(
+          Option.of(match.group(1))
+              .flatMap((str) => Option.of(num.tryParse(str))),
+          Option.of(match.group(2)).flatMap((str) =>
+              IList.of(units.toList()).find((a) => a.symbol == str.trim())),
+        ).mapN((value, unit) => unit(value)),
+      );
 
   static RegExp _unitsRegex<A extends Quantity<A>>(
     Set<UnitOfMeasure<A>> units,

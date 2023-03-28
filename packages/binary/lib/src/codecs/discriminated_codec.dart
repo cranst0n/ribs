@@ -27,7 +27,7 @@ class DiscriminatorCodec<A, B> extends Codec<B> {
     return cases.find((t) => t.$2.tag == b.runtimeType).fold(
         () => Either.left<Err, BitVector>(
             Err.general('Missing typecase for: ${b.runtimeType}')),
-        (t) => Either.map2(
-            by.encode(t.$1), t.$2.encode(b), (a, b) => a.concat(b)));
+        (t) => Tuple2(by.encode(t.$1), t.$2.encode(b))
+            .mapN((a, b) => a.concat(b)));
   }
 }

@@ -15,24 +15,24 @@ void main() {
     final iC = 'invalid birthday'.invalidNel<int>();
 
     expect(
-      Validated.tupled3(vA, vB, vC),
+      Tuple3(vA, vB, vC).sequence(),
       const Tuple3(1, 2, 3).valid<Error>(),
     );
 
     expect(
-      Validated.tupled3(iA, vB, vC),
+      Tuple3(iA, vB, vC).sequence(),
       NonEmptyIList.one('invalid username').invalid<Value>(),
     );
 
     expect(
-      Validated.tupled3(iA, iB, vC),
+      Tuple3(iA, iB, vC).sequence(),
       NonEmptyIList.of('invalid username', [
         'invalid password',
       ]).invalid<Value>(),
     );
 
     expect(
-      Validated.tupled3(iA, iB, iC),
+      Tuple3(iA, iB, iC).sequence(),
       NonEmptyIList.of('invalid username', [
         'invalid password',
         'invalid birthday',
@@ -40,14 +40,14 @@ void main() {
     );
 
     expect(
-      Validated.tupled3(iA, vB, iC),
+      Tuple3(iA, vB, iC).sequence(),
       NonEmptyIList.of('invalid username', [
         'invalid birthday',
       ]).invalid<Value>(),
     );
 
     expect(
-      Validated.tupled3(vA, vB, iC),
+      Tuple3(vA, vB, iC).sequence(),
       NonEmptyIList.one('invalid birthday').invalid<Value>(),
     );
   });

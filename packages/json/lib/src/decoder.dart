@@ -127,11 +127,10 @@ abstract class Decoder<A> {
   ) =>
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 2) {
-          return Either.map2(
+          return Tuple2(
             decodeA.tryDecode(c.downN(0)),
             decodeB.tryDecode(c.downN(1)),
-            Tuple2.new,
-          );
+          ).sequence();
         } else {
           return _wrongTypeFail('array[2]', c).asLeft();
         }
@@ -144,11 +143,11 @@ abstract class Decoder<A> {
   ) =>
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 3) {
-          return Either.map3(
-              decodeA.tryDecode(c.downN(0)),
-              decodeB.tryDecode(c.downN(1)),
-              decodeC.tryDecode(c.downN(2)),
-              Tuple3.new);
+          return Tuple3(
+            decodeA.tryDecode(c.downN(0)),
+            decodeB.tryDecode(c.downN(1)),
+            decodeC.tryDecode(c.downN(2)),
+          ).sequence();
         } else {
           return _wrongTypeFail('array[3]', c).asLeft();
         }
@@ -162,12 +161,12 @@ abstract class Decoder<A> {
   ) =>
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 4) {
-          return Either.map4(
-              decodeA.tryDecode(c.downN(0)),
-              decodeB.tryDecode(c.downN(1)),
-              decodeC.tryDecode(c.downN(2)),
-              decodeD.tryDecode(c.downN(3)),
-              Tuple4.new);
+          return Tuple4(
+            decodeA.tryDecode(c.downN(0)),
+            decodeB.tryDecode(c.downN(1)),
+            decodeC.tryDecode(c.downN(2)),
+            decodeD.tryDecode(c.downN(3)),
+          ).sequence();
         } else {
           return _wrongTypeFail('array[4]', c).asLeft();
         }
@@ -182,13 +181,13 @@ abstract class Decoder<A> {
   ) =>
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 5) {
-          return Either.map5(
-              decodeA.tryDecode(c.downN(0)),
-              decodeB.tryDecode(c.downN(1)),
-              decodeC.tryDecode(c.downN(2)),
-              decodeD.tryDecode(c.downN(3)),
-              decodeE.tryDecode(c.downN(4)),
-              Tuple5.new);
+          return Tuple5(
+            decodeA.tryDecode(c.downN(0)),
+            decodeB.tryDecode(c.downN(1)),
+            decodeC.tryDecode(c.downN(2)),
+            decodeD.tryDecode(c.downN(3)),
+            decodeE.tryDecode(c.downN(4)),
+          ).sequence();
         } else {
           return _wrongTypeFail('array[5]', c).asLeft();
         }
@@ -204,14 +203,14 @@ abstract class Decoder<A> {
   ) =>
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 6) {
-          return Either.map6(
-              decodeA.tryDecode(c.downN(0)),
-              decodeB.tryDecode(c.downN(1)),
-              decodeC.tryDecode(c.downN(2)),
-              decodeD.tryDecode(c.downN(3)),
-              decodeE.tryDecode(c.downN(4)),
-              decodeF.tryDecode(c.downN(5)),
-              Tuple6.new);
+          return Tuple6(
+            decodeA.tryDecode(c.downN(0)),
+            decodeB.tryDecode(c.downN(1)),
+            decodeC.tryDecode(c.downN(2)),
+            decodeD.tryDecode(c.downN(3)),
+            decodeE.tryDecode(c.downN(4)),
+            decodeF.tryDecode(c.downN(5)),
+          ).sequence();
         } else {
           return _wrongTypeFail('array[6]', c).asLeft();
         }
@@ -228,15 +227,15 @@ abstract class Decoder<A> {
   ) =>
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 7) {
-          return Either.map7(
-              decodeA.tryDecode(c.downN(0)),
-              decodeB.tryDecode(c.downN(1)),
-              decodeC.tryDecode(c.downN(2)),
-              decodeD.tryDecode(c.downN(3)),
-              decodeE.tryDecode(c.downN(4)),
-              decodeF.tryDecode(c.downN(5)),
-              decodeG.tryDecode(c.downN(6)),
-              Tuple7.new);
+          return Tuple7(
+            decodeA.tryDecode(c.downN(0)),
+            decodeB.tryDecode(c.downN(1)),
+            decodeC.tryDecode(c.downN(2)),
+            decodeD.tryDecode(c.downN(3)),
+            decodeE.tryDecode(c.downN(4)),
+            decodeF.tryDecode(c.downN(5)),
+            decodeG.tryDecode(c.downN(6)),
+          ).sequence();
         } else {
           return _wrongTypeFail('array[7]', c).asLeft();
         }
@@ -254,16 +253,16 @@ abstract class Decoder<A> {
   ) =>
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 8) {
-          return Either.map8(
-              decodeA.tryDecode(c.downN(0)),
-              decodeB.tryDecode(c.downN(1)),
-              decodeC.tryDecode(c.downN(2)),
-              decodeD.tryDecode(c.downN(3)),
-              decodeE.tryDecode(c.downN(4)),
-              decodeF.tryDecode(c.downN(5)),
-              decodeG.tryDecode(c.downN(6)),
-              decodeH.tryDecode(c.downN(7)),
-              Tuple8.new);
+          return Tuple8(
+            decodeA.tryDecode(c.downN(0)),
+            decodeB.tryDecode(c.downN(1)),
+            decodeC.tryDecode(c.downN(2)),
+            decodeD.tryDecode(c.downN(3)),
+            decodeE.tryDecode(c.downN(4)),
+            decodeF.tryDecode(c.downN(5)),
+            decodeG.tryDecode(c.downN(6)),
+            decodeH.tryDecode(c.downN(7)),
+          ).sequence();
         } else {
           return _wrongTypeFail('array[8]', c).asLeft();
         }
@@ -283,17 +282,17 @@ abstract class Decoder<A> {
   ) =>
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 9) {
-              return Either.map9(
-                  decodeA.tryDecode(c.downN(0)),
-                  decodeB.tryDecode(c.downN(1)),
-                  decodeC.tryDecode(c.downN(2)),
-                  decodeD.tryDecode(c.downN(3)),
-                  decodeE.tryDecode(c.downN(4)),
-                  decodeF.tryDecode(c.downN(5)),
-                  decodeG.tryDecode(c.downN(6)),
-                  decodeH.tryDecode(c.downN(7)),
-                  decodeI.tryDecode(c.downN(8)),
-                  Tuple9.new);
+              return Tuple9(
+                decodeA.tryDecode(c.downN(0)),
+                decodeB.tryDecode(c.downN(1)),
+                decodeC.tryDecode(c.downN(2)),
+                decodeD.tryDecode(c.downN(3)),
+                decodeE.tryDecode(c.downN(4)),
+                decodeF.tryDecode(c.downN(5)),
+                decodeG.tryDecode(c.downN(6)),
+                decodeH.tryDecode(c.downN(7)),
+                decodeI.tryDecode(c.downN(8)),
+              ).sequence();
             } else {
               return _wrongTypeFail('array[9]', c).asLeft();
             }
@@ -314,18 +313,18 @@ abstract class Decoder<A> {
   ) =>
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 10) {
-              return Either.map10(
-                  decodeA.tryDecode(c.downN(0)),
-                  decodeB.tryDecode(c.downN(1)),
-                  decodeC.tryDecode(c.downN(2)),
-                  decodeD.tryDecode(c.downN(3)),
-                  decodeE.tryDecode(c.downN(4)),
-                  decodeF.tryDecode(c.downN(5)),
-                  decodeG.tryDecode(c.downN(6)),
-                  decodeH.tryDecode(c.downN(7)),
-                  decodeI.tryDecode(c.downN(8)),
-                  decodeJ.tryDecode(c.downN(9)),
-                  Tuple10.new);
+              return Tuple10(
+                decodeA.tryDecode(c.downN(0)),
+                decodeB.tryDecode(c.downN(1)),
+                decodeC.tryDecode(c.downN(2)),
+                decodeD.tryDecode(c.downN(3)),
+                decodeE.tryDecode(c.downN(4)),
+                decodeF.tryDecode(c.downN(5)),
+                decodeG.tryDecode(c.downN(6)),
+                decodeH.tryDecode(c.downN(7)),
+                decodeI.tryDecode(c.downN(8)),
+                decodeJ.tryDecode(c.downN(9)),
+              ).sequence();
             } else {
               return _wrongTypeFail('array[10]', c).asLeft();
             }
@@ -347,19 +346,19 @@ abstract class Decoder<A> {
   ) =>
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 11) {
-              return Either.map11(
-                  decodeA.tryDecode(c.downN(0)),
-                  decodeB.tryDecode(c.downN(1)),
-                  decodeC.tryDecode(c.downN(2)),
-                  decodeD.tryDecode(c.downN(3)),
-                  decodeE.tryDecode(c.downN(4)),
-                  decodeF.tryDecode(c.downN(5)),
-                  decodeG.tryDecode(c.downN(6)),
-                  decodeH.tryDecode(c.downN(7)),
-                  decodeI.tryDecode(c.downN(8)),
-                  decodeJ.tryDecode(c.downN(9)),
-                  decodeK.tryDecode(c.downN(10)),
-                  Tuple11.new);
+              return Tuple11(
+                decodeA.tryDecode(c.downN(0)),
+                decodeB.tryDecode(c.downN(1)),
+                decodeC.tryDecode(c.downN(2)),
+                decodeD.tryDecode(c.downN(3)),
+                decodeE.tryDecode(c.downN(4)),
+                decodeF.tryDecode(c.downN(5)),
+                decodeG.tryDecode(c.downN(6)),
+                decodeH.tryDecode(c.downN(7)),
+                decodeI.tryDecode(c.downN(8)),
+                decodeJ.tryDecode(c.downN(9)),
+                decodeK.tryDecode(c.downN(10)),
+              ).sequence();
             } else {
               return _wrongTypeFail('array[11]', c).asLeft();
             }
@@ -382,20 +381,20 @@ abstract class Decoder<A> {
   ) =>
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 12) {
-              return Either.map12(
-                  decodeA.tryDecode(c.downN(0)),
-                  decodeB.tryDecode(c.downN(1)),
-                  decodeC.tryDecode(c.downN(2)),
-                  decodeD.tryDecode(c.downN(3)),
-                  decodeE.tryDecode(c.downN(4)),
-                  decodeF.tryDecode(c.downN(5)),
-                  decodeG.tryDecode(c.downN(6)),
-                  decodeH.tryDecode(c.downN(7)),
-                  decodeI.tryDecode(c.downN(8)),
-                  decodeJ.tryDecode(c.downN(9)),
-                  decodeK.tryDecode(c.downN(10)),
-                  decodeL.tryDecode(c.downN(11)),
-                  Tuple12.new);
+              return Tuple12(
+                decodeA.tryDecode(c.downN(0)),
+                decodeB.tryDecode(c.downN(1)),
+                decodeC.tryDecode(c.downN(2)),
+                decodeD.tryDecode(c.downN(3)),
+                decodeE.tryDecode(c.downN(4)),
+                decodeF.tryDecode(c.downN(5)),
+                decodeG.tryDecode(c.downN(6)),
+                decodeH.tryDecode(c.downN(7)),
+                decodeI.tryDecode(c.downN(8)),
+                decodeJ.tryDecode(c.downN(9)),
+                decodeK.tryDecode(c.downN(10)),
+                decodeL.tryDecode(c.downN(11)),
+              ).sequence();
             } else {
               return _wrongTypeFail('array[12]', c).asLeft();
             }
@@ -419,21 +418,21 @@ abstract class Decoder<A> {
   ) =>
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 13) {
-              return Either.map13(
-                  decodeA.tryDecode(c.downN(0)),
-                  decodeB.tryDecode(c.downN(1)),
-                  decodeC.tryDecode(c.downN(2)),
-                  decodeD.tryDecode(c.downN(3)),
-                  decodeE.tryDecode(c.downN(4)),
-                  decodeF.tryDecode(c.downN(5)),
-                  decodeG.tryDecode(c.downN(6)),
-                  decodeH.tryDecode(c.downN(7)),
-                  decodeI.tryDecode(c.downN(8)),
-                  decodeJ.tryDecode(c.downN(9)),
-                  decodeK.tryDecode(c.downN(10)),
-                  decodeL.tryDecode(c.downN(11)),
-                  decodeM.tryDecode(c.downN(12)),
-                  Tuple13.new);
+              return Tuple13(
+                decodeA.tryDecode(c.downN(0)),
+                decodeB.tryDecode(c.downN(1)),
+                decodeC.tryDecode(c.downN(2)),
+                decodeD.tryDecode(c.downN(3)),
+                decodeE.tryDecode(c.downN(4)),
+                decodeF.tryDecode(c.downN(5)),
+                decodeG.tryDecode(c.downN(6)),
+                decodeH.tryDecode(c.downN(7)),
+                decodeI.tryDecode(c.downN(8)),
+                decodeJ.tryDecode(c.downN(9)),
+                decodeK.tryDecode(c.downN(10)),
+                decodeL.tryDecode(c.downN(11)),
+                decodeM.tryDecode(c.downN(12)),
+              ).sequence();
             } else {
               return _wrongTypeFail('array[13]', c).asLeft();
             }
@@ -458,22 +457,22 @@ abstract class Decoder<A> {
   ) =>
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 14) {
-              return Either.map14(
-                  decodeA.tryDecode(c.downN(0)),
-                  decodeB.tryDecode(c.downN(1)),
-                  decodeC.tryDecode(c.downN(2)),
-                  decodeD.tryDecode(c.downN(3)),
-                  decodeE.tryDecode(c.downN(4)),
-                  decodeF.tryDecode(c.downN(5)),
-                  decodeG.tryDecode(c.downN(6)),
-                  decodeH.tryDecode(c.downN(7)),
-                  decodeI.tryDecode(c.downN(8)),
-                  decodeJ.tryDecode(c.downN(9)),
-                  decodeK.tryDecode(c.downN(10)),
-                  decodeL.tryDecode(c.downN(11)),
-                  decodeM.tryDecode(c.downN(12)),
-                  decodeN.tryDecode(c.downN(13)),
-                  Tuple14.new);
+              return Tuple14(
+                decodeA.tryDecode(c.downN(0)),
+                decodeB.tryDecode(c.downN(1)),
+                decodeC.tryDecode(c.downN(2)),
+                decodeD.tryDecode(c.downN(3)),
+                decodeE.tryDecode(c.downN(4)),
+                decodeF.tryDecode(c.downN(5)),
+                decodeG.tryDecode(c.downN(6)),
+                decodeH.tryDecode(c.downN(7)),
+                decodeI.tryDecode(c.downN(8)),
+                decodeJ.tryDecode(c.downN(9)),
+                decodeK.tryDecode(c.downN(10)),
+                decodeL.tryDecode(c.downN(11)),
+                decodeM.tryDecode(c.downN(12)),
+                decodeN.tryDecode(c.downN(13)),
+              ).sequence();
             } else {
               return _wrongTypeFail('array[14]', c).asLeft();
             }
@@ -499,23 +498,23 @@ abstract class Decoder<A> {
   ) =>
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 15) {
-              return Either.map15(
-                  decodeA.tryDecode(c.downN(0)),
-                  decodeB.tryDecode(c.downN(1)),
-                  decodeC.tryDecode(c.downN(2)),
-                  decodeD.tryDecode(c.downN(3)),
-                  decodeE.tryDecode(c.downN(4)),
-                  decodeF.tryDecode(c.downN(5)),
-                  decodeG.tryDecode(c.downN(6)),
-                  decodeH.tryDecode(c.downN(7)),
-                  decodeI.tryDecode(c.downN(8)),
-                  decodeJ.tryDecode(c.downN(9)),
-                  decodeK.tryDecode(c.downN(10)),
-                  decodeL.tryDecode(c.downN(11)),
-                  decodeM.tryDecode(c.downN(12)),
-                  decodeN.tryDecode(c.downN(13)),
-                  decodeO.tryDecode(c.downN(14)),
-                  Tuple15.new);
+              return Tuple15(
+                decodeA.tryDecode(c.downN(0)),
+                decodeB.tryDecode(c.downN(1)),
+                decodeC.tryDecode(c.downN(2)),
+                decodeD.tryDecode(c.downN(3)),
+                decodeE.tryDecode(c.downN(4)),
+                decodeF.tryDecode(c.downN(5)),
+                decodeG.tryDecode(c.downN(6)),
+                decodeH.tryDecode(c.downN(7)),
+                decodeI.tryDecode(c.downN(8)),
+                decodeJ.tryDecode(c.downN(9)),
+                decodeK.tryDecode(c.downN(10)),
+                decodeL.tryDecode(c.downN(11)),
+                decodeM.tryDecode(c.downN(12)),
+                decodeN.tryDecode(c.downN(13)),
+                decodeO.tryDecode(c.downN(14)),
+              ).sequence();
             } else {
               return _wrongTypeFail('array[15]', c).asLeft();
             }

@@ -475,8 +475,8 @@ void main() {
     final iob = IO.pure(2).delayBy(const Duration(milliseconds: 200));
     final ioc = IO.pure(3).delayBy(const Duration(milliseconds: 200));
 
-    final result = await IO
-        .map3(ioa, iob, ioc, (a, b, c) => a + b + c)
+    final result = await Tuple3(ioa, iob, ioc)
+        .mapN((a, b, c) => a + b + c)
         .timed()
         .unsafeRunToFuture();
 
@@ -488,13 +488,13 @@ void main() {
     );
   });
 
-  test('parMap3', () async {
+  test('parMapN', () async {
     final ioa = IO.pure(1).delayBy(const Duration(milliseconds: 200));
     final iob = IO.pure(2).delayBy(const Duration(milliseconds: 200));
     final ioc = IO.pure(3).delayBy(const Duration(milliseconds: 200));
 
-    final result = await IO
-        .parMap3(ioa, iob, ioc, (a, b, c) => a + b + c)
+    final result = await Tuple3(ioa, iob, ioc)
+        .parMapN((a, b, c) => a + b + c)
         .timed()
         .unsafeRunToFuture();
 

@@ -129,10 +129,10 @@ void main() {
   });
 
   test('Option.map2', () {
-    expect(Option.map2(testSome, testSome, (int a, int b) => a + b), 2.some);
-    expect(Option.map2(testSome, testNone, (int a, int b) => a + b), testNone);
-    expect(Option.map2(testNone, testSome, (int a, int b) => a + b), testNone);
-    expect(Option.map2(testNone, testNone, (int a, int b) => a + b), testNone);
+    expect(const Tuple2(testSome, testSome).mapN((a, b) => a + b), 2.some);
+    expect(const Tuple2(testSome, testNone).mapN((a, b) => a + b), testNone);
+    expect(const Tuple2(testNone, testSome).mapN((a, b) => a + b), testNone);
+    expect(const Tuple2(testNone, testNone).mapN((a, b) => a + b), testNone);
   });
 
   test('Option.flatten', () {
