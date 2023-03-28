@@ -1,16 +1,17 @@
 
 <div align="center">
 
-![Ribs](https://raw.githubusercontent.com/cranst0n/ribs/main/.github/assets/logo.jpeg)
+![Ribs](https://raw.githubusercontent.com/cranst0n/ribs/main/.github/assets/logo.png)
 
 # Ribs
 
 [![CI](https://github.com/cranst0n/ribs/actions/workflows/ci.yml/badge.svg)](https://github.com/cranst0n/ribs/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/cranst0n/ribs/branch/main/graph/badge.svg?token=12627T0AO0)](https://codecov.io/gh/cranst0n/ribs)
 
+**🧪 Experimental FP packages for Dart 🧪**
+
 [![Reinvent the Wheel](https://raw.githubusercontent.com/cranst0n/ribs/main/.github/assets/reinventing_the_wheel.png)](https://twitter.com/rockthejvm/status/1640320394438508545)
 
-**🧪 Experimental FP packages for Dart 🧪**
 
 </div>
 

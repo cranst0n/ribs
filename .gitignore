@@ -3,6 +3,7 @@
 **/coverage.lcov
 **/coverage/
 **/coverage-report/
+**/doc/
 **/pubspec.lock
 
 # IntelliJ related
