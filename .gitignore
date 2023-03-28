@@ -3,4 +3,10 @@
 **/coverage.lcov
 **/coverage/
 **/coverage-report/
-**/pubspec_overrides.yaml
+**/pubspec.lock
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
