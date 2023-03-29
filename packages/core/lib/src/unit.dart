@@ -1,11 +1,9 @@
 class Unit {
-  static final Unit _singleton = Unit._internal();
+  static final Unit _singleton = Unit._();
 
-  factory Unit() {
-    return _singleton;
-  }
+  factory Unit() => _singleton;
 
-  Unit._internal();
+  Unit._();
 
   @override
   String toString() => '()';

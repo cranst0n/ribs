@@ -3,7 +3,11 @@ import 'package:ribs_core/ribs_core.dart';
 class Ref<A> {
   A _underlying;
 
-  Ref(this._underlying);
+  static IO<Ref<A>> of<A>(A a) => IO.delay(() => unsafe(a));
+
+  static Ref<A> unsafe<A>(A a) => Ref._(a);
+
+  Ref._(this._underlying);
 
   IO<Tuple2<A, Function1<A, IO<bool>>>> access() => IO.delay(() {
         final snapshot = _underlying;
@@ -19,6 +23,18 @@ class Ref<A> {
 
         return Tuple2(snapshot, setter);
       });
+
+  /// Like [modify], but also schedules the resulting effect right after
+  /// modification. The modification and finalizer are both withing an
+  /// uncancelable region to prevent out-of-sync issues.
+  ///
+  /// See [flatModifyFull] to create a finalizer that
+  /// can potentially be canceled.
+  IO<B> flatModify<B>(Function1<A, Tuple2<A, IO<B>>> f) =>
+      IO.uncancelable((_) => modify(f).flatten());
+
+  IO<B> flatModifyFull<B>(Function1<Tuple2<Poll, A>, Tuple2<A, IO<B>>> f) =>
+      IO.uncancelable((poll) => modify((a) => f(Tuple2(poll, a))).flatten());
 
   IO<A> getAndUpdate(Function1<A, A> f) => modify((a) => Tuple2(f(a), a));
 

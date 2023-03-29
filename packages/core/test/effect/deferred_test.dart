@@ -3,7 +3,7 @@ import 'package:test/test.dart';
 
 void main() {
   test('additional writes ignored', () async {
-    final d = Deferred<int>();
+    final d = Deferred.unsafe<int>();
 
     final writeA = d.complete(42).delayBy(const Duration(milliseconds: 100));
     final writeB = d.complete(43).delayBy(const Duration(milliseconds: 150));
@@ -20,7 +20,7 @@ void main() {
   });
 
   test('writer / reader', () async {
-    final d = Deferred<int>();
+    final d = Deferred.unsafe<int>();
 
     bool readerNotified = false;
 
@@ -42,7 +42,7 @@ void main() {
   });
 
   test('reader canceled', () async {
-    final d = Deferred<int>();
+    final d = Deferred.unsafe<int>();
 
     bool readerNotified = false;
 

@@ -24,7 +24,7 @@ class Rill<O> implements Monad<O> {
 
   static Rill<O> eval<O>(IO<O> o) => _Eval(o).flatMap((o) => _Output(o)).rill;
 
-  static Rill<Unit> exec<O>(IO<O> o) => eval(o).voided();
+  static Rill<Never> exec<O>(IO<O> o) => eval(o).flatMap((a) => Pull.done.rill);
 
   // fixedDelay does *NOT* take into account the duration of effect evaluation
   static Rill<Unit> fixedDelay(Duration d) => sleep(d).repeat();
@@ -135,6 +135,8 @@ class Rill<O> implements Monad<O> {
   }) =>
       evalTap(
           (o) => (logger ?? IO.println)((formatter ?? (o) => o.toString())(o)));
+
+  Rill<Never> drain() => _pull.unconsFlatMap((_) => Pull.done).rill;
 
   Rill<O> drop(int n) => _pull.drop(n).rill;
 
@@ -352,6 +354,8 @@ extension RillCompiledStringOps on RillCompiled<String> {
 abstract class Pull<O, R> {
   const Pull();
 
+  static Pull<Never, R> eval<R>(IO<R> fr) => _Eval(fr);
+
   IO<_StepResult<O, R>> step(Scope scope);
 
   Pull<O, R> cons(O o) => _Output(o).flatMap((_) => this);
@@ -406,8 +410,6 @@ abstract class Pull<O, R> {
       _FlatMap(this as Pull<O2, R>, f);
 
   IO<Tuple2<R, A>> fold<A>(A init, Function2<A, O, A> f) {
-    final scope = Scope.root;
-
     IO<Tuple2<R, A>> go(Scope scope, Pull<O, R> p, A acc) {
       return p.step(scope).flatMap((result) {
         return result.fold(
@@ -417,8 +419,13 @@ abstract class Pull<O, R> {
       });
     }
 
-    return go(scope, this, init).attempt().flatMap((res) =>
-        scope.close.flatMap((_) => res.fold(IO.raiseError, (t) => IO.pure(t))));
+    return Scope.root().flatMap(
+      (scope) => go(scope, this, init).attempt().flatMap(
+            (res) => scope.close.flatMap(
+              (_) => res.fold(IO.raiseError, (t) => IO.pure(t)),
+            ),
+          ),
+    );
   }
 
   Pull<Never, bool> forall(Function1<O, bool> p) =>
@@ -551,6 +558,13 @@ extension PullOps<O> on Pull<O, Unit> {
 
   Pull<O2, Unit> flatMapOutput<O2>(Function1<O, Pull<O2, Unit>> f) =>
       _FlatMapOutput(this, f);
+
+  Pull<O2, Unit> unconsFlatMap<O2>(Function1<O, Pull<O2, Unit>> f) =>
+      uncons().flatMap((a) => a.fold(
+            (_) => Pull.done,
+            (tuple) =>
+                tuple((hd, tl) => f(hd).flatMap((_) => tl.unconsFlatMap(f))),
+          ));
 
   Pull<O, Unit> scope() => _OpenScope(this, none());
 }

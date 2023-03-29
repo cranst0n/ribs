@@ -13,6 +13,7 @@ export 'src/ilist.dart';
 export 'src/monad.dart';
 export 'src/non_empty_ilist.dart';
 export 'src/option.dart';
+export 'src/rill/channel.dart';
 export 'src/rill/rill.dart';
 export 'src/state.dart';
 export 'src/syntax/all.dart';

@@ -1,12 +1,18 @@
 import 'package:ribs_core/ribs_core.dart';
 
 class Deferred<A> {
-  _DeferredState<A> _ref = _DeferredStateUnset<A>();
+  _DeferredState<A> _state = _DeferredStateUnset<A>();
 
-  IO<bool> complete(A a) => IO.uncancelable((_) => _ref.fold(
+  Deferred._();
+
+  static IO<Deferred<A>> of<A>() => IO.delay(() => Deferred._());
+
+  static Deferred<A> unsafe<A>() => Deferred._();
+
+  IO<bool> complete(A a) => IO.uncancelable((_) => _state.fold(
         (a) => IO.pure(false),
         (unset) {
-          _ref = _DeferredStateSet(a);
+          _state = _DeferredStateSet(a);
 
           unset.readers.values.forEach((reader) => reader(a));
 
@@ -14,13 +20,13 @@ class Deferred<A> {
         },
       ));
 
-  IO<Option<A>> tryValue() => IO.delay(() => _ref.fold(
+  IO<Option<A>> tryValue() => IO.delay(() => _state.fold(
         (a) => a.some,
         (_) => none(),
       ));
 
   IO<A> value() => IO.defer(
-        () => _ref.fold(
+        () => _state.fold(
           (a) => IO.pure(a),
           (unset) => IO.async((cb) => IO
               .delay(() => unset.addReader((a) => cb(Right(a))))

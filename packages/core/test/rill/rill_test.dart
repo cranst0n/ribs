@@ -14,6 +14,19 @@ void main() {
     expect(result, l);
   });
 
+  test('exec', () async {
+    bool sideEffectCalled = false;
+
+    final l =
+        ints.take(5).concat(Rill.exec(IO.exec(() => sideEffectCalled = true)));
+
+    final result =
+        await l.compile().fold(0, (a, b) => a + b).unsafeRunToFuture();
+
+    expect(result, 10);
+    expect(sideEffectCalled, isTrue);
+  });
+
   test('range', () async {
     final integers = Rill.range(0, 5, 1);
     final doubles = Rill.range(0.0, 0.3, 0.1);

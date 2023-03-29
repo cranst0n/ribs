@@ -7,15 +7,15 @@ class Scope {
 
   const Scope(this.parent, this.id, this.state);
 
-  static Scope get root =>
-      Scope(none(), ScopeId(), Ref(ScopeState.open(IO.unit, IList.empty())));
+  static IO<Scope> root() => Ref.of(ScopeState.open(IO.unit, IList.empty()))
+      .map((state) => Scope(none(), ScopeId(), state));
 
   IO<Scope> open(IO<Unit> finalizer) {
     return state.modify((state) {
       return state.fold(
         (openState) {
           final sub = Scope(Some(this), ScopeId(),
-              Ref(ScopeState.open(finalizer, IList.empty())));
+              Ref.unsafe(ScopeState.open(finalizer, IList.empty())));
 
           return Tuple2(
             ScopeState.open(

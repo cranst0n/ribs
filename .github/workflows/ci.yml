@@ -52,7 +52,7 @@ jobs:
         if: ${{ matrix.experimental == true }}
 
       - name: Run tests (with coverage)
-        run: melos exec --dir-exists="test" dart test --coverage="coverage" && melos exec --dir-exists="test" format_coverage --lcov --in=coverage --out=coverage.lcov --packages=.dart_tool/package_config.json --report-on=lib
+        run: melos coverage-report --no-select
       
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
