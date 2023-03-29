@@ -69,6 +69,11 @@ class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
 
   bool forall(Function1<A, bool> p) => p(head) && tail.forall(p);
 
+  void forEach<B>(Function1<A, B> f) {
+    f(head);
+    tail.forEach(f);
+  }
+
   IList<A> get init => toIList().init();
 
   A get last => tail.lastOption.getOrElse(() => head);

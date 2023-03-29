@@ -73,6 +73,9 @@ abstract class Option<A> implements Monad<A>, Foldable<A> {
   @override
   String toString() => fold(() => 'None', (a) => 'Some($a)');
 
+  IO<Option<B>> traverseIO<B>(Function1<A, IO<B>> f) =>
+      fold(() => IO.none(), (a) => f(a).map((a) => a.some));
+
   @override
   bool operator ==(Object other) => fold(
         () => other is None,

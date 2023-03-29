@@ -28,6 +28,9 @@ class IList<A> implements Monad<A>, Foldable<A> {
 
   static IList<A> pure<A>(A a) => IList.of([a]);
 
+  static IList<int> range(int start, int end) =>
+      tabulate(end - start, (ix) => ix + start);
+
   static IList<A> tabulate<A>(int n, Function1<int, A> f) =>
       IList.of(List.generate(n, f));
 
@@ -80,6 +83,8 @@ class IList<A> implements Monad<A>, Foldable<A> {
   @override
   B foldRight<B>(B init, Function2<A, B, B> op) =>
       reverse().foldLeft(init, (elem, acc) => op(acc, elem));
+
+  void forEach<B>(Function1<A, B> f) => _underlying.forEach(f);
 
   Option<A> get headOption =>
       Option.when(() => isNotEmpty, () => _underlying.first);

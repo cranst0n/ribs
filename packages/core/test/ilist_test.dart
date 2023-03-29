@@ -19,6 +19,12 @@ void main() {
     expect(IList.pure(42), ilist([42]));
   });
 
+  test('IList.range', () {
+    expect(IList.range(0, 3), ilist([0, 1, 2]));
+    expect(IList.range(2, 5), ilist([2, 3, 4]));
+    expect(IList.range(-1, 2), ilist([-1, 0, 1]));
+  });
+
   test('IList.tabulate', () {
     expect(IList.tabulate(3, (ix) => ix * 2), ilist([0, 2, 4]));
   });
