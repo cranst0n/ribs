@@ -26,7 +26,7 @@ abstract class IList<A> implements Monad<A>, Foldable<A> {
     return go(0);
   }
 
-  static IList<A> unfold<A, S>(S init, Function1<S, Option<Tuple2<A, S>>> f) =>
+  static IList<A> unfold<A, S>(S init, Function1<S, Option<(A, S)>> f) =>
       f(init).fold(() => nil<A>(), (a) => unfold<A, S>(a.$2, f).prepend(a.$1));
 
   B uncons<B>(Function2<Option<A>, IList<A>, B> f);
@@ -124,11 +124,11 @@ abstract class IList<A> implements Monad<A>, Foldable<A> {
   IList<A> padTo(int len, A elem) =>
       size >= len ? this : concat(IList.fill(len - size, elem));
 
-  Tuple2<IList<A>, IList<A>> partition(Function1<A, bool> p) => foldLeft(
-        Tuple2(nil<A>(), nil<A>()),
+  (IList<A>, IList<A>) partition(Function1<A, bool> p) => foldLeft(
+        (nil<A>(), nil<A>()),
         (acc, elem) => p(elem)
-            ? Tuple2(acc.$1.prepend(elem), acc.$2)
-            : Tuple2(acc.$1, acc.$2.prepend(elem)),
+            ? (acc.$1.prepend(elem), acc.$2)
+            : (acc.$1, acc.$2.prepend(elem)),
       );
 
   IList<A> prepend(A elem) => Cons(elem, this);
@@ -163,7 +163,7 @@ abstract class IList<A> implements Monad<A>, Foldable<A> {
       (pivot) => t.partition((a) => lt(a, pivot))((less, greater) =>
           less.sortWith(lt).append(pivot).concat(greater.sortWith(lt)))));
 
-  Tuple2<IList<A>, IList<A>> splitAt(int ix) => Tuple2(take(ix), drop(ix));
+  (IList<A>, IList<A>) splitAt(int ix) => (take(ix), drop(ix));
 
   bool startsWith(IList<A> that) => uncons((h, t) => h.fold(
       () => that.isEmpty,
@@ -213,13 +213,13 @@ abstract class IList<A> implements Monad<A>, Foldable<A> {
           ? Cons(f(h), tail())
           : Cons(h, tail().updated(index - 1, f))));
 
-  IList<Tuple2<A, B>> zip<B>(IList<B> bs) {
-    IList<Tuple2<A, B>> go(IList<A> as, IList<B> bs) {
+  IList<(A, B)> zip<B>(IList<B> bs) {
+    IList<(A, B)> go(IList<A> as, IList<B> bs) {
       return as.uncons((ha, ta) {
         return ha.fold(() => nil(), (a) {
           return bs.uncons((hb, tb) {
             return hb.fold(() => nil(), (b) {
-              return go(ta, tb).prepend(Tuple2(a, b));
+              return go(ta, tb).prepend((a, b));
             });
           });
         });
@@ -229,11 +229,11 @@ abstract class IList<A> implements Monad<A>, Foldable<A> {
     return go(this, bs);
   }
 
-  IList<Tuple2<A, int>> zipWithIndex() => _zipWithIndexImpl(0);
+  IList<(A, int)> zipWithIndex() => _zipWithIndexImpl(0);
 
-  IList<Tuple2<A, int>> _zipWithIndexImpl(int n) => uncons((h, t) => h.fold(
-      () => nil<Tuple2<A, int>>(),
-      (h) => t._zipWithIndexImpl(n + 1).prepend(Tuple2(h, n))));
+  IList<(A, int)> _zipWithIndexImpl(int n) => uncons((h, t) => h.fold(
+      () => nil<(A, int)>(),
+      (h) => t._zipWithIndexImpl(n + 1).prepend((h, n))));
 
   @override
   String toString() => mkString(start: 'IList(', sep: ',', end: ')');

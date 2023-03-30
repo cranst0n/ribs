@@ -74,7 +74,7 @@ abstract class BitVector {
     }
   }
 
-  Tuple2<BitVector, BitVector> splitAt(int n) => Tuple2(take(n), drop(n));
+  (BitVector, BitVector) splitAt(int n) => (take(n), drop(n));
 
   BitVector padTo(int n) => size < n ? concat(BitVector.low(n - size)) : this;
 

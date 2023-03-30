@@ -13,7 +13,7 @@ abstract class Json {
   static Json arr(Iterable<Json> values) => JArray(IList.of(values));
   static Json arrI(IList<Json> values) => JArray(values);
 
-  static Json obj(Iterable<Tuple2<String, Json>> fields) =>
+  static Json obj(Iterable<(String, Json)> fields) =>
       fromJsonObject(JsonObject.fromIterable(fields));
 
   static Json boolean(bool value) => JBoolean(value);
@@ -35,8 +35,7 @@ abstract class Json {
         return IList.of(input).traverseEither(go).map(JArray.new);
       } else if (input is Map) {
         return IList.of(input.keys)
-            .traverseEither(
-                (k) => go(input[k]).map((v) => Tuple2(k.toString(), v)))
+            .traverseEither((k) => go(input[k]).map((v) => (k.toString(), v)))
             .map((keyValues) =>
                 JObject(JsonObject.fromIterable(keyValues.toList())));
       } else {
@@ -90,7 +89,7 @@ abstract class Json {
   static Json deepMergeAll(Iterable<Json> json) =>
       json.fold(Json.obj([]), (a, b) => a.deepMerge(b));
 
-  Json deepMerge(Json that) => Tuple2(asObject, that.asObject)
+  Json deepMerge(Json that) => (asObject, that.asObject)
       .mapN(
         (lhs, rhs) => fromJsonObject(lhs.toIList().foldLeft(
               rhs,

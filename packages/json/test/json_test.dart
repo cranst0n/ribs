@@ -23,15 +23,16 @@ void main() {
 
   test('Json.cursor A', () {
     final json = Json.obj([
-      Tuple2(
-          'a',
-          Json.arr([
-            Json.str('string'),
-            Json.obj([
-              Tuple2('b', Json.obj([Tuple2('c', Json.False)]))
-            ])
-          ])),
-      Tuple2('c', Json.True),
+      (
+        'a',
+        Json.arr([
+          Json.str('string'),
+          Json.obj([
+            ('b', Json.obj([('c', Json.False)]))
+          ])
+        ])
+      ),
+      ('c', Json.True),
     ]);
 
     expect(json.isObject, isTrue);
@@ -63,12 +64,12 @@ void main() {
 
     expect(
       json.hcursor.downN(1).focus,
-      Json.obj([Tuple2('bar', JNull()), Tuple2('baz', JString('qux'))]).some,
+      Json.obj([('bar', JNull()), ('baz', JString('qux'))]).some,
     );
 
     expect(
       json.deepDropNullValues.hcursor.downN(1).focus,
-      Json.obj([Tuple2('baz', JString('qux'))]).some,
+      Json.obj([('baz', JString('qux'))]).some,
     );
 
     final cursor = json.hcursor.downArray().downField('foo');
@@ -93,23 +94,22 @@ void main() {
 
   test('Json.deepMerge', () {
     final obj1 = Json.obj([
-      Tuple2('a', Json.number(1)),
-      Tuple2('b', Json.number(2)),
-      Tuple2('c', Json.number(3)),
-      Tuple2('z',
-          Json.obj([Tuple2('1', Json.number(1)), Tuple2('2', Json.number(2))])),
+      ('a', Json.number(1)),
+      ('b', Json.number(2)),
+      ('c', Json.number(3)),
+      ('z', Json.obj([('1', Json.number(1)), ('2', Json.number(2))])),
     ]);
 
     final obj2 = Json.obj([
-      Tuple2('a', Json.number(2)),
-      Tuple2('b', Json.number(3)),
-      Tuple2('d', Json.number(5)),
-      Tuple2(
+      ('a', Json.number(2)),
+      ('b', Json.number(3)),
+      ('d', Json.number(5)),
+      (
         'z',
         Json.obj([
-          Tuple2('1', Json.number(1)),
-          Tuple2('2', Json.number(-2)),
-          Tuple2('3', Json.number(3))
+          ('1', Json.number(1)),
+          ('2', Json.number(-2)),
+          ('3', Json.number(3))
         ]),
       ),
     ]);
@@ -151,8 +151,8 @@ void main() {
     expect(
       encoded,
       Json.obj([
-        Tuple2('4', Json.number(1)),
-        Tuple2('5', Json.number(2)),
+        ('4', Json.number(1)),
+        ('5', Json.number(2)),
       ]),
     );
   });
@@ -161,15 +161,15 @@ void main() {
     expect(
       Parse3.codec.encode(const Parse3(1, 'two', false)),
       Json.obj([
-        Tuple2('foo', JNumber(1)),
-        Tuple2('bar', JString('two')),
-        Tuple2('baz', JBoolean(false))
+        ('foo', JNumber(1)),
+        ('bar', JString('two')),
+        ('baz', JBoolean(false))
       ]),
     );
   });
 
   test('Codec.tuple', () {
-    const value = Tuple2(1, false);
+    const value = (1, false);
     final codec = Codec.tuple2(Codec.integer, Codec.boolean);
 
     expect(codec.encode(value), Json.arr([JNumber(1), JBoolean(false)]));
@@ -241,7 +241,7 @@ void main() {
   });
 
   test('json.print escaped', () {
-    final res = Json.obj([Tuple2('0 ℃', Json.str('32 ℉'))]);
+    final res = Json.obj([('0 ℃', Json.str('32 ℉'))]);
 
     final nonEscaped = res.printWith(Printer.noSpaces);
     final escaped = res.printWith(Printer.noSpaces.copy(escapeNonAscii: true));
@@ -298,6 +298,6 @@ class Parse3 {
     'bar'.as(Codec.string),
     'baz'.as(Codec.boolean),
     Parse3.new,
-    (a) => Tuple3(a.foo, a.bar, a.baz),
+    (a) => (a.foo, a.bar, a.baz),
   );
 }

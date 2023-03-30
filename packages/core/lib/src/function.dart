@@ -117,12 +117,11 @@ extension Function1Ops<A, B> on Function1<A, B> {
 extension Function2Ops<A, B, C> on Function2<A, B, C> {
   Function2<A, B, D> andThen<D>(Function1<C, D> fn) => (a, b) => fn(this(a, b));
 
-  Function1<D, C> compose<D>(Function1<D, Tuple2<A, B>> fn) =>
-      (d) => tupled(fn(d));
+  Function1<D, C> compose<D>(Function1<D, (A, B)> fn) => (d) => tupled(fn(d));
 
   Function2C<A, B, C> get curried => (a) => (b) => this(a, b);
 
-  Function1<Tuple2<A, B>, C> get tupled => (t) => t(this);
+  Function1<(A, B), C> get tupled => (t) => t(this);
 }
 
 extension Function2COps<A, B, C> on Function2C<A, B, C> {
@@ -133,12 +132,12 @@ extension Function3Ops<A, B, C, D> on Function3<A, B, C, D> {
   Function3<A, B, C, E> andThen<E>(Function1<D, E> fn) =>
       (a, b, c) => fn(this(a, b, c));
 
-  Function1<E, D> compose<E>(Function1<E, Tuple3<A, B, C>> fn) =>
+  Function1<E, D> compose<E>(Function1<E, (A, B, C)> fn) =>
       (e) => tupled(fn(e));
 
   Function3C<A, B, C, D> get curried => (a) => (b) => (c) => this(a, b, c);
 
-  Function1<Tuple3<A, B, C>, D> get tupled => (t) => t(this);
+  Function1<(A, B, C), D> get tupled => (t) => t(this);
 }
 
 extension Function3COps<A, B, C, D> on Function3C<A, B, C, D> {
@@ -149,13 +148,13 @@ extension Function4Ops<A, B, C, D, E> on Function4<A, B, C, D, E> {
   Function4<A, B, C, D, F> andThen<F>(Function1<E, F> fn) =>
       (a, b, c, d) => fn(this(a, b, c, d));
 
-  Function1<F, E> compose<F>(Function1<F, Tuple4<A, B, C, D>> fn) =>
+  Function1<F, E> compose<F>(Function1<F, (A, B, C, D)> fn) =>
       (f) => tupled(fn(f));
 
   Function4C<A, B, C, D, E> get curried =>
       (a) => (b) => (c) => (d) => this(a, b, c, d);
 
-  Function1<Tuple4<A, B, C, D>, E> get tupled => (t) => t(this);
+  Function1<(A, B, C, D), E> get tupled => (t) => t(this);
 }
 
 extension Function4COps<A, B, C, D, E> on Function4C<A, B, C, D, E> {
@@ -166,13 +165,13 @@ extension Function5Ops<A, B, C, D, E, F> on Function5<A, B, C, D, E, F> {
   Function5<A, B, C, D, E, G> andThen<G>(Function1<F, G> fn) =>
       (a, b, c, d, e) => fn(this(a, b, c, d, e));
 
-  Function1<G, F> compose<G>(Function1<G, Tuple5<A, B, C, D, E>> fn) =>
+  Function1<G, F> compose<G>(Function1<G, (A, B, C, D, E)> fn) =>
       (g) => tupled(fn(g));
 
   Function5C<A, B, C, D, E, F> get curried =>
       (a) => (b) => (c) => (d) => (e) => this(a, b, c, d, e);
 
-  Function1<Tuple5<A, B, C, D, E>, F> get tupled => (t) => t(this);
+  Function1<(A, B, C, D, E), F> get tupled => (t) => t(this);
 }
 
 extension Function5COps<A, B, C, D, E, F> on Function5C<A, B, C, D, E, F> {
@@ -184,13 +183,13 @@ extension Function6Ops<A, B, C, D, E, F, G> on Function6<A, B, C, D, E, F, G> {
   Function6<A, B, C, D, E, F, H> andThen<H>(Function1<G, H> fn) =>
       (a, b, c, d, e, f) => fn(this(a, b, c, d, e, f));
 
-  Function1<H, G> compose<H>(Function1<H, Tuple6<A, B, C, D, E, F>> fn) =>
+  Function1<H, G> compose<H>(Function1<H, (A, B, C, D, E, F)> fn) =>
       (h) => tupled(fn(h));
 
   Function6C<A, B, C, D, E, F, G> get curried =>
       (A a) => (b) => (c) => (d) => (e) => (f) => this(a, b, c, d, e, f);
 
-  Function1<Tuple6<A, B, C, D, E, F>, G> get tupled => (t) => t(this);
+  Function1<(A, B, C, D, E, F), G> get tupled => (t) => t(this);
 }
 
 extension Function6COps<A, B, C, D, E, F, G>
@@ -204,13 +203,13 @@ extension Function7Ops<A, B, C, D, E, F, G, H>
   Function7<A, B, C, D, E, F, G, I> andThen<I>(Function1<H, I> fn) =>
       (a, b, c, d, e, f, g) => fn(this(a, b, c, d, e, f, g));
 
-  Function1<I, H> compose<I>(Function1<I, Tuple7<A, B, C, D, E, F, G>> fn) =>
+  Function1<I, H> compose<I>(Function1<I, (A, B, C, D, E, F, G)> fn) =>
       (i) => tupled(fn(i));
 
   Function7C<A, B, C, D, E, F, G, H> get curried => (a) =>
       (b) => (c) => (d) => (e) => (f) => (g) => this(a, b, c, d, e, f, g);
 
-  Function1<Tuple7<A, B, C, D, E, F, G>, H> get tupled => (t) => t(this);
+  Function1<(A, B, C, D, E, F, G), H> get tupled => (t) => t(this);
 }
 
 extension Function7COps<A, B, C, D, E, F, G, H>
@@ -224,13 +223,13 @@ extension Function8Ops<A, B, C, D, E, F, G, H, I>
   Function8<A, B, C, D, E, F, G, H, J> andThen<J>(Function1<I, J> fn) =>
       (a, b, c, d, e, f, g, h) => fn(this(a, b, c, d, e, f, g, h));
 
-  Function1<J, I> compose<J>(Function1<J, Tuple8<A, B, C, D, E, F, G, H>> fn) =>
+  Function1<J, I> compose<J>(Function1<J, (A, B, C, D, E, F, G, H)> fn) =>
       (j) => tupled(fn(j));
 
   Function8C<A, B, C, D, E, F, G, H, I> get curried => (a) => (b) =>
       (c) => (d) => (e) => (f) => (g) => (h) => this(a, b, c, d, e, f, g, h);
 
-  Function1<Tuple8<A, B, C, D, E, F, G, H>, I> get tupled => (t) => t(this);
+  Function1<(A, B, C, D, E, F, G, H), I> get tupled => (t) => t(this);
 }
 
 extension Function8COps<A, B, C, D, E, F, G, H, I>
@@ -244,14 +243,13 @@ extension Function9Ops<A, B, C, D, E, F, G, H, I, J>
   Function9<A, B, C, D, E, F, G, H, I, K> andThen<K>(Function1<J, K> fn) =>
       (a, b, c, d, e, f, g, h, i) => fn(this(a, b, c, d, e, f, g, h, i));
 
-  Function1<K, J> compose<K>(
-          Function1<K, Tuple9<A, B, C, D, E, F, G, H, I>> fn) =>
+  Function1<K, J> compose<K>(Function1<K, (A, B, C, D, E, F, G, H, I)> fn) =>
       (k) => tupled(fn(k));
 
   Function9C<A, B, C, D, E, F, G, H, I, J> get curried => (a) => (b) => (c) =>
       (d) => (e) => (f) => (g) => (h) => (i) => this(a, b, c, d, e, f, g, h, i);
 
-  Function1<Tuple9<A, B, C, D, E, F, G, H, I>, J> get tupled => (t) => t(this);
+  Function1<(A, B, C, D, E, F, G, H, I), J> get tupled => (t) => t(this);
 }
 
 extension Function9COps<A, B, C, D, E, F, G, H, I, J>
@@ -265,16 +263,14 @@ extension Function10Ops<A, B, C, D, E, F, G, H, I, J, K>
   Function10<A, B, C, D, E, F, G, H, I, J, L> andThen<L>(Function1<K, L> fn) =>
       (a, b, c, d, e, f, g, h, i, j) => fn(this(a, b, c, d, e, f, g, h, i, j));
 
-  Function1<L, K> compose<L>(
-          Function1<L, Tuple10<A, B, C, D, E, F, G, H, I, J>> fn) =>
+  Function1<L, K> compose<L>(Function1<L, (A, B, C, D, E, F, G, H, I, J)> fn) =>
       (l) => tupled(fn(l));
 
   Function10C<A, B, C, D, E, F, G, H, I, J, K> get curried =>
       (a) => (b) => (c) => (d) => (e) =>
           (f) => (g) => (h) => (i) => (j) => this(a, b, c, d, e, f, g, h, i, j);
 
-  Function1<Tuple10<A, B, C, D, E, F, G, H, I, J>, K> get tupled =>
-      (t) => t(this);
+  Function1<(A, B, C, D, E, F, G, H, I, J), K> get tupled => (t) => t(this);
 }
 
 extension Function10COps<A, B, C, D, E, F, G, H, I, J, K>
@@ -291,15 +287,14 @@ extension Function11Ops<A, B, C, D, E, F, G, H, I, J, K, L>
           fn(this(a, b, c, d, e, f, g, h, i, j, k));
 
   Function1<M, L> compose<M>(
-          Function1<M, Tuple11<A, B, C, D, E, F, G, H, I, J, K>> fn) =>
+          Function1<M, (A, B, C, D, E, F, G, H, I, J, K)> fn) =>
       (m) => tupled(fn(m));
 
   Function11C<A, B, C, D, E, F, G, H, I, J, K, L> get curried =>
       (a) => (b) => (c) => (d) => (e) => (f) => (g) =>
           (h) => (i) => (j) => (k) => this(a, b, c, d, e, f, g, h, i, j, k);
 
-  Function1<Tuple11<A, B, C, D, E, F, G, H, I, J, K>, L> get tupled =>
-      (t) => t(this);
+  Function1<(A, B, C, D, E, F, G, H, I, J, K), L> get tupled => (t) => t(this);
 }
 
 extension Function11COps<A, B, C, D, E, F, G, H, I, J, K, L>
@@ -317,14 +312,14 @@ extension Function12Ops<A, B, C, D, E, F, G, H, I, J, K, L, M>
           fn(this(a, b, c, d, e, f, g, h, i, j, k, l));
 
   Function1<N, M> compose<N>(
-          Function1<N, Tuple12<A, B, C, D, E, F, G, H, I, J, K, L>> fn) =>
+          Function1<N, (A, B, C, D, E, F, G, H, I, J, K, L)> fn) =>
       (n) => tupled(fn(n));
 
   Function12C<A, B, C, D, E, F, G, H, I, J, K, L, M> get curried =>
       (a) => (b) => (c) => (d) => (e) => (f) => (g) => (h) =>
           (i) => (j) => (k) => (l) => this(a, b, c, d, e, f, g, h, i, j, k, l);
 
-  Function1<Tuple12<A, B, C, D, E, F, G, H, I, J, K, L>, M> get tupled =>
+  Function1<(A, B, C, D, E, F, G, H, I, J, K, L), M> get tupled =>
       (t) => t(this);
 }
 
@@ -343,14 +338,14 @@ extension Function13Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N>
           fn(this(a, b, c, d, e, f, g, h, i, j, k, l, m));
 
   Function1<O, N> compose<O>(
-          Function1<O, Tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>> fn) =>
+          Function1<O, (A, B, C, D, E, F, G, H, I, J, K, L, M)> fn) =>
       (o) => tupled(fn(o));
 
   Function13C<A, B, C, D, E, F, G, H, I, J, K, L, M, N> get curried =>
       (a) => (b) => (c) => (d) => (e) => (f) => (g) => (h) => (i) => (j) =>
           (k) => (l) => (m) => this(a, b, c, d, e, f, g, h, i, j, k, l, m);
 
-  Function1<Tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>, N> get tupled =>
+  Function1<(A, B, C, D, E, F, G, H, I, J, K, L, M), N> get tupled =>
       (t) => t(this);
 }
 
@@ -369,14 +364,14 @@ extension Function14Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>
           fn(this(a, b, c, d, e, f, g, h, i, j, k, l, m, n));
 
   Function1<P, O> compose<P>(
-          Function1<P, Tuple14<A, B, C, D, E, F, G, H, I, J, K, L, M, N>> fn) =>
+          Function1<P, (A, B, C, D, E, F, G, H, I, J, K, L, M, N)> fn) =>
       (p) => tupled(fn(p));
 
   Function14C<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> get curried => (a) =>
       (b) => (c) => (d) => (e) => (f) => (g) => (h) => (i) => (j) => (k) =>
           (l) => (m) => (n) => this(a, b, c, d, e, f, g, h, i, j, k, l, m, n);
 
-  Function1<Tuple14<A, B, C, D, E, F, G, H, I, J, K, L, M, N>, O> get tupled =>
+  Function1<(A, B, C, D, E, F, G, H, I, J, K, L, M, N), O> get tupled =>
       (t) => t(this);
 }
 
@@ -395,8 +390,7 @@ extension Function15Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>
           fn(this(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o));
 
   Function1<Q, P> compose<Q>(
-          Function1<Q, Tuple15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>>
-              fn) =>
+          Function1<Q, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> fn) =>
       (q) => tupled(fn(q));
 
   Function15C<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> get curried =>
@@ -404,8 +398,8 @@ extension Function15Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>
           (k) => (l) => (m) =>
               (n) => (o) => this(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o);
 
-  Function1<Tuple15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>, P>
-      get tupled => (t) => t(this);
+  Function1<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O), P> get tupled =>
+      (t) => t(this);
 }
 
 extension Function15COps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>
@@ -423,8 +417,7 @@ extension Function16Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>
           fn(this(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p));
 
   Function1<R, Q> compose<R>(
-          Function1<R, Tuple16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>>
-              fn) =>
+          Function1<R, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P)> fn) =>
       (q) => tupled(fn(q));
 
   Function16C<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> get curried =>
@@ -432,8 +425,8 @@ extension Function16Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>
           (k) => (l) => (m) => (n) => (o) =>
               (p) => this(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p);
 
-  Function1<Tuple16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>, Q>
-      get tupled => (t) => t(this);
+  Function1<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P), Q> get tupled =>
+      (t) => t(this);
 }
 
 extension Function16COps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>
@@ -451,8 +444,7 @@ extension Function17Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
           fn(this(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q));
 
   Function1<S, R> compose<S>(
-          Function1<S,
-                  Tuple17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>>
+          Function1<S, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q)>
               fn) =>
       (r) => tupled(fn(r));
 
@@ -461,7 +453,7 @@ extension Function17Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
           (i) => (j) => (k) => (l) => (m) => (n) => (o) => (p) =>
               (q) => this(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q);
 
-  Function1<Tuple17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>, R>
+  Function1<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q), R>
       get tupled => (t) => t(this);
 }
 
@@ -480,8 +472,7 @@ extension Function18Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
               fn(this(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r));
 
   Function1<T, S> compose<T>(
-          Function1<T,
-                  Tuple18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>>
+          Function1<T, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R)>
               fn) =>
       (r) => tupled(fn(r));
 
@@ -490,7 +481,7 @@ extension Function18Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
           (i) => (j) => (k) => (l) => (m) => (n) => (o) => (p) => (q) =>
               (r) => this(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r);
 
-  Function1<Tuple18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>, S>
+  Function1<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R), S>
       get tupled => (t) => t(this);
 }
 
@@ -510,10 +501,8 @@ extension Function19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
               fn(this(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s));
 
   Function1<U, T> compose<U>(
-          Function1<
-                  U,
-                  Tuple19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
-                      S>>
+          Function1<U,
+                  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)>
               fn) =>
       (r) => tupled(fn(r));
 
@@ -523,7 +512,7 @@ extension Function19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
               (k) => (l) => (m) => (n) => (o) => (p) => (q) => (r) => (s) =>
                   this(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s);
 
-  Function1<Tuple19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>, T>
+  Function1<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S), T>
       get tupled => (t) => t(this);
 }
 
@@ -546,10 +535,8 @@ extension Function20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
           fn(this(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t));
 
   Function1<V, U> compose<V>(
-          Function1<
-                  V,
-                  Tuple20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
-                      S, T>>
+          Function1<V,
+                  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)>
               fn) =>
       (r) => tupled(fn(r));
 
@@ -559,8 +546,8 @@ extension Function20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
               (k) => (l) => (m) => (n) => (o) => (p) => (q) => (r) => (s) => (t) =>
                   this(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t);
 
-  Function1<Tuple20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>,
-      U> get tupled => (t) => t(this);
+  Function1<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T), U>
+      get tupled => (t) => t(this);
 }
 
 extension Function20COps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
@@ -585,8 +572,29 @@ extension Function21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
   Function1<W, V> compose<W>(
           Function1<
                   W,
-                  Tuple21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
-                      S, T, U>>
+                  (
+                    A,
+                    B,
+                    C,
+                    D,
+                    E,
+                    F,
+                    G,
+                    H,
+                    I,
+                    J,
+                    K,
+                    L,
+                    M,
+                    N,
+                    O,
+                    P,
+                    Q,
+                    R,
+                    S,
+                    T,
+                    U
+                  )>
               fn) =>
       (r) => tupled(fn(r));
 
@@ -596,9 +604,8 @@ extension Function21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
               (k) => (l) => (m) => (n) => (o) => (p) => (q) => (r) => (s) => (t) =>
                   (u) => this(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u);
 
-  Function1<
-      Tuple21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>,
-      V> get tupled => (t) => t(this);
+  Function1<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U), V>
+      get tupled => (t) => t(this);
 }
 
 extension Function21COps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
@@ -624,8 +631,30 @@ extension Function22Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
   Function1<X, W> compose<X>(
           Function1<
                   X,
-                  Tuple22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
-                      S, T, U, V>>
+                  (
+                    A,
+                    B,
+                    C,
+                    D,
+                    E,
+                    F,
+                    G,
+                    H,
+                    I,
+                    J,
+                    K,
+                    L,
+                    M,
+                    N,
+                    O,
+                    P,
+                    Q,
+                    R,
+                    S,
+                    T,
+                    U,
+                    V
+                  )>
               fn) =>
       (r) => tupled(fn(r));
 
@@ -635,8 +664,7 @@ extension Function22Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
               (k) => (l) => (m) => (n) => (o) => (p) => (q) => (r) => (s) => (t) =>
                   (u) => (v) => this(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v);
 
-  Function1<
-      Tuple22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>,
+  Function1<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V),
       W> get tupled => (t) => t(this);
 }
 

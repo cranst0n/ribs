@@ -8,8 +8,8 @@ class KeyValueCodec<A> extends Codec<A> {
   KeyValueCodec(this.key, Codec<A> codec)
       : codecKV = Codec.from(
             codec.at(key),
-            codec.mapJson((a) => Json.fromJsonObject(
-                JsonObject.fromIterable([Tuple2(key, a)]))));
+            codec.mapJson((a) =>
+                Json.fromJsonObject(JsonObject.fromIterable([(key, a)]))));
 
   @override
   DecodeResult<A> decode(HCursor cursor) => codecKV.decode(cursor);
@@ -25,10 +25,10 @@ class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
     Function2<A, B, C> apply,
-    Function1<C, Tuple2<A, B>> tupled,
+    Function1<C, (A, B)> tupled,
   ) {
-    final decoder = Decoder.instance((cursor) =>
-        Tuple2(codecA.decode(cursor), codecB.decode(cursor)).mapN(apply));
+    final decoder = Decoder.instance(
+        (cursor) => (codecA.decode(cursor), codecB.decode(cursor)).mapN(apply));
 
     final encoder =
         Encoder.instance<C>((a) => tupled(a)((a, b) => Json.deepMergeAll([
@@ -44,13 +44,14 @@ class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<B> codecB,
     KeyValueCodec<C> codecC,
     Function3<A, B, C, D> apply,
-    Function1<D, Tuple3<A, B, C>> tupled,
+    Function1<D, (A, B, C)> tupled,
   ) {
-    final decoder = Decoder.instance((cursor) => Tuple3(
+    final decoder = Decoder.instance((cursor) => (
           codecA.decode(cursor),
           codecB.decode(cursor),
           codecC.decode(cursor),
-        ).mapN(apply));
+        )
+            .mapN(apply));
 
     final encoder =
         Encoder.instance<D>((a) => tupled(a)((a, b, c) => Json.deepMergeAll([
@@ -68,14 +69,15 @@ class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<C> codecC,
     KeyValueCodec<D> codecD,
     Function4<A, B, C, D, E> apply,
-    Function1<E, Tuple4<A, B, C, D>> tupled,
+    Function1<E, (A, B, C, D)> tupled,
   ) {
-    final decoder = Decoder.instance((cursor) => Tuple4(
+    final decoder = Decoder.instance((cursor) => (
           codecA.decode(cursor),
           codecB.decode(cursor),
           codecC.decode(cursor),
           codecD.decode(cursor),
-        ).mapN(apply));
+        )
+            .mapN(apply));
 
     final encoder =
         Encoder.instance<E>((a) => tupled(a)((a, b, c, d) => Json.deepMergeAll([
@@ -95,15 +97,16 @@ class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<D> codecD,
     KeyValueCodec<E> codecE,
     Function5<A, B, C, D, E, F> apply,
-    Function1<F, Tuple5<A, B, C, D, E>> tupled,
+    Function1<F, (A, B, C, D, E)> tupled,
   ) {
-    final decoder = Decoder.instance((cursor) => Tuple5(
+    final decoder = Decoder.instance((cursor) => (
           codecA.decode(cursor),
           codecB.decode(cursor),
           codecC.decode(cursor),
           codecD.decode(cursor),
           codecE.decode(cursor),
-        ).mapN(apply));
+        )
+            .mapN(apply));
 
     final encoder = Encoder.instance<F>(
         (a) => tupled(a)((a, b, c, d, e) => Json.deepMergeAll([
@@ -125,16 +128,17 @@ class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<E> codecE,
     KeyValueCodec<F> codecF,
     Function6<A, B, C, D, E, F, G> apply,
-    Function1<G, Tuple6<A, B, C, D, E, F>> tupled,
+    Function1<G, (A, B, C, D, E, F)> tupled,
   ) {
-    final decoder = Decoder.instance((cursor) => Tuple6(
+    final decoder = Decoder.instance((cursor) => (
           codecA.decode(cursor),
           codecB.decode(cursor),
           codecC.decode(cursor),
           codecD.decode(cursor),
           codecE.decode(cursor),
           codecF.decode(cursor),
-        ).mapN(apply));
+        )
+            .mapN(apply));
 
     final encoder = Encoder.instance<G>(
         (a) => tupled(a)((a, b, c, d, e, f) => Json.deepMergeAll([
@@ -158,9 +162,9 @@ class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<F> codecF,
     KeyValueCodec<G> codecG,
     Function7<A, B, C, D, E, F, G, H> apply,
-    Function1<H, Tuple7<A, B, C, D, E, F, G>> tupled,
+    Function1<H, (A, B, C, D, E, F, G)> tupled,
   ) {
-    final decoder = Decoder.instance((cursor) => Tuple7(
+    final decoder = Decoder.instance((cursor) => (
           codecA.decode(cursor),
           codecB.decode(cursor),
           codecC.decode(cursor),
@@ -168,7 +172,8 @@ class KeyValueCodec<A> extends Codec<A> {
           codecE.decode(cursor),
           codecF.decode(cursor),
           codecG.decode(cursor),
-        ).mapN(apply));
+        )
+            .mapN(apply));
 
     final encoder = Encoder.instance<H>(
         (a) => tupled(a)((a, b, c, d, e, f, g) => Json.deepMergeAll([
@@ -194,9 +199,9 @@ class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<G> codecG,
     KeyValueCodec<H> codecH,
     Function8<A, B, C, D, E, F, G, H, I> apply,
-    Function1<I, Tuple8<A, B, C, D, E, F, G, H>> tupled,
+    Function1<I, (A, B, C, D, E, F, G, H)> tupled,
   ) {
-    final decoder = Decoder.instance((cursor) => Tuple8(
+    final decoder = Decoder.instance((cursor) => (
           codecA.decode(cursor),
           codecB.decode(cursor),
           codecC.decode(cursor),
@@ -205,7 +210,8 @@ class KeyValueCodec<A> extends Codec<A> {
           codecF.decode(cursor),
           codecG.decode(cursor),
           codecH.decode(cursor),
-        ).mapN(apply));
+        )
+            .mapN(apply));
 
     final encoder = Encoder.instance<I>(
         (a) => tupled(a)((a, b, c, d, e, f, g, h) => Json.deepMergeAll([
@@ -233,9 +239,9 @@ class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<H> codecH,
     KeyValueCodec<I> codecI,
     Function9<A, B, C, D, E, F, G, H, I, J> apply,
-    Function1<J, Tuple9<A, B, C, D, E, F, G, H, I>> tupled,
+    Function1<J, (A, B, C, D, E, F, G, H, I)> tupled,
   ) {
-    final decoder = Decoder.instance((cursor) => Tuple9(
+    final decoder = Decoder.instance((cursor) => (
           codecA.decode(cursor),
           codecB.decode(cursor),
           codecC.decode(cursor),
@@ -245,7 +251,8 @@ class KeyValueCodec<A> extends Codec<A> {
           codecG.decode(cursor),
           codecH.decode(cursor),
           codecI.decode(cursor),
-        ).mapN(apply));
+        )
+            .mapN(apply));
 
     final encoder = Encoder.instance<J>(
         (a) => tupled(a)((a, b, c, d, e, f, g, h, i) => Json.deepMergeAll([
@@ -275,9 +282,9 @@ class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<I> codecI,
     KeyValueCodec<J> codecJ,
     Function10<A, B, C, D, E, F, G, H, I, J, K> apply,
-    Function1<K, Tuple10<A, B, C, D, E, F, G, H, I, J>> tupled,
+    Function1<K, (A, B, C, D, E, F, G, H, I, J)> tupled,
   ) {
-    final decoder = Decoder.instance((cursor) => Tuple10(
+    final decoder = Decoder.instance((cursor) => (
           codecA.decode(cursor),
           codecB.decode(cursor),
           codecC.decode(cursor),
@@ -288,7 +295,8 @@ class KeyValueCodec<A> extends Codec<A> {
           codecH.decode(cursor),
           codecI.decode(cursor),
           codecJ.decode(cursor),
-        ).mapN(apply));
+        )
+            .mapN(apply));
 
     final encoder = Encoder.instance<K>(
         (a) => tupled(a)((a, b, c, d, e, f, g, h, i, j) => Json.deepMergeAll([
@@ -320,9 +328,9 @@ class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<J> codecJ,
     KeyValueCodec<K> codecK,
     Function11<A, B, C, D, E, F, G, H, I, J, K, L> apply,
-    Function1<L, Tuple11<A, B, C, D, E, F, G, H, I, J, K>> tupled,
+    Function1<L, (A, B, C, D, E, F, G, H, I, J, K)> tupled,
   ) {
-    final decoder = Decoder.instance((cursor) => Tuple11(
+    final decoder = Decoder.instance((cursor) => (
           codecA.decode(cursor),
           codecB.decode(cursor),
           codecC.decode(cursor),
@@ -334,7 +342,8 @@ class KeyValueCodec<A> extends Codec<A> {
           codecI.decode(cursor),
           codecJ.decode(cursor),
           codecK.decode(cursor),
-        ).mapN(apply));
+        )
+            .mapN(apply));
 
     final encoder = Encoder.instance<L>((a) =>
         tupled(a)((a, b, c, d, e, f, g, h, i, j, k) => Json.deepMergeAll([
@@ -368,9 +377,9 @@ class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<K> codecK,
     KeyValueCodec<L> codecL,
     Function12<A, B, C, D, E, F, G, H, I, J, K, L, M> apply,
-    Function1<M, Tuple12<A, B, C, D, E, F, G, H, I, J, K, L>> tupled,
+    Function1<M, (A, B, C, D, E, F, G, H, I, J, K, L)> tupled,
   ) {
-    final decoder = Decoder.instance((cursor) => Tuple12(
+    final decoder = Decoder.instance((cursor) => (
           codecA.decode(cursor),
           codecB.decode(cursor),
           codecC.decode(cursor),
@@ -383,7 +392,8 @@ class KeyValueCodec<A> extends Codec<A> {
           codecJ.decode(cursor),
           codecK.decode(cursor),
           codecL.decode(cursor),
-        ).mapN(apply));
+        )
+            .mapN(apply));
 
     final encoder = Encoder.instance<M>((a) =>
         tupled(a)((a, b, c, d, e, f, g, h, i, j, k, l) => Json.deepMergeAll([
@@ -419,9 +429,9 @@ class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<L> codecL,
     KeyValueCodec<M> codecM,
     Function13<A, B, C, D, E, F, G, H, I, J, K, L, M, N> apply,
-    Function1<N, Tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>> tupled,
+    Function1<N, (A, B, C, D, E, F, G, H, I, J, K, L, M)> tupled,
   ) {
-    final decoder = Decoder.instance((cursor) => Tuple13(
+    final decoder = Decoder.instance((cursor) => (
           codecA.decode(cursor),
           codecB.decode(cursor),
           codecC.decode(cursor),
@@ -435,7 +445,8 @@ class KeyValueCodec<A> extends Codec<A> {
           codecK.decode(cursor),
           codecL.decode(cursor),
           codecM.decode(cursor),
-        ).mapN(apply));
+        )
+            .mapN(apply));
 
     final encoder = Encoder.instance<N>((a) =>
         tupled(a)((a, b, c, d, e, f, g, h, i, j, k, l, m) => Json.deepMergeAll([
@@ -473,9 +484,9 @@ class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<M> codecM,
     KeyValueCodec<N> codecN,
     Function14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> apply,
-    Function1<O, Tuple14<A, B, C, D, E, F, G, H, I, J, K, L, M, N>> tupled,
+    Function1<O, (A, B, C, D, E, F, G, H, I, J, K, L, M, N)> tupled,
   ) {
-    final decoder = Decoder.instance((cursor) => Tuple14(
+    final decoder = Decoder.instance((cursor) => (
           codecA.decode(cursor),
           codecB.decode(cursor),
           codecC.decode(cursor),
@@ -490,7 +501,8 @@ class KeyValueCodec<A> extends Codec<A> {
           codecL.decode(cursor),
           codecM.decode(cursor),
           codecN.decode(cursor),
-        ).mapN(apply));
+        )
+            .mapN(apply));
 
     final encoder = Encoder.instance<O>((a) => tupled(a)(
         (a, b, c, d, e, f, g, h, i, j, k, l, m, n) => Json.deepMergeAll([
@@ -530,9 +542,9 @@ class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<N> codecN,
     KeyValueCodec<O> codecO,
     Function15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> apply,
-    Function1<P, Tuple15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>> tupled,
+    Function1<P, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> tupled,
   ) {
-    final decoder = Decoder.instance((cursor) => Tuple15(
+    final decoder = Decoder.instance((cursor) => (
           codecA.decode(cursor),
           codecB.decode(cursor),
           codecC.decode(cursor),
@@ -548,7 +560,8 @@ class KeyValueCodec<A> extends Codec<A> {
           codecM.decode(cursor),
           codecN.decode(cursor),
           codecO.decode(cursor),
-        ).mapN(apply));
+        )
+            .mapN(apply));
 
     final encoder = Encoder.instance<P>((a) => tupled(a)(
         (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) => Json.deepMergeAll([

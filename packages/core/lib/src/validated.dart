@@ -87,7 +87,7 @@ extension ValidatedNelOps<E, A> on ValidatedNel<E, A> {
     );
   }
 
-  ValidatedNel<E, Tuple2<A, B>> product<B>(ValidatedNel<E, B> f) {
+  ValidatedNel<E, (A, B)> product<B>(ValidatedNel<E, B> f) {
     return fold(
       (e) => f.fold(
         (ef) => e.concatNel(ef).invalid(),
@@ -95,7 +95,7 @@ extension ValidatedNelOps<E, A> on ValidatedNel<E, A> {
       ),
       (a) => f.fold(
         (ef) => ef.invalid(),
-        (af) => Tuple2(a, af).validNel<E>(),
+        (af) => (a, af).validNel<E>(),
       ),
     );
   }

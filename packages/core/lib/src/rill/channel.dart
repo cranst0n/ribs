@@ -2,7 +2,7 @@ import 'package:ribs_core/ribs_core.dart';
 
 abstract class Channel<A> {
   static IO<Channel<A>> bounded<A>(int capacity) =>
-      Tuple2(Ref.of(_ChannelState.empty<A>(false)), Deferred.of<Unit>())
+      (Ref.of(_ChannelState.empty<A>(false)), Deferred.of<Unit>())
           .sequence()
           .map((requirements) => requirements(
               (state, gate) => _BoundedChannel(capacity, state, gate)));
@@ -46,9 +46,9 @@ class _BoundedChannel<A> extends Channel<A> {
   @override
   IO<Either<ChannelClosed, Unit>> close() => state.flatModify((state) {
         if (state.closed) {
-          return Tuple2(state, IO.pure(ChannelClosed().asLeft<Unit>()));
+          return (state, IO.pure(ChannelClosed().asLeft<Unit>()));
         } else {
-          return Tuple2(
+          return (
             state.copy(waiting: none(), closed: true),
             notifyStream(state.waiting)
                 .as(rightUnit)
@@ -72,9 +72,9 @@ class _BoundedChannel<A> extends Channel<A> {
           (tuple) => tuple(
             (poll, state) {
               if (state.closed) {
-                return Tuple2(state, IO.pure(ChannelClosed().asLeft<Unit>()));
+                return (state, IO.pure(ChannelClosed().asLeft<Unit>()));
               } else if (state.size < capacity) {
-                return Tuple2(
+                return (
                   state.copy(
                     values: state.values.append(a),
                     size: state.size + 1,
@@ -83,10 +83,10 @@ class _BoundedChannel<A> extends Channel<A> {
                   notifyStream(state.waiting).as(rightUnit),
                 );
               } else {
-                return Tuple2(
+                return (
                   state.copy(
                     waiting: none(),
-                    producers: state.producers.append(Tuple2(a, producer)),
+                    producers: state.producers.append((a, producer)),
                   ),
                   notifyStream(state.waiting)
                       .as(rightUnit)
@@ -99,27 +99,28 @@ class _BoundedChannel<A> extends Channel<A> {
       );
 
   @override
-  Pipe<A, Never> get sendAll =>
-      (rillIn) => (rillIn.concat(Rill.exec(close().voided())))
-          .mapEval((a) => send(a))
-          .takeWhile((a) => a.isRight)
-          .drain();
+  Pipe<A, Never> get sendAll => (rillIn) => rillIn
+      .concat(Rill.exec(close().voided()))
+      .mapEval((a) => send(a))
+      .takeWhile((a) => a.isRight)
+      .drain();
 
   @override
   IO<Either<ChannelClosed, bool>> trySend(A a) => state.flatModify(
         (state) {
           if (state.closed) {
-            return Tuple2(state, IO.pure(ChannelClosed().asLeft<bool>()));
+            return (state, IO.pure(ChannelClosed().asLeft<bool>()));
           } else if (state.size < capacity) {
-            return Tuple2(
-                state.copy(
-                  values: state.values.append(a),
-                  size: state.size + 1,
-                  waiting: none(),
-                ),
-                notifyStream(state.waiting).as(rightTrue));
+            return (
+              state.copy(
+                values: state.values.append(a),
+                size: state.size + 1,
+                waiting: none(),
+              ),
+              notifyStream(state.waiting).as(rightTrue)
+            );
           } else {
-            return Tuple2(state, IO.pure(rightFalse));
+            return (state, IO.pure(rightFalse));
           }
         },
       );
@@ -130,9 +131,9 @@ class _BoundedChannel<A> extends Channel<A> {
         return IO.uncancelable(
           (_) => state.modify((state) {
             if (shouldEmit(state)) {
-              return Tuple2(_ChannelState.empty(state.closed), state);
+              return (_ChannelState.empty(state.closed), state);
             } else {
-              return Tuple2(state.copy(waiting: waiting.some), state);
+              return (state.copy(waiting: waiting.some), state);
             }
           }).flatMap((s) {
             if (shouldEmit(s)) {
@@ -185,7 +186,7 @@ class _ChannelState<A> {
   final IList<A> values;
   final int size;
   final Option<Deferred<Unit>> waiting;
-  final IList<Tuple2<A, Deferred<Unit>>> producers;
+  final IList<(A, Deferred<Unit>)> producers;
   final bool closed;
 
   _ChannelState(
@@ -203,7 +204,7 @@ class _ChannelState<A> {
     IList<A>? values,
     int? size,
     Option<Deferred<Unit>>? waiting,
-    IList<Tuple2<A, Deferred<Unit>>>? producers,
+    IList<(A, Deferred<Unit>)>? producers,
     bool? closed,
   }) =>
       _ChannelState(

@@ -12,12 +12,12 @@ class Scope {
 
   IO<Scope> open(IO<Unit> finalizer) {
     return state.modify((state) {
-      return state.fold(
+      final next = state.fold(
         (openState) {
           final sub = Scope(Some(this), ScopeId(),
               Ref.unsafe(ScopeState.open(finalizer, IList.empty())));
 
-          return Tuple2(
+          return (
             ScopeState.open(
                 openState.finalizer, openState.subScopes.append(sub)),
             IO.pure(sub),
@@ -29,14 +29,16 @@ class Scope {
             (p) => p.open(finalizer),
           );
 
-          return Tuple2(ScopeState.closed, nextScope);
+          return (ScopeState.closed, nextScope);
         },
       );
+
+      return next;
     }).flatten();
   }
 
   IO<Unit> get close => state.modify((state) {
-        return state.fold(
+        final next = state.fold(
           (open) {
             final finalizers = open.subScopes
                 .reverse()
@@ -56,10 +58,12 @@ class Scope {
                   ),
                 );
 
-            return Tuple2(ScopeState.closed, go(finalizers, none()));
+            return (ScopeState.closed, go(finalizers, none()));
           },
-          () => Tuple2(ScopeState.closed, IO.unit),
+          () => (ScopeState.closed, IO.unit),
         );
+
+        return next;
       }).flatten();
 
   IO<Option<Scope>> findScope(ScopeId target) {

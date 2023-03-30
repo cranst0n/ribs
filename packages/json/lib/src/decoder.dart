@@ -121,39 +121,41 @@ abstract class Decoder<A> {
   /// Tuple Instances
   //////////////////////////////////////////////////////////////////////////////
 
-  static Decoder<Tuple2<A, B>> tuple2<A, B>(
+  static Decoder<(A, B)> tuple2<A, B>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
   ) =>
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 2) {
-          return Tuple2(
+          return (
             decodeA.tryDecode(c.downN(0)),
             decodeB.tryDecode(c.downN(1)),
-          ).sequence();
+          )
+              .sequence();
         } else {
           return _wrongTypeFail('array[2]', c).asLeft();
         }
       });
 
-  static Decoder<Tuple3<A, B, C>> tuple3<A, B, C>(
+  static Decoder<(A, B, C)> tuple3<A, B, C>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
   ) =>
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 3) {
-          return Tuple3(
+          return (
             decodeA.tryDecode(c.downN(0)),
             decodeB.tryDecode(c.downN(1)),
             decodeC.tryDecode(c.downN(2)),
-          ).sequence();
+          )
+              .sequence();
         } else {
           return _wrongTypeFail('array[3]', c).asLeft();
         }
       });
 
-  static Decoder<Tuple4<A, B, C, D>> tuple4<A, B, C, D>(
+  static Decoder<(A, B, C, D)> tuple4<A, B, C, D>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
@@ -161,18 +163,19 @@ abstract class Decoder<A> {
   ) =>
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 4) {
-          return Tuple4(
+          return (
             decodeA.tryDecode(c.downN(0)),
             decodeB.tryDecode(c.downN(1)),
             decodeC.tryDecode(c.downN(2)),
             decodeD.tryDecode(c.downN(3)),
-          ).sequence();
+          )
+              .sequence();
         } else {
           return _wrongTypeFail('array[4]', c).asLeft();
         }
       });
 
-  static Decoder<Tuple5<A, B, C, D, E>> tuple5<A, B, C, D, E>(
+  static Decoder<(A, B, C, D, E)> tuple5<A, B, C, D, E>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
@@ -181,19 +184,20 @@ abstract class Decoder<A> {
   ) =>
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 5) {
-          return Tuple5(
+          return (
             decodeA.tryDecode(c.downN(0)),
             decodeB.tryDecode(c.downN(1)),
             decodeC.tryDecode(c.downN(2)),
             decodeD.tryDecode(c.downN(3)),
             decodeE.tryDecode(c.downN(4)),
-          ).sequence();
+          )
+              .sequence();
         } else {
           return _wrongTypeFail('array[5]', c).asLeft();
         }
       });
 
-  static Decoder<Tuple6<A, B, C, D, E, F>> tuple6<A, B, C, D, E, F>(
+  static Decoder<(A, B, C, D, E, F)> tuple6<A, B, C, D, E, F>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
@@ -203,20 +207,21 @@ abstract class Decoder<A> {
   ) =>
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 6) {
-          return Tuple6(
+          return (
             decodeA.tryDecode(c.downN(0)),
             decodeB.tryDecode(c.downN(1)),
             decodeC.tryDecode(c.downN(2)),
             decodeD.tryDecode(c.downN(3)),
             decodeE.tryDecode(c.downN(4)),
             decodeF.tryDecode(c.downN(5)),
-          ).sequence();
+          )
+              .sequence();
         } else {
           return _wrongTypeFail('array[6]', c).asLeft();
         }
       });
 
-  static Decoder<Tuple7<A, B, C, D, E, F, G>> tuple7<A, B, C, D, E, F, G>(
+  static Decoder<(A, B, C, D, E, F, G)> tuple7<A, B, C, D, E, F, G>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
@@ -227,7 +232,7 @@ abstract class Decoder<A> {
   ) =>
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 7) {
-          return Tuple7(
+          return (
             decodeA.tryDecode(c.downN(0)),
             decodeB.tryDecode(c.downN(1)),
             decodeC.tryDecode(c.downN(2)),
@@ -235,13 +240,14 @@ abstract class Decoder<A> {
             decodeE.tryDecode(c.downN(4)),
             decodeF.tryDecode(c.downN(5)),
             decodeG.tryDecode(c.downN(6)),
-          ).sequence();
+          )
+              .sequence();
         } else {
           return _wrongTypeFail('array[7]', c).asLeft();
         }
       });
 
-  static Decoder<Tuple8<A, B, C, D, E, F, G, H>> tuple8<A, B, C, D, E, F, G, H>(
+  static Decoder<(A, B, C, D, E, F, G, H)> tuple8<A, B, C, D, E, F, G, H>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
@@ -253,7 +259,7 @@ abstract class Decoder<A> {
   ) =>
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 8) {
-          return Tuple8(
+          return (
             decodeA.tryDecode(c.downN(0)),
             decodeB.tryDecode(c.downN(1)),
             decodeC.tryDecode(c.downN(2)),
@@ -262,14 +268,14 @@ abstract class Decoder<A> {
             decodeF.tryDecode(c.downN(5)),
             decodeG.tryDecode(c.downN(6)),
             decodeH.tryDecode(c.downN(7)),
-          ).sequence();
+          )
+              .sequence();
         } else {
           return _wrongTypeFail('array[8]', c).asLeft();
         }
       });
 
-  static Decoder<Tuple9<A, B, C, D, E, F, G, H, I>>
-      tuple9<A, B, C, D, E, F, G, H, I>(
+  static Decoder<(A, B, C, D, E, F, G, H, I)> tuple9<A, B, C, D, E, F, G, H, I>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
@@ -280,25 +286,26 @@ abstract class Decoder<A> {
     Decoder<H> decodeH,
     Decoder<I> decodeI,
   ) =>
-          DecoderF((c) {
-            if (c.value.isArray && (c.value as JArray).value.size == 9) {
-              return Tuple9(
-                decodeA.tryDecode(c.downN(0)),
-                decodeB.tryDecode(c.downN(1)),
-                decodeC.tryDecode(c.downN(2)),
-                decodeD.tryDecode(c.downN(3)),
-                decodeE.tryDecode(c.downN(4)),
-                decodeF.tryDecode(c.downN(5)),
-                decodeG.tryDecode(c.downN(6)),
-                decodeH.tryDecode(c.downN(7)),
-                decodeI.tryDecode(c.downN(8)),
-              ).sequence();
-            } else {
-              return _wrongTypeFail('array[9]', c).asLeft();
-            }
-          });
+      DecoderF((c) {
+        if (c.value.isArray && (c.value as JArray).value.size == 9) {
+          return (
+            decodeA.tryDecode(c.downN(0)),
+            decodeB.tryDecode(c.downN(1)),
+            decodeC.tryDecode(c.downN(2)),
+            decodeD.tryDecode(c.downN(3)),
+            decodeE.tryDecode(c.downN(4)),
+            decodeF.tryDecode(c.downN(5)),
+            decodeG.tryDecode(c.downN(6)),
+            decodeH.tryDecode(c.downN(7)),
+            decodeI.tryDecode(c.downN(8)),
+          )
+              .sequence();
+        } else {
+          return _wrongTypeFail('array[9]', c).asLeft();
+        }
+      });
 
-  static Decoder<Tuple10<A, B, C, D, E, F, G, H, I, J>>
+  static Decoder<(A, B, C, D, E, F, G, H, I, J)>
       tuple10<A, B, C, D, E, F, G, H, I, J>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
@@ -313,7 +320,7 @@ abstract class Decoder<A> {
   ) =>
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 10) {
-              return Tuple10(
+              return (
                 decodeA.tryDecode(c.downN(0)),
                 decodeB.tryDecode(c.downN(1)),
                 decodeC.tryDecode(c.downN(2)),
@@ -324,13 +331,14 @@ abstract class Decoder<A> {
                 decodeH.tryDecode(c.downN(7)),
                 decodeI.tryDecode(c.downN(8)),
                 decodeJ.tryDecode(c.downN(9)),
-              ).sequence();
+              )
+                  .sequence();
             } else {
               return _wrongTypeFail('array[10]', c).asLeft();
             }
           });
 
-  static Decoder<Tuple11<A, B, C, D, E, F, G, H, I, J, K>>
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K)>
       tuple11<A, B, C, D, E, F, G, H, I, J, K>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
@@ -346,7 +354,7 @@ abstract class Decoder<A> {
   ) =>
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 11) {
-              return Tuple11(
+              return (
                 decodeA.tryDecode(c.downN(0)),
                 decodeB.tryDecode(c.downN(1)),
                 decodeC.tryDecode(c.downN(2)),
@@ -358,13 +366,14 @@ abstract class Decoder<A> {
                 decodeI.tryDecode(c.downN(8)),
                 decodeJ.tryDecode(c.downN(9)),
                 decodeK.tryDecode(c.downN(10)),
-              ).sequence();
+              )
+                  .sequence();
             } else {
               return _wrongTypeFail('array[11]', c).asLeft();
             }
           });
 
-  static Decoder<Tuple12<A, B, C, D, E, F, G, H, I, J, K, L>>
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L)>
       tuple12<A, B, C, D, E, F, G, H, I, J, K, L>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
@@ -381,7 +390,7 @@ abstract class Decoder<A> {
   ) =>
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 12) {
-              return Tuple12(
+              return (
                 decodeA.tryDecode(c.downN(0)),
                 decodeB.tryDecode(c.downN(1)),
                 decodeC.tryDecode(c.downN(2)),
@@ -394,13 +403,14 @@ abstract class Decoder<A> {
                 decodeJ.tryDecode(c.downN(9)),
                 decodeK.tryDecode(c.downN(10)),
                 decodeL.tryDecode(c.downN(11)),
-              ).sequence();
+              )
+                  .sequence();
             } else {
               return _wrongTypeFail('array[12]', c).asLeft();
             }
           });
 
-  static Decoder<Tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>>
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M)>
       tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
@@ -418,7 +428,7 @@ abstract class Decoder<A> {
   ) =>
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 13) {
-              return Tuple13(
+              return (
                 decodeA.tryDecode(c.downN(0)),
                 decodeB.tryDecode(c.downN(1)),
                 decodeC.tryDecode(c.downN(2)),
@@ -432,13 +442,14 @@ abstract class Decoder<A> {
                 decodeK.tryDecode(c.downN(10)),
                 decodeL.tryDecode(c.downN(11)),
                 decodeM.tryDecode(c.downN(12)),
-              ).sequence();
+              )
+                  .sequence();
             } else {
               return _wrongTypeFail('array[13]', c).asLeft();
             }
           });
 
-  static Decoder<Tuple14<A, B, C, D, E, F, G, H, I, J, K, L, M, N>>
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N)>
       tuple14<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
@@ -457,7 +468,7 @@ abstract class Decoder<A> {
   ) =>
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 14) {
-              return Tuple14(
+              return (
                 decodeA.tryDecode(c.downN(0)),
                 decodeB.tryDecode(c.downN(1)),
                 decodeC.tryDecode(c.downN(2)),
@@ -472,13 +483,14 @@ abstract class Decoder<A> {
                 decodeL.tryDecode(c.downN(11)),
                 decodeM.tryDecode(c.downN(12)),
                 decodeN.tryDecode(c.downN(13)),
-              ).sequence();
+              )
+                  .sequence();
             } else {
               return _wrongTypeFail('array[14]', c).asLeft();
             }
           });
 
-  static Decoder<Tuple15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>>
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)>
       tuple15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
@@ -498,7 +510,7 @@ abstract class Decoder<A> {
   ) =>
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 15) {
-              return Tuple15(
+              return (
                 decodeA.tryDecode(c.downN(0)),
                 decodeB.tryDecode(c.downN(1)),
                 decodeC.tryDecode(c.downN(2)),
@@ -514,7 +526,8 @@ abstract class Decoder<A> {
                 decodeM.tryDecode(c.downN(12)),
                 decodeN.tryDecode(c.downN(13)),
                 decodeO.tryDecode(c.downN(14)),
-              ).sequence();
+              )
+                  .sequence();
             } else {
               return _wrongTypeFail('array[15]', c).asLeft();
             }

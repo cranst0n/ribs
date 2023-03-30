@@ -127,8 +127,8 @@ class IList<A> implements Monad<A>, Foldable<A> {
   IList<A> padTo(int len, A elem) =>
       size >= len ? this : concat(IList.fill(len - size, elem));
 
-  Tuple2<IList<A>, IList<A>> partition(Function1<A, bool> p) =>
-      Tuple2(IList.of(_underlying.where(p)), IList.of(_underlying.whereNot(p)));
+  (IList<A>, IList<A>) partition(Function1<A, bool> p) =>
+      (IList.of(_underlying.where(p)), IList.of(_underlying.whereNot(p)));
 
   IList<A> prepend(A elem) => IList.of(_underlying.insert(0, elem));
 
@@ -164,9 +164,9 @@ class IList<A> implements Monad<A>, Foldable<A> {
   IList<A> sortWith(Function2<A, A, bool> lt) =>
       IList.of(_underlying.sort((a, b) => lt(a, b) ? -1 : 1));
 
-  Tuple2<IList<A>, IList<A>> splitAt(int ix) {
+  (IList<A>, IList<A>) splitAt(int ix) {
     final split = _underlying.splitAt(ix);
-    return Tuple2(IList.of(split.first), IList.of(split.second));
+    return (IList.of(split.first), IList.of(split.second));
   }
 
   bool startsWith(IList<A> that) =>
@@ -266,15 +266,15 @@ class IList<A> implements Monad<A>, Foldable<A> {
     }
   }
 
-  IList<Tuple2<A, B>> zip<B>(IList<B> bs) => IList.of(
+  IList<(A, B)> zip<B>(IList<B> bs) => IList.of(
         Iterable.generate(
           min(size, bs.size),
-          (index) => Tuple2(_underlying[index], bs._underlying[index]),
+          (index) => (_underlying[index], bs._underlying[index]),
         ),
       );
 
-  IList<Tuple2<A, int>> zipWithIndex() =>
-      ilist(_underlying.zipWithIndex().map((e) => Tuple2(e.second, e.first)));
+  IList<(A, int)> zipWithIndex() =>
+      ilist(_underlying.zipWithIndex().map((e) => (e.second, e.first)));
 
   @override
   String toString() =>

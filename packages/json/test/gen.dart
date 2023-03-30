@@ -30,8 +30,8 @@ Gen<JsonObject> genObject(int depth) {
   return Gen.chooseInt(0, _maxObjectSize).flatMap((size) {
     final fields = Gen.listOf(
         size,
-        Gen.alphaNumString(3).flatMap((key) =>
-            genJsonAtDepth(depth + 1).map((value) => Tuple2(key, value))));
+        Gen.alphaNumString(3).flatMap(
+            (key) => genJsonAtDepth(depth + 1).map((value) => (key, value))));
 
     return fields.map(JsonObject.fromIterable);
   });

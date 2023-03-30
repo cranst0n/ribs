@@ -133,7 +133,7 @@ void main() {
         .last
         .unsafeRunToFuture();
 
-    expect(result, const Tuple2(56, 14).some);
+    expect(result, (56, 14).some);
   });
 
   test('zipWith', () async {
@@ -147,11 +147,11 @@ void main() {
     expect(
       result,
       [
-        const Tuple2(1, 5),
-        const Tuple2(2, 4),
-        const Tuple2(3, 3),
-        const Tuple2(4, 2),
-        const Tuple2(5, 1),
+        (1, 5),
+        (2, 4),
+        (3, 3),
+        (4, 2),
+        (5, 1),
       ],
     );
   });

@@ -106,10 +106,7 @@ void main() {
   test('iso', () {
     final creds = config.dbConfig.credentials;
 
-    expect(
-      Credentials.iso.get(creds),
-      const Tuple2('user', 'pass'),
-    );
+    expect(Credentials.iso.get(creds), ('user', 'pass'));
 
     expect(
       Credentials.iso.modify((x) => x.copy($1: '<${x.$1}>'))(creds),
@@ -228,8 +225,8 @@ class Credentials {
   @override
   int get hashCode => username.hashCode * password.hashCode;
 
-  static final iso = Iso<Credentials, Tuple2<String, String>>(
-    (c) => Tuple2(c.username, c.password),
+  static final iso = Iso<Credentials, (String, String)>(
+    (c) => (c.username, c.password),
     (t) => t(Credentials.new),
   );
 }

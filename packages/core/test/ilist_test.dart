@@ -201,9 +201,9 @@ void main() {
   });
 
   test('IList.partition', () {
-    expect(nil<int>().partition((x) => x < 0), Tuple2(nil<int>(), nil<int>()));
+    expect(nil<int>().partition((x) => x < 0), (nil<int>(), nil<int>()));
     expect(ilist([1, -2, 3, 4]).partition((x) => x < 0),
-        Tuple2(ilist([-2]), ilist([1, 3, 4])));
+        (ilist([-2]), ilist([1, 3, 4])));
   });
 
   test('IList.prepend', () {
@@ -261,9 +261,9 @@ void main() {
   });
 
   test('IList.splitAt', () {
-    expect(nil<int>().splitAt(3), Tuple2(nil<int>(), nil<int>()));
-    expect(ilist([1]).splitAt(0), Tuple2(nil<int>(), ilist([1])));
-    expect(ilist([1, 2]).splitAt(1), Tuple2(ilist([1]), ilist([2])));
+    expect(nil<int>().splitAt(3), (nil<int>(), nil<int>()));
+    expect(ilist([1]).splitAt(0), (nil<int>(), ilist([1])));
+    expect(ilist([1, 2]).splitAt(1), (ilist([1]), ilist([2])));
   });
 
   test('IList.startsWith', () {

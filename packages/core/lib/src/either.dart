@@ -74,8 +74,7 @@ abstract class Either<A, B> implements Monad<B>, Foldable<B> {
   Either<A, B> orElse(Function0<Either<A, B>> or) =>
       fold((a) => or(), (b) => this);
 
-  Either<A, Tuple2<B, C>> product<C>(Either<A, C> other) =>
-      Tuple2(this, other).sequence();
+  Either<A, (B, C)> product<C>(Either<A, C> other) => (this, other).sequence();
 
   Either<B, A> swap() => fold((a) => right<B, A>(a), (b) => left(b));
 

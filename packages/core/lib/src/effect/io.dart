@@ -5,14 +5,14 @@ import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/internal/stack.dart';
 
-typedef IOError = Tuple2<Object, StackTrace>;
+typedef IOError = (Object, StackTrace);
 
 typedef AsyncCallback<A> = Function1<Either<IOError, A>, void>;
 typedef AsyncBody<A> = Function1<AsyncCallback<A>, void>;
 typedef AsyncBodyWithFin<A> = Function1<AsyncCallback<A>, IO<Option<IO<Unit>>>>;
 
-typedef AWon<A, B> = Tuple2<Outcome<A>, IOFiber<B>>;
-typedef BWon<A, B> = Tuple2<IOFiber<A>, Outcome<B>>;
+typedef AWon<A, B> = (Outcome<A>, IOFiber<B>);
+typedef BWon<A, B> = (IOFiber<A>, Outcome<B>);
 typedef RacePairOutcome<A, B> = Either<AWon<A, B>, BWon<A, B>>;
 
 abstract class IO<A> extends Monad<A> {
@@ -23,7 +23,7 @@ abstract class IO<A> extends Monad<A> {
         return none();
       });
 
-  static IO<Tuple2<A, B>> both<A, B>(IO<A> ioa, IO<B> iob) => IO.uncancelable(
+  static IO<(A, B)> both<A, B>(IO<A> ioa, IO<B> iob) => IO.uncancelable(
         (poll) => poll(racePair(ioa, iob)).flatMap(
           (winner) => winner.fold(
             (aWon) => aWon((oca, f) {
@@ -38,7 +38,7 @@ abstract class IO<A> extends Monad<A> {
                     .flatMap((ocb) => ocb.fold(
                           () => poll(IO.canceled).productR(() => IO.never()),
                           (err) => IO.raiseError(err),
-                          (b) => IO.pure(Tuple2(a, b)),
+                          (b) => IO.pure((a, b)),
                         )),
               );
             }),
@@ -54,7 +54,7 @@ abstract class IO<A> extends Monad<A> {
                     .flatMap((oca) => oca.fold(
                           () => poll(IO.canceled).productR(() => IO.never()),
                           (err) => IO.raiseError(err),
-                          (a) => IO.pure(Tuple2(a, b)),
+                          (a) => IO.pure((a, b)),
                         )),
               );
             }),
@@ -62,7 +62,7 @@ abstract class IO<A> extends Monad<A> {
         ),
       );
 
-  static IO<Tuple2<Outcome<A>, Outcome<B>>> bothOutcome<A, B>(
+  static IO<(Outcome<A>, Outcome<B>)> bothOutcome<A, B>(
     IO<A> ioa,
     IO<B> iob,
   ) =>
@@ -80,13 +80,13 @@ abstract class IO<A> extends Monad<A> {
   static IO<B> bracketFull<A, B>(
     Function1<Poll, IO<A>> acquire,
     Function1<A, IO<B>> use,
-    Function1<Tuple2<A, Outcome<B>>, IO<Unit>> release,
+    Function1<(A, Outcome<B>), IO<Unit>> release,
   ) =>
       IO.uncancelable(
         (poll) => acquire(poll).flatMap(
           (a) => IO
               .defer(() => poll(use(a)))
-              .guaranteeCase((oc) => release(Tuple2(a, oc))),
+              .guaranteeCase((oc) => release((a, oc))),
         ),
       );
 
@@ -106,7 +106,7 @@ abstract class IO<A> extends Monad<A> {
         return IO.delay(() {
           op.then(
             (a) => cb(a.asRight()),
-            onError: (e, s) => cb(Tuple2(e, s).asLeft()),
+            onError: (e, s) => cb((e, s).asLeft()),
           );
 
           return IO
@@ -126,7 +126,7 @@ abstract class IO<A> extends Monad<A> {
         f.whenComplete(
           () => f.then(
             (a) => cb(a.asRight()),
-            onError: (Object e, StackTrace s) => cb(Tuple2(e, s).asLeft()),
+            onError: (Object e, StackTrace s) => cb((e, s).asLeft()),
           ),
         );
       });
@@ -205,7 +205,7 @@ abstract class IO<A> extends Monad<A> {
       _RacePair(ioa, iob);
 
   static IO<A> raiseError<A>(Object err, [StackTrace? trace]) =>
-      _Error(Tuple2(err, trace ?? StackTrace.current));
+      _Error((err, trace ?? StackTrace.current));
 
   static IO<Unit> raiseUnless(bool cond, Function0<IOError> e) =>
       IO.unlessA(cond, () => e()((o, s) => IO.raiseError<Unit>(o, s)));
@@ -244,7 +244,7 @@ abstract class IO<A> extends Monad<A> {
 
   IO<B> bracketCase<B>(
     Function1<A, IO<B>> use,
-    Function1<Tuple2<A, Outcome<B>>, IO<Unit>> release,
+    Function1<(A, Outcome<B>), IO<Unit>> release,
   ) =>
       IO.bracketFull((_) => this, use, release);
 
@@ -284,8 +284,7 @@ abstract class IO<A> extends Monad<A> {
 
   IO<A> orElse(Function0<IO<A>> that) => handleErrorWith((_) => that());
 
-  IO<Tuple2<A, B>> product<B>(IO<B> that) =>
-      flatMap((a) => that.map((b) => Tuple2(a, b)));
+  IO<(A, B)> product<B>(IO<B> that) => flatMap((a) => that.map((b) => (a, b)));
 
   IO<A> productL<B>(Function0<IO<B>> that) => flatMap((a) => that().as(a));
 
@@ -309,8 +308,8 @@ abstract class IO<A> extends Monad<A> {
 
   IO<IOFiber<A>> start() => _Start<A>(this);
 
-  IO<Tuple2<Duration, A>> timed() => Tuple3(now, this, now).mapN(
-      (startTime, a, endTime) => Tuple2(endTime.difference(startTime), a));
+  IO<(Duration, A)> timed() => (now, this, now)
+      .mapN((startTime, a, endTime) => (endTime.difference(startTime), a));
 
   IO<A> timeout(Duration duration) => timeoutTo(duration,
       IO.defer(() => IO.raiseError(TimeoutException(duration.toString()))));
@@ -321,9 +320,9 @@ abstract class IO<A> extends Monad<A> {
             (_) => fallback,
           ));
 
-  IO<Tuple2<B, A>> tupleLeft<B>(B b) => map((a) => Tuple2(b, a));
+  IO<(B, A)> tupleLeft<B>(B b) => map((a) => (b, a));
 
-  IO<Tuple2<A, B>> tupleRight<B>(B b) => map((a) => Tuple2(a, b));
+  IO<(A, B)> tupleRight<B>(B b) => map((a) => (a, b));
 
   IO<Unit> voided() => as(Unit());
 
@@ -545,13 +544,13 @@ class _RacePair<A, B> extends IO<RacePairOutcome<A, B>> {
     Outcome<dynamic> oc,
     IOFiber<dynamic> fiberB,
   ) =>
-      Left(Tuple2(oc as Outcome<A>, fiberB as IOFiber<B>));
+      Left((oc as Outcome<A>, fiberB as IOFiber<B>));
 
   RacePairOutcome<A, B> bWon(
     Outcome<dynamic> oc,
     IOFiber<dynamic> fiberA,
   ) =>
-      Right(Tuple2(fiberA as IOFiber<A>, oc as Outcome<B>));
+      Right((fiberA as IOFiber<A>, oc as Outcome<B>));
 
   @override
   String toString() => 'RacePair<$A, $B>($ioa, $iob)';
@@ -760,9 +759,9 @@ class IOFiber<A> {
           cur0 = _failed(cur0.error, 0);
         } else if (cur0 is _Delay) {
           ///////////////////////// DELAY /////////////////////////
-          cur0 = Either.catching(
-                  () => (cur0 as _Delay).thunk(), (a, b) => Tuple2(a, b))
-              .fold<IO<dynamic>>(
+          cur0 =
+              Either.catching(() => (cur0 as _Delay).thunk(), (a, b) => (a, b))
+                  .fold<IO<dynamic>>(
             (err) => _failed(err, 0),
             (v) => _succeeded(v, 0),
           );
@@ -772,7 +771,7 @@ class IOFiber<A> {
           final f = cur0.f;
 
           IO<dynamic> next(Function0<dynamic> value) =>
-              Either.catching(() => f(value()), (a, b) => Tuple2(a, b))
+              Either.catching(() => f(value()), (a, b) => (a, b))
                   .fold<IO<dynamic>>(
                       (err) => _failed(err, 0), (v) => _succeeded(v, 0));
 
@@ -794,7 +793,7 @@ class IOFiber<A> {
           final f = cur0.f;
 
           IO<dynamic> next(Function0<dynamic> value) =>
-              Either.catching(() => f(value()), (a, b) => Tuple2(a, b))
+              Either.catching(() => f(value()), (a, b) => (a, b))
                   .fold((err) => _failed(err, 0), id);
 
           if (ioa is _Pure) {
@@ -824,7 +823,7 @@ class IOFiber<A> {
             try {
               result = ioa.thunk();
             } catch (e, s) {
-              error = Tuple2(e, s);
+              error = (e, s);
             }
 
             cur0 = error == null
@@ -1019,7 +1018,7 @@ class IOFiber<A> {
           try {
             transformed = f(result);
           } catch (e, s) {
-            error = Tuple2(e, s);
+            error = (e, s);
           }
 
           if (depth > _DefaultMaxStackDepth) {
@@ -1040,7 +1039,7 @@ class IOFiber<A> {
           try {
             transformed = f(result);
           } catch (e, s) {
-            error = Tuple2(e, s);
+            error = (e, s);
           }
 
           return error == null
@@ -1094,7 +1093,7 @@ class IOFiber<A> {
         try {
           recovered = f(error);
         } catch (e, s) {
-          err = Tuple2(e, s);
+          err = (e, s);
         }
 
         return err == null ? recovered as IO<dynamic> : _failed(err, depth + 1);

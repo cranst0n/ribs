@@ -17,6 +17,6 @@ export 'src/rill/channel.dart';
 export 'src/rill/rill.dart';
 export 'src/state.dart';
 export 'src/syntax/all.dart';
-export 'src/tuple.dart';
+// export 'src/tuple.dart';
 export 'src/unit.dart';
 export 'src/validated.dart';

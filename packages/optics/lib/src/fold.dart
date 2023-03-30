@@ -1,6 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 
-abstract class Fold<S, A> {
+abstract mixin class Fold<S, A> {
   Function1<S, bool> exists(Function1<A, bool> p) =>
       (s) => find(p)(s).isDefined;
 

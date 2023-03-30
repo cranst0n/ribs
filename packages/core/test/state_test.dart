@@ -25,42 +25,42 @@ extension CandyMachineOps on CandyMachine {
   CandyMachine _eat(Candy candy) =>
       map((myCandy) => myCandy.removeFirst((c) => c == candy));
 
-  CandyMachine _extract(int cost, Candy candy) => transform(
-      (s, a) => s >= cost ? Tuple2(s - cost, a.append(candy)) : Tuple2(s, a));
+  CandyMachine _extract(int cost, Candy candy) =>
+      transform((s, a) => s >= cost ? (s - cost, a.append(candy)) : (s, a));
 }
 
 void main() {
   final machine = State.pure<int, IList<Candy>>(IList.empty());
 
   test('State.pure', () {
-    expect(machine.run(0), Tuple2(0, IList.empty<Candy>()));
+    expect(machine.run(0), (0, IList.empty<Candy>()));
   });
 
   test('Redeem exact', () {
     expect(
       machine.insertDime.insertDime.redeemLollipop.run(0),
-      Tuple2(0, IList.of([Lollipop])),
+      (0, IList.of([Lollipop])),
     );
   });
 
   test('Redeem with change', () {
     expect(
       machine.insertDime.insertDime.insertNickel.redeemLollipop.run(0),
-      Tuple2(5, IList.of([Lollipop])),
+      (5, IList.of([Lollipop])),
     );
   });
 
   test('Not enough', () {
     expect(
       machine.insertDime.insertNickel.redeemLollipop.run(0),
-      Tuple2(15, IList.of([])),
+      (15, IList.of([])),
     );
   });
 
   test('Redeem and Eat', () {
     expect(
       machine.insertQuarter.redeemGum.redeemGum.redeemGum.eatGum.eatGum.run(0),
-      Tuple2(10, IList.of([Gum])),
+      (10, IList.of([Gum])),
     );
   });
 

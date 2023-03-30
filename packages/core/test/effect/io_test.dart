@@ -475,7 +475,7 @@ void main() {
     final iob = IO.pure(2).delayBy(const Duration(milliseconds: 200));
     final ioc = IO.pure(3).delayBy(const Duration(milliseconds: 200));
 
-    final result = await Tuple3(ioa, iob, ioc)
+    final result = await (ioa, iob, ioc)
         .mapN((a, b, c) => a + b + c)
         .timed()
         .unsafeRunToFuture();
@@ -493,7 +493,7 @@ void main() {
     final iob = IO.pure(2).delayBy(const Duration(milliseconds: 200));
     final ioc = IO.pure(3).delayBy(const Duration(milliseconds: 200));
 
-    final result = await Tuple3(ioa, iob, ioc)
+    final result = await (ioa, iob, ioc)
         .parMapN((a, b, c) => a + b + c)
         .timed()
         .unsafeRunToFuture();
@@ -757,7 +757,7 @@ void main() {
 
     final oc = await IO.both(ioa, iob).unsafeRunToFutureOutcome();
 
-    expect(oc, const Succeeded(Tuple2(0, 1)));
+    expect(oc, const Succeeded((0, 1)));
   });
 
   test('both error', () async {
