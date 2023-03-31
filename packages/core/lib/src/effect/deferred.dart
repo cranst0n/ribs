@@ -1,6 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 
-class Deferred<A> {
+final class Deferred<A> {
   _DeferredState<A> _state = _DeferredStateUnset<A>();
 
   Deferred._();
@@ -35,7 +35,7 @@ class Deferred<A> {
       );
 }
 
-abstract class _DeferredState<A> {
+sealed class _DeferredState<A> {
   B fold<B>(
     Function1<A, B> ifSet,
     Function1<_DeferredStateUnset<A>, B> ifUnset,

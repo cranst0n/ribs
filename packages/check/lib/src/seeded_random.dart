@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
 
-class StatefulRandom {
+final class StatefulRandom {
   final int? _seed;
 
   const StatefulRandom([this._seed]);

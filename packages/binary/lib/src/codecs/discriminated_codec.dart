@@ -4,7 +4,7 @@ import 'package:ribs_core/ribs_core.dart';
 // TODO: Basic tests show this works for some simple cases but need to examine
 // if this can be improved. Have a feeling there are non-rare cases where this
 // will break down.
-class DiscriminatorCodec<A, B> extends Codec<B> {
+final class DiscriminatorCodec<A, B> extends Codec<B> {
   final Codec<A> by;
   final IList<(A, Codec<B>)> cases;
 

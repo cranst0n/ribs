@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_units/ribs_units.dart';
 
-class Area extends Quantity<Area> {
+final class Area extends Quantity<Area> {
   Area(super.value, super.unit);
 
   Volume operator *(Length that) {
@@ -63,45 +63,45 @@ abstract class AreaUnit extends BaseUnit<Area> {
   Area call(num value) => Area(value.toDouble(), this);
 }
 
-class SquareMeters extends AreaUnit {
+final class SquareMeters extends AreaUnit {
   const SquareMeters._() : super('m²', 1);
 }
 
-class SquareCentimeters extends AreaUnit {
+final class SquareCentimeters extends AreaUnit {
   const SquareCentimeters._()
       : super('cm²', MetricSystem.Centi * MetricSystem.Centi);
 }
 
-class SquareKilometers extends AreaUnit {
+final class SquareKilometers extends AreaUnit {
   const SquareKilometers._()
       : super('km²', MetricSystem.Kilo * MetricSystem.Kilo);
 }
 
-class SquareUsMiles extends AreaUnit {
+final class SquareUsMiles extends AreaUnit {
   const SquareUsMiles._() : super('mi²', 2.589988110336 * 1e6);
 }
 
-class SquareYards extends AreaUnit {
+final class SquareYards extends AreaUnit {
   const SquareYards._() : super('yd²', 8.3612736e-1);
 }
 
-class SquareFeet extends AreaUnit {
+final class SquareFeet extends AreaUnit {
   const SquareFeet._() : super('ft²', 9.290304e-2);
 }
 
-class SquareInches extends AreaUnit {
+final class SquareInches extends AreaUnit {
   const SquareInches._() : super('in²', 6.4516 * 1e-4);
 }
 
-class Hectares extends AreaUnit {
+final class Hectares extends AreaUnit {
   const Hectares._() : super('ha', 1e4);
 }
 
-class Acres extends AreaUnit {
+final class Acres extends AreaUnit {
   const Acres._() : super('acre', 43560 * 9.290304e-2);
 }
 
-class Barnes extends AreaUnit {
+final class Barnes extends AreaUnit {
   const Barnes._() : super('b', 1e-28);
 }
 

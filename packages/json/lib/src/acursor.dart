@@ -74,57 +74,60 @@ abstract class ACursor {
           final lastCursor = cursor.lastCursor;
           final lastOp = cursor.lastOp;
 
-          if (lastOp is Field) {
-            return loop(cursor.lastCursor,
-                acc.prependElem(PathElem.objectKey(lastOp.key)));
-          } else if (lastOp is DownField) {
-            // We tried to move down, and then that failed, so the field was missing.
-            return loop(cursor.lastCursor,
-                acc.prependElem(PathElem.objectKey(lastOp.key)));
-          } else if (lastOp is DownArray) {
-            // We tried to move into an array, but it must have been empty.
-            return loop(
-                cursor.lastCursor, acc.prependElem(PathElem.arrayIndex(0)));
-          } else if (lastOp is DownN) {
-            // We tried to move into an array at index N, but there was no element there.
-            return loop(cursor.lastCursor,
-                acc.prependElem(PathElem.arrayIndex(lastOp.n)));
-          } else if (lastOp is MoveLeft) {
-            // We tried to move to before the start of the array.
-            return loop(
-                cursor.lastCursor, acc.prependElem(PathElem.arrayIndex(-1)));
-          } else if (lastOp is MoveRight) {
-            if (lastCursor is ArrayCursor) {
-              // We tried to move to past the end of the array.
+          switch (lastOp) {
+            case Field _:
+              return loop(cursor.lastCursor,
+                  acc.prependElem(PathElem.objectKey(lastOp.key)));
+            case DownField _:
+              // We tried to move down, and then that failed, so the field was missing.
+              return loop(cursor.lastCursor,
+                  acc.prependElem(PathElem.objectKey(lastOp.key)));
+            case DownArray _:
+              // We tried to move into an array, but it must have been empty.
               return loop(
-                lastCursor.parent,
-                acc.prependElem(PathElem.arrayIndex(lastCursor.indexValue + 1)),
-              );
-            } else {
-              // Invalid state, skip for now.
+                  cursor.lastCursor, acc.prependElem(PathElem.arrayIndex(0)));
+            case DownN _:
+              // We tried to move into an array at index N, but there was no element there.
+              return loop(cursor.lastCursor,
+                  acc.prependElem(PathElem.arrayIndex(lastOp.n)));
+            case MoveLeft _:
+              // We tried to move to before the start of the array.
+              return loop(
+                  cursor.lastCursor, acc.prependElem(PathElem.arrayIndex(-1)));
+            case MoveRight _:
+              if (lastCursor is ArrayCursor) {
+                // We tried to move to past the end of the array.
+                return loop(
+                  lastCursor.parent,
+                  acc.prependElem(
+                      PathElem.arrayIndex(lastCursor.indexValue + 1)),
+                );
+              } else {
+                // Invalid state, skip for now.
+                return loop(cursor.lastCursor, acc);
+              }
+            default:
+              // CursorOp.MoveUp or CursorOp.DeleteGoParent, both are move up
+              // events.
+              //
+              // Recalling we are in a failed branch here, this should only
+              // fail if we are already at the top of the tree or if the
+              // cursor state is broken, in either
+              // case this is the only valid action to take.
               return loop(cursor.lastCursor, acc);
-            }
-          } else {
-            // CursorOp.MoveUp or CursorOp.DeleteGoParent, both are move up
-            // events.
-            //
-            // Recalling we are in a failed branch here, this should only
-            // fail if we are already at the top of the tree or if the
-            // cursor state is broken, in either
-            // case this is the only valid action to take.
-            return loop(cursor.lastCursor, acc);
           }
         } else {
-          if (cursor is ArrayCursor) {
-            return loop(cursor.parent,
-                acc.prependElem(PathElem.arrayIndex(cursor.indexValue)));
-          } else if (cursor is ObjectCursor) {
-            return loop(cursor.parent,
-                acc.prependElem(PathElem.objectKey(cursor.keyValue)));
-          } else if (cursor is TopCursor) {
-            return acc;
-          } else {
-            return loop(cursor.lastCursor, acc);
+          switch (cursor) {
+            case ArrayCursor _:
+              return loop(cursor.parent,
+                  acc.prependElem(PathElem.arrayIndex(cursor.indexValue)));
+            case ObjectCursor _:
+              return loop(cursor.parent,
+                  acc.prependElem(PathElem.objectKey(cursor.keyValue)));
+            case TopCursor _:
+              return acc;
+            default:
+              return loop(cursor.lastCursor, acc);
           }
         }
       }

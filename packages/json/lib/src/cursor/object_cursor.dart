@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
-class ObjectCursor extends HCursor {
+final class ObjectCursor extends HCursor {
   final JsonObject obj;
   final String keyValue;
   final HCursor parent;

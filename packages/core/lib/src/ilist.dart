@@ -13,7 +13,7 @@ IList<A> nil<A>() => IList.empty();
 // the API the same, this is what was created. Much credit to the FIC folks for
 // building a useful and performant IList.
 
-class IList<A> implements Monad<A>, Foldable<A> {
+final class IList<A> implements Monad<A>, Foldable<A> {
   final fic.IList<A> _underlying;
 
   const IList._(this._underlying);

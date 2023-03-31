@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
 @immutable
-abstract class CursorOp {
+sealed class CursorOp {
   final bool requiresObject;
   final bool requiresArray;
 
@@ -29,22 +29,22 @@ class _UnconstrainedOp extends CursorOp {
   const _UnconstrainedOp() : super(false, false);
 }
 
-class MoveLeft extends _UnconstrainedOp {
+final class MoveLeft extends _UnconstrainedOp {
   @override
   String toString() => 'MoveLeft';
 }
 
-class MoveRight extends _UnconstrainedOp {
+final class MoveRight extends _UnconstrainedOp {
   @override
   String toString() => 'MoveRight';
 }
 
-class MoveUp extends _UnconstrainedOp {
+final class MoveUp extends _UnconstrainedOp {
   @override
   String toString() => 'MoveUp';
 }
 
-class Field extends _UnconstrainedOp {
+final class Field extends _UnconstrainedOp {
   final String key;
 
   const Field(this.key);
@@ -53,7 +53,7 @@ class Field extends _UnconstrainedOp {
   String toString() => 'Field($key)';
 }
 
-class DownField extends _ObjectOp {
+final class DownField extends _ObjectOp {
   final String key;
 
   const DownField(this.key);
@@ -62,12 +62,12 @@ class DownField extends _ObjectOp {
   String toString() => 'DownField($key)';
 }
 
-class DownArray extends _ArrayOp {
+final class DownArray extends _ArrayOp {
   @override
   String toString() => 'DownArray';
 }
 
-class DownN extends _ArrayOp {
+final class DownN extends _ArrayOp {
   final int n;
 
   const DownN(this.n);
@@ -76,7 +76,7 @@ class DownN extends _ArrayOp {
   String toString() => 'DownN($n)';
 }
 
-class DeleteGoParent extends _UnconstrainedOp {
+final class DeleteGoParent extends _UnconstrainedOp {
   @override
   String toString() => 'DeleteGoParent';
 }

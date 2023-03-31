@@ -15,7 +15,7 @@ typedef AWon<A, B> = (Outcome<A>, IOFiber<B>);
 typedef BWon<A, B> = (IOFiber<A>, Outcome<B>);
 typedef RacePairOutcome<A, B> = Either<AWon<A, B>, BWon<A, B>>;
 
-abstract class IO<A> extends Monad<A> {
+sealed class IO<A> extends Monad<A> {
   static IO<A> async<A>(AsyncBodyWithFin<A> k) => _Async(k);
 
   static IO<A> async_<A>(AsyncBody<A> k) => _Async((cb) {
@@ -391,7 +391,7 @@ extension IOErrorOps<A> on IO<Either<IOError, A>> {
 // /////////////////////////////////////////////////////////////////////////////
 
 /// Utility class to create unmasked blocks within an uncancelable region
-class Poll {
+final class Poll {
   final int _id;
   final IOFiber<dynamic> _fiber;
 
@@ -400,7 +400,7 @@ class Poll {
   IO<A> call<A>(IO<A> ioa) => _UnmaskRunLoop(ioa, _id, _fiber);
 }
 
-class _Pure<A> extends IO<A> {
+final class _Pure<A> extends IO<A> {
   final A value;
 
   _Pure(this.value);
@@ -409,7 +409,7 @@ class _Pure<A> extends IO<A> {
   String toString() => 'Pure($value)';
 }
 
-class _Error<A> extends IO<A> {
+final class _Error<A> extends IO<A> {
   final IOError error;
 
   _Error(this.error);
@@ -418,7 +418,7 @@ class _Error<A> extends IO<A> {
   String toString() => 'Error(${error.$1})';
 }
 
-class _Delay<A> extends IO<A> {
+final class _Delay<A> extends IO<A> {
   final Fn0<A> thunk;
 
   _Delay(this.thunk);
@@ -427,7 +427,7 @@ class _Delay<A> extends IO<A> {
   String toString() => 'Delay($thunk)';
 }
 
-class _Async<A> extends IO<A> {
+final class _Async<A> extends IO<A> {
   final AsyncBodyWithFin<A> body;
 
   _Async(this.body);
@@ -438,7 +438,7 @@ class _Async<A> extends IO<A> {
   String toString() => 'Async($body)';
 }
 
-class _AsyncGet<A> extends IO<A> {
+final class _AsyncGet<A> extends IO<A> {
   Either<IOError, dynamic>? value;
 
   _AsyncGet();
@@ -447,7 +447,7 @@ class _AsyncGet<A> extends IO<A> {
   String toString() => 'AsyncResultF($value)';
 }
 
-class _Map<A, B> extends IO<B> {
+final class _Map<A, B> extends IO<B> {
   final IO<A> ioa;
   final Fn1<A, B> f;
 
@@ -457,7 +457,7 @@ class _Map<A, B> extends IO<B> {
   String toString() => 'Map($ioa, $f)';
 }
 
-class _FlatMap<A, B> extends IO<B> {
+final class _FlatMap<A, B> extends IO<B> {
   final IO<A> ioa;
   final Fn1<A, IO<B>> f;
 
@@ -467,7 +467,7 @@ class _FlatMap<A, B> extends IO<B> {
   String toString() => 'FlatMap($ioa, $f)';
 }
 
-class _Attempt<A> extends IO<Either<IOError, A>> {
+final class _Attempt<A> extends IO<Either<IOError, A>> {
   final IO<A> ioa;
 
   Either<IOError, A> right(dynamic value) => Right<IOError, A>(value as A);
@@ -479,7 +479,7 @@ class _Attempt<A> extends IO<Either<IOError, A>> {
   String toString() => 'Attempt($ioa)';
 }
 
-class _Sleep extends IO<Unit> {
+final class _Sleep extends IO<Unit> {
   final Duration duration;
 
   _Sleep(this.duration);
@@ -488,14 +488,14 @@ class _Sleep extends IO<Unit> {
   String toString() => 'Sleep($duration)';
 }
 
-class _Cede extends IO<Unit> {
+final class _Cede extends IO<Unit> {
   _Cede();
 
   @override
   String toString() => 'Cede';
 }
 
-class _Start<A> extends IO<IOFiber<A>> {
+final class _Start<A> extends IO<IOFiber<A>> {
   final IO<A> ioa;
 
   _Start(this.ioa);
@@ -506,7 +506,7 @@ class _Start<A> extends IO<IOFiber<A>> {
   String toString() => 'Start($ioa)';
 }
 
-class _HandleErrorWith<A> extends IO<A> {
+final class _HandleErrorWith<A> extends IO<A> {
   final IO<A> ioa;
   final Fn1<IOError, IO<A>> f;
 
@@ -516,7 +516,7 @@ class _HandleErrorWith<A> extends IO<A> {
   String toString() => 'HandleErrorWith($ioa, $f)';
 }
 
-class _OnCancel<A> extends IO<A> {
+final class _OnCancel<A> extends IO<A> {
   final IO<A> ioa;
   final IO<Unit> fin;
 
@@ -526,12 +526,12 @@ class _OnCancel<A> extends IO<A> {
   String toString() => 'OnCancel($ioa, $fin)';
 }
 
-class _Canceled extends IO<Unit> {
+final class _Canceled extends IO<Unit> {
   @override
   String toString() => 'Canceled';
 }
 
-class _RacePair<A, B> extends IO<RacePairOutcome<A, B>> {
+final class _RacePair<A, B> extends IO<RacePairOutcome<A, B>> {
   final IO<A> ioa;
   final IO<B> iob;
 
@@ -556,7 +556,7 @@ class _RacePair<A, B> extends IO<RacePairOutcome<A, B>> {
   String toString() => 'RacePair<$A, $B>($ioa, $iob)';
 }
 
-class _Uncancelable<A> extends IO<A> {
+final class _Uncancelable<A> extends IO<A> {
   final Function1<Poll, IO<A>> body;
 
   _Uncancelable(this.body);
@@ -565,7 +565,7 @@ class _Uncancelable<A> extends IO<A> {
   String toString() => 'Uncancelable<$A>($body)';
 }
 
-class _UnmaskRunLoop<A> extends IO<A> {
+final class _UnmaskRunLoop<A> extends IO<A> {
   final IO<A> ioa;
   final int id;
   final IOFiber<dynamic> self;
@@ -576,12 +576,12 @@ class _UnmaskRunLoop<A> extends IO<A> {
   String toString() => 'UnmaskRunLoop<$A>($ioa, $id)';
 }
 
-class _EndFiber extends IO<dynamic> {
+final class _EndFiber extends IO<dynamic> {
   @override
   String toString() => 'EndFiber';
 }
 
-class IOFiber<A> {
+final class IOFiber<A> {
   final IO<A> _startIO;
 
   final _callbacks = Stack<Function1<Outcome<A>, void>>();

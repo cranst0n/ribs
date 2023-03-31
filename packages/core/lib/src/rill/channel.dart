@@ -1,6 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 
-abstract class Channel<A> {
+sealed class Channel<A> {
   static IO<Channel<A>> bounded<A>(int capacity) =>
       (Ref.of(_ChannelState.empty<A>(false)), Deferred.of<Unit>())
           .sequence()
@@ -27,7 +27,7 @@ abstract class Channel<A> {
   IO<Unit> closed();
 }
 
-class ChannelClosed {
+final class ChannelClosed {
   static final ChannelClosed _singleton = ChannelClosed._();
 
   factory ChannelClosed() => _singleton;
@@ -35,7 +35,7 @@ class ChannelClosed {
   ChannelClosed._();
 }
 
-class _BoundedChannel<A> extends Channel<A> {
+final class _BoundedChannel<A> extends Channel<A> {
   final int capacity;
 
   final Ref<_ChannelState<A>> state;
@@ -182,7 +182,7 @@ class _BoundedChannel<A> extends Channel<A> {
   final rightFalse = false.asRight<ChannelClosed>();
 }
 
-class _ChannelState<A> {
+final class _ChannelState<A> {
   final IList<A> values;
   final int size;
   final Option<Deferred<Unit>> waiting;

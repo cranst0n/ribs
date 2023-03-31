@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
-class Printer {
+final class Printer {
   final String indent;
   final String lbraceLeft;
   final String lbraceRight;
@@ -170,10 +170,7 @@ class _PrintFolder extends JsonFolder<void> {
     buffer.write(p.lBraces);
 
     while (iterator.moveNext()) {
-      final next = iterator.current;
-
-      final key = next.$1;
-      final value = next.$2;
+      final (key, value) = iterator.current;
 
       if (!printer.dropNullValues || !value.isNull) {
         if (!first) {
@@ -301,11 +298,11 @@ class _Pieces {
   }
 }
 
-abstract class _PiecesAtDepth {
+sealed class _PiecesAtDepth {
   _Pieces atDepth(int i);
 }
 
-class _ConstantPieces extends _PiecesAtDepth {
+final class _ConstantPieces extends _PiecesAtDepth {
   final _Pieces pieces;
 
   _ConstantPieces(this.pieces);
@@ -314,7 +311,7 @@ class _ConstantPieces extends _PiecesAtDepth {
   _Pieces atDepth(int i) => pieces;
 }
 
-class _MemoizedPieces extends _PiecesAtDepth {
+final class _MemoizedPieces extends _PiecesAtDepth {
   final Printer printer;
   final _memoized = <int, _Pieces>{};
 

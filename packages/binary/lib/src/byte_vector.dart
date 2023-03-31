@@ -6,7 +6,7 @@ import 'package:ribs_core/ribs_core.dart';
 
 typedef Byte = int;
 
-class ByteVector {
+final class ByteVector {
   final Uint8List _underlying;
 
   const ByteVector(this._underlying);

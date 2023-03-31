@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
-class OptionDecoder<A> extends Decoder<Option<A>> {
+final class OptionDecoder<A> extends Decoder<Option<A>> {
   final Decoder<A> decodeA;
 
   OptionDecoder(this.decodeA);

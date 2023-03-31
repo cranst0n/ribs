@@ -1,4 +1,4 @@
-class MetricSystem {
+final class MetricSystem {
   MetricSystem._();
 
   static const Yocto = 1e-24;

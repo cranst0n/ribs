@@ -3,8 +3,8 @@ import 'package:ribs_core/ribs_core.dart';
 
 typedef EncodeF<A> = Function1<A, Either<Err, BitVector>>;
 
-abstract class Encoder<A> {
-  static Encoder<A> instance<A>(EncodeF<A> encode) => EncoderF(encode);
+abstract mixin class Encoder<A> {
+  static Encoder<A> instance<A>(EncodeF<A> encode) => _EncoderF(encode);
 
   static Either<Err, BitVector> encodeBoth<A, B>(
           Encoder<A> encodeA, A a, Encoder<B> encodeB, B b) =>
@@ -26,7 +26,7 @@ abstract class Encoder<A> {
     Encoder<A> encodeA,
     Encoder<B> encodeB,
   ) =>
-      EncoderF((tuple) => encodeA
+      _EncoderF((tuple) => encodeA
           .encode(tuple.$1)
           .flatMap((a) => encodeB.encode(tuple.$2).map(a.concat)));
 
@@ -35,7 +35,7 @@ abstract class Encoder<A> {
     Encoder<B> encodeB,
     Encoder<C> encodeC,
   ) =>
-      EncoderF((tuple) => tuple2(encodeA, encodeB)
+      _EncoderF((tuple) => tuple2(encodeA, encodeB)
           .encode(tuple.init())
           .flatMap((a) => encodeC.encode(tuple.$3).map(a.concat)));
 
@@ -45,7 +45,7 @@ abstract class Encoder<A> {
     Encoder<C> encodeC,
     Encoder<D> encodeD,
   ) =>
-      EncoderF((tuple) => tuple3(encodeA, encodeB, encodeC)
+      _EncoderF((tuple) => tuple3(encodeA, encodeB, encodeC)
           .encode(tuple.init())
           .flatMap((a) => encodeD.encode(tuple.$4).map(a.concat)));
 
@@ -56,7 +56,7 @@ abstract class Encoder<A> {
     Encoder<D> encodeD,
     Encoder<E> encodeE,
   ) =>
-      EncoderF((tuple) => tuple4(encodeA, encodeB, encodeC, encodeD)
+      _EncoderF((tuple) => tuple4(encodeA, encodeB, encodeC, encodeD)
           .encode(tuple.init())
           .flatMap((a) => encodeE.encode(tuple.$5).map(a.concat)));
 
@@ -68,7 +68,7 @@ abstract class Encoder<A> {
     Encoder<E> encodeE,
     Encoder<F> encodeF,
   ) =>
-      EncoderF((tuple) => tuple5(encodeA, encodeB, encodeC, encodeD, encodeE)
+      _EncoderF((tuple) => tuple5(encodeA, encodeB, encodeC, encodeD, encodeE)
           .encode(tuple.init())
           .flatMap((a) => encodeF.encode(tuple.$6).map(a.concat)));
 
@@ -81,7 +81,7 @@ abstract class Encoder<A> {
     Encoder<F> encodeF,
     Encoder<G> encodeG,
   ) =>
-      EncoderF((tuple) =>
+      _EncoderF((tuple) =>
           tuple6(encodeA, encodeB, encodeC, encodeD, encodeE, encodeF)
               .encode(tuple.init())
               .flatMap((a) => encodeG.encode(tuple.$7).map(a.concat)));
@@ -96,7 +96,7 @@ abstract class Encoder<A> {
     Encoder<G> encodeG,
     Encoder<H> encodeH,
   ) =>
-      EncoderF((tuple) =>
+      _EncoderF((tuple) =>
           tuple7(encodeA, encodeB, encodeC, encodeD, encodeE, encodeF, encodeG)
               .encode(tuple.init())
               .flatMap((a) => encodeH.encode(tuple.$8).map(a.concat)));
@@ -112,7 +112,7 @@ abstract class Encoder<A> {
     Encoder<H> encodeH,
     Encoder<I> encodeI,
   ) =>
-      EncoderF((tuple) => tuple8(encodeA, encodeB, encodeC, encodeD, encodeE,
+      _EncoderF((tuple) => tuple8(encodeA, encodeB, encodeC, encodeD, encodeE,
               encodeF, encodeG, encodeH)
           .encode(tuple.init())
           .flatMap((a) => encodeI.encode(tuple.$9).map(a.concat)));
@@ -130,7 +130,7 @@ abstract class Encoder<A> {
     Encoder<I> encodeI,
     Encoder<J> encodeJ,
   ) =>
-          EncoderF((tuple) => tuple9(encodeA, encodeB, encodeC, encodeD,
+          _EncoderF((tuple) => tuple9(encodeA, encodeB, encodeC, encodeD,
                   encodeE, encodeF, encodeG, encodeH, encodeI)
               .encode(tuple.init())
               .flatMap((a) => encodeJ.encode(tuple.$10).map(a.concat)));
@@ -149,7 +149,7 @@ abstract class Encoder<A> {
     Encoder<J> encodeJ,
     Encoder<K> encodeK,
   ) =>
-          EncoderF((tuple) => tuple10(encodeA, encodeB, encodeC, encodeD,
+          _EncoderF((tuple) => tuple10(encodeA, encodeB, encodeC, encodeD,
                   encodeE, encodeF, encodeG, encodeH, encodeI, encodeJ)
               .encode(tuple.init())
               .flatMap((a) => encodeK.encode(tuple.$11).map(a.concat)));
@@ -169,7 +169,7 @@ abstract class Encoder<A> {
     Encoder<K> encodeK,
     Encoder<L> encodeL,
   ) =>
-          EncoderF((tuple) => tuple11(encodeA, encodeB, encodeC, encodeD,
+          _EncoderF((tuple) => tuple11(encodeA, encodeB, encodeC, encodeD,
                   encodeE, encodeF, encodeG, encodeH, encodeI, encodeJ, encodeK)
               .encode(tuple.init())
               .flatMap((a) => encodeL.encode(tuple.$12).map(a.concat)));
@@ -190,7 +190,7 @@ abstract class Encoder<A> {
     Encoder<L> encodeL,
     Encoder<M> encodeM,
   ) =>
-          EncoderF((tuple) => tuple12(
+          _EncoderF((tuple) => tuple12(
                   encodeA,
                   encodeB,
                   encodeC,
@@ -223,7 +223,7 @@ abstract class Encoder<A> {
     Encoder<M> encodeM,
     Encoder<N> encodeN,
   ) =>
-          EncoderF((tuple) => tuple13(
+          _EncoderF((tuple) => tuple13(
                   encodeA,
                   encodeB,
                   encodeC,
@@ -258,7 +258,7 @@ abstract class Encoder<A> {
     Encoder<N> encodeN,
     Encoder<O> encodeO,
   ) =>
-          EncoderF((tuple) => tuple14(
+          _EncoderF((tuple) => tuple14(
                   encodeA,
                   encodeB,
                   encodeC,
@@ -277,10 +277,10 @@ abstract class Encoder<A> {
               .flatMap((a) => encodeO.encode(tuple.$15).map(a.concat)));
 }
 
-class EncoderF<A> extends Encoder<A> {
+final class _EncoderF<A> extends Encoder<A> {
   final EncodeF<A> _encodeF;
 
-  EncoderF(this._encodeF);
+  _EncoderF(this._encodeF);
 
   @override
   Either<Err, BitVector> encode(A a) => _encodeF(a);

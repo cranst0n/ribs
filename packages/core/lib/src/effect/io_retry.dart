@@ -4,7 +4,7 @@ import 'package:ribs_core/ribs_core.dart';
 
 /// Mostly complete port of cats-retry.
 
-class RetryStatus {
+final class RetryStatus {
   /// Retries attempted thus far.
   final int retriesSoFar;
 
@@ -29,7 +29,7 @@ class RetryStatus {
       RetryStatus(retriesSoFar + 1, cumulativeDelay + delay, delay.some);
 }
 
-abstract class RetryDecision {
+sealed class RetryDecision {
   const RetryDecision._();
 
   /// Indicates if this decision is to give up retrying.
@@ -59,7 +59,7 @@ abstract class RetryDecision {
       isGivingUp ? status : status.retryAfter(delay);
 }
 
-class _GiveUp extends RetryDecision {
+final class _GiveUp extends RetryDecision {
   static const _GiveUp _singleton = _GiveUp._();
 
   factory _GiveUp() => _singleton;
@@ -82,7 +82,7 @@ class _GiveUp extends RetryDecision {
   int get hashCode => _singleton.hashCode;
 }
 
-class _DelayAndRetry extends RetryDecision {
+final class _DelayAndRetry extends RetryDecision {
   @override
   final Duration delay;
 
@@ -214,7 +214,7 @@ class RetryPolicy {
       );
 }
 
-class RetryDetails {
+final class RetryDetails {
   final int retriesSoFar;
   final Duration cumulativeDelay;
   final bool givingUp;

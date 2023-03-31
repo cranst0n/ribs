@@ -1,7 +1,7 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-class DecodeResult<A> {
+final class DecodeResult<A> {
   final A value;
   final BitVector remainder;
 
@@ -35,13 +35,13 @@ abstract mixin class Decoder<A> {
       instance((bv) => decode(bv)
           .flatMap((a) => f(a.value).map((b) => DecodeResult(b, a.remainder))));
 
-  static Decoder<A> instance<A>(DecodeF<A> decode) => DecoderF(decode);
+  static Decoder<A> instance<A>(DecodeF<A> decode) => _DecoderF(decode);
 
   static Decoder<(A, B)> tuple2<A, B>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
   ) =>
-      DecoderF((bv) => decodeA.decode(bv).flatMap((a) => decodeB
+      _DecoderF((bv) => decodeA.decode(bv).flatMap((a) => decodeB
           .decode(a.remainder)
           .map((b) => DecodeResult((a.value, b.value), b.remainder))));
 
@@ -50,7 +50,7 @@ abstract mixin class Decoder<A> {
     Decoder<B> decodeB,
     Decoder<C> decodeC,
   ) =>
-      DecoderF((bv) => tuple2(decodeA, decodeB).decode(bv).flatMap((t) =>
+      _DecoderF((bv) => tuple2(decodeA, decodeB).decode(bv).flatMap((t) =>
           decodeC
               .decode(t.remainder)
               .map((c) => DecodeResult(t.value.append(c.value), c.remainder))));
@@ -61,7 +61,7 @@ abstract mixin class Decoder<A> {
     Decoder<C> decodeC,
     Decoder<D> decodeD,
   ) =>
-      DecoderF((bv) => tuple3(decodeA, decodeB, decodeC).decode(bv).flatMap(
+      _DecoderF((bv) => tuple3(decodeA, decodeB, decodeC).decode(bv).flatMap(
           (t) => decodeD
               .decode(t.remainder)
               .map((d) => DecodeResult(t.value.append(d.value), d.remainder))));
@@ -73,7 +73,7 @@ abstract mixin class Decoder<A> {
     Decoder<D> decodeD,
     Decoder<E> decodeE,
   ) =>
-      DecoderF((bv) => tuple4(decodeA, decodeB, decodeC, decodeD)
+      _DecoderF((bv) => tuple4(decodeA, decodeB, decodeC, decodeD)
           .decode(bv)
           .flatMap((t) => decodeE
               .decode(t.remainder)
@@ -87,7 +87,7 @@ abstract mixin class Decoder<A> {
     Decoder<E> decodeE,
     Decoder<F> decodeF,
   ) =>
-      DecoderF((bv) => tuple5(decodeA, decodeB, decodeC, decodeD, decodeE)
+      _DecoderF((bv) => tuple5(decodeA, decodeB, decodeC, decodeD, decodeE)
           .decode(bv)
           .flatMap((t) => decodeF
               .decode(t.remainder)
@@ -102,7 +102,7 @@ abstract mixin class Decoder<A> {
     Decoder<F> decodeF,
     Decoder<G> decodeG,
   ) =>
-      DecoderF((bv) => tuple6(
+      _DecoderF((bv) => tuple6(
               decodeA, decodeB, decodeC, decodeD, decodeE, decodeF)
           .decode(bv)
           .flatMap((t) => decodeG
@@ -119,7 +119,7 @@ abstract mixin class Decoder<A> {
     Decoder<G> decodeG,
     Decoder<H> decodeH,
   ) =>
-      DecoderF((bv) => tuple7(
+      _DecoderF((bv) => tuple7(
               decodeA, decodeB, decodeC, decodeD, decodeE, decodeF, decodeG)
           .decode(bv)
           .flatMap((t) => decodeH
@@ -137,7 +137,7 @@ abstract mixin class Decoder<A> {
     Decoder<H> decodeH,
     Decoder<I> decodeI,
   ) =>
-      DecoderF((bv) => tuple8(decodeA, decodeB, decodeC, decodeD, decodeE,
+      _DecoderF((bv) => tuple8(decodeA, decodeB, decodeC, decodeD, decodeE,
               decodeF, decodeG, decodeH)
           .decode(bv)
           .flatMap((t) => decodeI
@@ -157,7 +157,7 @@ abstract mixin class Decoder<A> {
     Decoder<I> decodeI,
     Decoder<J> decodeJ,
   ) =>
-          DecoderF((bv) => tuple9(decodeA, decodeB, decodeC, decodeD, decodeE,
+          _DecoderF((bv) => tuple9(decodeA, decodeB, decodeC, decodeD, decodeE,
                   decodeF, decodeG, decodeH, decodeI)
               .decode(bv)
               .flatMap((t) => decodeJ.decode(t.remainder).map(
@@ -177,7 +177,7 @@ abstract mixin class Decoder<A> {
     Decoder<J> decodeJ,
     Decoder<K> decodeK,
   ) =>
-          DecoderF((bv) => tuple10(decodeA, decodeB, decodeC, decodeD, decodeE,
+          _DecoderF((bv) => tuple10(decodeA, decodeB, decodeC, decodeD, decodeE,
                   decodeF, decodeG, decodeH, decodeI, decodeJ)
               .decode(bv)
               .flatMap((t) => decodeK.decode(t.remainder).map(
@@ -198,7 +198,7 @@ abstract mixin class Decoder<A> {
     Decoder<K> decodeK,
     Decoder<L> decodeL,
   ) =>
-          DecoderF((bv) => tuple11(decodeA, decodeB, decodeC, decodeD, decodeE,
+          _DecoderF((bv) => tuple11(decodeA, decodeB, decodeC, decodeD, decodeE,
                   decodeF, decodeG, decodeH, decodeI, decodeJ, decodeK)
               .decode(bv)
               .flatMap((t) => decodeL.decode(t.remainder).map(
@@ -220,7 +220,7 @@ abstract mixin class Decoder<A> {
     Decoder<L> decodeL,
     Decoder<M> decodeM,
   ) =>
-          DecoderF((bv) => tuple12(decodeA, decodeB, decodeC, decodeD, decodeE,
+          _DecoderF((bv) => tuple12(decodeA, decodeB, decodeC, decodeD, decodeE,
                   decodeF, decodeG, decodeH, decodeI, decodeJ, decodeK, decodeL)
               .decode(bv)
               .flatMap((t) => decodeM.decode(t.remainder).map(
@@ -243,7 +243,7 @@ abstract mixin class Decoder<A> {
     Decoder<M> decodeM,
     Decoder<N> decodeN,
   ) =>
-          DecoderF((bv) => tuple13(
+          _DecoderF((bv) => tuple13(
                   decodeA,
                   decodeB,
                   decodeC,
@@ -279,7 +279,7 @@ abstract mixin class Decoder<A> {
     Decoder<N> decodeN,
     Decoder<O> decodeO,
   ) =>
-          DecoderF((bv) => tuple14(
+          _DecoderF((bv) => tuple14(
                   decodeA,
                   decodeB,
                   decodeC,
@@ -299,10 +299,10 @@ abstract mixin class Decoder<A> {
                   (o) => DecodeResult(t.value.append(o.value), o.remainder))));
 }
 
-class DecoderF<A> extends Decoder<A> {
+final class _DecoderF<A> extends Decoder<A> {
   final DecodeF<A> decodeF;
 
-  DecoderF(this.decodeF);
+  _DecoderF(this.decodeF);
 
   @override
   Either<Err, DecodeResult<A>> decode(BitVector bv) => decodeF(bv);

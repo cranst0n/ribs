@@ -172,8 +172,7 @@ void main() {
             .take(3000)
             .zipWithIndex()
             .mapEval((x) {
-              final bytes = x.$1;
-              final ix = x.$2;
+              final (bytes, ix) = x;
 
               if (ix == 30) {
                 throw StateError('boom...');

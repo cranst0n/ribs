@@ -1,7 +1,7 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-class EitherCodec<A, B> extends Codec<Either<A, B>> {
+final class EitherCodec<A, B> extends Codec<Either<A, B>> {
   Codec<bool> indicator;
   Codec<A> leftCodec;
   Codec<B> rightCodec;

@@ -5,7 +5,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
 @immutable
-abstract class JsonObject {
+sealed class JsonObject {
   static JsonObject get empty => _LinkedHashMapJsonObject(LinkedHashMap());
 
   static JsonObject fromIList(IList<(String, Json)> fields) =>
@@ -53,7 +53,7 @@ abstract class JsonObject {
   IList<Json> get values;
 }
 
-class _LinkedHashMapJsonObject extends JsonObject {
+final class _LinkedHashMapJsonObject extends JsonObject {
   final LinkedHashMap<String, Json> fields;
 
   _LinkedHashMapJsonObject(this.fields);

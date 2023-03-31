@@ -1,6 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 
-class Scope {
+final class Scope {
   final Option<Scope> parent;
   final ScopeId id;
   final Ref<ScopeState> state;
@@ -112,7 +112,7 @@ class Scope {
 
 class ScopeId {}
 
-abstract class ScopeState {
+sealed class ScopeState {
   const ScopeState();
 
   static ScopeState open(IO<Unit> finalizer, IList<Scope> subScopes) =>
@@ -123,7 +123,7 @@ abstract class ScopeState {
   B fold<B>(Function1<Open, B> ifOpen, Function0<B> ifClosed);
 }
 
-class Open extends ScopeState {
+final class Open extends ScopeState {
   final IO<Unit> finalizer;
   final IList<Scope> subScopes;
 
@@ -133,7 +133,7 @@ class Open extends ScopeState {
   B fold<B>(Function1<Open, B> ifOpen, Function0<B> ifClosed) => ifOpen(this);
 }
 
-class Closed extends ScopeState {
+final class Closed extends ScopeState {
   @override
   B fold<B>(Function1<Open, B> ifOpen, Function0<B> ifClosed) => ifClosed();
 }

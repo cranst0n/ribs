@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_units/ribs_units.dart';
 
-class Angle extends Quantity<Angle> {
+final class Angle extends Quantity<Angle> {
   Angle(super.value, super.unit);
 
   Angle get toRadians => to(radians).radians;
@@ -45,27 +45,27 @@ abstract class AngleUnit extends BaseUnit<Angle> {
   Angle call(num value) => Angle(value.toDouble(), this);
 }
 
-class Radians extends AngleUnit {
+final class Radians extends AngleUnit {
   const Radians._() : super('rad', 1);
 }
 
-class Degrees extends AngleUnit {
+final class Degrees extends AngleUnit {
   const Degrees._() : super('°', math.pi / 180);
 }
 
-class Gradians extends AngleUnit {
+final class Gradians extends AngleUnit {
   const Gradians._() : super('grad', 2 * math.pi / 400);
 }
 
-class Turns extends AngleUnit {
+final class Turns extends AngleUnit {
   const Turns._() : super('turns', 2 * math.pi);
 }
 
-class Arcminutes extends AngleUnit {
+final class Arcminutes extends AngleUnit {
   const Arcminutes._() : super('amin', math.pi / 10800);
 }
 
-class Arcseconds extends AngleUnit {
+final class Arcseconds extends AngleUnit {
   const Arcseconds._()
       : super('asec', 1 / Duration.secondsPerMinute * math.pi / 10800);
 }

@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_units/ribs_units.dart';
 
-class ElectricPotential extends Quantity<ElectricPotential> {
+final class ElectricPotential extends Quantity<ElectricPotential> {
   ElectricPotential(super.value, super.unit);
 
   ElectricPotential get toMicrovolts => to(microvolts).microvolts;
@@ -35,23 +35,23 @@ abstract class ElectricPotentialUnit extends BaseUnit<ElectricPotential> {
       ElectricPotential(value.toDouble(), this);
 }
 
-class Microvolts extends ElectricPotentialUnit {
+final class Microvolts extends ElectricPotentialUnit {
   const Microvolts._() : super('μV', MetricSystem.Micro);
 }
 
-class Millivolts extends ElectricPotentialUnit {
+final class Millivolts extends ElectricPotentialUnit {
   const Millivolts._() : super('mV', MetricSystem.Milli);
 }
 
-class Volts extends ElectricPotentialUnit {
+final class Volts extends ElectricPotentialUnit {
   const Volts._() : super('V', 1.0);
 }
 
-class Milovolts extends ElectricPotentialUnit {
+final class Milovolts extends ElectricPotentialUnit {
   const Milovolts._() : super('kV', MetricSystem.Kilo);
 }
 
-class Megavolts extends ElectricPotentialUnit {
+final class Megavolts extends ElectricPotentialUnit {
   const Megavolts._() : super('MV', MetricSystem.Mega);
 }
 

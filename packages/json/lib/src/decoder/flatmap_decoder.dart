@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
-class FlatMapDecoder<A, B> extends Decoder<B> {
+final class FlatMapDecoder<A, B> extends Decoder<B> {
   final Decoder<A> decodeA;
   final Function1<A, Decoder<B>> f;
 

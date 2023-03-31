@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 
 @immutable
-class State<S, A> extends Monad<A> {
+final class State<S, A> extends Monad<A> {
   final (S, A) Function(S state) _run;
 
   State(this._run);

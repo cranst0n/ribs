@@ -1,6 +1,6 @@
 import 'package:ribs_json/ribs_json.dart';
 
-class DownFieldDecoder<A> extends Decoder<A> {
+final class DownFieldDecoder<A> extends Decoder<A> {
   final String key;
   final Decoder<A> valueDecoder;
 

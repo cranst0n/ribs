@@ -11,7 +11,7 @@ Prop<T> Function(TestBody<T> testBody) forAll<T>(Gen<T> gen) =>
 
 typedef TestBody<T> = Function1<T, void>;
 
-class Prop<T> {
+final class Prop<T> {
   final Gen<T> gen;
   final TestBody<T> testBody;
 

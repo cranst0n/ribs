@@ -1,6 +1,6 @@
 import 'package:ribs_json/ribs_json.dart';
 
-class CodecF<A> extends Codec<A> {
+final class CodecF<A> extends Codec<A> {
   final Decoder<A> decoder;
   final Encoder<A> encoder;
 

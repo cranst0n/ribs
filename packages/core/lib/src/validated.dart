@@ -2,7 +2,7 @@ import 'package:ribs_core/ribs_core.dart';
 
 typedef ValidatedNel<E, A> = Validated<NonEmptyIList<E>, A>;
 
-abstract class Validated<E, A> implements Functor<A> {
+sealed class Validated<E, A> implements Functor<A> {
   static Validated<E, A> invalid<E, A>(E e) => Invalid(e);
 
   static Validated<E, A> valid<E, A>(A a) => Valid(a);
@@ -55,7 +55,7 @@ abstract class Validated<E, A> implements Functor<A> {
   int get hashCode => fold((e) => e.hashCode, (a) => a.hashCode);
 }
 
-class Valid<E, A> extends Validated<E, A> {
+final class Valid<E, A> extends Validated<E, A> {
   final A value;
 
   Valid(this.value);
@@ -64,7 +64,7 @@ class Valid<E, A> extends Validated<E, A> {
   B fold<B>(Function1<E, B> fe, Function1<A, B> fa) => fa(value);
 }
 
-class Invalid<E, A> extends Validated<E, A> {
+final class Invalid<E, A> extends Validated<E, A> {
   final E value;
 
   Invalid(this.value);

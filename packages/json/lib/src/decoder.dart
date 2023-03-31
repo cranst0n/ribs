@@ -13,7 +13,7 @@ import 'package:ribs_json/src/decoder/non_empty_ilist_decoder.dart';
 import 'package:ribs_json/src/decoder/prepared_decoder.dart';
 
 @immutable
-abstract class Decoder<A> {
+abstract mixin class Decoder<A> {
   static Decoder<A> instance<A>(Function1<HCursor, DecodeResult<A>> decodeF) =>
       DecoderF(decodeF);
 

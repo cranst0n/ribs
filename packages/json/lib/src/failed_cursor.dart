@@ -3,7 +3,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
 @immutable
-class FailedCursor extends ACursor {
+final class FailedCursor extends ACursor {
   const FailedCursor(super.lastCursor, super.lastOp);
 
   bool get incorrectFocus =>

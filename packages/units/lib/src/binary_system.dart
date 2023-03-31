@@ -1,4 +1,4 @@
-class BinarySystem {
+final class BinarySystem {
   BinarySystem._();
 
   static const Kilo = 1024.0;

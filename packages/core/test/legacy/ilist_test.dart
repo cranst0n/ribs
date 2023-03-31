@@ -69,29 +69,6 @@ void main() {
     expect(ilist([2, 1, 2, 3, 2, 2]).distinct(), ilist([2, 1, 3]));
   });
 
-  test('ternary', () {
-    final l = [1, 2, 3, 4, 3];
-
-    // Fold over the list and remove duplicates.
-    // Why is the tenrary expression behaving differently than the if/else?
-
-    final la = l.fold(
-        List<int>.empty(growable: true),
-        (acc, elem) => acc.contains(elem) ? acc : acc
-          ..add(elem));
-
-    final lb = l.fold(List<int>.empty(growable: true), (acc, elem) {
-      if (acc.contains(elem)) {
-        return acc;
-      } else {
-        return acc..add(elem);
-      }
-    });
-
-    expect(la, [1, 2, 3, 4, 3]); // <-- This surprised me
-    expect(lb, [1, 2, 3, 4]);
-  });
-
   test('IList.drop', () {
     expect(nil<int>().drop(1), nil<int>());
     expect(ilist([1]).drop(1), nil<int>());

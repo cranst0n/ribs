@@ -4,7 +4,7 @@ import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/rill/scope.dart';
 
-class Rill<O> implements Monad<O> {
+final class Rill<O> implements Monad<O> {
   final Pull<O, Unit> _pull;
 
   Rill._(this._pull);
@@ -351,7 +351,7 @@ extension RillCompiledStringOps on RillCompiled<String> {
       .map((t) => t.$2.toString());
 }
 
-abstract class Pull<O, R> {
+sealed class Pull<O, R> {
   const Pull();
 
   static Pull<Never, R> eval<R>(IO<R> fr) => _Eval(fr);
@@ -587,7 +587,7 @@ extension PullOptionOps<O, R> on Pull<Option<O>, R> {
       );
 }
 
-class _Result<O, R> extends Pull<O, R> {
+final class _Result<O, R> extends Pull<O, R> {
   final R result;
 
   const _Result(this.result);
@@ -596,7 +596,7 @@ class _Result<O, R> extends Pull<O, R> {
   IO<_StepResult<O, R>> step(Scope scope) => IO.pure(_Done(scope, result));
 }
 
-class _Output<O> extends Pull<O, Unit> {
+final class _Output<O> extends Pull<O, Unit> {
   final O value;
 
   const _Output(this.value);
@@ -606,7 +606,7 @@ class _Output<O> extends Pull<O, Unit> {
       IO.pure(_Out(scope, value, Pull.done));
 }
 
-class _Eval<R> extends Pull<Never, R> {
+final class _Eval<R> extends Pull<Never, R> {
   final IO<R> action;
 
   const _Eval(this.action);
@@ -616,7 +616,7 @@ class _Eval<R> extends Pull<Never, R> {
       action.map((r) => _Done(scope, r));
 }
 
-class _Handle<O, R> extends Pull<O, R> {
+final class _Handle<O, R> extends Pull<O, R> {
   final Pull<O, R> source;
   final Function1<IOError, Pull<O, R>> handler;
 
@@ -642,7 +642,7 @@ class _Handle<O, R> extends Pull<O, R> {
   }
 }
 
-class _Error extends Pull<Never, Unit> {
+final class _Error extends Pull<Never, Unit> {
   final IOError error;
 
   const _Error(this.error);
@@ -651,7 +651,7 @@ class _Error extends Pull<Never, Unit> {
   IO<_StepResult<Never, Unit>> step(Scope scope) => IO.raiseError(error);
 }
 
-class _FlatMap<X, O, R> extends Pull<O, R> {
+final class _FlatMap<X, O, R> extends Pull<O, R> {
   final Pull<O, X> source;
   final Function1<X, Pull<O, R>> f;
 
@@ -676,7 +676,7 @@ class _FlatMap<X, O, R> extends Pull<O, R> {
   }
 }
 
-class _FlatMapOutput<O, O2> extends Pull<O2, Unit> {
+final class _FlatMapOutput<O, O2> extends Pull<O2, Unit> {
   final Pull<O, Unit> source;
   final Function1<O, Pull<O2, Unit>> f;
 
@@ -694,7 +694,7 @@ class _FlatMapOutput<O, O2> extends Pull<O2, Unit> {
   }
 }
 
-class _Uncons<O, R> extends Pull<Never, Either<R, (O, Pull<O, R>)>> {
+final class _Uncons<O, R> extends Pull<Never, Either<R, (O, Pull<O, R>)>> {
   final Pull<O, R> source;
 
   const _Uncons(this.source);
@@ -704,7 +704,7 @@ class _Uncons<O, R> extends Pull<Never, Either<R, (O, Pull<O, R>)>> {
       source.step(scope).map((result) => _Done(scope, result.toUnconsResult()));
 }
 
-class _OpenScope<O, R> extends Pull<O, R> {
+final class _OpenScope<O, R> extends Pull<O, R> {
   final Pull<O, R> source;
   final Option<IO<Unit>> finalizer;
 
@@ -716,7 +716,7 @@ class _OpenScope<O, R> extends Pull<O, R> {
           _WithScope(source, subscope.id, scope.id).step(subscope));
 }
 
-class _WithScope<O, R> extends Pull<O, R> {
+final class _WithScope<O, R> extends Pull<O, R> {
   final Pull<O, R> source;
   final ScopeId id;
   final ScopeId returnScopeId;
@@ -754,7 +754,7 @@ class _WithScope<O, R> extends Pull<O, R> {
   }
 }
 
-abstract class _StepResult<O, R> {
+sealed class _StepResult<O, R> {
   const _StepResult();
 
   B fold<B>(Function1<_Done<O, R>, B> ifDone, Function1<_Out<O, R>, B> ifOut);
@@ -765,7 +765,7 @@ abstract class _StepResult<O, R> {
       );
 }
 
-class _Done<O, R> extends _StepResult<O, R> {
+final class _Done<O, R> extends _StepResult<O, R> {
   final Scope scope;
   final R result;
 
@@ -776,7 +776,7 @@ class _Done<O, R> extends _StepResult<O, R> {
       ifDone(this);
 }
 
-class _Out<O, R> extends _StepResult<O, R> {
+final class _Out<O, R> extends _StepResult<O, R> {
   final Scope scope;
   final O head;
   final Pull<O, R> tail;

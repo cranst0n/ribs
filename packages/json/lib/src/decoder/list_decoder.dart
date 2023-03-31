@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
-class ListDecoder<A> extends Decoder<List<A>> {
+final class ListDecoder<A> extends Decoder<List<A>> {
   final Decoder<A> decodeA;
 
   ListDecoder(this.decodeA);

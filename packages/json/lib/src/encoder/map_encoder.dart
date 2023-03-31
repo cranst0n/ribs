@@ -1,6 +1,6 @@
 import 'package:ribs_json/ribs_json.dart';
 
-class MapEncoder<K, V> extends Encoder<Map<K, V>> {
+final class MapEncoder<K, V> extends Encoder<Map<K, V>> {
   final KeyEncoder<K> encodeK;
   final Encoder<V> encodeV;
 

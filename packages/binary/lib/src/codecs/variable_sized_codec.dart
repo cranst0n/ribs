@@ -2,7 +2,7 @@ import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_binary/src/codecs/fixed_size_codec.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-class VariableSizedCodec<A> extends Codec<A> {
+final class VariableSizedCodec<A> extends Codec<A> {
   final Codec<int> sizeCodec;
   final Codec<A> valueCodec;
 

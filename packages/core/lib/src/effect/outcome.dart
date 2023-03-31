@@ -1,6 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 
-abstract class Outcome<A> {
+sealed class Outcome<A> {
   const Outcome();
 
   B fold<B>(
@@ -27,7 +27,7 @@ abstract class Outcome<A> {
   int get hashCode;
 }
 
-class Succeeded<A> extends Outcome<A> {
+final class Succeeded<A> extends Outcome<A> {
   final A value;
 
   const Succeeded(this.value);
@@ -49,7 +49,7 @@ class Succeeded<A> extends Outcome<A> {
   int get hashCode => value.hashCode;
 }
 
-class Errored<A> extends Outcome<A> {
+final class Errored<A> extends Outcome<A> {
   final IOError error;
 
   const Errored(this.error);
@@ -70,7 +70,7 @@ class Errored<A> extends Outcome<A> {
   int get hashCode => error.hashCode;
 }
 
-class Canceled extends Outcome<Never> {
+final class Canceled extends Outcome<Never> {
   const Canceled();
 
   @override

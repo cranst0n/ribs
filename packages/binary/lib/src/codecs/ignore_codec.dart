@@ -1,7 +1,7 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-class IgnoreCodec extends Codec<Unit> {
+final class IgnoreCodec extends Codec<Unit> {
   final int size;
 
   IgnoreCodec(this.size);

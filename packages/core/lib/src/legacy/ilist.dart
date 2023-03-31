@@ -9,7 +9,7 @@ IList<A> ilist<A>(List<A> as) => IList.of(as);
 IList<A> nil<A>() => IList.empty();
 
 @immutable
-abstract class IList<A> implements Monad<A>, Foldable<A> {
+sealed class IList<A> implements Monad<A>, Foldable<A> {
   const IList();
 
   static IList<A> empty<A>() => Nil<A>();
@@ -247,7 +247,7 @@ abstract class IList<A> implements Monad<A>, Foldable<A> {
       uncons((h, t) => h.fold(() => 0, (h) => h.hashCode ^ t.hashCode));
 }
 
-class Cons<A> extends IList<A> {
+final class Cons<A> extends IList<A> {
   final A head;
   final IList<A> _tail;
 
@@ -260,7 +260,7 @@ class Cons<A> extends IList<A> {
   B uncons<B>(Function2<Option<A>, IList<A>, B> f) => f(Some(head), tail());
 }
 
-class Nil<A> extends IList<A> {
+final class Nil<A> extends IList<A> {
   const Nil();
 
   @override

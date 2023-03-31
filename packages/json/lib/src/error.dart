@@ -2,12 +2,12 @@ import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
-abstract class Error {
+sealed class Error {
   const Error();
 }
 
 @immutable
-class ParsingFailure extends Error {
+final class ParsingFailure extends Error {
   final String message;
 
   const ParsingFailure(this.message);
@@ -19,7 +19,7 @@ class ParsingFailure extends Error {
 typedef DecodeResult<A> = Either<DecodingFailure, A>;
 
 @immutable
-class DecodingFailure extends Error {
+final class DecodingFailure extends Error {
   final Reason reason;
   final IList<CursorOp> history;
 
@@ -37,15 +37,15 @@ class DecodingFailure extends Error {
       .map((a) => a.asPathString());
 
   String message() {
-    final r = reason;
-    if (r is WrongTypeExpectation) {
-      return 'Got value ${r.jsonValue} with wrong type. Expected ${r.expectedJsonFieldType}';
-    } else if (r is MissingField) {
-      return 'Missing required field';
-    } else if (r is CustomReason) {
-      return r.message;
-    } else {
-      return 'Unknown reason: $reason';
+    switch (reason) {
+      case final WrongTypeExpectation r:
+        return 'Got value ${r.jsonValue} with wrong type. Expected ${r.expectedJsonFieldType}';
+      case MissingField _:
+        return 'Missing required field';
+      case final CustomReason r:
+        return r.message;
+      default:
+        return 'Unknown reason: $reason';
     }
   }
 
@@ -53,14 +53,14 @@ class DecodingFailure extends Error {
   String toString() => 'DecodingFailure($reason, $pathToRootString)';
 }
 
-abstract class Reason {}
+sealed class Reason {}
 
-class MissingField extends Reason {
+final class MissingField extends Reason {
   @override
   String toString() => 'MissingField';
 }
 
-class WrongTypeExpectation extends Reason {
+final class WrongTypeExpectation extends Reason {
   final String expectedJsonFieldType;
   final Json jsonValue;
 

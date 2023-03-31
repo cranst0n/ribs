@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_units/ribs_units.dart';
 
-class Velocity extends Quantity<Velocity> {
+final class Velocity extends Quantity<Velocity> {
   Velocity(super.value, super.unit);
 
   Velocity get toFeetPerSecond => to(feetPerSecond).feetPerSecond;
@@ -42,13 +42,13 @@ abstract class VelocityUnit extends BaseUnit<Velocity> {
   Velocity call(num value) => Velocity(value.toDouble(), this);
 }
 
-class FeetPerSecond extends VelocityUnit {
+final class FeetPerSecond extends VelocityUnit {
   FeetPerSecond._()
       : super('ft/s',
             Length.feet.conversionFactor / Length.meters.conversionFactor);
 }
 
-class MillimetersPerSecond extends VelocityUnit {
+final class MillimetersPerSecond extends VelocityUnit {
   MillimetersPerSecond._()
       : super(
             'mm/s',
@@ -56,11 +56,11 @@ class MillimetersPerSecond extends VelocityUnit {
                 Length.meters.conversionFactor);
 }
 
-class MetersPerSecond extends VelocityUnit {
+final class MetersPerSecond extends VelocityUnit {
   MetersPerSecond._() : super('m/s', 1.0);
 }
 
-class KilometersPerSecond extends VelocityUnit {
+final class KilometersPerSecond extends VelocityUnit {
   KilometersPerSecond._()
       : super(
             'km/s',
@@ -68,7 +68,7 @@ class KilometersPerSecond extends VelocityUnit {
                 Length.meters.conversionFactor);
 }
 
-class KilometersPerHour extends VelocityUnit {
+final class KilometersPerHour extends VelocityUnit {
   KilometersPerHour._()
       : super(
             'km/h',
@@ -77,7 +77,7 @@ class KilometersPerHour extends VelocityUnit {
                 Duration.secondsPerHour);
 }
 
-class UsMilesPerHour extends VelocityUnit {
+final class UsMilesPerHour extends VelocityUnit {
   UsMilesPerHour._()
       : super(
             'mph',
@@ -86,7 +86,7 @@ class UsMilesPerHour extends VelocityUnit {
                 Duration.secondsPerHour);
 }
 
-class Knots extends VelocityUnit {
+final class Knots extends VelocityUnit {
   Knots._()
       : super(
             'kn',

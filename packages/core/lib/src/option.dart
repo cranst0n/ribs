@@ -4,7 +4,7 @@ import 'package:ribs_core/ribs_core.dart';
 Option<A> none<A>() => None<A>();
 
 @immutable
-abstract class Option<A> implements Monad<A>, Foldable<A> {
+sealed class Option<A> implements Monad<A>, Foldable<A> {
   const Option();
 
   factory Option.of(A? a) => a == null ? none<A>() : Some(a);
@@ -86,7 +86,7 @@ abstract class Option<A> implements Monad<A>, Foldable<A> {
   int get hashCode => fold(() => 0, (a) => a.hashCode);
 }
 
-class Some<A> extends Option<A> {
+final class Some<A> extends Option<A> {
   final A value;
 
   const Some(this.value);
@@ -95,7 +95,7 @@ class Some<A> extends Option<A> {
   B fold<B>(Function0<B> ifEmpty, Function1<A, B> f) => f(value);
 }
 
-class None<A> extends Option<A> {
+final class None<A> extends Option<A> {
   const None();
 
   @override

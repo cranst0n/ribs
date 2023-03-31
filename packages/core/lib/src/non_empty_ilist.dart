@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 
 @immutable
-class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
+final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   final A head;
   final IList<A> tail;
 
@@ -139,7 +139,7 @@ class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
           : NonEmptyIList(head, tail.updated(index - 1, f));
 
   NonEmptyIList<(A, int)> zipWithIndex() => NonEmptyIList(
-      (head, 0), tail.zipWithIndex().map((a) => (a.$1, a.$2 + 1)));
+      (head, 0), tail.zipWithIndex().map((a) => a.copy($2: a.$2 + 1)));
 
   NonEmptyIList<(A, B)> zip<B>(NonEmptyIList<B> bs) =>
       NonEmptyIList((head, bs.head), tail.zip(bs.tail));

@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-abstract class BitVector {
+sealed class BitVector {
   const BitVector();
 
   factory BitVector.empty() => _toBytes(ByteVector.empty(), 0);
@@ -126,16 +126,17 @@ abstract class BitVector {
   Uint8List toByteArray() => toByteVector().toByteArray();
 
   int toInt(bool signed, [Endian ordering = Endian.big]) {
-    if (this is Bytes) {
-      return ordering == Endian.little
-          ? invertReverseByteOrder().toInt(signed)
-          : getBigEndianInt(0, size, signed);
-    } else {
-      if (ordering == Endian.little) {
-        return invertReverseByteOrder().toInt(signed);
-      } else {
-        return getBigEndianInt(0, size, signed);
-      }
+    switch (this) {
+      case final Bytes _:
+        return ordering == Endian.little
+            ? invertReverseByteOrder().toInt(signed)
+            : getBigEndianInt(0, size, signed);
+      default:
+        if (ordering == Endian.little) {
+          return invertReverseByteOrder().toInt(signed);
+        } else {
+          return getBigEndianInt(0, size, signed);
+        }
     }
   }
 
@@ -157,10 +158,9 @@ abstract class BitVector {
       return reverseByteOrder();
     } else {
       final validFinalBits = _validBitsInLastByte(size);
-      final initAndLast = splitAt(size - validFinalBits);
+      final (init, last) = splitAt(size - validFinalBits);
 
-      return initAndLast.$2
-          .concat(initAndLast.$1.toByteVector().reverse().bits);
+      return last.concat(init.toByteVector().reverse().bits);
     }
   }
 
@@ -242,7 +242,7 @@ abstract class BitVector {
   }
 }
 
-class Bytes extends BitVector {
+final class Bytes extends BitVector {
   final ByteVector _underlying;
 
   @override
@@ -292,12 +292,13 @@ class Bytes extends BitVector {
   BitVector concat(BitVector b2) {
     if (isEmpty) {
       return b2;
-    } else if (b2 is Bytes) {
-      return combine(b2);
-    } else if (b2 is Drop) {
-      return concat(b2.interpretDrop());
     } else {
-      throw UnsupportedError('BitVector.concat(???)');
+      switch (b2) {
+        case final Bytes _:
+          return combine(b2);
+        case final Drop drop:
+          return concat(drop.interpretDrop());
+      }
     }
   }
 
@@ -332,7 +333,7 @@ class Bytes extends BitVector {
   }
 }
 
-class Drop extends BitVector {
+final class Drop extends BitVector {
   final Bytes _underlying;
   final int offset;
 

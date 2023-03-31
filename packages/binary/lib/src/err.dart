@@ -1,6 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 
-abstract class Err {
+sealed class Err {
   String get message;
   IList<String> get context;
 
@@ -18,7 +18,7 @@ abstract class Err {
       InsufficientBits(needed, have, nil());
 }
 
-class General extends Err {
+final class General extends Err {
   @override
   final String message;
   @override
@@ -30,7 +30,7 @@ class General extends Err {
   Err pushContext(String ctx) => General(message, context.append(ctx));
 }
 
-class InsufficientBits extends Err {
+final class InsufficientBits extends Err {
   final int needed;
   final int have;
   @override

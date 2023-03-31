@@ -3,7 +3,7 @@ import 'package:ribs_binary/src/codecs/discriminated_codec.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:test/test.dart';
 
-abstract class Animal {
+sealed class Animal {
   const Animal();
 }
 

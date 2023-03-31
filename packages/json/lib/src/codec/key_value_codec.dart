@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
-class KeyValueCodec<A> extends Codec<A> {
+final class KeyValueCodec<A> extends Codec<A> {
   final String key;
   final Codec<A> codecKV;
 

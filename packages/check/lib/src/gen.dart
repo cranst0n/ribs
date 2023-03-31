@@ -4,7 +4,7 @@ import 'dart:collection';
 import 'package:ribs_check/src/seeded_random.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-class Gen<A> extends Monad<A> {
+final class Gen<A> extends Monad<A> {
   final State<StatefulRandom, A> sample;
   final Shrinker<A>? shrinker;
 
@@ -188,9 +188,9 @@ class Gen<A> extends Monad<A> {
       var sum = 0;
       final tree = SplayTreeMap<int, Gen<A>>();
 
-      for (final tuple in filteredGens.toList()) {
-        sum = tuple.$1 + sum;
-        tree[sum] = tuple.$2;
+      for (final (final x, final gen) in filteredGens.toList()) {
+        sum = x + sum;
+        tree[sum] = gen;
       }
 
       return Choose.integer
@@ -251,7 +251,7 @@ class Gen<A> extends Monad<A> {
   static const int _intMaxValue = 4294967296;
 }
 
-class Streams {
+final class Streams {
   static Stream<A> unfold<A>(A initial, Function1<A, Option<A>> f) {
     final controller = StreamController<A>();
 
@@ -286,7 +286,7 @@ class Shrinker<A> {
       Shrinker<int>((i) => Option.when(() => i > 0, () => i ~/ 2));
 }
 
-class Choose<A> {
+final class Choose<A> {
   final Function2<A, A, Gen<A>> _chooseF;
 
   const Choose(this._chooseF);
