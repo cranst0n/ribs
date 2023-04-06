@@ -38,7 +38,7 @@ sealed class Validated<E, A> implements Functor<A> {
 
   IList<A> toIList() => fold((_) => nil(), (a) => IList.of([a]));
 
-  Option<A> toOption() => fold((_) => none(), (a) => a.some);
+  Option<A> toOption() => fold((_) => none(), (a) => Some(a));
 
   A valueOr(Function1<E, A> f) => fold(f, id);
 

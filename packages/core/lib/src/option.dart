@@ -74,7 +74,10 @@ sealed class Option<A> implements Monad<A>, Foldable<A> {
   String toString() => fold(() => 'None', (a) => 'Some($a)');
 
   IO<Option<B>> traverseIO<B>(Function1<A, IO<B>> f) =>
-      fold(() => IO.none(), (a) => f(a).map((a) => a.some));
+      fold(() => IO.none(), (a) => f(a).map((a) => Some(a)));
+
+  IO<Unit> traverseIO_<B>(Function1<A, IO<B>> f) =>
+      fold(() => IO.unit, (a) => f(a).map((a) => Some(a)).voided());
 
   @override
   bool operator ==(Object other) => fold(

@@ -20,7 +20,7 @@ final class ArrayCursor extends HCursor {
   Json get value => arrayValues[indexValue];
 
   @override
-  Option<int> get index => indexValue.some;
+  Option<int> get index => Some(indexValue);
 
   @override
   Option<String> get key => none();

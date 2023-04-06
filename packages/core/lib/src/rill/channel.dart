@@ -1,4 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/src/rill/rill.dart';
 
 sealed class Channel<A> {
   static IO<Channel<A>> bounded<A>(int capacity) =>
@@ -133,7 +134,7 @@ final class _BoundedChannel<A> extends Channel<A> {
             if (shouldEmit(state)) {
               return (_ChannelState.empty(state.closed), state);
             } else {
-              return (state.copy(waiting: waiting.some), state);
+              return (state.copy(waiting: Some(waiting)), state);
             }
           }).flatMap((s) {
             if (shouldEmit(s)) {

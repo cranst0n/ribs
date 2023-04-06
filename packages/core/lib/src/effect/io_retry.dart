@@ -26,7 +26,7 @@ final class RetryStatus {
   /// Create new status that indicates an additional retry was taken after
   /// the given delay.
   RetryStatus retryAfter(Duration delay) =>
-      RetryStatus(retriesSoFar + 1, cumulativeDelay + delay, delay.some);
+      RetryStatus(retriesSoFar + 1, cumulativeDelay + delay, Some(delay));
 }
 
 sealed class RetryDecision {
@@ -51,7 +51,7 @@ sealed class RetryDecision {
       status.retriesSoFar + (isGivingUp ? 0 : 1),
       status.cumulativeDelay + delay,
       isGivingUp,
-      delay.some.filter((_) => !isGivingUp),
+      Some(delay).filter((_) => !isGivingUp),
     );
   }
 
@@ -267,7 +267,7 @@ extension RetryOps<A> on IO<A> {
         (err) => isWorthRetrying(err)
             ? _onFailureOrError(policy, wasSuccessful, isWorthRetrying, onError,
                 onFailure, status, action, (details) => onError(err, details))
-            : IO.raiseError(err.toString()),
+            : IO.raiseError(IOError(err.toString())),
         (a) => wasSuccessful(a)
             ? IO.pure(a)
             : _onFailureOrError(policy, wasSuccessful, isWorthRetrying, onError,
@@ -291,7 +291,7 @@ extension RetryOps<A> on IO<A> {
     final details = decision._detailsFromStatus(newStatus);
 
     return IO.pure(decision.isGivingUp).ifM(
-          () => IO.raiseError('Retry giving up.'),
+          () => IO.raiseError(IOError('Retry giving up.')),
           () => beforeRecurse(details)
               .productR(() => IO.sleep(decision.delay))
               .productR(() => _retryingImpl(policy, wasSuccessful,

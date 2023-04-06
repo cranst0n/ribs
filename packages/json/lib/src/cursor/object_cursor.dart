@@ -23,7 +23,7 @@ final class ObjectCursor extends HCursor {
   Option<int> get index => none();
 
   @override
-  Option<String> get key => keyValue.some;
+  Option<String> get key => Some(keyValue);
 
   @override
   HCursor addOp(HCursor cursor, CursorOp op) =>

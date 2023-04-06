@@ -30,14 +30,8 @@ void main() {
   });
 
   test('IList.uncons', () {
-    // head
-    expect(ilist([1, 2, 3]).uncons((head, tail) => head.isDefined), isTrue);
-    expect(nil<int>().uncons((head, tail) => head.isEmpty), isTrue);
-
-    // tail
-    expect(
-        ilist([1, 2, 3]).uncons((head, tail) => tail == ilist([2, 3])), isTrue);
-    expect(nil<int>().uncons((head, tail) => tail.isEmpty), isTrue);
+    expect(ilist([1, 2, 3]).uncons((x) => x.isDefined), isTrue);
+    expect(nil<int>().uncons((x) => x.isEmpty), isTrue);
   });
 
   test('IList[]', () {
@@ -66,6 +60,13 @@ void main() {
     expect(nil<int>().contains(1), isFalse);
     expect(ilist([1, 2, 3]).contains(1), isTrue);
     expect(ilist([1, 2, 3]).contains(5), isFalse);
+  });
+
+  test('IList.deleteFirst', () {
+    expect(nil<int>().deleteFirst((x) => x > 0), none<(int, IList<int>)>());
+    expect(ilist([0, 1, 2]).deleteFirst((x) => x > 0), (1, ilist([0, 2])).some);
+    expect(ilist([-2, -1, 0]).deleteFirst((x) => x > 0),
+        none<(int, IList<int>)>());
   });
 
   test('IList.distinct', () {
@@ -306,6 +307,14 @@ void main() {
         .unsafeRunToFuture();
 
     expect(result, ilist([2, 4, 6]));
+  });
+
+  test('IList.traverseFilterIO', () async {
+    final result = await ilist([1, 2, 3])
+        .traverseFilterIO((a) => IO.pure(Option.when(() => a.isOdd, () => a)))
+        .unsafeRunToFuture();
+
+    expect(result, ilist([1, 3]));
   });
 
   test('IList.traverseOption', () {

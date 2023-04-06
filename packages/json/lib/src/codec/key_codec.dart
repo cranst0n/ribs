@@ -8,7 +8,7 @@ abstract class KeyCodec<A> extends KeyDecoder<A> with KeyEncoder<A> {
   ) =>
       _KeyCodecF(KeyDecoder.instance(decodeK), KeyEncoder.instance(encodeK));
 
-  static final string = KeyCodec.instance<String>((a) => a.some, id);
+  static final string = KeyCodec.instance<String>((a) => Some(a), id);
 }
 
 final class _KeyCodecF<A> extends KeyCodec<A> {

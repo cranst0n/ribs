@@ -5,7 +5,16 @@ import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/internal/stack.dart';
 
-typedef IOError = (Object, StackTrace);
+class IOError implements Exception {
+  final Object message;
+  final StackTrace stackTrace;
+
+  IOError(this.message, [StackTrace? stackTrace])
+      : stackTrace = stackTrace ?? StackTrace.current;
+
+  @override
+  String toString() => message.toString();
+}
 
 typedef AsyncCallback<A> = Function1<Either<IOError, A>, void>;
 typedef AsyncBody<A> = Function1<AsyncCallback<A>, void>;
@@ -80,13 +89,13 @@ sealed class IO<A> extends Monad<A> {
   static IO<B> bracketFull<A, B>(
     Function1<Poll, IO<A>> acquire,
     Function1<A, IO<B>> use,
-    Function1<(A, Outcome<B>), IO<Unit>> release,
+    Function2<A, Outcome<B>, IO<Unit>> release,
   ) =>
       IO.uncancelable(
         (poll) => acquire(poll).flatMap(
           (a) => IO
               .defer(() => poll(use(a)))
-              .guaranteeCase((oc) => release((a, oc))),
+              .guaranteeCase((oc) => release(a, oc)),
         ),
       );
 
@@ -106,7 +115,7 @@ sealed class IO<A> extends Monad<A> {
         return IO.delay(() {
           op.then(
             (a) => cb(a.asRight()),
-            onError: (e, s) => cb((e, s).asLeft()),
+            onError: (e, s) => cb(IOError(e, s).asLeft()),
           );
 
           return IO
@@ -118,7 +127,7 @@ sealed class IO<A> extends Monad<A> {
   }
 
   static IO<A> fromEither<A>(Either<Object, A> either) =>
-      either.fold((e) => IO.raiseError<A>(e), IO.pure);
+      either.fold((e) => IO.raiseError<A>(IOError(e)), IO.pure);
 
   static IO<A> fromFuture<A>(IO<Future<A>> fut) {
     return fut.flatMap((f) {
@@ -126,7 +135,7 @@ sealed class IO<A> extends Monad<A> {
         f.whenComplete(
           () => f.then(
             (a) => cb(a.asRight()),
-            onError: (Object e, StackTrace s) => cb((e, s).asLeft()),
+            onError: (Object e, StackTrace s) => cb(IOError(e, s).asLeft()),
           ),
         );
       });
@@ -134,11 +143,11 @@ sealed class IO<A> extends Monad<A> {
   }
 
   static IO<A> fromOption<A>(Option<A> option, Function0<Object> orElse) =>
-      option.fold(() => IO.raiseError<A>(orElse()), IO.pure);
+      option.fold(() => IO.raiseError<A>(IOError(orElse())), IO.pure);
 
   static IO<A> never<A>() => async_((_) {});
 
-  static IO<Option<A>> none<A>() => IO.pure(None<A>());
+  static IO<Option<A>> none<A>() => IO.pure(const None());
 
   static IO<DateTime> now = IO.delay(() => DateTime.now());
 
@@ -204,23 +213,24 @@ sealed class IO<A> extends Monad<A> {
           IO<A> ioa, IO<B> iob) =>
       _RacePair(ioa, iob);
 
-  static IO<A> raiseError<A>(Object err, [StackTrace? trace]) =>
-      _Error((err, trace ?? StackTrace.current));
+  static IO<A> raiseError<A>(IOError error) => _Error(error);
 
   static IO<Unit> raiseUnless(bool cond, Function0<IOError> e) =>
-      IO.unlessA(cond, () => e()((o, s) => IO.raiseError<Unit>(o, s)));
+      IO.unlessA(cond, () => IO.raiseError<Unit>(e()));
 
   static IO<Unit> raiseWhen(bool cond, Function0<IOError> e) =>
-      IO.whenA(cond, () => e()((o, s) => IO.raiseError<Unit>(o, s)));
+      IO.whenA(cond, () => IO.raiseError<Unit>(e()));
 
   // Would be nice if there was an async way to do this
   static IO<String> readLine() =>
-      IO.delay(() => stdin.readLineSync()).flatMap((l) =>
-          Option.of(l).fold(() => IO.raiseError('stdin line ended'), IO.pure));
+      IO.delay(() => stdin.readLineSync()).flatMap((l) => Option.of(l)
+          .fold(() => IO.raiseError(IOError('stdin line ended')), IO.pure));
 
   static IO<Unit> sleep(Duration duration) => _Sleep(duration);
 
   static IO<Option<A>> some<A>(A a) => IO.pure(Some(a));
+
+  static IO<Never> get stub => IO.delay(() => throw UnimplementedError());
 
   static IO<A> uncancelable<A>(Function1<Poll, IO<A>> body) =>
       _Uncancelable(body);
@@ -240,11 +250,11 @@ sealed class IO<A> extends Monad<A> {
   IO<Either<IOError, A>> attempt() => _Attempt(this);
 
   IO<B> bracket<B>(Function1<A, IO<B>> use, Function1<A, IO<Unit>> release) =>
-      bracketCase(use, (t) => t((a, _) => release(a)));
+      bracketCase(use, (a, oc) => release(a));
 
   IO<B> bracketCase<B>(
     Function1<A, IO<B>> use,
-    Function1<(A, Outcome<B>), IO<Unit>> release,
+    Function2<A, Outcome<B>, IO<Unit>> release,
   ) =>
       IO.bracketFull((_) => this, use, release);
 
@@ -254,7 +264,8 @@ sealed class IO<A> extends Monad<A> {
   IO<A> delayBy(Duration duration) => IO.sleep(duration).productR(() => this);
 
   @override
-  IO<B> flatMap<B>(covariant Function1<A, IO<B>> f) => _FlatMap(this, Fn1(f));
+  IO<B> flatMap<B>(covariant Function1<A, IO<B>> f) =>
+      _FlatMap(this, Fn1.of(f));
 
   IO<A> flatTap<B>(covariant Function1<A, IO<B>> f) =>
       flatMap((a) => f(a).as(a));
@@ -272,15 +283,15 @@ sealed class IO<A> extends Monad<A> {
       handleErrorWith((e) => IO.pure(f(e)));
 
   IO<A> handleErrorWith(covariant Function1<IOError, IO<A>> f) =>
-      _HandleErrorWith(this, Fn1(f));
+      _HandleErrorWith(this, Fn1.of(f));
 
   @override
-  IO<B> map<B>(covariant Function1<A, B> f) => _Map(this, Fn1(f));
+  IO<B> map<B>(covariant Function1<A, B> f) => _Map(this, Fn1.of(f));
 
   IO<A> onCancel(IO<Unit> fin) => _OnCancel(this, fin);
 
   IO<A> onError(covariant Function1<IOError, IO<Unit>> f) => handleErrorWith(
-      (e) => f(e).attempt().productR(() => IO.raiseError<A>(e.$1, e.$2)));
+      (e) => f(e).attempt().productR(() => IO.raiseError<A>(e)));
 
   IO<A> orElse(Function0<IO<A>> that) => handleErrorWith((_) => that());
 
@@ -311,8 +322,10 @@ sealed class IO<A> extends Monad<A> {
   IO<(Duration, A)> timed() => (now, this, now)
       .mapN((startTime, a, endTime) => (endTime.difference(startTime), a));
 
-  IO<A> timeout(Duration duration) => timeoutTo(duration,
-      IO.defer(() => IO.raiseError(TimeoutException(duration.toString()))));
+  IO<A> timeout(Duration duration) => timeoutTo(
+      duration,
+      IO.defer(
+          () => IO.raiseError(IOError(TimeoutException(duration.toString())))));
 
   IO<A> timeoutTo(Duration duration, IO<A> fallback) =>
       IO.race(this, IO.sleep(duration)).flatMap((winner) => winner.fold(
@@ -357,7 +370,7 @@ sealed class IO<A> extends Monad<A> {
     unsafeRunAsync(
       (outcome) => outcome.fold(
         () => completer.completeError('Fiber canceled'),
-        (err) => completer.completeError(err.$1, err.$2),
+        (err) => completer.completeError(err.message, err.stackTrace),
         (a) => completer.complete(a),
       ),
       autoCedeN: autoCedeN,
@@ -380,16 +393,6 @@ extension IOErrorOps<A> on IO<Either<IOError, A>> {
   IO<A> rethrowError() => flatMap(IO.fromEither);
 }
 
-// /////////////////////////////////////////////////////////////////////////////
-// /////////////////////////////////////////////////////////////////////////////
-// /////////////////////////////////////////////////////////////////////////////
-// /////////////////////////////               /////////////////////////////////
-// /////////////////////////////  Interpreter  /////////////////////////////////
-// /////////////////////////////               /////////////////////////////////
-// /////////////////////////////////////////////////////////////////////////////
-// /////////////////////////////////////////////////////////////////////////////
-// /////////////////////////////////////////////////////////////////////////////
-
 /// Utility class to create unmasked blocks within an uncancelable region
 final class Poll {
   final int _id;
@@ -399,6 +402,16 @@ final class Poll {
 
   IO<A> call<A>(IO<A> ioa) => _UnmaskRunLoop(ioa, _id, _fiber);
 }
+
+// /////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////               /////////////////////////////////
+// /////////////////////////////  Interpreter  /////////////////////////////////
+// /////////////////////////////               /////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
 
 final class _Pure<A> extends IO<A> {
   final A value;
@@ -415,7 +428,7 @@ final class _Error<A> extends IO<A> {
   _Error(this.error);
 
   @override
-  String toString() => 'Error(${error.$1})';
+  String toString() => 'Error(${error.message})';
 }
 
 final class _Delay<A> extends IO<A> {
@@ -444,7 +457,7 @@ final class _AsyncGet<A> extends IO<A> {
   _AsyncGet();
 
   @override
-  String toString() => 'AsyncResultF($value)';
+  String toString() => 'AsyncGet($value)';
 }
 
 final class _Map<A, B> extends IO<B> {
@@ -497,10 +510,14 @@ final class _Cede extends IO<Unit> {
 
 final class _Start<A> extends IO<IOFiber<A>> {
   final IO<A> ioa;
+  final int _autoCedeN;
 
-  _Start(this.ioa);
+  _Start(
+    this.ioa, {
+    int autoCedeN = IOFiber.DefaultAutoCedeN,
+  }) : _autoCedeN = autoCedeN;
 
-  IOFiber<A> createFiber() => IOFiber<A>(ioa);
+  IOFiber<A> createFiber() => IOFiber(ioa, autoCedeN: _autoCedeN);
 
   @override
   String toString() => 'Start($ioa)';
@@ -537,8 +554,8 @@ final class _RacePair<A, B> extends IO<RacePairOutcome<A, B>> {
 
   _RacePair(this.ioa, this.iob);
 
-  IOFiber<A> _createFiberA() => IOFiber(ioa);
-  IOFiber<B> _createFiberB() => IOFiber(iob);
+  IOFiber<A> createFiberA(int autoCedeN) => IOFiber(ioa, autoCedeN: autoCedeN);
+  IOFiber<B> createFiberB(int autoCedeN) => IOFiber(iob, autoCedeN: autoCedeN);
 
   RacePairOutcome<A, B> aWon(
     Outcome<dynamic> oc,
@@ -633,7 +650,7 @@ final class IOFiber<A> {
       if (_isUnmasked()) {
         return IO.async_((fin) {
           _resumeTag = _Resume.AsyncContinueCanceledWithFinalizer;
-          _objectState.push(Fn1(fin));
+          _objectState.push(Fn1.of(fin));
           schedule();
         });
       } else {
@@ -762,7 +779,7 @@ final class IOFiber<A> {
           cur0 =
               Either.catching(() => (cur0 as _Delay).thunk(), (a, b) => (a, b))
                   .fold<IO<dynamic>>(
-            (err) => _failed(err, 0),
+            (err) => _failed(IOError(err.$1, err.$2), 0),
             (v) => _succeeded(v, 0),
           );
         } else if (cur0 is _Map) {
@@ -773,7 +790,8 @@ final class IOFiber<A> {
           IO<dynamic> next(Function0<dynamic> value) =>
               Either.catching(() => f(value()), (a, b) => (a, b))
                   .fold<IO<dynamic>>(
-                      (err) => _failed(err, 0), (v) => _succeeded(v, 0));
+                      (err) => _failed(IOError(err.$1, err.$2), 0),
+                      (v) => _succeeded(v, 0));
 
           if (ioa is _Pure) {
             cur0 = next(() => ioa.value);
@@ -794,7 +812,7 @@ final class IOFiber<A> {
 
           IO<dynamic> next(Function0<dynamic> value) =>
               Either.catching(() => f(value()), (a, b) => (a, b))
-                  .fold((err) => _failed(err, 0), id);
+                  .fold((err) => _failed(IOError(err.$1, err.$2), 0), id);
 
           if (ioa is _Pure) {
             cur0 = next(() => ioa.value);
@@ -803,7 +821,7 @@ final class IOFiber<A> {
           } else if (ioa is _Delay) {
             cur0 = next(ioa.thunk);
           } else {
-            _objectState.push(Fn1(f));
+            _objectState.push(Fn1.of(f));
             _conts.push(_Cont.FlatMap);
 
             cur0 = ioa;
@@ -823,7 +841,7 @@ final class IOFiber<A> {
             try {
               result = ioa.thunk();
             } catch (e, s) {
-              error = (e, s);
+              error = IOError(e, s);
             }
 
             cur0 = error == null
@@ -833,7 +851,7 @@ final class IOFiber<A> {
             final attempt = cur0;
             // Push this function on to allow proper type tagging when running
             // the continuation
-            _objectState.push(Fn1((x) => attempt.right(x)));
+            _objectState.push(Fn1.of((x) => attempt.right(x)));
             _conts.push(_Cont.Attempt);
             cur0 = ioa;
           }
@@ -920,8 +938,8 @@ final class IOFiber<A> {
           final rp = cur0;
 
           final next = IO.async_<RacePairOutcome<dynamic, dynamic>>((cb) {
-            final fiberA = rp._createFiberA();
-            final fiberB = rp._createFiberB();
+            final fiberA = rp.createFiberA(_autoCedeN);
+            final fiberB = rp.createFiberB(_autoCedeN);
 
             // callback should be called exactly once, so when one fiber
             // finishes, remove the callback from the other
@@ -988,7 +1006,7 @@ final class IOFiber<A> {
         _conts.push(_Cont.CancelationLoop);
 
         _objectState.clear();
-        _objectState.push(cb ?? Fn1((_) => Unit()));
+        _objectState.push(cb ?? Fn1.of((_) => Unit()));
 
         _masks += 1;
       }
@@ -1010,7 +1028,7 @@ final class IOFiber<A> {
         return _runTerminusSuccessK(result);
       case _Cont.Map:
         {
-          final f = _objectState.pop() as Fn1;
+          final f = _objectState.pop() as Fn1F;
 
           dynamic transformed;
           IOError? error;
@@ -1018,7 +1036,7 @@ final class IOFiber<A> {
           try {
             transformed = f(result);
           } catch (e, s) {
-            error = (e, s);
+            error = IOError(e, s);
           }
 
           if (depth > _DefaultMaxStackDepth) {
@@ -1031,7 +1049,7 @@ final class IOFiber<A> {
         }
       case _Cont.FlatMap:
         {
-          final f = _objectState.pop() as Fn1;
+          final f = _objectState.pop() as Fn1F;
 
           dynamic transformed;
           IOError? error;
@@ -1039,7 +1057,7 @@ final class IOFiber<A> {
           try {
             transformed = f(result);
           } catch (e, s) {
-            error = (e, s);
+            error = IOError(e, s);
           }
 
           return error == null
@@ -1047,7 +1065,7 @@ final class IOFiber<A> {
               : _failed(error, depth + 1);
         }
       case _Cont.Attempt:
-        final f = _objectState.pop() as Fn1;
+        final f = _objectState.pop() as Fn1F;
         return _succeeded(f(result), depth);
       case _Cont.HandleErrorWith:
         _objectState.pop();
@@ -1085,7 +1103,7 @@ final class IOFiber<A> {
       case _Cont.RunTerminus:
         return _runTerminusFailureK(error);
       case _Cont.HandleErrorWith:
-        final f = _objectState.pop() as Fn1;
+        final f = _objectState.pop() as Fn1F;
 
         dynamic recovered;
         IOError? err;
@@ -1093,7 +1111,7 @@ final class IOFiber<A> {
         try {
           recovered = f(error);
         } catch (e, s) {
-          err = (e, s);
+          err = IOError(e, s);
         }
 
         return err == null ? recovered as IO<dynamic> : _failed(err, depth + 1);
@@ -1145,7 +1163,7 @@ final class IOFiber<A> {
       return _finalizers.pop();
     } else {
       if (_objectState.isNotEmpty) {
-        final cb = _objectState.pop() as Fn1;
+        final cb = _objectState.pop() as Fn1F;
         cb.call(Right<IOError, Unit>(Unit()));
       }
 

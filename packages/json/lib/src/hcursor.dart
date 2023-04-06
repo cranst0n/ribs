@@ -24,7 +24,7 @@ abstract class HCursor extends ACursor {
   Option<HCursor> get success => Some(this);
 
   @override
-  Option<Json> get focus => value.some;
+  Option<Json> get focus => Some(value);
 
   @override
   Option<IList<Json>> get values =>
@@ -35,7 +35,7 @@ abstract class HCursor extends ACursor {
       Option.when(() => value is JObject, () => (value as JObject).value.keys);
 
   @override
-  Option<Json> top() => root().value.some;
+  Option<Json> top() => Some(root().value);
 
   @override
   HCursor root() => this is TopCursor ? this : (up() as HCursor).root();

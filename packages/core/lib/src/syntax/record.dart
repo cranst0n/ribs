@@ -3,6 +3,9 @@ import 'package:ribs_core/src/function.dart';
 extension Record2Ops<A, B> on (A, B) {
   (A, B, C) append<C>(C $3) => ($1, $2, $3);
 
+  (C, D) bimap<C, D>(Function1<A, C> fa, Function1<B, D> fb) =>
+      (fa($1), fb($2));
+
   C call<C>(Function2<A, B, C> f) => f($1, $2);
 
   (A, B) copy({

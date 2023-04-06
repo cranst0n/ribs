@@ -23,7 +23,7 @@ final class Gen<A> extends Monad<A> {
 
   Stream<A> stream(StatefulRandom rand) => Streams.unfold<(StatefulRandom, A)>(
         sample.run(rand),
-        (x) => sample.run(x.$1).some,
+        (x) => Some(sample.run(x.$1)),
       ).map((x) => x.$2);
 
   static Gen<(A, B)> tuple2<A, B>(Gen<A> a, Gen<B> b) =>
@@ -188,7 +188,7 @@ final class Gen<A> extends Monad<A> {
       var sum = 0;
       final tree = SplayTreeMap<int, Gen<A>>();
 
-      for (final (final x, final gen) in filteredGens.toList()) {
+      for (final (x, gen) in filteredGens.toList()) {
         sum = x + sum;
         tree[sum] = gen;
       }

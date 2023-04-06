@@ -83,7 +83,7 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   Option<A> lift(int ix) => ix < 0
       ? none<A>()
       : ix == 0
-          ? head.some
+          ? Some(head)
           : tail.lift(ix - 1);
 
   @override

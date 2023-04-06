@@ -24,14 +24,8 @@ void main() {
   });
 
   test('IList.uncons', () {
-    // head
-    expect(ilist([1, 2, 3]).uncons((head, tail) => head.isDefined), isTrue);
-    expect(nil<int>().uncons((head, tail) => head.isEmpty), isTrue);
-
-    // tail
-    expect(
-        ilist([1, 2, 3]).uncons((head, tail) => tail == ilist([2, 3])), isTrue);
-    expect(nil<int>().uncons((head, tail) => tail.isEmpty), isTrue);
+    expect(ilist([1, 2, 3]).uncons((x) => x.isDefined), isTrue);
+    expect(nil<int>().uncons((x) => x.isEmpty), isTrue);
   });
 
   test('IList[]', () {

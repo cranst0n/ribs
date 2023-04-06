@@ -25,7 +25,7 @@ final class Scope {
         },
         () {
           final nextScope = parent.fold(
-            () => IO.raiseError<Scope>(StateError('root scope already closed')),
+            () => IO.raiseError<Scope>(IOError('root scope already closed')),
             (p) => p.open(finalizer),
           );
 
@@ -48,14 +48,19 @@ final class Scope {
             // Ensure all finalizers are called, regardless of failures
             IO<Unit> go(IList<IO<Unit>> rem, Option<IOError> error) =>
                 rem.uncons(
-                  (hd, tl) => hd.fold(
-                    () => error.fold(
-                      () => IO.unit,
-                      (err) => IO.raiseError(err),
-                    ),
-                    (hd) => hd.attempt().flatMap((res) =>
-                        go(tl, error.orElse(() => res.swap().toOption()))),
-                  ),
+                  (a) {
+                    return a.fold(
+                      () => error.fold(
+                        () => IO.unit,
+                        (err) => IO.raiseError(err),
+                      ),
+                      (a) {
+                        final (hd, tl) = a;
+                        return hd.attempt().flatMap((res) =>
+                            go(tl, error.orElse(() => res.swap().toOption())));
+                      },
+                    );
+                  },
                 );
 
             return (ScopeState.closed, go(finalizers, none()));
@@ -73,7 +78,7 @@ final class Scope {
           () => IO.pure(none()),
           (p) => p.findScope(target),
         ),
-        (s) => IO.pure(s.some),
+        (s) => IO.pure(Some(s)),
       );
     });
   }
@@ -86,19 +91,20 @@ final class Scope {
         return state.fold(
           (open) {
             IO<Option<Scope>> go(IList<Scope> rem) {
-              return rem.uncons((hd, tl) {
-                return hd.fold(
+              return rem.uncons(
+                (a) => a.fold(
                   () => IO.pure(none()),
-                  (hd) {
+                  (a) {
+                    final (hd, tl) = a;
                     return hd.findThisOrSubScope(target).flatMap((scope) {
                       return scope.fold(
                         () => go(tl),
-                        (scope) => IO.pure(scope.some),
+                        (scope) => IO.pure(Some(scope)),
                       );
                     });
                   },
-                );
-              });
+                ),
+              );
             }
 
             return go(open.subScopes);

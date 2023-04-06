@@ -1,9 +1,15 @@
+import 'package:ribs_core/src/effect/io.dart';
 import 'package:ribs_core/src/function.dart';
 import 'package:ribs_core/src/option.dart';
 import 'package:ribs_core/src/syntax/record.dart';
 
 extension OptionSyntaxOps<A> on A {
   Option<A> get some => Some(this);
+}
+
+extension OptionIOOps<A> on Option<IO<A>> {
+  IO<Option<A>> sequence() =>
+      fold(() => IO.pure(none()), (io) => io.map((a) => Some(a)));
 }
 
 extension Tuple2OptionOpts<A, B> on (Option<A>, Option<B>) {

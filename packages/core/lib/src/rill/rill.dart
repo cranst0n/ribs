@@ -11,7 +11,7 @@ final class Rill<O> implements Monad<O> {
 
   static Rill<R> bracket<R>(IO<R> acquire, Function1<R, IO<Unit>> release) =>
       _Eval(acquire)
-          .flatMap((r) => _OpenScope(_Output(r), release(r).some))
+          .flatMap((r) => _OpenScope(_Output(r), Some(release(r))))
           .rill;
 
   static Rill<O> constant<O>(O o) => _Output(o).rill.repeat();
@@ -286,7 +286,7 @@ final class Rill<O> implements Monad<O> {
         .bracket(
           (ctrl) => attempt()
               .evalTap((o) => IO.delay(() => o.fold(
-                    (err) => ctrl.addError(err.$1, err.$2),
+                    (err) => ctrl.addError(err.message, err.stackTrace),
                     (o) => ctrl.add(o),
                   )))
               .compile()
@@ -331,10 +331,10 @@ class RillCompiled<O> {
       _pull.fold(initial, f).map((t) => t.$2);
 
   IO<Option<O>> get last =>
-      _pull.last.fold(none<O>(), (a, b) => b.some).map((a) => a.$1);
+      _pull.last.fold(none<O>(), (a, b) => Some(b)).map((a) => a.$1);
 
   IO<O> lastOr(O fallback) => _pull.last
-      .fold(none<O>(), (a, b) => b.some)
+      .fold(none<O>(), (a, b) => Some(b))
       .map((a) => a.$1.getOrElse(() => fallback));
 
   IO<IList<O>> toIList() =>
@@ -445,7 +445,7 @@ sealed class Pull<O, R> {
             (r) => _Result(none<O>()),
             (tuple) => tuple((hd, tl) {
               if (p(hd)) {
-                return _Result(hd.some);
+                return _Result(Some(hd));
               } else {
                 return tl.find(p);
               }
@@ -460,7 +460,7 @@ sealed class Pull<O, R> {
       return s.uncons().flatMap((step) {
         return step.fold(
           (_) => _Result(prev),
-          (tuple) => tuple((hd, tl) => go(hd.some, tl)),
+          (tuple) => tuple((hd, tl) => go(Some(hd), tl)),
         );
       });
     }
@@ -492,7 +492,7 @@ sealed class Pull<O, R> {
   Pull<O, Option<R>> take(int n) => n <= 0
       ? _Result(none())
       : uncons().flatMap((step) => step.fold(
-            (r) => _Result(r.some),
+            (r) => _Result(Some(r)),
             (tuple) =>
                 tuple((hd, tl) => _Output(hd).flatMap((_) => tl.take(n - 1))),
           ));
@@ -537,8 +537,9 @@ sealed class Pull<O, R> {
       ? Pull.done
       : _Output(os.first).flatMap((_) => fromIterable(os.skip(1)));
 
-  static Pull<O, Unit> fromIList<O>(IList<O> os) => os.uncons((h, t) =>
-      h.fold(() => Pull.done, (h) => _Output(h).flatMap((_) => fromIList(t))));
+  static Pull<O, Unit> fromIList<O>(IList<O> os) => os.uncons((x) => x.fold(
+      () => Pull.done,
+      (hdtl) => _Output(hdtl.$1).flatMap((_) => fromIList(hdtl.$2))));
 
   static Pull<O, Unit> iterate<O>(O initial, Function1<O, O> f) =>
       _Output(initial).flatMap((_) => iterate(f(initial), f));

@@ -58,7 +58,7 @@ class Ref<A> {
           (u, b) {
             if (c == _underlying) {
               _underlying = u;
-              return b.some;
+              return Some(b);
             } else {
               return none();
             }

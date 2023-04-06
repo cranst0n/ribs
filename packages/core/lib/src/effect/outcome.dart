@@ -3,6 +3,22 @@ import 'package:ribs_core/ribs_core.dart';
 sealed class Outcome<A> {
   const Outcome();
 
+  // factory Outcome.succeeded(A a) => Succeeded(a);
+  // factory Outcome.errored(IOError error) => Errored<A>(error);
+  // factory Outcome.canceled() => const Canceled();
+
+  static Outcome<A> succeeded<A>(A a) => Succeeded(a);
+  static Outcome<A> errored<A>(IOError error) => Errored(error);
+  static Outcome<A> canceled<A>() => const Canceled();
+
+  IO<A> embed(IO<A> onCancel) => fold(
+        () => onCancel,
+        (err) => IO.raiseError(err),
+        (a) => IO.pure(a),
+      );
+
+  IO<A> embedNever() => embed(IO.never());
+
   B fold<B>(
     Function0<B> canceled,
     Function1<IOError, B> errored,

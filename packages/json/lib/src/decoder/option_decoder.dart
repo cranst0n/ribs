@@ -17,7 +17,7 @@ final class OptionDecoder<A> extends Decoder<Option<A>> {
       } else {
         return decodeA
             .decode(cursor)
-            .fold((err) => err.asLeft(), (a) => a.some.asRight());
+            .fold((err) => err.asLeft(), (a) => Some(a).asRight());
       }
     } else if (cursor is FailedCursor) {
       if (!cursor.incorrectFocus) {

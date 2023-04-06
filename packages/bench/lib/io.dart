@@ -213,8 +213,8 @@ class RibsAttemptSadBenchmark extends AsyncBenchmarkBase {
   RibsAttemptSadBenchmark() : super('') {
     IO<int> x = IO.pure(0);
     for (int i = 0; i < n; i++) {
-      x = x.flatMap(
-          (a) => (i == n ~/ 2) ? IO.raiseError('boom') : IO.pure(a + 1));
+      x = x.flatMap((a) =>
+          (i == n ~/ 2) ? IO.raiseError(IOError('boom')) : IO.pure(a + 1));
     }
 
     io = x.attempt();

@@ -47,6 +47,14 @@ final class IList<A> implements Monad<A>, Foldable<A> {
 
   bool contains(A elem) => _underlying.contains(elem);
 
+  Option<(A, IList<A>)> deleteFirst(Function1<A, bool> p) {
+    final ix = _underlying.indexWhere(p);
+    return Option.when(
+      () => ix >= 0,
+      () => (_underlying[ix], IList.of(_underlying.removeAt(ix))),
+    );
+  }
+
   IList<A> distinct() => IList.of(foldLeft<List<A>>(
         List<A>.empty(growable: true),
         (acc, elem) => acc.contains(elem) ? acc : (acc..add(elem)),
@@ -219,6 +227,13 @@ final class IList<A> implements Monad<A>, Foldable<A> {
     return result;
   }
 
+  IO<IList<B>> flatTraverseIO<B>(Function1<A, IO<IList<B>>> f) =>
+      traverseIO(f).map((a) => a.flatten());
+
+  IO<IList<B>> traverseFilterIO<B>(Function1<A, IO<Option<B>>> f) =>
+      traverseIO(f).map((opts) => opts.foldLeft(IList.empty<B>(),
+          (acc, elem) => elem.fold(() => acc, (elem) => acc.append(elem))));
+
   IO<IList<B>> parTraverseIO<B>(Function1<A, IO<B>> f) {
     IO<IList<B>> result = IO.pure(nil());
 
@@ -250,11 +265,11 @@ final class IList<A> implements Monad<A>, Foldable<A> {
     return result.map((a) => a.reverse());
   }
 
-  B uncons<B>(Function2<Option<A>, IList<A>, B> f) {
+  B uncons<B>(Function1<Option<(A, IList<A>)>, B> f) {
     if (_underlying.isEmpty) {
-      return f(none(), nil());
+      return f(none());
     } else {
-      return f(_underlying[0].some, IList.of(_underlying.tail));
+      return f(Some((_underlying[0], IList.of(_underlying.tail))));
     }
   }
 

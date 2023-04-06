@@ -21,7 +21,7 @@ final class Deferred<A> {
       ));
 
   IO<Option<A>> tryValue() => IO.delay(() => _state.fold(
-        (a) => a.some,
+        (a) => Some(a),
         (_) => none(),
       ));
 
@@ -30,7 +30,7 @@ final class Deferred<A> {
           (a) => IO.pure(a),
           (unset) => IO.async((cb) => IO
               .delay(() => unset.addReader((a) => cb(Right(a))))
-              .map((id) => IO.exec(() => unset.deleteReader(id)).some)),
+              .map((id) => Some(IO.exec(() => unset.deleteReader(id))))),
         ),
       );
 }

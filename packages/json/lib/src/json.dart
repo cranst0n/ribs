@@ -177,7 +177,7 @@ final class JNull extends Json {
   Option<bool> get asBoolean => none();
 
   @override
-  Option<Unit> get asNull => Unit().some;
+  Option<Unit> get asNull => Some(Unit());
 
   @override
   Option<num> get asNumber => none();
@@ -250,7 +250,7 @@ final class JBoolean extends Json {
   Option<IList<Json>> get asArray => none();
 
   @override
-  Option<bool> get asBoolean => value.some;
+  Option<bool> get asBoolean => Some(value);
 
   @override
   Option<Unit> get asNull => none();
@@ -332,7 +332,7 @@ final class JNumber extends Json {
   Option<Unit> get asNull => none();
 
   @override
-  Option<num> get asNumber => value.some;
+  Option<num> get asNumber => Some(value);
 
   @override
   Option<JsonObject> get asObject => none();
@@ -417,7 +417,7 @@ final class JString extends Json {
   Option<JsonObject> get asObject => none();
 
   @override
-  Option<String> get asString => value.some;
+  Option<String> get asString => Some(value);
 
   @override
   Json withArray(Function1<IList<Json>, Json> f) => this;
@@ -478,7 +478,7 @@ final class JArray extends Json {
   bool get isObject => false;
 
   @override
-  Option<IList<Json>> get asArray => value.some;
+  Option<IList<Json>> get asArray => Some(value);
 
   @override
   Option<bool> get asBoolean => none();
@@ -566,7 +566,7 @@ final class JObject extends Json {
   Option<num> get asNumber => none();
 
   @override
-  Option<JsonObject> get asObject => value.some;
+  Option<JsonObject> get asObject => Some(value);
 
   @override
   Option<String> get asString => none();

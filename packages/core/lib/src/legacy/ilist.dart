@@ -69,7 +69,7 @@ sealed class IList<A> implements Monad<A>, Foldable<A> {
       filter((a) => !predicate(a));
 
   Option<A> find(Function1<A, bool> p) =>
-      uncons((h, t) => h.fold(() => none(), (h) => p(h) ? h.some : t.find(p)));
+      uncons((h, t) => h.fold(() => none(), (h) => p(h) ? Some(h) : t.find(p)));
 
   Option<A> findLast(Function1<A, bool> p) => reverse().find(p);
 

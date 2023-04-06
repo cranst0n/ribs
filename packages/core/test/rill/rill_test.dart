@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/src/rill/rill.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -198,7 +199,7 @@ void main() {
   test('attempt', () async {
     final s = Rill.emits([1, 2, 3, 4, 5, 6])
         .mapEval(
-            (a) => a == 4 ? IO.raiseError<int>(StateError('boom')) : IO.pure(a))
+            (a) => a == 4 ? IO.raiseError<int>(IOError('boom')) : IO.pure(a))
         .attempt();
 
     final result = await s.compile().toList().unsafeRunToFuture();
