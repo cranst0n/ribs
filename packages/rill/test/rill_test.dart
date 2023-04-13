@@ -85,4 +85,11 @@ void main() {
     expect(result, ilist([1, 2, 3]));
     expect(sum, 6);
   });
+
+  test('drop', () async {
+    final r = Rill.emits(IList.range(0, 100)).drop(20);
+    final result = await r.compile().toIList().unsafeRunToFuture();
+
+    expect(result, IList.range(20, 100));
+  });
 }

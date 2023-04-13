@@ -6,11 +6,13 @@ final class Rill<O> {
 
   Rill(this._underlying);
 
+  static Rill<O> chunk<O>(IList<O> os) => Pull.output(os).rillNoScope();
+
   static Rill<O> emit<O>(O o) => Pull.output1(o).rillNoScope();
 
   static Rill<O> emits<O>(IList<O> os) => Pull.output(os).rillNoScope();
 
-  static Rill<Never> empty<O>() => Pull.done().rillNoScope();
+  static Rill<O> empty<O>() => Pull.done().rillNoScope();
 
   static Rill<O> eval<O>(IO<O> io) =>
       Pull.eval(io).flatMap((a) => Pull.output1(a)).rillNoScope();
@@ -22,6 +24,14 @@ final class Rill<O> {
       _underlying.append(() => that()._underlying).rillNoScope();
 
   RillCompiled<O> compile() => RillCompiled(_underlying);
+
+  Rill<O> cons(IList<O> l) =>
+      l.isEmpty ? this : Rill.chunk(l).append(() => this);
+
+  Rill<O> drop(int n) => pull()
+      .drop(n)
+      .flatMap((tl) => tl.fold(() => Pull.done(), (tl) => tl.pull().echo()))
+      .rill();
 
   Rill<O2> evalMap<O2>(Function1<O, IO<O2>> f) => _underlying
       .flatMapOutput((o) => Pull.eval(f(o)).flatMap(Pull.output1))
@@ -43,7 +53,7 @@ final class Rill<O> {
   Rill<O> onComplete(Function0<Rill<O>> s2) =>
       handleErrorWith((e) => s2().append(() => Rill(Pull.fail(e)))).append(s2);
 
-  Pull<O, Unit> toPull() => _underlying;
+  ToPull<O> pull() => ToPull(this);
 }
 
 final class StepLeg<O> {
@@ -88,10 +98,109 @@ class ToPull<O> {
 
   const ToPull(this.self);
 
+  Pull<O, Unit> echo() => self._underlying;
+
   Pull<O, Option<(IList<O>, Rill<O>)>> uncons() => self._underlying
       .uncons()
       .map((a) => a.map((a) => a((hd, tl) => (hd, tl.rillNoScope()))));
 
   Pull<O, Option<(O, Rill<O>)>> uncons1() =>
-      throw UnimplementedError('ToPull.uncons1');
+      uncons().flatMap((a) => a.fold(() => Pull.pure(none()), (x) {
+            final (hd, tl) = x;
+            final ntl = hd.size == 1 ? tl : tl.cons(hd.drop(1));
+            return Pull.pure(Some((hd[0], ntl)));
+          }));
+
+  Pull<O, Option<(IList<O>, Rill<O>)>> unconsLimit(int n) {
+    if (n <= 0) {
+      return Pull.pure(Some((IList.empty(), self)));
+    } else {
+      return uncons().flatMap((a) {
+        return a.fold(
+          () => Pull.pure(none()),
+          (x) {
+            final (hd, tl) = x;
+
+            if (hd.size < n) {
+              return Pull.pure(Some((hd, tl)));
+            } else {
+              final (out, rem) = hd.splitAt(n);
+              return Pull.pure(Some((out, tl.cons(rem))));
+            }
+          },
+        );
+      });
+    }
+  }
+
+  Pull<O, Option<(IList<O>, Rill<O>)>> unconsMin(
+    int n, {
+    bool allowFewerTotal = false,
+  }) {
+    Pull<O, Option<(IList<O>, Rill<O>)>> go(
+      IList<O> acc,
+      int n,
+      Rill<O> s,
+    ) =>
+        s.pull().uncons().flatMap((a) => a.fold(
+              () {
+                if (allowFewerTotal && acc.nonEmpty) {
+                  return Pull.pure(Some((acc, Rill.empty<O>())));
+                } else {
+                  return Pull.pure(none());
+                }
+              },
+              (x) {
+                final (hd, tl) = x;
+
+                if (hd.size < n) {
+                  return go(acc.concat(hd), n - hd.size, tl);
+                } else {
+                  return Pull.pure(Some((acc.concat(hd), tl)));
+                }
+              },
+            ));
+
+    if (n <= 0) {
+      return Pull.pure(Some((IList.empty(), self)));
+    } else {
+      return go(IList.empty(), n, self);
+    }
+  }
+
+  Pull<O, Option<(IList<O>, Rill<O>)>> unconsN(
+    int n, {
+    bool allowFewerTotal = false,
+  }) {
+    if (n <= 0) {
+      return Pull.pure(Some((IList.empty(), self)));
+    } else {
+      return unconsMin(n, allowFewerTotal: allowFewerTotal)
+          .map((x) => x.map((a) => a((hd, tl) {
+                final (pfx, sfx) = hd.splitAt(n);
+                return (pfx, tl.cons(sfx));
+              })));
+    }
+  }
+
+  Pull<O, Option<Rill<O>>> drop(int n) {
+    if (n <= 0) {
+      return Pull.pure(Some(self));
+    } else {
+      return uncons().flatMap((a) => a.fold(
+            () => Pull.pure(none()),
+            (a) {
+              final (hd, tl) = a;
+
+              if (hd.size < n) {
+                return tl.pull().drop(n - hd.size);
+              } else if (hd.size == n) {
+                return Pull.pure(Some(tl));
+              } else {
+                return Pull.pure(Some(tl.cons(hd.drop(n))));
+              }
+            },
+          ));
+    }
+  }
 }

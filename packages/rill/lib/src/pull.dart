@@ -626,7 +626,7 @@ extension PullOps<O> on Pull<O, Unit> {
   }
 
   Pull<O2, Unit> mapOutput<O2>(Rill<O> s, Function1<O, O2> f) =>
-      s.toPull().unconsFlatMap((hd) => Pull.output(hd.map(f)));
+      s.pull().echo().unconsFlatMap((hd) => Pull.output(hd.map(f)));
 
   Pull<O2, Unit> unconsFlatMap<O2>(
     Function1<IList<O>, Pull<O2, Unit>> f,
