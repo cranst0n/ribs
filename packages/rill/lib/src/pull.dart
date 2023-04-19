@@ -4,7 +4,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
 sealed class Pull<O, R> {
-  static _Terminal<Unit> get _unit => _Succeeded(Unit());
+  static _Terminal<O, Unit> _unit<O>() => _Succeeded<O, Unit>(Unit());
 
   static Pull<Never, R> acquire<R>(
     IO<R> resource,
@@ -18,9 +18,10 @@ sealed class Pull<O, R> {
   ) =>
       _Acquire(IO.uncancelable(resource), release, true);
 
-  static Pull<Never, Either<IOError, R>> attemptEval<R>(IO<R> fr) => _Eval(fr)
-      .map((r) => r.asRight<IOError>())
-      .handleErrorWith((err) => _Succeeded(err.asLeft<R>()));
+  static Pull<O, Either<IOError, R>> attemptEval<O, R>(IO<R> fr) =>
+      _Eval<O, R>(fr)
+          .map((r) => r.asRight<IOError>())
+          .handleErrorWith((err) => _Succeeded(err.asLeft<R>()));
 
   static Pull<O, B> bracketCase<O, A, B>(
     Pull<O, A> acquire,
@@ -28,8 +29,9 @@ sealed class Pull<O, R> {
     Function2<A, ExitCase, Pull<O, Unit>> release,
   ) {
     return acquire.flatMap((a) {
-      final used = Either.catching(() => use(a), (e, s) => _Fail(IOError(e, s)))
-          .fold(id, id);
+      final used =
+          Either.catching(() => use(a), (e, s) => _Fail<O>(IOError(e, s)))
+              .fold(id, id);
 
       return _transformWith(used, (result) {
         final exitCase = result.fold(
@@ -55,7 +57,7 @@ sealed class Pull<O, R> {
     });
   }
 
-  static Pull<Never, Unit> done() => _unit;
+  static Pull<Never, Unit> done() => _unit();
 
   static Pull<Never, R> eval<R>(IO<R> fr) => _Eval(fr);
 
@@ -104,8 +106,8 @@ sealed class Pull<O, R> {
               return _Fail(IOError(e, s));
             }
           },
-          (e) => e,
-          (i) => i,
+          (e) => _Fail(e.error),
+          (i) => _Interrupted(i.context, i.deferredError),
         );
       });
 
@@ -158,28 +160,26 @@ sealed class Pull<O, R> {
   ) {
     late _ContP<dynamic, dynamic, Unit> contP;
 
-    // TODO: type parameters
-    _ContP<dynamic, Never, Unit> getCont() =>
-        contP as _ContP<dynamic, Never, Unit>;
+    _ContP<AA, BB, Unit> getCont<AA, BB>() => contP as _ContP<AA, BB, Unit>;
 
     _ViewL<X> viewL<X>(Pull<X, Unit> free) {
       switch (free) {
-        case final _Action<X, Unit> _:
-          contP = _idContP<X>();
-          return free;
+        case final _Action<X, Unit> e:
+          contP = e.idContP();
+          return e;
         case final _Bind<X, dynamic, Unit> b:
           switch (b.step) {
             case final _Bind<X, dynamic, dynamic> c:
-              return viewL(c.bind(b));
+              return viewL(c.bindBind(b));
             case final _Action<X, dynamic> e:
               contP = b.delegate;
               return e;
-            case final _Terminal r:
+            case final _Terminal<X, dynamic> r:
               return viewL(b(r));
             default:
               throw UnimplementedError('Pull.compile.viewL.bind: ${b.step}');
           }
-        case final _Terminal<Unit> r:
+        case final _Terminal<X, Unit> r:
           return r;
         default:
           throw UnimplementedError('Pull.compile.viewL: $free');
@@ -188,17 +188,17 @@ sealed class Pull<O, R> {
 
     Pull<X, Unit> interruptBoundary<X>(
       Pull<X, Unit> stream,
-      _Interrupted interruption,
+      _Interrupted<X> interruption,
     ) {
       final v = viewL(stream);
 
       switch (v) {
-        case final _CloseScope cs:
+        case final _CloseScope<X> _:
           final cl = _CanceledScope(v.scopeId, interruption);
-          return _transformWith(cl, getCont());
+          return _transformWith(cl, getCont<Unit, X>());
         case final _Action<X, dynamic> _:
-          return getCont()(interruption);
-        case final _Interrupted interrupted:
+          return getCont<Unit, X>()(interruption);
+        case final _Interrupted<X> interrupted:
           return interrupted;
         case final _Succeeded _:
           return interruption;
@@ -226,9 +226,9 @@ sealed class Pull<O, R> {
               () => next,
               (outcome) {
                 final result = outcome.fold(
-                  () => _Interrupted(scope.id, none()),
-                  (err) => _Fail(err),
-                  (scopeId) => _Interrupted(scopeId, none()),
+                  () => _Interrupted<X>(scope.id, none()),
+                  (err) => _Fail<X>(err),
+                  (scopeId) => _Interrupted<X>(scopeId, none()),
                 );
 
                 return go(scope, extendedTopLevelScope, runner, view(result));
@@ -239,28 +239,28 @@ sealed class Pull<O, R> {
       IO<End> goErr(IOError err, _ContP<dynamic, X, Unit> view) =>
           go(scope, extendedTopLevelScope, runner, view(_Fail(err)));
 
-      IO<End> goEval<V>(_Eval<V> eval, _ContP<V, X, Unit> view) =>
+      IO<End> goEval<V>(_Eval<O, V> eval, _ContP<V, X, Unit> view) =>
           scope.interruptibleEval(eval.value).flatMap((eitherOutcome) {
-            final _Terminal<V> result = eitherOutcome.fold(
+            final _Terminal<X, V> result = eitherOutcome.fold(
               (oc) => oc.fold(
-                () => _Interrupted(scope.id, none()),
-                (err) => _Fail(err),
-                (token) => _Interrupted(token, none()),
+                () => _Interrupted<X>(scope.id, none()),
+                (err) => _Fail<X>(err),
+                (token) => _Interrupted<X>(token, none()),
               ),
-              (r) => _Succeeded(r),
+              (r) => _Succeeded<X, V>(r),
             );
 
             return go(scope, extendedTopLevelScope, runner, view(result));
           });
 
-      IO<End> goAcquire<RR>(_Acquire<RR> acquire, _ContP<RR, X, Unit> view) {
+      IO<End> goAcquire<RR>(_Acquire<O, RR> acquire, _ContP<RR, X, Unit> view) {
         final onScope = scope.acquireResource(
             (poll) =>
                 acquire.cancelable ? poll(acquire.resource) : acquire.resource,
             (resource, exit) => acquire.release(resource, exit));
 
         final cont = onScope.flatMap((outcome) {
-          final _Terminal<RR> result = outcome.fold(
+          final _Terminal<X, RR> result = outcome.fold(
             () => _Interrupted(scope.id, none()),
             (err) => _Fail(err),
             (a) => a.fold(
@@ -283,11 +283,11 @@ sealed class Pull<O, R> {
             (_) => scope.interruptWhen(haltOnSignal), (f, _) => f.cancel());
 
         final cont = onScope.flatMap((outcome) {
-          final _Terminal<Unit> result = outcome.fold(
+          final _Terminal<X, Unit> result = outcome.fold(
             () => _Interrupted(scope.id, none()),
             (err) => _Fail(err),
             (a) => a.fold(
-                (scopeId) => _Interrupted(scopeId, none()), (_) => _unit),
+                (scopeId) => _Interrupted(scopeId, none()), (_) => _unit()),
           );
 
           return go(scope, extendedTopLevelScope, runner, view(result));
@@ -304,7 +304,7 @@ sealed class Pull<O, R> {
           view: view,
           prevRunner: runner,
           doneF: (doneScope) =>
-              go(doneScope, extendedTopLevelScope, prevRunner, view(_unit)),
+              go(doneScope, extendedTopLevelScope, prevRunner, view(_unit())),
           failF: (err) => goErr(err, view),
           interruptedF: (inter) =>
               go(scope, extendedTopLevelScope, prevRunner, view(inter)),
@@ -317,7 +317,10 @@ sealed class Pull<O, R> {
         bool useInterruption,
         _ContP<Unit, X, Unit> view,
       ) {
-        Pull<X, Unit> endScope(UniqueToken scopeId, _Terminal<Unit> result) =>
+        Pull<X, Unit> endScope(
+          UniqueToken scopeId,
+          _Terminal<X, Unit> result,
+        ) =>
             result.fold(
               (s) => _SucceedScope(scopeId),
               (f) => _FailedScope(scopeId, f.error),
@@ -352,22 +355,24 @@ sealed class Pull<O, R> {
       }
 
       IO<End> goCloseScope(
-        _CloseScope close,
+        _CloseScope<X> close,
         _ContP<Unit, X, Unit> view,
       ) {
-        _Terminal<Unit> addError(IOError err, _Terminal<Unit> res) => res.fold(
+        _Terminal<X, Unit> addError(IOError err, _Terminal<X, Unit> res) =>
+            res.fold(
               (s) => _Fail(err),
               (f) => _Fail(CompositeError.from(err, f.error)),
               (i) => throw StateError('Impossible, cannot interrupt here!'),
             );
 
-        Pull<X, Unit> viewCont(_Terminal<Unit> res) => close.exitCase.fold(
+        Pull<X, Unit> viewCont(_Terminal<X, Unit> res) => close.exitCase.fold(
               () => view(res),
               (err) => view(addError(err, res)),
               () => view(res),
             );
 
-        _Terminal<Unit> closeTerminal(Either<IOError, Unit> r, Scope ancestor) {
+        _Terminal<X, Unit> closeTerminal(
+            Either<IOError, Unit> r, Scope ancestor) {
           return close.interruption.fold(
             () => r.fold((err) => _Fail(err), (a) => _Succeeded(a)),
             (i) {
@@ -377,7 +382,7 @@ sealed class Pull<O, R> {
               if (ancestor.descendsFrom(i.context)) {
                 return _Interrupted(i.context, err1);
               } else {
-                return err1.fold(() => _unit, (err) => _Fail(err));
+                return err1.fold(() => _unit(), (err) => _Fail(err));
               }
             },
           );
@@ -386,19 +391,20 @@ sealed class Pull<O, R> {
         return scope.findInLineage(close.scopeId).flatMap((s) {
           return s.fold(
             () {
-              final result = close.interruption.fold(() => _unit, id);
+              final result = close.interruption.fold(() => _unit<X>(), id);
               return go(scope, extendedTopLevelScope, runner, viewCont(result));
             },
             (toClose) {
               if (toClose.isRoot) {
                 return go(
-                    scope, extendedTopLevelScope, runner, viewCont(_unit));
+                    scope, extendedTopLevelScope, runner, viewCont(_unit()));
               } else if (extendLastTopLevelScope && toClose.level == 1) {
                 return extendedTopLevelScope
                     .traverseIO_(
                         (a) => a.close(ExitCase.succeeded()).rethrowError())
                     .productR(() => toClose.openAncestor().flatMap((ancestor) =>
-                        go(ancestor, Some(toClose), runner, viewCont(_unit))));
+                        go(ancestor, Some(toClose), runner,
+                            viewCont(_unit()))));
               } else {
                 return toClose.close(close.exitCase).flatMap(
                       (r) => toClose.openAncestor().flatMap(
@@ -456,7 +462,7 @@ sealed class Pull<O, R> {
                         return go(j + 1);
                       case final _Fail f:
                         return _Fail(f.error);
-                      case final _Interrupted i:
+                      case final _Interrupted<Y> i:
                         return interruptBoundary(tail, i).flatMapOutput(fun);
                       default:
                         throw UnimplementedError(
@@ -477,11 +483,13 @@ sealed class Pull<O, R> {
           doneF: (scope) => interruptGuard(
             scope,
             view,
-            go(scope, extendedTopLevelScope, runner, view(_unit)),
+            go(scope, extendedTopLevelScope, runner, view(_unit())),
           ),
           failF: (err) => goErr(err, view),
-          interruptedF: (inter) =>
-              go(scope, extendedTopLevelScope, runner, view(inter)),
+          interruptedF: (inter) {
+            final foo = inter as _Terminal<X, Never>;
+            return go(scope, extendedTopLevelScope, runner, view(foo));
+          },
           outF: (head, outScope, tail) {
             final next = _bindView(unconsed(head, tail), view);
             return go(outScope, extendedTopLevelScope, runner, next);
@@ -491,6 +499,30 @@ sealed class Pull<O, R> {
 
       _Run<Y, IO<End>> unconsRunR<Y>(
         _ContP<Option<(IList<Y>, Pull<Y, Unit>)>, X, Unit> view,
+      ) {
+        return _RunF(
+          doneF: (scope) => interruptGuard(
+            scope,
+            view,
+            go(scope, extendedTopLevelScope, runner,
+                view(_Succeeded(const None()))),
+          ),
+          failF: (err) => goErr(err, view),
+          interruptedF: (inter) {
+            return go(scope, extendedTopLevelScope, runner,
+                view(inter as _Terminal<X, Never>));
+          },
+          outF: (head, outScope, tail) => interruptGuard(
+            scope,
+            view,
+            go(scope, extendedTopLevelScope, runner,
+                view(_Succeeded(Some((head, tail))))),
+          ),
+        );
+      }
+
+      _Run<Y, IO<End>> stepLegRunR<Y>(
+        _ContP<Option<StepLeg<Y>>, X, Unit> view,
       ) =>
           _RunF(
             doneF: (scope) => interruptGuard(
@@ -500,28 +532,10 @@ sealed class Pull<O, R> {
                   view(_Succeeded(const None()))),
             ),
             failF: (err) => goErr(err, view),
-            interruptedF: (inter) =>
-                go(scope, extendedTopLevelScope, runner, view(inter)),
-            outF: (head, outScope, tail) => interruptGuard(
-              scope,
-              view,
-              go(scope, extendedTopLevelScope, runner,
-                  view(_Succeeded(Some((head, tail))))),
-            ),
-          );
-
-      _Run<Y, IO<End>> stepLegRunR<Y>(
-              _ContP<Option<StepLeg<Y>>, X, Unit> view) =>
-          _RunF(
-            doneF: (scope) => interruptGuard(
-              scope,
-              view,
-              go(scope, extendedTopLevelScope, runner,
-                  view(_Succeeded(const None()))),
-            ),
-            failF: (err) => goErr(err, view),
-            interruptedF: (inter) =>
-                go(scope, extendedTopLevelScope, runner, view(inter)),
+            interruptedF: (inter) {
+              return go(scope, extendedTopLevelScope, runner,
+                  view(inter as _Terminal<X, Never>));
+            },
             outF: (head, outScope, tail) => interruptGuard(
               scope,
               view,
@@ -541,18 +555,18 @@ sealed class Pull<O, R> {
           return interruptGuard(
             scope,
             view,
-            runner.out(output.values, scope, view(_unit)),
+            runner.out(output.values, scope, view(output._unit())),
           );
         case final _FlatMapOutput fmout:
-          final view = contP as _ContP<Unit, X, Unit>;
+          final view = getCont<Unit, X>();
           final fmRunr =
               flatMapR(view, fmout.fun as Fn1<dynamic, Pull<X, Unit>>);
 
           return IO.unit.productR(
               () => go(scope, extendedTopLevelScope, fmRunr, fmout.stream));
         case final _Uncons u:
-          final view = contP
-              as _ContP<Option<(IList<dynamic>, Pull<dynamic, Unit>)>, X, Unit>;
+          final view =
+              getCont<Option<(IList<dynamic>, Pull<dynamic, Unit>)>, X>();
           final runr = u.buildR<End>();
 
           return IO.unit
@@ -581,27 +595,27 @@ sealed class Pull<O, R> {
             scope,
             extendedTopLevelScope,
             runner,
-            getCont()(_Succeeded(scope)),
+            getCont<Scope, Unit>()(_Succeeded(scope)),
           );
-        case final _Eval<X> eval:
+        case final _Eval<O, X> eval:
           final view = contP as _ContP<X, X, Unit>;
           return goEval(eval, view);
-        case final _Acquire acquire:
-          return goAcquire(acquire, getCont());
+        case final _Acquire<O, dynamic> acquire:
+          return goAcquire(acquire, getCont<Unit, X>());
         case final _InScope<X> inScope:
           final view = contP as _ContP<Unit, X, Unit>;
           return goInScope(inScope.stream, inScope.useInterruption, view);
         case final _InterruptWhen inter:
           final view = contP as _ContP<Unit, X, Unit>;
           return goInterruptWhen(inter.haltOnSignal, view);
-        case final _CloseScope close:
+        case final _CloseScope<X> close:
           final view = contP as _ContP<Unit, X, Unit>;
           return goCloseScope(close, view);
         case final _Succeeded _:
           return runner.done(scope);
         case final _Fail failed:
           return runner.fail(failed.error);
-        case final _Interrupted inter:
+        case final _Interrupted<X> inter:
           return runner.interrupted(inter);
         default:
           throw UnimplementedError('Pull.compile.go: $vl');
@@ -616,9 +630,9 @@ sealed class Pull<O, R> {
 extension PullOps<O> on Pull<O, Unit> {
   Pull<O2, Unit> flatMapOutput<O2>(Function1<O, Pull<O2, Unit>> f) {
     switch (this) {
-      case final _AlgEffect<Unit> a:
-        return a;
-      case final _Terminal<Unit> r:
+      case final _AlgEffect<O, Unit> a:
+        return a as _AlgEffect<O2, Unit>;
+      case final _Terminal<O2, Unit> r:
         return r;
       default:
         return _FlatMapOutput(this, Fn1.of(f));
@@ -642,9 +656,9 @@ extension PullOps<O> on Pull<O, Unit> {
         return _Succeeded(none());
       case final _Output<O> o:
         return _Succeeded(Some((o.values, Pull.done())));
-      case final _Fail f:
+      case final _Fail<O> f:
         return f;
-      case final _Interrupted i:
+      case final _Interrupted<O> i:
         return i;
       default:
         return _Uncons(this);
@@ -663,9 +677,9 @@ extension PullErrorOps<O, R> on Pull<O, Either<IOError, R>> {
 
 Pull<O, S> _transformWith<O, R, S>(
   Pull<O, R> p,
-  Function1<_Terminal<R>, Pull<O, S>> f,
+  Function1<_Terminal<O, R>, Pull<O, S>> f,
 ) {
-  if (p is _Terminal<R>) {
+  if (p is _Terminal<O, R>) {
     try {
       return f(p);
     } catch (e, s) {
@@ -684,62 +698,71 @@ Pull<O, S> _transformWith<O, R, S>(
 
 mixin class _ViewL<O> {}
 
-sealed class _Terminal<R> extends Pull<Never, R> with _ViewL<Never> {
-  B fold<B>(Function1<_Succeeded, B> succeeded, Function1<_Fail, B> failed,
-      Function1<_Interrupted, B> interrupted) {
+sealed class _Terminal<O, R> extends Pull<O, R> with _ViewL<O> {
+  B fold<B>(
+    Function1<_Succeeded, B> succeeded,
+    Function1<_Fail, B> failed,
+    Function1<_Interrupted<O>, B> interrupted,
+  ) {
     switch (this) {
-      case final _Succeeded<R> s:
+      case final _Succeeded<O, R> s:
         return succeeded(s);
-      case final _Fail f:
+      case final _Fail<O> f:
         return failed(f);
-      case final _Interrupted i:
+      case final _Interrupted<O> i:
         return interrupted(i);
+      default:
+        throw UnimplementedError('_Terminal.fold');
     }
   }
 }
 
-final class _Succeeded<R> extends _Terminal<R> {
+final class _Succeeded<O, R> extends _Terminal<O, R> {
   final R r;
 
   _Succeeded(this.r);
+
+  @override
+  Pull<O, R2> map<R2>(Function1<R, R2> f) {
+    try {
+      return _Succeeded(f(r));
+    } catch (e, s) {
+      return _Fail(IOError(e, s));
+    }
+  }
 }
 
-final class _Fail extends _Terminal<Never> {
+final class _Fail<O> extends _Terminal<O, Never> {
   final IOError error;
 
   _Fail(this.error);
+
+  @override
+  Pull<O, R2> map<R2>(Function1<Never, R2> f) => this;
 }
 
-final class _Interrupted extends _Terminal<Never> {
+final class _Interrupted<O> extends _Terminal<O, Never> {
   final UniqueToken context;
   final Option<IOError> deferredError;
 
   _Interrupted(this.context, this.deferredError);
-}
 
-// typedef _Cont<Y, O> = Function1<_Terminal<Y>, Pull<O, Unit>>;
-// typedef _ContP<Y, O, X> = Fn1<_Terminal<Y>, Pull<O, X>>;
-// _ContP<Unit, A, Unit> _idContP<A>() => Fn1.of((a) => a);
+  @override
+  Pull<O, R2> map<R2>(Function1<Never, R2> f) => this;
+}
 
 abstract mixin class _ContP<Y, O, X> {
-  Pull<O, X> call(_Terminal<Y> t);
+  Pull<O, X> call(_Terminal<O, Y> t);
 }
 
-// abstract interface class _Cont<Y, O> extends _ContP<Y, O, Unit> {
-//   @override
-//   Pull<O, Unit> call(_Terminal<Y> t);
-// }
-
 final class _IdContP<A> extends _ContP<Unit, A, Unit> {
-  final Function1<_Terminal<Unit>, Pull<A, Unit>> f;
+  final Function1<_Terminal<A, Unit>, Pull<A, Unit>> f;
 
   _IdContP(this.f);
 
   @override
-  Pull<A, Unit> call(_Terminal<Unit> t) => f(t);
+  Pull<A, Unit> call(_Terminal<A, Unit> t) => f(t);
 }
-
-_ContP<Unit, A, Unit> _idContP<A>() => _IdContP((a) => a);
 
 abstract class _Bind<O, X, R> extends Pull<O, R> with _ContP<X, O, R> {
   final Pull<O, X> step;
@@ -748,17 +771,17 @@ abstract class _Bind<O, X, R> extends Pull<O, R> with _ContP<X, O, R> {
 
   _Bind<O, X, R> get delegate => this;
 
-  _BindBind<O, X, R> bind(_Bind<O, R, Unit> other) =>
+  _BindBind<O, X, R> bindBind(_Bind<O, R, Unit> other) =>
       _BindBind(step, delegate, other.delegate);
 }
 
 final class _BindF<O, X, R> extends _Bind<O, X, R> {
-  final Function1<_Terminal<X>, Pull<O, R>> f;
+  final Function1<_Terminal<O, X>, Pull<O, R>> f;
 
   _BindF(super.step, this.f);
 
   @override
-  Pull<O, R> call(_Terminal<X> r) => f(r);
+  Pull<O, R> call(_Terminal<O, X> r) => f(r);
 }
 
 final class _DelegateBind<O, Y> extends _Bind<O, Y, Unit> {
@@ -770,24 +793,26 @@ final class _DelegateBind<O, Y> extends _Bind<O, Y, Unit> {
   _Bind<O, Y, Unit> get delegate => _delegate;
 
   @override
-  Pull<O, Unit> call(_Terminal<Y> yr) => delegate(yr);
+  Pull<O, Unit> call(_Terminal<O, Y> yr) => delegate(yr);
 }
 
 Pull<O, Unit> _bindView<O>(Pull<O, Unit> fmoc, _ContP<Unit, O, Unit> view) {
-  if (view is _IdContP) {
-    return fmoc;
-  } else if (view is _Bind<O, Unit, Unit>) {
-    if (fmoc is _Terminal<Unit>) {
-      try {
-        return view(fmoc);
-      } catch (e, s) {
-        return _Fail(IOError(e, s));
+  switch (view) {
+    case _IdContP _:
+      return fmoc;
+    case final _Bind<O, Unit, Unit> bv:
+      switch (fmoc) {
+        case final _Terminal<O, Unit> r:
+          try {
+            return bv(r);
+          } catch (e, s) {
+            return _Fail(IOError(e, s));
+          }
+        default:
+          return _DelegateBind(fmoc, view.delegate);
       }
-    } else {
-      return _DelegateBind(fmoc, view.delegate);
-    }
-  } else {
-    return _BindF(fmoc, (r) => view(r));
+    default:
+      return _BindF(fmoc, (r) => view(r));
   }
 }
 
@@ -798,9 +823,9 @@ class _BindBind<O, X, Y> extends _Bind<O, X, Unit> {
   _BindBind(super.step, this.bb, this.del);
 
   @override
-  Pull<O, Unit> call(_Terminal<X> tx) {
+  Pull<O, Unit> call(_Terminal<O, X> tx) {
     try {
-      return _bindBindAux(bb.call(tx), del);
+      return _bindBindAux(bb(tx), del);
     } catch (e, s) {
       return _Fail(IOError(e, s));
     }
@@ -809,24 +834,28 @@ class _BindBind<O, X, Y> extends _Bind<O, X, Unit> {
 
 Pull<O, Unit> _bindBindAux<O, X>(Pull<O, X> py, _Bind<O, X, Unit> del) {
   switch (py) {
-    case final _Terminal<X> ty:
+    case final _Terminal<O, X> ty:
       switch (del) {
         case final _BindBind<O, dynamic, X> cici:
           return _bindBindAux(cici.bb(ty), cici.del);
         default:
           return del(ty);
       }
-    default:
-      return _DelegateBind(py, del);
+    case final Pull<O, X> x:
+      return _DelegateBind(x, del);
   }
 }
 
-sealed class _Action<O, R> extends Pull<O, R> with _ViewL<O> {}
+sealed class _Action<O, R> extends Pull<O, R> with _ViewL<O> {
+  _ContP<Unit, O, Unit> idContP() => _IdContP<O>((a) => a);
+}
 
 final class _Output<O> extends _Action<O, Unit> {
   final IList<O> values;
 
   _Output(this.values);
+
+  _Terminal<O, Unit> _unit() => Pull._unit();
 }
 
 final class _FlatMapOutput<O, O2> extends _Action<O2, Unit> {
@@ -834,6 +863,9 @@ final class _FlatMapOutput<O, O2> extends _Action<O2, Unit> {
   final Fn1<O, Pull<O2, Unit>> fun;
 
   _FlatMapOutput(this.stream, this.fun);
+
+  _Run<O, IO<_CallRun<O, IO<End>>>> buildR<End>() =>
+      _TheBuildR() as _Run<O, IO<_CallRun<O, IO<End>>>>;
 }
 
 final class _Uncons<O> extends _Action<O, Option<(IList<O>, Pull<O, Unit>)>> {
@@ -845,7 +877,7 @@ final class _Uncons<O> extends _Action<O, Option<(IList<O>, Pull<O, Unit>)>> {
       _TheBuildR() as _Run<O, IO<_CallRun<O, IO<End>>>>;
 }
 
-final class _StepLeg<O> extends _Action<Never, Option<StepLeg<O>>> {
+final class _StepLeg<O> extends _Action<O, Option<StepLeg<O>>> {
   final Pull<O, Unit> stream;
   final UniqueToken scope;
 
@@ -855,15 +887,15 @@ final class _StepLeg<O> extends _Action<Never, Option<StepLeg<O>>> {
       _TheBuildR() as _Run<O, IO<_CallRun<O, IO<End>>>>;
 }
 
-sealed class _AlgEffect<R> extends _Action<Never, R> {}
+sealed class _AlgEffect<O, R> extends _Action<O, R> {}
 
-final class _Eval<R> extends _AlgEffect<R> {
+final class _Eval<O, R> extends _AlgEffect<O, R> {
   final IO<R> value;
 
   _Eval(this.value);
 }
 
-final class _Acquire<R> extends _AlgEffect<R> {
+final class _Acquire<O, R> extends _AlgEffect<O, R> {
   final IO<R> resource;
   final Function2<R, ExitCase, IO<Unit>> release;
   final bool cancelable;
@@ -878,19 +910,19 @@ final class _InScope<O> extends _Action<O, Unit> {
   _InScope(this.stream, this.useInterruption);
 }
 
-final class _InterruptWhen extends _AlgEffect<Unit> {
+final class _InterruptWhen<O> extends _AlgEffect<O, Unit> {
   final IO<Either<IOError, Unit>> haltOnSignal;
 
   _InterruptWhen(this.haltOnSignal);
 }
 
-abstract class _CloseScope extends _AlgEffect<Unit> {
+abstract class _CloseScope<O> extends _AlgEffect<O, Unit> {
   UniqueToken get scopeId;
-  Option<_Interrupted> get interruption;
+  Option<_Interrupted<O>> get interruption;
   ExitCase get exitCase;
 }
 
-final class _SucceedScope extends _CloseScope {
+final class _SucceedScope<O> extends _CloseScope<O> {
   @override
   UniqueToken scopeId;
 
@@ -900,14 +932,14 @@ final class _SucceedScope extends _CloseScope {
   ExitCase get exitCase => ExitCase.succeeded();
 
   @override
-  Option<_Interrupted> get interruption => none();
+  Option<_Interrupted<O>> get interruption => none();
 }
 
-final class _CanceledScope extends _CloseScope {
+final class _CanceledScope<O> extends _CloseScope<O> {
   @override
   final UniqueToken scopeId;
 
-  final _Interrupted inter;
+  final _Interrupted<O> inter;
 
   _CanceledScope(this.scopeId, this.inter);
 
@@ -915,10 +947,10 @@ final class _CanceledScope extends _CloseScope {
   ExitCase get exitCase => ExitCase.canceled();
 
   @override
-  Option<_Interrupted> get interruption => Some(inter);
+  Option<_Interrupted<O>> get interruption => Some(inter);
 }
 
-final class _FailedScope extends _CloseScope {
+final class _FailedScope<O> extends _CloseScope<O> {
   @override
   final UniqueToken scopeId;
 
@@ -930,12 +962,12 @@ final class _FailedScope extends _CloseScope {
   ExitCase get exitCase => ExitCase.errored(err);
 
   @override
-  Option<_Interrupted> get interruption => none();
+  Option<_Interrupted<O>> get interruption => none();
 }
 
-final class _GetScope extends _AlgEffect<Scope> {}
+final class _GetScope<O> extends _AlgEffect<O, Scope> {}
 
-Pull<Never, Option<StepLeg<O>>> _stepLeg<O>(StepLeg<O> leg) =>
+Pull<O, Option<StepLeg<O>>> _stepLeg<O>(StepLeg<O> leg) =>
     _StepLeg(leg.next, leg.scopeId);
 
 Pull<O, Unit> scope<O>(Pull<O, Unit> s) => _InScope(s, false);
@@ -950,7 +982,7 @@ sealed class _Run<X, End> {
 
   End out(IList<X> head, Scope scope, Pull<X, Unit> tail);
 
-  End interrupted(_Interrupted inter);
+  End interrupted(_Interrupted<X> inter);
 
   End fail(IOError error);
 }
@@ -966,7 +998,7 @@ final class _TheBuildR extends _Run<Never, IO<_CallRun<Never, IO<Never>>>> {
   IO<_CallRun<Never, IO<Never>>> fail(IOError error) => IO.raiseError(error);
 
   @override
-  IO<_CallRun<Never, IO<Never>>> interrupted(_Interrupted inter) =>
+  IO<_CallRun<Never, IO<Never>>> interrupted(_Interrupted<Never> inter) =>
       IO.pure((run) => run.interrupted(inter));
 
   @override
@@ -1005,7 +1037,7 @@ class _OuterRun<O, B> extends _Run<O, IO<B>> {
   IO<B> fail(IOError error) => IO.raiseError(error);
 
   @override
-  IO<B> interrupted(_Interrupted inter) => inter.deferredError
+  IO<B> interrupted(_Interrupted<O> inter) => inter.deferredError
       .fold(() => IO.pure(_accB), (err) => IO.raiseError(err));
 
   @override
@@ -1021,9 +1053,9 @@ class _OuterRun<O, B> extends _Run<O, IO<B>> {
         return go(scope, none(), this, getCont()(_Fail(err)));
       } else if (viewTail is _Succeeded) {
         return IO.raiseError(err);
-      } else if (viewTail is _Fail) {
+      } else if (viewTail is _Fail<O>) {
         return IO.raiseError(CompositeError.from(viewTail.error, err));
-      } else if (viewTail is _Interrupted) {
+      } else if (viewTail is _Interrupted<O>) {
         return IO.raiseError(viewTail.deferredError.fold(
             () => IOError(e, s), (err2) => CompositeError.from(err2, err)));
       } else {
@@ -1036,7 +1068,7 @@ class _OuterRun<O, B> extends _Run<O, IO<B>> {
 class _RunF<Y, End> extends _Run<Y, IO<End>> {
   final Function1<Scope, IO<End>> doneF;
   final Function1<IOError, IO<End>> failF;
-  final Function1<_Interrupted, IO<End>> interruptedF;
+  final Function1<_Interrupted<Y>, IO<End>> interruptedF;
   final Function3<IList<Y>, Scope, Pull<Y, Unit>, IO<End>> outF;
 
   _RunF({
@@ -1053,7 +1085,7 @@ class _RunF<Y, End> extends _Run<Y, IO<End>> {
   IO<End> fail(IOError error) => failF(error);
 
   @override
-  IO<End> interrupted(_Interrupted inter) => interruptedF(inter);
+  IO<End> interrupted(_Interrupted<Y> inter) => interruptedF(inter);
 
   @override
   IO<End> out(IList<Y> head, Scope scope, Pull<Y, Unit> tail) =>
