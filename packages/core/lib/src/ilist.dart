@@ -97,6 +97,11 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   Option<A> get headOption =>
       Option.when(() => isNotEmpty, () => _underlying.first);
 
+  Option<int> indexWhere(Function1<A, bool> p) {
+    final idx = _underlying.indexWhere(p);
+    return Option.unless(() => idx < 0, () => idx);
+  }
+
   IList<A> init() => take(size - 1);
 
   IList<A> insertAt(int ix, A elem) =>

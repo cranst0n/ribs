@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        sdk: [master]
+        sdk: [beta]
         experimental: [true]
 
     steps:
