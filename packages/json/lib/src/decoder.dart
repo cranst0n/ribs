@@ -20,6 +20,9 @@ abstract mixin class Decoder<A> {
   static Decoder<A> instance<A>(Function1<HCursor, DecodeResult<A>> decodeF) =>
       DecoderF(decodeF);
 
+  static Decoder<A> failed<A>(DecodingFailure failure) =>
+      Decoder.instance((_) => Left(failure));
+
   DecodeResult<A> decode(HCursor cursor);
 
   DecodeResult<A> tryDecode(ACursor cursor) =>
