@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/src/rill/rill.dart';
+import 'package:ribs_rill/src/legacy/rill.dart';
 import 'package:test/test.dart';
 
 void main() {

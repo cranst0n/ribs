@@ -1,5 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/src/rill/channel.dart';
+import 'package:ribs_rill/src/legacy/channel.dart';
 import 'package:test/test.dart';
 
 void main() {

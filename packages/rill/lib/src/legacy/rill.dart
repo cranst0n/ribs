@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/src/rill/scope.dart';
+import 'package:ribs_rill/src/legacy/scope.dart';
 
 final class Rill<O> implements Monad<O> {
   final Pull<O, Unit> _pull;

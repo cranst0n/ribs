@@ -95,8 +95,13 @@ sealed class Pull<O, R> {
   Pull<O, R2> evalMap<R2>(Function1<R, IO<R2>> f) =>
       flatMap((r) => Pull.eval(f(r)));
 
+  // TODO: This is incorrect and the type system makes getting this right
+  // a nightmare. Until I learn more about the behavior of Never in regards
+  // to variance, I'm shelfing this.
+  //
+  // It would be nice if `Never` behaved the same as `Nothing` in scala
+  // but that's definitely not the case.
   Pull<O2, R2> flatMap<O2, R2>(covariant Function1<R, Pull<O2, R2>> f) {
-    // TODO: sus
     return _BindF(this as Pull<O2, R>, (e) {
       return e.fold(
         (s) {

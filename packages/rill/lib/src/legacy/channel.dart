@@ -1,5 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/src/rill/rill.dart';
+import 'package:ribs_rill/src/legacy/rill.dart';
 
 sealed class Channel<A> {
   static IO<Channel<A>> bounded<A>(int capacity) =>
