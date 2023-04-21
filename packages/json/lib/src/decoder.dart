@@ -10,6 +10,7 @@ import 'package:ribs_json/src/decoder/handle_error_decoder.dart';
 import 'package:ribs_json/src/decoder/list_decoder.dart';
 import 'package:ribs_json/src/decoder/map_decoder.dart';
 import 'package:ribs_json/src/decoder/non_empty_ilist_decoder.dart';
+import 'package:ribs_json/src/decoder/option_decoder.dart';
 import 'package:ribs_json/src/decoder/prepared_decoder.dart';
 
 @immutable
@@ -44,6 +45,8 @@ abstract mixin class Decoder<A> {
 
   Decoder<B> map<B>(Function1<A, B> f) =>
       Decoder.instance((c) => decode(c).map(f));
+
+  Decoder<Option<A>> optional() => OptionDecoder(this);
 
   Decoder<A> prepare(Function1<ACursor, ACursor> f) => PreparedDecoder(this, f);
 
