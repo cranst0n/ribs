@@ -23,6 +23,9 @@ abstract mixin class Decoder<A> {
   static Decoder<A> failed<A>(DecodingFailure failure) =>
       Decoder.instance((_) => Left(failure));
 
+  static Decoder<A> failedWithMessage<A>(String message) => Decoder.instance(
+      (c) => Left(DecodingFailure(CustomReason(message), c.history())));
+
   DecodeResult<A> decode(HCursor cursor);
 
   DecodeResult<A> tryDecode(ACursor cursor) =>
