@@ -543,5 +543,332 @@ abstract mixin class Decoder<A> {
     Decoder<B> codecB,
     Function2<A, B, C> apply,
   ) =>
-      tuple2(codecA, codecB).map(apply.tupled);
+      Decoder.instance((cursor) =>
+          (codecA.decode(cursor), codecB.decode(cursor)).mapN(apply));
+
+  static Decoder<D> product3<A, B, C, D>(
+    Decoder<A> codecA,
+    Decoder<B> codecB,
+    Decoder<C> codecC,
+    Function3<A, B, C, D> apply,
+  ) =>
+      Decoder.instance((cursor) => (
+            codecA.decode(cursor),
+            codecB.decode(cursor),
+            codecC.decode(cursor),
+          )
+              .mapN(apply));
+
+  static Decoder<E> product4<A, B, C, D, E>(
+    Decoder<A> codecA,
+    Decoder<B> codecB,
+    Decoder<C> codecC,
+    Decoder<D> codecD,
+    Function4<A, B, C, D, E> apply,
+  ) =>
+      Decoder.instance((cursor) => (
+            codecA.decode(cursor),
+            codecB.decode(cursor),
+            codecC.decode(cursor),
+            codecD.decode(cursor),
+          )
+              .mapN(apply));
+
+  static Decoder<F> product5<A, B, C, D, E, F>(
+    Decoder<A> codecA,
+    Decoder<B> codecB,
+    Decoder<C> codecC,
+    Decoder<D> codecD,
+    Decoder<E> codecE,
+    Function5<A, B, C, D, E, F> apply,
+  ) =>
+      Decoder.instance((cursor) => (
+            codecA.decode(cursor),
+            codecB.decode(cursor),
+            codecC.decode(cursor),
+            codecD.decode(cursor),
+            codecE.decode(cursor),
+          )
+              .mapN(apply));
+
+  static Decoder<G> product6<A, B, C, D, E, F, G>(
+    Decoder<A> codecA,
+    Decoder<B> codecB,
+    Decoder<C> codecC,
+    Decoder<D> codecD,
+    Decoder<E> codecE,
+    Decoder<F> codecF,
+    Function6<A, B, C, D, E, F, G> apply,
+  ) =>
+      Decoder.instance((cursor) => (
+            codecA.decode(cursor),
+            codecB.decode(cursor),
+            codecC.decode(cursor),
+            codecD.decode(cursor),
+            codecE.decode(cursor),
+            codecF.decode(cursor),
+          )
+              .mapN(apply));
+
+  static Decoder<H> product7<A, B, C, D, E, F, G, H>(
+    Decoder<A> codecA,
+    Decoder<B> codecB,
+    Decoder<C> codecC,
+    Decoder<D> codecD,
+    Decoder<E> codecE,
+    Decoder<F> codecF,
+    Decoder<G> codecG,
+    Function7<A, B, C, D, E, F, G, H> apply,
+  ) =>
+      Decoder.instance((cursor) => (
+            codecA.decode(cursor),
+            codecB.decode(cursor),
+            codecC.decode(cursor),
+            codecD.decode(cursor),
+            codecE.decode(cursor),
+            codecF.decode(cursor),
+            codecG.decode(cursor),
+          )
+              .mapN(apply));
+
+  static Decoder<I> product8<A, B, C, D, E, F, G, H, I>(
+    Decoder<A> codecA,
+    Decoder<B> codecB,
+    Decoder<C> codecC,
+    Decoder<D> codecD,
+    Decoder<E> codecE,
+    Decoder<F> codecF,
+    Decoder<G> codecG,
+    Decoder<H> codecH,
+    Function8<A, B, C, D, E, F, G, H, I> apply,
+  ) =>
+      Decoder.instance((cursor) => (
+            codecA.decode(cursor),
+            codecB.decode(cursor),
+            codecC.decode(cursor),
+            codecD.decode(cursor),
+            codecE.decode(cursor),
+            codecF.decode(cursor),
+            codecG.decode(cursor),
+            codecH.decode(cursor),
+          )
+              .mapN(apply));
+
+  static Decoder<J> product9<A, B, C, D, E, F, G, H, I, J>(
+    Decoder<A> codecA,
+    Decoder<B> codecB,
+    Decoder<C> codecC,
+    Decoder<D> codecD,
+    Decoder<E> codecE,
+    Decoder<F> codecF,
+    Decoder<G> codecG,
+    Decoder<H> codecH,
+    Decoder<I> codecI,
+    Function9<A, B, C, D, E, F, G, H, I, J> apply,
+  ) =>
+      Decoder.instance((cursor) => (
+            codecA.decode(cursor),
+            codecB.decode(cursor),
+            codecC.decode(cursor),
+            codecD.decode(cursor),
+            codecE.decode(cursor),
+            codecF.decode(cursor),
+            codecG.decode(cursor),
+            codecH.decode(cursor),
+            codecI.decode(cursor),
+          )
+              .mapN(apply));
+
+  static Decoder<K> product10<A, B, C, D, E, F, G, H, I, J, K>(
+    Decoder<A> codecA,
+    Decoder<B> codecB,
+    Decoder<C> codecC,
+    Decoder<D> codecD,
+    Decoder<E> codecE,
+    Decoder<F> codecF,
+    Decoder<G> codecG,
+    Decoder<H> codecH,
+    Decoder<I> codecI,
+    Decoder<J> codecJ,
+    Function10<A, B, C, D, E, F, G, H, I, J, K> apply,
+  ) =>
+      Decoder.instance((cursor) => (
+            codecA.decode(cursor),
+            codecB.decode(cursor),
+            codecC.decode(cursor),
+            codecD.decode(cursor),
+            codecE.decode(cursor),
+            codecF.decode(cursor),
+            codecG.decode(cursor),
+            codecH.decode(cursor),
+            codecI.decode(cursor),
+            codecJ.decode(cursor),
+          )
+              .mapN(apply));
+
+  static Decoder<L> product11<A, B, C, D, E, F, G, H, I, J, K, L>(
+    Decoder<A> codecA,
+    Decoder<B> codecB,
+    Decoder<C> codecC,
+    Decoder<D> codecD,
+    Decoder<E> codecE,
+    Decoder<F> codecF,
+    Decoder<G> codecG,
+    Decoder<H> codecH,
+    Decoder<I> codecI,
+    Decoder<J> codecJ,
+    Decoder<K> codecK,
+    Function11<A, B, C, D, E, F, G, H, I, J, K, L> apply,
+  ) =>
+      Decoder.instance((cursor) => (
+            codecA.decode(cursor),
+            codecB.decode(cursor),
+            codecC.decode(cursor),
+            codecD.decode(cursor),
+            codecE.decode(cursor),
+            codecF.decode(cursor),
+            codecG.decode(cursor),
+            codecH.decode(cursor),
+            codecI.decode(cursor),
+            codecJ.decode(cursor),
+            codecK.decode(cursor),
+          )
+              .mapN(apply));
+
+  static Decoder<M> product12<A, B, C, D, E, F, G, H, I, J, K, L, M>(
+    Decoder<A> codecA,
+    Decoder<B> codecB,
+    Decoder<C> codecC,
+    Decoder<D> codecD,
+    Decoder<E> codecE,
+    Decoder<F> codecF,
+    Decoder<G> codecG,
+    Decoder<H> codecH,
+    Decoder<I> codecI,
+    Decoder<J> codecJ,
+    Decoder<K> codecK,
+    Decoder<L> codecL,
+    Function12<A, B, C, D, E, F, G, H, I, J, K, L, M> apply,
+  ) =>
+      Decoder.instance((cursor) => (
+            codecA.decode(cursor),
+            codecB.decode(cursor),
+            codecC.decode(cursor),
+            codecD.decode(cursor),
+            codecE.decode(cursor),
+            codecF.decode(cursor),
+            codecG.decode(cursor),
+            codecH.decode(cursor),
+            codecI.decode(cursor),
+            codecJ.decode(cursor),
+            codecK.decode(cursor),
+            codecL.decode(cursor),
+          )
+              .mapN(apply));
+
+  static Decoder<N> product13<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
+    Decoder<A> codecA,
+    Decoder<B> codecB,
+    Decoder<C> codecC,
+    Decoder<D> codecD,
+    Decoder<E> codecE,
+    Decoder<F> codecF,
+    Decoder<G> codecG,
+    Decoder<H> codecH,
+    Decoder<I> codecI,
+    Decoder<J> codecJ,
+    Decoder<K> codecK,
+    Decoder<L> codecL,
+    Decoder<M> codecM,
+    Function13<A, B, C, D, E, F, G, H, I, J, K, L, M, N> apply,
+  ) =>
+      Decoder.instance((cursor) => (
+            codecA.decode(cursor),
+            codecB.decode(cursor),
+            codecC.decode(cursor),
+            codecD.decode(cursor),
+            codecE.decode(cursor),
+            codecF.decode(cursor),
+            codecG.decode(cursor),
+            codecH.decode(cursor),
+            codecI.decode(cursor),
+            codecJ.decode(cursor),
+            codecK.decode(cursor),
+            codecL.decode(cursor),
+            codecM.decode(cursor),
+          )
+              .mapN(apply));
+
+  static Decoder<O> product14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
+    Decoder<A> codecA,
+    Decoder<B> codecB,
+    Decoder<C> codecC,
+    Decoder<D> codecD,
+    Decoder<E> codecE,
+    Decoder<F> codecF,
+    Decoder<G> codecG,
+    Decoder<H> codecH,
+    Decoder<I> codecI,
+    Decoder<J> codecJ,
+    Decoder<K> codecK,
+    Decoder<L> codecL,
+    Decoder<M> codecM,
+    Decoder<N> codecN,
+    Function14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> apply,
+  ) =>
+      Decoder.instance((cursor) => (
+            codecA.decode(cursor),
+            codecB.decode(cursor),
+            codecC.decode(cursor),
+            codecD.decode(cursor),
+            codecE.decode(cursor),
+            codecF.decode(cursor),
+            codecG.decode(cursor),
+            codecH.decode(cursor),
+            codecI.decode(cursor),
+            codecJ.decode(cursor),
+            codecK.decode(cursor),
+            codecL.decode(cursor),
+            codecM.decode(cursor),
+            codecN.decode(cursor),
+          )
+              .mapN(apply));
+
+  static Decoder<P> product15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>(
+    Decoder<A> codecA,
+    Decoder<B> codecB,
+    Decoder<C> codecC,
+    Decoder<D> codecD,
+    Decoder<E> codecE,
+    Decoder<F> codecF,
+    Decoder<G> codecG,
+    Decoder<H> codecH,
+    Decoder<I> codecI,
+    Decoder<J> codecJ,
+    Decoder<K> codecK,
+    Decoder<L> codecL,
+    Decoder<M> codecM,
+    Decoder<N> codecN,
+    Decoder<O> codecO,
+    Function15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> apply,
+    Function1<P, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> tupled,
+  ) =>
+      Decoder.instance((cursor) => (
+            codecA.decode(cursor),
+            codecB.decode(cursor),
+            codecC.decode(cursor),
+            codecD.decode(cursor),
+            codecE.decode(cursor),
+            codecF.decode(cursor),
+            codecG.decode(cursor),
+            codecH.decode(cursor),
+            codecI.decode(cursor),
+            codecJ.decode(cursor),
+            codecK.decode(cursor),
+            codecL.decode(cursor),
+            codecM.decode(cursor),
+            codecN.decode(cursor),
+            codecO.decode(cursor),
+          )
+              .mapN(apply));
 }
