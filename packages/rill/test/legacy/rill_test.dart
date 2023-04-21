@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_rill/src/legacy/rill.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -133,7 +134,7 @@ void main() {
         .last
         .unsafeRunToFuture();
 
-    expect(result, const Tuple2(56, 14).some);
+    expect(result, (56, 14).some);
   });
 
   test('zipWith', () async {
@@ -147,11 +148,11 @@ void main() {
     expect(
       result,
       [
-        const Tuple2(1, 5),
-        const Tuple2(2, 4),
-        const Tuple2(3, 3),
-        const Tuple2(4, 2),
-        const Tuple2(5, 1),
+        (1, 5),
+        (2, 4),
+        (3, 3),
+        (4, 2),
+        (5, 1),
       ],
     );
   });
@@ -172,8 +173,7 @@ void main() {
             .take(3000)
             .zipWithIndex()
             .mapEval((x) {
-              final bytes = x.$1;
-              final ix = x.$2;
+              final (bytes, ix) = x;
 
               if (ix == 30) {
                 throw StateError('boom...');
@@ -199,7 +199,7 @@ void main() {
   test('attempt', () async {
     final s = Rill.emits([1, 2, 3, 4, 5, 6])
         .mapEval(
-            (a) => a == 4 ? IO.raiseError<int>(StateError('boom')) : IO.pure(a))
+            (a) => a == 4 ? IO.raiseError<int>(IOError('boom')) : IO.pure(a))
         .attempt();
 
     final result = await s.compile().toList().unsafeRunToFuture();

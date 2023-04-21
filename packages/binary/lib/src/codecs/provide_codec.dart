@@ -1,7 +1,7 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-class ProvideCodec<A> extends Codec<A> {
+final class ProvideCodec<A> extends Codec<A> {
   final A value;
 
   ProvideCodec(this.value);

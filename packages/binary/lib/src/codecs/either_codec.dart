@@ -1,7 +1,7 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-class EitherCodec<A, B> extends Codec<Either<A, B>> {
+final class EitherCodec<A, B> extends Codec<Either<A, B>> {
   Codec<bool> indicator;
   Codec<A> leftCodec;
   Codec<B> rightCodec;
@@ -19,10 +19,11 @@ class EitherCodec<A, B> extends Codec<Either<A, B>> {
               .map((r) => r.map((v) => Either.left(v))));
 
   @override
-  Either<Err, BitVector> encode(Either<A, B> a) => Tuple2(
+  Either<Err, BitVector> encode(Either<A, B> a) => (
         indicator.encode(a.fold((_) => false, (_) => true)),
         a.fold((a) => leftCodec.encode(a), (b) => rightCodec.encode(b)),
-      ).mapN((a, b) => a.concat(b));
+      )
+          .mapN((a, b) => a.concat(b));
 
   @override
   String? get description => 'either($indicator, $leftCodec, $rightCodec)';

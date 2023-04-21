@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
-class HandleErrorDecoder<A> extends Decoder<A> {
+final class HandleErrorDecoder<A> extends Decoder<A> {
   final Decoder<A> primary;
   final Function1<DecodingFailure, Decoder<A>> errorHandler;
 

@@ -7,7 +7,7 @@ void main() {
         .flatMap((ref) => ref.getAndUpdate((a) => a + 1).product(ref.value()))
         .unsafeRunToFuture();
 
-    expect(result, const Tuple2(0, 1));
+    expect(result, (0, 1));
   });
 
   test('getAndSet', () async {
@@ -15,7 +15,7 @@ void main() {
         .flatMap((ref) => ref.getAndSet(42).product(ref.value()))
         .unsafeRunToFuture();
 
-    expect(result, const Tuple2(0, 42));
+    expect(result, (0, 42));
   });
 
   test('access successful set', () async {
@@ -24,7 +24,7 @@ void main() {
             (ref) => ref.access().flatMap((t) => t.$2(42)).product(ref.value()))
         .unsafeRunToFuture();
 
-    expect(result, const Tuple2(true, 42));
+    expect(result, (true, 42));
   });
 
   test('access failed set', () async {
@@ -35,16 +35,15 @@ void main() {
             .product(ref.value()))
         .unsafeRunToFuture();
 
-    expect(result, const Tuple2(false, 10));
+    expect(result, (false, 10));
   });
 
   test('tryModify', () async {
     final result = await Ref.of(0)
-        .flatMap((ref) => ref
-            .tryModify((x) => Tuple2(x + 3, x.toString()))
-            .product(ref.value()))
+        .flatMap((ref) =>
+            ref.tryModify((x) => (x + 3, x.toString())).product(ref.value()))
         .unsafeRunToFuture();
 
-    expect(result, Tuple2('0'.some, 3));
+    expect(result, ('0'.some, 3));
   });
 }

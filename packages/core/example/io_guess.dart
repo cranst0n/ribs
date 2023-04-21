@@ -13,7 +13,7 @@ void main(List<String> args) async {
         ),
       )
       .handleErrorWith(
-        (e) => IO.println(e.$1.toString()).flatMap((a) => readGuess()),
+        (e) => IO.println(e.message.toString()).flatMap((a) => readGuess()),
       );
 
   IO<Unit> game(int answer) => readGuess().flatMap((n) {

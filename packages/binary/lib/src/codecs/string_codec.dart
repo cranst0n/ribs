@@ -4,7 +4,7 @@ import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_binary/src/codecs/filtered_codec.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-class StringCodec {
+final class StringCodec {
   static Codec<String> acsii() {
     final encoder = Encoder.instance((String s) =>
         Either.right(ByteVector.fromList(convert.ascii.encode(s)).bits));

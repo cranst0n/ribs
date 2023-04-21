@@ -4,7 +4,7 @@ import 'package:ribs_core/ribs_core.dart';
 
 /// Mostly complete port of cats-retry.
 
-class RetryStatus {
+final class RetryStatus {
   /// Retries attempted thus far.
   final int retriesSoFar;
 
@@ -26,10 +26,10 @@ class RetryStatus {
   /// Create new status that indicates an additional retry was taken after
   /// the given delay.
   RetryStatus retryAfter(Duration delay) =>
-      RetryStatus(retriesSoFar + 1, cumulativeDelay + delay, delay.some);
+      RetryStatus(retriesSoFar + 1, cumulativeDelay + delay, Some(delay));
 }
 
-abstract class RetryDecision {
+sealed class RetryDecision {
   const RetryDecision._();
 
   /// Indicates if this decision is to give up retrying.
@@ -51,7 +51,7 @@ abstract class RetryDecision {
       status.retriesSoFar + (isGivingUp ? 0 : 1),
       status.cumulativeDelay + delay,
       isGivingUp,
-      delay.some.filter((_) => !isGivingUp),
+      Some(delay).filter((_) => !isGivingUp),
     );
   }
 
@@ -59,7 +59,7 @@ abstract class RetryDecision {
       isGivingUp ? status : status.retryAfter(delay);
 }
 
-class _GiveUp extends RetryDecision {
+final class _GiveUp extends RetryDecision {
   static const _GiveUp _singleton = _GiveUp._();
 
   factory _GiveUp() => _singleton;
@@ -82,7 +82,7 @@ class _GiveUp extends RetryDecision {
   int get hashCode => _singleton.hashCode;
 }
 
-class _DelayAndRetry extends RetryDecision {
+final class _DelayAndRetry extends RetryDecision {
   @override
   final Duration delay;
 
@@ -214,7 +214,7 @@ class RetryPolicy {
       );
 }
 
-class RetryDetails {
+final class RetryDetails {
   final int retriesSoFar;
   final Duration cumulativeDelay;
   final bool givingUp;
@@ -267,7 +267,7 @@ extension RetryOps<A> on IO<A> {
         (err) => isWorthRetrying(err)
             ? _onFailureOrError(policy, wasSuccessful, isWorthRetrying, onError,
                 onFailure, status, action, (details) => onError(err, details))
-            : IO.raiseError(err.toString()),
+            : IO.raiseError(IOError(err.toString())),
         (a) => wasSuccessful(a)
             ? IO.pure(a)
             : _onFailureOrError(policy, wasSuccessful, isWorthRetrying, onError,
@@ -291,7 +291,7 @@ extension RetryOps<A> on IO<A> {
     final details = decision._detailsFromStatus(newStatus);
 
     return IO.pure(decision.isGivingUp).ifM(
-          () => IO.raiseError('Retry giving up.'),
+          () => IO.raiseError(IOError('Retry giving up.')),
           () => beforeRecurse(details)
               .productR(() => IO.sleep(decision.delay))
               .productR(() => _retryingImpl(policy, wasSuccessful,

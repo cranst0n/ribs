@@ -1,7 +1,7 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-class ByteAlignedCodec<A> extends Codec<A> {
+final class ByteAlignedCodec<A> extends Codec<A> {
   final Codec<A> codec;
 
   ByteAlignedCodec(this.codec);

@@ -3,7 +3,7 @@ import 'package:ribs_binary/src/codecs/discriminated_codec.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:test/test.dart';
 
-abstract class Animal {
+sealed class Animal {
   const Animal();
 }
 
@@ -16,7 +16,7 @@ class Dog extends Animal {
     constant(ByteVector.fromList([1, 2]).bits),
     int8,
     (_, age) => Dog(age),
-    (Dog dog) => Tuple2(null, dog.age),
+    (Dog dog) => (null, dog.age),
   );
 
   @override
@@ -64,9 +64,9 @@ void main() {
     final codec = DiscriminatorCodec.typecases<int, Animal>(
         uint8,
         ilist([
-          Tuple2(7, Dog.codec),
-          Tuple2(1, Cat.codec),
-          Tuple2(3, Lion.codec),
+          (7, Dog.codec),
+          (1, Cat.codec),
+          (3, Lion.codec),
         ]));
 
     expect(
@@ -90,7 +90,7 @@ void main() {
   test('prepend', () {
     final codec = Dog.codec
         .prepend((dog) => provide(BitVector.low(dog.age)))
-        .xmap((a) => a.$1, (a) => Tuple2(a, BitVector.low(a.age)));
+        .xmap((a) => a.$1, (a) => (a, BitVector.low(a.age)));
 
     expect(
       const Dog(2),

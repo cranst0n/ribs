@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_units/ribs_units.dart';
 
-class Frequency extends Quantity<Frequency> {
+final class Frequency extends Quantity<Frequency> {
   Frequency(super.value, super.unit);
 
   Frequency get toHertz => to(hertz).hertz;
@@ -38,27 +38,27 @@ abstract class FrequencyUnit extends BaseUnit<Frequency> {
   Frequency call(num value) => Frequency(value.toDouble(), this);
 }
 
-class Hertz extends FrequencyUnit {
+final class Hertz extends FrequencyUnit {
   const Hertz._() : super('Hz', 1);
 }
 
-class Kilohertz extends FrequencyUnit {
+final class Kilohertz extends FrequencyUnit {
   const Kilohertz._() : super('kHz', MetricSystem.Kilo);
 }
 
-class Megahertz extends FrequencyUnit {
+final class Megahertz extends FrequencyUnit {
   const Megahertz._() : super('MHz', MetricSystem.Mega);
 }
 
-class Gigahertz extends FrequencyUnit {
+final class Gigahertz extends FrequencyUnit {
   const Gigahertz._() : super('GHz', MetricSystem.Giga);
 }
 
-class Terahertz extends FrequencyUnit {
+final class Terahertz extends FrequencyUnit {
   const Terahertz._() : super('THz', MetricSystem.Tera);
 }
 
-class RevolutionsPerMinute extends FrequencyUnit {
+final class RevolutionsPerMinute extends FrequencyUnit {
   const RevolutionsPerMinute._() : super('rpm', 1.0 / 60.0);
 }
 

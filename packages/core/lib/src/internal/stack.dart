@@ -1,4 +1,4 @@
-class Stack<A> {
+final class Stack<A> {
   final _list = <A>[];
 
   void push(A value) => _list.add(value);

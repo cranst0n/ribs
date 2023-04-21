@@ -1,6 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 
-class Scope {
+final class Scope {
   final Option<Scope> parent;
   final ScopeId id;
   final Ref<ScopeState> state;
@@ -12,12 +12,12 @@ class Scope {
 
   IO<Scope> open(IO<Unit> finalizer) {
     return state.modify((state) {
-      return state.fold(
+      final next = state.fold(
         (openState) {
           final sub = Scope(Some(this), ScopeId(),
               Ref.unsafe(ScopeState.open(finalizer, IList.empty())));
 
-          return Tuple2(
+          return (
             ScopeState.open(
                 openState.finalizer, openState.subScopes.append(sub)),
             IO.pure(sub),
@@ -25,18 +25,20 @@ class Scope {
         },
         () {
           final nextScope = parent.fold(
-            () => IO.raiseError<Scope>(StateError('root scope already closed')),
+            () => IO.raiseError<Scope>(IOError('root scope already closed')),
             (p) => p.open(finalizer),
           );
 
-          return Tuple2(ScopeState.closed, nextScope);
+          return (ScopeState.closed, nextScope);
         },
       );
+
+      return next;
     }).flatten();
   }
 
   IO<Unit> get close => state.modify((state) {
-        return state.fold(
+        final next = state.fold(
           (open) {
             final finalizers = open.subScopes
                 .reverse()
@@ -46,20 +48,27 @@ class Scope {
             // Ensure all finalizers are called, regardless of failures
             IO<Unit> go(IList<IO<Unit>> rem, Option<IOError> error) =>
                 rem.uncons(
-                  (hd, tl) => hd.fold(
-                    () => error.fold(
-                      () => IO.unit,
-                      (err) => IO.raiseError(err),
-                    ),
-                    (hd) => hd.attempt().flatMap((res) =>
-                        go(tl, error.orElse(() => res.swap().toOption()))),
-                  ),
+                  (a) {
+                    return a.fold(
+                      () => error.fold(
+                        () => IO.unit,
+                        (err) => IO.raiseError(err),
+                      ),
+                      (a) {
+                        final (hd, tl) = a;
+                        return hd.attempt().flatMap((res) =>
+                            go(tl, error.orElse(() => res.swap().toOption())));
+                      },
+                    );
+                  },
                 );
 
-            return Tuple2(ScopeState.closed, go(finalizers, none()));
+            return (ScopeState.closed, go(finalizers, none()));
           },
-          () => Tuple2(ScopeState.closed, IO.unit),
+          () => (ScopeState.closed, IO.unit),
         );
+
+        return next;
       }).flatten();
 
   IO<Option<Scope>> findScope(ScopeId target) {
@@ -69,7 +78,7 @@ class Scope {
           () => IO.pure(none()),
           (p) => p.findScope(target),
         ),
-        (s) => IO.pure(s.some),
+        (s) => IO.pure(Some(s)),
       );
     });
   }
@@ -82,19 +91,20 @@ class Scope {
         return state.fold(
           (open) {
             IO<Option<Scope>> go(IList<Scope> rem) {
-              return rem.uncons((hd, tl) {
-                return hd.fold(
+              return rem.uncons(
+                (a) => a.fold(
                   () => IO.pure(none()),
-                  (hd) {
+                  (a) {
+                    final (hd, tl) = a;
                     return hd.findThisOrSubScope(target).flatMap((scope) {
                       return scope.fold(
                         () => go(tl),
-                        (scope) => IO.pure(scope.some),
+                        (scope) => IO.pure(Some(scope)),
                       );
                     });
                   },
-                );
-              });
+                ),
+              );
             }
 
             return go(open.subScopes);
@@ -108,7 +118,7 @@ class Scope {
 
 class ScopeId {}
 
-abstract class ScopeState {
+sealed class ScopeState {
   const ScopeState();
 
   static ScopeState open(IO<Unit> finalizer, IList<Scope> subScopes) =>
@@ -119,7 +129,7 @@ abstract class ScopeState {
   B fold<B>(Function1<Open, B> ifOpen, Function0<B> ifClosed);
 }
 
-class Open extends ScopeState {
+final class Open extends ScopeState {
   final IO<Unit> finalizer;
   final IList<Scope> subScopes;
 
@@ -129,7 +139,7 @@ class Open extends ScopeState {
   B fold<B>(Function1<Open, B> ifOpen, Function0<B> ifClosed) => ifOpen(this);
 }
 
-class Closed extends ScopeState {
+final class Closed extends ScopeState {
   @override
   B fold<B>(Function1<Open, B> ifOpen, Function0<B> ifClosed) => ifClosed();
 }

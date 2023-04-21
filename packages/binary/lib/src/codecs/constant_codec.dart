@@ -1,7 +1,7 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-class ConstantCodec extends Codec<Unit> {
+final class ConstantCodec extends Codec<Unit> {
   final BitVector constant;
 
   ConstantCodec(this.constant);

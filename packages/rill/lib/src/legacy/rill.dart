@@ -2,16 +2,16 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/src/rill/scope.dart';
+import 'package:ribs_rill/src/legacy/scope.dart';
 
-class Rill<O> implements Monad<O> {
+final class Rill<O> implements Monad<O> {
   final Pull<O, Unit> _pull;
 
   Rill._(this._pull);
 
   static Rill<R> bracket<R>(IO<R> acquire, Function1<R, IO<Unit>> release) =>
       _Eval(acquire)
-          .flatMap((r) => _OpenScope(_Output(r), release(r).some))
+          .flatMap((r) => _OpenScope(_Output(r), Some(release(r))))
           .rill;
 
   static Rill<O> constant<O>(O o) => _Output(o).rill.repeat();
@@ -286,7 +286,7 @@ class Rill<O> implements Monad<O> {
         .bracket(
           (ctrl) => attempt()
               .evalTap((o) => IO.delay(() => o.fold(
-                    (err) => ctrl.addError(err.$1, err.$2),
+                    (err) => ctrl.addError(err.message, err.stackTrace),
                     (o) => ctrl.add(o),
                   )))
               .compile()
@@ -300,9 +300,9 @@ class Rill<O> implements Monad<O> {
 
   Rill<Unit> voided() => as(Unit());
 
-  Rill<Tuple2<O, int>> zipWithIndex() => zip(Rill.iterate(0, (x) => x + 1));
+  Rill<(O, int)> zipWithIndex() => zip(Rill.iterate(0, (x) => x + 1));
 
-  Rill<Tuple2<O, O2>> zip<O2>(Rill<O2> that) => _pull.zipWith(that._pull).rill;
+  Rill<(O, O2)> zip<O2>(Rill<O2> that) => _pull.zipWith(that._pull).rill;
 
   Rill<O2> zipRight<O2>(Rill<O2> that) =>
       _pull.zipWith(that._pull).rill.map((a) => a.$2);
@@ -331,10 +331,10 @@ class RillCompiled<O> {
       _pull.fold(initial, f).map((t) => t.$2);
 
   IO<Option<O>> get last =>
-      _pull.last.fold(none<O>(), (a, b) => b.some).map((a) => a.$1);
+      _pull.last.fold(none<O>(), (a, b) => Some(b)).map((a) => a.$1);
 
   IO<O> lastOr(O fallback) => _pull.last
-      .fold(none<O>(), (a, b) => b.some)
+      .fold(none<O>(), (a, b) => Some(b))
       .map((a) => a.$1.getOrElse(() => fallback));
 
   IO<IList<O>> toIList() =>
@@ -351,7 +351,7 @@ extension RillCompiledStringOps on RillCompiled<String> {
       .map((t) => t.$2.toString());
 }
 
-abstract class Pull<O, R> {
+sealed class Pull<O, R> {
   const Pull();
 
   static Pull<Never, R> eval<R>(IO<R> fr) => _Eval(fr);
@@ -409,11 +409,11 @@ abstract class Pull<O, R> {
   Pull<O2, R2> flatMap<O2, R2>(covariant Function1<R, Pull<O2, R2>> f) =>
       _FlatMap(this as Pull<O2, R>, f);
 
-  IO<Tuple2<R, A>> fold<A>(A init, Function2<A, O, A> f) {
-    IO<Tuple2<R, A>> go(Scope scope, Pull<O, R> p, A acc) {
+  IO<(R, A)> fold<A>(A init, Function2<A, O, A> f) {
+    IO<(R, A)> go(Scope scope, Pull<O, R> p, A acc) {
       return p.step(scope).flatMap((result) {
         return result.fold(
-          (done) => IO.pure(Tuple2(done.result, acc)),
+          (done) => IO.pure((done.result, acc)),
           (out) => go(out.scope, out.tail, f(acc, out.head)),
         );
       });
@@ -445,7 +445,7 @@ abstract class Pull<O, R> {
             (r) => _Result(none<O>()),
             (tuple) => tuple((hd, tl) {
               if (p(hd)) {
-                return _Result(hd.some);
+                return _Result(Some(hd));
               } else {
                 return tl.find(p);
               }
@@ -460,7 +460,7 @@ abstract class Pull<O, R> {
       return s.uncons().flatMap((step) {
         return step.fold(
           (_) => _Result(prev),
-          (tuple) => tuple((hd, tl) => go(hd.some, tl)),
+          (tuple) => tuple((hd, tl) => go(Some(hd), tl)),
         );
       });
     }
@@ -492,7 +492,7 @@ abstract class Pull<O, R> {
   Pull<O, Option<R>> take(int n) => n <= 0
       ? _Result(none())
       : uncons().flatMap((step) => step.fold(
-            (r) => _Result(r.some),
+            (r) => _Result(Some(r)),
             (tuple) =>
                 tuple((hd, tl) => _Output(hd).flatMap((_) => tl.take(n - 1))),
           ));
@@ -511,21 +511,21 @@ abstract class Pull<O, R> {
         );
       });
 
-  Pull<Never, Either<R, Tuple2<O, Pull<O, R>>>> uncons() => _Uncons(this);
+  Pull<Never, Either<R, (O, Pull<O, R>)>> uncons() => _Uncons(this);
 
   Pull<O, Unit> voided() => map((_) => Unit());
 
   Pull<O, R> prepend(IList<O> os) => fromIList(os).flatMap((_) => this);
 
-  Pull<Tuple2<O, O2>, R> zipWith<O2>(Pull<O2, R> that) =>
+  Pull<(O, O2), R> zipWith<O2>(Pull<O2, R> that) =>
       uncons().flatMap((step) => step.fold(
-            (r) => _Result<Tuple2<O, O2>, R>(r),
+            (r) => _Result<(O, O2), R>(r),
             (tuple) => tuple((hd, tl) {
               return that.uncons().flatMap((step2) {
                 return step2.fold(
-                  (r2) => _Result<Tuple2<O, O2>, R>(r2),
+                  (r2) => _Result<(O, O2), R>(r2),
                   (tuple2) => tuple2((hd2, tl2) =>
-                      _Output(Tuple2(hd, hd2)).flatMap((_) => tl.zipWith(tl2))),
+                      _Output((hd, hd2)).flatMap((_) => tl.zipWith(tl2))),
                 );
               });
             }),
@@ -537,15 +537,16 @@ abstract class Pull<O, R> {
       ? Pull.done
       : _Output(os.first).flatMap((_) => fromIterable(os.skip(1)));
 
-  static Pull<O, Unit> fromIList<O>(IList<O> os) => os.uncons((h, t) =>
-      h.fold(() => Pull.done, (h) => _Output(h).flatMap((_) => fromIList(t))));
+  static Pull<O, Unit> fromIList<O>(IList<O> os) => os.uncons((x) => x.fold(
+      () => Pull.done,
+      (hdtl) => _Output(hdtl.$1).flatMap((_) => fromIList(hdtl.$2))));
 
   static Pull<O, Unit> iterate<O>(O initial, Function1<O, O> f) =>
       _Output(initial).flatMap((_) => iterate(f(initial), f));
 
   static Pull<O, R> unfold<O, R>(
     R init,
-    Function1<R, Either<R, Tuple2<O, R>>> f,
+    Function1<R, Either<R, (O, R)>> f,
   ) =>
       f(init).fold(
         (r) => _Result(r),
@@ -587,7 +588,7 @@ extension PullOptionOps<O, R> on Pull<Option<O>, R> {
       );
 }
 
-class _Result<O, R> extends Pull<O, R> {
+final class _Result<O, R> extends Pull<O, R> {
   final R result;
 
   const _Result(this.result);
@@ -596,7 +597,7 @@ class _Result<O, R> extends Pull<O, R> {
   IO<_StepResult<O, R>> step(Scope scope) => IO.pure(_Done(scope, result));
 }
 
-class _Output<O> extends Pull<O, Unit> {
+final class _Output<O> extends Pull<O, Unit> {
   final O value;
 
   const _Output(this.value);
@@ -606,7 +607,7 @@ class _Output<O> extends Pull<O, Unit> {
       IO.pure(_Out(scope, value, Pull.done));
 }
 
-class _Eval<R> extends Pull<Never, R> {
+final class _Eval<R> extends Pull<Never, R> {
   final IO<R> action;
 
   const _Eval(this.action);
@@ -616,7 +617,7 @@ class _Eval<R> extends Pull<Never, R> {
       action.map((r) => _Done(scope, r));
 }
 
-class _Handle<O, R> extends Pull<O, R> {
+final class _Handle<O, R> extends Pull<O, R> {
   final Pull<O, R> source;
   final Function1<IOError, Pull<O, R>> handler;
 
@@ -642,7 +643,7 @@ class _Handle<O, R> extends Pull<O, R> {
   }
 }
 
-class _Error extends Pull<Never, Unit> {
+final class _Error extends Pull<Never, Unit> {
   final IOError error;
 
   const _Error(this.error);
@@ -651,7 +652,7 @@ class _Error extends Pull<Never, Unit> {
   IO<_StepResult<Never, Unit>> step(Scope scope) => IO.raiseError(error);
 }
 
-class _FlatMap<X, O, R> extends Pull<O, R> {
+final class _FlatMap<X, O, R> extends Pull<O, R> {
   final Pull<O, X> source;
   final Function1<X, Pull<O, R>> f;
 
@@ -676,7 +677,7 @@ class _FlatMap<X, O, R> extends Pull<O, R> {
   }
 }
 
-class _FlatMapOutput<O, O2> extends Pull<O2, Unit> {
+final class _FlatMapOutput<O, O2> extends Pull<O2, Unit> {
   final Pull<O, Unit> source;
   final Function1<O, Pull<O2, Unit>> f;
 
@@ -694,17 +695,17 @@ class _FlatMapOutput<O, O2> extends Pull<O2, Unit> {
   }
 }
 
-class _Uncons<O, R> extends Pull<Never, Either<R, Tuple2<O, Pull<O, R>>>> {
+final class _Uncons<O, R> extends Pull<Never, Either<R, (O, Pull<O, R>)>> {
   final Pull<O, R> source;
 
   const _Uncons(this.source);
 
   @override
-  IO<_StepResult<Never, Either<R, Tuple2<O, Pull<O, R>>>>> step(Scope scope) =>
+  IO<_StepResult<Never, Either<R, (O, Pull<O, R>)>>> step(Scope scope) =>
       source.step(scope).map((result) => _Done(scope, result.toUnconsResult()));
 }
 
-class _OpenScope<O, R> extends Pull<O, R> {
+final class _OpenScope<O, R> extends Pull<O, R> {
   final Pull<O, R> source;
   final Option<IO<Unit>> finalizer;
 
@@ -716,7 +717,7 @@ class _OpenScope<O, R> extends Pull<O, R> {
           _WithScope(source, subscope.id, scope.id).step(subscope));
 }
 
-class _WithScope<O, R> extends Pull<O, R> {
+final class _WithScope<O, R> extends Pull<O, R> {
   final Pull<O, R> source;
   final ScopeId id;
   final ScopeId returnScopeId;
@@ -726,9 +727,7 @@ class _WithScope<O, R> extends Pull<O, R> {
   @override
   IO<_StepResult<O, R>> step(Scope scope) {
     return scope.findScope(id).map((s) {
-      return s
-          .map((s) => Tuple2(s, true))
-          .getOrElse(() => Tuple2(scope, false));
+      return s.map((s) => (s, true)).getOrElse(() => (scope, false));
     }).flatMap((tuple) {
       return tuple((newScope, closeAfterUse) {
         return source.step(newScope).attempt().flatMap((step) {
@@ -756,18 +755,18 @@ class _WithScope<O, R> extends Pull<O, R> {
   }
 }
 
-abstract class _StepResult<O, R> {
+sealed class _StepResult<O, R> {
   const _StepResult();
 
   B fold<B>(Function1<_Done<O, R>, B> ifDone, Function1<_Out<O, R>, B> ifOut);
 
-  Either<R, Tuple2<O, Pull<O, R>>> toUnconsResult() => fold(
+  Either<R, (O, Pull<O, R>)> toUnconsResult() => fold(
         (done) => Left(done.result),
-        (out) => Right(Tuple2(out.head, out.tail)),
+        (out) => Right((out.head, out.tail)),
       );
 }
 
-class _Done<O, R> extends _StepResult<O, R> {
+final class _Done<O, R> extends _StepResult<O, R> {
   final Scope scope;
   final R result;
 
@@ -778,7 +777,7 @@ class _Done<O, R> extends _StepResult<O, R> {
       ifDone(this);
 }
 
-class _Out<O, R> extends _StepResult<O, R> {
+final class _Out<O, R> extends _StepResult<O, R> {
   final Scope scope;
   final O head;
   final Pull<O, R> tail;

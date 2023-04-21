@@ -24,14 +24,8 @@ void main() {
   });
 
   test('IList.uncons', () {
-    // head
-    expect(ilist([1, 2, 3]).uncons((head, tail) => head.isDefined), isTrue);
-    expect(nil<int>().uncons((head, tail) => head.isEmpty), isTrue);
-
-    // tail
-    expect(
-        ilist([1, 2, 3]).uncons((head, tail) => tail == ilist([2, 3])), isTrue);
-    expect(nil<int>().uncons((head, tail) => tail.isEmpty), isTrue);
+    expect(ilist([1, 2, 3]).uncons((x) => x.isDefined), isTrue);
+    expect(nil<int>().uncons((x) => x.isEmpty), isTrue);
   });
 
   test('IList[]', () {
@@ -67,29 +61,6 @@ void main() {
     expect(ilist([1, 2, 3]).distinct(), ilist([1, 2, 3]));
     expect(ilist([3, 1, 2, 3]).distinct(), ilist([3, 1, 2]));
     expect(ilist([2, 1, 2, 3, 2, 2]).distinct(), ilist([2, 1, 3]));
-  });
-
-  test('ternary', () {
-    final l = [1, 2, 3, 4, 3];
-
-    // Fold over the list and remove duplicates.
-    // Why is the tenrary expression behaving differently than the if/else?
-
-    final la = l.fold(
-        List<int>.empty(growable: true),
-        (acc, elem) => acc.contains(elem) ? acc : acc
-          ..add(elem));
-
-    final lb = l.fold(List<int>.empty(growable: true), (acc, elem) {
-      if (acc.contains(elem)) {
-        return acc;
-      } else {
-        return acc..add(elem);
-      }
-    });
-
-    expect(la, [1, 2, 3, 4, 3]); // <-- This surprised me
-    expect(lb, [1, 2, 3, 4]);
   });
 
   test('IList.drop', () {
@@ -218,9 +189,9 @@ void main() {
   });
 
   test('IList.partition', () {
-    expect(nil<int>().partition((x) => x < 0), Tuple2(nil<int>(), nil<int>()));
+    expect(nil<int>().partition((x) => x < 0), (nil<int>(), nil<int>()));
     expect(ilist([1, -2, 3, 4]).partition((x) => x < 0),
-        Tuple2(ilist([-2]), ilist([1, 3, 4])));
+        (ilist([-2]), ilist([1, 3, 4])));
   });
 
   test('IList.prepend', () {
@@ -278,9 +249,9 @@ void main() {
   });
 
   test('IList.splitAt', () {
-    expect(nil<int>().splitAt(3), Tuple2(nil<int>(), nil<int>()));
-    expect(ilist([1]).splitAt(0), Tuple2(nil<int>(), ilist([1])));
-    expect(ilist([1, 2]).splitAt(1), Tuple2(ilist([1]), ilist([2])));
+    expect(nil<int>().splitAt(3), (nil<int>(), nil<int>()));
+    expect(ilist([1]).splitAt(0), (nil<int>(), ilist([1])));
+    expect(ilist([1, 2]).splitAt(1), (ilist([1]), ilist([2])));
   });
 
   test('IList.startsWith', () {

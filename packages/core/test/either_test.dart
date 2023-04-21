@@ -167,9 +167,8 @@ void main() {
   });
 
   test('Either.mapN', () {
-    expect(
-        Tuple2(testRight, testRight).mapN(sum), Either.right<String, int>(2));
-    expect(Tuple2(testRight, testLeft).mapN(sum), testLeft);
-    expect(Tuple2(testLeft, testRight).mapN(sum), testLeft);
+    expect((testRight, testRight).mapN(sum), Either.right<String, int>(2));
+    expect((testRight, testLeft).mapN(sum), testLeft);
+    expect((testLeft, testRight).mapN(sum), testLeft);
   });
 }

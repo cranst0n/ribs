@@ -5,13 +5,13 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
 @immutable
-abstract class JsonObject {
+sealed class JsonObject {
   static JsonObject get empty => _LinkedHashMapJsonObject(LinkedHashMap());
 
-  static JsonObject fromIList(IList<Tuple2<String, Json>> fields) =>
+  static JsonObject fromIList(IList<(String, Json)> fields) =>
       fromIterable(fields.toList());
 
-  static JsonObject fromIterable(Iterable<Tuple2<String, Json>> fields) =>
+  static JsonObject fromIterable(Iterable<(String, Json)> fields) =>
       _LinkedHashMapJsonObject(LinkedHashMap.fromIterables(
           fields.map((e) => e.$1), fields.map((e) => e.$2)));
 
@@ -31,7 +31,7 @@ abstract class JsonObject {
             ),
       );
 
-  JsonObject filter(Function1<Tuple2<String, Json>, bool> p) =>
+  JsonObject filter(Function1<(String, Json), bool> p) =>
       JsonObject.fromIList(toIList().filter(p));
 
   bool get isEmpty;
@@ -48,12 +48,12 @@ abstract class JsonObject {
 
   int get size;
 
-  IList<Tuple2<String, Json>> toIList();
+  IList<(String, Json)> toIList();
 
   IList<Json> get values;
 }
 
-class _LinkedHashMapJsonObject extends JsonObject {
+final class _LinkedHashMapJsonObject extends JsonObject {
   final LinkedHashMap<String, Json> fields;
 
   _LinkedHashMapJsonObject(this.fields);
@@ -89,8 +89,8 @@ class _LinkedHashMapJsonObject extends JsonObject {
   int get size => fields.length;
 
   @override
-  IList<Tuple2<String, Json>> toIList() =>
-      IList.of(fields.entries).map((e) => Tuple2(e.key, e.value));
+  IList<(String, Json)> toIList() =>
+      IList.of(fields.entries).map((e) => (e.key, e.value));
 
   @override
   IList<Json> get values => IList.of(fields.values);

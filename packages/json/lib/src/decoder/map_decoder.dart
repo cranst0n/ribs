@@ -2,7 +2,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 import 'package:ribs_json/src/cursor/object_cursor.dart';
 
-class MapDecoder<K, V> extends Decoder<Map<K, V>> {
+final class MapDecoder<K, V> extends Decoder<Map<K, V>> {
   final KeyDecoder<K> decodeK;
   final Decoder<V> decodeV;
 

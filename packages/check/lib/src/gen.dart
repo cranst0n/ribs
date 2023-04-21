@@ -4,7 +4,7 @@ import 'dart:collection';
 import 'package:ribs_check/src/seeded_random.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-class Gen<A> extends Monad<A> {
+final class Gen<A> extends Monad<A> {
   final State<StatefulRandom, A> sample;
   final Shrinker<A>? shrinker;
 
@@ -21,35 +21,34 @@ class Gen<A> extends Monad<A> {
 
   Gen<A> withShrinker(Shrinker<A> shrinker) => Gen(sample, shrinker: shrinker);
 
-  Stream<A> stream(StatefulRandom rand) =>
-      Streams.unfold<Tuple2<StatefulRandom, A>>(
+  Stream<A> stream(StatefulRandom rand) => Streams.unfold<(StatefulRandom, A)>(
         sample.run(rand),
-        (x) => sample.run(x.$1).some,
+        (x) => Some(sample.run(x.$1)),
       ).map((x) => x.$2);
 
-  static Gen<Tuple2<A, B>> tuple2<A, B>(Gen<A> a, Gen<B> b) =>
-      a.flatMap((a) => b.map((b) => Tuple2(a, b)));
+  static Gen<(A, B)> tuple2<A, B>(Gen<A> a, Gen<B> b) =>
+      a.flatMap((a) => b.map((b) => (a, b)));
 
-  static Gen<Tuple3<A, B, C>> tuple3<A, B, C>(Gen<A> a, Gen<B> b, Gen<C> c) =>
+  static Gen<(A, B, C)> tuple3<A, B, C>(Gen<A> a, Gen<B> b, Gen<C> c) =>
       tuple2(a, b).flatMap((t) => c.map(t.append));
 
-  static Gen<Tuple4<A, B, C, D>> tuple4<A, B, C, D>(
+  static Gen<(A, B, C, D)> tuple4<A, B, C, D>(
           Gen<A> a, Gen<B> b, Gen<C> c, Gen<D> d) =>
       tuple3(a, b, c).flatMap((t) => d.map(t.append));
 
-  static Gen<Tuple5<A, B, C, D, E>> tuple5<A, B, C, D, E>(
+  static Gen<(A, B, C, D, E)> tuple5<A, B, C, D, E>(
           Gen<A> a, Gen<B> b, Gen<C> c, Gen<D> d, Gen<E> e) =>
       tuple4(a, b, c, d).flatMap((t) => e.map(t.append));
 
-  static Gen<Tuple6<A, B, C, D, E, F>> tuple6<A, B, C, D, E, F>(
+  static Gen<(A, B, C, D, E, F)> tuple6<A, B, C, D, E, F>(
           Gen<A> a, Gen<B> b, Gen<C> c, Gen<D> d, Gen<E> e, Gen<F> f) =>
       tuple5(a, b, c, d, e).flatMap((t) => f.map(t.append));
 
-  static Gen<Tuple7<A, B, C, D, E, F, G>> tuple7<A, B, C, D, E, F, G>(Gen<A> a,
+  static Gen<(A, B, C, D, E, F, G)> tuple7<A, B, C, D, E, F, G>(Gen<A> a,
           Gen<B> b, Gen<C> c, Gen<D> d, Gen<E> e, Gen<F> f, Gen<G> g) =>
       tuple6(a, b, c, d, e, f).flatMap((t) => g.map(t.append));
 
-  static Gen<Tuple8<A, B, C, D, E, F, G, H>> tuple8<A, B, C, D, E, F, G, H>(
+  static Gen<(A, B, C, D, E, F, G, H)> tuple8<A, B, C, D, E, F, G, H>(
           Gen<A> a,
           Gen<B> b,
           Gen<C> c,
@@ -60,12 +59,19 @@ class Gen<A> extends Monad<A> {
           Gen<H> h) =>
       tuple7(a, b, c, d, e, f, g).flatMap((t) => h.map(t.append));
 
-  static Gen<Tuple9<A, B, C, D, E, F, G, H, I>>
-      tuple9<A, B, C, D, E, F, G, H, I>(Gen<A> a, Gen<B> b, Gen<C> c, Gen<D> d,
-              Gen<E> e, Gen<F> f, Gen<G> g, Gen<H> h, Gen<I> i) =>
-          tuple8(a, b, c, d, e, f, g, h).flatMap((t) => i.map(t.append));
+  static Gen<(A, B, C, D, E, F, G, H, I)> tuple9<A, B, C, D, E, F, G, H, I>(
+          Gen<A> a,
+          Gen<B> b,
+          Gen<C> c,
+          Gen<D> d,
+          Gen<E> e,
+          Gen<F> f,
+          Gen<G> g,
+          Gen<H> h,
+          Gen<I> i) =>
+      tuple8(a, b, c, d, e, f, g, h).flatMap((t) => i.map(t.append));
 
-  static Gen<Tuple10<A, B, C, D, E, F, G, H, I, J>>
+  static Gen<(A, B, C, D, E, F, G, H, I, J)>
       tuple10<A, B, C, D, E, F, G, H, I, J>(
               Gen<A> a,
               Gen<B> b,
@@ -91,9 +97,9 @@ class Gen<A> extends Monad<A> {
       stringOf(alphaLowerChar, size);
 
   static Gen<String> alphaNumChar = frequency(ilist([
-    Tuple2(26, Gen.alphaLowerChar),
-    Tuple2(26, Gen.alphaUpperChar),
-    Tuple2(10, numChar),
+    (26, Gen.alphaLowerChar),
+    (26, Gen.alphaUpperChar),
+    (10, numChar),
   ]));
 
   static Gen<String> alphaNumString([int? size]) =>
@@ -134,8 +140,8 @@ class Gen<A> extends Monad<A> {
   ) {
     final basicsAndSpecials = specials
         .filter((x) => min <= x && x <= max)
-        .map((t) => Tuple2(1, constant(t)));
-    final others = Tuple2(basicsAndSpecials.size, choose.choose(min, max));
+        .map((t) => (1, constant(t)));
+    final others = (basicsAndSpecials.size, choose.choose(min, max));
 
     return frequency(basicsAndSpecials.append(others));
   }
@@ -174,7 +180,7 @@ class Gen<A> extends Monad<A> {
           ? genA.map((x) => Either.left<A, B>(x))
           : genB.map((x) => Either.right<A, B>(x)));
 
-  static Gen<A> frequency<A>(IList<Tuple2<int, Gen<A>>> gs) {
+  static Gen<A> frequency<A>(IList<(int, Gen<A>)> gs) {
     final filteredGens = gs.filter((t) => t.$1 > 0);
 
     return filteredGens.headOption.fold(
@@ -182,9 +188,9 @@ class Gen<A> extends Monad<A> {
       var sum = 0;
       final tree = SplayTreeMap<int, Gen<A>>();
 
-      for (final tuple in filteredGens.toList()) {
-        sum = tuple.$1 + sum;
-        tree[sum] = tuple.$2;
+      for (final (x, gen) in filteredGens.toList()) {
+        sum = x + sum;
+        tree[sum] = gen;
       }
 
       return Choose.integer
@@ -227,7 +233,7 @@ class Gen<A> extends Monad<A> {
           .getOrElse(() => throw Exception('oneOfGen called on empty list')));
 
   static Gen<Option<A>> option<A>(Gen<A> a) =>
-      frequency(ilist([Tuple2(1, constant(none<A>())), Tuple2(9, some(a))]));
+      frequency(ilist([(1, constant(none<A>())), (9, some(a))]));
 
   static Gen<int> positiveInt = chooseInt(1, _intMaxValue);
 
@@ -245,7 +251,7 @@ class Gen<A> extends Monad<A> {
   static const int _intMaxValue = 4294967296;
 }
 
-class Streams {
+final class Streams {
   static Stream<A> unfold<A>(A initial, Function1<A, Option<A>> f) {
     final controller = StreamController<A>();
 
@@ -280,7 +286,7 @@ class Shrinker<A> {
       Shrinker<int>((i) => Option.when(() => i > 0, () => i ~/ 2));
 }
 
-class Choose<A> {
+final class Choose<A> {
   final Function2<A, A, Gen<A>> _chooseF;
 
   const Choose(this._chooseF);
@@ -293,14 +299,13 @@ class Choose<A> {
   static Choose<double> dubble = Choose((double min, double max) => Gen(
         State((r) => r
             .nextDouble()
-            .call((rand, value) => Tuple2(rand, value * (max - min) + min))),
+            .call((rand, value) => (rand, value * (max - min) + min))),
         shrinker: Shrinker.dubble,
       ));
 
   static Choose<int> integer = Choose((int min, int max) => Gen(
-        State((r) => r
-            .nextInt(max - min)
-            .call((rand, value) => Tuple2(rand, value + min))),
+        State((r) =>
+            r.nextInt(max - min).call((rand, value) => (rand, value + min))),
         shrinker: Shrinker.integer,
       ));
 }

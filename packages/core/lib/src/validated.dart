@@ -2,7 +2,7 @@ import 'package:ribs_core/ribs_core.dart';
 
 typedef ValidatedNel<E, A> = Validated<NonEmptyIList<E>, A>;
 
-abstract class Validated<E, A> implements Functor<A> {
+sealed class Validated<E, A> implements Functor<A> {
   static Validated<E, A> invalid<E, A>(E e) => Invalid(e);
 
   static Validated<E, A> valid<E, A>(A a) => Valid(a);
@@ -38,7 +38,7 @@ abstract class Validated<E, A> implements Functor<A> {
 
   IList<A> toIList() => fold((_) => nil(), (a) => IList.of([a]));
 
-  Option<A> toOption() => fold((_) => none(), (a) => a.some);
+  Option<A> toOption() => fold((_) => none(), (a) => Some(a));
 
   A valueOr(Function1<E, A> f) => fold(f, id);
 
@@ -55,7 +55,7 @@ abstract class Validated<E, A> implements Functor<A> {
   int get hashCode => fold((e) => e.hashCode, (a) => a.hashCode);
 }
 
-class Valid<E, A> extends Validated<E, A> {
+final class Valid<E, A> extends Validated<E, A> {
   final A value;
 
   Valid(this.value);
@@ -64,7 +64,7 @@ class Valid<E, A> extends Validated<E, A> {
   B fold<B>(Function1<E, B> fe, Function1<A, B> fa) => fa(value);
 }
 
-class Invalid<E, A> extends Validated<E, A> {
+final class Invalid<E, A> extends Validated<E, A> {
   final E value;
 
   Invalid(this.value);
@@ -87,7 +87,7 @@ extension ValidatedNelOps<E, A> on ValidatedNel<E, A> {
     );
   }
 
-  ValidatedNel<E, Tuple2<A, B>> product<B>(ValidatedNel<E, B> f) {
+  ValidatedNel<E, (A, B)> product<B>(ValidatedNel<E, B> f) {
     return fold(
       (e) => f.fold(
         (ef) => e.concatNel(ef).invalid(),
@@ -95,7 +95,7 @@ extension ValidatedNelOps<E, A> on ValidatedNel<E, A> {
       ),
       (a) => f.fold(
         (ef) => ef.invalid(),
-        (af) => Tuple2(a, af).validNel<E>(),
+        (af) => (a, af).validNel<E>(),
       ),
     );
   }

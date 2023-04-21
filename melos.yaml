@@ -1,4 +1,4 @@
-name: my_project
+name: ribs
 
 packages:
   - packages/**
@@ -6,7 +6,7 @@ packages:
 scripts:
 
   test:
-    run: melos exec -c 1 --fail-fast -- dart test --coverage="coverage"
+    run: melos exec -c 1 --fail-fast -- dart test
     description: Run all dart tests in this project.
     packageFilters:
       dirExists: test

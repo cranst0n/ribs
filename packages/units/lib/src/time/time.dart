@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_units/ribs_units.dart';
 
-class Time extends Quantity<Time> {
+final class Time extends Quantity<Time> {
   Time(super.value, super.unit);
 
   Time get toNanoseconds => to(nanoseconds).nanoseconds;
@@ -41,29 +41,29 @@ abstract class TimeUnit extends BaseUnit<Time> {
   Time call(num value) => Time(value.toDouble(), this);
 }
 
-class Nanoseconds extends TimeUnit {
+final class Nanoseconds extends TimeUnit {
   const Nanoseconds._() : super('ns', 1 / Duration.microsecondsPerSecond);
 }
 
-class Microseconds extends TimeUnit {
+final class Microseconds extends TimeUnit {
   const Microseconds._() : super('µs', 1 / Duration.millisecondsPerSecond);
 }
 
-class Milliseconds extends TimeUnit {
+final class Milliseconds extends TimeUnit {
   const Milliseconds._() : super('ms', 1);
 }
 
-class Seconds extends TimeUnit {
+final class Seconds extends TimeUnit {
   const Seconds._() : super('s', 1.0 * Duration.millisecondsPerSecond);
 }
 
-class Minutes extends TimeUnit {
+final class Minutes extends TimeUnit {
   const Minutes._()
       : super('min',
             1.0 * Duration.millisecondsPerSecond * Duration.secondsPerMinute);
 }
 
-class Hours extends TimeUnit {
+final class Hours extends TimeUnit {
   const Hours._()
       : super(
             'h',
@@ -73,7 +73,7 @@ class Hours extends TimeUnit {
                 Duration.minutesPerHour);
 }
 
-class Days extends TimeUnit {
+final class Days extends TimeUnit {
   const Days._()
       : super(
             'd',

@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 
 @immutable
-class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
+final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   final A head;
   final IList<A> tail;
 
@@ -83,7 +83,7 @@ class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   Option<A> lift(int ix) => ix < 0
       ? none<A>()
       : ix == 0
-          ? head.some
+          ? Some(head)
           : tail.lift(ix - 1);
 
   @override
@@ -138,11 +138,11 @@ class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
           ? NonEmptyIList(f(head), tail)
           : NonEmptyIList(head, tail.updated(index - 1, f));
 
-  NonEmptyIList<Tuple2<A, int>> zipWithIndex() => NonEmptyIList(
-      Tuple2(head, 0), tail.zipWithIndex().map((a) => Tuple2(a.$1, a.$2 + 1)));
+  NonEmptyIList<(A, int)> zipWithIndex() => NonEmptyIList(
+      (head, 0), tail.zipWithIndex().map((a) => a.copy($2: a.$2 + 1)));
 
-  NonEmptyIList<Tuple2<A, B>> zip<B>(NonEmptyIList<B> bs) =>
-      NonEmptyIList(Tuple2(head, bs.head), tail.zip(bs.tail));
+  NonEmptyIList<(A, B)> zip<B>(NonEmptyIList<B> bs) =>
+      NonEmptyIList((head, bs.head), tail.zip(bs.tail));
 
   @override
   String toString() => mkString(start: 'NonEmptyIList(', sep: ', ', end: ')');

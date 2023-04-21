@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_units/ribs_units.dart';
 
-class Information extends Quantity<Information> {
+final class Information extends Quantity<Information> {
   Information(super.value, super.unit);
 
   Information get toBytes => to(bytes).bytes;
@@ -228,158 +228,158 @@ abstract class InformationUnit extends BaseUnit<Information> {
   Information call(num value) => Information(value.toDouble(), this);
 }
 
-class Bytes extends InformationUnit {
+final class Bytes extends InformationUnit {
   const Bytes._() : super('B', 1);
 }
 
-class Octets extends InformationUnit {
+final class Octets extends InformationUnit {
   const Octets._() : super('o', 1);
 }
 
-class Kilobytes extends InformationUnit {
+final class Kilobytes extends InformationUnit {
   const Kilobytes._() : super('KB', MetricSystem.Kilo);
 }
 
-class Kibibytes extends InformationUnit {
+final class Kibibytes extends InformationUnit {
   const Kibibytes._() : super('KiB', BinarySystem.Kilo);
 }
 
-class Megabytes extends InformationUnit {
+final class Megabytes extends InformationUnit {
   const Megabytes._() : super('MB', MetricSystem.Mega);
 }
 
-class Mebibytes extends InformationUnit {
+final class Mebibytes extends InformationUnit {
   const Mebibytes._() : super('MiB', BinarySystem.Mega);
 }
 
-class Gigabytes extends InformationUnit {
+final class Gigabytes extends InformationUnit {
   const Gigabytes._() : super('GB', MetricSystem.Giga);
 }
 
-class Gibibytes extends InformationUnit {
+final class Gibibytes extends InformationUnit {
   const Gibibytes._() : super('GiB', BinarySystem.Giga);
 }
 
-class Terabytes extends InformationUnit {
+final class Terabytes extends InformationUnit {
   const Terabytes._() : super('TB', MetricSystem.Tera);
 }
 
-class Tebibytes extends InformationUnit {
+final class Tebibytes extends InformationUnit {
   const Tebibytes._() : super('TiB', BinarySystem.Tera);
 }
 
-class Petabytes extends InformationUnit {
+final class Petabytes extends InformationUnit {
   const Petabytes._() : super('PB', MetricSystem.Peta);
 }
 
-class Pebibytes extends InformationUnit {
+final class Pebibytes extends InformationUnit {
   const Pebibytes._() : super('PiB', BinarySystem.Peta);
 }
 
-class Exabytes extends InformationUnit {
+final class Exabytes extends InformationUnit {
   const Exabytes._() : super('EB', MetricSystem.Exa);
 }
 
-class Exbibytes extends InformationUnit {
+final class Exbibytes extends InformationUnit {
   const Exbibytes._() : super('EiB', BinarySystem.Exa);
 }
 
-class Zettabytes extends InformationUnit {
+final class Zettabytes extends InformationUnit {
   const Zettabytes._() : super('ZB', MetricSystem.Zetta);
 }
 
-class Zebibytes extends InformationUnit {
+final class Zebibytes extends InformationUnit {
   const Zebibytes._() : super('ZiB', BinarySystem.Zetta);
 }
 
-class Yottabytes extends InformationUnit {
+final class Yottabytes extends InformationUnit {
   const Yottabytes._() : super('YB', MetricSystem.Yotta);
 }
 
-class Yobibytes extends InformationUnit {
+final class Yobibytes extends InformationUnit {
   const Yobibytes._() : super('YiB', BinarySystem.Yotta);
 }
 
-class Bits extends InformationUnit {
+final class Bits extends InformationUnit {
   const Bits._() : super('bit', 0.125);
 }
 
-class Kilobits extends InformationUnit {
+final class Kilobits extends InformationUnit {
   const Kilobits._()
       : super('Kbit', Information.BitsConversionFactor * MetricSystem.Kilo);
 }
 
-class Kibibits extends InformationUnit {
+final class Kibibits extends InformationUnit {
   const Kibibits._()
       : super('Kibit', Information.BitsConversionFactor * BinarySystem.Kilo);
 }
 
-class Megabits extends InformationUnit {
+final class Megabits extends InformationUnit {
   const Megabits._()
       : super('Mbit', Information.BitsConversionFactor * MetricSystem.Mega);
 }
 
-class Mebibits extends InformationUnit {
+final class Mebibits extends InformationUnit {
   const Mebibits._()
       : super('Mibit', Information.BitsConversionFactor * BinarySystem.Mega);
 }
 
-class Gigabits extends InformationUnit {
+final class Gigabits extends InformationUnit {
   const Gigabits._()
       : super('Gbit', Information.BitsConversionFactor * MetricSystem.Giga);
 }
 
-class Gibibits extends InformationUnit {
+final class Gibibits extends InformationUnit {
   const Gibibits._()
       : super('Gibit', Information.BitsConversionFactor * BinarySystem.Giga);
 }
 
-class Terabits extends InformationUnit {
+final class Terabits extends InformationUnit {
   const Terabits._()
       : super('Tbit', Information.BitsConversionFactor * MetricSystem.Tera);
 }
 
-class Tebibits extends InformationUnit {
+final class Tebibits extends InformationUnit {
   const Tebibits._()
       : super('Tibit', Information.BitsConversionFactor * BinarySystem.Tera);
 }
 
-class Petabits extends InformationUnit {
+final class Petabits extends InformationUnit {
   const Petabits._()
       : super('Pbit', Information.BitsConversionFactor * MetricSystem.Peta);
 }
 
-class Pebibits extends InformationUnit {
+final class Pebibits extends InformationUnit {
   const Pebibits._()
       : super('Pibit', Information.BitsConversionFactor * BinarySystem.Peta);
 }
 
-class Exabits extends InformationUnit {
+final class Exabits extends InformationUnit {
   const Exabits._()
       : super('Ebit', Information.BitsConversionFactor * MetricSystem.Exa);
 }
 
-class Exbibits extends InformationUnit {
+final class Exbibits extends InformationUnit {
   const Exbibits._()
       : super('Eibit', Information.BitsConversionFactor * BinarySystem.Exa);
 }
 
-class Zettabits extends InformationUnit {
+final class Zettabits extends InformationUnit {
   const Zettabits._()
       : super('Zbit', Information.BitsConversionFactor * MetricSystem.Zetta);
 }
 
-class Zebibits extends InformationUnit {
+final class Zebibits extends InformationUnit {
   const Zebibits._()
       : super('Zibit', Information.BitsConversionFactor * BinarySystem.Zetta);
 }
 
-class Yottabits extends InformationUnit {
+final class Yottabits extends InformationUnit {
   const Yottabits._()
       : super('Ybit', Information.BitsConversionFactor * MetricSystem.Yotta);
 }
 
-class Yobibits extends InformationUnit {
+final class Yobibits extends InformationUnit {
   const Yobibits._()
       : super('Yibit', Information.BitsConversionFactor * BinarySystem.Yotta);
 }

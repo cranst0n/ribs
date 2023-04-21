@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-class IntCodec extends Codec<int> {
+final class IntCodec extends Codec<int> {
   final int bits;
   final bool signed;
   final Endian ordering;

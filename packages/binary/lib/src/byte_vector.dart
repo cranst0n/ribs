@@ -6,7 +6,7 @@ import 'package:ribs_core/ribs_core.dart';
 
 typedef Byte = int;
 
-class ByteVector {
+final class ByteVector {
   final Uint8List _underlying;
 
   const ByteVector(this._underlying);
@@ -192,7 +192,7 @@ class ByteVector {
   ByteVector splice(int ix, ByteVector b) =>
       take(ix).concat(b).concat(drop(ix));
 
-  Tuple2<ByteVector, ByteVector> splitAt(int ix) => Tuple2(take(ix), drop(ix));
+  (ByteVector, ByteVector) splitAt(int ix) => (take(ix), drop(ix));
 
   bool startsWith(ByteVector b) => take(b.size) == b;
 

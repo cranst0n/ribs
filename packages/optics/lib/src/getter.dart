@@ -8,7 +8,7 @@ class Getter<S, A> extends Fold<S, A> {
 
   @override
   Function1<S, Option<A>> find(Function1<A, bool> p) =>
-      (s) => get(s).some.filter(p);
+      (s) => Some(get(s)).filter(p);
 
   Getter<S, B> andThenG<B>(Getter<A, B> other) =>
       Getter((S s) => other.get(get(s)));

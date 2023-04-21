@@ -1,7 +1,7 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-class DecodeResult<A> {
+final class DecodeResult<A> {
   final A value;
   final BitVector remainder;
 
@@ -22,7 +22,7 @@ class DecodeResult<A> {
 
 typedef DecodeF<A> = Function1<BitVector, Either<Err, DecodeResult<A>>>;
 
-abstract class Decoder<A> {
+abstract mixin class Decoder<A> {
   Either<Err, DecodeResult<A>> decode(BitVector bv);
 
   Decoder<B> map<B>(Function1<A, B> f) => instance<B>(
@@ -35,51 +35,51 @@ abstract class Decoder<A> {
       instance((bv) => decode(bv)
           .flatMap((a) => f(a.value).map((b) => DecodeResult(b, a.remainder))));
 
-  static Decoder<A> instance<A>(DecodeF<A> decode) => DecoderF(decode);
+  static Decoder<A> instance<A>(DecodeF<A> decode) => _DecoderF(decode);
 
-  static Decoder<Tuple2<A, B>> tuple2<A, B>(
+  static Decoder<(A, B)> tuple2<A, B>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
   ) =>
-      DecoderF((bv) => decodeA.decode(bv).flatMap((a) => decodeB
+      _DecoderF((bv) => decodeA.decode(bv).flatMap((a) => decodeB
           .decode(a.remainder)
-          .map((b) => DecodeResult(Tuple2(a.value, b.value), b.remainder))));
+          .map((b) => DecodeResult((a.value, b.value), b.remainder))));
 
-  static Decoder<Tuple3<A, B, C>> tuple3<A, B, C>(
+  static Decoder<(A, B, C)> tuple3<A, B, C>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
   ) =>
-      DecoderF((bv) => tuple2(decodeA, decodeB).decode(bv).flatMap((t) =>
+      _DecoderF((bv) => tuple2(decodeA, decodeB).decode(bv).flatMap((t) =>
           decodeC
               .decode(t.remainder)
               .map((c) => DecodeResult(t.value.append(c.value), c.remainder))));
 
-  static Decoder<Tuple4<A, B, C, D>> tuple4<A, B, C, D>(
+  static Decoder<(A, B, C, D)> tuple4<A, B, C, D>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
     Decoder<D> decodeD,
   ) =>
-      DecoderF((bv) => tuple3(decodeA, decodeB, decodeC).decode(bv).flatMap(
+      _DecoderF((bv) => tuple3(decodeA, decodeB, decodeC).decode(bv).flatMap(
           (t) => decodeD
               .decode(t.remainder)
               .map((d) => DecodeResult(t.value.append(d.value), d.remainder))));
 
-  static Decoder<Tuple5<A, B, C, D, E>> tuple5<A, B, C, D, E>(
+  static Decoder<(A, B, C, D, E)> tuple5<A, B, C, D, E>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
     Decoder<D> decodeD,
     Decoder<E> decodeE,
   ) =>
-      DecoderF((bv) => tuple4(decodeA, decodeB, decodeC, decodeD)
+      _DecoderF((bv) => tuple4(decodeA, decodeB, decodeC, decodeD)
           .decode(bv)
           .flatMap((t) => decodeE
               .decode(t.remainder)
               .map((e) => DecodeResult(t.value.append(e.value), e.remainder))));
 
-  static Decoder<Tuple6<A, B, C, D, E, F>> tuple6<A, B, C, D, E, F>(
+  static Decoder<(A, B, C, D, E, F)> tuple6<A, B, C, D, E, F>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
@@ -87,13 +87,13 @@ abstract class Decoder<A> {
     Decoder<E> decodeE,
     Decoder<F> decodeF,
   ) =>
-      DecoderF((bv) => tuple5(decodeA, decodeB, decodeC, decodeD, decodeE)
+      _DecoderF((bv) => tuple5(decodeA, decodeB, decodeC, decodeD, decodeE)
           .decode(bv)
           .flatMap((t) => decodeF
               .decode(t.remainder)
               .map((f) => DecodeResult(t.value.append(f.value), f.remainder))));
 
-  static Decoder<Tuple7<A, B, C, D, E, F, G>> tuple7<A, B, C, D, E, F, G>(
+  static Decoder<(A, B, C, D, E, F, G)> tuple7<A, B, C, D, E, F, G>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
@@ -102,14 +102,14 @@ abstract class Decoder<A> {
     Decoder<F> decodeF,
     Decoder<G> decodeG,
   ) =>
-      DecoderF((bv) => tuple6(
+      _DecoderF((bv) => tuple6(
               decodeA, decodeB, decodeC, decodeD, decodeE, decodeF)
           .decode(bv)
           .flatMap((t) => decodeG
               .decode(t.remainder)
               .map((g) => DecodeResult(t.value.append(g.value), g.remainder))));
 
-  static Decoder<Tuple8<A, B, C, D, E, F, G, H>> tuple8<A, B, C, D, E, F, G, H>(
+  static Decoder<(A, B, C, D, E, F, G, H)> tuple8<A, B, C, D, E, F, G, H>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
@@ -119,15 +119,14 @@ abstract class Decoder<A> {
     Decoder<G> decodeG,
     Decoder<H> decodeH,
   ) =>
-      DecoderF((bv) => tuple7(
+      _DecoderF((bv) => tuple7(
               decodeA, decodeB, decodeC, decodeD, decodeE, decodeF, decodeG)
           .decode(bv)
           .flatMap((t) => decodeH
               .decode(t.remainder)
               .map((h) => DecodeResult(t.value.append(h.value), h.remainder))));
 
-  static Decoder<Tuple9<A, B, C, D, E, F, G, H, I>>
-      tuple9<A, B, C, D, E, F, G, H, I>(
+  static Decoder<(A, B, C, D, E, F, G, H, I)> tuple9<A, B, C, D, E, F, G, H, I>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
@@ -138,13 +137,14 @@ abstract class Decoder<A> {
     Decoder<H> decodeH,
     Decoder<I> decodeI,
   ) =>
-          DecoderF((bv) => tuple8(decodeA, decodeB, decodeC, decodeD, decodeE,
-                  decodeF, decodeG, decodeH)
-              .decode(bv)
-              .flatMap((t) => decodeI.decode(t.remainder).map(
-                  (i) => DecodeResult(t.value.append(i.value), i.remainder))));
+      _DecoderF((bv) => tuple8(decodeA, decodeB, decodeC, decodeD, decodeE,
+              decodeF, decodeG, decodeH)
+          .decode(bv)
+          .flatMap((t) => decodeI
+              .decode(t.remainder)
+              .map((i) => DecodeResult(t.value.append(i.value), i.remainder))));
 
-  static Decoder<Tuple10<A, B, C, D, E, F, G, H, I, J>>
+  static Decoder<(A, B, C, D, E, F, G, H, I, J)>
       tuple10<A, B, C, D, E, F, G, H, I, J>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
@@ -157,13 +157,13 @@ abstract class Decoder<A> {
     Decoder<I> decodeI,
     Decoder<J> decodeJ,
   ) =>
-          DecoderF((bv) => tuple9(decodeA, decodeB, decodeC, decodeD, decodeE,
+          _DecoderF((bv) => tuple9(decodeA, decodeB, decodeC, decodeD, decodeE,
                   decodeF, decodeG, decodeH, decodeI)
               .decode(bv)
               .flatMap((t) => decodeJ.decode(t.remainder).map(
                   (j) => DecodeResult(t.value.append(j.value), j.remainder))));
 
-  static Decoder<Tuple11<A, B, C, D, E, F, G, H, I, J, K>>
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K)>
       tuple11<A, B, C, D, E, F, G, H, I, J, K>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
@@ -177,13 +177,13 @@ abstract class Decoder<A> {
     Decoder<J> decodeJ,
     Decoder<K> decodeK,
   ) =>
-          DecoderF((bv) => tuple10(decodeA, decodeB, decodeC, decodeD, decodeE,
+          _DecoderF((bv) => tuple10(decodeA, decodeB, decodeC, decodeD, decodeE,
                   decodeF, decodeG, decodeH, decodeI, decodeJ)
               .decode(bv)
               .flatMap((t) => decodeK.decode(t.remainder).map(
                   (k) => DecodeResult(t.value.append(k.value), k.remainder))));
 
-  static Decoder<Tuple12<A, B, C, D, E, F, G, H, I, J, K, L>>
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L)>
       tuple12<A, B, C, D, E, F, G, H, I, J, K, L>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
@@ -198,13 +198,13 @@ abstract class Decoder<A> {
     Decoder<K> decodeK,
     Decoder<L> decodeL,
   ) =>
-          DecoderF((bv) => tuple11(decodeA, decodeB, decodeC, decodeD, decodeE,
+          _DecoderF((bv) => tuple11(decodeA, decodeB, decodeC, decodeD, decodeE,
                   decodeF, decodeG, decodeH, decodeI, decodeJ, decodeK)
               .decode(bv)
               .flatMap((t) => decodeL.decode(t.remainder).map(
                   (l) => DecodeResult(t.value.append(l.value), l.remainder))));
 
-  static Decoder<Tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>>
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M)>
       tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
@@ -220,13 +220,13 @@ abstract class Decoder<A> {
     Decoder<L> decodeL,
     Decoder<M> decodeM,
   ) =>
-          DecoderF((bv) => tuple12(decodeA, decodeB, decodeC, decodeD, decodeE,
+          _DecoderF((bv) => tuple12(decodeA, decodeB, decodeC, decodeD, decodeE,
                   decodeF, decodeG, decodeH, decodeI, decodeJ, decodeK, decodeL)
               .decode(bv)
               .flatMap((t) => decodeM.decode(t.remainder).map(
                   (m) => DecodeResult(t.value.append(m.value), m.remainder))));
 
-  static Decoder<Tuple14<A, B, C, D, E, F, G, H, I, J, K, L, M, N>>
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N)>
       tuple14<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
@@ -243,7 +243,7 @@ abstract class Decoder<A> {
     Decoder<M> decodeM,
     Decoder<N> decodeN,
   ) =>
-          DecoderF((bv) => tuple13(
+          _DecoderF((bv) => tuple13(
                   decodeA,
                   decodeB,
                   decodeC,
@@ -261,7 +261,7 @@ abstract class Decoder<A> {
               .flatMap((t) => decodeN.decode(t.remainder).map(
                   (n) => DecodeResult(t.value.append(n.value), n.remainder))));
 
-  static Decoder<Tuple15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>>
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)>
       tuple15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
@@ -279,7 +279,7 @@ abstract class Decoder<A> {
     Decoder<N> decodeN,
     Decoder<O> decodeO,
   ) =>
-          DecoderF((bv) => tuple14(
+          _DecoderF((bv) => tuple14(
                   decodeA,
                   decodeB,
                   decodeC,
@@ -299,10 +299,10 @@ abstract class Decoder<A> {
                   (o) => DecodeResult(t.value.append(o.value), o.remainder))));
 }
 
-class DecoderF<A> extends Decoder<A> {
+final class _DecoderF<A> extends Decoder<A> {
   final DecodeF<A> decodeF;
 
-  DecoderF(this.decodeF);
+  _DecoderF(this.decodeF);
 
   @override
   Either<Err, DecodeResult<A>> decode(BitVector bv) => decodeF(bv);

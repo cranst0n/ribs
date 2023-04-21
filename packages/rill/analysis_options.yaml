@@ -1,0 +1,16 @@
+include: package:lint/strict.yaml
+
+analyzer:
+  language:
+    strict-inference: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    avoid_classes_with_only_static_members: false
+    avoid_function_literals_in_foreach_calls: false
+    avoid_positional_boolean_parameters: false
+    constant_identifier_names: false
+    non_constant_identifier_names: false
+    prefer_constructors_over_static_methods: false
+    require_trailing_commas: false

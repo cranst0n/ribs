@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 
 @immutable
-abstract class Either<A, B> implements Monad<B>, Foldable<B> {
+sealed class Either<A, B> implements Monad<B>, Foldable<B> {
   const Either();
 
   static Either<A, B> left<A, B>(A a) => Left<A, B>(a);
@@ -74,8 +74,7 @@ abstract class Either<A, B> implements Monad<B>, Foldable<B> {
   Either<A, B> orElse(Function0<Either<A, B>> or) =>
       fold((a) => or(), (b) => this);
 
-  Either<A, Tuple2<B, C>> product<C>(Either<A, C> other) =>
-      Tuple2(this, other).sequence();
+  Either<A, (B, C)> product<C>(Either<A, C> other) => (this, other).sequence();
 
   Either<B, A> swap() => fold((a) => right<B, A>(a), (b) => left(b));
 
@@ -96,7 +95,7 @@ abstract class Either<A, B> implements Monad<B>, Foldable<B> {
   int get hashCode => fold((a) => a.hashCode, (b) => b.hashCode);
 }
 
-class Left<A, B> extends Either<A, B> {
+final class Left<A, B> extends Either<A, B> {
   final A a;
 
   const Left(this.a);
@@ -105,7 +104,7 @@ class Left<A, B> extends Either<A, B> {
   C fold<C>(Function1<A, C> fa, Function1<B, C> fb) => fa(a);
 }
 
-class Right<A, B> extends Either<A, B> {
+final class Right<A, B> extends Either<A, B> {
   final B b;
 
   const Right(this.b);

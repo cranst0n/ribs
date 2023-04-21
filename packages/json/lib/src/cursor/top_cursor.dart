@@ -1,6 +1,6 @@
 import 'package:ribs_json/ribs_json.dart';
 
-class TopCursor extends HCursor {
+final class TopCursor extends HCursor {
   @override
   final Json value;
 

@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_units/ribs_units.dart';
 
-class Volume extends Quantity<Volume> {
+final class Volume extends Quantity<Volume> {
   Volume(super.value, super.unit);
 
   Volume get toCubicMeters => to(cubicMeters).cubicMeters;
@@ -80,85 +80,85 @@ abstract class VolumeUnit extends BaseUnit<Volume> {
   Volume call(num value) => Volume(value.toDouble(), this);
 }
 
-class CubicMeters extends VolumeUnit {
+final class CubicMeters extends VolumeUnit {
   const CubicMeters._() : super('m³', 1);
 }
 
-class Litres extends VolumeUnit {
+final class Litres extends VolumeUnit {
   const Litres._() : super('L', _LitresConversionFactor);
 }
 
-class Nanolitres extends VolumeUnit {
+final class Nanolitres extends VolumeUnit {
   const Nanolitres._()
       : super('nl', _LitresConversionFactor * MetricSystem.Nano);
 }
 
-class Microlitres extends VolumeUnit {
+final class Microlitres extends VolumeUnit {
   const Microlitres._()
       : super('µl', _LitresConversionFactor * MetricSystem.Micro);
 }
 
-class Millilitres extends VolumeUnit {
+final class Millilitres extends VolumeUnit {
   const Millilitres._()
       : super('ml', _LitresConversionFactor * MetricSystem.Milli);
 }
 
-class Centilitres extends VolumeUnit {
+final class Centilitres extends VolumeUnit {
   const Centilitres._()
       : super('cl', _LitresConversionFactor * MetricSystem.Centi);
 }
 
-class Decilitres extends VolumeUnit {
+final class Decilitres extends VolumeUnit {
   const Decilitres._()
       : super('dl', _LitresConversionFactor * MetricSystem.Deci);
 }
 
-class Hectolitres extends VolumeUnit {
+final class Hectolitres extends VolumeUnit {
   const Hectolitres._()
       : super('hl', _LitresConversionFactor * MetricSystem.Hecto);
 }
 
-class CubicUsMiles extends VolumeUnit {
+final class CubicUsMiles extends VolumeUnit {
   const CubicUsMiles._() : super('mi³', 4168206834.581550443);
 }
 
-class CubicYards extends VolumeUnit {
+final class CubicYards extends VolumeUnit {
   const CubicYards._() : super('yd³', 0.764559445);
 }
 
-class CubicFeet extends VolumeUnit {
+final class CubicFeet extends VolumeUnit {
   const CubicFeet._() : super('ft³', 0.028317016);
 }
 
-class CubicInches extends VolumeUnit {
+final class CubicInches extends VolumeUnit {
   const CubicInches._() : super('in³', 0.000016387);
 }
 
-class UsGallons extends VolumeUnit {
+final class UsGallons extends VolumeUnit {
   const UsGallons._() : super('gal', _UsGallonsConversionFactor);
 }
 
-class UsQuarts extends VolumeUnit {
+final class UsQuarts extends VolumeUnit {
   const UsQuarts._() : super('qt', _UsGallonsConversionFactor / 4);
 }
 
-class UsPints extends VolumeUnit {
+final class UsPints extends VolumeUnit {
   const UsPints._() : super('pt', _UsGallonsConversionFactor / 8);
 }
 
-class UsCups extends VolumeUnit {
+final class UsCups extends VolumeUnit {
   const UsCups._() : super('c', _UsGallonsConversionFactor / 16);
 }
 
-class FluidOunces extends VolumeUnit {
+final class FluidOunces extends VolumeUnit {
   const FluidOunces._() : super('oz', _UsGallonsConversionFactor / 128);
 }
 
-class Tablespoons extends VolumeUnit {
+final class Tablespoons extends VolumeUnit {
   const Tablespoons._() : super('tbsp', _UsGallonsConversionFactor / 128 / 2);
 }
 
-class Teaspoons extends VolumeUnit {
+final class Teaspoons extends VolumeUnit {
   const Teaspoons._() : super('tsp', _UsGallonsConversionFactor / 128 / 6);
 }
 

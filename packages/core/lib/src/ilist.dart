@@ -13,7 +13,7 @@ IList<A> nil<A>() => IList.empty();
 // the API the same, this is what was created. Much credit to the FIC folks for
 // building a useful and performant IList.
 
-class IList<A> implements Monad<A>, Foldable<A> {
+final class IList<A> implements Monad<A>, Foldable<A> {
   final fic.IList<A> _underlying;
 
   const IList._(this._underlying);
@@ -46,6 +46,14 @@ class IList<A> implements Monad<A>, Foldable<A> {
       IList._(_underlying.addAll(elems._underlying));
 
   bool contains(A elem) => _underlying.contains(elem);
+
+  Option<(A, IList<A>)> deleteFirst(Function1<A, bool> p) {
+    final ix = _underlying.indexWhere(p);
+    return Option.when(
+      () => ix >= 0,
+      () => (_underlying[ix], IList.of(_underlying.removeAt(ix))),
+    );
+  }
 
   IList<A> distinct() => IList.of(foldLeft<List<A>>(
         List<A>.empty(growable: true),
@@ -89,6 +97,11 @@ class IList<A> implements Monad<A>, Foldable<A> {
   Option<A> get headOption =>
       Option.when(() => isNotEmpty, () => _underlying.first);
 
+  Option<int> indexWhere(Function1<A, bool> p) {
+    final idx = _underlying.indexWhere(p);
+    return Option.unless(() => idx < 0, () => idx);
+  }
+
   IList<A> init() => take(size - 1);
 
   IList<A> insertAt(int ix, A elem) =>
@@ -127,8 +140,8 @@ class IList<A> implements Monad<A>, Foldable<A> {
   IList<A> padTo(int len, A elem) =>
       size >= len ? this : concat(IList.fill(len - size, elem));
 
-  Tuple2<IList<A>, IList<A>> partition(Function1<A, bool> p) =>
-      Tuple2(IList.of(_underlying.where(p)), IList.of(_underlying.whereNot(p)));
+  (IList<A>, IList<A>) partition(Function1<A, bool> p) =>
+      (IList.of(_underlying.where(p)), IList.of(_underlying.whereNot(p)));
 
   IList<A> prepend(A elem) => IList.of(_underlying.insert(0, elem));
 
@@ -164,9 +177,9 @@ class IList<A> implements Monad<A>, Foldable<A> {
   IList<A> sortWith(Function2<A, A, bool> lt) =>
       IList.of(_underlying.sort((a, b) => lt(a, b) ? -1 : 1));
 
-  Tuple2<IList<A>, IList<A>> splitAt(int ix) {
+  (IList<A>, IList<A>) splitAt(int ix) {
     final split = _underlying.splitAt(ix);
-    return Tuple2(IList.of(split.first), IList.of(split.second));
+    return (IList.of(split.first), IList.of(split.second));
   }
 
   bool startsWith(IList<A> that) =>
@@ -219,6 +232,13 @@ class IList<A> implements Monad<A>, Foldable<A> {
     return result;
   }
 
+  IO<IList<B>> flatTraverseIO<B>(Function1<A, IO<IList<B>>> f) =>
+      traverseIO(f).map((a) => a.flatten());
+
+  IO<IList<B>> traverseFilterIO<B>(Function1<A, IO<Option<B>>> f) =>
+      traverseIO(f).map((opts) => opts.foldLeft(IList.empty<B>(),
+          (acc, elem) => elem.fold(() => acc, (elem) => acc.append(elem))));
+
   IO<IList<B>> parTraverseIO<B>(Function1<A, IO<B>> f) {
     IO<IList<B>> result = IO.pure(nil());
 
@@ -250,11 +270,11 @@ class IList<A> implements Monad<A>, Foldable<A> {
     return result.map((a) => a.reverse());
   }
 
-  B uncons<B>(Function2<Option<A>, IList<A>, B> f) {
+  B uncons<B>(Function1<Option<(A, IList<A>)>, B> f) {
     if (_underlying.isEmpty) {
-      return f(none(), nil());
+      return f(none());
     } else {
-      return f(_underlying[0].some, IList.of(_underlying.tail));
+      return f(Some((_underlying[0], IList.of(_underlying.tail))));
     }
   }
 
@@ -266,15 +286,15 @@ class IList<A> implements Monad<A>, Foldable<A> {
     }
   }
 
-  IList<Tuple2<A, B>> zip<B>(IList<B> bs) => IList.of(
+  IList<(A, B)> zip<B>(IList<B> bs) => IList.of(
         Iterable.generate(
           min(size, bs.size),
-          (index) => Tuple2(_underlying[index], bs._underlying[index]),
+          (index) => (_underlying[index], bs._underlying[index]),
         ),
       );
 
-  IList<Tuple2<A, int>> zipWithIndex() =>
-      ilist(_underlying.zipWithIndex().map((e) => Tuple2(e.second, e.first)));
+  IList<(A, int)> zipWithIndex() =>
+      ilist(_underlying.zipWithIndex().map((e) => (e.second, e.first)));
 
   @override
   String toString() =>

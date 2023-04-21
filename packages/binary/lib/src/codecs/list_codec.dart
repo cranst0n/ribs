@@ -1,7 +1,7 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-class ListCodec<A> extends Codec<List<A>> {
+final class ListCodec<A> extends Codec<List<A>> {
   final Codec<A> codec;
   final Option<int> limit;
 

@@ -1,7 +1,7 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-class FixedSizeStrictCodec<A> extends Codec<A> {
+final class FixedSizeStrictCodec<A> extends Codec<A> {
   final int size;
   final Codec<A> codec;
 

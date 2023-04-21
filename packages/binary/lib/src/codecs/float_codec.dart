@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-class FloatCodec {
+final class FloatCodec {
   static Codec<double> float32(Endian ordering) => _generic(
       32,
       (bd, f) => bd.buffer.asByteData().setFloat32(0, f, ordering),

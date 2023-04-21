@@ -17,12 +17,12 @@ void main() {
   });
 
   test('raiseError', () async {
-    final io = IO.raiseError<int>('boom');
+    final io = IO.raiseError<int>(IOError('boom'));
     final outcome = await io.unsafeRunToFutureOutcome();
 
     outcome.fold(
       () => fail('raiseError should not fail!'),
-      (err) => expect(err.$1, 'boom'),
+      (err) => expect(err.message, 'boom'),
       (value) => fail('raiseError should not succeed: $value'),
     );
   });
@@ -58,7 +58,7 @@ void main() {
 
       outcome.fold(
         () => fail('fromFuture error should not cancel'),
-        (err) => expect(err.$1, 'boom'),
+        (err) => expect(err.message, 'boom'),
         (a) => fail('fromFuture error should not succeed: $a'),
       );
     });
@@ -123,7 +123,7 @@ void main() {
 
     outcome.fold(
       () => fail('map error should not cancel'),
-      (err) => expect(err.$1, isA<UnsupportedError>()),
+      (err) => expect(err.message, isA<UnsupportedError>()),
       (value) => fail('map error should not succeed: $value'),
     );
   });
@@ -140,12 +140,13 @@ void main() {
   });
 
   test('flatMap error', () async {
-    final io = IO.pure(42).flatMap((i) => IO.raiseError<String>('boom'));
+    final io =
+        IO.pure(42).flatMap((i) => IO.raiseError<String>(IOError('boom')));
     final outcome = await io.unsafeRunToFutureOutcome();
 
     outcome.fold(
       () => fail('flatMap error should not cancel'),
-      (err) => expect(err.$1, 'boom'),
+      (err) => expect(err.message, 'boom'),
       (value) => fail('flatMap error should not succeed: $value'),
     );
   });
@@ -173,13 +174,13 @@ void main() {
   });
 
   test('attempt error', () async {
-    final io = IO.raiseError<int>('boom').attempt();
+    final io = IO.raiseError<int>(IOError('boom')).attempt();
     final outcome = await io.unsafeRunToFutureOutcome();
 
     outcome.fold(
       () => fail('attempt error should not cancel'),
       (err) => fail('attempt error should not fail: $err'),
-      (value) => value.fold((a) => expect(a.$1, 'boom'),
+      (value) => value.fold((err) => expect(err.message, 'boom'),
           (a) => fail('attempt error should not be right: $a')),
     );
   });
@@ -203,7 +204,7 @@ void main() {
       () => fail('attempt delay error should not cancel'),
       (err) => fail('attempt delay error should not fail: $err'),
       (value) => value.fold(
-        (err) => expect(err.$1, isA<UnsupportedError>()),
+        (err) => expect(err.message, isA<UnsupportedError>()),
         (value) => fail('attempt delay error should not be right: $value'),
       ),
     );
@@ -263,7 +264,7 @@ void main() {
           return IO.exec(() => finalized = true).some;
         }));
 
-    final fiber = await io.start().unsafeRunToFuture(autoCedeN: 1);
+    final fiber = await io.start().unsafeRunToFuture();
 
     fiber.cancel().unsafeRunAndForget();
 
@@ -290,7 +291,8 @@ void main() {
 
   test('unsafeRunToFuture success', () async {
     expect(await IO.pure(42).unsafeRunToFuture(), 42);
-    expect(IO.raiseError<int>('boom').unsafeRunToFuture(), throwsA('boom'));
+    expect(IO.raiseError<int>(IOError('boom')).unsafeRunToFuture(),
+        throwsA('boom'));
   });
 
   test('start simple', () async {
@@ -332,7 +334,7 @@ void main() {
 
     outcome.fold(
       () => fail('onError error should not cancel'),
-      (err) => expect(err.$1, isA<UnsupportedError>()),
+      (err) => expect(err.message, isA<UnsupportedError>()),
       (a) => fail('onError error should not succeed: $a'),
     );
   });
@@ -444,7 +446,7 @@ void main() {
     count = 0;
 
     await IO
-        .raiseError<Unit>('boom')
+        .raiseError<Unit>(IOError('boom'))
         .guaranteeCase(fin)
         .unsafeRunToFutureOutcome();
 
@@ -475,7 +477,7 @@ void main() {
     final iob = IO.pure(2).delayBy(const Duration(milliseconds: 200));
     final ioc = IO.pure(3).delayBy(const Duration(milliseconds: 200));
 
-    final result = await Tuple3(ioa, iob, ioc)
+    final result = await (ioa, iob, ioc)
         .mapN((a, b, c) => a + b + c)
         .timed()
         .unsafeRunToFuture();
@@ -493,7 +495,7 @@ void main() {
     final iob = IO.pure(2).delayBy(const Duration(milliseconds: 200));
     final ioc = IO.pure(3).delayBy(const Duration(milliseconds: 200));
 
-    final result = await Tuple3(ioa, iob, ioc)
+    final result = await (ioa, iob, ioc)
         .parMapN((a, b, c) => a + b + c)
         .timed()
         .unsafeRunToFuture();
@@ -549,7 +551,7 @@ void main() {
 
     oc.fold(
       () => fail('timeout failure should not cancel'),
-      (err) => expect(err.$1, isA<TimeoutException>()),
+      (err) => expect(err.message, isA<TimeoutException>()),
       (a) => fail('timeout failure should not succeed: $a'),
     );
   });
@@ -757,14 +759,14 @@ void main() {
 
     final oc = await IO.both(ioa, iob).unsafeRunToFutureOutcome();
 
-    expect(oc, const Succeeded(Tuple2(0, 1)));
+    expect(oc, const Succeeded((0, 1)));
   });
 
   test('both error', () async {
     final ioa = IO
         .pure(0)
         .delayBy(const Duration(milliseconds: 200))
-        .productR(() => IO.raiseError<int>('boom'));
+        .productR(() => IO.raiseError<int>(IOError('boom')));
     final iob = IO.pure(1).delayBy(const Duration(milliseconds: 100));
 
     final oc = await IO.both(ioa, iob).unsafeRunToFutureOutcome();

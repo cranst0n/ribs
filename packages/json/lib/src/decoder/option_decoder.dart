@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
-class OptionDecoder<A> extends Decoder<Option<A>> {
+final class OptionDecoder<A> extends Decoder<Option<A>> {
   final Decoder<A> decodeA;
 
   OptionDecoder(this.decodeA);
@@ -17,7 +17,7 @@ class OptionDecoder<A> extends Decoder<Option<A>> {
       } else {
         return decodeA
             .decode(cursor)
-            .fold((err) => err.asLeft(), (a) => a.some.asRight());
+            .fold((err) => err.asLeft(), (a) => Some(a).asRight());
       }
     } else if (cursor is FailedCursor) {
       if (!cursor.incorrectFocus) {

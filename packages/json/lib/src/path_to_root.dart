@@ -3,7 +3,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
 @immutable
-class PathToRoot {
+final class PathToRoot {
   final IList<PathElem> value;
 
   const PathToRoot(this.value);
@@ -21,12 +21,11 @@ class PathToRoot {
       return '';
     } else {
       return path.value.foldLeft('', (acc, elem) {
-        if (elem is ObjectKey) {
-          return '$acc.${elem.keyName}';
-        } else if (elem is ArrayIndex) {
-          return '$acc[${elem.index}]';
-        } else {
-          throw Exception('Unknown path elem: $elem');
+        switch (elem) {
+          case final ObjectKey elem:
+            return '$acc.${elem.keyName}';
+          case final ArrayIndex elem:
+            return '$acc[${elem.index}]';
         }
       });
     }
@@ -105,12 +104,12 @@ class PathToRoot {
 }
 
 @immutable
-abstract class PathElem {
+sealed class PathElem {
   static PathElem objectKey(String keyName) => ObjectKey(keyName);
   static PathElem arrayIndex(int index) => ArrayIndex(index);
 }
 
-class ObjectKey extends PathElem {
+final class ObjectKey extends PathElem {
   final String keyName;
 
   ObjectKey(this.keyName);
@@ -124,7 +123,7 @@ class ObjectKey extends PathElem {
   int get hashCode => keyName.hashCode;
 }
 
-class ArrayIndex extends PathElem {
+final class ArrayIndex extends PathElem {
   final int index;
 
   ArrayIndex(this.index);

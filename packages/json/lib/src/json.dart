@@ -5,7 +5,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
 @immutable
-abstract class Json {
+sealed class Json {
   static Json Null = JNull();
   static Json True = JBoolean(true);
   static Json False = JBoolean(false);
@@ -13,7 +13,7 @@ abstract class Json {
   static Json arr(Iterable<Json> values) => JArray(IList.of(values));
   static Json arrI(IList<Json> values) => JArray(values);
 
-  static Json obj(Iterable<Tuple2<String, Json>> fields) =>
+  static Json obj(Iterable<(String, Json)> fields) =>
       fromJsonObject(JsonObject.fromIterable(fields));
 
   static Json boolean(bool value) => JBoolean(value);
@@ -23,24 +23,24 @@ abstract class Json {
 
   static Either<ParsingFailure, Json> parse(String input) {
     Either<ParsingFailure, Json> go(dynamic input) {
-      if (input == null) {
-        return Null.asRight();
-      } else if (input is bool) {
-        return JBoolean(input).asRight();
-      } else if (input is String) {
-        return JString(input).asRight();
-      } else if (input is num) {
-        return JNumber(input).asRight();
-      } else if (input is List) {
-        return IList.of(input).traverseEither(go).map(JArray.new);
-      } else if (input is Map) {
-        return IList.of(input.keys)
-            .traverseEither(
-                (k) => go(input[k]).map((v) => Tuple2(k.toString(), v)))
-            .map((keyValues) =>
-                JObject(JsonObject.fromIterable(keyValues.toList())));
-      } else {
-        return ParsingFailure('Unknown JSON element: $input').asLeft();
+      switch (input) {
+        case null:
+          return Null.asRight();
+        case final bool b:
+          return JBoolean(b).asRight();
+        case final String s:
+          return JString(s).asRight();
+        case final num n:
+          return JNumber(n).asRight();
+        case final List<dynamic> l:
+          return IList.of(l).traverseEither(go).map(JArray.new);
+        case final Map<dynamic, dynamic> m:
+          return IList.of(m.keys)
+              .traverseEither((k) => go(m[k]).map((v) => (k.toString(), v)))
+              .map((keyValues) =>
+                  JObject(JsonObject.fromIterable(keyValues.toList())));
+        default:
+          return ParsingFailure('Unknown JSON element: $input').asLeft();
       }
     }
 
@@ -63,22 +63,19 @@ abstract class Json {
     Function1<IList<Json>, A> jsonArray,
     Function1<JsonObject, A> jsonObject,
   ) {
-    final self = this;
-
-    if (self is JNull) {
-      return jsonNull();
-    } else if (self is JBoolean) {
-      return jsonBoolean(self.value);
-    } else if (self is JNumber) {
-      return jsonNumber(self.value);
-    } else if (self is JString) {
-      return jsonString(self.value);
-    } else if (self is JArray) {
-      return jsonArray(self.value);
-    } else if (self is JObject) {
-      return jsonObject(self.value);
-    } else {
-      throw UnsupportedError('Invalid JSON: $this');
+    switch (this) {
+      case JNull _:
+        return jsonNull();
+      case final JBoolean b:
+        return jsonBoolean(b.value);
+      case final JNumber n:
+        return jsonNumber(n.value);
+      case final JString s:
+        return jsonString(s.value);
+      case final JArray a:
+        return jsonArray(a.value);
+      case final JObject o:
+        return jsonObject(o.value);
     }
   }
 
@@ -90,7 +87,7 @@ abstract class Json {
   static Json deepMergeAll(Iterable<Json> json) =>
       json.fold(Json.obj([]), (a, b) => a.deepMerge(b));
 
-  Json deepMerge(Json that) => Tuple2(asObject, that.asObject)
+  Json deepMerge(Json that) => (asObject, that.asObject)
       .mapN(
         (lhs, rhs) => fromJsonObject(lhs.toIList().foldLeft(
               rhs,
@@ -156,7 +153,7 @@ abstract class Json {
       );
 }
 
-class JNull extends Json {
+final class JNull extends Json {
   @override
   A foldWith<A>(JsonFolder<A> folder) => folder.onNull();
 
@@ -180,7 +177,7 @@ class JNull extends Json {
   Option<bool> get asBoolean => none();
 
   @override
-  Option<Unit> get asNull => Unit().some;
+  Option<Unit> get asNull => Some(Unit());
 
   @override
   Option<num> get asNumber => none();
@@ -228,7 +225,7 @@ class JNull extends Json {
   String toString() => 'JNull';
 }
 
-class JBoolean extends Json {
+final class JBoolean extends Json {
   final bool value;
 
   JBoolean(this.value);
@@ -253,7 +250,7 @@ class JBoolean extends Json {
   Option<IList<Json>> get asArray => none();
 
   @override
-  Option<bool> get asBoolean => value.some;
+  Option<bool> get asBoolean => Some(value);
 
   @override
   Option<Unit> get asNull => none();
@@ -304,7 +301,7 @@ class JBoolean extends Json {
   String toString() => 'JBoolean($value)';
 }
 
-class JNumber extends Json {
+final class JNumber extends Json {
   final num value;
 
   JNumber(this.value);
@@ -335,7 +332,7 @@ class JNumber extends Json {
   Option<Unit> get asNull => none();
 
   @override
-  Option<num> get asNumber => value.some;
+  Option<num> get asNumber => Some(value);
 
   @override
   Option<JsonObject> get asObject => none();
@@ -383,7 +380,7 @@ class JNumber extends Json {
   String toString() => 'JNumber($value)';
 }
 
-class JString extends Json {
+final class JString extends Json {
   final String value;
 
   JString(this.value);
@@ -420,7 +417,7 @@ class JString extends Json {
   Option<JsonObject> get asObject => none();
 
   @override
-  Option<String> get asString => value.some;
+  Option<String> get asString => Some(value);
 
   @override
   Json withArray(Function1<IList<Json>, Json> f) => this;
@@ -459,7 +456,7 @@ class JString extends Json {
   String toString() => 'JString("$value")';
 }
 
-class JArray extends Json {
+final class JArray extends Json {
   final IList<Json> value;
 
   JArray(this.value);
@@ -481,7 +478,7 @@ class JArray extends Json {
   bool get isObject => false;
 
   @override
-  Option<IList<Json>> get asArray => value.some;
+  Option<IList<Json>> get asArray => Some(value);
 
   @override
   Option<bool> get asBoolean => none();
@@ -535,7 +532,7 @@ class JArray extends Json {
   String toString() => value.mkString(start: 'JArray([', sep: ', ', end: '])');
 }
 
-class JObject extends Json {
+final class JObject extends Json {
   final JsonObject value;
 
   JObject(this.value);
@@ -569,7 +566,7 @@ class JObject extends Json {
   Option<num> get asNumber => none();
 
   @override
-  Option<JsonObject> get asObject => value.some;
+  Option<JsonObject> get asObject => Some(value);
 
   @override
   Option<String> get asString => none();

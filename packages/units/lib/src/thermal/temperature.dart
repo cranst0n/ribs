@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_units/ribs_units.dart';
 
-class Temperature extends Quantity<Temperature> {
+final class Temperature extends Quantity<Temperature> {
   Temperature._(super.value, super.unit);
 
   Temperature operator +(Temperature that) =>
@@ -121,7 +121,7 @@ abstract class TemperatureScale extends UnitOfMeasure<Temperature> {
   Temperature call(num value) => Temperature._(value.toDouble(), this);
 }
 
-class Celcius extends TemperatureScale {
+final class Celcius extends TemperatureScale {
   const Celcius._() : super('°C');
 
   @override
@@ -133,7 +133,7 @@ class Celcius extends TemperatureScale {
       TemperatureConversions.kelvinToCelsiusScale(value);
 }
 
-class Fahrenheit extends TemperatureScale {
+final class Fahrenheit extends TemperatureScale {
   const Fahrenheit._() : super('°F');
 
   @override
@@ -145,7 +145,7 @@ class Fahrenheit extends TemperatureScale {
       TemperatureConversions.kelvinToFahrenheitScale(value);
 }
 
-class Kelvin extends TemperatureScale {
+final class Kelvin extends TemperatureScale {
   const Kelvin._() : super('K');
 
   @override
@@ -155,7 +155,7 @@ class Kelvin extends TemperatureScale {
   double converterTo(double value) => 1;
 }
 
-class Rankine extends TemperatureScale {
+final class Rankine extends TemperatureScale {
   const Rankine._() : super('°R');
 
   @override

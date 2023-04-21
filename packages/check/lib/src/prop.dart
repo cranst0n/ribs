@@ -11,7 +11,7 @@ Prop<T> Function(TestBody<T> testBody) forAll<T>(Gen<T> gen) =>
 
 typedef TestBody<T> = Function1<T, void>;
 
-class Prop<T> {
+final class Prop<T> {
   final Gen<T> gen;
   final TestBody<T> testBody;
 
@@ -57,7 +57,7 @@ class Prop<T> {
       testBody(value);
       return none<PropFailure<T>>();
     } on dart_test.TestFailure catch (tf) {
-      return PropFailure(value, tf).some;
+      return Some(PropFailure(value, tf));
     }
   }
 
@@ -67,14 +67,14 @@ class Prop<T> {
     int count = 50,
   }) {
     return count <= 0
-        ? Future.value(original.some)
+        ? Future.value(Some(original))
         : gen
             .shrink(original.value)
             .asyncMap((value) => _runProp(value, testBody).fold(
-                () => Future.value(original.some),
+                () => Future.value(Some(original)),
                 (fail) => _shrink(fail, testBody, count: count - 1)))
             .firstWhere((result) => result.isDefined,
-                orElse: () => original.some);
+                orElse: () => Some(original));
   }
 }
 

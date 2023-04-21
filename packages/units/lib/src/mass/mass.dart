@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_units/ribs_units.dart';
 
-class Mass extends Quantity<Mass> {
+final class Mass extends Quantity<Mass> {
   Mass(super.value, super.unit);
 
   Mass get toGrams => to(grams).grams;
@@ -73,77 +73,77 @@ abstract class MassUnit extends BaseUnit<Mass> {
   Mass call(num value) => Mass(value.toDouble(), this);
 }
 
-class Grams extends MassUnit {
+final class Grams extends MassUnit {
   const Grams._() : super('g', 1);
 }
 
-class Nanograms extends MassUnit {
+final class Nanograms extends MassUnit {
   const Nanograms._() : super('ng', MetricSystem.Nano);
 }
 
-class Micrograms extends MassUnit {
+final class Micrograms extends MassUnit {
   const Micrograms._() : super('mcg', MetricSystem.Micro);
 }
 
-class Milligrams extends MassUnit {
+final class Milligrams extends MassUnit {
   const Milligrams._() : super('mg', MetricSystem.Milli);
 }
 
-class Kilograms extends MassUnit {
+final class Kilograms extends MassUnit {
   const Kilograms._() : super('kg', MetricSystem.Kilo);
 }
 
-class Tonnes extends MassUnit {
+final class Tonnes extends MassUnit {
   const Tonnes._() : super('t', MetricSystem.Mega);
 }
 
-class Ounces extends MassUnit {
+final class Ounces extends MassUnit {
   const Ounces._() : super('oz', _PoundConversionFactor / 16.0);
 }
 
-class Pounds extends MassUnit {
+final class Pounds extends MassUnit {
   const Pounds._() : super('lb', _PoundConversionFactor);
 }
 
-class Kilopounds extends MassUnit {
+final class Kilopounds extends MassUnit {
   const Kilopounds._()
       : super('klb', _PoundConversionFactor * MetricSystem.Kilo);
 }
 
-class Megapounds extends MassUnit {
+final class Megapounds extends MassUnit {
   const Megapounds._()
       : super('Mlb', _PoundConversionFactor * MetricSystem.Mega);
 }
 
-class Stone extends MassUnit {
+final class Stone extends MassUnit {
   const Stone._() : super('st', _PoundConversionFactor * 14);
 }
 
-class TroyGrains extends MassUnit {
+final class TroyGrains extends MassUnit {
   const TroyGrains._() : super('gr', _TroyGrainsConversionFactor);
 }
 
-class Pennyweights extends MassUnit {
+final class Pennyweights extends MassUnit {
   const Pennyweights._() : super('dwt', _TroyGrainsConversionFactor * 24);
 }
 
-class TroyOunces extends MassUnit {
+final class TroyOunces extends MassUnit {
   const TroyOunces._() : super('oz t', _TroyGrainsConversionFactor * 480);
 }
 
-class TroyPounds extends MassUnit {
+final class TroyPounds extends MassUnit {
   const TroyPounds._() : super('lb t', _TroyGrainsConversionFactor * 480 * 12);
 }
 
-class Tolas extends MassUnit {
+final class Tolas extends MassUnit {
   const Tolas._() : super('tola', _TroyGrainsConversionFactor * 180);
 }
 
-class Carats extends MassUnit {
+final class Carats extends MassUnit {
   const Carats._() : super('ct', MetricSystem.Milli * 200);
 }
 
-class Dalton extends MassUnit {
+final class Dalton extends MassUnit {
   const Dalton._() : super('Da', MetricSystem.Kilo * 1.66053906660e-27);
 }
 

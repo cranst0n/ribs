@@ -15,11 +15,8 @@ jobs:
 
     strategy:
       matrix:
-        sdk: [stable]
-        experimental: [false]
-        include:
-          - sdk: beta
-            experimental: true
+        sdk: [beta]
+        experimental: [true]
 
     steps:
       - uses: actions/checkout@v3

@@ -9,7 +9,7 @@ class Ref<A> {
 
   Ref._(this._underlying);
 
-  IO<Tuple2<A, Function1<A, IO<bool>>>> access() => IO.delay(() {
+  IO<(A, Function1<A, IO<bool>>)> access() => IO.delay(() {
         final snapshot = _underlying;
 
         IO<bool> setter(A a) => IO.delay(() {
@@ -21,7 +21,7 @@ class Ref<A> {
               }
             });
 
-        return Tuple2(snapshot, setter);
+        return (snapshot, setter);
       });
 
   /// Like [modify], but also schedules the resulting effect right after
@@ -30,17 +30,17 @@ class Ref<A> {
   ///
   /// See [flatModifyFull] to create a finalizer that
   /// can potentially be canceled.
-  IO<B> flatModify<B>(Function1<A, Tuple2<A, IO<B>>> f) =>
+  IO<B> flatModify<B>(Function1<A, (A, IO<B>)> f) =>
       IO.uncancelable((_) => modify(f).flatten());
 
-  IO<B> flatModifyFull<B>(Function1<Tuple2<Poll, A>, Tuple2<A, IO<B>>> f) =>
-      IO.uncancelable((poll) => modify((a) => f(Tuple2(poll, a))).flatten());
+  IO<B> flatModifyFull<B>(Function1<(Poll, A), (A, IO<B>)> f) =>
+      IO.uncancelable((poll) => modify((a) => f((poll, a))).flatten());
 
-  IO<A> getAndUpdate(Function1<A, A> f) => modify((a) => Tuple2(f(a), a));
+  IO<A> getAndUpdate(Function1<A, A> f) => modify((a) => (f(a), a));
 
   IO<A> getAndSet(A a) => getAndUpdate((_) => a);
 
-  IO<B> modify<B>(Function1<A, Tuple2<A, B>> f) =>
+  IO<B> modify<B>(Function1<A, (A, B)> f) =>
       IO.delay(() => f(_underlying)((newA, result) {
             _underlying = newA;
             return result;
@@ -49,16 +49,16 @@ class Ref<A> {
   IO<Unit> setValue(A a) => IO.exec(() => _underlying = a);
 
   IO<bool> tryUpdate(Function1<A, A> f) =>
-      tryModify((a) => Tuple2(f(a), Unit())).map((a) => a.isDefined);
+      tryModify((a) => (f(a), Unit())).map((a) => a.isDefined);
 
-  IO<Option<B>> tryModify<B>(Function1<A, Tuple2<A, B>> f) => IO.delay(() {
+  IO<Option<B>> tryModify<B>(Function1<A, (A, B)> f) => IO.delay(() {
         final c = _underlying;
 
         return f(c)(
           (u, b) {
             if (c == _underlying) {
               _underlying = u;
-              return b.some;
+              return Some(b);
             } else {
               return none();
             }
@@ -71,7 +71,7 @@ class Ref<A> {
 
   IO<A> updateAndGet(Function1<A, A> f) => modify((a) {
         final newA = f(a);
-        return Tuple2(newA, newA);
+        return (newA, newA);
       });
 
   IO<A> value() => IO.delay(() => _underlying);

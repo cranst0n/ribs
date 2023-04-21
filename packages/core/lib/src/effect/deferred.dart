@@ -1,6 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 
-class Deferred<A> {
+final class Deferred<A> {
   _DeferredState<A> _state = _DeferredStateUnset<A>();
 
   Deferred._();
@@ -21,7 +21,7 @@ class Deferred<A> {
       ));
 
   IO<Option<A>> tryValue() => IO.delay(() => _state.fold(
-        (a) => a.some,
+        (a) => Some(a),
         (_) => none(),
       ));
 
@@ -30,12 +30,12 @@ class Deferred<A> {
           (a) => IO.pure(a),
           (unset) => IO.async((cb) => IO
               .delay(() => unset.addReader((a) => cb(Right(a))))
-              .map((id) => IO.exec(() => unset.deleteReader(id)).some)),
+              .map((id) => Some(IO.exec(() => unset.deleteReader(id))))),
         ),
       );
 }
 
-abstract class _DeferredState<A> {
+sealed class _DeferredState<A> {
   B fold<B>(
     Function1<A, B> ifSet,
     Function1<_DeferredStateUnset<A>, B> ifUnset,

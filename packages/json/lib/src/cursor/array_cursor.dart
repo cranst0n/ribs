@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
-class ArrayCursor extends HCursor {
+final class ArrayCursor extends HCursor {
   final IList<Json> arrayValues;
   final int indexValue;
   final HCursor parent;
@@ -20,7 +20,7 @@ class ArrayCursor extends HCursor {
   Json get value => arrayValues[indexValue];
 
   @override
-  Option<int> get index => indexValue.some;
+  Option<int> get index => Some(indexValue);
 
   @override
   Option<String> get key => none();

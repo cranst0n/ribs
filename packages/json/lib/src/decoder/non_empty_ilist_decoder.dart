@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
-class NonEmptyIListDecoder<A> extends Decoder<NonEmptyIList<A>> {
+final class NonEmptyIListDecoder<A> extends Decoder<NonEmptyIList<A>> {
   final Decoder<A> decodeA;
 
   NonEmptyIListDecoder(this.decodeA);

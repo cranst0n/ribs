@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
-class PreparedDecoder<A> extends Decoder<A> {
+final class PreparedDecoder<A> extends Decoder<A> {
   final Decoder<A> decodeA;
   final Function1<ACursor, ACursor> f;
 

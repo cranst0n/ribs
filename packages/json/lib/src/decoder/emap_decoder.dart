@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
-class EmapDecoder<A, B> extends Decoder<B> {
+final class EmapDecoder<A, B> extends Decoder<B> {
   final Decoder<A> aDecoder;
   final Function1<A, Either<String, B>> f;
 
