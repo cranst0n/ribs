@@ -15,6 +15,8 @@ import 'package:ribs_json/src/decoder/prepared_decoder.dart';
 
 @immutable
 abstract mixin class Decoder<A> {
+  static Decoder<A> constant<A>(A a) => Decoder.instance((_) => Right(a));
+
   static Decoder<A> instance<A>(Function1<HCursor, DecodeResult<A>> decodeF) =>
       DecoderF(decodeF);
 
@@ -535,4 +537,11 @@ abstract mixin class Decoder<A> {
               return _wrongTypeFail('array[15]', c).asLeft();
             }
           });
+
+  static Decoder<C> product2<A, B, C>(
+    Decoder<A> codecA,
+    Decoder<B> codecB,
+    Function2<A, B, C> apply,
+  ) =>
+      tuple2(codecA, codecB).map(apply.tupled);
 }
