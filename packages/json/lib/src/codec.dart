@@ -2,7 +2,6 @@ import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 import 'package:ribs_json/src/codec/codec_f.dart';
-import 'package:ribs_json/src/codec/key_value_codec.dart';
 import 'package:ribs_json/src/decoder/option_decoder.dart';
 
 @immutable
@@ -14,6 +13,7 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
 
   Codec<A?> nullable() => optional().xmap((o) => o.toNullable(), Option.of);
 
+  @override
   Codec<Option<A>> optional() => from(
         OptionDecoder(this),
         Encoder.instance<Option<A>>((a) => a.fold(() => JNull(), encode)),

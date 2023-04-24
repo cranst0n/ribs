@@ -99,6 +99,8 @@ sealed class Pull<O, R> {
   // a nightmare. Until I learn more about the behavior of Never in regards
   // to variance, I'm shelfing this.
   //
+  // Relevant issue: https://github.com/dart-lang/language/issues/1674
+  //
   // It would be nice if `Never` behaved the same as `Nothing` in scala
   // but that's definitely not the case.
   Pull<O2, R2> flatMap<O2, R2>(covariant Function1<R, Pull<O2, R2>> f) {
