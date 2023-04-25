@@ -9,5 +9,6 @@ export 'src/space/area.dart';
 export 'src/space/length.dart';
 export 'src/space/volume.dart';
 export 'src/thermal/temperature.dart';
+export 'src/time/frequency.dart';
 export 'src/time/time.dart';
 export 'src/unit_of_measure.dart';

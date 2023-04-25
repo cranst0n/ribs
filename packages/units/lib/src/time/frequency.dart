@@ -62,7 +62,7 @@ final class RevolutionsPerMinute extends FrequencyUnit {
   const RevolutionsPerMinute._() : super('rpm', 1.0 / 60.0);
 }
 
-extension TimeOps on num {
+extension FrequencyOps on num {
   Frequency get hertz => Frequency.hertz(this);
   Frequency get kilohertz => Frequency.kilohertz(this);
   Frequency get megahertz => Frequency.megahertz(this);
