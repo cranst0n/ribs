@@ -125,20 +125,14 @@ sealed class BitVector {
 
   Uint8List toByteArray() => toByteVector().toByteArray();
 
-  int toInt(bool signed, [Endian ordering = Endian.big]) {
-    switch (this) {
-      case final Bytes _:
-        return ordering == Endian.little
+  int toInt(bool signed, [Endian ordering = Endian.big]) => switch (this) {
+        final Bytes _ => ordering == Endian.little
             ? invertReverseByteOrder().toInt(signed)
-            : getBigEndianInt(0, size, signed);
-      default:
-        if (ordering == Endian.little) {
-          return invertReverseByteOrder().toInt(signed);
-        } else {
-          return getBigEndianInt(0, size, signed);
-        }
-    }
-  }
+            : getBigEndianInt(0, size, signed),
+        _ => ordering == Endian.little
+            ? invertReverseByteOrder().toInt(signed)
+            : getBigEndianInt(0, size, signed),
+      };
 
   BitVector reverseByteOrder() {
     if (size % 8 == 0) {
@@ -293,12 +287,10 @@ final class Bytes extends BitVector {
     if (isEmpty) {
       return b2;
     } else {
-      switch (b2) {
-        case final Bytes _:
-          return combine(b2);
-        case final Drop drop:
-          return concat(drop.interpretDrop());
-      }
+      return switch (b2) {
+        final Bytes _ => combine(b2),
+        final Drop drop => concat(drop.interpretDrop()),
+      };
     }
   }
 

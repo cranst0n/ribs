@@ -36,18 +36,12 @@ final class DecodingFailure extends Error {
       .filterNot((a) => a == PathToRoot.empty)
       .map((a) => a.asPathString());
 
-  String message() {
-    switch (reason) {
-      case final WrongTypeExpectation r:
-        return 'Got value ${r.jsonValue} with wrong type. Expected ${r.expectedJsonFieldType}';
-      case MissingField _:
-        return 'Missing required field';
-      case final CustomReason r:
-        return r.message;
-      default:
-        return 'Unknown reason: $reason';
-    }
-  }
+  String message() => switch (reason) {
+        final WrongTypeExpectation r =>
+          'Got value ${r.jsonValue} with wrong type. Expected ${r.expectedJsonFieldType}',
+        MissingField _ => 'Missing required field',
+        final CustomReason r => r.message,
+      };
 
   @override
   String toString() => 'DecodingFailure($reason, $pathToRootString)';

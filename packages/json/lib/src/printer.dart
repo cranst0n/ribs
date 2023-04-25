@@ -199,34 +199,16 @@ class _PrintFolder extends JsonFolder<void> {
     while (i < value.length) {
       final c = value[i];
 
-      final int esc;
-
-      switch (c) {
-        case '"':
-          esc = '"'.codeUnits[0];
-          break;
-        case '\\':
-          esc = '\\'.codeUnits[0];
-          break;
-        case '\b':
-          esc = 'b'.codeUnits[0];
-          break;
-        case '\f':
-          esc = 'f'.codeUnits[0];
-          break;
-        case '\n':
-          esc = 'n'.codeUnits[0];
-          break;
-        case '\r':
-          esc = 'r'.codeUnits[0];
-          break;
-        case '\t':
-          esc = 't'.codeUnits[0];
-          break;
-        default:
-          esc = printer.escapeNonAscii && c.codeUnitAt(0) > 127 ? 1 : 0;
-          break;
-      }
+      final esc = switch (c) {
+        '"' => '"'.codeUnits[0],
+        '\\' => '\\'.codeUnits[0],
+        '\b' => 'b'.codeUnits[0],
+        '\f' => 'f'.codeUnits[0],
+        '\n' => 'n'.codeUnits[0],
+        '\r' => 'r'.codeUnits[0],
+        '\t' => 't'.codeUnits[0],
+        _ => printer.escapeNonAscii && c.codeUnitAt(0) > 127 ? 1 : 0,
+      };
 
       if (esc != 0) {
         buffer.write('\\\\');

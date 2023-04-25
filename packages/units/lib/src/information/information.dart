@@ -56,82 +56,47 @@ final class Information extends Quantity<Information> {
         }
       }
 
-      switch (unit) {
+      return switch (unit) {
         // Metric Bytes
-        case yottabytes:
-          return Information(value, unit);
-        case zettabytes:
-          return coarserOrThis(yottabytes, MetricSystem.Kilo.toInt());
-        case exabytes:
-          return coarserOrThis(zettabytes, MetricSystem.Kilo.toInt());
-        case petabytes:
-          return coarserOrThis(exabytes, MetricSystem.Kilo.toInt());
-        case terabytes:
-          return coarserOrThis(petabytes, MetricSystem.Kilo.toInt());
-        case gigabytes:
-          return coarserOrThis(terabytes, MetricSystem.Kilo.toInt());
-        case megabytes:
-          return coarserOrThis(gigabytes, MetricSystem.Kilo.toInt());
-        case kilobytes:
-          return coarserOrThis(megabytes, MetricSystem.Kilo.toInt());
-        case bytes:
-          return coarserOrThis(kilobytes, MetricSystem.Kilo.toInt());
+        yottabytes => Information(value, unit),
+        zettabytes => coarserOrThis(yottabytes, MetricSystem.Kilo.toInt()),
+        exabytes => coarserOrThis(zettabytes, MetricSystem.Kilo.toInt()),
+        petabytes => coarserOrThis(exabytes, MetricSystem.Kilo.toInt()),
+        terabytes => coarserOrThis(petabytes, MetricSystem.Kilo.toInt()),
+        gigabytes => coarserOrThis(terabytes, MetricSystem.Kilo.toInt()),
+        megabytes => coarserOrThis(gigabytes, MetricSystem.Kilo.toInt()),
+        kilobytes => coarserOrThis(megabytes, MetricSystem.Kilo.toInt()),
+        bytes => coarserOrThis(kilobytes, MetricSystem.Kilo.toInt()),
         // Binary Bytes
-        case yobibytes:
-          return Information(value, unit);
-        case zebibytes:
-          return coarserOrThis(yobibytes, BinarySystem.Kilo.toInt());
-        case exbibytes:
-          return coarserOrThis(zebibytes, BinarySystem.Kilo.toInt());
-        case pebibytes:
-          return coarserOrThis(exbibytes, BinarySystem.Kilo.toInt());
-        case tebibytes:
-          return coarserOrThis(pebibytes, BinarySystem.Kilo.toInt());
-        case gibibytes:
-          return coarserOrThis(tebibytes, BinarySystem.Kilo.toInt());
-        case mebibytes:
-          return coarserOrThis(gibibytes, BinarySystem.Kilo.toInt());
-        case kibibytes:
-          return coarserOrThis(mebibytes, BinarySystem.Kilo.toInt());
+        yobibytes => Information(value, unit),
+        zebibytes => coarserOrThis(yobibytes, BinarySystem.Kilo.toInt()),
+        exbibytes => coarserOrThis(zebibytes, BinarySystem.Kilo.toInt()),
+        pebibytes => coarserOrThis(exbibytes, BinarySystem.Kilo.toInt()),
+        tebibytes => coarserOrThis(pebibytes, BinarySystem.Kilo.toInt()),
+        gibibytes => coarserOrThis(tebibytes, BinarySystem.Kilo.toInt()),
+        mebibytes => coarserOrThis(gibibytes, BinarySystem.Kilo.toInt()),
+        kibibytes => coarserOrThis(mebibytes, BinarySystem.Kilo.toInt()),
         // Metric Bits
-        case yottabits:
-          return Information(value, unit);
-        case zettabits:
-          return coarserOrThis(yottabits, MetricSystem.Kilo.toInt());
-        case exabits:
-          return coarserOrThis(zettabits, MetricSystem.Kilo.toInt());
-        case petabits:
-          return coarserOrThis(exabits, MetricSystem.Kilo.toInt());
-        case terabits:
-          return coarserOrThis(petabits, MetricSystem.Kilo.toInt());
-        case gigabits:
-          return coarserOrThis(terabits, MetricSystem.Kilo.toInt());
-        case megabits:
-          return coarserOrThis(gigabits, MetricSystem.Kilo.toInt());
-        case kilobits:
-          return coarserOrThis(megabits, MetricSystem.Kilo.toInt());
-        case bits:
-          return coarserOrThis(kilobits, MetricSystem.Kilo.toInt());
+        yottabits => Information(value, unit),
+        zettabits => coarserOrThis(yottabits, MetricSystem.Kilo.toInt()),
+        exabits => coarserOrThis(zettabits, MetricSystem.Kilo.toInt()),
+        petabits => coarserOrThis(exabits, MetricSystem.Kilo.toInt()),
+        terabits => coarserOrThis(petabits, MetricSystem.Kilo.toInt()),
+        gigabits => coarserOrThis(terabits, MetricSystem.Kilo.toInt()),
+        megabits => coarserOrThis(gigabits, MetricSystem.Kilo.toInt()),
+        kilobits => coarserOrThis(megabits, MetricSystem.Kilo.toInt()),
+        bits => coarserOrThis(kilobits, MetricSystem.Kilo.toInt()),
         // Binary Bits
-        case yobibits:
-          return Information(value, unit);
-        case zebibits:
-          return coarserOrThis(yobibits, BinarySystem.Kilo.toInt());
-        case exbibits:
-          return coarserOrThis(zebibits, BinarySystem.Kilo.toInt());
-        case pebibits:
-          return coarserOrThis(exbibits, BinarySystem.Kilo.toInt());
-        case tebibits:
-          return coarserOrThis(pebibits, BinarySystem.Kilo.toInt());
-        case gibibits:
-          return coarserOrThis(tebibits, BinarySystem.Kilo.toInt());
-        case mebibits:
-          return coarserOrThis(gibibits, BinarySystem.Kilo.toInt());
-        case kibibits:
-          return coarserOrThis(mebibits, BinarySystem.Kilo.toInt());
-        default:
-          return this;
-      }
+        yobibits => Information(value, unit),
+        zebibits => coarserOrThis(yobibits, BinarySystem.Kilo.toInt()),
+        exbibits => coarserOrThis(zebibits, BinarySystem.Kilo.toInt()),
+        pebibits => coarserOrThis(exbibits, BinarySystem.Kilo.toInt()),
+        tebibits => coarserOrThis(pebibits, BinarySystem.Kilo.toInt()),
+        gibibits => coarserOrThis(tebibits, BinarySystem.Kilo.toInt()),
+        mebibits => coarserOrThis(gibibits, BinarySystem.Kilo.toInt()),
+        kibibits => coarserOrThis(mebibits, BinarySystem.Kilo.toInt()),
+        _ => this,
+      };
     }
 
     return unit == yottabytes ||

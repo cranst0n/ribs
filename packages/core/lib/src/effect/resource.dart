@@ -74,32 +74,25 @@ sealed class Resource<A> extends Monad<A> {
 
   Resource<B> as<B>(B b) => map((_) => b);
 
-  Resource<Either<IOError, A>> attempt() {
-    switch (this) {
-      case final _Allocate<A> a:
-        return Resource.applyFull(
-          (poll) => a.resource(poll).attempt().map(
-                (att) => att.fold(
-                  (err) => (err.asLeft(), (_) => IO.unit),
-                  (a) => a((a, release) => (a.asRight(), release)),
+  Resource<Either<IOError, A>> attempt() => switch (this) {
+        final _Allocate<A> a => Resource.applyFull(
+            (poll) => a.resource(poll).attempt().map(
+                  (att) => att.fold(
+                    (err) => (err.asLeft(), (_) => IO.unit),
+                    (a) => a((a, release) => (a.asRight(), release)),
+                  ),
                 ),
-              ),
-        );
-      case final _Bind<dynamic, A> b:
-        return Resource.unit
+          ),
+        final _Bind<dynamic, A> b => Resource.unit
             .flatMap((_) => b.source.attempt())
             .flatMap((att) => att.fold(
                   (err) => Resource.pure(err.asLeft()),
                   (s) => b.fs(s).attempt(),
-                ));
-      case final _Pure<A> p:
-        return Resource.pure(p.a.asRight());
-      case final _Eval<A> e:
-        return Resource.eval(e.fa.attempt());
-      default:
-        throw UnimplementedError('Unhandled Resource.attempt: $this');
-    }
-  }
+                )),
+        final _Pure<A> p => Resource.pure(p.a.asRight()),
+        final _Eval<A> e => Resource.eval(e.fa.attempt()),
+        _ => throw UnimplementedError('Unhandled Resource.attempt: $this')
+      };
 
   Resource<B> evalMap<B>(Function1<A, IO<B>> f) =>
       flatMap((a) => Resource.eval(f(a)));
@@ -142,12 +135,10 @@ sealed class Resource<A> extends Monad<A> {
             (tuple) {
               final (a, _) = tuple;
 
-              switch (stack) {
-                case Nil<dynamic> _:
-                  return onOutput(a as A);
-                case final StackFrame<dynamic, dynamic> f:
-                  return loop(f.head(a), f.tail);
-              }
+              return switch (stack) {
+                Nil<dynamic> _ => onOutput(a as A),
+                final StackFrame<dynamic, dynamic> f => loop(f.head(a), f.tail),
+              };
             },
             (a, oc) {
               final (_, release) = a;
@@ -159,12 +150,10 @@ sealed class Resource<A> extends Monad<A> {
         case final _Bind<dynamic, dynamic> b:
           return loop(b.source, StackFrame(b.fs, stack));
         case final _Pure<dynamic> p:
-          switch (stack) {
-            case Nil<dynamic> _:
-              return onOutput(p.a as A);
-            case final StackFrame<dynamic, dynamic> f:
-              return loop(f.head(p.a), f.tail);
-          }
+          return switch (stack) {
+            Nil<dynamic> _ => onOutput(p.a as A),
+            final StackFrame<dynamic, dynamic> f => loop(f.head(p.a), f.tail),
+          };
         case final _Eval<dynamic> ev:
           return ev.fa.flatMap((a) => loop(Resource.pure(a), stack));
       }

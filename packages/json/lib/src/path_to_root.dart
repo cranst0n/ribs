@@ -20,14 +20,13 @@ final class PathToRoot {
     if (path.value.isEmpty) {
       return '';
     } else {
-      return path.value.foldLeft('', (acc, elem) {
-        switch (elem) {
-          case final ObjectKey elem:
-            return '$acc.${elem.keyName}';
-          case final ArrayIndex elem:
-            return '$acc[${elem.index}]';
-        }
-      });
+      return path.value.foldLeft(
+        '',
+        (acc, elem) => switch (elem) {
+          final ObjectKey elem => '$acc.${elem.keyName}',
+          final ArrayIndex elem => '$acc[${elem.index}]',
+        },
+      );
     }
   }
 

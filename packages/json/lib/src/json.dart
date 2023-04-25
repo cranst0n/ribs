@@ -22,27 +22,19 @@ sealed class Json {
   static Json str(String value) => JString(value);
 
   static Either<ParsingFailure, Json> parse(String input) {
-    Either<ParsingFailure, Json> go(dynamic input) {
-      switch (input) {
-        case null:
-          return Null.asRight();
-        case final bool b:
-          return JBoolean(b).asRight();
-        case final String s:
-          return JString(s).asRight();
-        case final num n:
-          return JNumber(n).asRight();
-        case final List<dynamic> l:
-          return IList.of(l).traverseEither(go).map(JArray.new);
-        case final Map<dynamic, dynamic> m:
-          return IList.of(m.keys)
+    Either<ParsingFailure, Json> go(dynamic input) => switch (input) {
+          null => Null.asRight(),
+          final bool b => JBoolean(b).asRight(),
+          final String s => JString(s).asRight(),
+          final num n => JNumber(n).asRight(),
+          final List<dynamic> l =>
+            IList.of(l).traverseEither(go).map(JArray.new),
+          final Map<dynamic, dynamic> m => IList.of(m.keys)
               .traverseEither((k) => go(m[k]).map((v) => (k.toString(), v)))
               .map((keyValues) =>
-                  JObject(JsonObject.fromIterable(keyValues.toList())));
-        default:
-          return ParsingFailure('Unknown JSON element: $input').asLeft();
-      }
-    }
+                  JObject(JsonObject.fromIterable(keyValues.toList()))),
+          _ => ParsingFailure('Unknown JSON element: $input').asLeft(),
+        };
 
     return Either.catching(() => jsonDecode(input),
         (error, _) => ParsingFailure(error.toString())).flatMap(go);
@@ -62,22 +54,15 @@ sealed class Json {
     Function1<String, A> jsonString,
     Function1<IList<Json>, A> jsonArray,
     Function1<JsonObject, A> jsonObject,
-  ) {
-    switch (this) {
-      case JNull _:
-        return jsonNull();
-      case final JBoolean b:
-        return jsonBoolean(b.value);
-      case final JNumber n:
-        return jsonNumber(n.value);
-      case final JString s:
-        return jsonString(s.value);
-      case final JArray a:
-        return jsonArray(a.value);
-      case final JObject o:
-        return jsonObject(o.value);
-    }
-  }
+  ) =>
+      switch (this) {
+        JNull _ => jsonNull(),
+        final JBoolean b => jsonBoolean(b.value),
+        final JNumber n => jsonNumber(n.value),
+        final JString s => jsonString(s.value),
+        final JArray a => jsonArray(a.value),
+        final JObject o => jsonObject(o.value),
+      };
 
   Json get dropNullValues =>
       mapObject((a) => a.filter((keyValue) => !keyValue.$2.isNull));
