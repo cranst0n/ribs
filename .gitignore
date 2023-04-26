@@ -5,6 +5,7 @@
 **/coverage-report/
 **/doc/
 **/pubspec.lock
+**/pubspec_overrides.yaml
 
 # IntelliJ related
 *.iml

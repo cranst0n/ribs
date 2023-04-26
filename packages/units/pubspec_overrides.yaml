@@ -1,6 +1,0 @@
-# melos_managed_dependency_overrides: ribs_check,ribs_core
-dependency_overrides:
-  ribs_check:
-    path: ../check
-  ribs_core:
-    path: ../core
