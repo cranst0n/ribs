@@ -206,10 +206,17 @@ final class IList<A> implements Monad<A>, Foldable<A> {
     Either<B, IList<C>> result = Either.pure(nil());
 
     for (final elem in _underlying) {
-      result = result.flatMap((l) => f(elem).map((b) => l.prepend(b)));
+      // Workaround for contravariant issues in error case
+      result = result.fold(
+        (_) => result,
+        (acc) => f(elem).fold(
+          (err) => err.asLeft(),
+          (a) => acc.append(a).asRight(),
+        ),
+      );
     }
 
-    return result.map((a) => a.reverse());
+    return result;
   }
 
   IO<IList<B>> traverseIO<B>(Function1<A, IO<B>> f) {
