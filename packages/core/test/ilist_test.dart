@@ -170,6 +170,12 @@ void main() {
     expect(ilist([1, 2, 3]).insertAt(100, 999), ilist([1, 2, 3]));
   });
 
+  test('intersperse', () {
+    expect(ilist([1, 2, 3]).intersperse(sep: 0), ilist([1, 0, 2, 0, 3]));
+    expect(ilist([1, 2, 3]).intersperse(start: -1, sep: 0, end: 1),
+        ilist([-1, 1, 0, 2, 0, 3, 1]));
+  });
+
   test('IList.lastOption', () {
     expect(nil<int>().lastOption, none<int>());
     expect(ilist([1]).lastOption, 1.some);

@@ -107,6 +107,25 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   IList<A> insertAt(int ix, A elem) =>
       (0 <= ix && ix <= size) ? IList.of(_underlying.insert(ix, elem)) : this;
 
+  IList<A> intersperse({A? start, required A sep, A? end}) {
+    final buf = List<A>.empty(growable: true);
+
+    if (start != null) {
+      buf.add(start);
+    }
+
+    for (int i = 0; i < size; i++) {
+      buf.add(_underlying[i]);
+      if (i < size - 1) buf.add(sep);
+    }
+
+    if (end != null) {
+      buf.add(end);
+    }
+
+    return IList.of(buf);
+  }
+
   bool get isEmpty => _underlying.isEmpty;
 
   bool get isNotEmpty => _underlying.isNotEmpty;
