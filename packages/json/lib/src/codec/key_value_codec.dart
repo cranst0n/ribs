@@ -584,4 +584,297 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     return Codec.from(decoder, encoder);
   }
+
+  //////////////////////////////////////////////////////////////////////////////
+  /// Tuple Instances
+  //////////////////////////////////////////////////////////////////////////////
+
+  static Codec<(A, B)> tuple2<A, B>(
+    KeyValueCodec<A> codecA,
+    KeyValueCodec<B> codecB,
+  ) =>
+      product2(codecA, codecB, (a, b) => (a, b), id);
+
+  static Codec<(A, B, C)> tuple3<A, B, C>(
+    KeyValueCodec<A> codecA,
+    KeyValueCodec<B> codecB,
+    KeyValueCodec<C> codecC,
+  ) =>
+      product3(codecA, codecB, codecC, (a, b, c) => (a, b, c), id);
+
+  static Codec<(A, B, C, D)> tuple4<A, B, C, D>(
+    KeyValueCodec<A> codecA,
+    KeyValueCodec<B> codecB,
+    KeyValueCodec<C> codecC,
+    KeyValueCodec<D> codecD,
+  ) =>
+      product4(
+          codecA, codecB, codecC, codecD, (a, b, c, d) => (a, b, c, d), id);
+
+  static Codec<(A, B, C, D, E)> tuple5<A, B, C, D, E>(
+    KeyValueCodec<A> codecA,
+    KeyValueCodec<B> codecB,
+    KeyValueCodec<C> codecC,
+    KeyValueCodec<D> codecD,
+    KeyValueCodec<E> codecE,
+  ) =>
+      product5(codecA, codecB, codecC, codecD, codecE,
+          (a, b, c, d, e) => (a, b, c, d, e), id);
+
+  static Codec<(A, B, C, D, E, F)> tuple6<A, B, C, D, E, F>(
+    KeyValueCodec<A> codecA,
+    KeyValueCodec<B> codecB,
+    KeyValueCodec<C> codecC,
+    KeyValueCodec<D> codecD,
+    KeyValueCodec<E> codecE,
+    KeyValueCodec<F> codecF,
+  ) =>
+      product6(codecA, codecB, codecC, codecD, codecE, codecF,
+          (a, b, c, d, e, f) => (a, b, c, d, e, f), id);
+
+  static Codec<(A, B, C, D, E, F, G)> tuple7<A, B, C, D, E, F, G>(
+    KeyValueCodec<A> codecA,
+    KeyValueCodec<B> codecB,
+    KeyValueCodec<C> codecC,
+    KeyValueCodec<D> codecD,
+    KeyValueCodec<E> codecE,
+    KeyValueCodec<F> codecF,
+    KeyValueCodec<G> codecG,
+  ) =>
+      product7(codecA, codecB, codecC, codecD, codecE, codecF, codecG,
+          (a, b, c, d, e, f, g) => (a, b, c, d, e, f, g), id);
+
+  static Codec<(A, B, C, D, E, F, G, H)> tuple8<A, B, C, D, E, F, G, H>(
+    KeyValueCodec<A> codecA,
+    KeyValueCodec<B> codecB,
+    KeyValueCodec<C> codecC,
+    KeyValueCodec<D> codecD,
+    KeyValueCodec<E> codecE,
+    KeyValueCodec<F> codecF,
+    KeyValueCodec<G> codecG,
+    KeyValueCodec<H> codecH,
+  ) =>
+      product8(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
+          (a, b, c, d, e, f, g, h) => (a, b, c, d, e, f, g, h), id);
+
+  static Codec<(A, B, C, D, E, F, G, H, I)> tuple9<A, B, C, D, E, F, G, H, I>(
+    KeyValueCodec<A> codecA,
+    KeyValueCodec<B> codecB,
+    KeyValueCodec<C> codecC,
+    KeyValueCodec<D> codecD,
+    KeyValueCodec<E> codecE,
+    KeyValueCodec<F> codecF,
+    KeyValueCodec<G> codecG,
+    KeyValueCodec<H> codecH,
+    KeyValueCodec<I> codecI,
+  ) =>
+      product9(
+          codecA,
+          codecB,
+          codecC,
+          codecD,
+          codecE,
+          codecF,
+          codecG,
+          codecH,
+          codecI,
+          (a, b, c, d, e, f, g, h, i) => (a, b, c, d, e, f, g, h, i),
+          id);
+
+  static Codec<(A, B, C, D, E, F, G, H, I, J)>
+      tuple10<A, B, C, D, E, F, G, H, I, J>(
+    KeyValueCodec<A> codecA,
+    KeyValueCodec<B> codecB,
+    KeyValueCodec<C> codecC,
+    KeyValueCodec<D> codecD,
+    KeyValueCodec<E> codecE,
+    KeyValueCodec<F> codecF,
+    KeyValueCodec<G> codecG,
+    KeyValueCodec<H> codecH,
+    KeyValueCodec<I> codecI,
+    KeyValueCodec<J> codecJ,
+  ) =>
+          product10(
+              codecA,
+              codecB,
+              codecC,
+              codecD,
+              codecE,
+              codecF,
+              codecG,
+              codecH,
+              codecI,
+              codecJ,
+              (a, b, c, d, e, f, g, h, i, j) => (a, b, c, d, e, f, g, h, i, j),
+              id);
+
+  static Codec<(A, B, C, D, E, F, G, H, I, J, K)>
+      tuple11<A, B, C, D, E, F, G, H, I, J, K>(
+    KeyValueCodec<A> codecA,
+    KeyValueCodec<B> codecB,
+    KeyValueCodec<C> codecC,
+    KeyValueCodec<D> codecD,
+    KeyValueCodec<E> codecE,
+    KeyValueCodec<F> codecF,
+    KeyValueCodec<G> codecG,
+    KeyValueCodec<H> codecH,
+    KeyValueCodec<I> codecI,
+    KeyValueCodec<J> codecJ,
+    KeyValueCodec<K> codecK,
+  ) =>
+          product11(
+              codecA,
+              codecB,
+              codecC,
+              codecD,
+              codecE,
+              codecF,
+              codecG,
+              codecH,
+              codecI,
+              codecJ,
+              codecK,
+              (a, b, c, d, e, f, g, h, i, j, k) =>
+                  (a, b, c, d, e, f, g, h, i, j, k),
+              id);
+
+  static Codec<(A, B, C, D, E, F, G, H, I, J, K, L)>
+      tuple12<A, B, C, D, E, F, G, H, I, J, K, L>(
+    KeyValueCodec<A> codecA,
+    KeyValueCodec<B> codecB,
+    KeyValueCodec<C> codecC,
+    KeyValueCodec<D> codecD,
+    KeyValueCodec<E> codecE,
+    KeyValueCodec<F> codecF,
+    KeyValueCodec<G> codecG,
+    KeyValueCodec<H> codecH,
+    KeyValueCodec<I> codecI,
+    KeyValueCodec<J> codecJ,
+    KeyValueCodec<K> codecK,
+    KeyValueCodec<L> codecL,
+  ) =>
+          product12(
+              codecA,
+              codecB,
+              codecC,
+              codecD,
+              codecE,
+              codecF,
+              codecG,
+              codecH,
+              codecI,
+              codecJ,
+              codecK,
+              codecL,
+              (a, b, c, d, e, f, g, h, i, j, k, l) =>
+                  (a, b, c, d, e, f, g, h, i, j, k, l),
+              id);
+
+  static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M)>
+      tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>(
+    KeyValueCodec<A> codecA,
+    KeyValueCodec<B> codecB,
+    KeyValueCodec<C> codecC,
+    KeyValueCodec<D> codecD,
+    KeyValueCodec<E> codecE,
+    KeyValueCodec<F> codecF,
+    KeyValueCodec<G> codecG,
+    KeyValueCodec<H> codecH,
+    KeyValueCodec<I> codecI,
+    KeyValueCodec<J> codecJ,
+    KeyValueCodec<K> codecK,
+    KeyValueCodec<L> codecL,
+    KeyValueCodec<M> codecM,
+  ) =>
+          product13(
+              codecA,
+              codecB,
+              codecC,
+              codecD,
+              codecE,
+              codecF,
+              codecG,
+              codecH,
+              codecI,
+              codecJ,
+              codecK,
+              codecL,
+              codecM,
+              (a, b, c, d, e, f, g, h, i, j, k, l, m) =>
+                  (a, b, c, d, e, f, g, h, i, j, k, l, m),
+              id);
+
+  static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M, N)>
+      tuple14<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
+    KeyValueCodec<A> codecA,
+    KeyValueCodec<B> codecB,
+    KeyValueCodec<C> codecC,
+    KeyValueCodec<D> codecD,
+    KeyValueCodec<E> codecE,
+    KeyValueCodec<F> codecF,
+    KeyValueCodec<G> codecG,
+    KeyValueCodec<H> codecH,
+    KeyValueCodec<I> codecI,
+    KeyValueCodec<J> codecJ,
+    KeyValueCodec<K> codecK,
+    KeyValueCodec<L> codecL,
+    KeyValueCodec<M> codecM,
+    KeyValueCodec<N> codecN,
+  ) =>
+          product14(
+              codecA,
+              codecB,
+              codecC,
+              codecD,
+              codecE,
+              codecF,
+              codecG,
+              codecH,
+              codecI,
+              codecJ,
+              codecK,
+              codecL,
+              codecM,
+              codecN,
+              (a, b, c, d, e, f, g, h, i, j, k, l, m, n) =>
+                  (a, b, c, d, e, f, g, h, i, j, k, l, m, n),
+              id);
+
+  static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)>
+      tuple15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
+    KeyValueCodec<A> codecA,
+    KeyValueCodec<B> codecB,
+    KeyValueCodec<C> codecC,
+    KeyValueCodec<D> codecD,
+    KeyValueCodec<E> codecE,
+    KeyValueCodec<F> codecF,
+    KeyValueCodec<G> codecG,
+    KeyValueCodec<H> codecH,
+    KeyValueCodec<I> codecI,
+    KeyValueCodec<J> codecJ,
+    KeyValueCodec<K> codecK,
+    KeyValueCodec<L> codecL,
+    KeyValueCodec<M> codecM,
+    KeyValueCodec<N> codecN,
+    KeyValueCodec<O> codecO,
+  ) =>
+          product15(
+              codecA,
+              codecB,
+              codecC,
+              codecD,
+              codecE,
+              codecF,
+              codecG,
+              codecH,
+              codecI,
+              codecJ,
+              codecK,
+              codecL,
+              codecM,
+              codecN,
+              codecO,
+              (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) =>
+                  (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o),
+              id);
 }
