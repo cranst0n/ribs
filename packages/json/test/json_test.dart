@@ -247,7 +247,7 @@ void main() {
     final escaped = res.printWith(Printer.noSpaces.copy(escapeNonAscii: true));
 
     expect(nonEscaped, '{"0 ℃":"32 ℉"}');
-    expect(escaped, '{"0 \\\\u2103":"32 \\\\u2109"}');
+    expect(escaped, '{"0 \\u2103":"32 \\u2109"}');
   });
 
   test('Decoder.either', () {

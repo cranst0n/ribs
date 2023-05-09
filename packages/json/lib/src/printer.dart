@@ -211,7 +211,7 @@ class _PrintFolder extends JsonFolder<void> {
       };
 
       if (esc != 0) {
-        buffer.write('\\\\');
+        buffer.write('\\');
         if (esc != 1) {
           buffer.write(String.fromCharCode(esc));
         } else {
