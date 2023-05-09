@@ -1,5 +1,5 @@
 name: ribs_json
-version: 1.0.0-dev.2
+version: 1.0.0-dev.3
 homepage: https://github.com/cranst0n/ribs
 description: >
   Experimental json library.
