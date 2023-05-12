@@ -1,7 +1,11 @@
-## 1.0.0-dev.1
+## 1.0.0-dev.3
 
-- Initial release
+- Bump dart requirement to >= 3.0.0
 
 ## 1.0.0-dev.2
 
 - Fix dependencies.
+
+## 1.0.0-dev.1
+
+- Initial release
