@@ -679,25 +679,18 @@ final class IOFiber<A> {
     switch (_resumeTag) {
       case _Resume.Exec:
         _execR();
-        break;
       case _Resume.AsyncContinueSuccessful:
         _asyncContinueSuccessfulR();
-        break;
       case _Resume.AsyncContinueFailed:
         _asyncContinueFailedR();
-        break;
       case _Resume.AsyncContinueCanceled:
         _asyncContinueCanceledR();
-        break;
       case _Resume.AsyncContinueCanceledWithFinalizer:
         _asyncContinueCanceledWithFinalizerR();
-        break;
       case _Resume.Cede:
         _cedeR();
-        break;
       case _Resume.AutoCede:
         _autoCedeR();
-        break;
       case _Resume.Done:
         break;
     }
