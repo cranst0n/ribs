@@ -798,7 +798,7 @@ final class IOFiber<A> {
           } else if (ioa is _Error) {
             cur0 = _failed(ioa.error, 0);
           } else if (ioa is _Delay) {
-            cur0 = next(ioa.thunk);
+            cur0 = next(ioa.thunk.call);
           } else {
             _objectState.push(f);
             _conts.push(_Cont.Map);
@@ -819,9 +819,9 @@ final class IOFiber<A> {
           } else if (ioa is _Error) {
             cur0 = _failed(ioa.error, 0);
           } else if (ioa is _Delay) {
-            cur0 = next(ioa.thunk);
+            cur0 = next(ioa.thunk.call);
           } else {
-            _objectState.push(Fn1.of(f));
+            _objectState.push(Fn1.of(f.call));
             _conts.push(_Cont.FlatMap);
 
             cur0 = ioa;

@@ -1,7 +1,5 @@
 // ignore_for_file: avoid_print, implementation_imports
 
-import 'dart:async';
-
 import 'package:benchmark_harness/benchmark_harness.dart';
 
 import 'package:ribs_core/ribs_core.dart';
@@ -144,19 +142,4 @@ void compare(
       : '\x1B[31;1m${ficMs.round().toString().padLeft(8)}µs\x1B[0m';
 
   print('${label.padRight(15)}$sep$pureStr$sep$ficStr$sep');
-}
-
-Future<double> attemptBenchmark(AsyncBenchmarkBase b) {
-  final c = Completer<double>();
-
-  Zone.current.runGuarded(() async {
-    try {
-      final result = await b.measure();
-      c.complete(result);
-    } catch (_) {
-      c.complete(-1);
-    }
-  });
-
-  return c.future;
 }

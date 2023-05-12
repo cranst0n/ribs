@@ -205,7 +205,7 @@ sealed class Pull<O, R> {
       switch (v) {
         case final _CloseScope<X> _:
           final cl = _CanceledScope(v.scopeId, interruption);
-          return _transformWith(cl, getCont<Unit, X>());
+          return _transformWith(cl, getCont<Unit, X>().call);
         case final _Action<X, dynamic> _:
           return getCont<Unit, X>()(interruption);
         case final _Interrupted<X> interrupted:
@@ -447,7 +447,7 @@ sealed class Pull<O, R> {
           } else {
             Pull<X, Unit> go(int idx) {
               if (idx == chunk.size) {
-                return tail.flatMapOutput(fun);
+                return tail.flatMapOutput(fun.call);
               } else {
                 try {
                   int j = idx;
@@ -473,7 +473,8 @@ sealed class Pull<O, R> {
                       case final _Fail f:
                         return _Fail(f.error);
                       case final _Interrupted<Y> i:
-                        return interruptBoundary(tail, i).flatMapOutput(fun);
+                        return interruptBoundary(tail, i)
+                            .flatMapOutput(fun.call);
                       default:
                         throw UnimplementedError(
                             'Pull.compile.go.flatMapR.unconsed: $t');

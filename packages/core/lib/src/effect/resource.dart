@@ -148,7 +148,7 @@ sealed class Resource<A> extends Monad<A> {
           );
 
         case final _Bind<dynamic, dynamic> b:
-          return loop(b.source, StackFrame(b.fs, stack));
+          return loop(b.source, StackFrame(b.fs.call, stack));
         case final _Pure<dynamic> p:
           return switch (stack) {
             Nil<dynamic> _ => onOutput(p.a as A),
