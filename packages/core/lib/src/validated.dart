@@ -5,16 +5,32 @@ typedef ValidatedNel<E, A> = Validated<NonEmptyIList<E>, A>;
 sealed class Validated<E, A> implements Functor<A> {
   static Validated<E, A> invalid<E, A>(E e) => Invalid(e);
 
+  static ValidatedNel<E, A> invalidNel<E, A>(E e) =>
+      Invalid(NonEmptyIList.one(e));
+
   static Validated<E, A> valid<E, A>(A a) => Valid(a);
 
+  static ValidatedNel<E, A> validNel<E, A>(A a) => Valid(a);
+
   B fold<B>(Function1<E, B> fe, Function1<A, B> fa);
+
+  Validated<E, B> andThen<B>(Function1<A, Validated<E, B>> f) =>
+      fold(Validated.invalid, f);
 
   Validated<EE, AA> bimap<EE, AA>(Function1<E, EE> fe, Function1<A, AA> fa) =>
       fold((e) => fe(e).invalid(), (a) => fa(a).valid());
 
+  Validated<E, A> ensure(Function1<A, bool> p, Function0<E> onFailure) =>
+      fold((a) => this, (a) => p(a) ? this : Validated.invalid(onFailure()));
+
+  Validated<E, A> ensureOr(Function1<A, bool> p, Function1<A, E> onFailure) =>
+      fold((a) => this, (a) => p(a) ? this : Validated.invalid(onFailure(a)));
+
   bool exists(Function1<A, bool> p) => fold((_) => false, p);
 
   bool forall(Function1<A, bool> p) => fold((_) => true, p);
+
+  Unit foreach(Function1<A, Unit> f) => fold((_) => Unit(), f);
 
   A getOrElse(Function0<A> orElse) => fold((_) => orElse(), id);
 
@@ -39,6 +55,9 @@ sealed class Validated<E, A> implements Functor<A> {
   IList<A> toIList() => fold((_) => nil(), (a) => IList.of([a]));
 
   Option<A> toOption() => fold((_) => none(), (a) => Some(a));
+
+  ValidatedNel<E, A> toValidatedNel() =>
+      fold(Validated.invalidNel, Validated.validNel);
 
   A valueOr(Function1<E, A> f) => fold(f, id);
 
