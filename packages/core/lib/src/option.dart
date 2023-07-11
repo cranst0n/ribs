@@ -28,7 +28,7 @@ sealed class Option<A> implements Monad<A>, Foldable<A> {
   bool get isEmpty => !isDefined;
 
   Option<A> filter(Function1<A, bool> p) =>
-      fold(() => this, (a) => p(a) ? this : const None());
+      fold(() => this, (a) => p(a) ? this : none<A>());
 
   Option<A> filterNot(Function1<A, bool> p) => filter((a) => !p(a));
 
