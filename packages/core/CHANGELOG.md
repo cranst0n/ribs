@@ -1,3 +1,9 @@
+## 1.0.0-dev.4
+
+- Add missing functions to Function0
+- Add missing functions to Validated
+- Fix type error on Option.orElse
+
 ## 1.0.0-dev.3
 
 - Bump dart requirement to >= 3.0.0
