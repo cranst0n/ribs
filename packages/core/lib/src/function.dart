@@ -108,6 +108,10 @@ typedef Function22C<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
         Function21C<B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U,
             V, W>>;
 
+extension Function0Ops<A> on Function0<A> {
+  Function0<B> andThen<B>(Function1<A, B> fn) => () => fn(this());
+}
+
 extension Function1Ops<A, B> on Function1<A, B> {
   Function1<A, C> andThen<C>(Function1<B, C> fn) => (a) => fn(this(a));
 
