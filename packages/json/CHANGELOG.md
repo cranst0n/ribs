@@ -1,3 +1,7 @@
+## 1.0.0-dev.5
+
+- Add missing DecoderF override.
+
 ## 1.0.0-dev.4
 
 - Bump dart requirement to >= 3.0.0
