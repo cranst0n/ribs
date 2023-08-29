@@ -25,6 +25,12 @@ void main() {
     expect(IList.range(-1, 2), ilist([-1, 0, 1]));
   });
 
+  test('IList.reduceOption', () {
+    expect(IList.empty<int>().reduceOption((a, b) => a + b), none<int>());
+    expect(ilist([1]).reduceOption((a, b) => a + b), const Some(1));
+    expect(ilist([1, 2, 3]).reduceOption((a, b) => a + b), const Some(6));
+  });
+
   test('IList.tabulate', () {
     expect(IList.tabulate(3, (ix) => ix * 2), ilist([0, 2, 4]));
   });
@@ -145,6 +151,32 @@ void main() {
 
     expect(nil<double>().foldRight(100000.0, op), 100000.0);
     expect(ilist([10000.0, 1000.0, 100.0]).foldRight(1.0, op), 1000.0);
+  });
+
+  test('IList.groupBy', () {
+    final l = ilist([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    expect(
+      l.groupBy((a) => a % 3),
+      imap({
+        0: ilist([3, 6, 9]),
+        1: ilist([1, 4, 7]),
+        2: ilist([2, 5, 8]),
+      }),
+    );
+  });
+
+  test('IList.groupMap', () {
+    final l = ilist([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    expect(
+      l.groupMap((a) => a % 3, (a) => a * 2),
+      imap({
+        0: ilist([6, 12, 18]),
+        1: ilist([2, 8, 14]),
+        2: ilist([4, 10, 16]),
+      }),
+    );
   });
 
   test('IList.headOption', () {

@@ -36,6 +36,10 @@ final class IList<A> implements Monad<A>, Foldable<A> {
 
   A operator [](int ix) => _underlying[ix];
 
+  IList<A> operator +(A a) => append(a);
+
+  IList<A> operator -(A a) => removeFirst((x) => x == a);
+
   @override
   IList<B> ap<B>(covariant IList<Function1<A, B>> f) =>
       flatMap((a) => f.map((f) => f(a)));
@@ -69,12 +73,12 @@ final class IList<A> implements Monad<A>, Foldable<A> {
 
   IList<A> filter(Function1<A, bool> p) => IList.of(_underlying.where(p));
 
+  IList<A> filterNot(Function1<A, bool> p) => IList.of(_underlying.whereNot(p));
+
   Option<A> find(Function1<A, bool> p) {
     final ix = _underlying.indexWhere(p);
     return Option.when(() => ix >= 0, () => _underlying[ix]);
   }
-
-  IList<A> filterNot(Function1<A, bool> p) => IList.of(_underlying.whereNot(p));
 
   Option<A> findLast(Function1<A, bool> p) {
     final ix = _underlying.lastIndexWhere(p);
@@ -93,6 +97,22 @@ final class IList<A> implements Monad<A>, Foldable<A> {
       reverse().foldLeft(init, (elem, acc) => op(acc, elem));
 
   void forEach<B>(Function1<A, B> f) => _underlying.forEach(f);
+
+  IMap<K, IList<A>> groupBy<K>(Function1<A, K> f) => groupMap(f, id);
+
+  IMap<K, IList<V>> groupMap<K, V>(
+    Function1<A, K> key,
+    Function1<A, V> value,
+  ) =>
+      foldLeft(
+        IMap.empty<K, IList<V>>(),
+        (acc, a) => acc.updatedWith(
+          key(a),
+          (prev) => prev
+              .map((l) => l.append(value(a)))
+              .orElse(() => ilist([value(a)]).some),
+        ),
+      );
 
   Option<A> get headOption =>
       Option.when(() => isNotEmpty, () => _underlying.first);
@@ -154,8 +174,6 @@ final class IList<A> implements Monad<A>, Foldable<A> {
     return buf.toString();
   }
 
-  int get size => _underlying.length;
-
   IList<A> padTo(int len, A elem) =>
       size >= len ? this : concat(IList.fill(len - size, elem));
 
@@ -163,6 +181,9 @@ final class IList<A> implements Monad<A>, Foldable<A> {
       (IList.of(_underlying.where(p)), IList.of(_underlying.whereNot(p)));
 
   IList<A> prepend(A elem) => IList.of(_underlying.insert(0, elem));
+
+  Option<A> reduceOption(Function2<A, A, A> f) =>
+      headOption.map((hd) => tail().foldLeft(hd, f));
 
   IList<A> removeAt(int ix) =>
       isEmpty ? this : IList.of(_underlying.removeAt(ix.clamp(0, size - 1)));
@@ -175,6 +196,8 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   IList<A> replace(int index, A elem) => updated(index, (_) => elem);
 
   IList<A> reverse() => IList.of(_underlying.reversed);
+
+  int get size => _underlying.length;
 
   IList<A> slice(int from, int until) =>
       IList.of(_underlying.getRange(max(0, from), min(until, size)));
@@ -219,12 +242,19 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   IList<A> takeWhile(Function1<A, bool> p) =>
       IList.of(_underlying.takeWhile(p));
 
+  ISet<A> toISet() => ISet.fromIList(this);
+
   List<A> toList() => _underlying.toList();
 
   Either<B, IList<C>> traverseEither<B, C>(Function1<A, Either<B, C>> f) {
     Either<B, IList<C>> result = Either.pure(nil());
 
     for (final elem in _underlying) {
+      // short circuit
+      if (result.isLeft) {
+        return result;
+      }
+
       // Workaround for contravariant issues in error case
       result = result.fold(
         (_) => result,
@@ -290,6 +320,11 @@ final class IList<A> implements Monad<A>, Foldable<A> {
     Option<IList<B>> result = Option.pure(nil());
 
     for (final elem in _underlying) {
+      // short circuit
+      if (result.isEmpty) {
+        return result;
+      }
+
       result = result.flatMap((l) => f(elem).map((b) => l.prepend(b)));
     }
 
@@ -353,4 +388,155 @@ extension IListIOOps<A> on IList<IO<A>> {
 
 extension IListOptionOps<A> on IList<Option<A>> {
   Option<IList<A>> sequence() => traverseOption(id);
+}
+
+// Until lambda destructuring arrives, this will provide a little bit
+// of convenience: https://github.com/dart-lang/language/issues/3001
+extension IListTuple2Ops<A, B> on IList<(A, B)> {
+  Option<((A, B), IList<(A, B)>)> deleteFirstN(Function2<A, B, bool> p) =>
+      deleteFirst(p.tupled);
+
+  IList<(A, B)> dropWhileN(Function2<A, B, bool> p) => dropWhile(p.tupled);
+
+  IList<(A, B)> filterN(Function2<A, B, bool> p) => filter(p.tupled);
+
+  IList<(A, B)> filterNotN(Function2<A, B, bool> p) => filterNot(p.tupled);
+
+  Option<(A, B)> findN(Function2<A, B, bool> p) => find(p.tupled);
+
+  Option<(A, B)> findLastN(Function2<A, B, bool> p) => findLast(p.tupled);
+
+  IList<C> flatMapN<C>(Function2<A, B, IList<C>> f) => flatMap(f.tupled);
+
+  C foldLeftN<C>(C init, Function3<C, A, B, C> op) =>
+      foldLeft(init, (acc, elem) => op(acc, elem.$1, elem.$2));
+
+  C foldRightN<C>(C init, Function3<A, B, C, C> op) =>
+      foldRight(init, (elem, acc) => op(elem.$1, elem.$2, acc));
+
+  void forEachN<C>(Function2<A, B, C> f) => forEach(f.tupled);
+
+  IMap<K, IList<(A, B)>> groupByN<K>(Function2<A, B, K> f) =>
+      groupMap(f.tupled, id);
+
+  IMap<K, IList<V>> groupMapN<K, V>(
+    Function2<A, B, K> key,
+    Function2<A, B, V> value,
+  ) =>
+      groupMap(key.tupled, value.tupled);
+
+  Option<int> indexWhereN(Function2<A, B, bool> p) => indexWhere(p.tupled);
+
+  IList<C> mapN<C>(Function2<A, B, C> f) => map(f.tupled);
+
+  (IList<(A, B)>, IList<(A, B)>) partitionN(Function2<A, B, bool> p) =>
+      partition(p.tupled);
+
+  IList<(A, B)> removeFirstN(Function2<A, B, bool> p) => removeFirst(p.tupled);
+
+  IList<(A, B)> takeWhileN(Function2<A, B, bool> p) => takeWhile(p.tupled);
+
+  IMap<A, B> toIMap() => IMap.fromIList(this);
+
+  Map<A, B> toMap() => Map.fromEntries(mapN((k, v) => MapEntry(k, v)).toList());
+
+  Either<C, IList<D>> traverseEitherN<C, D>(Function2<A, B, Either<C, D>> f) =>
+      traverseEither(f.tupled);
+
+  IO<IList<C>> traverseION<C>(Function2<A, B, IO<C>> f) => traverseIO(f.tupled);
+
+  IO<Unit> traverseION_<C>(Function2<A, B, IO<C>> f) => traverseIO_(f.tupled);
+
+  IO<IList<C>> traverseFilterION<C>(Function2<A, B, IO<Option<C>>> f) =>
+      traverseFilterIO(f.tupled);
+
+  IO<IList<C>> parTraverseION<C>(Function2<A, B, IO<C>> f) =>
+      parTraverseIO(f.tupled);
+
+  IO<Unit> parTraverseION_<C>(Function2<A, B, IO<C>> f) =>
+      parTraverseIO_(f.tupled);
+
+  Option<IList<C>> traverseOptionN<C>(Function2<A, B, Option<C>> f) =>
+      traverseOption(f.tupled);
+
+  IList<(A, B)> updatedN(int index, Function2<A, B, (A, B)> f) =>
+      updated(index, f.tupled);
+
+  (IList<A>, IList<B>) unzip() => foldLeft((nil<A>(), nil<B>()),
+      (acc, ab) => (acc.$1.append(ab.$1), acc.$2.append(ab.$2)));
+}
+
+extension IListTuple3Ops<A, B, C> on IList<(A, B, C)> {
+  Option<((A, B, C), IList<(A, B, C)>)> deleteFirstN(
+          Function3<A, B, C, bool> p) =>
+      deleteFirst(p.tupled);
+
+  IList<(A, B, C)> dropWhileN(Function3<A, B, C, bool> p) =>
+      dropWhile(p.tupled);
+
+  IList<(A, B, C)> filterN(Function3<A, B, C, bool> p) => filter(p.tupled);
+
+  IList<(A, B, C)> filterNotN(Function3<A, B, C, bool> p) =>
+      filterNot(p.tupled);
+
+  Option<(A, B, C)> findN(Function3<A, B, C, bool> p) => find(p.tupled);
+
+  Option<(A, B, C)> findLastN(Function3<A, B, C, bool> p) => findLast(p.tupled);
+
+  IList<D> flatMapN<D>(Function3<A, B, C, IList<D>> f) => flatMap(f.tupled);
+
+  D foldLeftN<D>(D init, Function4<D, A, B, C, D> op) =>
+      foldLeft(init, (acc, elem) => op(acc, elem.$1, elem.$2, elem.$3));
+
+  D foldRightN<D>(D init, Function4<A, B, C, D, D> op) =>
+      foldRight(init, (elem, acc) => op(elem.$1, elem.$2, elem.$3, acc));
+
+  void forEachN<D>(Function3<A, B, C, D> f) => forEach(f.tupled);
+
+  IMap<K, IList<(A, B, C)>> groupByN<K>(Function3<A, B, C, K> f) =>
+      groupMap(f.tupled, id);
+
+  IMap<K, IList<V>> groupMapN<K, V>(
+    Function3<A, B, C, K> key,
+    Function3<A, B, C, V> value,
+  ) =>
+      groupMap(key.tupled, value.tupled);
+
+  Option<int> indexWhereN(Function3<A, B, C, bool> p) => indexWhere(p.tupled);
+
+  IList<D> mapN<D>(Function3<A, B, C, D> f) => map(f.tupled);
+
+  (IList<(A, B, C)>, IList<(A, B, C)>) partitionN(Function3<A, B, C, bool> p) =>
+      partition(p.tupled);
+
+  IList<(A, B, C)> removeFirstN(Function3<A, B, C, bool> p) =>
+      removeFirst(p.tupled);
+
+  IList<(A, B, C)> takeWhileN(Function3<A, B, C, bool> p) =>
+      takeWhile(p.tupled);
+
+  Either<D, IList<E>> traverseEitherN<D, E>(
+          Function3<A, B, C, Either<D, E>> f) =>
+      traverseEither(f.tupled);
+
+  IO<IList<D>> traverseION<D>(Function3<A, B, C, IO<D>> f) =>
+      traverseIO(f.tupled);
+
+  IO<Unit> traverseION_<D>(Function3<A, B, C, IO<D>> f) =>
+      traverseIO_(f.tupled);
+
+  IO<IList<D>> traverseFilterION<D>(Function3<A, B, C, IO<Option<D>>> f) =>
+      traverseFilterIO(f.tupled);
+
+  IO<IList<D>> parTraverseION<D>(Function3<A, B, C, IO<D>> f) =>
+      parTraverseIO(f.tupled);
+
+  IO<Unit> parTraverseION_<D>(Function3<A, B, C, IO<D>> f) =>
+      parTraverseIO_(f.tupled);
+
+  Option<IList<D>> traverseOptionN<D>(Function3<A, B, C, Option<D>> f) =>
+      traverseOption(f.tupled);
+
+  IList<(A, B, C)> updatedN(int index, Function3<A, B, C, (A, B, C)> f) =>
+      updated(index, f.tupled);
 }
