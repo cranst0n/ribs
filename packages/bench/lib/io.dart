@@ -234,6 +234,19 @@ class DartzBothBenchmark extends AsyncBenchmarkBase {
       .run();
 }
 
+class FpdartBothBenchmark extends AsyncBenchmarkBase {
+  FpdartBothBenchmark() : super('');
+
+  @override
+  Future<void> run() => fpdart.Task.traverseListWithIndex(
+        [
+          const Duration(milliseconds: 15),
+          const Duration(milliseconds: 30),
+        ],
+        (delay, ix) => fpdart.Task.of(ix).delay(delay),
+      ).run();
+}
+
 class FutureBothBenchmark extends AsyncBenchmarkBase {
   FutureBothBenchmark() : super('');
 
@@ -300,9 +313,10 @@ void main(List<String> args) async {
       futureAttemptSad, ribsAttemptSad);
 
   final dartzBoth = await attemptBenchmark(DartzBothBenchmark());
+  final fpdartBoth = await attemptBenchmark(FpdartBothBenchmark());
   final futureBoth = await attemptBenchmark(FutureBothBenchmark());
   final ribsBoth = await attemptBenchmark(RibsBothBenchmark());
-  reportMeasurements('both', dartzBoth, 0, futureBoth, ribsBoth);
+  reportMeasurements('both', dartzBoth, fpdartBoth, futureBoth, ribsBoth);
 }
 
 Future<double> attemptBenchmark(AsyncBenchmarkBase b) {
