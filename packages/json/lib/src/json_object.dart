@@ -99,7 +99,7 @@ final class _LinkedHashMapJsonObject extends JsonObject {
   String toString() {
     return keys
         .map((k) => '"$k": ${applyUnsafe(k)}')
-        .mkString(start: 'JsonObject({ ', sep: ', ', end: ' })');
+        .mkString(start: '{ ', sep: ', ', end: ' }');
   }
 
   @override

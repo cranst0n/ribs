@@ -8,8 +8,8 @@ final class PreparedDecoder<A> extends Decoder<A> {
   PreparedDecoder(this.decodeA, this.f);
 
   @override
-  DecodeResult<A> decode(HCursor cursor) => tryDecode(cursor);
+  DecodeResult<A> decodeC(HCursor cursor) => tryDecodeC(cursor);
 
   @override
-  DecodeResult<A> tryDecode(ACursor cursor) => decodeA.tryDecode(f(cursor));
+  DecodeResult<A> tryDecodeC(ACursor cursor) => decodeA.tryDecodeC(f(cursor));
 }

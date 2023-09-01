@@ -9,7 +9,7 @@ final class MapDecoder<K, V> extends Decoder<Map<K, V>> {
   MapDecoder(this.decodeK, this.decodeV);
 
   @override
-  DecodeResult<Map<K, V>> decode(HCursor cursor) {
+  DecodeResult<Map<K, V>> decodeC(HCursor cursor) {
     if (cursor.value is JObject) {
       return _decodeJsonObject(cursor, (cursor.value as JObject).value);
     } else {
@@ -33,7 +33,7 @@ final class MapDecoder<K, V> extends Decoder<Map<K, V>> {
       failure = decodeK.decode(key).fold(
         () => _invalidKey(key, cursor),
         (key) {
-          return decodeV.decode(valueCursor).fold(
+          return decodeV.decodeC(valueCursor).fold(
             (failure) => failure,
             (value) {
               builder[key] = value;

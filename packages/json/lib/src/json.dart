@@ -1,8 +1,10 @@
-import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
+import 'package:ribs_json/src/dawn/dawn.dart' as dawn;
 
 @immutable
 sealed class Json {
@@ -21,29 +23,23 @@ sealed class Json {
   static Json number(num value) => value.isFinite ? JNumber(value) : Null;
   static Json str(String value) => JString(value);
 
-  static Either<ParsingFailure, Json> parse(String input) {
-    Either<ParsingFailure, Json> go(dynamic input) => switch (input) {
-          null => Null.asRight(),
-          final bool b => JBoolean(b).asRight(),
-          final String s => JString(s).asRight(),
-          final num n => JNumber(n).asRight(),
-          final List<dynamic> l =>
-            IList.of(l).traverseEither(go).map(JArray.new),
-          final Map<dynamic, dynamic> m => IList.of(m.keys)
-              .traverseEither((k) => go(m[k]).map((v) => (k.toString(), v)))
-              .map((keyValues) =>
-                  JObject(JsonObject.fromIterable(keyValues.toList()))),
-          _ => ParsingFailure('Unknown JSON element: $input').asLeft(),
-        };
+  static Either<ParsingFailure, Json> parse(String input) =>
+      dawn.Parser.parseFromString(input);
 
-    return Either.catching(() => jsonDecode(input),
-        (error, _) => ParsingFailure(error.toString())).flatMap(go);
-  }
+  static Either<ParsingFailure, Json> parseBytes(Uint8List input) =>
+      dawn.Parser.parseFromBytes(input);
 
-  static Either<Error, A> parseAs<A>(String input, Decoder<A> decoder) =>
-      parse(input).leftMap<Error>((a) => a).flatMap((a) => a.decode(decoder));
+  static Either<ParsingFailure, Json> parseFile(File f) =>
+      dawn.Parser.parseFromBytes(f.readAsBytesSync());
 
-  DecodeResult<A> decode<A>(Decoder<A> decoder) => decoder.decode(hcursor);
+  static Either<Error, A> decode<A>(String input, Decoder<A> decoder) =>
+      parse(input).leftMap<Error>(id).flatMap((a) => decoder.decode(a));
+
+  static Either<Error, A> decodeBytes<A>(Uint8List input, Decoder<A> decoder) =>
+      parseBytes(input).leftMap<Error>(id).flatMap((a) => decoder.decode(a));
+
+  static Either<Error, A> decodeFile<A>(File f, Decoder<A> decoder) =>
+      parseFile(f).leftMap<Error>(id).flatMap((a) => decoder.decode(a));
 
   A foldWith<A>(JsonFolder<A> folder);
 

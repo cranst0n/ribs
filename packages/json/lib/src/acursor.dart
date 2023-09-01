@@ -126,10 +126,10 @@ abstract class ACursor {
     return loop(this, PathToRoot.empty);
   }
 
-  DecodeResult<A> as<A>(Decoder<A> decoder) => decoder.tryDecode(this);
+  DecodeResult<A> decode<A>(Decoder<A> decoder) => decoder.tryDecodeC(this);
 
   DecodeResult<A> get<A>(String key, Decoder<A> decoder) =>
-      downField(key).as(decoder);
+      downField(key).decode(decoder);
 
   @override
   String toString() => 'ACursor($lastCursor, $lastOp)';

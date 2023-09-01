@@ -26,10 +26,12 @@ abstract mixin class Decoder<A> {
   static Decoder<A> failedWithMessage<A>(String message) => Decoder.instance(
       (c) => Left(DecodingFailure(CustomReason(message), c.history())));
 
-  DecodeResult<A> decode(HCursor cursor);
+  DecodeResult<A> decode(Json cursor) => decodeC(cursor.hcursor);
 
-  DecodeResult<A> tryDecode(ACursor cursor) =>
-      cursor is HCursor ? decode(cursor) : _cursorToFailure(cursor).asLeft();
+  DecodeResult<A> decodeC(HCursor cursor);
+
+  DecodeResult<A> tryDecodeC(ACursor cursor) =>
+      cursor is HCursor ? decodeC(cursor) : _cursorToFailure(cursor).asLeft();
 
   Decoder<A> at(String key) => DownFieldDecoder(key, this);
 
@@ -39,7 +41,7 @@ abstract mixin class Decoder<A> {
   Decoder<B> emap<B>(Function1<A, Either<String, B>> f) => EmapDecoder(this, f);
 
   Decoder<A> ensure(Function1<A, bool> p, Function0<String> message) =>
-      Decoder.instance((c) => decode(c)
+      Decoder.instance((c) => decodeC(c)
           .filterOrElse(p, () => DecodingFailure.fromString(message(), c)));
 
   Decoder<B> flatMap<B>(covariant Function1<A, Decoder<B>> f) =>
@@ -52,7 +54,7 @@ abstract mixin class Decoder<A> {
       HandleErrorDecoder(this, f);
 
   Decoder<B> map<B>(Function1<A, B> f) =>
-      Decoder.instance((c) => decode(c).map(f));
+      Decoder.instance((c) => decodeC(c).map(f));
 
   Decoder<Option<A>> optional() => OptionDecoder(this);
 
@@ -139,10 +141,9 @@ abstract mixin class Decoder<A> {
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 2) {
           return (
-            decodeA.tryDecode(c.downN(0)),
-            decodeB.tryDecode(c.downN(1)),
-          )
-              .sequence();
+            decodeA.tryDecodeC(c.downN(0)),
+            decodeB.tryDecodeC(c.downN(1)),
+          ).sequence();
         } else {
           return _wrongTypeFail('array[2]', c).asLeft();
         }
@@ -156,11 +157,10 @@ abstract mixin class Decoder<A> {
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 3) {
           return (
-            decodeA.tryDecode(c.downN(0)),
-            decodeB.tryDecode(c.downN(1)),
-            decodeC.tryDecode(c.downN(2)),
-          )
-              .sequence();
+            decodeA.tryDecodeC(c.downN(0)),
+            decodeB.tryDecodeC(c.downN(1)),
+            decodeC.tryDecodeC(c.downN(2)),
+          ).sequence();
         } else {
           return _wrongTypeFail('array[3]', c).asLeft();
         }
@@ -175,12 +175,11 @@ abstract mixin class Decoder<A> {
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 4) {
           return (
-            decodeA.tryDecode(c.downN(0)),
-            decodeB.tryDecode(c.downN(1)),
-            decodeC.tryDecode(c.downN(2)),
-            decodeD.tryDecode(c.downN(3)),
-          )
-              .sequence();
+            decodeA.tryDecodeC(c.downN(0)),
+            decodeB.tryDecodeC(c.downN(1)),
+            decodeC.tryDecodeC(c.downN(2)),
+            decodeD.tryDecodeC(c.downN(3)),
+          ).sequence();
         } else {
           return _wrongTypeFail('array[4]', c).asLeft();
         }
@@ -196,13 +195,12 @@ abstract mixin class Decoder<A> {
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 5) {
           return (
-            decodeA.tryDecode(c.downN(0)),
-            decodeB.tryDecode(c.downN(1)),
-            decodeC.tryDecode(c.downN(2)),
-            decodeD.tryDecode(c.downN(3)),
-            decodeE.tryDecode(c.downN(4)),
-          )
-              .sequence();
+            decodeA.tryDecodeC(c.downN(0)),
+            decodeB.tryDecodeC(c.downN(1)),
+            decodeC.tryDecodeC(c.downN(2)),
+            decodeD.tryDecodeC(c.downN(3)),
+            decodeE.tryDecodeC(c.downN(4)),
+          ).sequence();
         } else {
           return _wrongTypeFail('array[5]', c).asLeft();
         }
@@ -219,14 +217,13 @@ abstract mixin class Decoder<A> {
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 6) {
           return (
-            decodeA.tryDecode(c.downN(0)),
-            decodeB.tryDecode(c.downN(1)),
-            decodeC.tryDecode(c.downN(2)),
-            decodeD.tryDecode(c.downN(3)),
-            decodeE.tryDecode(c.downN(4)),
-            decodeF.tryDecode(c.downN(5)),
-          )
-              .sequence();
+            decodeA.tryDecodeC(c.downN(0)),
+            decodeB.tryDecodeC(c.downN(1)),
+            decodeC.tryDecodeC(c.downN(2)),
+            decodeD.tryDecodeC(c.downN(3)),
+            decodeE.tryDecodeC(c.downN(4)),
+            decodeF.tryDecodeC(c.downN(5)),
+          ).sequence();
         } else {
           return _wrongTypeFail('array[6]', c).asLeft();
         }
@@ -244,15 +241,14 @@ abstract mixin class Decoder<A> {
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 7) {
           return (
-            decodeA.tryDecode(c.downN(0)),
-            decodeB.tryDecode(c.downN(1)),
-            decodeC.tryDecode(c.downN(2)),
-            decodeD.tryDecode(c.downN(3)),
-            decodeE.tryDecode(c.downN(4)),
-            decodeF.tryDecode(c.downN(5)),
-            decodeG.tryDecode(c.downN(6)),
-          )
-              .sequence();
+            decodeA.tryDecodeC(c.downN(0)),
+            decodeB.tryDecodeC(c.downN(1)),
+            decodeC.tryDecodeC(c.downN(2)),
+            decodeD.tryDecodeC(c.downN(3)),
+            decodeE.tryDecodeC(c.downN(4)),
+            decodeF.tryDecodeC(c.downN(5)),
+            decodeG.tryDecodeC(c.downN(6)),
+          ).sequence();
         } else {
           return _wrongTypeFail('array[7]', c).asLeft();
         }
@@ -271,16 +267,15 @@ abstract mixin class Decoder<A> {
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 8) {
           return (
-            decodeA.tryDecode(c.downN(0)),
-            decodeB.tryDecode(c.downN(1)),
-            decodeC.tryDecode(c.downN(2)),
-            decodeD.tryDecode(c.downN(3)),
-            decodeE.tryDecode(c.downN(4)),
-            decodeF.tryDecode(c.downN(5)),
-            decodeG.tryDecode(c.downN(6)),
-            decodeH.tryDecode(c.downN(7)),
-          )
-              .sequence();
+            decodeA.tryDecodeC(c.downN(0)),
+            decodeB.tryDecodeC(c.downN(1)),
+            decodeC.tryDecodeC(c.downN(2)),
+            decodeD.tryDecodeC(c.downN(3)),
+            decodeE.tryDecodeC(c.downN(4)),
+            decodeF.tryDecodeC(c.downN(5)),
+            decodeG.tryDecodeC(c.downN(6)),
+            decodeH.tryDecodeC(c.downN(7)),
+          ).sequence();
         } else {
           return _wrongTypeFail('array[8]', c).asLeft();
         }
@@ -300,17 +295,16 @@ abstract mixin class Decoder<A> {
       DecoderF((c) {
         if (c.value.isArray && (c.value as JArray).value.size == 9) {
           return (
-            decodeA.tryDecode(c.downN(0)),
-            decodeB.tryDecode(c.downN(1)),
-            decodeC.tryDecode(c.downN(2)),
-            decodeD.tryDecode(c.downN(3)),
-            decodeE.tryDecode(c.downN(4)),
-            decodeF.tryDecode(c.downN(5)),
-            decodeG.tryDecode(c.downN(6)),
-            decodeH.tryDecode(c.downN(7)),
-            decodeI.tryDecode(c.downN(8)),
-          )
-              .sequence();
+            decodeA.tryDecodeC(c.downN(0)),
+            decodeB.tryDecodeC(c.downN(1)),
+            decodeC.tryDecodeC(c.downN(2)),
+            decodeD.tryDecodeC(c.downN(3)),
+            decodeE.tryDecodeC(c.downN(4)),
+            decodeF.tryDecodeC(c.downN(5)),
+            decodeG.tryDecodeC(c.downN(6)),
+            decodeH.tryDecodeC(c.downN(7)),
+            decodeI.tryDecodeC(c.downN(8)),
+          ).sequence();
         } else {
           return _wrongTypeFail('array[9]', c).asLeft();
         }
@@ -332,18 +326,17 @@ abstract mixin class Decoder<A> {
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 10) {
               return (
-                decodeA.tryDecode(c.downN(0)),
-                decodeB.tryDecode(c.downN(1)),
-                decodeC.tryDecode(c.downN(2)),
-                decodeD.tryDecode(c.downN(3)),
-                decodeE.tryDecode(c.downN(4)),
-                decodeF.tryDecode(c.downN(5)),
-                decodeG.tryDecode(c.downN(6)),
-                decodeH.tryDecode(c.downN(7)),
-                decodeI.tryDecode(c.downN(8)),
-                decodeJ.tryDecode(c.downN(9)),
-              )
-                  .sequence();
+                decodeA.tryDecodeC(c.downN(0)),
+                decodeB.tryDecodeC(c.downN(1)),
+                decodeC.tryDecodeC(c.downN(2)),
+                decodeD.tryDecodeC(c.downN(3)),
+                decodeE.tryDecodeC(c.downN(4)),
+                decodeF.tryDecodeC(c.downN(5)),
+                decodeG.tryDecodeC(c.downN(6)),
+                decodeH.tryDecodeC(c.downN(7)),
+                decodeI.tryDecodeC(c.downN(8)),
+                decodeJ.tryDecodeC(c.downN(9)),
+              ).sequence();
             } else {
               return _wrongTypeFail('array[10]', c).asLeft();
             }
@@ -366,19 +359,18 @@ abstract mixin class Decoder<A> {
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 11) {
               return (
-                decodeA.tryDecode(c.downN(0)),
-                decodeB.tryDecode(c.downN(1)),
-                decodeC.tryDecode(c.downN(2)),
-                decodeD.tryDecode(c.downN(3)),
-                decodeE.tryDecode(c.downN(4)),
-                decodeF.tryDecode(c.downN(5)),
-                decodeG.tryDecode(c.downN(6)),
-                decodeH.tryDecode(c.downN(7)),
-                decodeI.tryDecode(c.downN(8)),
-                decodeJ.tryDecode(c.downN(9)),
-                decodeK.tryDecode(c.downN(10)),
-              )
-                  .sequence();
+                decodeA.tryDecodeC(c.downN(0)),
+                decodeB.tryDecodeC(c.downN(1)),
+                decodeC.tryDecodeC(c.downN(2)),
+                decodeD.tryDecodeC(c.downN(3)),
+                decodeE.tryDecodeC(c.downN(4)),
+                decodeF.tryDecodeC(c.downN(5)),
+                decodeG.tryDecodeC(c.downN(6)),
+                decodeH.tryDecodeC(c.downN(7)),
+                decodeI.tryDecodeC(c.downN(8)),
+                decodeJ.tryDecodeC(c.downN(9)),
+                decodeK.tryDecodeC(c.downN(10)),
+              ).sequence();
             } else {
               return _wrongTypeFail('array[11]', c).asLeft();
             }
@@ -402,20 +394,19 @@ abstract mixin class Decoder<A> {
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 12) {
               return (
-                decodeA.tryDecode(c.downN(0)),
-                decodeB.tryDecode(c.downN(1)),
-                decodeC.tryDecode(c.downN(2)),
-                decodeD.tryDecode(c.downN(3)),
-                decodeE.tryDecode(c.downN(4)),
-                decodeF.tryDecode(c.downN(5)),
-                decodeG.tryDecode(c.downN(6)),
-                decodeH.tryDecode(c.downN(7)),
-                decodeI.tryDecode(c.downN(8)),
-                decodeJ.tryDecode(c.downN(9)),
-                decodeK.tryDecode(c.downN(10)),
-                decodeL.tryDecode(c.downN(11)),
-              )
-                  .sequence();
+                decodeA.tryDecodeC(c.downN(0)),
+                decodeB.tryDecodeC(c.downN(1)),
+                decodeC.tryDecodeC(c.downN(2)),
+                decodeD.tryDecodeC(c.downN(3)),
+                decodeE.tryDecodeC(c.downN(4)),
+                decodeF.tryDecodeC(c.downN(5)),
+                decodeG.tryDecodeC(c.downN(6)),
+                decodeH.tryDecodeC(c.downN(7)),
+                decodeI.tryDecodeC(c.downN(8)),
+                decodeJ.tryDecodeC(c.downN(9)),
+                decodeK.tryDecodeC(c.downN(10)),
+                decodeL.tryDecodeC(c.downN(11)),
+              ).sequence();
             } else {
               return _wrongTypeFail('array[12]', c).asLeft();
             }
@@ -440,21 +431,20 @@ abstract mixin class Decoder<A> {
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 13) {
               return (
-                decodeA.tryDecode(c.downN(0)),
-                decodeB.tryDecode(c.downN(1)),
-                decodeC.tryDecode(c.downN(2)),
-                decodeD.tryDecode(c.downN(3)),
-                decodeE.tryDecode(c.downN(4)),
-                decodeF.tryDecode(c.downN(5)),
-                decodeG.tryDecode(c.downN(6)),
-                decodeH.tryDecode(c.downN(7)),
-                decodeI.tryDecode(c.downN(8)),
-                decodeJ.tryDecode(c.downN(9)),
-                decodeK.tryDecode(c.downN(10)),
-                decodeL.tryDecode(c.downN(11)),
-                decodeM.tryDecode(c.downN(12)),
-              )
-                  .sequence();
+                decodeA.tryDecodeC(c.downN(0)),
+                decodeB.tryDecodeC(c.downN(1)),
+                decodeC.tryDecodeC(c.downN(2)),
+                decodeD.tryDecodeC(c.downN(3)),
+                decodeE.tryDecodeC(c.downN(4)),
+                decodeF.tryDecodeC(c.downN(5)),
+                decodeG.tryDecodeC(c.downN(6)),
+                decodeH.tryDecodeC(c.downN(7)),
+                decodeI.tryDecodeC(c.downN(8)),
+                decodeJ.tryDecodeC(c.downN(9)),
+                decodeK.tryDecodeC(c.downN(10)),
+                decodeL.tryDecodeC(c.downN(11)),
+                decodeM.tryDecodeC(c.downN(12)),
+              ).sequence();
             } else {
               return _wrongTypeFail('array[13]', c).asLeft();
             }
@@ -480,22 +470,21 @@ abstract mixin class Decoder<A> {
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 14) {
               return (
-                decodeA.tryDecode(c.downN(0)),
-                decodeB.tryDecode(c.downN(1)),
-                decodeC.tryDecode(c.downN(2)),
-                decodeD.tryDecode(c.downN(3)),
-                decodeE.tryDecode(c.downN(4)),
-                decodeF.tryDecode(c.downN(5)),
-                decodeG.tryDecode(c.downN(6)),
-                decodeH.tryDecode(c.downN(7)),
-                decodeI.tryDecode(c.downN(8)),
-                decodeJ.tryDecode(c.downN(9)),
-                decodeK.tryDecode(c.downN(10)),
-                decodeL.tryDecode(c.downN(11)),
-                decodeM.tryDecode(c.downN(12)),
-                decodeN.tryDecode(c.downN(13)),
-              )
-                  .sequence();
+                decodeA.tryDecodeC(c.downN(0)),
+                decodeB.tryDecodeC(c.downN(1)),
+                decodeC.tryDecodeC(c.downN(2)),
+                decodeD.tryDecodeC(c.downN(3)),
+                decodeE.tryDecodeC(c.downN(4)),
+                decodeF.tryDecodeC(c.downN(5)),
+                decodeG.tryDecodeC(c.downN(6)),
+                decodeH.tryDecodeC(c.downN(7)),
+                decodeI.tryDecodeC(c.downN(8)),
+                decodeJ.tryDecodeC(c.downN(9)),
+                decodeK.tryDecodeC(c.downN(10)),
+                decodeL.tryDecodeC(c.downN(11)),
+                decodeM.tryDecodeC(c.downN(12)),
+                decodeN.tryDecodeC(c.downN(13)),
+              ).sequence();
             } else {
               return _wrongTypeFail('array[14]', c).asLeft();
             }
@@ -522,23 +511,22 @@ abstract mixin class Decoder<A> {
           DecoderF((c) {
             if (c.value.isArray && (c.value as JArray).value.size == 15) {
               return (
-                decodeA.tryDecode(c.downN(0)),
-                decodeB.tryDecode(c.downN(1)),
-                decodeC.tryDecode(c.downN(2)),
-                decodeD.tryDecode(c.downN(3)),
-                decodeE.tryDecode(c.downN(4)),
-                decodeF.tryDecode(c.downN(5)),
-                decodeG.tryDecode(c.downN(6)),
-                decodeH.tryDecode(c.downN(7)),
-                decodeI.tryDecode(c.downN(8)),
-                decodeJ.tryDecode(c.downN(9)),
-                decodeK.tryDecode(c.downN(10)),
-                decodeL.tryDecode(c.downN(11)),
-                decodeM.tryDecode(c.downN(12)),
-                decodeN.tryDecode(c.downN(13)),
-                decodeO.tryDecode(c.downN(14)),
-              )
-                  .sequence();
+                decodeA.tryDecodeC(c.downN(0)),
+                decodeB.tryDecodeC(c.downN(1)),
+                decodeC.tryDecodeC(c.downN(2)),
+                decodeD.tryDecodeC(c.downN(3)),
+                decodeE.tryDecodeC(c.downN(4)),
+                decodeF.tryDecodeC(c.downN(5)),
+                decodeG.tryDecodeC(c.downN(6)),
+                decodeH.tryDecodeC(c.downN(7)),
+                decodeI.tryDecodeC(c.downN(8)),
+                decodeJ.tryDecodeC(c.downN(9)),
+                decodeK.tryDecodeC(c.downN(10)),
+                decodeL.tryDecodeC(c.downN(11)),
+                decodeM.tryDecodeC(c.downN(12)),
+                decodeN.tryDecodeC(c.downN(13)),
+                decodeO.tryDecodeC(c.downN(14)),
+              ).sequence();
             } else {
               return _wrongTypeFail('array[15]', c).asLeft();
             }
@@ -550,7 +538,7 @@ abstract mixin class Decoder<A> {
     Function2<A, B, C> apply,
   ) =>
       Decoder.instance((cursor) =>
-          (codecA.decode(cursor), codecB.decode(cursor)).mapN(apply));
+          (codecA.decodeC(cursor), codecB.decodeC(cursor)).mapN(apply));
 
   static Decoder<D> product3<A, B, C, D>(
     Decoder<A> codecA,
@@ -559,11 +547,10 @@ abstract mixin class Decoder<A> {
     Function3<A, B, C, D> apply,
   ) =>
       Decoder.instance((cursor) => (
-            codecA.decode(cursor),
-            codecB.decode(cursor),
-            codecC.decode(cursor),
-          )
-              .mapN(apply));
+            codecA.decodeC(cursor),
+            codecB.decodeC(cursor),
+            codecC.decodeC(cursor),
+          ).mapN(apply));
 
   static Decoder<E> product4<A, B, C, D, E>(
     Decoder<A> codecA,
@@ -573,12 +560,11 @@ abstract mixin class Decoder<A> {
     Function4<A, B, C, D, E> apply,
   ) =>
       Decoder.instance((cursor) => (
-            codecA.decode(cursor),
-            codecB.decode(cursor),
-            codecC.decode(cursor),
-            codecD.decode(cursor),
-          )
-              .mapN(apply));
+            codecA.decodeC(cursor),
+            codecB.decodeC(cursor),
+            codecC.decodeC(cursor),
+            codecD.decodeC(cursor),
+          ).mapN(apply));
 
   static Decoder<F> product5<A, B, C, D, E, F>(
     Decoder<A> codecA,
@@ -589,13 +575,12 @@ abstract mixin class Decoder<A> {
     Function5<A, B, C, D, E, F> apply,
   ) =>
       Decoder.instance((cursor) => (
-            codecA.decode(cursor),
-            codecB.decode(cursor),
-            codecC.decode(cursor),
-            codecD.decode(cursor),
-            codecE.decode(cursor),
-          )
-              .mapN(apply));
+            codecA.decodeC(cursor),
+            codecB.decodeC(cursor),
+            codecC.decodeC(cursor),
+            codecD.decodeC(cursor),
+            codecE.decodeC(cursor),
+          ).mapN(apply));
 
   static Decoder<G> product6<A, B, C, D, E, F, G>(
     Decoder<A> codecA,
@@ -607,14 +592,13 @@ abstract mixin class Decoder<A> {
     Function6<A, B, C, D, E, F, G> apply,
   ) =>
       Decoder.instance((cursor) => (
-            codecA.decode(cursor),
-            codecB.decode(cursor),
-            codecC.decode(cursor),
-            codecD.decode(cursor),
-            codecE.decode(cursor),
-            codecF.decode(cursor),
-          )
-              .mapN(apply));
+            codecA.decodeC(cursor),
+            codecB.decodeC(cursor),
+            codecC.decodeC(cursor),
+            codecD.decodeC(cursor),
+            codecE.decodeC(cursor),
+            codecF.decodeC(cursor),
+          ).mapN(apply));
 
   static Decoder<H> product7<A, B, C, D, E, F, G, H>(
     Decoder<A> codecA,
@@ -627,15 +611,14 @@ abstract mixin class Decoder<A> {
     Function7<A, B, C, D, E, F, G, H> apply,
   ) =>
       Decoder.instance((cursor) => (
-            codecA.decode(cursor),
-            codecB.decode(cursor),
-            codecC.decode(cursor),
-            codecD.decode(cursor),
-            codecE.decode(cursor),
-            codecF.decode(cursor),
-            codecG.decode(cursor),
-          )
-              .mapN(apply));
+            codecA.decodeC(cursor),
+            codecB.decodeC(cursor),
+            codecC.decodeC(cursor),
+            codecD.decodeC(cursor),
+            codecE.decodeC(cursor),
+            codecF.decodeC(cursor),
+            codecG.decodeC(cursor),
+          ).mapN(apply));
 
   static Decoder<I> product8<A, B, C, D, E, F, G, H, I>(
     Decoder<A> codecA,
@@ -649,16 +632,15 @@ abstract mixin class Decoder<A> {
     Function8<A, B, C, D, E, F, G, H, I> apply,
   ) =>
       Decoder.instance((cursor) => (
-            codecA.decode(cursor),
-            codecB.decode(cursor),
-            codecC.decode(cursor),
-            codecD.decode(cursor),
-            codecE.decode(cursor),
-            codecF.decode(cursor),
-            codecG.decode(cursor),
-            codecH.decode(cursor),
-          )
-              .mapN(apply));
+            codecA.decodeC(cursor),
+            codecB.decodeC(cursor),
+            codecC.decodeC(cursor),
+            codecD.decodeC(cursor),
+            codecE.decodeC(cursor),
+            codecF.decodeC(cursor),
+            codecG.decodeC(cursor),
+            codecH.decodeC(cursor),
+          ).mapN(apply));
 
   static Decoder<J> product9<A, B, C, D, E, F, G, H, I, J>(
     Decoder<A> codecA,
@@ -673,17 +655,16 @@ abstract mixin class Decoder<A> {
     Function9<A, B, C, D, E, F, G, H, I, J> apply,
   ) =>
       Decoder.instance((cursor) => (
-            codecA.decode(cursor),
-            codecB.decode(cursor),
-            codecC.decode(cursor),
-            codecD.decode(cursor),
-            codecE.decode(cursor),
-            codecF.decode(cursor),
-            codecG.decode(cursor),
-            codecH.decode(cursor),
-            codecI.decode(cursor),
-          )
-              .mapN(apply));
+            codecA.decodeC(cursor),
+            codecB.decodeC(cursor),
+            codecC.decodeC(cursor),
+            codecD.decodeC(cursor),
+            codecE.decodeC(cursor),
+            codecF.decodeC(cursor),
+            codecG.decodeC(cursor),
+            codecH.decodeC(cursor),
+            codecI.decodeC(cursor),
+          ).mapN(apply));
 
   static Decoder<K> product10<A, B, C, D, E, F, G, H, I, J, K>(
     Decoder<A> codecA,
@@ -699,18 +680,17 @@ abstract mixin class Decoder<A> {
     Function10<A, B, C, D, E, F, G, H, I, J, K> apply,
   ) =>
       Decoder.instance((cursor) => (
-            codecA.decode(cursor),
-            codecB.decode(cursor),
-            codecC.decode(cursor),
-            codecD.decode(cursor),
-            codecE.decode(cursor),
-            codecF.decode(cursor),
-            codecG.decode(cursor),
-            codecH.decode(cursor),
-            codecI.decode(cursor),
-            codecJ.decode(cursor),
-          )
-              .mapN(apply));
+            codecA.decodeC(cursor),
+            codecB.decodeC(cursor),
+            codecC.decodeC(cursor),
+            codecD.decodeC(cursor),
+            codecE.decodeC(cursor),
+            codecF.decodeC(cursor),
+            codecG.decodeC(cursor),
+            codecH.decodeC(cursor),
+            codecI.decodeC(cursor),
+            codecJ.decodeC(cursor),
+          ).mapN(apply));
 
   static Decoder<L> product11<A, B, C, D, E, F, G, H, I, J, K, L>(
     Decoder<A> codecA,
@@ -727,19 +707,18 @@ abstract mixin class Decoder<A> {
     Function11<A, B, C, D, E, F, G, H, I, J, K, L> apply,
   ) =>
       Decoder.instance((cursor) => (
-            codecA.decode(cursor),
-            codecB.decode(cursor),
-            codecC.decode(cursor),
-            codecD.decode(cursor),
-            codecE.decode(cursor),
-            codecF.decode(cursor),
-            codecG.decode(cursor),
-            codecH.decode(cursor),
-            codecI.decode(cursor),
-            codecJ.decode(cursor),
-            codecK.decode(cursor),
-          )
-              .mapN(apply));
+            codecA.decodeC(cursor),
+            codecB.decodeC(cursor),
+            codecC.decodeC(cursor),
+            codecD.decodeC(cursor),
+            codecE.decodeC(cursor),
+            codecF.decodeC(cursor),
+            codecG.decodeC(cursor),
+            codecH.decodeC(cursor),
+            codecI.decodeC(cursor),
+            codecJ.decodeC(cursor),
+            codecK.decodeC(cursor),
+          ).mapN(apply));
 
   static Decoder<M> product12<A, B, C, D, E, F, G, H, I, J, K, L, M>(
     Decoder<A> codecA,
@@ -757,20 +736,19 @@ abstract mixin class Decoder<A> {
     Function12<A, B, C, D, E, F, G, H, I, J, K, L, M> apply,
   ) =>
       Decoder.instance((cursor) => (
-            codecA.decode(cursor),
-            codecB.decode(cursor),
-            codecC.decode(cursor),
-            codecD.decode(cursor),
-            codecE.decode(cursor),
-            codecF.decode(cursor),
-            codecG.decode(cursor),
-            codecH.decode(cursor),
-            codecI.decode(cursor),
-            codecJ.decode(cursor),
-            codecK.decode(cursor),
-            codecL.decode(cursor),
-          )
-              .mapN(apply));
+            codecA.decodeC(cursor),
+            codecB.decodeC(cursor),
+            codecC.decodeC(cursor),
+            codecD.decodeC(cursor),
+            codecE.decodeC(cursor),
+            codecF.decodeC(cursor),
+            codecG.decodeC(cursor),
+            codecH.decodeC(cursor),
+            codecI.decodeC(cursor),
+            codecJ.decodeC(cursor),
+            codecK.decodeC(cursor),
+            codecL.decodeC(cursor),
+          ).mapN(apply));
 
   static Decoder<N> product13<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
     Decoder<A> codecA,
@@ -789,21 +767,20 @@ abstract mixin class Decoder<A> {
     Function13<A, B, C, D, E, F, G, H, I, J, K, L, M, N> apply,
   ) =>
       Decoder.instance((cursor) => (
-            codecA.decode(cursor),
-            codecB.decode(cursor),
-            codecC.decode(cursor),
-            codecD.decode(cursor),
-            codecE.decode(cursor),
-            codecF.decode(cursor),
-            codecG.decode(cursor),
-            codecH.decode(cursor),
-            codecI.decode(cursor),
-            codecJ.decode(cursor),
-            codecK.decode(cursor),
-            codecL.decode(cursor),
-            codecM.decode(cursor),
-          )
-              .mapN(apply));
+            codecA.decodeC(cursor),
+            codecB.decodeC(cursor),
+            codecC.decodeC(cursor),
+            codecD.decodeC(cursor),
+            codecE.decodeC(cursor),
+            codecF.decodeC(cursor),
+            codecG.decodeC(cursor),
+            codecH.decodeC(cursor),
+            codecI.decodeC(cursor),
+            codecJ.decodeC(cursor),
+            codecK.decodeC(cursor),
+            codecL.decodeC(cursor),
+            codecM.decodeC(cursor),
+          ).mapN(apply));
 
   static Decoder<O> product14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
     Decoder<A> codecA,
@@ -823,22 +800,21 @@ abstract mixin class Decoder<A> {
     Function14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> apply,
   ) =>
       Decoder.instance((cursor) => (
-            codecA.decode(cursor),
-            codecB.decode(cursor),
-            codecC.decode(cursor),
-            codecD.decode(cursor),
-            codecE.decode(cursor),
-            codecF.decode(cursor),
-            codecG.decode(cursor),
-            codecH.decode(cursor),
-            codecI.decode(cursor),
-            codecJ.decode(cursor),
-            codecK.decode(cursor),
-            codecL.decode(cursor),
-            codecM.decode(cursor),
-            codecN.decode(cursor),
-          )
-              .mapN(apply));
+            codecA.decodeC(cursor),
+            codecB.decodeC(cursor),
+            codecC.decodeC(cursor),
+            codecD.decodeC(cursor),
+            codecE.decodeC(cursor),
+            codecF.decodeC(cursor),
+            codecG.decodeC(cursor),
+            codecH.decodeC(cursor),
+            codecI.decodeC(cursor),
+            codecJ.decodeC(cursor),
+            codecK.decodeC(cursor),
+            codecL.decodeC(cursor),
+            codecM.decodeC(cursor),
+            codecN.decodeC(cursor),
+          ).mapN(apply));
 
   static Decoder<P> product15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>(
     Decoder<A> codecA,
@@ -860,21 +836,20 @@ abstract mixin class Decoder<A> {
     Function1<P, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> tupled,
   ) =>
       Decoder.instance((cursor) => (
-            codecA.decode(cursor),
-            codecB.decode(cursor),
-            codecC.decode(cursor),
-            codecD.decode(cursor),
-            codecE.decode(cursor),
-            codecF.decode(cursor),
-            codecG.decode(cursor),
-            codecH.decode(cursor),
-            codecI.decode(cursor),
-            codecJ.decode(cursor),
-            codecK.decode(cursor),
-            codecL.decode(cursor),
-            codecM.decode(cursor),
-            codecN.decode(cursor),
-            codecO.decode(cursor),
-          )
-              .mapN(apply));
+            codecA.decodeC(cursor),
+            codecB.decodeC(cursor),
+            codecC.decodeC(cursor),
+            codecD.decodeC(cursor),
+            codecE.decodeC(cursor),
+            codecF.decodeC(cursor),
+            codecG.decodeC(cursor),
+            codecH.decodeC(cursor),
+            codecI.decodeC(cursor),
+            codecJ.decodeC(cursor),
+            codecK.decodeC(cursor),
+            codecL.decodeC(cursor),
+            codecM.decodeC(cursor),
+            codecN.decodeC(cursor),
+            codecO.decodeC(cursor),
+          ).mapN(apply));
 }

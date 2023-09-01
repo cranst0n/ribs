@@ -1,8 +1,7 @@
 import 'package:ribs_check/ribs_check.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
-import 'package:test/expect.dart';
-import 'package:test/scaffolding.dart';
+import 'package:test/test.dart';
 
 import 'gen.dart';
 
@@ -12,7 +11,7 @@ void main() {
       final str = json.printWith(Printer.spaces2);
 
       Json.parse(str).fold(
-        (err) => fail('Json.roundtrip failed: $err'),
+        (err) => fail('Json.roundtrip failed: $err [$str]'),
         (value) => expect(value, json),
       );
     },
@@ -74,7 +73,7 @@ void main() {
 
     final cursor = json.hcursor.downArray().downField('foo');
     final decoded = cursor
-        .as(Decoder.nonEmptyIList(Decoder.integer).map((a) => a.reverse()));
+        .decode(Decoder.nonEmptyIList(Decoder.integer).map((a) => a.reverse()));
 
     expect(decoded, NonEmptyIList(3, ilist([2, 1])).asRight<DecodingFailure>());
   });
@@ -83,7 +82,7 @@ void main() {
     final json = Json.parse('{"foo": 1, "bar": "hello", "baz": 32}')
         .getOrElse(() => fail('parse3.parse fail'));
 
-    final decoded = json.decode(Parse3.codec);
+    final decoded = Parse3.codec.decode(json);
 
     decoded.fold(
       (failure) =>
@@ -129,7 +128,7 @@ void main() {
         .getOrElse(() => fail('parse3.map fail'));
 
     final decoded =
-        json.decode(Decoder.mapOf(MapKey.keyDecoder, Decoder.string));
+        Decoder.mapOf(MapKey.keyDecoder, Decoder.string).decode(json);
 
     decoded.fold(
       (err) => fail('Decoder.mapOf failed: $err'),
@@ -174,12 +173,12 @@ void main() {
 
     expect(codec.encode(value), Json.arr([JNumber(1), JBoolean(false)]));
 
-    codec.decode(codec.encode(value).hcursor).fold(
+    codec.decode(codec.encode(value)).fold(
           (err) => fail('Codec.tuple failed: $err'),
           (value) => expect(value, value),
         );
 
-    Json.parseAs('[1, false, 2.2]', codec).fold(
+    Json.decode('[1, false, 2.2]', codec).fold(
       (err) => expect(err, isA<DecodingFailure>()),
       (_) => fail('Codec.tuple3 should not have succeeded.'),
     );
@@ -259,8 +258,8 @@ void main() {
     final eitherBoolOrNum = Decoder.mapOf(
         KeyDecoder.string, Decoder.boolean.either(Decoder.number));
 
-    expect(json.decode(eitherNumOrBool).isRight, isTrue);
-    expect(json.decode(eitherBoolOrNum).isRight, isTrue);
+    expect(eitherNumOrBool.decode(json).isRight, isTrue);
+    expect(eitherBoolOrNum.decode(json).isRight, isTrue);
   });
 }
 

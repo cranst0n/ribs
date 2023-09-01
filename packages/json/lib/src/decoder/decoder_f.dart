@@ -7,5 +7,5 @@ final class DecoderF<A> extends Decoder<A> {
   DecoderF(this.decodeF);
 
   @override
-  DecodeResult<A> decode(HCursor cursor) => decodeF(cursor);
+  DecodeResult<A> decodeC(HCursor cursor) => decodeF(cursor);
 }

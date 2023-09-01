@@ -8,11 +8,11 @@ final class HandleErrorDecoder<A> extends Decoder<A> {
   HandleErrorDecoder(this.primary, this.errorHandler);
 
   @override
-  DecodeResult<A> decode(HCursor cursor) => tryDecode(cursor);
+  DecodeResult<A> decodeC(HCursor cursor) => tryDecodeC(cursor);
 
   @override
-  DecodeResult<A> tryDecode(ACursor cursor) => cursor.as(primary).fold(
-        (err) => cursor.as(errorHandler(err)),
+  DecodeResult<A> tryDecodeC(ACursor cursor) => cursor.decode(primary).fold(
+        (err) => cursor.decode(errorHandler(err)),
         (a) => a.asRight(),
       );
 }

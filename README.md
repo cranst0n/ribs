@@ -69,6 +69,7 @@ the following libraries.
 * [cats-effect](https://github.com/typelevel/cats-effect)
 * [fs2](https://github.com/typelevel/fs2)
 * [scodec](https://github.com/scodec/scodec)
+* [jawn](https://github.com/typelevel/jawn)
 * [circe](https://github.com/circe/circe)
 * [sqaunts](https://github.com/typelevel/squants)
 * [cats-retry](https://github.com/cb372/cats-retry)

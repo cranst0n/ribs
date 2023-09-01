@@ -7,7 +7,7 @@ final class ListDecoder<A> extends Decoder<List<A>> {
   ListDecoder(this.decodeA);
 
   @override
-  DecodeResult<List<A>> decode(HCursor cursor) {
+  DecodeResult<List<A>> decodeC(HCursor cursor) {
     var current = cursor.downArray();
 
     if (current.succeeded) {
@@ -15,7 +15,7 @@ final class ListDecoder<A> extends Decoder<List<A>> {
       DecodingFailure? failure;
 
       while (failure == null && current.succeeded) {
-        decodeA.decode(current as HCursor).fold(
+        decodeA.decodeC(current as HCursor).fold(
           (err) => failure = err,
           (a) {
             l.add(a);

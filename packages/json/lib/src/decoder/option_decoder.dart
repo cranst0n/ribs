@@ -7,16 +7,16 @@ final class OptionDecoder<A> extends Decoder<Option<A>> {
   OptionDecoder(this.decodeA);
 
   @override
-  DecodeResult<Option<A>> decode(HCursor cursor) => tryDecode(cursor);
+  DecodeResult<Option<A>> decodeC(HCursor cursor) => tryDecodeC(cursor);
 
   @override
-  DecodeResult<Option<A>> tryDecode(ACursor cursor) {
+  DecodeResult<Option<A>> tryDecodeC(ACursor cursor) {
     if (cursor is HCursor) {
       if (cursor.value.isNull) {
         return none<A>().asRight();
       } else {
         return decodeA
-            .decode(cursor)
+            .decodeC(cursor)
             .fold((err) => err.asLeft(), (a) => Some(a).asRight());
       }
     } else if (cursor is FailedCursor) {

@@ -7,14 +7,14 @@ final class NonEmptyIListDecoder<A> extends Decoder<NonEmptyIList<A>> {
   NonEmptyIListDecoder(this.decodeA);
 
   @override
-  DecodeResult<NonEmptyIList<A>> decode(HCursor cursor) {
+  DecodeResult<NonEmptyIList<A>> decodeC(HCursor cursor) {
     final arr = cursor.downArray();
     final tailDecoder = Decoder.ilist(decodeA);
 
-    return decodeA.tryDecode(arr).fold(
+    return decodeA.tryDecodeC(arr).fold(
       (failure) => failure.asLeft(),
       (head) {
-        return tailDecoder.tryDecode(arr.delete()).fold(
+        return tailDecoder.tryDecodeC(arr.delete()).fold(
               (failure) => failure.asLeft(),
               (tail) => NonEmptyIList(head, tail).asRight(),
             );

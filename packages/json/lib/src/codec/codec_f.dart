@@ -7,10 +7,10 @@ final class CodecF<A> extends Codec<A> {
   CodecF(this.decoder, this.encoder);
 
   @override
-  DecodeResult<A> decode(HCursor cursor) => decoder.decode(cursor);
+  DecodeResult<A> decodeC(HCursor cursor) => decoder.decodeC(cursor);
 
   @override
-  DecodeResult<A> tryDecode(ACursor cursor) => decoder.tryDecode(cursor);
+  DecodeResult<A> tryDecodeC(ACursor cursor) => decoder.tryDecodeC(cursor);
 
   @override
   Json encode(A a) => encoder.encode(a);
