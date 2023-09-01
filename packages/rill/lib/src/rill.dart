@@ -138,8 +138,8 @@ final class Rill<O> {
 
   Rill<O2> map<O2>(Function1<O, O2> f) => Pull.mapOutput(this, f).rillNoScope();
 
-  Rill<O2> _mapNoScope<O2>(Function1<O, O2> f) =>
-      Pull.mapOutputNoScope(this, f).rillNoScope();
+  // Rill<O2> _mapNoScope<O2>(Function1<O, O2> f) =>
+  //     Pull.mapOutputNoScope(this, f).rillNoScope();
 
   Rill<O2> mapChunks<O2>(Function1<IList<O>, IList<O2>> f) =>
       _underlying.unconsFlatMap((hd) => Pull.output(f(hd))).rill();

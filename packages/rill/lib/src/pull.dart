@@ -996,8 +996,8 @@ final class _FailedScope<O> extends _CloseScope<O> {
 
 final class _GetScope<O> extends _AlgEffect<O, Scope> {}
 
-Pull<O, Option<StepLeg<O>>> _stepLeg<O>(StepLeg<O> leg) =>
-    _StepLeg(leg.next, leg.scopeId);
+// Pull<O, Option<StepLeg<O>>> _stepLeg<O>(StepLeg<O> leg) =>
+//     _StepLeg(leg.next, leg.scopeId);
 
 Pull<O, Unit> scope<O>(Pull<O, Unit> s) => _InScope(s, false);
 
