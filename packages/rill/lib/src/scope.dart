@@ -144,9 +144,8 @@ class Scope {
             _traverseError(previous.resources, (a) => a.release(ec)),
             interruptible.map((a) => a.cancelParent).getOrElse(() => IO.unit),
             parent.fold(() => IO.unit, (a) => a._releaseChildScope(id)),
-          )
-              .mapN((resultChildren, resultResources, _, __) =>
-                  CompositeError.fromResults(resultChildren, resultResources)),
+          ).mapN((resultChildren, resultResources, _, __) =>
+              CompositeError.fromResults(resultChildren, resultResources)),
           () => IO.pure(Right(Unit())),
         );
       });

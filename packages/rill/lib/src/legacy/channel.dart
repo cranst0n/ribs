@@ -2,11 +2,11 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_rill/src/legacy/rill.dart';
 
 sealed class Channel<A> {
-  static IO<Channel<A>> bounded<A>(int capacity) =>
-      (Ref.of(_ChannelState.empty<A>(false)), Deferred.of<Unit>())
-          .sequence()
-          .map((requirements) => requirements(
-              (state, gate) => _BoundedChannel(capacity, state, gate)));
+  static IO<Channel<A>> bounded<A>(int capacity) => (
+        Ref.of(_ChannelState.empty<A>(false)),
+        Deferred.of<Unit>()
+      ).sequence().map((requirements) => requirements(
+          (state, gate) => _BoundedChannel(capacity, state, gate)));
 
   static IO<Channel<A>> synchronous<A>() => bounded(0);
 
