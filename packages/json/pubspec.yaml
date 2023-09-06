@@ -12,6 +12,7 @@ dependencies:
   ribs_core:  ^1.0.0-dev.4
 
 dev_dependencies:
+  daco:       ^0.2.6
   lint:       ^2.1.2
   path:       ^1.8.3
   ribs_check: ^1.0.0-dev.3

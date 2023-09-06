@@ -88,7 +88,7 @@ Codec<String> utf16_32L = VariableSizedCodec(int32L, utf16);
 Codec<String> cstring = StringCodec.cstring();
 
 Codec<List<A>> list<A>(Codec<A> codec, [int? limit]) =>
-    ListCodec(codec, limit: Option.of(limit));
+    ListCodec(codec, limit: Option(limit));
 
 Codec<List<A>> listOfN<A>(Codec<int> countCodec, Codec<A> valueCodec) =>
     Codec.of(

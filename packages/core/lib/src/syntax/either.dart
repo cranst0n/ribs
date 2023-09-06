@@ -1,6 +1,6 @@
 import 'package:ribs_core/src/either.dart';
 import 'package:ribs_core/src/function.dart';
-import 'package:ribs_core/src/syntax/record.dart';
+import 'package:ribs_core/src/syntax/tuple.dart';
 
 extension EitherSyntaxOps<A> on A {
   Either<A, B> asLeft<B>() => Either.left(this);

@@ -15,7 +15,7 @@ abstract class ACursor {
   Option<Json> get focus;
 
   IList<CursorOp> history() {
-    IList<CursorOp> loop(ACursor? c) => Option.of(c?.lastOp).fold(
+    IList<CursorOp> loop(ACursor? c) => Option(c?.lastOp).fold(
           () => IList.empty(),
           (op) => loop(c?.lastCursor).prepend(op),
         );

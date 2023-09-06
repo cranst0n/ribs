@@ -490,7 +490,7 @@ void main() {
     );
   });
 
-  test('parMapN', () async {
+  test('asyncMapN', () async {
     final ioa = IO.pure(1).delayBy(const Duration(milliseconds: 200));
     final iob = IO.pure(2).delayBy(const Duration(milliseconds: 200));
     final ioc = IO.pure(3).delayBy(const Duration(milliseconds: 200));

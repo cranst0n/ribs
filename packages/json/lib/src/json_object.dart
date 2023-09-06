@@ -63,7 +63,7 @@ final class _LinkedHashMapJsonObject extends JsonObject {
       _LinkedHashMapJsonObject(LinkedHashMap.of(fields)..addAll({key: value}));
 
   @override
-  Option<Json> apply(String key) => Option.of(fields[key]);
+  Option<Json> apply(String key) => Option(fields[key]);
 
   @override
   Json applyUnsafe(String key) => fields[key]!;

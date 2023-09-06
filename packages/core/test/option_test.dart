@@ -7,9 +7,9 @@ void main() {
 
   int incInt(int i) => i + 1;
 
-  test('Option.of', () {
-    expect(Option.of(1), testSome);
-    expect(Option.of(null), testNone);
+  test('Option', () {
+    expect(Option(1), testSome);
+    expect(Option(null), testNone);
   });
 
   test('Option.unless', () {

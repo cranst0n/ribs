@@ -1,7 +1,7 @@
 import 'package:ribs_core/src/effect/io.dart';
 import 'package:ribs_core/src/function.dart';
 import 'package:ribs_core/src/option.dart';
-import 'package:ribs_core/src/syntax/record.dart';
+import 'package:ribs_core/src/syntax/tuple.dart';
 
 extension OptionSyntaxOps<A> on A {
   Option<A> get some => Some(this);

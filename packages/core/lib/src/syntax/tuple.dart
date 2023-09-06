@@ -1,6 +1,6 @@
 import 'package:ribs_core/src/function.dart';
 
-extension Record2Ops<A, B> on (A, B) {
+extension Tuple2Ops<A, B> on (A, B) {
   (A, B, C) append<C>(C $3) => ($1, $2, $3);
 
   (C, D) bimap<C, D>(Function1<A, C> fa, Function1<B, D> fb) =>
@@ -20,7 +20,7 @@ extension Record2Ops<A, B> on (A, B) {
   B get last => $2;
 }
 
-extension Record3Ops<A, B, C> on (A, B, C) {
+extension Tuple3Ops<A, B, C> on (A, B, C) {
   (A, B, C, D) append<D>(D $4) => ($1, $2, $3, $4);
 
   D call<D>(Function3<A, B, C, D> f) => f($1, $2, $3);
@@ -41,7 +41,7 @@ extension Record3Ops<A, B, C> on (A, B, C) {
   C get last => $3;
 }
 
-extension Record4Ops<A, B, C, D> on (A, B, C, D) {
+extension Tuple4Ops<A, B, C, D> on (A, B, C, D) {
   (A, B, C, D, E) append<E>(E $5) => ($1, $2, $3, $4, $5);
 
   E call<E>(Function4<A, B, C, D, E> f) => f($1, $2, $3, $4);
@@ -64,7 +64,7 @@ extension Record4Ops<A, B, C, D> on (A, B, C, D) {
   D get last => $4;
 }
 
-extension Record5Ops<A, B, C, D, E> on (A, B, C, D, E) {
+extension Tuple5Ops<A, B, C, D, E> on (A, B, C, D, E) {
   (A, B, C, D, E, F) append<F>(F $6) => ($1, $2, $3, $4, $5, $6);
 
   F call<F>(Function5<A, B, C, D, E, F> f) => f($1, $2, $3, $4, $5);
@@ -89,7 +89,7 @@ extension Record5Ops<A, B, C, D, E> on (A, B, C, D, E) {
   E get last => $5;
 }
 
-extension Record6Ops<A, B, C, D, E, F> on (A, B, C, D, E, F) {
+extension Tuple6Ops<A, B, C, D, E, F> on (A, B, C, D, E, F) {
   (A, B, C, D, E, F, G) append<G>(G $7) => ($1, $2, $3, $4, $5, $6, $7);
 
   G call<G>(Function6<A, B, C, D, E, F, G> f) => f($1, $2, $3, $4, $5, $6);
@@ -116,7 +116,7 @@ extension Record6Ops<A, B, C, D, E, F> on (A, B, C, D, E, F) {
   F get last => $6;
 }
 
-extension Record7Ops<A, B, C, D, E, F, G> on (A, B, C, D, E, F, G) {
+extension Tuple7Ops<A, B, C, D, E, F, G> on (A, B, C, D, E, F, G) {
   (A, B, C, D, E, F, G, H) append<H>(H $8) => ($1, $2, $3, $4, $5, $6, $7, $8);
 
   H call<H>(Function7<A, B, C, D, E, F, G, H> f) =>
@@ -146,7 +146,7 @@ extension Record7Ops<A, B, C, D, E, F, G> on (A, B, C, D, E, F, G) {
   G get last => $7;
 }
 
-extension Record8Ops<A, B, C, D, E, F, G, H> on (A, B, C, D, E, F, G, H) {
+extension Tuple8Ops<A, B, C, D, E, F, G, H> on (A, B, C, D, E, F, G, H) {
   (A, B, C, D, E, F, G, H, I) append<I>(I $9) =>
       ($1, $2, $3, $4, $5, $6, $7, $8, $9);
 
@@ -179,7 +179,7 @@ extension Record8Ops<A, B, C, D, E, F, G, H> on (A, B, C, D, E, F, G, H) {
   H get last => $8;
 }
 
-extension Record9Ops<A, B, C, D, E, F, G, H, I> on (A, B, C, D, E, F, G, H, I) {
+extension Tuple9Ops<A, B, C, D, E, F, G, H, I> on (A, B, C, D, E, F, G, H, I) {
   (A, B, C, D, E, F, G, H, I, J) append<J>(J $10) =>
       ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
 
@@ -214,7 +214,7 @@ extension Record9Ops<A, B, C, D, E, F, G, H, I> on (A, B, C, D, E, F, G, H, I) {
   I get last => $9;
 }
 
-extension Record10Ops<A, B, C, D, E, F, G, H, I, J> on (
+extension Tuple10Ops<A, B, C, D, E, F, G, H, I, J> on (
   A,
   B,
   C,
@@ -262,7 +262,7 @@ extension Record10Ops<A, B, C, D, E, F, G, H, I, J> on (
   J get last => $10;
 }
 
-extension Record11Ops<A, B, C, D, E, F, G, H, I, J, K> on (
+extension Tuple11Ops<A, B, C, D, E, F, G, H, I, J, K> on (
   A,
   B,
   C,
@@ -314,7 +314,7 @@ extension Record11Ops<A, B, C, D, E, F, G, H, I, J, K> on (
   K get last => $11;
 }
 
-extension Record12Ops<A, B, C, D, E, F, G, H, I, J, K, L> on (
+extension Tuple12Ops<A, B, C, D, E, F, G, H, I, J, K, L> on (
   A,
   B,
   C,
@@ -369,7 +369,7 @@ extension Record12Ops<A, B, C, D, E, F, G, H, I, J, K, L> on (
   L get last => $12;
 }
 
-extension Record13Ops<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
+extension Tuple13Ops<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
   A,
   B,
   C,
@@ -427,7 +427,7 @@ extension Record13Ops<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
   M get last => $13;
 }
 
-extension Record14Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
+extension Tuple14Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
   A,
   B,
   C,
@@ -488,7 +488,7 @@ extension Record14Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
   N get last => $14;
 }
 
-extension Record15Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
+extension Tuple15Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
   A,
   B,
   C,
@@ -552,7 +552,7 @@ extension Record15Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
   O get last => $15;
 }
 
-extension Record16Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> on (
+extension Tuple16Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> on (
   A,
   B,
   C,
@@ -636,7 +636,7 @@ extension Record16Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> on (
   P get last => $16;
 }
 
-extension Record17Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> on (
+extension Tuple17Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> on (
   A,
   B,
   C,
@@ -726,7 +726,7 @@ extension Record17Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> on (
   Q get last => $17;
 }
 
-extension Record18Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> on (
+extension Tuple18Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> on (
   A,
   B,
   C,
@@ -839,7 +839,7 @@ extension Record18Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> on (
   R get last => $18;
 }
 
-extension Record19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
+extension Tuple19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
     on (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) {
   (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) append<T>(
           T $20) =>
@@ -939,7 +939,7 @@ extension Record19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
   S get last => $19;
 }
 
-extension Record20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
+extension Tuple20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
     T> on (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) {
   (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) append<U>(
           U $21) =>
@@ -1044,7 +1044,7 @@ extension Record20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
   T get last => $20;
 }
 
-extension Record21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
+extension Tuple21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
     T, U> on (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) {
   (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) append<V>(
           V $22) =>
@@ -1153,7 +1153,7 @@ extension Record21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
   U get last => $21;
 }
 
-extension Record22Ops<
+extension Tuple22Ops<
     A,
     B,
     C,

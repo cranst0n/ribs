@@ -1,14 +1,31 @@
 import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// Represents one of two possible values (a disjoint union).
+///
+/// Instances of `Either` are a [Left] or a [Right]. Eithers are primarily
+/// used as an alternative to an [Option] where a "missing" value is provided
+/// rather than a [None]. It is also useful to return from functions that may
+/// fail, providing an indication for the failure reason in the Left value
+/// or the success value in the Right value.
+///
+/// Either is right-biased so functions like [map], [flatMap], etc. operatee on
+/// the Right value, if present. If the Either has a Left value, the original
+/// Either is returned.
 @immutable
 sealed class Either<A, B> implements Monad<B>, Foldable<B> {
   const Either();
 
+  /// Lifts the given value into a [Left].
   static Either<A, B> left<A, B>(A a) => Left<A, B>(a);
 
+  /// Lifts the given value into a [Right].
   static Either<A, B> right<A, B>(B b) => Right<A, B>(b);
 
+  /// Something of a FP interface between try/catch blocks. The provided
+  /// [body] function will be called and if successful, a [Right] is returned.
+  /// If the function throws, a [Left] will be returned holding the result of
+  /// applying the error and stack trace to the provided [onError] function.
   static Either<A, B> catching<A, B>(
     Function0<B> body,
     Function2<Object, StackTrace, A> onError,
@@ -20,6 +37,8 @@ sealed class Either<A, B> implements Monad<B>, Foldable<B> {
     }
   }
 
+  /// Returns the result of [ifTrue] wrapped in a [Right], when the given [test]
+  /// evaluates to true or the result of [ifFalse] wrapped in a [Left].
   static Either<A, B> cond<A, B>(
     Function0<bool> test,
     Function0<B> ifTrue,
@@ -27,8 +46,10 @@ sealed class Either<A, B> implements Monad<B>, Foldable<B> {
   ) =>
       test() ? right(ifTrue()) : left(ifFalse());
 
+  /// Lifts the given value into a [Right].
   static Either<A, B> pure<A, B>(B b) => Right(b);
 
+  /// Applies `fa` if this is a [Left], or `fb` if this is a [Right].
   C fold<C>(Function1<A, C> fa, Function1<B, C> fb);
 
   @override

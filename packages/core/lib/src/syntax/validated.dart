@@ -1,7 +1,7 @@
 import 'package:ribs_core/src/function.dart';
 import 'package:ribs_core/src/non_empty_ilist.dart';
 // import 'package:ribs_core/src/tuple.dart';
-import 'package:ribs_core/src/syntax/record.dart';
+import 'package:ribs_core/src/syntax/tuple.dart';
 import 'package:ribs_core/src/validated.dart';
 
 extension ValidatedSyntaxOps<A> on A {

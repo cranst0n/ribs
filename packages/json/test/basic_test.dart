@@ -269,7 +269,7 @@ class MapKey {
   const MapKey(this.k);
 
   static final KeyDecoder<MapKey> keyDecoder =
-      KeyDecoder.lift((a) => Option.of(int.tryParse(a)).map(MapKey.new));
+      KeyDecoder.lift((a) => Option(int.tryParse(a)).map(MapKey.new));
 
   @override
   String toString() => 'MK($k)';

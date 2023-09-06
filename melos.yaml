@@ -2,6 +2,7 @@ name: ribs
 
 packages:
   - packages/**
+  - website/snippets
 
 scripts:
 

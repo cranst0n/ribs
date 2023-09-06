@@ -34,6 +34,8 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   static IList<A> tabulate<A>(int n, Function1<int, A> f) =>
       IList.of(List.generate(n, f));
 
+  /// Returns the element at the given index or throws a [RangeError] if the
+  /// index is out of the bounds of this list.
   A operator [](int ix) => _underlying[ix];
 
   IList<A> operator +(A a) => append(a);

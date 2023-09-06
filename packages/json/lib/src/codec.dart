@@ -11,7 +11,7 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
   Codec<B> iemap<B>(Function1<A, Either<String, B>> f, Function1<B, A> g) =>
       from(emap(f), contramap(g));
 
-  Codec<A?> nullable() => optional().xmap((o) => o.toNullable(), Option.of);
+  Codec<A?> nullable() => optional().xmap((o) => o.toNullable(), Option.new);
 
   @override
   Codec<Option<A>> optional() => from(

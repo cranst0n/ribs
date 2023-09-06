@@ -223,7 +223,7 @@ sealed class IO<A> extends Monad<A> {
 
   // Would be nice if there was an async way to do this
   static IO<String> readLine() =>
-      IO.delay(() => stdin.readLineSync()).flatMap((l) => Option.of(l)
+      IO.delay(() => stdin.readLineSync()).flatMap((l) => Option(l)
           .fold(() => IO.raiseError(IOError('stdin line ended')), IO.pure));
 
   static IO<Unit> sleep(Duration duration) => _Sleep(duration);

@@ -1,6 +1,6 @@
 import 'package:ribs_core/src/effect/io.dart';
 import 'package:ribs_core/src/function.dart';
-import 'package:ribs_core/src/syntax/record.dart';
+import 'package:ribs_core/src/syntax/tuple.dart';
 
 extension Tuple2IOOps<A, B> on (IO<A>, IO<B>) {
   IO<C> mapN<C>(Function2<A, B, C> fn) => _tupled2($1, $2).map(fn.tupled);

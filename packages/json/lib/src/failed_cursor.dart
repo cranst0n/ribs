@@ -13,7 +13,7 @@ final class FailedCursor extends ACursor {
           !(lastCursor?.value.isArray ?? false));
 
   bool get missingField =>
-      Option.of(lastOp).exists((a) => a is Field || a is DownField);
+      Option(lastOp).exists((a) => a is Field || a is DownField);
 
   @override
   Option<Json> get focus => none();

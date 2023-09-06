@@ -81,8 +81,7 @@ abstract mixin class Decoder<A> {
   //////////////////////////////////////////////////////////////////////////////
 
   static Decoder<BigInt> bigInt = string.emap((a) =>
-      Option.of(BigInt.tryParse(a))
-          .toRight(() => 'BigInt.tryParse failed: $a'));
+      Option(BigInt.tryParse(a)).toRight(() => 'BigInt.tryParse failed: $a'));
 
   static Decoder<bool> boolean = Decoder.instance((c) => Either.cond(
       () => c.value is JBoolean,

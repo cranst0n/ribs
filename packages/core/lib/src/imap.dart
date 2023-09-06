@@ -57,7 +57,7 @@ final class IMap<K, V> {
 
   void forEach<A>(Function2<K, V, A> f) => toIList().forEach(f.tupled);
 
-  Option<V> get(K key) => Option.of(_underlying.get(key));
+  Option<V> get(K key) => Option(_underlying.get(key));
 
   V getOrElse(K key, Function0<V> orElse) => get(key).getOrElse(orElse);
 

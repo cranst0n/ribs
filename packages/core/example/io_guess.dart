@@ -8,7 +8,7 @@ void main(List<String> args) async {
       .productR(() => IO.readLine())
       .flatMap(
         (line) => IO.fromOption(
-          Option.of(int.tryParse(line)),
+          Option(int.tryParse(line)),
           () => 'Invalid guess: $line',
         ),
       )

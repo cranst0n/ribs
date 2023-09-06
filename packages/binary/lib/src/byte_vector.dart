@@ -27,7 +27,7 @@ final class ByteVector {
         final next = s.substring(0, 8);
         final rest = s.substring(8);
 
-        final b = Option.of(int.tryParse(next, radix: 2))
+        final b = Option(int.tryParse(next, radix: 2))
             .toRight(() => 'Failed to parse byte: $next');
 
         return b.flatMap((byte) => takeParse(rest, acc..add(byte)));
@@ -54,7 +54,7 @@ final class ByteVector {
         final next = s.substring(0, 2);
         final rest = s.substring(2);
 
-        final b = Option.of(int.tryParse(next, radix: 16))
+        final b = Option(int.tryParse(next, radix: 16))
             .toRight(() => 'Failed to parse byte: $next');
 
         return b.flatMap((byte) => takeParse(rest, acc..add(byte)));

@@ -27,11 +27,10 @@ abstract class Quantity<A extends Quantity<A>> {
     String s,
     Set<UnitOfMeasure<A>> units,
   ) =>
-      Option.of(_unitsRegex(units).firstMatch(s)).flatMap(
+      Option(_unitsRegex(units).firstMatch(s)).flatMap(
         (match) => (
-          Option.of(match.group(1))
-              .flatMap((str) => Option.of(num.tryParse(str))),
-          Option.of(match.group(2)).flatMap((str) =>
+          Option(match.group(1)).flatMap((str) => Option(num.tryParse(str))),
+          Option(match.group(2)).flatMap((str) =>
               IList.of(units.toList()).find((a) => a.symbol == str.trim())),
         ).mapN((value, unit) => unit(value)),
       );
