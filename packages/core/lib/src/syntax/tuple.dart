@@ -939,8 +939,8 @@ extension Tuple19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
   S get last => $19;
 }
 
-extension Tuple20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
-    T> on (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) {
+extension Tuple20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
+    on (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) {
   (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) append<U>(
           U $21) =>
       (
@@ -1044,8 +1044,8 @@ extension Tuple20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
   T get last => $20;
 }
 
-extension Tuple21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
-    T, U> on (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) {
+extension Tuple21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
+    U> on (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) {
   (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) append<V>(
           V $22) =>
       (

@@ -27,3 +27,7 @@ scripts:
   doc:
     run: melos exec -c 12 --fail-fast -- dart doc
     description: Create API documentation for all packages.
+
+  analyze: melos exec -c1 -- dart analyze --fatal-infos .
+
+  format: melos exec dart format --show=changed .

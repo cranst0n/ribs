@@ -38,7 +38,7 @@ jobs:
         run: dart pub get
 
       - name: Verify formatting
-        run: melos exec dart format --output=none --set-exit-if-changed .
+        run: melos exec dart format --output=none --show=changed --set-exit-if-changed .
       
       - name: Analyze project source
         run: melos exec dart analyze
