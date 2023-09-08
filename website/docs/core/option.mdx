@@ -7,10 +7,108 @@ import OptionSnippet from '!!raw-loader!../../snippets/lib/src/option.dart';
 
 # Option
 
-Forthcoming...
+## Motivation
 
-<CodeSnippet language="dart" title="Basic" snippet={OptionSnippet} section="basic example" />
+The `Option` type signifies the presence or absense of a value. In some
+circumstances, a function won't be able to give a resulting value for every
+input. These are called *partial functions* (as opposed to *total functions*)
+since they are only defined for certain inputs. Let's have a look at an
+example of a naively implemented partial function:
 
-Another snippet section.
+<CodeSnippet language="dart" title="Our First Partial Function" snippet={OptionSnippet} section="naive" />
 
-<CodeSnippet language="dart" snippet={OptionSnippet} section="something else" />
+The intent is to find the maximum value in the provided `List<int>`. But what
+happens if the list is empty? In this example the function will `throw`.
+Exceptions are not an option when building purely functional programs.
+They require that the context of caller be known at all times in order to
+reason about what the ultimate value of the function will be.
+
+Do we return 0? Do we return -99999? Either of
+those result in an ambiguous result that the caller of the function will need
+interpret. This violates one of the core tenets of functional programming:
+**Local Reasoning**. The caller shouldn't need to interpret the value. The
+**type** of the value should convey that on it's own!
+
+So let's improve on the initial implementation of our function to use the
+`Option` type:
+
+<CodeSnippet language="dart" title="An Improvement" snippet={OptionSnippet} section="better" />
+
+By changing the type that's returned, we've indicated to the user (and the compiler)
+that this function may not be able to return a value. As a result, the
+developer must account for either case.
+
+Let's make this function even more readable. Here's a more elegant way to
+define our `max` function even more concisely using the `Option` API:
+
+<CodeSnippet language="dart" title="Using Option API" snippet={OptionSnippet} section="better-yet" />
+
+## Combinators
+
+### map
+
+You may ask yourself why we would ever want to use `Option` when Dart has
+nullable types. And while nullable types are a great addition to the language,
+they aren't as powerful and expressive as `Option`. On top of this, there are
+still gaps in the nullable type system that make `Option<int>` preferable to
+`int?`.
+
+Let's take the following example and see how `Option` can make our code more
+readable and composable.
+
+<CodeSnippet language="dart" title="Contrived Nullable Functions" snippet={OptionSnippet} section="combinators-1" />
+
+We want to feed the output of the first function into the second function.
+But using Dart's nullable types, this becomes verbose and more difficult to
+decipher:
+
+<CodeSnippet language="dart" title="Composing Nullable Values" snippet={OptionSnippet} section="combinators-2" />
+
+Compare that version with the null checking to this version using `Option`:
+
+<CodeSnippet language="dart" title="Composing Option Values" snippet={OptionSnippet} section="combinators-3" />
+
+Now consider how this very small scenario would look like when you try to
+compose the results from 3 functions together. Then 10 functions. The `Option`
+API shines in these cases because functions compose. On top of this simple
+excersice, `Option` has a number of additional combinators like `map`, `filter`
+and others.
+
+### flatMap
+
+Another common scenario arises when you want to feed one functions `Option<A>`
+into another functions parameter:
+
+<CodeSnippet language="dart" title="Composing Option Values" snippet={OptionSnippet} section="flatmap-1" />
+
+This example shows how you can chain functions that use `Option` together to
+create readable code. Achieving this level of expressiveness using nullable types
+alone isn't possible.
+
+### mapN
+
+Our final scenario, but certainly not last you'll encounter in the wild arises
+when you have a few `Option` values and want to combine them into something else.
+Our starting point looks like this:
+
+<CodeSnippet language="dart" title="Combining Option Values - Naive" snippet={OptionSnippet} section="mapN-1" />
+
+While this strategy works, you can certainly make the argument that it's not
+particularly readable. Because this is such a common scenario, ribs includes a
+`mapN` combinator that takes care of all the messy `flatMap` and `map`-ing
+for you:
+
+<CodeSnippet language="dart" title="Combining Option Values - Naive" snippet={OptionSnippet} section="mapN-2" />
+
+By creating a tuple of your `Option` values, you can then use `mapN` as a
+shortcut to achieve what we're after. Note that the number of `Option`
+values you're combining (arity) doesn't matter. Ribs will handle tuples up to
+size 22!
+
+:::success
+`mapN` isn't just used for combining `Option` values. You'll find it used
+for other data types as well including `Either`, `IO` and many more!
+:::
+
+This is hardly an exhautive list of the `Option` combinators so be sure to
+explore the full API.

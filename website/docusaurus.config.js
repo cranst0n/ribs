@@ -35,7 +35,7 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/cranst0n/ribs/edit/main/website/',
+          editUrl: `https://github.com/${organizationName}/${projectName}/edit/main/website/`,
         },
         theme: {
           customCss: require.resolve('./src/scss/custom.scss'),
@@ -59,15 +59,11 @@ const config = {
         },
         items: [
           {
-            to: "docs/intro",
+            to: "docs/overview",
             activeBasePath: "docs",
             label: "Docs",
             position: "right",
           },
-          // {
-          //   type: "localeDropdown",
-          //   position: "right",
-          // },
           {
             href: `https://github.com/${organizationName}/${projectName}`,
             label: "GitHub",
@@ -82,8 +78,8 @@ const config = {
         darkTheme: darkCodeTheme,
       },
       algolia: {
-        appId: 'YWCHX7514Y',
-        apiKey: '0b2ec772b110e2d156835cbd355a8d01',
+        appId: 'URMQT2BC4Y',
+        apiKey: 'd6c6a6f02641f017e13665c702da140d',
         indexName: 'ribs',
       },
     }),

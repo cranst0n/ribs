@@ -71,6 +71,7 @@ the following libraries.
 * [scodec](https://github.com/scodec/scodec)
 * [jawn](https://github.com/typelevel/jawn)
 * [circe](https://github.com/circe/circe)
+* [monocle](https://www.optics.dev/Monocle/)
 * [sqaunts](https://github.com/typelevel/squants)
 * [cats-retry](https://github.com/cb372/cats-retry)
 * [dart-check](https://github.com/wigahluk/dart-check)

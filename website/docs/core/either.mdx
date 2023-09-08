@@ -1,0 +1,79 @@
+---
+sidebar_position: 3
+---
+
+import {CodeSnippet} from '../../src/components/CodeSnippet';
+import EitherSnippet from '!!raw-loader!../../snippets/lib/src/either.dart';
+
+# Either
+
+`Either` is type that represents the existence of one of two types. An instance
+of `Either` is instance of `Left` or `Right`.
+
+## Motivation
+
+While `Option` is a great weapon to have in our functional toolbelt, sometimes
+it isn't enough. Sometimes it makes sense to provide additional information
+when our functions don't follow the "happy path". For `Option`s, the happy
+path can be considered returning `Some(...)` while the failure path would be
+returning `None`. But consider the example below:
+
+<CodeSnippet language="dart" title="User Creation using Option" snippet={EitherSnippet} section="create-user-1" />
+
+Reading the code, we can see that a new user requires a non-empty name **and**
+a non-empty alias. Let's see what happens when we try to create a few users:
+
+<CodeSnippet language="dart" snippet={EitherSnippet} section="create-user-2" />
+
+We can see that the function works as intended which is great but consider
+the results returned in the failure case when the user's name and/or alias is
+empty. They're all `None`. It would be much better if we could return a reason
+why the user couldn't be created right? So let's do better using the `Either`
+type:
+
+<CodeSnippet language="dart" title="User Creation using Either" snippet={EitherSnippet} section="create-user-3" />
+
+Much better! We can now see **why** the function was unable to create the user
+in each instance. This would be great information to pass along to the user
+to help them navigate our application.
+
+:::info
+We said earlier that the "happy" path for `Option` is `Some` vs. the failure
+path of `None`. So what is the happy/failure paths for `Either`? Looking at
+the previous examples, it should become clear that the happy path is `Right`
+while the failure path is `Left`. This is by convention so you could choose
+to ignore this, but be aware that many combinators in the Either API treat
+the Right side as the happy path, leading to the statement that `Either` is
+"right biased".
+:::
+
+## Combinators
+
+### map
+
+Much like `Option` the `map` method on `Either` will apply a function to
+the value, so long as the `Either` is an instance of `Right`:
+
+<CodeSnippet language="dart" snippet={EitherSnippet} section="map-1" />
+
+### flatMap
+
+Chaining functions that return `Either` is simple using the `Either.flatMap`
+function:
+
+<CodeSnippet language="dart" snippet={EitherSnippet} section="flatMap-1" />
+
+### fold
+
+Lastly, when you want to create a summary value from the `Either` depending
+on whether it's a `Left` or `Right`, the `fold` method makes it easy:
+
+<CodeSnippet language="dart" snippet={EitherSnippet} section="fold-1" />
+
+As specified in the `fold` function signature, each function provided
+***must*** return a value of the same type.
+
+:::success
+Either has a lot of other useful combinators to make using them easy
+and expressive! Check out the API to explore them.
+:::

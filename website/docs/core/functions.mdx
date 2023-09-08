@@ -1,0 +1,101 @@
+---
+sidebar_position: 1
+---
+
+import {CodeSnippet} from '../../src/components/CodeSnippet';
+import FunctionsSnippet from '!!raw-loader!../../snippets/lib/src/function.dart';
+
+# Functions
+
+Shockingly, functions are one of the core elements of the functional
+programming paradigm. Accordingly, Ribs provides some tools to work with
+functions themselves.
+
+## Aliases
+
+Ribs uses a set of type aliases to make reading function signatures
+(subjectively) easier. If you've spent any time working with Scala, these
+aliases should look familiar:
+
+<CodeSnippet language="dart" title="Function-N Aliases" snippet={FunctionsSnippet} section="aliases-1" />
+
+The `1` in `Function1` indicates that the function takes **one** parameter.
+Predictably, the `2` in `Function2` indicates the function takes **two**
+parameters. Aliases exist up to 22. One benefit of these aliases is that the
+type naturally reads left to right so we can quickly see that a
+`Function4<String, double, int, List<Foo>>` takes a `String`, `double` and `int`
+and will return a value of type `List<Foo>`.
+
+:::info
+You don't have to use these aliases in your own code but they're worth familiarizing
+yourself with since they're used throughout the Ribs API.
+:::
+
+## Composition
+
+Functions are one of the smallest building blocks of our programs. To create
+useful programs though, we'll need to use many functions together. How do they
+fit together though? That's a pretty general question but Ribs does provide a
+few ways to help you along the way as you gradually combine your small functions
+into something larger.
+
+### andThen
+
+It's often the case you'll want to feed the output of one function into another:
+
+<CodeSnippet language="dart" title="Simple andThen Example" snippet={FunctionsSnippet} section="andThen-1" />
+
+While this example is a bit trivial, you'll likely come across instances on
+your FP journey where chaining two function into a single value that you can
+then pass around will result in a cleaner and more composable solution.
+
+### compose
+
+Using the same function definitions from above we can `compose` two functions:
+
+<CodeSnippet language="dart" title="Simple compose Example" snippet={FunctionsSnippet} section="compose-1" />
+
+Examining the behavior of `andThen` and `compose` leads to the conclusion that
+`f.compose(g)` is the same as `g.andThen(f)`.
+
+## Currying
+
+Ribs also provides functions to curry and uncurry functions. Currying is the
+process of taking a function `f` that takes N parameters and turning it into a
+function that takes one parameter and returns a partially applied version of
+`f` that takes N-1 parameters. Check out this example:
+
+<CodeSnippet language="dart" title="Currying" snippet={FunctionsSnippet} section="currying-1" />
+
+It's worth the time to work through implementing this function. But if you're
+just looking for a quick answer:
+
+<details>
+    <summary>Curry Implementation</summary>
+    <div>
+        <CodeSnippet language="dart" snippet={FunctionsSnippet} section="curryFn-impl" />
+    </div>
+</details>
+
+Now that we know what currying is, we can use Ribs provided `curried` function
+for `FunctionN` (where 0 < N < 23) like so:
+
+<CodeSnippet language="dart" title="Currying with Ribs" snippet={FunctionsSnippet} section="currying-2" />
+
+This naturally begs the question: "Can you ***un***curry a function?". And
+the answer is most definitely yes! Ribs provides this ability out of the box:
+
+<CodeSnippet language="dart" title="Uncurrying with Ribs" snippet={FunctionsSnippet} section="currying-3" />
+
+## Tupled
+
+One last, but very useful function that Ribs provides is the ability to convert
+functions from accepts a set of individual arguments to one that accepts a tuple
+of the same argument types:
+
+<CodeSnippet language="dart" title="Tupled Function" snippet={FunctionsSnippet} section="tupled-1" />
+
+You may be asking why this would ever be useful but it becomes more apparent as
+you start working with generic endcoders/decoders, data classes (which Dart doesn't
+currently support) and tuple destructuring among other things. It's always
+good to stick this one in your back pocket to pull out when the situation arises.

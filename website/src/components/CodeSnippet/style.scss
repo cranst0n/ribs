@@ -6,6 +6,7 @@
     }
 
     &__title_bar {
+        pointer-events: none;
         position: absolute;
         right: 0;
         left: 0;
