@@ -6,25 +6,25 @@ import 'package:ribs_core/ribs_core.dart';
 // will break down.
 final class DiscriminatorCodec<A, B> extends Codec<B> {
   final Codec<A> by;
-  final IList<(A, Codec<B>)> cases;
+  final IMap<A, Codec<B>> cases;
 
   DiscriminatorCodec._(this.by, this.cases);
 
   static DiscriminatorCodec<A, B> typecases<A, B>(
-          Codec<A> by, IList<(A, Codec<B>)> cases) =>
-      DiscriminatorCodec._(by, cases);
+          Codec<A> by, IMap<A, Codec<B>> typecases) =>
+      DiscriminatorCodec._(by, typecases);
 
   @override
   Either<Err, DecodeResult<B>> decode(BitVector bv) {
-    return by.decode(bv).flatMap((a) => cases.find((t) => t.$1 == a.value).fold(
+    return by.decode(bv).flatMap((a) => cases.get(a.value).fold(
         () => Either.left<Err, DecodeResult<B>>(
             Err.general('Missing typecase for: ${a.value}')),
-        (decoder) => decoder.$2.decode(a.remainder)));
+        (decoder) => decoder.decode(a.remainder)));
   }
 
   @override
   Either<Err, BitVector> encode(B b) {
-    return cases.find((t) => t.$2.tag == b.runtimeType).fold(
+    return cases.find((k, v) => v.tag == b.runtimeType).fold(
         () => Either.left<Err, BitVector>(
             Err.general('Missing typecase for: ${b.runtimeType}')),
         (t) => (by.encode(t.$1), t.$2.encode(b)).mapN((a, b) => a.concat(b)));

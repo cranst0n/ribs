@@ -1,10 +1,17 @@
 import 'package:ribs_binary/ribs_binary.dart';
-import 'package:ribs_binary/src/codecs/discriminated_codec.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:test/test.dart';
 
 sealed class Animal {
   const Animal();
+
+  static final codec = discriminatedBy(
+      uint8,
+      imap({
+        7: Dog.codec,
+        1: Cat.codec,
+        3: Lion.codec,
+      }));
 }
 
 class Dog extends Animal {
@@ -16,7 +23,7 @@ class Dog extends Animal {
     constant(ByteVector.fromList([1, 2]).bits),
     int8,
     (_, age) => Dog(age),
-    (Dog dog) => (null, dog.age),
+    (Dog dog) => (Unit(), dog.age),
   );
 
   @override
@@ -61,26 +68,18 @@ void main() {
   });
 
   test('discriminated', () {
-    final codec = DiscriminatorCodec.typecases<int, Animal>(
-        uint8,
-        ilist([
-          (7, Dog.codec),
-          (1, Cat.codec),
-          (3, Lion.codec),
-        ]));
-
     expect(
       const Dog(2),
-      codec
+      Animal.codec
           .encode(const Dog(2))
-          .flatMap((a) => codec.decode(a))
+          .flatMap((a) => Animal.codec.decode(a))
           .getOrElse(() => fail('discriminated codec failed'))
           .value,
     );
 
-    final roundTripLion = codec
+    final roundTripLion = Animal.codec
         .encode(const Lion())
-        .flatMap((a) => codec.decode(a))
+        .flatMap((a) => Animal.codec.decode(a))
         .getOrElse(() => fail('discriminated codec failed.'));
 
     expect(roundTripLion.value, isA<Lion>());
@@ -101,4 +100,68 @@ void main() {
           .value,
     );
   });
+
+  test('update', () {
+    final res = BitVector.high(6).update(1, false).update(4, false);
+
+    expect(res.toBinString(), '101101');
+  });
+
+  test('BitVector.bits', () {
+    final bv = BitVector.bits([false, false, true, false, true, false]);
+
+    expect(bv.toBinString(), '001010');
+  });
+
+  test('StreamDecoder', () async {
+    final animalBits = animalStream.expand(
+      (animal) {
+        final bits = Animal.codec
+            .encode(animal)
+            .getOrElse(() => throw Exception('Animal.encode failed'));
+
+        // Split into uneven chunks
+        final (a, b) = bits.splitAt(bits.size ~/ 2);
+        final (a1, a2) = a.splitAt(a.size ~/ 3);
+        final (b1, b2) = b.splitAt(b.size ~/ 4);
+
+        return [a1, a2, b1, b2];
+      },
+    );
+
+    const n = 20;
+    int count = 0;
+
+    final animals = animalBits.transform(StreamDecoder(Animal.codec)).take(n);
+
+    await for (final _ in animals) {
+      count += 1;
+    }
+
+    expect(count, n);
+  });
+
+  test('StreamEncoder', () async {
+    final roundTrip = animalStream
+        .transform(StreamEncoder(Animal.codec))
+        .transform(StreamDecoder(Animal.codec));
+
+    const n = 44;
+    int count = 0;
+
+    final animals = roundTrip.take(n);
+
+    await for (final _ in animals) {
+      count += 1;
+    }
+
+    expect(count, n);
+  });
 }
+
+Stream<Animal> get animalStream =>
+    Stream.periodic(Duration.zero, id).map((age) => switch (age) {
+          _ when age.isEven => Dog(age),
+          _ when age % 3 == 0 => const Cat(),
+          _ => const Lion(),
+        });
