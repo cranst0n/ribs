@@ -62,7 +62,7 @@ sealed class Validated<E, A> implements Functor<A> {
   A valueOr(Function1<E, A> f) => fold(f, id);
 
   @override
-  String toString() => fold((a) => 'Left($a)', (b) => 'Right($b)');
+  String toString() => fold((a) => 'Invalid($a)', (b) => 'Valid($b)');
 
   @override
   bool operator ==(Object other) => fold(
