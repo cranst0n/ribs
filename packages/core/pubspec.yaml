@@ -10,7 +10,7 @@ environment:
 dependencies:
   async:                      ^2.11.0
   fast_immutable_collections: ^9.1.5
-  meta:                       ^1.9.1
+  meta:                       ^1.10.0
 
 dev_dependencies:
   daco: ^0.2.6
