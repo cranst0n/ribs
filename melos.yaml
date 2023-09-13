@@ -31,3 +31,6 @@ scripts:
   analyze: melos exec -c1 -- dart analyze --fatal-infos .
 
   format: melos exec dart format --show=changed .
+
+  outdated: melos exec dart pub outdated
+  
