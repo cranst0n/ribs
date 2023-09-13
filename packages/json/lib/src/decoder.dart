@@ -26,7 +26,7 @@ abstract mixin class Decoder<A> {
   static Decoder<A> failedWithMessage<A>(String message) => Decoder.instance(
       (c) => Left(DecodingFailure(CustomReason(message), c.history())));
 
-  DecodeResult<A> decode(Json cursor) => decodeC(cursor.hcursor);
+  DecodeResult<A> decode(Json json) => decodeC(json.hcursor);
 
   DecodeResult<A> decodeC(HCursor cursor);
 
@@ -95,6 +95,10 @@ abstract mixin class Decoder<A> {
 
   static Decoder<Duration> duration =
       integer.map((a) => Duration(milliseconds: a));
+
+  static Decoder<T> enumeration<T extends Enum>(List<T> values) =>
+      integer.emap((n) => Either.cond(() => 0 <= n && n < values.length,
+          () => values[n], () => 'Invalid value index for $T: $n'));
 
   static Decoder<IList<A>> ilist<A>(Decoder<A> decodeA) =>
       list(decodeA).map(IList.of);

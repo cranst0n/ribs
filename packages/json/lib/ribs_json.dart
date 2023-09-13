@@ -3,6 +3,7 @@ export 'src/codec.dart';
 export 'src/codec/key_codec.dart';
 export 'src/codec/key_value_codec.dart';
 export 'src/cursor_op.dart';
+export 'src/dawn/async_parser.dart';
 export 'src/decoder.dart';
 export 'src/encoder.dart';
 export 'src/error.dart';

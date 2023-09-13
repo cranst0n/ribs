@@ -72,7 +72,7 @@ sealed class Json {
       .mapN(
         (lhs, rhs) => fromJsonObject(lhs.toIList().foldLeft(
               rhs,
-              (acc, kv) => rhs.apply(kv.$1).fold(
+              (acc, kv) => rhs.get(kv.$1).fold(
                     () => acc.add(kv.$1, kv.$2),
                     (r) => acc.add(kv.$1, kv.$2.deepMerge(r)),
                   ),
