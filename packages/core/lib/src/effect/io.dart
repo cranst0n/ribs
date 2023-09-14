@@ -129,18 +129,11 @@ sealed class IO<A> extends Monad<A> {
   static IO<A> fromEither<A>(Either<Object, A> either) =>
       either.fold((e) => IO.raiseError<A>(IOError(e)), IO.pure);
 
-  static IO<A> fromFuture<A>(IO<Future<A>> fut) {
-    return fut.flatMap((f) {
-      return async_<A>((cb) {
-        f.whenComplete(
-          () => f.then(
+  static IO<A> fromFuture<A>(IO<Future<A>> fut) =>
+      fut.flatMap((f) => async_<A>((cb) => f.then(
             (a) => cb(a.asRight()),
             onError: (Object e, StackTrace s) => cb(IOError(e, s).asLeft()),
-          ),
-        );
-      });
-    });
-  }
+          )));
 
   static IO<A> fromOption<A>(Option<A> option, Function0<Object> orElse) =>
       option.fold(() => IO.raiseError<A>(IOError(orElse())), IO.pure);
