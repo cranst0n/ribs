@@ -1,0 +1,96 @@
+---
+sidebar_position: 4
+---
+
+import {CodeSnippet} from '../../src/components/CodeSnippet';
+import StreamingSnippet from '!!raw-loader!../../snippets/lib/src/json/streaming.dart';
+
+# Streaming
+
+Ribs JSON also comes with an `AsyncParser` that supports emitting JSON elements
+as they arrive in situations like reading bytes from a file or a streaming HTTP
+response.
+
+## Unwrap Array
+
+The first mode of streaming Ribs supports is `unwrapArray`, which expects the
+streamed JSON to consist of a top level JSON array. The parser will then emit
+events as each child element is completely received.
+
+To illustrate, let's start with a basic setup with a couple domain models and
+JSON codecs defined for each:
+
+<CodeSnippet language="dart" title="Models" snippet={StreamingSnippet} section="streaming-1"/>
+
+Now consider that the incoming JSON, (whether it be from a file, a socket or
+an HTTP response), will take on the following structure:
+
+```json
+[
+    {
+        "id": "2489651045",
+        "type": "CreateEvent",
+        "repo": {
+            "id": 28688495,
+            "name": "petroav/6.828",
+            "url": "https://api.github.com/repos/petroav/6.828"
+        }
+    },
+    {
+        "id": "2489651051",
+        "type": "PushEvent",
+        "repo": {
+            "id": 28671719,
+            "name": "rspt/rspt-theme",
+            "url": "https://api.github.com/repos/rspt/rspt-theme"
+        }
+    },
+    //
+    //     Tens, hundreds, thousands of more events....
+    //
+    {
+        "id": "2489651591",
+        "type": "WatchEvent",
+        "repo": {
+            "id": 21289110,
+            "name": "vinta/awesome-python",
+            "url": "https://api.github.com/repos/vinta/awesome-python"
+        }
+    }
+]
+```
+
+We can emit each of these individual `Event`s using the `JsonTransformer`
+in the Ribs Json library. Here's a simple example of how it's used:
+
+<CodeSnippet language="dart" title="Unwrap Array Transformer" snippet={StreamingSnippet} section="streaming-2"/>
+
+## Value Stream
+
+In the case the stream contains multiple top-level JSON elements, you'll want
+to use `AsyncParserMode.valueStream` when creating your `JsonTransformer`.
+
+Consider the incoming JSON will look something like this:
+
+```json
+["Name", "Session", "Score", "Completed"]
+{"name": "Gilbert", "wins": [["straight", "7♣"], ["one pair", "10♥"]]}
+["Gilbert", "2013", 24, true]
+//
+//    tens, hundreds, thousands of other JSON elements...
+//
+{"name": "Deloise", "wins": [["three of a kind", "5♣"]]}
+["Deloise", "2012A", 19, true]
+```
+
+We'll creating our transformer in exactly the same way, but change the mode
+the parser will operate as:
+
+<CodeSnippet language="dart" title="Value Stream Transformer" snippet={StreamingSnippet} section="streaming-3"/>
+
+## Single Value
+
+The last mode available expects a single top level JSON element and won't emit
+the JSON event until it's entirely received. This effectively turns the
+`JsonTransformer` into a standard synchronous parser but could still be useful
+in some situations.

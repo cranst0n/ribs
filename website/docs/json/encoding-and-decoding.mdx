@@ -1,0 +1,112 @@
+---
+sidebar_position: 3
+---
+
+import {CodeSnippet} from '../../src/components/CodeSnippet';
+import CodecsSnippet from '!!raw-loader!../../snippets/lib/src/json/codecs.dart';
+
+# Encoding and Decoding
+
+Converting between your domain models and JSON is such a common task when
+building useful programs, every language under the sun is saturated with
+libraries that have their own flavor of filling the developer need. Each
+undoubtedly comes with it's own set of pros and cons. Hopefully this page
+will convince you that Ribs JSON brings enough utility to be considered
+amongst other solutions in the Dart ecosystem.
+
+## Decoder
+
+For most cases, defining a `Codec` for your domain models is where you'll
+find the most utility from the Ribs JSON library. However, it's worth knowing
+how `Decoder` and `Encoder` work since `Codec` is essentially a composition of
+those two types.
+
+Let's quickly go through a quick scenario to introduce how the API works:
+
+<CodeSnippet language="dart" title="Domain Model" snippet={CodecsSnippet} section="codecs-1"/>
+
+Now that we know what models we need to convert, it's time to create a few `Decoder`s for
+each type:
+
+<CodeSnippet language="dart" title="Decoders" snippet={CodecsSnippet} section="codecs-2"/>
+
+There's a bit to take in here so we can break it down into a few pieces an analyze them
+one at a time:
+
+The first `Decoder` we define is the `petTypeDecoder` which expects to find an
+`int` and proceeds to `map` that to the value at `PetType.values[n]`.  *We'll
+revisit this particular Decoder later since this implementation isn't entirely
+correct.*
+
+Next, the `petDecoder` uses the `Decoder.product3` function, which expects 3
+`Decoders` that will each handle decoding one value, as well as a function that
+will decide how those values are combined. In this case, we have:
+
+* A decoder that expects to find a string value at the key `name`.
+* A decoder that expects to find an *optional* double (or nullable) value at the
+    key `weight`.
+* The `petTypeDecoder` we already defined expects to find an int value at the key
+    `type` which will then be `map`ped to a `PetType`.
+* A function that declares the 3 values should be combined to create a new
+    instance of `User`.
+
+Since the input is valid in this small example, a new instance of `Right(User)`
+is what we end up with.
+
+## Error handling
+
+Now let's revist the definition of our `petTypeDecoder` above. It has a fatal
+flaw which we can address using the `Decoder` API. Consider the following
+example:
+
+<CodeSnippet language="dart" title="Decoder Error" snippet={CodecsSnippet} section="codecs-3"/>
+
+The last call to `Json.decode` throws an exception! This is because the integer
+value (100) doesn't correspond to a valid `PetType` enum value. What is to be
+done? The best first step is to consult the API to see what combinators are
+availble on `Decoder` to handle such scenarios. Here's an improved solution:
+
+<CodeSnippet language="dart" title="Decoder.emap" snippet={CodecsSnippet} section="codecs-4"/>
+
+`Decoder.emap` allows you to map a value but provide a function that return
+an `Either<String, A>>` which allows you the developer to determine how
+errors during decoding should be handled.
+
+Finally, encoding and decoding `enum`s is so common that the API provides a
+`Decoder`, `Encoder` and `Codec` specifically designed for them:
+
+<CodeSnippet language="dart" title="Decoder.enumeration" snippet={CodecsSnippet} section="codecs-enumeration"/>
+
+:::tip
+`Decoder.emap` only scratches the surface of how you can customize a Decoders
+behavior. Browse the API to see what else is available!
+:::
+
+## Encoder
+
+Next in line is seeing how we can use the `Encoder` class to convert our domain
+models into `Json`. The strategy is similar to the one we took with our decoders.
+build one for each data type, and pies them together to build a more elaborate and
+complex `Encoder`.
+
+<CodeSnippet language="dart" title="Model Encoders" snippet={CodecsSnippet} section="codecs-5"/>
+
+## Codec
+
+While what we've done so far is effective and composable, an argument can be made that
+it's pretty verbose. We can cut down on that issue quite a bit by combining `Decoder`s
+and `Encoder`s in form of a `Codec`!
+
+:::info
+Usually a `Codec` is what you'll want to use when writing your
+(de)serialization code but sometimes you'll want or need a little more control
+which is why it's still useful to be familiar with `Decoder` and `Encoder`.
+:::
+
+Let's use `Codec` to rewrite the previous `Decoder` and `Encoder`'s:
+
+<CodeSnippet language="dart" title="Model Codecs" snippet={CodecsSnippet} section="codecs-6"/>
+
+This example uses the new form of `"string".as(Codec.integer)` which is just
+syntax equivalent to what we used before in our `Encoder` definitions. The given
+`Codec` is used to decode the value at the given key.

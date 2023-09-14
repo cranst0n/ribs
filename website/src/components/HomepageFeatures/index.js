@@ -2,6 +2,18 @@ import React from 'react';
 import clsx from 'clsx';
 import styles from './styles.module.css';
 
+export const Highlight = ({ children, color }) => (
+  <span
+    style={{
+      backgroundColor: color,
+      borderRadius: '2px',
+      color: '#fff',
+      padding: '0.2rem',
+    }}>
+    {children}
+  </span>
+);
+
 const FeatureList = [
   {
     title: 'Immutable by Default',
@@ -34,12 +46,23 @@ const FeatureList = [
     ),
   },
   {
+    title: 'IO for Side Effects',
+    Svg: require('@site/static/img/undraw_dev_productivity_re_fylf.svg').default,
+    description: (
+      <>
+        Ribs `IO` type allows you to control your synchronous and asynchronous
+        side effects. `IO` is a referentially transparent version of `Future`
+        on sterioids!
+      </>
+    ),
+  },
+  {
     title: 'Typesafe JSON',
     Svg: require('@site/static/img/undraw_dev_focus_re_6iwt.svg').default,
     description: (
       <>
-        Every opportunity is taken to use the Dart type system to encode
-        variants. The less responsibility on the developer, the better!
+        <code>Map&lt;String, dynamic&gt;</code> is no longer! Ribs offers completely
+        typed JSON.
       </>
     ),
   },
@@ -48,18 +71,8 @@ const FeatureList = [
     Svg: require('@site/static/img/undraw_convert_re_l0y1.svg').default,
     description: (
       <>
-        Every opportunity is taken to use the Dart type system to encode
-        variants. The less responsibility on the developer, the better!
-      </>
-    ),
-  },
-  {
-    title: 'Optics and More!',
-    Svg: require('@site/static/img/undraw_dev_productivity_re_fylf.svg').default,
-    description: (
-      <>
-        Every opportunity is taken to use the Dart type system to encode
-        variants. The less responsibility on the developer, the better!
+        Encoding and decoding binary data is a breeze with Ribs. Declare
+        your codecs and get control over every bit of data!
       </>
     ),
   },

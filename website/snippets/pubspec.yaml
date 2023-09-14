@@ -7,8 +7,13 @@ environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
+  async:      ^2.11.0
+  ribs_binary:
+    path: ../../packages/binary/
   ribs_core:
     path: ../../packages/core/
+  ribs_json:
+    path: ../../packages/json/
 
 dev_dependencies:
   lint: ^2.1.2

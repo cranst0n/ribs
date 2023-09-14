@@ -3,7 +3,7 @@ sidebar_position: 2
 ---
 
 import {CodeSnippet} from '../../src/components/CodeSnippet';
-import OptionSnippet from '!!raw-loader!../../snippets/lib/src/option.dart';
+import OptionSnippet from '!!raw-loader!../../snippets/lib/src/core/option.dart';
 
 # Option
 
@@ -105,7 +105,7 @@ shortcut to achieve what we're after. Note that the number of `Option`
 values you're combining (arity) doesn't matter. Ribs will handle tuples up to
 size 22!
 
-:::success
+:::tip
 `mapN` isn't just used for combining `Option` values. You'll find it used
 for other data types as well including `Either`, `IO` and many more!
 :::

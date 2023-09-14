@@ -1,0 +1,74 @@
+---
+sidebar_position: 1
+---
+
+import {CodeSnippet} from '../src/components/CodeSnippet';
+import OverviewSnippet from '!!raw-loader!../snippets/lib/src/overview.dart';
+
+# Overview
+
+Ribs aims to provide useful libraries built on the core principles of
+functional programming (FP). FP is based on a core idea that we should write
+programs that only use **pure functions** that are **side-effect free** and follow
+the rules of **referential transparency**.
+
+Let's work through what each of those properties mean in practice:
+
+## Side-Effects
+
+To be brief, side effects are any action taken within a program other than
+returning a result. Common examples of side effects include:
+
+* Mutating a variable
+    <CodeSnippet language="dart" snippet={OverviewSnippet} section="overview-1"/>
+* Printing to console
+    <CodeSnippet language="dart" snippet={OverviewSnippet} section="overview-2"/>
+* Changing a field of an object
+    <CodeSnippet language="dart" snippet={OverviewSnippet} section="overview-3"/>
+* Throwing an `Exception`
+    <CodeSnippet language="dart" snippet={OverviewSnippet} section="overview-4"/>
+
+Eliminating side-effects from our programs allows us to write pure functions.
+
+## Pure Functions
+
+A pure function should take it's parameters, compute a result and return that
+result. **It should do nothing else!** If a function has any effect on the overall
+state of the program, it cannot be considered pure and violates a core
+principle of FP.
+
+One of the simplest examples of this below:
+
+<CodeSnippet language="dart" snippet={OverviewSnippet} section="overview-5"/>
+
+This simple function takes it's inputs and the result of the function is
+entirely dependent on the input. Using pure functions allows us to use local
+reasoning, in that we only need to understand what is happening in the function
+itself, rather than needing to know any kind of context surrounding the
+function call.
+
+## Referential Transparency
+
+A simplistic definition of referential transparency (RT) refers to a property
+where any expression (E) can be safely replaced by the result of evaluating
+that expression. Safely means that the replacing or substitution does not
+change the result of the entire program.
+
+Building on our definitions let's look at 2 examples that illustrate when RT
+is satisfied and when it is violated:
+
+<CodeSnippet language="dart" title="Initial Program" snippet={OverviewSnippet} section="overview-6"/>
+
+Now let's try substituting every occurance of `b` with the expression that `b`
+evaluated to, namely `a.add()`:
+
+<CodeSnippet language="dart" title="Broken Referential Transparency" snippet={OverviewSnippet} section="overview-7"/>
+
+After doing the substitution, we can see that RT is broken since the value of
+`areEqual` changes. The ultimate reason behind this is that the `Counter.add`
+function is not a pure function. It changes the mutable field `count` and then
+returns itself, which is clearly a side effect.
+
+## Additional Resources
+
+* [What is functional programming](https://github.com/fpinscala/fpinscala/wiki/Chapter-1:-What-is-functional-programming%3F)
