@@ -33,8 +33,11 @@ abstract mixin class Encoder<A> {
 
   static Encoder<double> dubble = number.contramap(id);
 
-  static Encoder<T> enumeration<T extends Enum>() =>
+  static Encoder<T> enumerationByIndex<T extends Enum>() =>
       integer.contramap((e) => e.index);
+
+  static Encoder<T> enumerationByName<T extends Enum>() =>
+      string.contramap((e) => e.name);
 
   static Encoder<int> integer = number.contramap(id);
 

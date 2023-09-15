@@ -253,6 +253,9 @@ void main() {
   test('IList.removeAt', () {
     expect(nil<int>().removeAt(1), nil<int>());
     expect(ilist([1, 2, 3]).removeAt(1), ilist([1, 3]));
+
+    expect(ilist([1, 2, 3]).removeAt(-1), ilist([1, 2, 3]));
+    expect(ilist([1, 2, 3]).removeAt(3), ilist([1, 2, 3]));
   });
 
   test('IList.removeFirst', () {
@@ -274,6 +277,7 @@ void main() {
     expect(ilist([1, 2, 3]).slice(0, 2), ilist([1, 2]));
     expect(ilist([1, 2, 3]).slice(0, 20), ilist([1, 2, 3]));
     expect(ilist([1, 2, 3]).slice(-2, 20), ilist([1, 2, 3]));
+    expect(ilist([1, 2, 3]).slice(3, 1), nil<int>());
   });
 
   test('IList.sliding', () {

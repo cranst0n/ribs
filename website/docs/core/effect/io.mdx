@@ -175,6 +175,8 @@ method after you've built and described your program using IO.
 The reason these functions include the 'unsafe' keyword isn't because your
 computer will explode when they're called. They're unsafe because they are
 not pure functions and will interpret your `IO` and perform side effects.
+'Unsafe' is included because you should always take care before deciding
+to call these functions.
 
 * **unsafeRunAsync**: As the name indicates, this will evaluate the `IO`
 asynchronously, and the provided callback will be executed when it has

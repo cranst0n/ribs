@@ -96,9 +96,15 @@ abstract mixin class Decoder<A> {
   static Decoder<Duration> duration =
       integer.map((a) => Duration(milliseconds: a));
 
-  static Decoder<T> enumeration<T extends Enum>(List<T> values) =>
-      integer.emap((n) => Either.cond(() => 0 <= n && n < values.length,
-          () => values[n], () => 'Invalid value index for $T: $n'));
+  static Decoder<T> enumerationByIndex<T extends Enum>(List<T> values) =>
+      integer.emap((index) => IList.of(values)
+          .find((v) => v.index == index)
+          .toRight(() => 'Invalid enum index for $T: $index'));
+
+  static Decoder<T> enumerationByName<T extends Enum>(List<T> values) =>
+      string.emap((name) => IList.of(values)
+          .find((v) => v.name == name)
+          .toRight(() => 'Invalid enum name for $T: $name'));
 
   static Decoder<IList<A>> ilist<A>(Decoder<A> decodeA) =>
       list(decodeA).map(IList.of);

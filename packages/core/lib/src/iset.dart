@@ -6,7 +6,7 @@ ISet<A> iset<A>(Iterable<A> as) => ISet.of(as);
 
 // This is a thin wrapper around the FIC ISet, which is a tremendous immutable
 // set implementation. This exists only because I want a particular Set API
-// and I'm stubborn
+// to make porting libraries easier, and I'm stubborn
 final class ISet<A> {
   final fic.ISet<A> _underlying;
 

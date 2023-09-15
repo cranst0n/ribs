@@ -75,7 +75,10 @@ void snippet3() {
 void snippet4() {
   /// codecs-4
   // Solution using .emap
-  final petTypeDecoderA = Decoder.enumeration(PetType.values);
+  final petTypeDecoderA = Decoder.integer.emap(
+    (n) => Either.cond(() => 0 <= n && n < PetType.values.length,
+        () => PetType.values[n], () => 'Invalid value index for PetType: $n'),
+  );
 
   print(Json.decode('100', petTypeDecoderA));
   // Left(DecodingFailure(CustomReason(Invalid PetType index: 100), None))
@@ -84,7 +87,11 @@ void snippet4() {
 }
 
 /// codecs-enumeration
-final petTypeDecoderA = Decoder.enumeration(PetType.values);
+/// Uses Enum.index to look up instance
+final petTypeDecoderByIndex = Decoder.enumerationByIndex(PetType.values);
+
+/// Uses Enum.name to look up instance
+final petTypeDecoderByName = Decoder.enumerationByName(PetType.values);
 
 /// codecs-enumeration
 

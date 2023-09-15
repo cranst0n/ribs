@@ -2,7 +2,9 @@ name: ribs_core
 version: 1.0.0-dev.4
 homepage: https://github.com/cranst0n/ribs
 description: >
-  Minimal FP kernel for a few libraries.
+  Functional programming (FP) kernel. Provides common FP datatypes like
+  Option, Either, State, Validated as well as effect types like IO,
+  Ref and Resource.
 
 environment:
   sdk: ">=3.0.0 <4.0.0"

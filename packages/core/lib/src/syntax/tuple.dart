@@ -1,11 +1,22 @@
 import 'package:ribs_core/src/function.dart';
 
 extension Tuple2Ops<A, B> on (A, B) {
+  /// Returns a new tuple with [$3] appended to the end.
   (A, B, C) append<C>(C $3) => ($1, $2, $3);
 
+  /// Applies each function to the respective item of this tuple.
   (C, D) bimap<C, D>(Function1<A, C> fa, Function1<B, D> fb) =>
       (fa($1), fb($2));
 
+  /// Syntax to allow calling a tuple as a function and automatically
+  /// destructure the elements.
+  ///
+  /// ```dart main
+  /// final tup = (1,2,3);
+  /// final sum = tup((a, b, c) => a + b + c);
+  ///
+  /// assert(sum == 6);
+  /// ```
   C call<C>(Function2<A, B, C> f) => f($1, $2);
 
   (A, B) copy({

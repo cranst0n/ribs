@@ -3,12 +3,28 @@ import 'package:ribs_core/src/function.dart';
 import 'package:ribs_core/src/syntax/tuple.dart';
 
 extension Tuple2IOOps<A, B> on (IO<A>, IO<B>) {
+  /// Creates a new IO that applies [fn] to the values of each respective tuple
+  /// member if all IOs succeed. If **any** item fails or is canceled, the
+  /// first instance encountered will be returned. Each item is evaluated
+  /// synchronously.
   IO<C> mapN<C>(Function2<A, B, C> fn) => _tupled2($1, $2).map(fn.tupled);
 
+  /// Creates a new IO that applies [fn] to the values of each respective tuple
+  /// member if all IOs succeed. If **any** item fails or is canceled, the
+  /// first instance encountered will be returned. Items are evaluated
+  /// asynchronously.
   IO<C> parMapN<C>(Function2<A, B, C> fn) => _parTupled2($1, $2).map(fn.tupled);
 
+  /// Creates a new [IO] that will return the tuple of all items is they all
+  /// evaluate successfully. If **any** item fails or is canceled, the first
+  /// instance encountered will be returned. Each item is evaluated
+  /// synchronously.
   IO<(A, B)> sequence() => _tupled2($1, $2);
 
+  /// Creates a new [IO] that will return the tuple of all items is they all
+  /// evaluate successfully. If **any** item fails or is canceled, the first
+  /// instance encountered will be returned. Items are evaluated
+  /// asynchronously.
   IO<(A, B)> parSequence() => _parTupled2($1, $2);
 }
 
