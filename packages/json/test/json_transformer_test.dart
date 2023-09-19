@@ -3,8 +3,6 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
-import 'package:ribs_json/src/dawn/async_parser.dart';
-import 'package:ribs_json/src/dawn/dawn.dart';
 import 'package:test/test.dart';
 
 void main() {

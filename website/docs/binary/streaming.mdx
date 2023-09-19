@@ -1,0 +1,37 @@
+---
+sidebar_position: 3
+---
+
+import {CodeSnippet} from '../../src/components/CodeSnippet';
+import StreamingSnippet from '!!raw-loader!../../snippets/lib/src/binary/streaming.dart';
+
+# Streaming
+
+It's a common scenario to read and write bytes to and from file, socket or
+some other `Stream`. Ribs provides the 2 basic tools to handle the machinery
+necessary for these situations.
+
+Let's assume we've got a simple type of model with our binary `Codec` already
+defined:
+
+<CodeSnippet language="dart" title="Domain Model" snippet={StreamingSnippet} section="streaming-1"/>
+
+## StreamEncoder
+
+Now image we generate these events on the fly and need to send them out a
+socket after converting them to binary. `StreamEncoder` is the perfect
+solution:
+
+<CodeSnippet language="dart" title="StreamEncoder" snippet={StreamingSnippet} section="streaming-2"/>
+
+We've built a capable yet expressive and readable program with minimal effort!
+
+## StreamDecoder
+
+Now we can imagine needing to write a program that will receive events off a
+socket and do something meaningful with them:
+
+<CodeSnippet language="dart" title="StreamEncoder" snippet={StreamingSnippet} section="streaming-3"/>
+
+Using the Ribs Binary streaming API, it's easy to transform byte streams into
+your domain objects.

@@ -116,10 +116,10 @@ void main() {
     final oneIntoTwo = obj2.deepMerge(obj1);
     final twoIntoOne = obj1.deepMerge(obj2);
 
-    expect(oneIntoTwo.asObject.flatMap((obj) => obj.apply('a')),
+    expect(oneIntoTwo.asObject.flatMap((obj) => obj.get('a')),
         Json.number(1).some);
 
-    expect(twoIntoOne.asObject.flatMap((obj) => obj.apply('a')),
+    expect(twoIntoOne.asObject.flatMap((obj) => obj.get('a')),
         Json.number(2).some);
   });
 

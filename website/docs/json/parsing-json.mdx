@@ -1,0 +1,56 @@
+---
+sidebar_position: 1
+---
+
+import {CodeSnippet} from '../../src/components/CodeSnippet';
+import ParsingSnippet from '!!raw-loader!../../snippets/lib/src/json/parsing.dart';
+
+# Parsing JSON
+
+If you've ever used the built in Dart SDK `jsonDecode` function, you'll know
+that your JSON (de)serialization code becomes littered with the dreaded
+`dynamic` type. Dynamic bring along with a lot of responsibility for the
+developer to check what type of data exactly they're dealing with. Then you
+also have to deal with the potential thrown exception, adding yet another
+responsibility which could instead be encoded as a type.
+
+By contrast Ribs uses it's own parser (heavily derived from Scala's jawn),
+to build typed JSON data! No more type checks or casts using `is` or `as`
+which pollute your code and reduce the readability.
+
+Let's begin with a very simple example to get aquainted with the Ribs JSON
+API:
+
+<CodeSnippet language="dart" title="Simple Parse" snippet={ParsingSnippet} section="parsing-1"/>
+
+You can see that we can simply pass a string to the `Json.parse` function
+and get our **value** back (emphasis on value because an exception will
+*never* be raised!). With our value, it's easy to check if the parse succeeded
+or failed from the provided JSON string. The developer will need to explicitly
+handle a failure because the `Either` type dictates it!
+
+<CodeSnippet language="dart" title="Handling Potentially Invalid JSON" snippet={ParsingSnippet} section="parsing-2"/>
+
+Assuming that we've got a valid string to parse, as we do in this example,
+what exactly is the `Json` type and what do we do with it? `Json` is a sealed
+class that can be one of a few possible types:
+
+* `JNull`
+* `JBoolean`
+* `JNumber`
+* `JString`
+* `JArray`
+* `JObject`
+
+These represent all the possible types of JSON as defined by the spec. To
+confirm this, print out the result of parsing the string from above:
+
+<CodeSnippet language="dart" title="Typed JSON" snippet={ParsingSnippet} section="parsing-3"/>
+
+You can see that each element of the top-level array has successfully been
+parsed and has the proper type.
+
+Naturally if we feed an invalid JSON string into the parser, we'll get an
+error. For illustrative purposes:
+
+<CodeSnippet language="dart" title="Typed JSON" snippet={ParsingSnippet} section="parsing-4"/>

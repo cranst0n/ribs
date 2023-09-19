@@ -17,7 +17,7 @@ final class ObjectCursor extends HCursor {
   );
 
   @override
-  Json get value => obj.applyUnsafe(keyValue);
+  Json get value => obj.getUnsafe(keyValue);
 
   @override
   Option<int> get index => none();

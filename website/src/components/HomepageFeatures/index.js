@@ -2,6 +2,18 @@ import React from 'react';
 import clsx from 'clsx';
 import styles from './styles.module.css';
 
+export const Highlight = ({ children, color }) => (
+  <span
+    style={{
+      backgroundColor: color,
+      borderRadius: '2px',
+      color: '#fff',
+      padding: '0.2rem',
+    }}>
+    {children}
+  </span>
+);
+
 const FeatureList = [
   {
     title: 'Immutable by Default',
@@ -18,7 +30,7 @@ const FeatureList = [
     Svg: require('@site/static/img/undraw_building_blocks_re_5ahy.svg').default,
     description: (
       <>
-        Ribs is focused on creating small, yet powerful pieces that can
+        Ribs is focused on creating small, yet powerful, pieces that can
         be combined to create greater functionality while limiting complexity.
       </>
     ),
@@ -28,8 +40,19 @@ const FeatureList = [
     Svg: require('@site/static/img/undraw_security_on_re_e491.svg').default,
     description: (
       <>
-        Every opportunity is taken to use the Dart type system to encode
-        variants. The less responsibility on the developer, the better!
+        Every opportunity is taken to leverage the Dart type system.
+        The less responsibility on the developer, the better!
+      </>
+    ),
+  },
+  {
+    title: 'Supercharged IO',
+    Svg: require('@site/static/img/undraw_dev_productivity_re_fylf.svg').default,
+    description: (
+      <>
+        Ribs <code>IO</code> type allows you to control your synchronous and asynchronous
+        side effects with error handling and cancelation capabilities included!
+        <code>IO</code> is <code>Future</code> on sterioids!
       </>
     ),
   },
@@ -38,8 +61,8 @@ const FeatureList = [
     Svg: require('@site/static/img/undraw_dev_focus_re_6iwt.svg').default,
     description: (
       <>
-        Every opportunity is taken to use the Dart type system to encode
-        variants. The less responsibility on the developer, the better!
+        Say goodbye to <code>Map&lt;String, dynamic&gt;</code>! Ribs offers completely
+        typed JSON as well as streaming.
       </>
     ),
   },
@@ -48,18 +71,9 @@ const FeatureList = [
     Svg: require('@site/static/img/undraw_convert_re_l0y1.svg').default,
     description: (
       <>
-        Every opportunity is taken to use the Dart type system to encode
-        variants. The less responsibility on the developer, the better!
-      </>
-    ),
-  },
-  {
-    title: 'Optics and More!',
-    Svg: require('@site/static/img/undraw_dev_productivity_re_fylf.svg').default,
-    description: (
-      <>
-        Every opportunity is taken to use the Dart type system to encode
-        variants. The less responsibility on the developer, the better!
+        Encoding and decoding binary data is a breeze with Ribs. Declare
+        your codecs and get control over every bit of data! Streaming
+        is also supported!
       </>
     ),
   },
@@ -72,7 +86,7 @@ function Feature({ Svg, title, description }) {
         <Svg className={styles.featureSvg} role="img" />
       </div>
       <div className="text--center padding-horiz--md">
-        <h3>{title}</h3>
+        <h1>{title}</h1>
         <p>{description}</p>
       </div>
     </div>

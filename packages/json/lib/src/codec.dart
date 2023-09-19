@@ -45,6 +45,12 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
 
   static Codec<Duration> duration = from(Decoder.duration, Encoder.duration);
 
+  static Codec<T> enumerationByIndex<T extends Enum>(List<T> values) =>
+      from(Decoder.enumerationByIndex(values), Encoder.enumerationByIndex());
+
+  static Codec<T> enumerationByName<T extends Enum>(List<T> values) =>
+      from(Decoder.enumerationByName(values), Encoder.enumerationByName());
+
   static Codec<int> integer = from(Decoder.integer, Encoder.integer);
 
   static Codec<IList<A>> ilist<A>(Codec<A> codec) =>

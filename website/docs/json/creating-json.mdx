@@ -1,0 +1,27 @@
+---
+sidebar_position: 2
+---
+
+import {CodeSnippet} from '../../src/components/CodeSnippet';
+import CreatingSnippet from '!!raw-loader!../../snippets/lib/src/json/creating.dart';
+
+# Creating JSON
+
+It's also easy to create a typed JSON structure using Ribs using the `Json`
+class:
+
+<CodeSnippet language="dart" title="JSON Object" snippet={CreatingSnippet} section="creating-1"/>
+
+By passing a list of `(String, Json)` elements to the `Json.obj` function, we now have a fully
+typed `Json` object that we can interact with using the Ribs json API.
+
+:::info
+In many cases, you probably won't need to use the `Json` API itself. It's far
+more common to define your domain models, and create encoders and decoders
+for those. But it's still worthwhile knowing the `Json` type is what makes the
+higher level APIs work.
+:::
+
+What about serializing the JSON? That's also an easy task:
+
+<CodeSnippet language="dart" title="Serialzing Json to String" snippet={CreatingSnippet} section="creating-2"/>

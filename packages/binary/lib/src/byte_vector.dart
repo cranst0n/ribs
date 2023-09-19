@@ -15,8 +15,10 @@ final class ByteVector {
 
   factory ByteVector.low(int size) => ByteVector(Uint8List(size));
 
-  factory ByteVector.high(int size) =>
-      ByteVector(Uint8List.fromList(List.filled(size, 0xff)));
+  factory ByteVector.high(int size) => ByteVector.fill(size, 0xff);
+
+  factory ByteVector.fill(int size, int byte) =>
+      ByteVector(Uint8List.fromList(List.filled(size, byte)));
 
   static ByteVector fromValidBin(String s) =>
       fromBin(s).getOrElse(() => throw Exception('Illegal binary string: $s'));

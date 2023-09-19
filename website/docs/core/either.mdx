@@ -3,12 +3,12 @@ sidebar_position: 3
 ---
 
 import {CodeSnippet} from '../../src/components/CodeSnippet';
-import EitherSnippet from '!!raw-loader!../../snippets/lib/src/either.dart';
+import EitherSnippet from '!!raw-loader!../../snippets/lib/src/core/either.dart';
 
 # Either
 
 `Either` is type that represents the existence of one of two types. An instance
-of `Either` is instance of `Left` or `Right`.
+of `Either` is an instance of `Left` or `Right`.
 
 ## Motivation
 
@@ -73,7 +73,7 @@ on whether it's a `Left` or `Right`, the `fold` method makes it easy:
 As specified in the `fold` function signature, each function provided
 ***must*** return a value of the same type.
 
-:::success
+:::tip
 Either has a lot of other useful combinators to make using them easy
 and expressive! Check out the API to explore them.
 :::

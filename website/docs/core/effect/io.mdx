@@ -1,0 +1,195 @@
+---
+sidebar_position: 1
+---
+
+import {CodeSnippet} from '../../../src/components/CodeSnippet';
+import IOSnippet from '!!raw-loader!../../../snippets/lib/src/core/effect/io.dart';
+
+# IO
+
+`IO` is one of the most useful types in Ribs because it enables us to control
+side effects and make it easier to write purely functional programs.
+
+:::info
+If you're familiar with the `IO` type from [Cats Effect](https://typelevel.org/cats-effect/),
+then Ribs `IO` should look very similar. In fact, Ribs `IO` is a very close
+port from Scala to Dart! The API is designed to stay as close as possible to
+the orinal implementation.
+:::
+
+IO
+
+## Motivation
+
+While Darts `Future` type has it's uses, it also suffers from issues that make
+it unsuitable for functional programming. Consider the following code:
+
+<CodeSnippet language="dart" snippet={IOSnippet} section="io-1" />
+
+If you run this code, you should notice that the value of `x` and `y` are
+always the same! Can you see why this is problematic? Now consider this piece
+of code where we replace each reference to `fut` with the expression that `fut`
+evaluated to:
+
+<CodeSnippet language="dart" snippet={IOSnippet} section="io-2" />
+
+When we do the substitution, the meaning of the program changes which leads us
+to the conclusion that `Future` is not referentially transparent! That means
+that it's insufficient for use in pure functions.
+
+Here is where `IO` steps in. It provides lazy, pure capabilities that provide
+greater control over execution and dealing with failure. Here's the same
+program from above, using `IO` instead of `Future`.
+
+<CodeSnippet language="dart" snippet={IOSnippet} section="io-3" />
+
+You'll notice there are some differences in the APIs between `Future` and `IO`
+but for the sake of this example, you can assume that `flatMap` is equivalent
+to `then` and `IO.println` is equivalent to `print`. If you squint hard enough,
+this `IO` version should look pretty similar to the original implementation
+where we defined `rng` using `Future`. ***However***, this piece of code is
+pure and referentially transparent because of the way `IO` is implemented!
+
+Along with this small but important quality, `IO` provides the following
+features:
+
+* Asynchronous Execution
+* Error Handling
+* Safe Resource Handling
+* Cancelation
+
+
+## Asynchronous Execution
+
+`IO` is able to describe both synchronous and asynchronous effects.
+
+### IO.pure
+
+`IO.pure` accepts a value. This means that there is no laziness or delaying
+of effects. Any parameter is eagerly evaluated.
+
+### IO.delay
+
+`IO.delay` can be used for **synchronous** effects that can be evaluated
+immediately once the `IO` itself is evaluated (within the context of the
+IO run loop).
+
+### IO.async
+
+`IO.async` and `IO.async_` is used to describe **asynchronous** effects that require a
+callback to be invoked to indicate completion and resume execution. Using `async`, we
+can write a function that will convert a **lazy** `Future` into an `IO`.
+
+<CodeSnippet language="dart" title="IO.async_" snippet={IOSnippet} section="error-handling-1" />
+
+:::info
+`IO` already has this conversion for `Future` included but the example
+illustrates one case where `IO.async_` is useful.
+:::
+
+The only difference between `IO.async` and `IO.async_` is that with `IO.async`
+you can include a cancelation finalizer. Since `Future` doesn't have a
+mechanism for cancelation (at least at the time of this writing), we can safely
+use `IO.async_`.
+
+:::tip
+To see an example of using `IO.async`, check out the implementation of `IO.fromCancelableOperation`.
+:::
+
+## Error Handling
+
+One of the first recommendations on the [Dart Error Handling page](https://dart.dev/language/error-handling)
+demonstrates using `Exception`s paired with `try`/`catch`/`finally` to manage
+errors in your programs. But it's alredy been established that throwing
+exceptions is a side-effect! This rules out using them in our pure FP programs.
+
+That begs the question on how we create and handle errors using `IO`.
+
+<CodeSnippet language="dart" title="Error Handling with IO" snippet={IOSnippet} section="error-handling-1" />
+
+## Safe Resource Handling
+
+Let's begin with a fairly typical resource pattern used in Dart program that
+want's opens a file, writes some data and then wants to make sure the file
+resource is closed:
+
+<CodeSnippet language="dart" title="Resource Safety try/catch/finally" snippet={IOSnippet} section="safe-resources-1" />
+
+Now let's write an equivalent program using `IO`:
+
+<CodeSnippet language="dart" title="Resource Safety with IO" snippet={IOSnippet} section="safe-resources-2" />
+
+This version using `IO` has all the resource safety guarentees of the `try`/`catch` version but
+doesn't use `Exception`s to avoid side-effects.
+
+## Conversions
+
+`IO` comes with a few helper functions to convert common FP types into an `IO`.
+
+<CodeSnippet language="dart" title="IO Conversions" snippet={IOSnippet} section="conversions-1" />
+
+* **IO.fromOption**: Takes an `Option` and will either return a pure
+synchronous `IO` in the case of `Some` or raise an error in the case of `None`
+
+* **IO.fromEither**: Returns a pure `IO` if the `Either` is `Right` or if
+`Left`, will raise an error using the value of the `Left`.
+
+* **IO.fromFuture**: Since `Future` is eagerly evaluated and memoized,
+`fromFuture` takes a parameter of type `IO<Future>` to control the laziness
+and ensure referential transparency.
+
+:::caution
+Simply using `IO` doesn't magically make the `Future` parameter referentially transparent!
+You must still take care on controlling the evaluation of the `Future`.
+:::
+
+<CodeSnippet language="dart" title="IO.fromFuture" snippet={IOSnippet} section="conversions-bad-future" />
+
+* **IO.fromCancelableOperation**: This behaves in the same way as
+`IO.fromFuture` but is able to take advantage of some of the advanced features
+of `CancelableOperation`.
+
+## Cancelation
+
+`IO` also allows you to build cancelable operations.
+
+<CodeSnippet language="dart" title="IO Cancel Example" snippet={IOSnippet} section="cancelation-1" />
+
+This is obviously a contrived example but exhibits that you have a great deal
+of power controlling the execution of an `IO`.
+
+Also note that an `IO` can only be checked for cancelation at it's asynchronous
+boundaries. Types of asynchronous boundaries include:
+
+* `IO.sleep`
+* `IO.cede` (or autoCede occurances)
+* `IO.async`
+
+## 'Unsafe' Operations
+
+There are a few functions on `IO` prefixed with the word `unsafe`. These are
+what you should be calling at the 'edge(s)' of your program. In a completely
+pure program, you should only call an 'unsafe' function once, in the main
+method after you've built and described your program using IO.
+
+The reason these functions include the 'unsafe' keyword isn't because your
+computer will explode when they're called. They're unsafe because they are
+not pure functions and will interpret your `IO` and perform side effects.
+'Unsafe' is included because you should always take care before deciding
+to call these functions.
+
+* **unsafeRunAsync**: As the name indicates, this will evaluate the `IO`
+asynchronously, and the provided callback will be executed when it has
+finished;
+
+* **unsafeRunAndForget**: Same as `unsafeRunAsync` but no callback is provided.
+
+* **unsafeRunToFuture**: Evaluates the `IO` and returns a `Future` that will
+complete with the value of the `IO` or any error that is encountered during
+the evaluation.
+
+* **unsafeRunToFutureOutcome**: Returns a `Future` that will complete with
+the `Outcome` of the `IO`, being one of 3 possible states:
+  * The value itself (successful)
+  * The error encountered (errored)
+  * Marker indicating the `IO` was canceled before completing (canceled)

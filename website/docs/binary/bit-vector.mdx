@@ -1,0 +1,21 @@
+---
+sidebar_position: 1
+---
+
+import {CodeSnippet} from '../../src/components/CodeSnippet';
+import BitVectorSnippet from '!!raw-loader!../../snippets/lib/src/binary/bitvector.dart';
+
+# BitVector
+
+Ribs binary provides 2 specialized data types for working with binary data:
+
+* `ByteVector`: Indexed collection of bytes built on top of `Uint8List`
+* `BitVector`: Indexed collection of bits built on top of `ByteVector`
+
+The major difference between the 2 is what you're indexing into, bytes or bits.
+
+<CodeSnippet language="dart" title="Creating Bit/Byte Vectors" snippet={BitVectorSnippet} section="bitvector-1"/>
+
+Ribs also provides a rich API for manipulating these types:
+
+<CodeSnippet language="dart" title="BitVector API Sample" snippet={BitVectorSnippet} section="bitvector-2"/>

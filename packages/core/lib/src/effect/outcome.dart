@@ -1,11 +1,13 @@
 import 'package:ribs_core/ribs_core.dart';
 
+/// Type to encode the result of an [IO] fiber. A fiber can complete in one of
+/// 3 ways:
+///
+/// * [Succeeded]: The fiber completed normally, yielding a value
+/// * [Errored]: The fiber encountered an error/exception
+/// * [Canceled]: The fiber was canceled before it was able to complete.
 sealed class Outcome<A> {
   const Outcome();
-
-  // factory Outcome.succeeded(A a) => Succeeded(a);
-  // factory Outcome.errored(IOError error) => Errored<A>(error);
-  // factory Outcome.canceled() => const Canceled();
 
   static Outcome<A> succeeded<A>(A a) => Succeeded(a);
   static Outcome<A> errored<A>(IOError error) => Errored(error);
@@ -43,6 +45,7 @@ sealed class Outcome<A> {
   int get hashCode;
 }
 
+/// Succsseful [Outcome] of an [IO] evaluation, yield a result.
 final class Succeeded<A> extends Outcome<A> {
   final A value;
 
@@ -65,6 +68,7 @@ final class Succeeded<A> extends Outcome<A> {
   int get hashCode => value.hashCode;
 }
 
+/// Failed [Outcome] of an [IO] evaluation, with the [IOError] that caused it.
 final class Errored<A> extends Outcome<A> {
   final IOError error;
 
@@ -86,6 +90,7 @@ final class Errored<A> extends Outcome<A> {
   int get hashCode => error.hashCode;
 }
 
+/// [IO] [Outcome] when it was canceled before completion.
 final class Canceled extends Outcome<Never> {
   const Canceled();
 

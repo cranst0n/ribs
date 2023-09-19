@@ -17,15 +17,15 @@ sealed class JsonObject {
 
   JsonObject add(String key, Json value);
 
-  Option<Json> apply(String key);
+  Option<Json> get(String key);
 
-  Json applyUnsafe(String key);
+  Json getUnsafe(String key);
 
   bool contains(String key);
 
   JsonObject deepMerge(JsonObject that) => toIList().foldLeft(
         that,
-        (acc, kv) => that.apply(kv.$1).fold(
+        (acc, kv) => that.get(kv.$1).fold(
               () => acc.add(kv.$1, kv.$2),
               (r) => acc.add(kv.$1, kv.$2.deepMerge(r)),
             ),
@@ -50,6 +50,8 @@ sealed class JsonObject {
 
   IList<(String, Json)> toIList();
 
+  Json toJson() => Json.fromJsonObject(this);
+
   IList<Json> get values;
 }
 
@@ -63,10 +65,10 @@ final class _LinkedHashMapJsonObject extends JsonObject {
       _LinkedHashMapJsonObject(LinkedHashMap.of(fields)..addAll({key: value}));
 
   @override
-  Option<Json> apply(String key) => Option(fields[key]);
+  Option<Json> get(String key) => Option(fields[key]);
 
   @override
-  Json applyUnsafe(String key) => fields[key]!;
+  Json getUnsafe(String key) => fields[key]!;
 
   @override
   bool contains(String key) => fields.containsKey(key);
@@ -98,7 +100,7 @@ final class _LinkedHashMapJsonObject extends JsonObject {
   @override
   String toString() {
     return keys
-        .map((k) => '"$k": ${applyUnsafe(k)}')
+        .map((k) => '"$k": ${getUnsafe(k)}')
         .mkString(start: '{ ', sep: ', ', end: ' }');
   }
 
@@ -112,7 +114,7 @@ final class _LinkedHashMapJsonObject extends JsonObject {
           return true;
         } else {
           if (size == other.size) {
-            return keys.forall((k) => apply(k) == other.apply(k));
+            return keys.forall((k) => get(k) == other.get(k));
           } else {
             return false;
           }

@@ -3,14 +3,23 @@ import 'package:ribs_core/src/function.dart';
 import 'package:ribs_core/src/syntax/tuple.dart';
 
 extension EitherSyntaxOps<A> on A {
+  /// Creates a [Left] instance with this value.
   Either<A, B> asLeft<B>() => Either.left(this);
+
+  /// Creates a [Right] instance with this value.
   Either<B, A> asRight<B>() => Either.right(this);
 }
 
 extension Tuple2EitherOps<EE, A, B> on (Either<EE, A>, Either<EE, B>) {
+  /// Applies [fn] to the values of each respective tuple member if all values
+  /// are a [Right]. If **any** item is a [Left], the first [Left] encountered
+  /// will be returned.
   Either<EE, C> mapN<C>(Function2<A, B, C> fn) =>
       _tupled2($1, $2).map(fn.tupled);
 
+  /// If **all** items of this tuple are a [Right], the respective items are
+  /// turned into a tuple and returned as a [Right]. If **any** item is a
+  /// [Left], the first [Left] encountered is returned.
   Either<EE, (A, B)> sequence() => _tupled2($1, $2);
 }
 

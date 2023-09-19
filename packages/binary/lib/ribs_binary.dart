@@ -5,3 +5,5 @@ export 'src/codecs.dart';
 export 'src/decoder.dart';
 export 'src/encoder.dart';
 export 'src/err.dart';
+export 'src/stream_decoder.dart';
+export 'src/stream_encoder.dart';

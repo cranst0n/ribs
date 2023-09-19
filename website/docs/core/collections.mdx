@@ -1,0 +1,55 @@
+---
+sidebar_position: 5
+---
+
+import {CodeSnippet} from '../../src/components/CodeSnippet';
+import CollectionsSnippet from '!!raw-loader!../../snippets/lib/src/core/collections.dart';
+
+# Collections
+
+:::info
+Ribs had it's own `IList` collection implementation but it was eventually
+replaced with a version that uses <a href="https://pub.dev/packages/fast_immutable_collections">Fast Immutable Collections</a>
+under the hood for performance reasons. Ribs only has an `IList`, `IMap`,
+and `ISet` to maintain control over the public API which did not originally
+match the FIC API. Additionally, the API was designed to follow the Scala
+`List`, `Map`, and `Set` APIs as much as possible, to ease development of
+other Ribs libraries that were originally implemented in Scala.
+
+**If you're interested in designing a fast and immutable collection in Dart,
+Ribs is *not* the place to look! Check out the FIC library!**
+:::
+
+:::tip
+This page will only give a very short and incomplete example of each collection
+type. It's highly recommended to explore the API for each collection type to
+get a better sense of what capabilities each provides.
+:::
+
+## IList
+
+An ordered collection of 0 or more elements of the same type.
+
+<CodeSnippet language="dart" title="IList Introduction" snippet={CollectionsSnippet} section="ilist" />
+
+## NonEmptyIList
+
+An ordered collection of **1 or more** elements of the same type. The API
+generally follows that of `IList` with a few modifications since it's known
+at compile time that it has at least one element.
+
+<CodeSnippet language="dart" title="NonEmptyIList Introduction" snippet={CollectionsSnippet} section="nel" />
+
+## IMap
+
+A collection of Key-Value pairs. Values are typically accessed by providing
+the associated key.
+
+<CodeSnippet language="dart" title="IMap Introduction" snippet={CollectionsSnippet} section="imap" />
+
+## ISet
+
+A collection of ***unique*** element of the same type. There are no duplicate
+elements, as defined by each elements `==` method.
+
+<CodeSnippet language="dart" title="ISet Introduction" snippet={CollectionsSnippet} section="iset" />

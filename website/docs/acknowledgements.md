@@ -10,7 +10,7 @@ many libraries I've used in Scala and worked on implementing them in Dart. Not
 only did I learn a lot from them, some of the libraries provide capabilities
 that don't otherwise exist in the Dart ecosystem (at the time of this writing).
 
-That being said, large portions of Ribs is directly derived from the following
+That being said, large portions of Ribs are directly derived from the following
 libraries:
 
 | Library                                                 | Derived Work(s)                                      |
@@ -24,7 +24,7 @@ libraries:
 | [sqaunts](https://github.com/typelevel/squants)         | Typesafe Dimensonal Analysis                         |
 | [dart-check](https://github.com/wigahluk/dart-check)    | Property based testing                               |
 
-In addition to these libraries, additional inspiration/motivation/credit is given to:
+In addition to these libraries, additional inspiration/motivation was provided by:
 
 | Library                                                    |                                                                                                       |
 | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |

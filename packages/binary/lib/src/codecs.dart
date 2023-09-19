@@ -34,6 +34,9 @@ Codec<bool> booleanN(int size) {
   return bitsN(size).xmap<bool>((b) => b != zeros, (b) => b ? ones : zeros);
 }
 
+Codec<B> discriminatedBy<A, B>(Codec<A> by, IMap<A, Codec<B>> typecases) =>
+    DiscriminatorCodec.typecases(by, typecases);
+
 Codec<int> int8 = IntCodec(8, true, Endian.big);
 Codec<int> int16 = IntCodec(16, true, Endian.big);
 Codec<int> int24 = IntCodec(24, true, Endian.big);
@@ -97,6 +100,12 @@ Codec<List<A>> listOfN<A>(Codec<int> countCodec, Codec<A> valueCodec) =>
           .encode(as.length)
           .flatMap((x) => valueCodec.encodeAll(as).map((y) => x.concat(y)))),
     );
+
+Codec<IList<A>> ilist<A>(Codec<A> codec, [int? limit]) =>
+    list(codec, limit).xmap(IList.of, (il) => il.toList());
+
+Codec<IList<A>> ilistOfN<A>(Codec<int> countCodec, Codec<A> valueCodec) =>
+    listOfN(countCodec, valueCodec).xmap(IList.of, (il) => il.toList());
 
 Codec<A> peek<A>(Codec<A> target) => Codec.of(
       Decoder.instance(

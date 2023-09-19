@@ -253,6 +253,9 @@ void main() {
   test('IList.removeAt', () {
     expect(nil<int>().removeAt(1), nil<int>());
     expect(ilist([1, 2, 3]).removeAt(1), ilist([1, 3]));
+
+    expect(ilist([1, 2, 3]).removeAt(-1), ilist([1, 2, 3]));
+    expect(ilist([1, 2, 3]).removeAt(3), ilist([1, 2, 3]));
   });
 
   test('IList.removeFirst', () {
@@ -274,6 +277,7 @@ void main() {
     expect(ilist([1, 2, 3]).slice(0, 2), ilist([1, 2]));
     expect(ilist([1, 2, 3]).slice(0, 20), ilist([1, 2, 3]));
     expect(ilist([1, 2, 3]).slice(-2, 20), ilist([1, 2, 3]));
+    expect(ilist([1, 2, 3]).slice(3, 1), nil<int>());
   });
 
   test('IList.sliding', () {
@@ -347,6 +351,14 @@ void main() {
     expect(result, ilist([2, 4, 6]));
   });
 
+  test('IList.parTraverseIO', () async {
+    final result = await ilist([1, 2, 3])
+        .parTraverseIO((a) => IO.pure(a * 2))
+        .unsafeRunToFuture();
+
+    expect(result, ilist([2, 4, 6]));
+  });
+
   test('IList.traverseFilterIO', () async {
     final result = await ilist([1, 2, 3])
         .traverseFilterIO((a) => IO.pure(Option.when(() => a.isOdd, () => a)))
@@ -375,6 +387,13 @@ void main() {
         (int x) => x.toString() * 2,
       ])),
       ilist(['', '00', '*', '11', '**', '22']),
+    );
+  });
+
+  test('IList.unNone', () {
+    expect(
+      ilist([0.some, none<int>(), 2.some, 3.some]).unNone(),
+      ilist([0, 2, 3]),
     );
   });
 }
