@@ -1,5 +1,5 @@
 name: ribs_check
-version: 1.0.0-dev.3
+version: 1.0.0-dev.4
 homepage: https://github.com/cranst0n/ribs
 description: >
   Property based testing.
@@ -9,7 +9,7 @@ environment:
 
 dependencies:
   meta:      ^1.10.0
-  ribs_core: ^1.0.0-dev.4
+  ribs_core: ^1.0.0-dev.5
   test:      ^1.24.6
   test_api:  ^0.6.1
 

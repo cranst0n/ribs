@@ -1,3 +1,8 @@
+## 1.0.0-dev.5
+
+- Documentation
+- Update dependencies
+
 ## 1.0.0-dev.4
 
 - Add missing functions to Function0

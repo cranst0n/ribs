@@ -1,3 +1,8 @@
+## 1.0.0-dev.4
+
+- Documentation
+- Update dependencies
+
 ## 1.0.0-dev.3
 
 - Bump dart requirement to >= 3.0.0

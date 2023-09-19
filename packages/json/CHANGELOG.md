@@ -1,3 +1,8 @@
+## 1.0.0-dev.6
+
+- Documentation
+- Update dependencies
+
 ## 1.0.0-dev.5
 
 - Add missing DecoderF override.
