@@ -1,6 +1,11 @@
 import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// Creates a [NonEmptyIList] with the given head element, and any additional
+/// elements after.
+NonEmptyIList<A> nel<A>(A head, [Iterable<A>? tail]) =>
+    NonEmptyIList.of(head, tail ?? []);
+
 /// An immutable list that contains at least one element.
 @immutable
 final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
@@ -263,39 +268,107 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   bool startsWithNel(NonEmptyIList<A> that) =>
       head == that.head && tail.startsWith(that.tail);
 
+  /// Return a new [IList] with the first [n] elements of this non empty list.
+  ///
+  /// If [n] is less than or equal to 0, the empty list is returned.
+  /// If [n] is greater than or equal to the size of this list, the original
+  /// list is returned as an [IList].
   IList<A> take(int n) => toIList().take(n);
 
+  /// Returns a new [IList] with the last [n] elements of this non empty list.
+  /// If [n] is greater than the size of this list, the original list is
+  /// returned.
   IList<A> takeRight(int n) => toIList().takeRight(n);
 
+  /// Returns a new [IList] of the longest prefix that satisfies the
+  /// predicate [p].
   IList<A> takeWhile(Function1<A, bool> p) => toIList().takeWhile(p);
 
+  /// Returns a new [IList] with all elements of this non empty list.
   IList<A> toIList() => tail.prepend(head);
 
+  /// Returns a new [List] with all elements of this non empty list.
   List<A> toList() => toIList().toList();
 
+  /// Applies [f] to each element of this list and collects the results into a
+  /// new list. If [Left] is encountered for any element, that result is
+  /// returned and any additional elements will not be evaluated.
   Either<B, NonEmptyIList<C>> traverseEither<B, C>(
           Function1<A, Either<B, C>> f) =>
       f(head).flatMap(
           (h) => tail.traverseEither(f).map((t) => NonEmptyIList(h, t)));
 
+  /// Applies [f] to each element of this list and collects the results into a
+  /// new list. If an error or cancelation is encountered for any element,
+  /// that result is returned and any additional elements will not be evaluated.
   IO<NonEmptyIList<B>> traverseIO<B>(Function1<A, IO<B>> f) => f(head)
       .flatMap((h) => tail.traverseIO(f).map((t) => NonEmptyIList(h, t)));
 
+  /// Applies [f] to each element of this list, discarding any results. If an
+  /// error or cancelation is encountered for any element, that result is
+  /// returned and any additional elements will not be evaluated.
+  IO<Unit> traverseIO_<B>(Function1<A, IO<B>> f) => toIList().traverseIO_(f);
+
+  /// Applies [f] to each element of this list and collects the results into a
+  /// new list that is flattened using concatenation. If an error or cancelation
+  /// is encountered for any element, that result is returned and any additional
+  /// elements will not be evaluated.
+  IO<IList<B>> flatTraverseIO<B>(Function1<A, IO<IList<B>>> f) =>
+      toIList().flatTraverseIO(f);
+
+  /// Applies [f] to each element of this list and collects the results into a
+  /// new list. Any results from [f] that are [None] are discarded from the
+  /// resulting list. If an error or cancelation is encountered for any element,
+  /// that result is returned and any additional elements will not be evaluated.
+  IO<IList<B>> traverseFilterIO<B>(Function1<A, IO<Option<B>>> f) =>
+      toIList().traverseFilterIO(f);
+
+  /// **Asynchronously** applies [f] to each element of this list and collects
+  /// the results into a new list. If an error or cancelation is encountered
+  /// for any element, that result is returned and all other elements will be
+  /// canceled if possible.
+  IO<NonEmptyIList<B>> parTraverseIO<B>(Function1<A, IO<B>> f) => IO
+      .both(f(head), tail.parTraverseIO(f))
+      .map((t) => NonEmptyIList(t.$1, t.$2));
+
+  /// **Asynchronously** applies [f] to each element of this list, discarding
+  /// any results. If an error or cancelation is encountered for any element,
+  /// that result is returned and all other elements will be canceled if
+  /// possible.
+  IO<Unit> parTraverseIO_<B>(Function1<A, IO<B>> f) =>
+      toIList().parTraverseIO_(f);
+
+  /// Applies [f] to each element of this list and collects the results into a
+  /// new list. If [None] is encountered for any element, that result is
+  /// returned and any additional elements will not be evaluated.
   Option<NonEmptyIList<B>> traverseOption<B>(Function1<A, Option<B>> f) =>
       f(head).flatMap(
           (h) => tail.traverseOption(f).map((t) => NonEmptyIList(h, t)));
 
-  NonEmptyIList<A> updated(int index, Function1<A, A> f) => index < 0
-      ? this
-      : index == 0
-          ? NonEmptyIList(f(head), tail)
-          : NonEmptyIList(head, tail.updated(index - 1, f));
+  /// Returns a new list with [f] applied to the element at index [index].
+  ///
+  /// If [index] is outside the range of this list, the original list is
+  /// returned.
+  NonEmptyIList<A> updated(int index, Function1<A, A> f) {
+    if (index == 0) {
+      return NonEmptyIList(f(head), tail);
+    } else if (1 <= index && index < size) {
+      return NonEmptyIList(head, tail.updated(index - 1, f));
+    } else {
+      return this;
+    }
+  }
 
-  NonEmptyIList<(A, int)> zipWithIndex() => NonEmptyIList(
-      (head, 0), tail.zipWithIndex().map((a) => a.copy($2: a.$2 + 1)));
-
+  /// Returns a new list that combines corresponding elements from this list
+  /// and [bs] as a tuple. The length of the returned list will be the minimum
+  /// of this lists size and thes size of [bs].
   NonEmptyIList<(A, B)> zip<B>(NonEmptyIList<B> bs) =>
       NonEmptyIList((head, bs.head), tail.zip(bs.tail));
+
+  /// Return a new list with each element of this list paired with it's
+  /// respective index.
+  NonEmptyIList<(A, int)> zipWithIndex() => NonEmptyIList(
+      (head, 0), tail.zipWithIndex().map((a) => a.copy($2: a.$2 + 1)));
 
   @override
   String toString() => mkString(start: 'NonEmptyIList(', sep: ', ', end: ')');
@@ -307,8 +380,3 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   @override
   int get hashCode => head.hashCode ^ tail.hashCode;
 }
-
-/// Creates a [NonEmptyIList] with the given head element, and any additional
-/// elements after.
-NonEmptyIList<A> nel<A>(A head, [Iterable<A>? tail]) =>
-    NonEmptyIList.of(head, tail ?? []);

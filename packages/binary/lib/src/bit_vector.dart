@@ -51,8 +51,6 @@ sealed class BitVector {
 
   static final highByte = _toBytes(ByteVector.high(1), 8);
 
-  // Abstract members
-
   _Bytes align();
 
   BitVector concat(BitVector b2);
@@ -74,8 +72,6 @@ sealed class BitVector {
   ByteVector toByteVector();
 
   BitVector update(int n, bool high);
-
-  //////////////////////
 
   BitVector append(bool bit) => concat(BitVector.bit(bit));
 
@@ -253,17 +249,32 @@ sealed class BitVector {
   String toString() => toByteVector().toHexString();
 
   @override
-  bool operator ==(Object other) =>
-      other is BitVector &&
-      other.size == size &&
-      other.toByteVector() == toByteVector();
+  bool operator ==(Object other) {
+    if (other is! BitVector) {
+      return false;
+    } else if (other.size != size) {
+      return false;
+    } else {
+      const chunkSize = 8 * 1024 * 64;
+
+      bool go(BitVector x, BitVector y) {
+        if (x.isEmpty) {
+          return y.isEmpty;
+        } else {
+          final chunkX = x.take(chunkSize);
+          final chunkY = y.take(chunkSize);
+
+          return chunkX.toByteVector() == chunkY.toByteVector() &&
+              go(x.drop(chunkSize), y.drop(chunkSize));
+        }
+      }
+
+      return go(this, other);
+    }
+  }
 
   @override
   int get hashCode => Object.hashAll([size, toByteVector()]);
-
-  ////////////////////
-  // Static members //
-  ////////////////////
 
   static int topNBits(int n) => -1 << (8 - n);
 
@@ -389,7 +400,7 @@ final class _Bytes extends BitVector {
   _Bytes take(int n) => BitVector._toBytes(_underlying, max(0, min(size, n)));
 
   @override
-  ByteVector toByteVector() => _underlying;
+  ByteVector toByteVector() => BitVector._clearUnneededBits(size, _underlying);
 
   @override
   _Bytes update(int n, bool high) {

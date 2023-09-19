@@ -196,6 +196,8 @@ final class IMap<K, V> {
   int get hashCode => _underlying.hashCode;
 }
 
+/// [IMap] that will always fallback to a given value when the key is not
+/// present.
 final class _DefaultMap<K, V> extends IMap<K, V> {
   final Function1<K, V> _default;
 

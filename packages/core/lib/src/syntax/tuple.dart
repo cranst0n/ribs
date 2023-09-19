@@ -12,13 +12,15 @@ extension Tuple2Ops<A, B> on (A, B) {
   /// destructure the elements.
   ///
   /// ```dart main
-  /// final tup = (1,2,3);
-  /// final sum = tup((a, b, c) => a + b + c);
+  /// final tup = (2,3);
+  /// final sum = tup((a, b) => a + b);
   ///
   /// assert(sum == 6);
   /// ```
   C call<C>(Function2<A, B, C> f) => f($1, $2);
 
+  /// Returns a copy of this tuple, where any given value(s) override this
+  /// tuples value(s).
   (A, B) copy({
     A? $1,
     B? $2,
@@ -28,6 +30,7 @@ extension Tuple2Ops<A, B> on (A, B) {
         $2 ?? this.$2,
       );
 
+  /// Returns the last item of this tuple.
   B get last => $2;
 }
 

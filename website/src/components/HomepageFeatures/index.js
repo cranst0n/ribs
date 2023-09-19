@@ -51,7 +51,8 @@ const FeatureList = [
     description: (
       <>
         Ribs <code>IO</code> type allows you to control your synchronous and asynchronous
-        side effects. <code>IO</code> is <code>Future</code> on sterioids!
+        side effects with error handling and cancelation capabilities included!
+        <code>IO</code> is <code>Future</code> on sterioids!
       </>
     ),
   },

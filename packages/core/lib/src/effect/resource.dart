@@ -121,7 +121,7 @@ sealed class Resource<A> extends Monad<A> {
 
   IO<Never> useForever() => use((_) => IO.never());
 
-  /// Interpreter
+  // Interpreter
   IO<B> _fold<B>(
     Function1<A, IO<B>> onOutput,
     Function2<Function1<ExitCase, IO<Unit>>, ExitCase, IO<Unit>> onRelease,

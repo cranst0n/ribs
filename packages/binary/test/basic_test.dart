@@ -19,11 +19,12 @@ class Dog extends Animal {
 
   const Dog(this.age);
 
-  static final codec = Codec.product2(
+  static final codec = Codec.product3(
     constant(ByteVector.fromList([1, 2]).bits),
     int8,
-    (_, age) => Dog(age),
-    (Dog dog) => (Unit(), dog.age),
+    constant(BitVector.bit(true)),
+    (_, age, __) => Dog(age),
+    (Dog dog) => (Unit(), dog.age, Unit()),
   );
 
   @override

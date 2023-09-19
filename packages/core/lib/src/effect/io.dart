@@ -5,8 +5,12 @@ import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/internal/stack.dart';
 
+/// Specific [Exception] type that is raised within [IO].
 class IOError implements Exception {
+  /// Reason for the exception.
   final Object message;
+
+  /// StackTrace at the time when the exception was thrown.
   final StackTrace stackTrace;
 
   IOError(this.message, [StackTrace? stackTrace])
@@ -1087,9 +1091,13 @@ final class IOFiber<A> {
 
           final poll = Poll._(id, this);
 
-          _conts.push(_Cont.Uncancelable);
+          try {
+            cur0 = cur0.body(poll);
+          } catch (e, s) {
+            cur0 = IO.raiseError(IOError(e, s));
+          }
 
-          cur0 = cur0.body(poll);
+          _conts.push(_Cont.Uncancelable);
         } else if (cur0 is _UnmaskRunLoop) {
           if (_masks == cur0.id && this == cur0.self) {
             _masks -= 1;
