@@ -743,7 +743,7 @@ void main() {
 
     final iob = IO
         .pure('B')
-        .delayBy(const Duration(milliseconds: 180))
+        .delayBy(const Duration(milliseconds: 200))
         .onCancel(IO.exec(() => bCanceled = true));
 
     final outcome = await IO.race(ioa, iob).unsafeRunToFuture();

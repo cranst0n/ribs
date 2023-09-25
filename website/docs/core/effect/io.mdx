@@ -14,7 +14,7 @@ side effects and make it easier to write purely functional programs.
 If you're familiar with the `IO` type from [Cats Effect](https://typelevel.org/cats-effect/),
 then Ribs `IO` should look very similar. In fact, Ribs `IO` is a very close
 port from Scala to Dart! The API is designed to stay as close as possible to
-the orinal implementation.
+the original implementation.
 :::
 
 IO
@@ -80,7 +80,7 @@ IO run loop).
 callback to be invoked to indicate completion and resume execution. Using `async`, we
 can write a function that will convert a **lazy** `Future` into an `IO`.
 
-<CodeSnippet language="dart" title="IO.async_" snippet={IOSnippet} section="error-handling-1" />
+<CodeSnippet language="dart" title="IO.async_" snippet={IOSnippet} section="io-async-1" />
 
 :::info
 `IO` already has this conversion for `Future` included but the example

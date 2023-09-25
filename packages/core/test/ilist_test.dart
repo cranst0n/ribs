@@ -52,6 +52,7 @@ void main() {
   test('IList.append', () {
     expect(nil<int>().append(1), ilist([1]));
     expect(ilist([0]).append(1), ilist([0, 1]));
+    expect(ilist([0]) + 1, ilist([0, 1]));
   });
 
   test('IList.concat', () {
@@ -139,6 +140,13 @@ void main() {
     expect(ilist([1, 2, 3]).flatMap(f), ilist([0, 1, 2, 1, 2, 3, 2, 3, 4]));
   });
 
+  test('IList.flatten', () {
+    final l = ilist([1, 2, 3]);
+    final ll = ilist([l, l, l]);
+
+    expect(ll.flatten(), l.concat(l).concat(l));
+  });
+
   test('IList.foldLeft', () {
     double op(double a, double b) => a / b;
 
@@ -182,6 +190,11 @@ void main() {
   test('IList.headOption', () {
     expect(nil<int>().headOption, none<int>());
     expect(ilist([1, 2, 3]).headOption, 1.some);
+  });
+
+  test('IList.indexWhere', () {
+    expect(nil<int>().indexWhere((a) => a.isEven), none<int>());
+    expect(ilist([1, 2, 3]).indexWhere((a) => a.isEven), const Some(1));
   });
 
   test('IList.init', () {
@@ -261,6 +274,7 @@ void main() {
   test('IList.removeFirst', () {
     expect(nil<int>().removeFirst((x) => x < 0), nil<int>());
     expect(ilist([1, -2, -3]).removeFirst((x) => x < 0), ilist([1, -3]));
+    expect(ilist([1, -2, -3]) - -3, ilist([1, -2]));
   });
 
   test('IList.replace', () {
@@ -330,6 +344,27 @@ void main() {
     );
   });
 
+  test('IList.take', () {
+    expect(nil<int>().take(10), nil<int>());
+    expect(ilist([1, 2, 3]).take(10), ilist([1, 2, 3]));
+    expect(ilist([1, 2, 3]).take(2), ilist([1, 2]));
+    expect(ilist([1, 2, 3]).take(0), nil<int>());
+  });
+
+  test('IList.takeRight', () {
+    expect(nil<int>().takeRight(10), nil<int>());
+    expect(ilist([1, 2, 3]).takeRight(10), ilist([1, 2, 3]));
+    expect(ilist([1, 2, 3]).takeRight(2), ilist([2, 3]));
+    expect(ilist([1, 2, 3]).takeRight(0), nil<int>());
+  });
+
+  test('IList.takeWhile', () {
+    expect(nil<int>().takeWhile((x) => x < 3), nil<int>());
+    expect(ilist([1, 2, 3]).takeWhile((x) => x < 3), ilist([1, 2]));
+    expect(ilist([1, 2, 3]).takeWhile((x) => x < 5), ilist([1, 2, 3]));
+    expect(ilist([1, 2, 3]).takeWhile((x) => x < 0), nil<int>());
+  });
+
   test('IList.traverseEither', () {
     expect(
       ilist([1, 2, 3]).traverseEither((a) => Either.pure<String, int>(a * 2)),
@@ -349,6 +384,14 @@ void main() {
         .unsafeRunToFuture();
 
     expect(result, ilist([2, 4, 6]));
+  });
+
+  test('IList.traverseIO_', () async {
+    final result = await ilist([1, 2, 3])
+        .traverseIO_((a) => IO.pure(a * 2))
+        .unsafeRunToFuture();
+
+    expect(result, Unit());
   });
 
   test('IList.parTraverseIO', () async {
@@ -395,5 +438,21 @@ void main() {
       ilist([0.some, none<int>(), 2.some, 3.some]).unNone(),
       ilist([0, 2, 3]),
     );
+  });
+
+  test('IList.zip', () {
+    final a = ilist([1, 2, 3, 4, 5]);
+    final b = ilist([5, 4, 3, 2, 1]);
+    final c = ilist([5, 4, 3]);
+
+    expect(a.zip(b), ilist([(1, 5), (2, 4), (3, 3), (4, 2), (5, 1)]));
+    expect(b.zip(a), ilist([(5, 1), (4, 2), (3, 3), (2, 4), (1, 5)]));
+
+    expect(a.zip(c), ilist([(1, 5), (2, 4), (3, 3)]));
+    expect(c.zip(a), ilist([(5, 1), (4, 2), (3, 3)]));
+  });
+
+  test('IList.zipWithIndex', () {
+    expect(ilist([0, 1, 2]).zipWithIndex(), ilist([(0, 0), (1, 1), (2, 2)]));
   });
 }

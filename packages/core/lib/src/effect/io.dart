@@ -1130,7 +1130,7 @@ final class IOFiber<A> {
   IO<dynamic> _prepareFiberForCancelation([
     Fn1<Either<IOError, Unit>, void>? cb,
   ]) {
-    if (_finalizers.isNotEmpty) {
+    if (_finalizers.nonEmpty) {
       if (!_finalizing) {
         _finalizing = true;
 
@@ -1220,7 +1220,7 @@ final class IOFiber<A> {
     var cont = _conts.pop();
 
     // Drop all the maps / flatMaps since they don't deal with errors
-    while (cont == _Cont.Map || cont == _Cont.FlatMap && _conts.isNotEmpty) {
+    while (cont == _Cont.Map || cont == _Cont.FlatMap && _conts.nonEmpty) {
       _objectState.pop();
       cont = _conts.pop();
     }
@@ -1274,7 +1274,7 @@ final class IOFiber<A> {
     _resumeTag = _Resume.Done;
     _resumeIO = null;
 
-    while (_callbacks.isNotEmpty) {
+    while (_callbacks.nonEmpty) {
       _callbacks.pop()(oc);
     }
   }
@@ -1290,11 +1290,11 @@ final class IOFiber<A> {
   }
 
   IO<dynamic> _cancelationLoopSuccessK() {
-    if (_finalizers.isNotEmpty) {
+    if (_finalizers.nonEmpty) {
       _conts.push(_Cont.CancelationLoop);
       return _finalizers.pop();
     } else {
-      if (_objectState.isNotEmpty) {
+      if (_objectState.nonEmpty) {
         final cb = _objectState.pop() as Fn1F;
         cb.call(Right<IOError, Unit>(Unit()));
       }
