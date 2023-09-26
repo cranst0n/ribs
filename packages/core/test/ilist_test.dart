@@ -287,6 +287,26 @@ void main() {
     expect(ilist([1, 2, 3]).reverse(), ilist([3, 2, 1]));
   });
 
+  test('IList.scanLeft', () {
+    expect(nil<int>().scanLeft(0, (a, b) => a + b), ilist([0]));
+    expect(ilist([1]).scanLeft(0, (a, b) => a + b), ilist([0, 1]));
+    expect(ilist([1, 2, 3]).scanLeft(0, (a, b) => a + b), ilist([0, 1, 3, 6]));
+    expect(
+      IList.range(0, 10).scanLeft(0, (a, b) => a + b),
+      ilist([0, 0, 1, 3, 6, 10, 15, 21, 28, 36, 45]),
+    );
+  });
+
+  test('IList.scanRight', () {
+    expect(nil<int>().scanRight(0, (a, b) => a + b), ilist([0]));
+    expect(ilist([1]).scanRight(0, (a, b) => a + b), ilist([1, 0]));
+    expect(ilist([1, 2, 3]).scanRight(0, (a, b) => a + b), ilist([6, 5, 3, 0]));
+    expect(
+      IList.range(0, 10).scanRight(0, (a, b) => a + b),
+      ilist([45, 45, 44, 42, 39, 35, 30, 24, 17, 9, 0]),
+    );
+  });
+
   test('IList.slice', () {
     expect(ilist([1, 2, 3]).slice(0, 2), ilist([1, 2]));
     expect(ilist([1, 2, 3]).slice(0, 20), ilist([1, 2, 3]));

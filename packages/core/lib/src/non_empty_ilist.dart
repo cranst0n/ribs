@@ -210,6 +210,31 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
     tail.forEach(f);
   }
 
+  /// {@template nel_groupBy}
+  /// Partitions all elements of this list by applying [f] to each element
+  /// and accumulating duplicate keys in the returned [IMap].
+  /// {@endtemplate}
+  IMap<K, NonEmptyIList<A>> groupBy<K>(Function1<A, K> f) => groupMap(f, id);
+
+  /// {@template nel_groupMap}
+  /// Creates a new map by generating a key-value pair for each elements of this
+  /// list using [key] and [value]. Any elements that generate the same key will
+  /// have the resulting values accumulated in the returned map.
+  /// {@endtemplate}
+  IMap<K, NonEmptyIList<V>> groupMap<K, V>(
+    Function1<A, K> key,
+    Function1<A, V> value,
+  ) =>
+      foldLeft(
+        IMap.empty<K, NonEmptyIList<V>>(),
+        (acc, a) => acc.updatedWith(
+          key(a),
+          (prev) => prev
+              .map((l) => l.append(value(a)))
+              .orElse(() => nel(value(a)).some),
+        ),
+      );
+
   /// Returns all elements except the last.
   IList<A> get init => toIList().init();
 

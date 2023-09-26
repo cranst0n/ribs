@@ -371,6 +371,20 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// Returns a new list with the order of the elements reversed.
   IList<A> reverse() => IList.of(_underlying.reversed);
 
+  IList<B> scanLeft<B>(B z, Function2<B, A, B> f) =>
+      foldLeft((ilist([z]), z), (acc, elem) {
+        final (l, b) = acc;
+        final n = f(b, elem);
+        return (l.append(n), n);
+      }).$1;
+
+  IList<B> scanRight<B>(B z, Function2<B, A, B> f) =>
+      foldRight((z, ilist([z])), (elem, acc) {
+        final (b, l) = acc;
+        final n = f(b, elem);
+        return (n, l.prepend(n));
+      }).$2;
+
   /// Returns the number of elements in this list.
   int get size => _underlying.length;
 
