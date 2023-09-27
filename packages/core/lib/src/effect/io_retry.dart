@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
 
-/// Mostly complete port of cats-retry.
-
+/// Current status of a retry strategy. Accumulates efforts so far to retry
+/// a failed [IO].
 final class RetryStatus {
   /// Retries attempted thus far.
   final int retriesSoFar;
@@ -27,8 +27,25 @@ final class RetryStatus {
   /// the given delay.
   RetryStatus retryAfter(Duration delay) =>
       RetryStatus(retriesSoFar + 1, cumulativeDelay + delay, Some(delay));
+
+  @override
+  String toString() =>
+      'RetryStatus(retriesSoFar: $retriesSoFar, cumulativeDelay: $cumulativeDelay, previousDelay: $previousDelay)';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RetryStatus &&
+          other.retriesSoFar == retriesSoFar &&
+          other.cumulativeDelay == cumulativeDelay &&
+          other.previousDelay == previousDelay);
+
+  @override
+  int get hashCode => Object.hash(retriesSoFar, cumulativeDelay, previousDelay);
 }
 
+/// Rendered decision on whether or not to retry an [IO] based on the
+/// [RetryPolicy].
 sealed class RetryDecision {
   const RetryDecision._();
 
@@ -79,7 +96,7 @@ final class _GiveUp extends RetryDecision {
   bool operator ==(Object other) => identical(this, other) || other is _GiveUp;
 
   @override
-  int get hashCode => _singleton.hashCode;
+  int get hashCode => 0;
 }
 
 final class _DelayAndRetry extends RetryDecision {
@@ -103,6 +120,8 @@ final class _DelayAndRetry extends RetryDecision {
   int get hashCode => delay.hashCode;
 }
 
+/// Policy that will render decisions on whether or not to attempt to retry a
+/// failed [IO].
 class RetryPolicy {
   final Function1<RetryStatus, RetryDecision> decideOn;
 
@@ -239,8 +258,8 @@ extension RetryOps<A> on IO<A> {
   IO<A> retrying(
     RetryPolicy policy, {
     Function1<A, bool>? wasSuccessful,
-    Function1<Object, bool>? isWorthRetrying,
-    Function2<Object, RetryDetails, IO<Unit>>? onError,
+    Function1<IOError, bool>? isWorthRetrying,
+    Function2<IOError, RetryDetails, IO<Unit>>? onError,
     Function2<A, RetryDetails, IO<Unit>>? onFailure,
   }) =>
       _retryingImpl(
@@ -256,8 +275,8 @@ extension RetryOps<A> on IO<A> {
   IO<A> _retryingImpl(
     RetryPolicy policy,
     Function1<A, bool> wasSuccessful,
-    Function1<Object, bool> isWorthRetrying,
-    Function2<Object, RetryDetails, IO<Unit>> onError,
+    Function1<IOError, bool> isWorthRetrying,
+    Function2<IOError, RetryDetails, IO<Unit>> onError,
     Function2<A, RetryDetails, IO<Unit>> onFailure,
     RetryStatus status,
     IO<A> action,
@@ -279,8 +298,8 @@ extension RetryOps<A> on IO<A> {
   IO<A> _onFailureOrError(
     RetryPolicy policy,
     Function1<A, bool> wasSuccessful,
-    Function1<Object, bool> isWorthRetrying,
-    Function2<Object, RetryDetails, IO<Unit>> onError,
+    Function1<IOError, bool> isWorthRetrying,
+    Function2<IOError, RetryDetails, IO<Unit>> onError,
     Function2<A, RetryDetails, IO<Unit>> onFailure,
     RetryStatus status,
     IO<A> action,

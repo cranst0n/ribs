@@ -1,3 +1,7 @@
+## 1.0.0-dev.5
+
+- Update Quantity hashCode
+
 ## 1.0.0-dev.4
 
 - Documentation

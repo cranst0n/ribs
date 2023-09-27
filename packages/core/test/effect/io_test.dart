@@ -51,17 +51,15 @@ void main() {
   });
 
   test('fromFuture error', () async {
-    await suppressExceptions(() async {
-      final io = IO.fromFuture(IO.delay(() => Future<int>.delayed(
-          const Duration(milliseconds: 250), () => Future.error('boom'))));
-      final outcome = await io.unsafeRunToFutureOutcome();
+    final io = IO.fromFuture(IO.delay(() => Future<int>.delayed(
+        const Duration(milliseconds: 250), () => Future.error('boom'))));
+    final outcome = await io.unsafeRunToFutureOutcome();
 
-      outcome.fold(
-        () => fail('fromFuture error should not cancel'),
-        (err) => expect(err.message, 'boom'),
-        (a) => fail('fromFuture error should not succeed: $a'),
-      );
-    });
+    outcome.fold(
+      () => fail('fromFuture error should not cancel'),
+      (err) => expect(err.message, 'boom'),
+      (a) => fail('fromFuture error should not succeed: $a'),
+    );
   });
 
   test('fromCancelableOperation success', () async {
@@ -743,7 +741,7 @@ void main() {
 
     final iob = IO
         .pure('B')
-        .delayBy(const Duration(milliseconds: 180))
+        .delayBy(const Duration(milliseconds: 200))
         .onCancel(IO.exec(() => bCanceled = true));
 
     final outcome = await IO.race(ioa, iob).unsafeRunToFuture();
@@ -799,27 +797,4 @@ void main() {
 
     expect(oc.isCanceled, isTrue);
   });
-}
-
-// (Probably terrible) method of not failing a test that uses/expects a throw or Future.error
-Future<void> suppressExceptions(Function0<FutureOr<void>> f) async {
-  final zone = Zone.current.fork(
-    specification: ZoneSpecification(
-      handleUncaughtError: (self, parent, zone, error, stackTrace) {
-        if (error is TestFailure) throw error;
-      },
-    ),
-  );
-
-  final c = Completer<void>();
-
-  zone.runGuarded(() async {
-    try {
-      await f();
-    } finally {
-      c.complete();
-    }
-  });
-
-  await c.future;
 }

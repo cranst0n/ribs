@@ -1,5 +1,5 @@
 name: ribs_units
-version: 1.0.0-dev.4
+version: 1.0.0-dev.5
 homepage: https://github.com/cranst0n/ribs
 description: >
   API for dimensional analysis.

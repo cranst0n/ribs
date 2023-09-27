@@ -274,7 +274,7 @@ sealed class BitVector {
   }
 
   @override
-  int get hashCode => Object.hashAll([size, toByteVector()]);
+  int get hashCode => Object.hash(size, toByteVector());
 
   static int topNBits(int n) => -1 << (8 - n);
 

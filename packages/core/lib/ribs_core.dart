@@ -17,6 +17,7 @@ export 'src/iset.dart';
 export 'src/monad.dart';
 export 'src/non_empty_ilist.dart';
 export 'src/option.dart';
+export 'src/order.dart';
 // export 'src/rill/channel.dart';
 // export 'src/rill/rill.dart';
 export 'src/state.dart';

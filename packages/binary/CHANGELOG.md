@@ -1,3 +1,7 @@
+## 1.0.0-dev.5
+
+- Update BitVector hashCode
+
 ## 1.0.0-dev.4
 
 - Documentation

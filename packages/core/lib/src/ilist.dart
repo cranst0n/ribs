@@ -63,12 +63,25 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// Returns a copy of this IList, with the given [elem] added to the end.
   IList<A> append(A elem) => IList.of(_underlying.add(elem));
 
+  /// Returns a new list by applying [f] to each element an only keeping
+  /// results of type [Some].
+  IList<B> collect<B>(Function1<A, Option<B>> f) => map(f).unNone();
+
   /// Returns a copy of this IList, with [elems] added to the end.
   IList<A> concat(IList<A> elems) =>
       IList._(_underlying.addAll(elems._underlying));
 
   /// Returns true, if any element of this list equals [elem].
   bool contains(A elem) => _underlying.contains(elem);
+
+  /// Returns true if [that] is contained in this list.
+  bool containsSlice(IList<A> that) => indexOfSlice(that).isDefined;
+
+  /// Returns true if this list has the same size as [that] and each
+  /// corresponding element from this and [that] satisfies the given
+  /// predicate [p].
+  bool corresponds<B>(IList<B> that, Function2<A, B, bool> p) =>
+      (size == that.size) && zip(that).forall((t) => t(p));
 
   /// {@template ilist_deleteFirst}
   /// Attempts to find the first element that satifies the given predicate [p].
@@ -86,12 +99,33 @@ final class IList<A> implements Monad<A>, Foldable<A> {
     );
   }
 
+  /// Returns a new list with the difference of this list and [that], i.e.
+  /// all elements that appear in **only** this list.
+  IList<A> diff(IList<A> that) => filterNot(that.contains);
+
   /// Returns a new IList where every element is distinct according to
   /// equality.
   IList<A> distinct() => IList.of(foldLeft<List<A>>(
         List<A>.empty(growable: true),
         (acc, elem) => acc.contains(elem) ? acc : (acc..add(elem)),
       ));
+
+  /// Returns a new IList where every element is distinct according to
+  /// the application of [f] to each element.
+  IList<A> distinctBy<B>(Function1<A, B> f) {
+    final buffer = List<A>.empty(growable: true);
+    final seen = <B>{};
+
+    forEach((a) {
+      final b = f(a);
+      if (!seen.contains(b)) {
+        seen.add(b);
+        buffer.add(a);
+      }
+    });
+
+    return IList.of(buffer);
+  }
 
   /// Returns a new IList with the first [n] elements removed. If [n] is
   /// greater than or equal to the number of elements in this list, an
@@ -107,6 +141,11 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// {@endtemplate}
   IList<A> dropWhile(Function1<A, bool> p) =>
       IList.of(_underlying.skipWhile(p));
+
+  /// Returns true if the end of this list has the same elements in order as
+  /// [that]. Otherwise, false is returned.
+  bool endsWith(IList<A> that) =>
+      that.size <= size && takeRight(that.size) == that;
 
   /// {@template ilist_filter}
   /// Returns a new IList with all elements from this list that satisfy the
@@ -166,6 +205,10 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// Applies [f] to each element of this list, discarding any resulting values.
   void forEach<B>(Function1<A, B> f) => _underlying.forEach(f);
 
+  /// Returns a new lists where each element is a list of [size] elements from
+  /// the original list. The last element may contain less than [size] elements.
+  IList<IList<A>> grouped(int size) => sliding(size, size);
+
   /// {@template ilist_groupBy}
   /// Partitions all elements of this list by applying [f] to each element
   /// and accumulating duplicate keys in the returned [IMap].
@@ -196,18 +239,41 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   Option<A> get headOption =>
       Option.when(() => isNotEmpty, () => _underlying.first);
 
+  /// Returns the first index, if any, where the element at that index equals
+  /// [elem]. If no index contains [elem], [None] is returned.
+  Option<int> indexOf(A elem, [int from = 0]) =>
+      indexWhere((a) => a == elem, from);
+
+  /// Finds the first index in this list where the next sequence of elements is
+  /// equal to [that]. If [that] cannot be found in this list, [None]
+  /// is returned.
+  Option<int> indexOfSlice(IList<A> that, [int from = 0]) {
+    if (that.isEmpty) {
+      return const Some(0);
+    } else if (size < that.size) {
+      return none<int>();
+    } else {
+      return IList.range(from, size - that.size + 1)
+          .find((from) => slice(from, from + that.size) == that);
+    }
+  }
+
   /// {@template ilist_indexWhere}
   /// Returns the index of the first element that satisfies the predicate [p].
   /// If no element satisfies, [None] is returned.
   /// {@endtemplate}
-  Option<int> indexWhere(Function1<A, bool> p) {
-    final idx = _underlying.indexWhere(p);
+  Option<int> indexWhere(Function1<A, bool> p, [int from = 0]) {
+    final idx = _underlying.indexWhere(p, from);
     return Option.unless(() => idx < 0, () => idx);
   }
 
   /// Returns all elements from this list **except** the last. If this list is
   /// empty, the empty list is returned.
   IList<A> init() => take(size - 1);
+
+  /// Returns a list of all potential tails of this list, starting with the
+  /// entire list and ending with the empty list.
+  IList<IList<A>> inits() => IList.tabulate(size + 1, (ix) => take(size - ix));
 
   /// Returns a new list with [elem] inserted at index [ix]. The resulting list
   /// has a size of one more of this list.
@@ -216,6 +282,10 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// list is returned.
   IList<A> insertAt(int ix, A elem) =>
       (0 <= ix && ix <= size) ? IList.of(_underlying.insert(ix, elem)) : this;
+
+  /// Returns a new list with the intersection of this list and [that], i.e.
+  /// all elements that appear in both lists.
+  IList<A> intersect(IList<A> that) => filter(that.contains);
 
   /// Returns a new list with [sep] inserted between each element. If [start]
   /// is defined, it will be added to the start of the new list. If [end] is
@@ -245,6 +315,35 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// Returns true if this list has any elements, false otherwise.
   bool get isNotEmpty => _underlying.isNotEmpty;
 
+  /// Creates a new [Iterator] for the elements of this list. It may only be
+  /// used once.
+  Iterator<A> get iterator => _underlying.iterator;
+
+  /// Returns the last index, if any, where the element at that index equals
+  /// [elem]. If no index contains [elem], [None] is returned.
+  Option<int> lastIndexOf(A elem) => lastIndexWhere((a) => a == elem);
+
+  /// Finds the last index in this list where the next sequence of elements is
+  /// equal to [that]. If [that] cannot be found in this list, [None]
+  /// is returned.
+  Option<int> lastIndexOfSlice(IList<A> that) {
+    if (that.size > size) {
+      return none<int>();
+    } else {
+      return IList.tabulate(size - that.size + 1, (ix) => ix)
+          .lastIndexWhere((from) => slice(from, from + that.size) == that);
+    }
+  }
+
+  /// {@template ilist_lastIndexWhere}
+  /// Returns the index of the last element that satisfies the predicate [p].
+  /// If no element satisfies, [None] is returned.
+  /// {@endtemplate}
+  Option<int> lastIndexWhere(Function1<A, bool> p) {
+    final idx = _underlying.lastIndexWhere(p);
+    return Option.unless(() => idx < 0, () => idx);
+  }
+
   /// Returns the last element of this list as a [Some], or [None] if this
   /// list is empty.
   Option<A> get lastOption =>
@@ -264,6 +363,22 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// {@endtemplate}
   @override
   IList<B> map<B>(covariant Function1<A, B> f) => IList.of(_underlying.map(f));
+
+  /// Finds the largest element in this list by applying [f] to each element
+  /// and using the [Comparable] to find the greatest.
+  ///
+  /// If this list is empty, [None] is returned.
+  Option<A> maxByOption<B extends Comparable<dynamic>>(Function1<A, B> f) =>
+      headOption.map((hd) => tail().foldLeft(
+          hd, (acc, elem) => f(acc).compareTo(f(elem)) > 0 ? acc : elem));
+
+  /// Finds the smallest element in this list by applying [f] to each element
+  /// and using the [Comparable] to find the smallest.
+  ///
+  /// If this list is empty, [None] is returned.
+  Option<A> minByOption<B extends Comparable<dynamic>>(Function1<A, B> f) =>
+      headOption.map((hd) => tail().foldLeft(
+          hd, (acc, elem) => f(acc).compareTo(f(elem)) < 0 ? acc : elem));
 
   /// Returns a [String] by using each elements [toString()], adding [sep]
   /// between each element. If [start] is defined, it will be prepended to the
@@ -340,6 +455,10 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// Returns a new list with [elem] added to the beginning.
   IList<A> prepend(A elem) => IList.of(_underlying.insert(0, elem));
 
+  /// Returns a new list with all [elems] added to the beginning of this list.
+  IList<A> prependAll(IList<A> elems) =>
+      IList.of(_underlying.insertAll(0, elems._underlying));
+
   /// Returns a summary values of all elements of this list by applying [f] to
   /// each element.
   ///
@@ -371,6 +490,31 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// Returns a new list with the order of the elements reversed.
   IList<A> reverse() => IList.of(_underlying.reversed);
 
+  /// Returns a new list of the accumulation of results by applying [f] to all
+  /// elements of the list, including the inital value [z]. List traversal moves
+  /// from left to right.
+  IList<A> scan(A z, Function2<A, A, A> f) => scanLeft(z, f);
+
+  /// Returns a new list of the accumulation of results by applying [f] to all
+  /// elements of the list, including the inital value [z]. List traversal moves
+  /// from left to right.
+  IList<B> scanLeft<B>(B z, Function2<B, A, B> f) =>
+      foldLeft((ilist([z]), z), (acc, elem) {
+        final (l, b) = acc;
+        final n = f(b, elem);
+        return (l.append(n), n);
+      }).$1;
+
+  /// Returns a new list of the accumulation of results by applying [f] to all
+  /// elements of the list, including the inital value [z]. List traversal moves
+  /// from right to left.
+  IList<B> scanRight<B>(B z, Function2<A, B, B> f) =>
+      foldRight((z, ilist([z])), (elem, acc) {
+        final (b, l) = acc;
+        final n = f(elem, b);
+        return (n, l.prepend(n));
+      }).$2;
+
   /// Returns the number of elements in this list.
   int get size => _underlying.length;
 
@@ -390,7 +534,7 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// Returns a new list where elements are fixed size chunks of size [n] of
   /// the original list. Each chunk is calculated by sliding a 'window' of size
   /// [n] over the original list, moving the window [step] elements at a time.
-  IList<IList<A>> sliding(int n, int step) {
+  IList<IList<A>> sliding(int n, [int step = 1]) {
     final buf = List<IList<A>>.empty(growable: true);
 
     int ix = 0;
@@ -403,6 +547,14 @@ final class IList<A> implements Monad<A>, Foldable<A> {
 
     return IList.of(buf);
   }
+
+  /// Returns a new list that is sorted according to the [Order] [o].
+  IList<A> sort(Order<A> o) => IList.of(_underlying.sort(o.compare));
+
+  /// Returns a new list that is sorted according to the transformation [f]
+  /// which will result in the [Comparable] used to detemine sort order.
+  IList<A> sortBy<B extends Comparable<dynamic>>(Function1<A, B> f) =>
+      sort(Order.from((a, b) => f(a).compareTo(f(b))));
 
   /// Returns a new list sorted using the provided function [lt] which is used
   /// to determine if one element is less than the other.
@@ -418,12 +570,23 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// Returns true if the beginning of this list corresponds with [that].
   bool startsWith(IList<A> that) =>
       (isEmpty && that.isEmpty) ||
-      fic.IList(_underlying.take(that.size))
-          .corresponds(that._underlying, (a, b) => a == b);
+      size >= that.size &&
+          fic.IList(_underlying.take(that.size))
+              .corresponds(that._underlying, (a, b) => a == b);
+
+  /// Splits this list into a 2 new lists where the first returned list is
+  /// the longest suffix that satisfies the given predicate [p] and the
+  /// second list is the remainder of this list.
+  (IList<A>, IList<A>) span(Function1<A, bool> p) =>
+      splitAt(lastIndexWhere(p).map((n) => n + 1).getOrElse(() => 0));
 
   /// Returns a new list with the first element removed. If this list is empty,
   /// the empty list is returned.
   IList<A> tail() => IList.of(_underlying.tail);
+
+  /// Returns a list of all potential tails of this list, starting with the
+  /// entire list and ending with the empty list.
+  IList<IList<A>> tails() => IList.tabulate(size + 1, (ix) => drop(ix));
 
   /// Return a new list with the first [n] elements of this list.
   ///
@@ -583,6 +746,21 @@ final class IList<A> implements Monad<A>, Foldable<A> {
         ),
       );
 
+  /// Returns a new list that combines corresponding elements from this list
+  /// and [bs] as a tuple. The length of the returned list will be the maximum
+  /// of this lists size and thes size of [bs]. If this list is shorter than
+  /// [bs], [thisElem] will be used to fill in the resulting list. If [bs] is
+  /// shorter, [thatElem] will be used to will in the resulting list.
+  IList<(A, B)> zipAll<B>(IList<B> bs, A thisElem, B thatElem) => IList.of(
+        Iterable.generate(
+          max(size, bs.size),
+          (index) => (
+            lift(index).getOrElse(() => thisElem),
+            bs.lift(index).getOrElse(() => thatElem)
+          ),
+        ),
+      );
+
   /// Return a new list with each element of this list paired with it's
   /// respective index.
   IList<(A, int)> zipWithIndex() =>
@@ -610,7 +788,7 @@ extension IListEitherOps<A, B> on IList<Either<A, B>> {
   Either<A, IList<B>> sequence() => traverseEither(id);
 }
 
-/// Operations avaiable when [IList] elemention are of type [IO].
+/// Operations avaiable when [IList] elements are of type [IO].
 extension IListIOOps<A> on IList<IO<A>> {
   /// Alias for [traverseIO], using [id] as the function parameter.
   IO<IList<A>> sequence() => traverseIO(id);
@@ -635,6 +813,24 @@ extension IListOptionOps<A> on IList<Option<A>> {
   /// Returns a new list with all [None] elements removed.
   IList<A> unNone() => foldLeft(
       nil(), (acc, elem) => elem.fold(() => acc, (a) => acc.append(a)));
+}
+
+extension IListComparableOps<A extends Comparable<dynamic>> on IList<A> {
+  Option<A> maxOption() => headOption.map((hd) =>
+      tail().foldLeft(hd, (acc, elem) => acc.compareTo(elem) > 0 ? acc : elem));
+
+  Option<A> minOption() => headOption.map((hd) =>
+      tail().foldLeft(hd, (acc, elem) => acc.compareTo(elem) < 0 ? acc : elem));
+
+  IList<A> sorted() => sortWith((a, b) => a.compareTo(b) < 0);
+}
+
+extension IListIntOps on IList<int> {
+  int sum() => foldLeft(0, (a, b) => a + b);
+}
+
+extension IListDoubleOps on IList<double> {
+  double sum() => foldLeft(0, (a, b) => a + b);
 }
 
 /// Until lambda destructuring arrives, this will provide a little bit
@@ -686,6 +882,10 @@ extension IListTuple2Ops<A, B> on IList<(A, B)> {
 
   /// {@macro ilist_indexWhere}
   Option<int> indexWhereN(Function2<A, B, bool> p) => indexWhere(p.tupled);
+
+  /// {@macro ilist_lastIndexWhere}
+  Option<int> lastIndexWhereN(Function2<A, B, bool> p) =>
+      lastIndexWhere(p.tupled);
 
   /// {@macro ilist_map}
   IList<C> mapN<C>(Function2<A, B, C> f) => map(f.tupled);
