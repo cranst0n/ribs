@@ -55,6 +55,15 @@ void main() {
     expect(ilist([0]) + 1, ilist([0, 1]));
   });
 
+  test('IList.collect', () {
+    final l = ilist([1, 2, 3]);
+    Option<int> f(int n) => Option.when(() => n.isOdd, () => n * 2);
+    Option<int> g(int n) => Option.when(() => n > 0, () => n);
+
+    expect(l.collect(f), ilist([2, 6]));
+    expect(l.collect(g), l);
+  });
+
   test('IList.concat', () {
     expect(nil<int>().concat(nil<int>()), nil<int>());
     expect(ilist([1, 2, 3]).concat(nil<int>()), ilist([1, 2, 3]));
@@ -69,6 +78,23 @@ void main() {
     expect(ilist([1, 2, 3]).contains(5), isFalse);
   });
 
+  test('IList.corresponds', () {
+    expect(
+      ilist([1, 2, 3]).corresponds(ilist([2, 5, 6]), (a, b) => a * 2 == b),
+      isFalse,
+    );
+
+    expect(
+      ilist([1, 2, 3]).corresponds(ilist([2, 4, 6]), (a, b) => a * 2 == b),
+      isTrue,
+    );
+
+    expect(
+      ilist([1, 2, 3]).corresponds(ilist([2, 4, 6, 8]), (a, b) => a * 2 == b),
+      isFalse,
+    );
+  });
+
   test('IList.deleteFirst', () {
     expect(nil<int>().deleteFirst((x) => x > 0), none<(int, IList<int>)>());
     expect(ilist([0, 1, 2]).deleteFirst((x) => x > 0), (1, ilist([0, 2])).some);
@@ -76,11 +102,25 @@ void main() {
         none<(int, IList<int>)>());
   });
 
+  test('IList.diff', () {
+    expect(nil<int>().diff(ilist([1, 2, 3])), nil<int>());
+    expect(ilist([1, 2, 3]).diff(nil<int>()), ilist([1, 2, 3]));
+    expect(ilist([1, 2, 3]).diff(ilist([1, 2, 3])), nil<int>());
+    expect(ilist([1, 2, 3]).diff(ilist([1, 3, 5])), ilist([2]));
+  });
+
   test('IList.distinct', () {
     expect(nil<int>().distinct(), nil<int>());
     expect(ilist([1, 2, 3]).distinct(), ilist([1, 2, 3]));
     expect(ilist([3, 1, 2, 3]).distinct(), ilist([3, 1, 2]));
     expect(ilist([2, 1, 2, 3, 2, 2]).distinct(), ilist([2, 1, 3]));
+  });
+
+  test('IList.distinctBy', () {
+    expect(
+      ilist(['a', 'b', 'bb', 'aa']).distinctBy((a) => a.length),
+      ilist(['a', 'bb']),
+    );
   });
 
   test('IList.drop', () {
@@ -103,6 +143,14 @@ void main() {
     expect(ilist([1, 2, 3]).dropWhile((x) => x > 0), nil<int>());
     expect(ilist([-1, 2, 3]).dropWhile((x) => x > 0), ilist([-1, 2, 3]));
     expect(ilist([1, -2, 3]).dropWhile((x) => x > 0), ilist([-2, 3]));
+  });
+
+  test('IList.endsWith', () {
+    expect(nil<int>().endsWith(ilist([1, 2, 3])), isFalse);
+    expect(ilist([1, 2, 3]).endsWith(nil<int>()), isTrue);
+    expect(ilist([1, 2, 3]).endsWith(ilist([1, 2, 3])), isTrue);
+    expect(ilist([1, 2, 3]).endsWith(ilist([2, 3])), isTrue);
+    expect(ilist([1, 2, 3]).endsWith(ilist([1, 2, 3, 4])), isFalse);
   });
 
   test('IList.filter', () {
@@ -192,6 +240,13 @@ void main() {
     expect(ilist([1, 2, 3]).headOption, 1.some);
   });
 
+  test('IList.indexOfSlice', () {
+    expect(nil<int>().indexOfSlice(nil<int>()), const Some(0));
+    expect(ilist([1, 2, 3]).indexOfSlice(nil<int>()), const Some(0));
+    expect(nil<int>().indexOfSlice(ilist([1, 2, 3])), none<int>());
+    expect(ilist([1, 2, 3]).indexOfSlice(ilist([2, 3])), const Some(1));
+  });
+
   test('IList.indexWhere', () {
     expect(nil<int>().indexWhere((a) => a.isEven), none<int>());
     expect(ilist([1, 2, 3]).indexWhere((a) => a.isEven), const Some(1));
@@ -201,6 +256,28 @@ void main() {
     expect(nil<int>().init(), nil<int>());
     expect(ilist([1]).init(), nil<int>());
     expect(ilist([1, 2, 3]).init(), ilist([1, 2]));
+  });
+
+  test('IList.inits', () {
+    expect(nil<int>().inits(), ilist([nil<int>()]));
+
+    expect(
+      ilist([1]).inits(),
+      ilist([
+        ilist([1]),
+        nil<int>(),
+      ]),
+    );
+
+    expect(
+      ilist([1, 2, 3]).inits(),
+      ilist([
+        ilist([1, 2, 3]),
+        ilist([1, 2]),
+        ilist([1]),
+        nil<int>(),
+      ]),
+    );
   });
 
   test('IList.insertAt', () {
@@ -215,10 +292,25 @@ void main() {
     expect(ilist([1, 2, 3]).insertAt(100, 999), ilist([1, 2, 3]));
   });
 
-  test('intersperse', () {
+  test('IList.intersect', () {
+    expect(nil<int>().intersect(ilist([1, 2, 3])), nil<int>());
+    expect(ilist([1, 2, 3]).intersect(nil<int>()), nil<int>());
+    expect(ilist([1, 2, 3]).intersect(ilist([1, 2, 3])), ilist([1, 2, 3]));
+    expect(ilist([1, 2, 3]).intersect(ilist([1, 3, 5])), ilist([1, 3]));
+  });
+
+  test('IList.intersperse', () {
     expect(ilist([1, 2, 3]).intersperse(sep: 0), ilist([1, 0, 2, 0, 3]));
     expect(ilist([1, 2, 3]).intersperse(start: -1, sep: 0, end: 1),
         ilist([-1, 1, 0, 2, 0, 3, 1]));
+  });
+
+  test('IList.lastIndexOfSlice', () {
+    expect(nil<int>().lastIndexOfSlice(nil<int>()), const Some(0));
+    expect(ilist([1, 2, 3]).lastIndexOfSlice(nil<int>()), const Some(3));
+    expect(nil<int>().lastIndexOfSlice(ilist([1, 2, 3])), none<int>());
+    expect(ilist([1, 2, 3]).lastIndexOfSlice(ilist([2, 3])), const Some(1));
+    expect(ilist([2, 3, 2, 3]).lastIndexOfSlice(ilist([2, 3])), const Some(2));
   });
 
   test('IList.lastOption', () {
@@ -236,6 +328,28 @@ void main() {
   test('IList.map', () {
     expect(nil<int>().map((x) => x + 1), nil<int>());
     expect(ilist([1, 2, 3]).map((x) => x + 1), ilist([2, 3, 4]));
+  });
+
+  test('IList.maxByOption', () {
+    expect(nil<String>().maxByOption((a) => a.length), none<String>());
+    expect(ilist(['a', 'bc', 'def']).maxByOption((a) => a.length),
+        const Some('def'));
+  });
+
+  test('IList.minByOption', () {
+    expect(nil<String>().minByOption((a) => a.length), none<String>());
+    expect(ilist(['a', 'bc', 'def']).minByOption((a) => a.length),
+        const Some('a'));
+  });
+
+  test('IList.maxOption', () {
+    expect(nil<int>().maxOption(), none<int>());
+    expect(ilist([1, 2, 3]).maxOption(), const Some(3));
+  });
+
+  test('IList.minOption', () {
+    expect(nil<int>().minOption(), none<int>());
+    expect(ilist([1, 2, 3]).minOption(), const Some(1));
   });
 
   test('IList.mkString', () {
@@ -263,6 +377,11 @@ void main() {
     expect(ilist([1, 2, 3]).prepend(0), ilist([0, 1, 2, 3]));
   });
 
+  test('IList.prependAll', () {
+    expect(nil<int>().prependAll(ilist([1])), ilist([1]));
+    expect(ilist([3]).prependAll(ilist([0, 1, 2])), ilist([0, 1, 2, 3]));
+  });
+
   test('IList.removeAt', () {
     expect(nil<int>().removeAt(1), nil<int>());
     expect(ilist([1, 2, 3]).removeAt(1), ilist([1, 3]));
@@ -285,6 +404,26 @@ void main() {
   test('IList.reverse', () {
     expect(nil<int>().reverse(), nil<int>());
     expect(ilist([1, 2, 3]).reverse(), ilist([3, 2, 1]));
+  });
+
+  test('IList.scanLeft', () {
+    expect(nil<int>().scanLeft(0, (a, b) => a + b), ilist([0]));
+    expect(ilist([1]).scanLeft(0, (a, b) => a + b), ilist([0, 1]));
+    expect(ilist([1, 2, 3]).scanLeft(0, (a, b) => a + b), ilist([0, 1, 3, 6]));
+    expect(
+      IList.range(0, 10).scanLeft(0, (a, b) => a + b),
+      ilist([0, 0, 1, 3, 6, 10, 15, 21, 28, 36, 45]),
+    );
+  });
+
+  test('IList.scanRight', () {
+    expect(nil<int>().scanRight(0, (a, b) => a + b), ilist([0]));
+    expect(ilist([1]).scanRight(0, (a, b) => a + b), ilist([1, 0]));
+    expect(ilist([1, 2, 3]).scanRight(0, (a, b) => a + b), ilist([6, 5, 3, 0]));
+    expect(
+      IList.range(0, 10).scanRight(0, (a, b) => a + b),
+      ilist([45, 45, 44, 42, 39, 35, 30, 24, 17, 9, 0]),
+    );
   });
 
   test('IList.slice', () {
@@ -313,8 +452,28 @@ void main() {
         ]));
   });
 
+  test('IList.sortBy', () {
+    final m1 = imap({1: 'one'});
+    final m2 = imap({1: 'one', 2: 'two'});
+    final m3 = imap({1: 'one', 2: 'two', 3: 'three'});
+
+    final l = ilist([m2, m3, m1]);
+
+    expect(l.sortBy((a) => a.size), ilist([m1, m2, m3]));
+  });
+
   test('IList.sortWith', () {
     expect(ilist([4, 2, 8, 1]).sortWith((a, b) => a < b), ilist([1, 2, 4, 8]));
+  });
+
+  test('IList.sorted', () {
+    expect(ilist([4, 2, 8, 1]).sorted(), ilist([1, 2, 4, 8]));
+  });
+
+  test('IList.span', () {
+    expect(nil<int>().span((n) => n > 3), (nil<int>(), nil<int>()));
+    expect(ilist([1, 2, 3]).span((n) => n > 3), (nil<int>(), ilist([1, 2, 3])));
+    expect(ilist([1, 2, 3]).span((n) => n < 2), (ilist([1]), ilist([2, 3])));
   });
 
   test('IList.splitAt', () {
@@ -341,6 +500,28 @@ void main() {
     expect(
       ilist([1.asRight<int>(), 42.asLeft<int>(), 3.asRight<int>()]).sequence(),
       42.asLeft<int>(),
+    );
+  });
+
+  test('IList.tails', () {
+    expect(nil<int>().tails(), ilist([nil<int>()]));
+
+    expect(
+      ilist([1]).tails(),
+      ilist([
+        ilist([1]),
+        nil<int>(),
+      ]),
+    );
+
+    expect(
+      ilist([1, 2, 3]).tails(),
+      ilist([
+        ilist([1, 2, 3]),
+        ilist([2, 3]),
+        ilist([3]),
+        nil<int>(),
+      ]),
     );
   });
 
@@ -450,6 +631,18 @@ void main() {
 
     expect(a.zip(c), ilist([(1, 5), (2, 4), (3, 3)]));
     expect(c.zip(a), ilist([(5, 1), (4, 2), (3, 3)]));
+  });
+
+  test('IList.zipAll', () {
+    final a = ilist([1, 2, 3, 4, 5]);
+    final b = ilist([5, 4, 3, 2, 1]);
+    final c = ilist([5, 4, 3]);
+
+    expect(a.zipAll(b, 0, 1), ilist([(1, 5), (2, 4), (3, 3), (4, 2), (5, 1)]));
+    expect(b.zipAll(a, 0, 1), ilist([(5, 1), (4, 2), (3, 3), (2, 4), (1, 5)]));
+
+    expect(a.zipAll(c, 0, 1), ilist([(1, 5), (2, 4), (3, 3), (4, 1), (5, 1)]));
+    expect(c.zipAll(a, 0, 1), ilist([(5, 1), (4, 2), (3, 3), (0, 4), (0, 5)]));
   });
 
   test('IList.zipWithIndex', () {

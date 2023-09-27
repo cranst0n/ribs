@@ -54,6 +54,9 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   /// ```
   A operator [](int ix) => ix == 0 ? head : tail[ix - 1];
 
+  /// Alias for [append]
+  NonEmptyIList<A> operator +(A a) => append(a);
+
   /// Applies all functions in [f] to all elements in this list.
   ///
   /// ```dart main
@@ -210,8 +213,37 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
     tail.forEach(f);
   }
 
+  /// {@template nel_groupBy}
+  /// Partitions all elements of this list by applying [f] to each element
+  /// and accumulating duplicate keys in the returned [IMap].
+  /// {@endtemplate}
+  IMap<K, NonEmptyIList<A>> groupBy<K>(Function1<A, K> f) => groupMap(f, id);
+
+  /// {@template nel_groupMap}
+  /// Creates a new map by generating a key-value pair for each elements of this
+  /// list using [key] and [value]. Any elements that generate the same key will
+  /// have the resulting values accumulated in the returned map.
+  /// {@endtemplate}
+  IMap<K, NonEmptyIList<V>> groupMap<K, V>(
+    Function1<A, K> key,
+    Function1<A, V> value,
+  ) =>
+      foldLeft(
+        IMap.empty<K, NonEmptyIList<V>>(),
+        (acc, a) => acc.updatedWith(
+          key(a),
+          (prev) => prev
+              .map((l) => l.append(value(a)))
+              .orElse(() => nel(value(a)).some),
+        ),
+      );
+
   /// Returns all elements except the last.
   IList<A> get init => toIList().init();
+
+  /// Creates a new [Iterator] for the elements of this list. It may only be
+  /// used once.
+  Iterator<A> get iterator => toIList().iterator;
 
   /// Returns the last element of this list.
   A get last => tail.lastOption.getOrElse(() => head);
@@ -233,6 +265,16 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   NonEmptyIList<B> map<B>(Function1<A, B> f) =>
       NonEmptyIList(f(head), tail.map(f));
 
+  A maxBy<B extends Comparable<dynamic>>(Function1<A, B> f) => tail.foldLeft(
+      head, (acc, elem) => f(acc).compareTo(f(elem)) > 0 ? acc : elem);
+
+  /// Finds the smallest element in this list by applying [f] to each element
+  /// and using the [Comparable] to find the smallest.
+  ///
+  /// If this list is empty, [None] is returned.
+  A minBy<B extends Comparable<dynamic>>(Function1<A, B> f) => tail.foldLeft(
+      head, (acc, elem) => f(acc).compareTo(f(elem)) < 0 ? acc : elem);
+
   /// Returns a String representation of this list, with the given [start]
   /// (prefix), [sep] (separator) and [end] (suffix). Each element is converted
   /// using it's [toString] method.
@@ -250,6 +292,17 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   /// Prepends the given element to the beginning of this list.
   NonEmptyIList<A> prepend(A elem) => NonEmptyIList(elem, toIList());
 
+  /// Returns a new list with all [elems] added to the beginning of this list.
+  NonEmptyIList<A> prependAll(IList<A> elems) => elems.headOption.fold(
+      () => this,
+      (newHead) =>
+          NonEmptyIList(newHead, elems.tail().append(head).concat(tail)));
+
+  /// Returns a new list with the first element that satisfies the predicate [p]
+  /// removed. If no element satisfies [p], the original list is returned.
+  IList<A> removeFirst(Function1<A, bool> p) =>
+      p(head) ? tail : tail.removeFirst(p).prepend(head);
+
   /// Replaces the element at the given [index] with specified [elem] (value).
   NonEmptyIList<A> replace(int index, A elem) => updated(index, (_) => elem);
 
@@ -258,6 +311,43 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
       ? this
       : NonEmptyIList(tail.lastOption.getOrElse(() => head),
           tail.init().reverse().append(head));
+
+  /// Returns a new list of the accumulation of results by applying [f] to all
+  /// elements of the list, including the inital value [z]. List traversal moves
+  /// from left to right.
+  NonEmptyIList<A> scan(A z, Function2<A, A, A> f) => scanLeft(z, f);
+
+  /// Returns a new list of the accumulation of results by applying [f] to all
+  /// elements of the list, including the inital value [z]. List traversal moves
+  /// from left to right.
+  NonEmptyIList<B> scanLeft<B>(B z, Function2<B, A, B> f) =>
+      NonEmptyIList(z, tail.scanLeft(f(z, head), f));
+
+  /// Returns a new list of the accumulation of results by applying [f] to all
+  /// elements of the list, including the inital value [z]. List traversal moves
+  /// from right to left.
+  NonEmptyIList<B> scanRight<B>(B z, Function2<A, B, B> f) {
+    final newTail = tail.scanRight(z, f);
+
+    return newTail.headOption.fold(
+      () => NonEmptyIList(f(head, z), ilist([z])),
+      (h) => NonEmptyIList(f(head, h), newTail),
+    );
+  }
+
+  /// Returns a new list that is sorted according to the [Order] [o].
+  NonEmptyIList<A> sort(Order<A> o) =>
+      fromIterableUnsafe(toIList().sort(o).toList());
+
+  /// Returns a new list that is sorted according to the transformation [f]
+  /// which will result in the [Comparable] used to detemine sort order.
+  NonEmptyIList<A> sortBy<B extends Comparable<dynamic>>(Function1<A, B> f) =>
+      sort(Order.from((a, b) => f(a).compareTo(f(b))));
+
+  /// Returns a new list sorted using the provided function [lt] which is used
+  /// to determine if one element is less than the other.
+  NonEmptyIList<A> sortWith(Function2<A, A, bool> lt) =>
+      fromIterableUnsafe(toIList().sortWith(lt).toList());
 
   /// Checks if the beginning of this [NonEmptyIList] corresponds to the given
   /// [IList].
@@ -365,6 +455,18 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   NonEmptyIList<(A, B)> zip<B>(NonEmptyIList<B> bs) =>
       NonEmptyIList((head, bs.head), tail.zip(bs.tail));
 
+  /// Returns a new list that combines corresponding elements from this list
+  /// and [bs] as a tuple. The length of the returned list will be the maximum
+  /// of this lists size and thes size of [bs]. If this list is shorter than
+  /// [bs], [thisElem] will be used to fill in the resulting list. If [bs] is
+  /// shorter, [thatElem] will be used to will in the resulting list.
+  NonEmptyIList<(A, B)> zipAll<B>(
+    NonEmptyIList<B> bs,
+    A thisElem,
+    B thatElem,
+  ) =>
+      NonEmptyIList((head, bs.head), tail.zipAll(bs.tail, thisElem, thatElem));
+
   /// Return a new list with each element of this list paired with it's
   /// respective index.
   NonEmptyIList<(A, int)> zipWithIndex() => NonEmptyIList(
@@ -378,5 +480,54 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
       other is NonEmptyIList<A> && other.head == head && other.tail == tail;
 
   @override
-  int get hashCode => head.hashCode ^ tail.hashCode;
+  int get hashCode => Object.hash(head, tail);
+}
+
+extension NonEmptyIListNestedOps<A> on NonEmptyIList<NonEmptyIList<A>> {
+  /// Combines all nested lists into one list using concatenation.
+  NonEmptyIList<A> flatten() => head.concat(tail.flatMap((a) => a.toIList()));
+}
+
+extension NonEmptyIListEitherOps<A, B> on NonEmptyIList<Either<A, B>> {
+  Either<A, NonEmptyIList<B>> sequence() => traverseEither(id);
+}
+
+/// Operations avaiable when [NonEmptyIList] elements are of type [IO].
+extension NonEmptyIListIOOps<A> on NonEmptyIList<IO<A>> {
+  /// Alias for [traverseIO], using [id] as the function parameter.
+  IO<NonEmptyIList<A>> sequence() => traverseIO(id);
+
+  /// Alias for [traverseIO_], using [id] as the function parameter.
+  IO<Unit> sequence_() => traverseIO_(id);
+
+  /// Alias for [parTraverseIO], using [id] as the function parameter.
+  IO<NonEmptyIList<A>> parSequence() => parTraverseIO(id);
+
+  /// Alias for [parTraverseIO_], using [id] as the function parameter.
+  IO<Unit> parSequence_() => parTraverseIO_(id);
+}
+
+/// Operations avaiable when [IList] elemention are of type [Option].
+extension NonEmptyIListOptionOps<A> on NonEmptyIList<Option<A>> {
+  /// Accumulates all elements in this list as one [Option]. If any element is
+  /// a [None], [None] will be returned. If all elements are [Some], then the
+  /// entire list is returned, wrapped in a [Some].
+  Option<NonEmptyIList<A>> sequence() => traverseOption(id);
+}
+
+extension NonEmptyIListComparableOps<A extends Comparable<dynamic>>
+    on NonEmptyIList<A> {
+  A max() => maxBy(id);
+
+  A min() => minBy(id);
+
+  NonEmptyIList<A> sorted() => sortWith((a, b) => a.compareTo(b) < 0);
+}
+
+extension NonEmptyIListIntOps on NonEmptyIList<int> {
+  int sum() => foldLeft(0, (a, b) => a + b);
+}
+
+extension NonEmptyIListDoubleOps on NonEmptyIList<double> {
+  double sum() => foldLeft(0, (a, b) => a + b);
 }

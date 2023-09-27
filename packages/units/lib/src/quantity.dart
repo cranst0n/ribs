@@ -21,7 +21,7 @@ abstract class Quantity<A extends Quantity<A>> {
       (other is Quantity<A> && other.value == value && other.unit == unit);
 
   @override
-  int get hashCode => value.hashCode ^ unit.hashCode;
+  int get hashCode => Object.hash(value, unit);
 
   static Option<A> parse<A extends Quantity<A>>(
     String s,

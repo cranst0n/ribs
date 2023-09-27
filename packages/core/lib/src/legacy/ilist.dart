@@ -244,7 +244,7 @@ sealed class IList<A> implements Monad<A>, Foldable<A> {
 
   @override
   int get hashCode =>
-      uncons((h, t) => h.fold(() => 0, (h) => h.hashCode ^ t.hashCode));
+      uncons((h, t) => h.fold(() => 0, (h) => Object.hash(h, t)));
 }
 
 final class Cons<A> extends IList<A> {

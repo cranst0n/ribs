@@ -41,8 +41,7 @@ final class RetryStatus {
           other.previousDelay == previousDelay);
 
   @override
-  int get hashCode =>
-      Object.hashAll([retriesSoFar, cumulativeDelay, previousDelay]);
+  int get hashCode => Object.hash(retriesSoFar, cumulativeDelay, previousDelay);
 }
 
 /// Rendered decision on whether or not to retry an [IO] based on the
