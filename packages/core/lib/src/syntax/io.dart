@@ -35,7 +35,7 @@ extension Tuple2IOOps<A, B> on (IO<A>, IO<B>) {
   /// evaluate successfully. If **any** item fails or is canceled, the first
   /// instance encountered will be returned. Items are evaluated
   /// asynchronously.
-  /// /// {@endtemplate}
+  /// {@endtemplate}
   IO<(A, B)> parSequence() => _parTupled2($1, $2);
 }
 
