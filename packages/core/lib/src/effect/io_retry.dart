@@ -123,13 +123,17 @@ final class _DelayAndRetry extends RetryDecision {
 /// Policy that will render decisions on whether or not to attempt to retry a
 /// failed [IO].
 class RetryPolicy {
+  /// Function that that will render a decision on the given [RetryStatus].
   final Function1<RetryStatus, RetryDecision> decideOn;
 
   RetryPolicy(this.decideOn);
 
+  /// Creates a new policy that will alway decide to give up.
   factory RetryPolicy.alwaysGiveUp() =>
       RetryPolicy((_) => RetryDecision.giveUp());
 
+  /// Creates a new policy that will decide to retry an operation until
+  /// [maxRetries] attempts have already been made, then deciding to give up.
   factory RetryPolicy.limitRetries(int maxRetries) => RetryPolicy((status) {
         if (status.retriesSoFar >= maxRetries) {
           return RetryDecision.giveUp();
@@ -138,14 +142,21 @@ class RetryPolicy {
         }
       });
 
+  /// Creates a new policy that will always decide to retry an operation after
+  /// waiting for the given [Duration].
   factory RetryPolicy.constantDelay(Duration delay) =>
       RetryPolicy((status) => RetryDecision.delayAndRetry(delay));
 
+  /// Creates a new policy that will always decide to retry an operation,
+  /// while increasing the delay between attempts exponentially, starting with
+  /// a delay of [baseDelay].
   factory RetryPolicy.exponentialBackoff(Duration baseDelay) =>
       RetryPolicy((status) => RetryDecision.delayAndRetry(
           _safeMultiply(baseDelay, BigInt.from(2).pow(status.retriesSoFar))));
 
-  /// See https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
+  /// Creates a new policy that will always decide to retry an operation using
+  /// the [algorithm described here](https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/)
+  /// to determine the delay between each retry.
   factory RetryPolicy.fullJitter(Duration baseDelay) => RetryPolicy((status) {
         final maxDelay =
             _safeMultiply(baseDelay, BigInt.from(2).pow(status.retriesSoFar));
@@ -160,26 +171,37 @@ class RetryPolicy {
     );
   }
 
+  /// Limit the delay between any 2 retry attempts to [maxDelay].
   RetryPolicy capDelay(Duration maxDelay) =>
       mapDelay((d) => d > maxDelay ? maxDelay : d);
 
-  RetryPolicy giveUpAfterDelay(Duration cumulativeDelay) =>
+  /// Limits the amount of delay between any 2 retry attempts to [previousDelay]
+  /// before deciding to give up.
+  RetryPolicy giveUpAfterDelay(Duration previousDelay) =>
       RetryPolicy((status) =>
-          status.previousDelay.getOrElse(() => Duration.zero) >= cumulativeDelay
+          status.previousDelay.getOrElse(() => Duration.zero) >= previousDelay
               ? RetryDecision.giveUp()
               : decideOn(status));
 
+  /// Limits the total amount of delay during retry(s) that this policy will
+  /// allow before deciding to give up.
   RetryPolicy giveUpAfterCumulativeDelay(Duration cumulativeDelay) =>
       RetryPolicy((status) => status.cumulativeDelay >= cumulativeDelay
           ? RetryDecision.giveUp()
           : decideOn(status));
 
+  /// Combine this policy with another policy, giving up if this policy wants
+  /// to, and if not, following the decision of the other policy.
   RetryPolicy followedBy(RetryPolicy policy) => RetryPolicy((status) {
         final thisDecision = decideOn(status);
 
         return thisDecision.isGivingUp ? thisDecision : policy.decideOn(status);
       });
 
+  /// Combine this policy with another policy, giving up when either of the
+  /// policies want to give up and choosing the maximum of the two delays when
+  /// both of the schedules want to delay the next retry. The opposite of the
+  /// `meet` operation.
   RetryPolicy join(RetryPolicy policy) => RetryPolicy((status) {
         final thisDecision = decideOn(status);
         final thatDecision = policy.decideOn(status);
@@ -198,6 +220,10 @@ class RetryPolicy {
         }
       });
 
+  /// Combine this policy with another policy, giving up when both of the
+  /// policies want to give up and choosing the minimum of the two delays when
+  /// both of the schedules want to delay the next retry. The opposite of the
+  /// `join` operation.
   RetryPolicy meet(RetryPolicy policy) => RetryPolicy((status) {
         final thisDecision = decideOn(status);
         final thatDecision = policy.decideOn(status);
@@ -220,6 +246,8 @@ class RetryPolicy {
         }
       });
 
+  /// Applies [f] to the delay of any decision to eventually retry an
+  /// operation.
   RetryPolicy mapDelay(Function1<Duration, Duration> f) => RetryPolicy(
         (status) {
           final decision = decideOn(status);
@@ -233,10 +261,18 @@ class RetryPolicy {
       );
 }
 
+/// Current and cumulative retry information provided in the event of a failure.
 final class RetryDetails {
+  /// Retry attempts so far.
   final int retriesSoFar;
+
+  /// Cumulative delay taken so far between all attempts.
   final Duration cumulativeDelay;
+
+  /// Indicates if the current retry iteration is giving up.
   final bool givingUp;
+
+  /// The delay before the next retry attempt, if any.
   final Option<Duration> upcomingDelay;
 
   RetryDetails(
@@ -254,7 +290,23 @@ final class RetryDetails {
       'upcomingDelay = $upcomingDelay)';
 }
 
+/// Extension provides the hook into retry capabilities for [IO].
 extension RetryOps<A> on IO<A> {
+  /// Applies the given [policy] to this [IO] and will attempt to retry any
+  /// failed attempts according to the policy.
+  ///
+  /// [wasSuccessful] can be provided to further filter any successful
+  /// evalations with undesirable results, so they may be retried.
+  ///
+  /// [isWorthRetrying] can be provided to short-circuit any attempt to retry
+  /// if some kind of error is encountered that may eliminate any need to retry.
+  ///
+  /// [onError] can be provided to perform the given side-effect for each
+  /// error eencounted.
+  ///
+  /// [onFailure] can be provided in conjunction with [wasSuccessful] to
+  /// perform the given side-effect when a successful evaluation fails to
+  /// satisfy the [wasSuccessful] predicate.
   IO<A> retrying(
     RetryPolicy policy, {
     Function1<A, bool>? wasSuccessful,

@@ -1,52 +1,77 @@
 import 'package:ribs_core/src/function.dart';
 import 'package:ribs_core/src/non_empty_ilist.dart';
-// import 'package:ribs_core/src/tuple.dart';
 import 'package:ribs_core/src/syntax/tuple.dart';
 import 'package:ribs_core/src/validated.dart';
 
 extension ValidatedSyntaxOps<A> on A {
+  /// Lifts this value into a [Validated], specifically an [Invalid].
   Validated<A, B> invalid<B>() => Validated.invalid(this);
+
+  /// Lifts this value into a [Validated], specifically a [Valid].
   Validated<B, A> valid<B>() => Validated.valid(this);
 
+  /// Lifts this value into a [ValidatedNel], specifically an [Invalid].
   ValidatedNel<A, B> invalidNel<B>() =>
       Validated.invalid(NonEmptyIList.one(this));
 
+  /// Lifts this value into a [ValidatedNel], specifically a [Valid].
   ValidatedNel<B, A> validNel<B>() => Validated.valid(this);
 }
 
+/// {@template validatednel_tuple_ops}
+/// Functions available on a tuple of [ValidatedNel]s.
+/// {@endtemplate}
 extension Tuple2ValidatedNelOps<EE, A, B> on (
   ValidatedNel<EE, A>,
   ValidatedNel<EE, B>
 ) {
+  /// {@template validatednel_mapN}
+  /// Applies [fn] to the values of each respective tuple member if all values
+  /// are a [Valid]. If **any** item is an [Invalid], the accumulation of all
+  /// [Invalid] instances is returned.
+  /// {@endtemplate}
   ValidatedNel<EE, C> mapN<C>(Function2<A, B, C> fn) =>
       _tupled2($1, $2).map(fn.tupled);
 
+  /// {@template validatednel_sequence}
+  /// If **all** items of this tuple are a [Valid], the respective items are
+  /// turned into a tuple and returned as a [ValidatedNel]. If **any** item is an
+  /// [Invalid], the accumulation of all [Invalid] instances is returned.
+  /// {@endtemplate}
   ValidatedNel<EE, (A, B)> sequence() => _tupled2($1, $2);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple3ValidatedNelOps<EE, A, B, C> on (
   ValidatedNel<EE, A>,
   ValidatedNel<EE, B>,
   ValidatedNel<EE, C>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, D> mapN<D>(Function3<A, B, C, D> fn) =>
       _tupled3($1, $2, $3).map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
+  /// /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C)> sequence() => _tupled3($1, $2, $3);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple4ValidatedNelOps<EE, A, B, C, D> on (
   ValidatedNel<EE, A>,
   ValidatedNel<EE, B>,
   ValidatedNel<EE, C>,
   ValidatedNel<EE, D>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, E> mapN<E>(Function4<A, B, C, D, E> fn) =>
       _tupled4($1, $2, $3, $4).map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D)> sequence() => _tupled4($1, $2, $3, $4);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple5ValidatedNelOps<EE, A, B, C, D, E> on (
   ValidatedNel<EE, A>,
   ValidatedNel<EE, B>,
@@ -54,12 +79,15 @@ extension Tuple5ValidatedNelOps<EE, A, B, C, D, E> on (
   ValidatedNel<EE, D>,
   ValidatedNel<EE, E>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, F> mapN<F>(Function5<A, B, C, D, E, F> fn) =>
       _tupled5($1, $2, $3, $4, $5).map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D, E)> sequence() => _tupled5($1, $2, $3, $4, $5);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple6ValidatedNelOps<EE, A, B, C, D, E, F> on (
   ValidatedNel<EE, A>,
   ValidatedNel<EE, B>,
@@ -68,13 +96,16 @@ extension Tuple6ValidatedNelOps<EE, A, B, C, D, E, F> on (
   ValidatedNel<EE, E>,
   ValidatedNel<EE, F>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, G> mapN<G>(Function6<A, B, C, D, E, F, G> fn) =>
       _tupled6($1, $2, $3, $4, $5, $6).map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D, E, F)> sequence() =>
       _tupled6($1, $2, $3, $4, $5, $6);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple7ValidatedNelOps<EE, A, B, C, D, E, F, G> on (
   ValidatedNel<EE, A>,
   ValidatedNel<EE, B>,
@@ -84,13 +115,16 @@ extension Tuple7ValidatedNelOps<EE, A, B, C, D, E, F, G> on (
   ValidatedNel<EE, F>,
   ValidatedNel<EE, G>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, H> mapN<H>(Function7<A, B, C, D, E, F, G, H> fn) =>
       _tupled7($1, $2, $3, $4, $5, $6, $7).map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D, E, F, G)> sequence() =>
       _tupled7($1, $2, $3, $4, $5, $6, $7);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple8ValidatedNelOps<EE, A, B, C, D, E, F, G, H> on (
   ValidatedNel<EE, A>,
   ValidatedNel<EE, B>,
@@ -101,13 +135,16 @@ extension Tuple8ValidatedNelOps<EE, A, B, C, D, E, F, G, H> on (
   ValidatedNel<EE, G>,
   ValidatedNel<EE, H>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, I> mapN<I>(Function8<A, B, C, D, E, F, G, H, I> fn) =>
       _tupled8($1, $2, $3, $4, $5, $6, $7, $8).map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D, E, F, G, H)> sequence() =>
       _tupled8($1, $2, $3, $4, $5, $6, $7, $8);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple9ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I> on (
   ValidatedNel<EE, A>,
   ValidatedNel<EE, B>,
@@ -119,13 +156,16 @@ extension Tuple9ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I> on (
   ValidatedNel<EE, H>,
   ValidatedNel<EE, I>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, J> mapN<J>(Function9<A, B, C, D, E, F, G, H, I, J> fn) =>
       _tupled9($1, $2, $3, $4, $5, $6, $7, $8, $9).map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D, E, F, G, H, I)> sequence() =>
       _tupled9($1, $2, $3, $4, $5, $6, $7, $8, $9);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple10ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J> on (
   ValidatedNel<EE, A>,
   ValidatedNel<EE, B>,
@@ -138,13 +178,16 @@ extension Tuple10ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J> on (
   ValidatedNel<EE, I>,
   ValidatedNel<EE, J>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, K> mapN<K>(Function10<A, B, C, D, E, F, G, H, I, J, K> fn) =>
       _tupled10($1, $2, $3, $4, $5, $6, $7, $8, $9, $10).map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D, E, F, G, H, I, J)> sequence() =>
       _tupled10($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple11ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K> on (
   ValidatedNel<EE, A>,
   ValidatedNel<EE, B>,
@@ -158,14 +201,17 @@ extension Tuple11ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K> on (
   ValidatedNel<EE, J>,
   ValidatedNel<EE, K>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, L> mapN<L>(
           Function11<A, B, C, D, E, F, G, H, I, J, K, L> fn) =>
       _tupled11($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11).map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D, E, F, G, H, I, J, K)> sequence() =>
       _tupled11($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple12ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L> on (
   ValidatedNel<EE, A>,
   ValidatedNel<EE, B>,
@@ -180,15 +226,18 @@ extension Tuple12ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L> on (
   ValidatedNel<EE, K>,
   ValidatedNel<EE, L>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, M> mapN<M>(
           Function12<A, B, C, D, E, F, G, H, I, J, K, L, M> fn) =>
       _tupled12($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
           .map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D, E, F, G, H, I, J, K, L)> sequence() =>
       _tupled12($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple13ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M> on (
   ValidatedNel<EE, A>,
   ValidatedNel<EE, B>,
@@ -204,15 +253,18 @@ extension Tuple13ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M> on (
   ValidatedNel<EE, L>,
   ValidatedNel<EE, M>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, N> mapN<N>(
           Function13<A, B, C, D, E, F, G, H, I, J, K, L, M, N> fn) =>
       _tupled13($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
           .map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M)> sequence() =>
       _tupled13($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple14ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N>
     on (
   ValidatedNel<EE, A>,
@@ -230,15 +282,18 @@ extension Tuple14ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N>
   ValidatedNel<EE, M>,
   ValidatedNel<EE, N>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, O> mapN<O>(
           Function14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> fn) =>
       _tupled14($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
           .map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N)> sequence() =>
       _tupled14($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple15ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
     O> on (
   ValidatedNel<EE, A>,
@@ -257,17 +312,20 @@ extension Tuple15ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
   ValidatedNel<EE, N>,
   ValidatedNel<EE, O>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, P> mapN<P>(
           Function15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> fn) =>
       _tupled15(
               $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
           .map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> sequence() =>
       _tupled15(
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple16ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
     O, P> on (
   ValidatedNel<EE, A>,
@@ -287,17 +345,20 @@ extension Tuple16ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
   ValidatedNel<EE, O>,
   ValidatedNel<EE, P>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, Q> mapN<Q>(
           Function16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> fn) =>
       _tupled16($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
               $15, $16)
           .map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P)>
       sequence() => _tupled16($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
           $13, $14, $15, $16);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple17ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
     O, P, Q> on (
   ValidatedNel<EE, A>,
@@ -318,6 +379,7 @@ extension Tuple17ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
   ValidatedNel<EE, P>,
   ValidatedNel<EE, Q>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, R> mapN<R>(
           Function17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
               fn) =>
@@ -325,11 +387,13 @@ extension Tuple17ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
               $15, $16, $17)
           .map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q)>
       sequence() => _tupled17($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
           $13, $14, $15, $16, $17);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple18ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
     O, P, Q, R> on (
   ValidatedNel<EE, A>,
@@ -351,6 +415,7 @@ extension Tuple18ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
   ValidatedNel<EE, Q>,
   ValidatedNel<EE, R>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, S> mapN<S>(
           Function18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
               fn) =>
@@ -358,11 +423,13 @@ extension Tuple18ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
               $15, $16, $17, $18)
           .map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R)>
       sequence() => _tupled18($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
           $13, $14, $15, $16, $17, $18);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple19ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
     O, P, Q, R, S> on (
   ValidatedNel<EE, A>,
@@ -385,6 +452,7 @@ extension Tuple19ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
   ValidatedNel<EE, R>,
   ValidatedNel<EE, S>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, T> mapN<T>(
           Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
               fn) =>
@@ -392,11 +460,13 @@ extension Tuple19ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
               $15, $16, $17, $18, $19)
           .map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)>
       sequence() => _tupled19($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
           $13, $14, $15, $16, $17, $18, $19);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple20ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
     O, P, Q, R, S, T> on (
   ValidatedNel<EE, A>,
@@ -420,6 +490,7 @@ extension Tuple20ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
   ValidatedNel<EE, S>,
   ValidatedNel<EE, T>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, U> mapN<U>(
           Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
                   U>
@@ -428,11 +499,13 @@ extension Tuple20ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
               $15, $16, $17, $18, $19, $20)
           .map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)>
       sequence() => _tupled20($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
           $13, $14, $15, $16, $17, $18, $19, $20);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple21ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
     O, P, Q, R, S, T, U> on (
   ValidatedNel<EE, A>,
@@ -457,6 +530,7 @@ extension Tuple21ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
   ValidatedNel<EE, T>,
   ValidatedNel<EE, U>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, V> mapN<V>(
           Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
                   U, V>
@@ -465,12 +539,14 @@ extension Tuple21ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
               $15, $16, $17, $18, $19, $20, $21)
           .map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE,
           (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
       sequence() => _tupled21($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
           $13, $14, $15, $16, $17, $18, $19, $20, $21);
 }
 
+/// {@macro validatednel_tuple_ops}
 extension Tuple22ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
     O, P, Q, R, S, T, U, V> on (
   ValidatedNel<EE, A>,
@@ -496,6 +572,7 @@ extension Tuple22ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
   ValidatedNel<EE, U>,
   ValidatedNel<EE, V>
 ) {
+  /// {@macro validatednel_mapN}
   ValidatedNel<EE, W> mapN<W>(
           Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
                   U, V, W>
@@ -504,6 +581,7 @@ extension Tuple22ValidatedNelOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
               $15, $16, $17, $18, $19, $20, $21, $22)
           .map(fn.tupled);
 
+  /// {@macro validatednel_sequence}
   ValidatedNel<EE,
           (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
       sequence() => _tupled22($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,

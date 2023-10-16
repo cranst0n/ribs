@@ -117,11 +117,11 @@ sealed class IO<A> extends Monad<A> {
         ),
       );
 
-  /// Creates an [IO] that immediatly results in an [Outcome] of [Canceled].
+  /// Creates an [IO] that immediately results in an [Outcome] of [Canceled].
   static IO<Unit> canceled = _Canceled();
 
   /// Introduces an asynchronous boundary in the IO runtime loop that can
-  /// be used for cancelation checking and fairness among other things.
+  /// be used for cancelation checking and fairness, among other things.
   static IO<Unit> cede = _Cede();
 
   /// Suspends the synchronous evaluation of [thunk] in [IO].
@@ -145,9 +145,7 @@ sealed class IO<A> extends Monad<A> {
             onError: (e, s) => cb(IOError(e, s).asLeft()),
           );
 
-          return IO
-              .fromFuture(IO.delay(() => op.cancel().then((_) => Unit())))
-              .some;
+          return IO.fromFutureF(() => op.cancel().then((_) => Unit())).some;
         });
       });
     });
@@ -165,6 +163,11 @@ sealed class IO<A> extends Monad<A> {
             (a) => cb(a.asRight()),
             onError: (Object e, StackTrace s) => cb(IOError(e, s).asLeft()),
           )));
+
+  /// Create an [IO] that returns the value of the underlying [Future] function
+  /// or the error [futF] emits.
+  static IO<A> fromFutureF<A>(Function0<Future<A>> futF) =>
+      fromFuture(IO.delay(futF));
 
   /// Alias for `IO.pure` when [option] is [Some], or `IO.raiseError` with
   /// [orElse] providing the error when [option] is [None].
@@ -308,7 +311,7 @@ sealed class IO<A> extends Monad<A> {
   /// Replaces the result of this [IO] with the given value.
   IO<B> as<B>(B b) => map((_) => b);
 
-  /// Extracts any exceptions encounted during evaluation into an [Either]
+  /// Extracts any exceptions encountered during evaluation into an [Either]
   /// value.
   IO<Either<IOError, A>> attempt() => _Attempt(this);
 
@@ -516,7 +519,7 @@ extension IOBoolOps on IO<bool> {
       flatMap((b) => b ? ifTrue() : ifFalse());
 }
 
-extension IOErrorOps<A> on IO<Either<IOError, A>> {
+extension IOExceptionOps<A> on IO<Either<Exception, A>> {
   /// Inverse of [IO.attempt].
   IO<A> rethrowError() => flatMap(IO.fromEither);
 }
@@ -756,9 +759,7 @@ final class IOFiber<A> {
 
   final int _autoCedeN;
 
-  void _schedule() {
-    Future(() => _resume());
-  }
+  void _schedule() => Timer.run(() => _resume());
 
   IOFiber(
     this._startIO, {
@@ -1050,9 +1051,6 @@ final class IOFiber<A> {
           fiber._schedule();
 
           cur0 = _succeeded(fiber, 0);
-        } else if (cur0 is _Cede) {
-          _rescheduleFiber();
-          break;
         } else if (cur0 is _Canceled) {
           _canceled = true;
 
@@ -1106,7 +1104,7 @@ final class IOFiber<A> {
 
           cur0 = cur0.ioa;
         } else {
-          throw UnimplementedError('_runLoop: $cur0');
+          throw StateError('_runLoop: $cur0');
         }
       }
 

@@ -8,6 +8,16 @@
 [![CI](https://github.com/cranst0n/ribs/actions/workflows/ci.yml/badge.svg)](https://github.com/cranst0n/ribs/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/cranst0n/ribs/branch/main/graph/badge.svg?token=12627T0AO0)](https://codecov.io/gh/cranst0n/ribs)
 
+[![core](https://img.shields.io/pub/v/ribs_core?label=ribs_core&color=00c000)](https://pub.dev/packages/ribs_core)
+[![json](https://img.shields.io/pub/v/ribs_json?label=ribs_json&color=00c000)](https://pub.dev/packages/ribs_json)
+[![binary](https://img.shields.io/pub/v/ribs_binary?label=ribs_binary&color=00c000)](https://pub.dev/packages/ribs_binary)
+[![optics](https://img.shields.io/pub/v/ribs_optics?label=ribs_optics&color=00c000)](https://pub.dev/packages/ribs_optics)
+[![units](https://img.shields.io/pub/v/ribs_units?label=ribs_units&color=00c000)](https://pub.dev/packages/ribs_units)
+[![check](https://img.shields.io/pub/v/ribs_check?label=ribs_check&color=00c000)](https://pub.dev/packages/ribs_check)
+
+![rill](https://img.shields.io/badge/ribs__http-unpublished-f00000)
+![rill](https://img.shields.io/badge/ribs__rill-unpublished-f00000)
+
 **🧪 Experimental FP packages for Dart 🧪**
 
 [![Reinvent the Wheel](https://raw.githubusercontent.com/cranst0n/ribs/main/.github/assets/reinventing_the_wheel.png)](https://twitter.com/rockthejvm/status/1640320394438508545)
