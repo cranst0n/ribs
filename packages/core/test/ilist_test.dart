@@ -20,9 +20,19 @@ void main() {
   });
 
   test('IList.range', () {
+    expect(IList.range(0, 0), ilist([]));
     expect(IList.range(0, 3), ilist([0, 1, 2]));
     expect(IList.range(2, 5), ilist([2, 3, 4]));
     expect(IList.range(-1, 2), ilist([-1, 0, 1]));
+
+    expect(IList.range(0, 4, 2), ilist([0, 2]));
+    expect(IList.range(0, 9, 3), ilist([0, 3, 6]));
+
+    expect(IList.range(10, 3, -3), ilist([10, 7, 4]));
+    expect(IList.range(3, -3, -1), ilist([3, 2, 1, 0, -1, -2]));
+
+    expect(() => IList.range(0, 10, 0), throwsArgumentError);
+    expect(() => IList.range(0, 3, -1), throwsArgumentError);
   });
 
   test('IList.reduceOption', () {

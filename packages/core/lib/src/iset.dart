@@ -10,7 +10,10 @@ ISet<A> iset<A>(Iterable<A> as) => ISet.of(as);
 final class ISet<A> {
   final fic.ISet<A> _underlying;
 
-  ISet._(this._underlying);
+  const ISet._(this._underlying);
+
+  /// Creates a set with no elements.
+  const ISet.empty() : _underlying = const fic.ISetConst({});
 
   /// Creates a new set from the given [items], with duplicates removed.
   static ISet<A> fromIList<A>(IList<A> items) =>
@@ -94,7 +97,7 @@ final class ISet<A> {
     Function1<A, V> value,
   ) =>
       fold(
-        IMap.empty<K, ISet<V>>(),
+        imap({}),
         (acc, a) => acc.updatedWith(
           key(a),
           (prev) =>

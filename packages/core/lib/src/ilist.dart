@@ -36,8 +36,23 @@ final class IList<A> implements Monad<A>, Foldable<A> {
 
   /// Creates an IList where elements are every integer from [start] (inclusive)
   /// to [end] (exclusive).
-  static IList<int> range(int start, int end) =>
-      tabulate(end - start, (ix) => ix + start);
+  static IList<int> range(int start, int end, [int step = 1]) =>
+      IList.of(_rangeImpl(start, end, step));
+
+  static Iterable<int> _rangeImpl(int start, int end, int step) sync* {
+    if (step == 0) throw ArgumentError('IList step must be non zero: $step');
+
+    if (start != end && (end - start).sign != step.sign) {
+      throw ArgumentError('Invalid IList range: [$start, $end; $step]');
+    }
+
+    int n = start;
+
+    while (n != end && n.compareTo(end) != step.sign) {
+      yield n;
+      n += step;
+    }
+  }
 
   /// Create an IList of size [n] and sets the element at each index by
   /// invoking [f] and passing the index.
@@ -225,7 +240,7 @@ final class IList<A> implements Monad<A>, Foldable<A> {
     Function1<A, V> value,
   ) =>
       foldLeft(
-        IMap.empty<K, IList<V>>(),
+        imap({}),
         (acc, a) => acc.updatedWith(
           key(a),
           (prev) => prev
@@ -616,6 +631,11 @@ final class IList<A> implements Monad<A>, Foldable<A> {
 
   /// Returns a new [List] with the same elements as this [IList].
   List<A> toList() => _underlying.toList();
+
+  /// Returns a [NonEmptyIList] as a [Some] if this list is non empty. Otherwise
+  /// [None] is returned.
+  Option<NonEmptyIList<A>> toNel() =>
+      uncons((a) => a.mapN((hd, tail) => NonEmptyIList(hd, tail)));
 
   /// {@template ilist_traverseEither}
   /// Applies [f] to each element of this list and collects the results into a

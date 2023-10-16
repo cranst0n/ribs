@@ -10,10 +10,10 @@ IMap<K, V> imap<K, V>(Map<K, V> m) => IMap.fromMap(m);
 final class IMap<K, V> {
   final fic.IMap<K, V> _underlying;
 
-  IMap._(this._underlying);
+  const IMap._(this._underlying);
 
-  /// Creates an empty map.
-  static IMap<K, V> empty<K, V>() => IMap._(fic.IMap());
+  /// Creates a map with no elements.
+  const IMap.empty() : _underlying = const fic.IMapConst({});
 
   /// Creates a new [IMap] from the given [Map].
   static IMap<K, V> fromMap<K, V>(Map<K, V> m) => IMap._(fic.IMap(m));

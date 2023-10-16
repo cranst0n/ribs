@@ -229,7 +229,7 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
     Function1<A, V> value,
   ) =>
       foldLeft(
-        IMap.empty<K, NonEmptyIList<V>>(),
+        imap({}),
         (acc, a) => acc.updatedWith(
           key(a),
           (prev) => prev
@@ -517,17 +517,22 @@ extension NonEmptyIListOptionOps<A> on NonEmptyIList<Option<A>> {
 
 extension NonEmptyIListComparableOps<A extends Comparable<dynamic>>
     on NonEmptyIList<A> {
+  /// Returns the maximum element as decided by this [Comparable].
   A max() => maxBy(id);
 
+  /// Returns the minimum element as decided by this [Comparable].
   A min() => minBy(id);
 
+  /// Returns a new list sorted from least to greatest, as decided by this [Comparable].
   NonEmptyIList<A> sorted() => sortWith((a, b) => a.compareTo(b) < 0);
 }
 
 extension NonEmptyIListIntOps on NonEmptyIList<int> {
+  /// Returns the sum of all elements in this list of [int].
   int sum() => foldLeft(0, (a, b) => a + b);
 }
 
 extension NonEmptyIListDoubleOps on NonEmptyIList<double> {
+  /// Returns the sum of all elements in this list of [double].
   double sum() => foldLeft(0, (a, b) => a + b);
 }
