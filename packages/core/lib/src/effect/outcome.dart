@@ -9,26 +9,45 @@ import 'package:ribs_core/ribs_core.dart';
 sealed class Outcome<A> {
   const Outcome();
 
+  /// Creates a [Succeeded] cast as an [Outcome];
   static Outcome<A> succeeded<A>(A a) => Succeeded(a);
+
+  /// Creates a [Errored] cast as an [Outcome];
   static Outcome<A> errored<A>(IOError error) => Errored(error);
+
+  /// Creates a [Canceled] cast as an [Outcome];
   static Outcome<A> canceled<A>() => const Canceled();
 
+  /// Returns an [IO] that will resolve to [onCancel] if the outcome if a
+  /// [Canceled], raise an error if the outcome is [Errored] or return the
+  /// successful value if the outcome is [Succeeded].
   IO<A> embed(IO<A> onCancel) => fold(
         () => onCancel,
         (err) => IO.raiseError(err),
         (a) => IO.pure(a),
       );
 
+  /// Returns an [IO] that will never complete if the outcome is a [Canceled].
   IO<A> embedNever() => embed(IO.never());
 
+  /// Applies the appropriate function to the instance of this Outcome.
+  ///
+  /// [canceled] will be applied if this instance is a [Canceled].
+  /// [errored] will be applied if this instance is a [Errored].
+  /// [succeeded] will be applied if this instance is a [Succeeded].
   B fold<B>(
     Function0<B> canceled,
     Function1<IOError, B> errored,
     Function1<A, B> succeeded,
   );
 
+  /// Returns `true` if this instance is a [Canceled], `false` otherwise.
   bool get isCanceled => fold(() => true, (_) => false, (_) => false);
+
+  /// Returns `true` if this instance is a [Errored], `false` otherwise.
   bool get isError => fold(() => false, (_) => true, (_) => false);
+
+  /// Returns `true` if this instance is a [Succeeded], `false` otherwise.
   bool get isSuccess => fold(() => false, (_) => false, (_) => true);
 
   @override
@@ -45,8 +64,9 @@ sealed class Outcome<A> {
   int get hashCode;
 }
 
-/// Succsseful [Outcome] of an [IO] evaluation, yield a result.
+/// Succsseful [Outcome] of an [IO] evaluation, yielding a result.
 final class Succeeded<A> extends Outcome<A> {
+  /// The successful value.
   final A value;
 
   const Succeeded(this.value);
@@ -70,6 +90,7 @@ final class Succeeded<A> extends Outcome<A> {
 
 /// Failed [Outcome] of an [IO] evaluation, with the [IOError] that caused it.
 final class Errored<A> extends Outcome<A> {
+  /// The underlying error.
   final IOError error;
 
   const Errored(this.error);
