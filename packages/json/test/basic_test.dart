@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 import 'gen.dart';
 
 void main() {
-  forAll(genJson)(
+  forAll('JSON roundtrip', genJson)(
     (json) {
       final str = json.printWith(Printer.spaces2);
 
@@ -15,10 +15,7 @@ void main() {
         (value) => expect(value, json),
       );
     },
-  ).run(
-    description: 'Json roundtrip',
-    numTests: 10,
-  );
+  ).run(numTests: 10);
 
   test('Json.cursor A', () {
     final json = Json.obj([

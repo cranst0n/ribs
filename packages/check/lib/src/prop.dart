@@ -1,24 +1,22 @@
 import 'package:ribs_check/src/gen.dart';
 import 'package:ribs_check/src/seeded_random.dart';
 import 'package:ribs_core/ribs_core.dart';
+import 'package:test/test.dart';
 
-import 'package:test/test.dart' as dart_test;
-// ignore: deprecated_member_use
-import 'package:test_api/test_api.dart';
-
-Prop<T> Function(TestBody<T> testBody) forAll<T>(Gen<T> gen) =>
-    (testBody) => Prop(gen, testBody);
+Prop<T> Function(TestBody<T> testBody) forAll<T>(
+        String description, Gen<T> gen) =>
+    (testBody) => Prop(description, gen, testBody);
 
 typedef TestBody<T> = Function1<T, void>;
 
 final class Prop<T> {
+  final String description;
   final Gen<T> gen;
   final TestBody<T> testBody;
 
-  Prop(this.gen, this.testBody);
+  Prop(this.description, this.gen, this.testBody);
 
   void run({
-    required String description,
     int numTests = 100,
     int? seed,
     String? testOn,
@@ -30,12 +28,11 @@ final class Prop<T> {
   }) {
     final seedNN = seed ?? DateTime.now().millisecondsSinceEpoch;
 
-    dart_test.test(description, () async {
+    test(description, () async {
       var count = 0;
 
       final firstFailure = await gen
           .stream(StatefulRandom(seedNN))
-          .take(numTests)
           .map((value) {
         count++;
         return _runProp(value, testBody);
@@ -46,7 +43,7 @@ final class Prop<T> {
           () => Future.value(firstFailure), (a) => _shrink(a, testBody));
 
       shrunkenFailure.forEach((a) {
-        throw dart_test.TestFailure(
+        throw TestFailure(
             '${a.underlying.message} Failed after $count iterations using value [${a.value}] and seed [$seedNN].');
       });
     }, testOn: testOn);
@@ -56,7 +53,7 @@ final class Prop<T> {
     try {
       testBody(value);
       return none<PropFailure<T>>();
-    } on dart_test.TestFailure catch (tf) {
+    } on TestFailure catch (tf) {
       return Some(PropFailure(value, tf));
     }
   }
@@ -80,7 +77,7 @@ final class Prop<T> {
 
 class PropFailure<T> {
   final T value;
-  final dart_test.TestFailure underlying;
+  final TestFailure underlying;
 
   const PropFailure(this.value, this.underlying);
 }

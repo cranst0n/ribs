@@ -9,21 +9,26 @@ void main() {
     expect(42.bytes.toOctets.toBytes, 42.bytes);
   });
 
-  forAll(Gen.tuple3(Gen.positiveInt, informationUnit, informationUnit))(
+  forAll(
+    'Information.conversion',
+    Gen.tuple3(Gen.positiveInt, informationUnit, informationUnit),
+  )(
     (tuple) => expect(
       tuple((n, unitA, unitB) => unitB(unitA(n).to(unitB)).to(unitA)),
       closeTo(tuple.$1, 1e-6),
     ),
-  ).run(description: 'Information.conversion', numTests: 500);
+  ).run();
 
-  forAll(Gen.tuple3(
-      Gen.positiveInt, Gen.oneOf(ilist(['', ' '])), informationUnit))(
+  forAll(
+    'Information.parse',
+    (Gen.positiveInt, Gen.oneOf(ilist(['', ' '])), informationUnit).sequence,
+  )(
     (tuple) => expect(
       tuple((n, spaces, unit) =>
           Information.parse('$n$spaces${unit.symbol}').isDefined),
       isTrue,
     ),
-  ).run(description: 'Information.parse', numTests: 500);
+  ).run();
 
   test('equivalentTo', () {
     expect(1.megabytes.equivalentTo(1000.kilobytes), isTrue);

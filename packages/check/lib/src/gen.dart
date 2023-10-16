@@ -310,3 +310,11 @@ final class Choose<A> {
         shrinker: Shrinker.integer,
       ));
 }
+
+extension GenTuple2Ops<A, B> on (Gen<A>, Gen<B>) {
+  Gen<(A, B)> get sequence => Gen.tuple2($1, $2);
+}
+
+extension GenTuple3Ops<A, B, C> on (Gen<A>, Gen<B>, Gen<C>) {
+  Gen<(A, B, C)> get sequence => Gen.tuple3($1, $2, $3);
+}

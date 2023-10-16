@@ -11,11 +11,11 @@ environment:
 
 dependencies:
   async:      ^2.11.0
-  meta:       ^1.10.0
-  ribs_core:  ^1.0.0-dev.4
+  meta:       ^1.9.1
+  ribs_core:  ^1.0.0-dev.6
 
 dev_dependencies:
   daco:       ^0.2.6
   lint:       ^2.1.2
-  ribs_check: ^1.0.0-dev.3
-  test:       ^1.24.6
+  ribs_check: ^1.0.0-dev.4
+  test:       ^1.24.8
