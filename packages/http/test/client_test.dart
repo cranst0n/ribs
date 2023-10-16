@@ -24,9 +24,6 @@ void main() {
       uri: Uri.parse('https://postman-echo.com/post/hi/there?hand=wave'),
       body: EntityBody.string('hello!'),
     );
-
-    // ignore: avoid_print
-    print(req);
   });
 
   test('basic', () async {
@@ -48,7 +45,7 @@ void main() {
             body: EntityBody.string('hello!'),
           ))
           .flatTap((r) =>
-              EntityDecoder.string.decode(r, false).debug(prefix: 'Entity: '));
+              EntityDecoder.string.decode(r, false));
     }).unsafeRunToFuture();
   });
 
@@ -67,7 +64,7 @@ void main() {
         }))),
       ))
           .flatTap((r) {
-        return EntityDecoder.string.decode(r, false).debug(prefix: 'Entity: ');
+        return EntityDecoder.string.decode(r, false);
       });
     }).unsafeRunToFuture();
   });
@@ -77,7 +74,6 @@ void main() {
       return client
           .fetchJsonString('https://postman-echo.com/get?foo1=bar1&foo2=bar2')
           .map((a) => a.printWith(Printer.spaces2))
-          .debug(prefix: 'Response');
     }).unsafeRunToFuture();
   });
 }
