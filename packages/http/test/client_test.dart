@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 
 void main() {
   test('request', () {
-    final req = Request(
+    Request(
       method: Method.POST,
       headers: Headers([
         Header.accept(MediaType.application.json),
@@ -44,8 +44,7 @@ void main() {
             uri: Uri.parse('https://postman-echo.com/post'),
             body: EntityBody.string('hello!'),
           ))
-          .flatTap((r) =>
-              EntityDecoder.string.decode(r, false));
+          .flatTap((r) => EntityDecoder.string.decode(r, false));
     }).unsafeRunToFuture();
   });
 
@@ -73,7 +72,7 @@ void main() {
     await Client.sdk().map(ClientLogger.create).use((client) {
       return client
           .fetchJsonString('https://postman-echo.com/get?foo1=bar1&foo2=bar2')
-          .map((a) => a.printWith(Printer.spaces2))
+          .map((a) => a.printWith(Printer.spaces2));
     }).unsafeRunToFuture();
   });
 }
