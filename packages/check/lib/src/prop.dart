@@ -33,6 +33,7 @@ final class Prop<T> {
 
       final firstFailure = await gen
           .stream(StatefulRandom(seedNN))
+          .take(numTests)
           .map((value) {
         count++;
         return _runProp(value, testBody);
