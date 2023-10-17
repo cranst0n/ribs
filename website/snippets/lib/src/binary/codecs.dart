@@ -3,7 +3,7 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-/// codecs-1
+// codecs-1
 
 final class Document {
   final Header header;
@@ -35,9 +35,9 @@ final class Debug extends Message {
   Debug(this.lineNumber, this.message);
 }
 
-/// codecs-1
+// codecs-1
 
-/// codecs-2
+// codecs-2
 
 final infoCodec = utf16_32.xmap((str) => Info(str), (info) => info.message);
 
@@ -48,9 +48,9 @@ final debugCodec = Codec.product2(
   (dbg) => (dbg.lineNumber, dbg.message),
 );
 
-/// codecs-2
+// codecs-2
 
-/// codecs-3
+// codecs-3
 
 final messageCodec = discriminatedBy(
   uint8, // encode identifier using an 8-bit integer
@@ -60,9 +60,9 @@ final messageCodec = discriminatedBy(
   }),
 );
 
-/// codecs-3
+// codecs-3
 
-/// codecs-4
+// codecs-4
 
 final documentCodec = Codec.product2(
   headerCodec,
@@ -80,10 +80,10 @@ final headerCodec = Codec.product3(
   (hdr) => (hdr.version, hdr.comment, hdr.numMessages),
 );
 
-/// codecs-4
+// codecs-4
 
 void snippet5() {
-  /// codecs-5
+  // codecs-5
   final doc = Document(
       const Header(1.1, 'Top Secret', 3),
       IList.of([
@@ -107,5 +107,5 @@ void snippet5() {
   print(decoded);
   // Right(DecodeResult(Instance of 'Document', ByteVector.empty))
 
-  /// codecs-5
+  // codecs-5
 }

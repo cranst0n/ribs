@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
-/// streaming-1
+// streaming-1
 
 final class Event {
   final String id;
@@ -37,9 +37,9 @@ final class Repo {
   );
 }
 
-/// streaming-1
+// streaming-1
 
-/// streaming-2
+// streaming-2
 
 // Original stream of bytes
 final Stream<List<int>> byteStream =
@@ -59,10 +59,10 @@ final Stream<Event> eventStream = decodeStream.expand((element) => element.fold(
       (event) => [event],
     ));
 
-/// streaming-2
+// streaming-2
 
 Future<void> snippet3() async {
-  /// streaming-3
+  // streaming-3
 
   final Socket sock = await Socket.connect('192.168.0.100', 12345);
 
@@ -70,5 +70,5 @@ Future<void> snippet3() async {
       .map((event) => event.toList())
       .transform(JsonTransformer.bytes(AsyncParserMode.valueStream));
 
-  /// streaming-3
+  // streaming-3
 }

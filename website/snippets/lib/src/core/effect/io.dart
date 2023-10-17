@@ -7,17 +7,17 @@ import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
 
 Future<void> snippet1() async {
-  /// io-1
+  // io-1
 
   final rng = Future(() => Random.secure().nextInt(1000));
 
   await rng.then((x) => rng.then((y) => print('x: $x / y: $y')));
 
-  /// io-1
+  // io-1
 }
 
 Future<void> snippet2() async {
-  /// io-2
+  // io-2
 
   // Substitute the definition of fut with it's expression
   // x and y are different! (probably)
@@ -25,11 +25,11 @@ Future<void> snippet2() async {
       Future(() => Random.secure().nextInt(1000))
           .then((y) => print('x: $x / y: $y')));
 
-  /// io-2
+  // io-2
 }
 
 Future<void> snippet3() async {
-  /// io-3
+  // io-3
 
   final rng = IO.delay(() => Random.secure().nextInt(1000));
 
@@ -38,11 +38,11 @@ Future<void> snippet3() async {
       .flatMap((x) => rng.flatMap((y) => IO.println('x: $x / y: $y')))
       .unsafeRunToFuture();
 
-  /// io-3
+  // io-3
 }
 
 Future<void> asyncSnippet1() async {
-  /// io-async-1
+  // io-async-1
 
   IO<A> futureToIO<A>(Function0<Future<A>> fut) {
     IO.async_<A>((cb) {
@@ -55,11 +55,11 @@ Future<void> asyncSnippet1() async {
     throw UnimplementedError();
   }
 
-  /// io-async-1
+  // io-async-1
 }
 
 Future<void> errorHandlingSnippet1() async {
-  /// error-handling-1
+  // error-handling-1
 
   // composable handler using handleError
   final ioA = IO.delay(() => 90 / 0).handleError((ioError) => 0);
@@ -75,11 +75,11 @@ Future<void> errorHandlingSnippet1() async {
         }
       });
 
-  /// error-handling-1
+  // error-handling-1
 }
 
 void safeResourcesSnippet1() {
-  /// safe-resources-1
+  // safe-resources-1
   final sink = File('path/to/file').openWrite();
 
   try {
@@ -90,11 +90,11 @@ void safeResourcesSnippet1() {
     sink.close();
   }
 
-  /// safe-resources-1
+  // safe-resources-1
 }
 
 void safeResourcesSnippet2() {
-  /// safe-resources-2
+  // safe-resources-2
 
   final sink = IO.delay(() => File('path/to/file')).map((f) => f.openWrite());
 
@@ -104,11 +104,11 @@ void safeResourcesSnippet2() {
     (sink) => IO.exec(() => sink.close()),
   );
 
-  /// safe-resources-2
+  // safe-resources-2
 }
 
 Future<void> conversionsSnippet() async {
-  /// conversions-1
+  // conversions-1
 
   IO.fromOption(const Some(42), () => Exception('raiseError: none'));
 
@@ -123,9 +123,9 @@ Future<void> conversionsSnippet() async {
     ),
   ));
 
-  /// conversions-1
+  // conversions-1
 
-  /// conversions-bad-future
+  // conversions-bad-future
 
   final fut = Future(() => print('bad'));
 
@@ -138,11 +138,11 @@ Future<void> conversionsSnippet() async {
   // Here we preserve laziness so that ioGood is referentially transparent
   final ioGood = IO.fromFuture(IO.delay(() => Future(() => print('good'))));
 
-  /// conversions-bad-future
+  // conversions-bad-future
 }
 
 Future<void> cancelationSnippet() async {
-  /// cancelation-1
+  // cancelation-1
   int count = 0;
 
   // Our IO program
@@ -167,5 +167,5 @@ Future<void> cancelationSnippet() async {
   // Show the Outcome of the IO as well as confirmation that our `onCancel`
   // handlers have been called since the IO was canceled
   print('Outcome: $outcome | count: $count'); // Outcome: Canceled | count: 6
-  /// cancelation-1
+  // cancelation-1
 }

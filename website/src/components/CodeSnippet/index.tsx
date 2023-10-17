@@ -4,9 +4,11 @@ import CodeBlock from "@theme/CodeBlock";
 export function trimSnippet(snippet: string, section: string | undefined, metastring: string | undefined): string {
 
     if (section != undefined) {
-        let sectionMarker = `/// ${section}`;
+        let sectionMarker = `// ${section}`;
 
         let sectionStart = snippet.indexOf(sectionMarker);
+
+        console.log(sectionStart);
 
         if (sectionStart >= 0) {
             // Remove the entire line with the section marker
