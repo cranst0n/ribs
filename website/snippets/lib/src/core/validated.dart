@@ -1,6 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 
-/// create-user-1
+// create-user-1
 
 // Some type aliases for clarity
 typedef Name = String;
@@ -18,9 +18,9 @@ final class User {
 Either<String, User> userEither(Name name, Alias alias, Age age) =>
     throw UnimplementedError();
 
-/// create-user-1
+// create-user-1
 
-/// create-user-2
+// create-user-2
 
 ValidatedNel<String, Name> validateName(Name name) =>
     name.isEmpty ? 'No name provided!'.invalidNel() : name.validNel();
@@ -37,9 +37,9 @@ ValidatedNel<String, User> createUser(User user) => (
       validateAge(user.age),
     ).mapN(User.new);
 
-/// create-user-2
+// create-user-2
 
-/// create-user-3
+// create-user-3
 
 // Valid(Instance of 'User')
 final good = createUser(const User('John', 'Doe', 30));
@@ -56,9 +56,9 @@ final noAliasAndTooYoung = createUser(const User('John', '', 10));
 // Invalid(NonEmptyIList(No name provided!, No alias provided!))
 final noNameNoAlias = createUser(const User('', '', 75));
 
-/// create-user-3
+// create-user-3
 
-/// create-user-4
+// create-user-4
 
 final succeeded = createUser(const User('John', 'Doe', 30));
 final failed = createUser(const User('', 'Doe', 3));
@@ -74,4 +74,4 @@ void handleCreateUser() {
   );
 }
 
-/// create-user-4
+// create-user-4

@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:ribs_binary/ribs_binary.dart';
 
-/// bitvector-1
+// bitvector-1
 
 // Creating ByteVectors
 final bytesA = ByteVector.empty();
@@ -19,10 +19,10 @@ final bitsB = BitVector.fromByteVector(bytesA);
 final bitsC = BitVector.low(8); // 10 bits all set to 0
 final bitsD = BitVector.high(8); // 10 bits all set to 1
 
-/// bitvector-1
+// bitvector-1
 
 void snippet2() {
-  /// bitvector-2
+  // bitvector-2
 
   final bits =
       BitVector.bits([true, false, true, true, false, false, true, true]);
@@ -36,5 +36,5 @@ void snippet2() {
   bits.clear(3); // set bit at index 3 to 0
   bits.set(3); // set bit at index 3 to 1
 
-  /// bitvector-2
+  // bitvector-2
 }
