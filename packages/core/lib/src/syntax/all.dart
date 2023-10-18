@@ -1,6 +1,9 @@
 export 'either.dart';
+export 'ilist.dart';
 export 'io.dart';
+export 'iset.dart';
 export 'iterable.dart';
 export 'option.dart';
+export 'resource.dart';
 export 'tuple.dart';
 export 'validated.dart';

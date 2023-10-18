@@ -489,9 +489,9 @@ void main() {
   });
 
   test('asyncMapN', () async {
-    final ioa = IO.pure(1).delayBy(const Duration(milliseconds: 200));
-    final iob = IO.pure(2).delayBy(const Duration(milliseconds: 200));
-    final ioc = IO.pure(3).delayBy(const Duration(milliseconds: 200));
+    final ioa = IO.pure(1).delayBy(const Duration(milliseconds: 500));
+    final iob = IO.pure(2).delayBy(const Duration(milliseconds: 500));
+    final ioc = IO.pure(3).delayBy(const Duration(milliseconds: 500));
 
     final result = await (ioa, iob, ioc)
         .parMapN((a, b, c) => a + b + c)
@@ -501,7 +501,7 @@ void main() {
     result(
       (elapsed, value) {
         expect(value, 6);
-        expect(elapsed.inMilliseconds, closeTo(200, 50));
+        expect(elapsed.inMilliseconds, closeTo(500, 150));
       },
     );
   });

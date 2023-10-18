@@ -1,11 +1,14 @@
-import 'package:ribs_core/src/effect/io.dart';
-import 'package:ribs_core/src/function.dart';
-import 'package:ribs_core/src/option.dart';
-import 'package:ribs_core/src/syntax/tuple.dart';
+import 'package:ribs_core/ribs_core.dart';
 
 extension OptionSyntaxOps<A> on A {
   /// Lifts this value into an [Option], specifically a [Some].
   Option<A> get some => Some(this);
+}
+
+/// Additional functions that can be called on a nested [Option].
+extension OptionNestedOps<A> on Option<Option<A>> {
+  /// If this is a [Some], the value is returned, otherwise [None] is returned.
+  Option<A> flatten() => fold(() => none<A>(), id);
 }
 
 extension OptionIOOps<A> on Option<IO<A>> {
@@ -16,6 +19,25 @@ extension OptionIOOps<A> on Option<IO<A>> {
       fold(() => IO.pure(none()), (io) => io.map((a) => Some(a)));
 }
 
+/// Until lambda destructuring arrives, this will provide a little bit
+/// of convenience: https://github.com/dart-lang/language/issues/3001
+extension OptionTuple2Ops<A, B> on Option<(A, B)> {
+  Option<(A, B)> filterN(Function2<A, B, bool> p) => filter(p.tupled);
+
+  Option<(A, B)> filterNotN(Function2<A, B, bool> p) => filterNot(p.tupled);
+
+  Option<C> flatMapN<C>(Function2<A, B, Option<C>> f) => flatMap(f.tupled);
+
+  void forEachN(Function2<A, B, void> ifSome) => forEach(ifSome.tupled);
+
+  Option<C> mapN<C>(Function2<A, B, C> f) => map(f.tupled);
+
+  IO<Option<C>> traverseION<C>(Function2<A, B, IO<C>> f) =>
+      traverseIO(f.tupled);
+
+  IO<Unit> traverseION_<C>(Function2<A, B, IO<C>> f) => traverseIO_(f.tupled);
+}
+
 /// {@template option_tuple_ops}
 /// Functions available on a tuple of [Option]s.
 /// {@endtemplate}
@@ -24,7 +46,7 @@ extension Tuple2OptionOpts<A, B> on (Option<A>, Option<B>) {
   /// Applies [fn] to the values of each respective tuple member if all values
   /// are a [Some]. If **any** item is a [None], [None] will be returned.
   /// {@endtemplate}
-  Option<C> mapN<C>(Function2<A, B, C> fn) => _tupled2($1, $2).map(fn.tupled);
+  Option<C> mapN<C>(Function2<A, B, C> fn) => sequence().map(fn.tupled);
 
   /// {@template option_sequence}
   /// If **all** items of this tuple are a [Some], the respective items are
@@ -32,17 +54,17 @@ extension Tuple2OptionOpts<A, B> on (Option<A>, Option<B>) {
   /// [None], [None] is returned.
   /// {@endtemplate}
   /// /// {@macro option_sequence}
-  Option<(A, B)> sequence() => _tupled2($1, $2);
+  Option<(A, B)> sequence() => $1.flatMap((a) => $2.map((b) => (a, b)));
 }
 
 /// {@macro option_tuple_ops}
 extension Tuple3OptionOps<A, B, C> on (Option<A>, Option<B>, Option<C>) {
   /// {@macro option_mapN}
-  Option<D> mapN<D>(Function3<A, B, C, D> fn) =>
-      _tupled3($1, $2, $3).map(fn.tupled);
+  Option<D> mapN<D>(Function3<A, B, C, D> fn) => sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
-  Option<(A, B, C)> sequence() => _tupled3($1, $2, $3);
+  Option<(A, B, C)> sequence() =>
+      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -53,11 +75,11 @@ extension Tuple4OptionOps<A, B, C, D> on (
   Option<D>
 ) {
   /// {@macro option_mapN}
-  Option<E> mapN<E>(Function4<A, B, C, D, E> fn) =>
-      _tupled4($1, $2, $3, $4).map(fn.tupled);
+  Option<E> mapN<E>(Function4<A, B, C, D, E> fn) => sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
-  Option<(A, B, C, D)> sequence() => _tupled4($1, $2, $3, $4);
+  Option<(A, B, C, D)> sequence() =>
+      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -70,10 +92,11 @@ extension Tuple5OptionOps<A, B, C, D, E> on (
 ) {
   /// {@macro option_mapN}
   Option<F> mapN<F>(Function5<A, B, C, D, E, F> fn) =>
-      _tupled5($1, $2, $3, $4, $5).map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
-  Option<(A, B, C, D, E)> sequence() => _tupled5($1, $2, $3, $4, $5);
+  Option<(A, B, C, D, E)> sequence() =>
+      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -87,10 +110,11 @@ extension Tuple6OptionOps<A, B, C, D, E, F> on (
 ) {
   /// {@macro option_mapN}
   Option<G> mapN<G>(Function6<A, B, C, D, E, F, G> fn) =>
-      _tupled6($1, $2, $3, $4, $5, $6).map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
-  Option<(A, B, C, D, E, F)> sequence() => _tupled6($1, $2, $3, $4, $5, $6);
+  Option<(A, B, C, D, E, F)> sequence() =>
+      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -105,11 +129,11 @@ extension Tuple7OptionOps<A, B, C, D, E, F, G> on (
 ) {
   /// {@macro option_mapN}
   Option<H> mapN<H>(Function7<A, B, C, D, E, F, G, H> fn) =>
-      _tupled7($1, $2, $3, $4, $5, $6, $7).map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
   Option<(A, B, C, D, E, F, G)> sequence() =>
-      _tupled7($1, $2, $3, $4, $5, $6, $7);
+      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -125,11 +149,11 @@ extension Tuple8OptionOps<A, B, C, D, E, F, G, H> on (
 ) {
   /// {@macro option_mapN}
   Option<I> mapN<I>(Function8<A, B, C, D, E, F, G, H, I> fn) =>
-      _tupled8($1, $2, $3, $4, $5, $6, $7, $8).map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
   Option<(A, B, C, D, E, F, G, H)> sequence() =>
-      _tupled8($1, $2, $3, $4, $5, $6, $7, $8);
+      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -146,11 +170,11 @@ extension Tuple9OptionOps<A, B, C, D, E, F, G, H, I> on (
 ) {
   /// {@macro option_mapN}
   Option<J> mapN<J>(Function9<A, B, C, D, E, F, G, H, I, J> fn) =>
-      _tupled9($1, $2, $3, $4, $5, $6, $7, $8, $9).map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
   Option<(A, B, C, D, E, F, G, H, I)> sequence() =>
-      _tupled9($1, $2, $3, $4, $5, $6, $7, $8, $9);
+      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -168,11 +192,11 @@ extension Tuple10OptionOps<A, B, C, D, E, F, G, H, I, J> on (
 ) {
   /// {@macro option_mapN}
   Option<K> mapN<K>(Function10<A, B, C, D, E, F, G, H, I, J, K> fn) =>
-      _tupled10($1, $2, $3, $4, $5, $6, $7, $8, $9, $10).map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
   Option<(A, B, C, D, E, F, G, H, I, J)> sequence() =>
-      _tupled10($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -191,11 +215,11 @@ extension Tuple11OptionOps<A, B, C, D, E, F, G, H, I, J, K> on (
 ) {
   /// {@macro option_mapN}
   Option<L> mapN<L>(Function11<A, B, C, D, E, F, G, H, I, J, K, L> fn) =>
-      _tupled11($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11).map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
   Option<(A, B, C, D, E, F, G, H, I, J, K)> sequence() =>
-      _tupled11($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
+      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -215,12 +239,11 @@ extension Tuple12OptionOps<A, B, C, D, E, F, G, H, I, J, K, L> on (
 ) {
   /// {@macro option_mapN}
   Option<M> mapN<M>(Function12<A, B, C, D, E, F, G, H, I, J, K, L, M> fn) =>
-      _tupled12($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-          .map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
   Option<(A, B, C, D, E, F, G, H, I, J, K, L)> sequence() =>
-      _tupled12($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
+      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -241,12 +264,11 @@ extension Tuple13OptionOps<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
 ) {
   /// {@macro option_mapN}
   Option<N> mapN<N>(Function13<A, B, C, D, E, F, G, H, I, J, K, L, M, N> fn) =>
-      _tupled13($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-          .map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
   Option<(A, B, C, D, E, F, G, H, I, J, K, L, M)> sequence() =>
-      _tupled13($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);
+      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -269,12 +291,11 @@ extension Tuple14OptionOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
   /// {@macro option_mapN}
   Option<O> mapN<O>(
           Function14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> fn) =>
-      _tupled14($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-          .map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
   Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N)> sequence() =>
-      _tupled14($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);
+      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -298,13 +319,11 @@ extension Tuple15OptionOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
   /// {@macro option_mapN}
   Option<P> mapN<P>(
           Function15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> fn) =>
-      _tupled15(
-              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-          .map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
-  Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> sequence() => _tupled15(
-      $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);
+  Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> sequence() =>
+      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -329,14 +348,11 @@ extension Tuple16OptionOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> on (
   /// {@macro option_mapN}
   Option<Q> mapN<Q>(
           Function16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> fn) =>
-      _tupled16($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-              $15, $16)
-          .map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
   Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P)> sequence() =>
-      _tupled16($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-          $15, $16);
+      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -364,14 +380,11 @@ extension Tuple17OptionOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>
   Option<R> mapN<R>(
           Function17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
               fn) =>
-      _tupled17($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-              $15, $16, $17)
-          .map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
   Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q)> sequence() =>
-      _tupled17($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-          $15, $16, $17);
+      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -400,14 +413,11 @@ extension Tuple18OptionOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
   Option<S> mapN<S>(
           Function18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
               fn) =>
-      _tupled18($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-              $15, $16, $17, $18)
-          .map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
   Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R)> sequence() =>
-      _tupled18($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-          $15, $16, $17, $18);
+      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -437,14 +447,12 @@ extension Tuple19OptionOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
   Option<T> mapN<T>(
           Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
               fn) =>
-      _tupled19($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-              $15, $16, $17, $18, $19)
-          .map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
   Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)>
-      sequence() => _tupled19($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
-          $13, $14, $15, $16, $17, $18, $19);
+      sequence() =>
+          init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -476,14 +484,12 @@ extension Tuple20OptionOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
           Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
                   U>
               fn) =>
-      _tupled20($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-              $15, $16, $17, $18, $19, $20)
-          .map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
   Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)>
-      sequence() => _tupled20($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
-          $13, $14, $15, $16, $17, $18, $19, $20);
+      sequence() =>
+          init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -516,14 +522,12 @@ extension Tuple21OptionOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
           Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
                   U, V>
               fn) =>
-      _tupled21($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-              $15, $16, $17, $18, $19, $20, $21)
-          .map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
   Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
-      sequence() => _tupled21($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
-          $13, $14, $15, $16, $17, $18, $19, $20, $21);
+      sequence() =>
+          init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro option_tuple_ops}
@@ -557,374 +561,10 @@ extension Tuple22OptionOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
           Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
                   U, V, W>
               fn) =>
-      _tupled22($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-              $15, $16, $17, $18, $19, $20, $21, $22)
-          .map(fn.tupled);
+      sequence().map(fn.tupled);
 
   /// {@macro option_sequence}
   Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
-      sequence() => _tupled22($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
-          $13, $14, $15, $16, $17, $18, $19, $20, $21, $22);
+      sequence() =>
+          init().sequence().flatMap((x) => last.map((a) => x.append(a)));
 }
-
-// /////////////////////////////////////////////////////////////////////////////
-// /////////////////////////////////////////////////////////////////////////////
-// /////////////////////////////////////////////////////////////////////////////
-
-Option<(A, B)> _tupled2<A, B>(
-  Option<A> a,
-  Option<B> b,
-) =>
-    a.flatMap((a) => b.map((b) => (a, b)));
-
-Option<(A, B, C)> _tupled3<A, B, C>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-) =>
-    _tupled2(a, b).flatMap((t) => c.map(t.append));
-
-Option<(A, B, C, D)> _tupled4<A, B, C, D>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-) =>
-    _tupled3(a, b, c).flatMap((t) => d.map(t.append));
-
-Option<(A, B, C, D, E)> _tupled5<A, B, C, D, E>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-) =>
-    _tupled4(a, b, c, d).flatMap((t) => e.map(t.append));
-
-Option<(A, B, C, D, E, F)> _tupled6<A, B, C, D, E, F>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-) =>
-    _tupled5(a, b, c, d, e).flatMap((t) => f.map(t.append));
-
-Option<(A, B, C, D, E, F, G)> _tupled7<A, B, C, D, E, F, G>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-  Option<G> g,
-) =>
-    _tupled6(a, b, c, d, e, f).flatMap((t) => g.map(t.append));
-
-Option<(A, B, C, D, E, F, G, H)> _tupled8<A, B, C, D, E, F, G, H>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-  Option<G> g,
-  Option<H> h,
-) =>
-    _tupled7(a, b, c, d, e, f, g).flatMap((t) => h.map(t.append));
-
-Option<(A, B, C, D, E, F, G, H, I)> _tupled9<A, B, C, D, E, F, G, H, I>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-  Option<G> g,
-  Option<H> h,
-  Option<I> i,
-) =>
-    _tupled8(a, b, c, d, e, f, g, h).flatMap((t) => i.map(t.append));
-
-Option<(A, B, C, D, E, F, G, H, I, J)> _tupled10<A, B, C, D, E, F, G, H, I, J>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-  Option<G> g,
-  Option<H> h,
-  Option<I> i,
-  Option<J> j,
-) =>
-    _tupled9(a, b, c, d, e, f, g, h, i).flatMap((t) => j.map(t.append));
-
-Option<(A, B, C, D, E, F, G, H, I, J, K)>
-    _tupled11<A, B, C, D, E, F, G, H, I, J, K>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-  Option<G> g,
-  Option<H> h,
-  Option<I> i,
-  Option<J> j,
-  Option<K> k,
-) =>
-        _tupled10(a, b, c, d, e, f, g, h, i, j).flatMap((t) => k.map(t.append));
-
-Option<(A, B, C, D, E, F, G, H, I, J, K, L)> _tupled12<A, B, C, D, E, F, G, H,
-        I, J, K, L>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-  Option<G> g,
-  Option<H> h,
-  Option<I> i,
-  Option<J> j,
-  Option<K> k,
-  Option<L> l,
-) =>
-    _tupled11(a, b, c, d, e, f, g, h, i, j, k).flatMap((t) => l.map(t.append));
-
-Option<(A, B, C, D, E, F, G, H, I, J, K, L, M)>
-    _tupled13<A, B, C, D, E, F, G, H, I, J, K, L, M>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-  Option<G> g,
-  Option<H> h,
-  Option<I> i,
-  Option<J> j,
-  Option<K> k,
-  Option<L> l,
-  Option<M> m,
-) =>
-        _tupled12(a, b, c, d, e, f, g, h, i, j, k, l)
-            .flatMap((t) => m.map(t.append));
-
-Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N)>
-    _tupled14<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-  Option<G> g,
-  Option<H> h,
-  Option<I> i,
-  Option<J> j,
-  Option<K> k,
-  Option<L> l,
-  Option<M> m,
-  Option<N> n,
-) =>
-        _tupled13(a, b, c, d, e, f, g, h, i, j, k, l, m)
-            .flatMap((t) => n.map(t.append));
-
-Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)>
-    _tupled15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-  Option<G> g,
-  Option<H> h,
-  Option<I> i,
-  Option<J> j,
-  Option<K> k,
-  Option<L> l,
-  Option<M> m,
-  Option<N> n,
-  Option<O> o,
-) =>
-        _tupled14(a, b, c, d, e, f, g, h, i, j, k, l, m, n)
-            .flatMap((t) => o.map(t.append));
-
-Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P)>
-    _tupled16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-  Option<G> g,
-  Option<H> h,
-  Option<I> i,
-  Option<J> j,
-  Option<K> k,
-  Option<L> l,
-  Option<M> m,
-  Option<N> n,
-  Option<O> o,
-  Option<P> p,
-) =>
-        _tupled15(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
-            .flatMap((t) => p.map(t.append));
-
-Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q)>
-    _tupled17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-  Option<G> g,
-  Option<H> h,
-  Option<I> i,
-  Option<J> j,
-  Option<K> k,
-  Option<L> l,
-  Option<M> m,
-  Option<N> n,
-  Option<O> o,
-  Option<P> p,
-  Option<Q> q,
-) =>
-        _tupled16(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
-            .flatMap((t) => q.map(t.append));
-
-Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R)>
-    _tupled18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-  Option<G> g,
-  Option<H> h,
-  Option<I> i,
-  Option<J> j,
-  Option<K> k,
-  Option<L> l,
-  Option<M> m,
-  Option<N> n,
-  Option<O> o,
-  Option<P> p,
-  Option<Q> q,
-  Option<R> r,
-) =>
-        _tupled17(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)
-            .flatMap((t) => r.map(t.append));
-
-Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)>
-    _tupled19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-  Option<G> g,
-  Option<H> h,
-  Option<I> i,
-  Option<J> j,
-  Option<K> k,
-  Option<L> l,
-  Option<M> m,
-  Option<N> n,
-  Option<O> o,
-  Option<P> p,
-  Option<Q> q,
-  Option<R> r,
-  Option<S> s,
-) =>
-        _tupled18(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)
-            .flatMap((t) => s.map(t.append));
-
-Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)>
-    _tupled20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-  Option<G> g,
-  Option<H> h,
-  Option<I> i,
-  Option<J> j,
-  Option<K> k,
-  Option<L> l,
-  Option<M> m,
-  Option<N> n,
-  Option<O> o,
-  Option<P> p,
-  Option<Q> q,
-  Option<R> r,
-  Option<S> s,
-  Option<T> t,
-) =>
-        _tupled19(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s)
-            .flatMap((tup) => t.map(tup.append));
-
-Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
-    _tupled21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-  Option<G> g,
-  Option<H> h,
-  Option<I> i,
-  Option<J> j,
-  Option<K> k,
-  Option<L> l,
-  Option<M> m,
-  Option<N> n,
-  Option<O> o,
-  Option<P> p,
-  Option<Q> q,
-  Option<R> r,
-  Option<S> s,
-  Option<T> t,
-  Option<U> u,
-) =>
-        _tupled20(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t)
-            .flatMap((t) => u.map(t.append));
-
-Option<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
-    _tupled22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>(
-  Option<A> a,
-  Option<B> b,
-  Option<C> c,
-  Option<D> d,
-  Option<E> e,
-  Option<F> f,
-  Option<G> g,
-  Option<H> h,
-  Option<I> i,
-  Option<J> j,
-  Option<K> k,
-  Option<L> l,
-  Option<M> m,
-  Option<N> n,
-  Option<O> o,
-  Option<P> p,
-  Option<Q> q,
-  Option<R> r,
-  Option<S> s,
-  Option<T> t,
-  Option<U> u,
-  Option<V> v,
-) =>
-        _tupled21(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u)
-            .flatMap((t) => v.map(t.append));

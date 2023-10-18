@@ -153,28 +153,3 @@ final class None<A> extends Option<A> {
   @override
   B fold<B>(Function0<B> ifEmpty, Function1<A, B> f) => ifEmpty();
 }
-
-/// Additional functions that can be called on a nested [Option].
-extension OptionNestedOps<A> on Option<Option<A>> {
-  /// If this is a [Some], the value is returned, otherwise [None] is returned.
-  Option<A> flatten() => fold(() => none<A>(), id);
-}
-
-/// Until lambda destructuring arrives, this will provide a little bit
-/// of convenience: https://github.com/dart-lang/language/issues/3001
-extension OptionTuple2Ops<A, B> on Option<(A, B)> {
-  Option<(A, B)> filterN(Function2<A, B, bool> p) => filter(p.tupled);
-
-  Option<(A, B)> filterNotN(Function2<A, B, bool> p) => filterNot(p.tupled);
-
-  Option<C> flatMapN<C>(Function2<A, B, Option<C>> f) => flatMap(f.tupled);
-
-  void forEachN(Function2<A, B, void> ifSome) => forEach(ifSome.tupled);
-
-  Option<C> mapN<C>(Function2<A, B, C> f) => map(f.tupled);
-
-  IO<Option<C>> traverseION<C>(Function2<A, B, IO<C>> f) =>
-      traverseIO(f.tupled);
-
-  IO<Unit> traverseION_<C>(Function2<A, B, IO<C>> f) => traverseIO_(f.tupled);
-}
