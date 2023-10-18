@@ -27,14 +27,14 @@ void main() {
   });
 
   test('basic', () async {
-    await Client.sdk().map(ClientLogger.create).use((client) {
+    await Client.sdk().use((client) {
       return client
           .requestString('https://postman-echo.com/get?foo1=bar1&foo2=bar2');
     }).unsafeRunToFuture();
   });
 
   test('post json', () async {
-    await Client.sdk().map(ClientLogger.create).use((client) {
+    await Client.sdk().use((client) {
       return client
           .request(Request(
             method: Method.POST,
@@ -49,7 +49,7 @@ void main() {
   });
 
   test('post form', () async {
-    await Client.sdk().map(ClientLogger.create).use((client) {
+    await Client.sdk().use((client) {
       return client
           .request(Request(
         method: Method.POST,
@@ -69,7 +69,7 @@ void main() {
   });
 
   test('json', () async {
-    await Client.sdk().map(ClientLogger.create).use((client) {
+    await Client.sdk().use((client) {
       return client
           .fetchJsonString('https://postman-echo.com/get?foo1=bar1&foo2=bar2')
           .map((a) => a.printWith(Printer.spaces2));
