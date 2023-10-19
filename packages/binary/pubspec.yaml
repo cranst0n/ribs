@@ -1,6 +1,6 @@
 name: ribs_binary
 version: 1.0.0-dev.5
-homepage: https://github.com/cranst0n/ribs
+homepage: https://cranst0n.github.io/ribs/
 description: >
   Library provides fully typed binary parsing, encoding and decoding. Also
   supports streaming parsing.
