@@ -17,7 +17,7 @@ void main() {
   });
 
   test('raiseError', () async {
-    final io = IO.raiseError<int>(IOError('boom'));
+    final io = IO.raiseError<int>(RuntimeException('boom'));
     final outcome = await io.unsafeRunToFutureOutcome();
 
     outcome.fold(
@@ -138,8 +138,9 @@ void main() {
   });
 
   test('flatMap error', () async {
-    final io =
-        IO.pure(42).flatMap((i) => IO.raiseError<String>(IOError('boom')));
+    final io = IO
+        .pure(42)
+        .flatMap((i) => IO.raiseError<String>(RuntimeException('boom')));
     final outcome = await io.unsafeRunToFutureOutcome();
 
     outcome.fold(
@@ -167,12 +168,12 @@ void main() {
     outcome.fold(
       () => fail('attempt pure should not cancel'),
       (err) => fail('attempt pure should not fail: $err'),
-      (value) => expect(value, 42.asRight<IOError>()),
+      (value) => expect(value, 42.asRight<RuntimeException>()),
     );
   });
 
   test('attempt error', () async {
-    final io = IO.raiseError<int>(IOError('boom')).attempt();
+    final io = IO.raiseError<int>(RuntimeException('boom')).attempt();
     final outcome = await io.unsafeRunToFutureOutcome();
 
     outcome.fold(
@@ -190,7 +191,7 @@ void main() {
     outcome.fold(
       () => fail('attempt delay success should not cancel'),
       (err) => fail('attempt delay success should not fail: $err'),
-      (value) => expect(value, 42.asRight<IOError>()),
+      (value) => expect(value, 42.asRight<RuntimeException>()),
     );
   });
 
@@ -289,7 +290,7 @@ void main() {
 
   test('unsafeRunToFuture success', () async {
     expect(await IO.pure(42).unsafeRunToFuture(), 42);
-    expect(IO.raiseError<int>(IOError('boom')).unsafeRunToFuture(),
+    expect(IO.raiseError<int>(RuntimeException('boom')).unsafeRunToFuture(),
         throwsA('boom'));
   });
 
@@ -444,7 +445,7 @@ void main() {
     count = 0;
 
     await IO
-        .raiseError<Unit>(IOError('boom'))
+        .raiseError<Unit>(RuntimeException('boom'))
         .guaranteeCase(fin)
         .unsafeRunToFutureOutcome();
 
@@ -764,7 +765,7 @@ void main() {
     final ioa = IO
         .pure(0)
         .delayBy(const Duration(milliseconds: 200))
-        .productR(() => IO.raiseError<int>(IOError('boom')));
+        .productR(() => IO.raiseError<int>(RuntimeException('boom')));
     final iob = IO.pure(1).delayBy(const Duration(milliseconds: 100));
 
     final oc = await IO.both(ioa, iob).unsafeRunToFutureOutcome();
@@ -796,5 +797,104 @@ void main() {
     final oc = await IO.both(ioa, iob).unsafeRunToFutureOutcome();
 
     expect(oc.isCanceled, isTrue);
+  });
+
+  test('background (child finishes)', () async {
+    int count = 0;
+    bool canceled = false;
+
+    final tinyTask = IO
+        .exec(() => count += 1)
+        .delayBy(const Duration(milliseconds: 50))
+        .iterateWhile((_) => count < 5)
+        .onCancel(IO.exec(() => canceled = true));
+
+    final outcome = await tinyTask
+        .background()
+        .surround(IO.sleep(const Duration(seconds: 1)))
+        .unsafeRunToFutureOutcome();
+
+    expect(outcome.isSuccess, isTrue);
+    expect(count, 5);
+    expect(canceled, isFalse);
+  });
+
+  test('background (child canceled)', () async {
+    int count = 0;
+    bool canceled = false;
+
+    final foreverTask = IO
+        .exec(() => count += 1)
+        .delayBy(const Duration(milliseconds: 50))
+        .foreverM()
+        .onCancel(IO.exec(() => canceled = true));
+
+    final outcome = await foreverTask
+        .background()
+        .use((_) => IO.sleep(const Duration(seconds: 1)))
+        .unsafeRunToFutureOutcome();
+
+    expect(outcome.isSuccess, isTrue);
+    expect(count, 19);
+    expect(canceled, isTrue);
+  });
+
+  test('whileM', () async {
+    final start = DateTime.now();
+    final cond = IO.delay(() => DateTime.now().difference(start).inSeconds < 1);
+
+    final outcome = await IO
+        .pure(1)
+        .delayBy(const Duration(milliseconds: 200))
+        .whilelM(cond)
+        .unsafeRunToFutureOutcome();
+
+    outcome.fold(
+      () => fail('whileM should not be canceled'),
+      (ex) => fail('whileM should not have errored: $ex'),
+      (a) => expect(a, IList.fill(5, 1)),
+    );
+  });
+
+  test('whileM_', () async {
+    int count = 0;
+    final cond = IO.delay(() => count < 100);
+
+    final outcome =
+        await IO.exec(() => count++).whileM_(cond).unsafeRunToFutureOutcome();
+
+    outcome.fold(
+      () => fail('whileM_ should not be canceled'),
+      (ex) => fail('whileM_ should not have errored: $ex'),
+      (a) => expect(count, 100),
+    );
+  });
+
+  test('untilM', () async {
+    int count = 0;
+    final cond = IO.delay(() => count == 100);
+
+    final outcome =
+        await IO.exec(() => count++).untilM(cond).unsafeRunToFutureOutcome();
+
+    outcome.fold(
+      () => fail('untilM should not be canceled'),
+      (ex) => fail('untilM should not have errored: $ex'),
+      (a) => expect(a, IList.fill(100, Unit())),
+    );
+  });
+
+  test('untilM_', () async {
+    int count = 0;
+    final cond = IO.delay(() => count == 100);
+
+    final outcome =
+        await IO.exec(() => count++).untilM_(cond).unsafeRunToFutureOutcome();
+
+    outcome.fold(
+      () => fail('untilM_ should not be canceled'),
+      (ex) => fail('untilM_ should not have errored: $ex'),
+      (a) => expect(count, 100),
+    );
   });
 }

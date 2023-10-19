@@ -18,9 +18,9 @@ sealed class Pull<O, R> {
   ) =>
       _Acquire(IO.uncancelable(resource), release, true);
 
-  static Pull<O, Either<IOError, R>> attemptEval<O, R>(IO<R> fr) =>
+  static Pull<O, Either<RuntimeException, R>> attemptEval<O, R>(IO<R> fr) =>
       _Eval<O, R>(fr)
-          .map((r) => r.asRight<IOError>())
+          .map((r) => r.asRight<RuntimeException>())
           .handleErrorWith((err) => _Succeeded(err.asLeft<R>()));
 
   static Pull<O, B> bracketCase<O, A, B>(
@@ -29,9 +29,9 @@ sealed class Pull<O, R> {
     Function2<A, ExitCase, Pull<O, Unit>> release,
   ) {
     return acquire.flatMap((a) {
-      final used =
-          Either.catching(() => use(a), (e, s) => _Fail<O>(IOError(e, s)))
-              .fold(id, id);
+      final used = Either.catching(
+              () => use(a), (e, s) => _Fail<O>(RuntimeException(e, s)))
+          .fold(id, id);
 
       return _transformWith(used, (result) {
         final exitCase = result.fold(
@@ -61,7 +61,7 @@ sealed class Pull<O, R> {
 
   static Pull<Never, R> eval<R>(IO<R> fr) => _Eval(fr);
 
-  static Pull<Never, Never> fail(IOError err) => _Fail(err);
+  static Pull<Never, Never> fail(RuntimeException err) => _Fail(err);
 
   static Pull<O, Unit> output<O>(IList<O> os) => _Output(os);
 
@@ -72,7 +72,7 @@ sealed class Pull<O, R> {
 
   static Pull<O, R> pure<O, R>(R r) => _Succeeded<O, R>(r);
 
-  static Pull<Never, Never> raiseError(IOError err) => _Fail(err);
+  static Pull<Never, Never> raiseError(RuntimeException err) => _Fail(err);
 
   static Pull<O, Unit> scope<O>(Pull<O, Unit> s) => _InScope(s, false);
 
@@ -85,8 +85,9 @@ sealed class Pull<O, R> {
 
   // ///////////////////////////////////////////////////////////////////////////
 
-  Pull<O, Either<IOError, R>> attempt() => map((o) => o.asRight<IOError>())
-      .handleErrorWith((t) => _Succeeded(t.asLeft<R>()));
+  Pull<O, Either<RuntimeException, R>> attempt() =>
+      map((o) => o.asRight<RuntimeException>())
+          .handleErrorWith((t) => _Succeeded(t.asLeft<R>()));
 
   Pull<O, R2> append<R2>(Function0<Pull<O, R2>> f) => flatMap((_) => f());
 
@@ -110,7 +111,7 @@ sealed class Pull<O, R> {
           try {
             return f(s.r as R);
           } catch (e, s) {
-            return _Fail(IOError(e, s));
+            return _Fail(RuntimeException(e, s));
           }
         },
         (e) => _Fail(e.error),
@@ -119,7 +120,7 @@ sealed class Pull<O, R> {
     });
   }
 
-  Pull<O, R> handleErrorWith(Function1<IOError, Pull<O, R>> handler) {
+  Pull<O, R> handleErrorWith(Function1<RuntimeException, Pull<O, R>> handler) {
     return _BindF(this, (e) {
       switch (e) {
         case final _Fail f:
@@ -127,7 +128,7 @@ sealed class Pull<O, R> {
             try {
               return handler(f.error);
             } catch (e, s) {
-              return _Fail(IOError(e, s));
+              return _Fail(RuntimeException(e, s));
             }
           }
         default:
@@ -246,7 +247,7 @@ sealed class Pull<O, R> {
             ),
           );
 
-      IO<End> goErr(IOError err, _ContP<dynamic, X, Unit> view) =>
+      IO<End> goErr(RuntimeException err, _ContP<dynamic, X, Unit> view) =>
           go(scope, extendedTopLevelScope, runner, view(_Fail(err)));
 
       IO<End> goEval<V>(_Eval<O, V> eval, _ContP<V, X, Unit> view) =>
@@ -286,7 +287,7 @@ sealed class Pull<O, R> {
       }
 
       IO<End> goInterruptWhen(
-        IO<Either<IOError, Unit>> haltOnSignal,
+        IO<Either<RuntimeException, Unit>> haltOnSignal,
         _ContP<Unit, X, Unit> view,
       ) {
         final onScope = scope.acquireResource(
@@ -368,7 +369,8 @@ sealed class Pull<O, R> {
         _CloseScope<X> close,
         _ContP<Unit, X, Unit> view,
       ) {
-        _Terminal<X, Unit> addError(IOError err, _Terminal<X, Unit> res) =>
+        _Terminal<X, Unit> addError(
+                RuntimeException err, _Terminal<X, Unit> res) =>
             res.fold(
               (s) => _Fail(err),
               (f) => _Fail(CompositeError.from(err, f.error)),
@@ -382,7 +384,7 @@ sealed class Pull<O, R> {
             );
 
         _Terminal<X, Unit> closeTerminal(
-            Either<IOError, Unit> r, Scope ancestor) {
+            Either<RuntimeException, Unit> r, Scope ancestor) {
           return close.interruption.fold(
             () => r.fold((err) => _Fail(err), (a) => _Succeeded(a)),
             (i) {
@@ -442,7 +444,7 @@ sealed class Pull<O, R> {
             try {
               return fun(chunk[0]);
             } catch (e, s) {
-              return _Fail(IOError(e, s));
+              return _Fail(RuntimeException(e, s));
             }
           } else {
             Pull<X, Unit> go(int idx) {
@@ -481,7 +483,7 @@ sealed class Pull<O, R> {
                     }
                   });
                 } catch (e, s) {
-                  return _Fail(IOError(e, s));
+                  return _Fail(RuntimeException(e, s));
                 }
               }
             }
@@ -683,7 +685,7 @@ extension PullOps<O> on Pull<O, Unit> {
   Rill<O> rillNoScope() => Rill(this);
 }
 
-extension PullErrorOps<O, R> on Pull<O, Either<IOError, R>> {
+extension PullErrorOps<O, R> on Pull<O, Either<RuntimeException, R>> {
   Pull<O, R> rethrowError() =>
       flatMap((r) => r.fold(Pull.raiseError, (r) => Pull.pure(r)));
 }
@@ -696,14 +698,14 @@ Pull<O, S> _transformWith<O, R, S>(
     try {
       return f(p);
     } catch (e, s) {
-      return _Fail(IOError(e, s));
+      return _Fail(RuntimeException(e, s));
     }
   } else {
     return _BindF(p, (r) {
       try {
         return f(r);
       } catch (e, s) {
-        return _Fail(IOError(e, s));
+        return _Fail(RuntimeException(e, s));
       }
     });
   }
@@ -740,13 +742,13 @@ final class _Succeeded<O, R> extends _Terminal<O, R> {
     try {
       return _Succeeded(f(r));
     } catch (e, s) {
-      return _Fail(IOError(e, s));
+      return _Fail(RuntimeException(e, s));
     }
   }
 }
 
 final class _Fail<O> extends _Terminal<O, Never> {
-  final IOError error;
+  final RuntimeException error;
 
   _Fail(this.error);
 
@@ -756,7 +758,7 @@ final class _Fail<O> extends _Terminal<O, Never> {
 
 final class _Interrupted<O> extends _Terminal<O, Never> {
   final UniqueToken context;
-  final Option<IOError> deferredError;
+  final Option<RuntimeException> deferredError;
 
   _Interrupted(this.context, this.deferredError);
 
@@ -819,7 +821,7 @@ Pull<O, Unit> _bindView<O>(Pull<O, Unit> fmoc, _ContP<Unit, O, Unit> view) {
           try {
             return bv(r);
           } catch (e, s) {
-            return _Fail(IOError(e, s));
+            return _Fail(RuntimeException(e, s));
           }
         default:
           return _DelegateBind(fmoc, view.delegate);
@@ -840,7 +842,7 @@ class _BindBind<O, X, Y> extends _Bind<O, X, Unit> {
     try {
       return _bindBindAux(bb(tx), del);
     } catch (e, s) {
-      return _Fail(IOError(e, s));
+      return _Fail(RuntimeException(e, s));
     }
   }
 }
@@ -940,7 +942,7 @@ final class _InScope<O> extends _Action<O, Unit> {
 }
 
 final class _InterruptWhen<O> extends _AlgEffect<O, Unit> {
-  final IO<Either<IOError, Unit>> haltOnSignal;
+  final IO<Either<RuntimeException, Unit>> haltOnSignal;
 
   _InterruptWhen(this.haltOnSignal);
 }
@@ -983,7 +985,7 @@ final class _FailedScope<O> extends _CloseScope<O> {
   @override
   final UniqueToken scopeId;
 
-  final IOError err;
+  final RuntimeException err;
 
   _FailedScope(this.scopeId, this.err);
 
@@ -1003,7 +1005,8 @@ Pull<O, Unit> scope<O>(Pull<O, Unit> s) => _InScope(s, false);
 
 Pull<O, Unit> interruptScope<O>(Pull<O, Unit> s) => _InScope(s, true);
 
-Pull<O, Unit> interruptWhen<O>(IO<Either<IOError, Unit>> haltOnSignal) =>
+Pull<O, Unit> interruptWhen<O>(
+        IO<Either<RuntimeException, Unit>> haltOnSignal) =>
     _InterruptWhen(haltOnSignal);
 
 sealed class _Run<X, End> {
@@ -1013,7 +1016,7 @@ sealed class _Run<X, End> {
 
   End interrupted(_Interrupted<X> inter);
 
-  End fail(IOError error);
+  End fail(RuntimeException error);
 }
 
 typedef _CallRun<X, End> = Function1<_Run<X, End>, End>;
@@ -1042,7 +1045,7 @@ class _OuterRun<O, B> extends _Run<O, IO<B>> {
   IO<B> done(Scope scope) => IO.pure(_accB);
 
   @override
-  IO<B> fail(IOError error) => IO.raiseError(error);
+  IO<B> fail(RuntimeException error) => IO.raiseError(error);
 
   @override
   IO<B> interrupted(_Interrupted<O> inter) => inter.deferredError
@@ -1055,7 +1058,7 @@ class _OuterRun<O, B> extends _Run<O, IO<B>> {
       return go(scope, none(), this, tail);
     } catch (e, s) {
       final viewTail = viewL(tail);
-      final err = IOError(e, s);
+      final err = RuntimeException(e, s);
 
       if (viewTail is _Action<O, dynamic>) {
         return go(scope, none(), this, getCont()(_Fail(err)));
@@ -1065,7 +1068,8 @@ class _OuterRun<O, B> extends _Run<O, IO<B>> {
         return IO.raiseError(CompositeError.from(viewTail.error, err));
       } else if (viewTail is _Interrupted<O>) {
         return IO.raiseError(viewTail.deferredError.fold(
-            () => IOError(e, s), (err2) => CompositeError.from(err2, err)));
+            () => RuntimeException(e, s),
+            (err2) => CompositeError.from(err2, err)));
       } else {
         throw UnimplementedError('OuterRun.catch: $viewTail');
       }
@@ -1075,7 +1079,7 @@ class _OuterRun<O, B> extends _Run<O, IO<B>> {
 
 class _RunF<Y, End> extends _Run<Y, IO<End>> {
   final Function1<Scope, IO<End>> doneF;
-  final Function1<IOError, IO<End>> failF;
+  final Function1<RuntimeException, IO<End>> failF;
   final Function1<_Interrupted<Y>, IO<End>> interruptedF;
   final Function3<IList<Y>, Scope, Pull<Y, Unit>, IO<End>> outF;
 
@@ -1090,7 +1094,7 @@ class _RunF<Y, End> extends _Run<Y, IO<End>> {
   IO<End> done(Scope scope) => doneF(scope);
 
   @override
-  IO<End> fail(IOError error) => failF(error);
+  IO<End> fail(RuntimeException error) => failF(error);
 
   @override
   IO<End> interrupted(_Interrupted<Y> inter) => interruptedF(inter);

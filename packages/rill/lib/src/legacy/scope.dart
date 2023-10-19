@@ -25,7 +25,8 @@ final class Scope {
         },
         () {
           final nextScope = parent.fold(
-            () => IO.raiseError<Scope>(IOError('root scope already closed')),
+            () => IO.raiseError<Scope>(
+                RuntimeException('root scope already closed')),
             (p) => p.open(finalizer),
           );
 
@@ -46,7 +47,7 @@ final class Scope {
                 .append(open.finalizer);
 
             // Ensure all finalizers are called, regardless of failures
-            IO<Unit> go(IList<IO<Unit>> rem, Option<IOError> error) =>
+            IO<Unit> go(IList<IO<Unit>> rem, Option<RuntimeException> error) =>
                 rem.uncons(
                   (a) {
                     return a.fold(

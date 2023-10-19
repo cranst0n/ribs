@@ -48,7 +48,8 @@ Future<void> asyncSnippet1() async {
     IO.async_<A>((cb) {
       fut().then(
         (a) => cb(Right(a)),
-        onError: (Object err, StackTrace st) => cb(Left(IOError(err, st))),
+        onError: (Object err, StackTrace st) =>
+            cb(Left(RuntimeException(err, st))),
       );
     });
 
@@ -62,16 +63,15 @@ Future<void> errorHandlingSnippet1() async {
   // error-handling-1
 
   // composable handler using handleError
-  final ioA = IO.delay(() => 90 / 0).handleError((ioError) => 0);
-  final ioB = IO
-      .delay(() => 90 / 0)
-      .handleErrorWith((ioError) => IO.pure(double.infinity));
+  final ioA = IO.delay(() => 90 / 0).handleError((ex) => 0);
+  final ioB =
+      IO.delay(() => 90 / 0).handleErrorWith((ex) => IO.pure(double.infinity));
 
   IO<double> safeDiv(int a, int b) => IO.defer(() {
         if (b != 0) {
           return IO.pure(a / b);
         } else {
-          return IO.raiseError(IOError('cannot divide by 0!'));
+          return IO.raiseError(RuntimeException('cannot divide by 0!'));
         }
       });
 

@@ -310,8 +310,8 @@ extension RetryOps<A> on IO<A> {
   IO<A> retrying(
     RetryPolicy policy, {
     Function1<A, bool>? wasSuccessful,
-    Function1<IOError, bool>? isWorthRetrying,
-    Function2<IOError, RetryDetails, IO<Unit>>? onError,
+    Function1<RuntimeException, bool>? isWorthRetrying,
+    Function2<RuntimeException, RetryDetails, IO<Unit>>? onError,
     Function2<A, RetryDetails, IO<Unit>>? onFailure,
   }) =>
       _retryingImpl(
@@ -327,8 +327,8 @@ extension RetryOps<A> on IO<A> {
   IO<A> _retryingImpl(
     RetryPolicy policy,
     Function1<A, bool> wasSuccessful,
-    Function1<IOError, bool> isWorthRetrying,
-    Function2<IOError, RetryDetails, IO<Unit>> onError,
+    Function1<RuntimeException, bool> isWorthRetrying,
+    Function2<RuntimeException, RetryDetails, IO<Unit>> onError,
     Function2<A, RetryDetails, IO<Unit>> onFailure,
     RetryStatus status,
     IO<A> action,
@@ -338,7 +338,7 @@ extension RetryOps<A> on IO<A> {
         (err) => isWorthRetrying(err)
             ? _onFailureOrError(policy, wasSuccessful, isWorthRetrying, onError,
                 onFailure, status, action, (details) => onError(err, details))
-            : IO.raiseError(IOError(err.toString())),
+            : IO.raiseError(RuntimeException(err.toString())),
         (a) => wasSuccessful(a)
             ? IO.pure(a)
             : _onFailureOrError(policy, wasSuccessful, isWorthRetrying, onError,
@@ -350,8 +350,8 @@ extension RetryOps<A> on IO<A> {
   IO<A> _onFailureOrError(
     RetryPolicy policy,
     Function1<A, bool> wasSuccessful,
-    Function1<IOError, bool> isWorthRetrying,
-    Function2<IOError, RetryDetails, IO<Unit>> onError,
+    Function1<RuntimeException, bool> isWorthRetrying,
+    Function2<RuntimeException, RetryDetails, IO<Unit>> onError,
     Function2<A, RetryDetails, IO<Unit>> onFailure,
     RetryStatus status,
     IO<A> action,
@@ -362,7 +362,7 @@ extension RetryOps<A> on IO<A> {
     final details = decision._detailsFromStatus(newStatus);
 
     return IO.pure(decision.isGivingUp).ifM(
-          () => IO.raiseError(IOError('Retry giving up.')),
+          () => IO.raiseError(RuntimeException('Retry giving up.')),
           () => beforeRecurse(details)
               .productR(() => IO.sleep(decision.delay))
               .productR(() => _retryingImpl(policy, wasSuccessful,

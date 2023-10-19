@@ -88,7 +88,7 @@ final class Rill<O> implements Monad<O> {
 
   static Rill<Never> get never => eval(IO.never());
 
-  static Rill<O> raiseError<O>(IOError err) => _Error(err).rill;
+  static Rill<O> raiseError<O>(RuntimeException err) => _Error(err).rill;
 
   static Rill<O> range<O extends num>(O start, O stop, O step) {
     Rill<O> go(O o) {
@@ -115,8 +115,9 @@ final class Rill<O> implements Monad<O> {
 
   Rill<O2> as<O2>(O2 o2) => map((_) => o2);
 
-  Rill<Either<IOError, O>> attempt() => map((o) => o.asRight<IOError>())
-      .handleErrorWith((err) => Rill.emit(err.asLeft<O>()));
+  Rill<Either<RuntimeException, O>> attempt() =>
+      map((o) => o.asRight<RuntimeException>())
+          .handleErrorWith((err) => Rill.emit(err.asLeft<O>()));
 
   Rill<O> changes() => filterWithPrevious((o1, o2) => o1 != o2);
 
@@ -195,7 +196,7 @@ final class Rill<O> implements Monad<O> {
   Rill<bool> forall(Function1<O, bool> p) =>
       _pull.forall(p).flatMap((r) => _Output(r)).rill;
 
-  Rill<O> handleErrorWith(Function1<IOError, Rill<O>> f) =>
+  Rill<O> handleErrorWith(Function1<RuntimeException, Rill<O>> f) =>
       _Handle(_pull, (e) => f(e)._pull).rill;
 
   Rill<O> get head => take(1);
@@ -452,7 +453,7 @@ sealed class Pull<O, R> {
             }),
           ));
 
-  Pull<O, R> handleErrorWith(Function1<IOError, Pull<O, R>> f) =>
+  Pull<O, R> handleErrorWith(Function1<RuntimeException, Pull<O, R>> f) =>
       _Handle(this, f);
 
   Pull<O, Option<O>> get last {
@@ -619,7 +620,7 @@ final class _Eval<R> extends Pull<Never, R> {
 
 final class _Handle<O, R> extends Pull<O, R> {
   final Pull<O, R> source;
-  final Function1<IOError, Pull<O, R>> handler;
+  final Function1<RuntimeException, Pull<O, R>> handler;
 
   const _Handle(this.source, this.handler);
 
@@ -644,7 +645,7 @@ final class _Handle<O, R> extends Pull<O, R> {
 }
 
 final class _Error extends Pull<Never, Unit> {
-  final IOError error;
+  final RuntimeException error;
 
   const _Error(this.error);
 
