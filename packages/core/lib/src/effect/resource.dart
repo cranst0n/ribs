@@ -97,7 +97,7 @@ sealed class Resource<A> extends Monad<A> {
   static Resource<A> pure<A>(A a) => _Pure(a);
 
   /// Creates a Resource that will inject the given error into the evaluation.
-  static Resource<A> raiseError<A>(IOError err) =>
+  static Resource<A> raiseError<A>(RuntimeException err) =>
       Resource.eval(IO.raiseError(err));
 
   /// Creates a new [Ref] with an initial value of [a], lifted into a
@@ -112,7 +112,7 @@ sealed class Resource<A> extends Monad<A> {
 
   /// Extracts any exceptions encountered during evaluation into an [Either]
   /// value.
-  Resource<Either<IOError, A>> attempt() => switch (this) {
+  Resource<Either<RuntimeException, A>> attempt() => switch (this) {
         final _Allocate<A> a => Resource.applyFull(
             (poll) => a.resource(poll).attempt().map(
                   (att) => att.fold(
@@ -148,8 +148,9 @@ sealed class Resource<A> extends Monad<A> {
 
   /// Intercepts any upstream errors, sequencing in the [Resource] generated
   /// by [f].
-  Resource<A> handleErrorWith(Function1<IOError, Resource<A>> f) => attempt()
-      .flatMap((att) => att.fold((err) => f(err), (a) => Resource.pure(a)));
+  Resource<A> handleErrorWith(Function1<RuntimeException, Resource<A>> f) =>
+      attempt()
+          .flatMap((att) => att.fold((err) => f(err), (a) => Resource.pure(a)));
 
   @override
   Resource<B> map<B>(Function1<A, B> f) => flatMap((a) => Resource.pure(f(a)));

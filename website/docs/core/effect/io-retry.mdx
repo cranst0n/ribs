@@ -61,8 +61,8 @@ Let's look at each argument to see what's available to you:
 continually retry a failed operation after a specified delay.
 * **wasSuccessful**: Logic you can provide to inspect a successful compuation
 and force another retry attempt.
-* **isWorthRetrying**: Logic you can provide to inspect the `IOError` and
-determine if the opration should be retried again, overriding the policy.
+* **isWorthRetrying**: Logic you can provide to inspect the `RuntimeException`
+and determine if the opration should be retried again, overriding the policy.
 * **onError**: A side effect that is run every time the underlying `IO`
 encounters an error. In this case, the cumulative number or retries is
 printed to stdout.

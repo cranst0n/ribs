@@ -48,7 +48,7 @@ void main() {
     bool released = false;
 
     final res = Resource.make(
-      IO.raiseError<int>(IOError('boom')),
+      IO.raiseError<int>(RuntimeException('boom')),
       (_) => IO.exec(() => released = true),
     );
 

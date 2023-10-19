@@ -17,7 +17,7 @@ final class Rill<O> {
   static Rill<O> eval<O>(IO<O> io) =>
       Pull.eval(io).flatMap((a) => Pull.output1(a)).rillNoScope();
 
-  static Rill<O> raiseError<O>(IOError err) =>
+  static Rill<O> raiseError<O>(RuntimeException err) =>
       Pull.raiseError(err).rillNoScope();
 
   static Rill<int> range(int start, int stopExclusive, {int step = 1}) {
@@ -131,7 +131,7 @@ final class Rill<O> {
   Rill<O2> fold<O2>(O2 initial, Function2<O2, O, O2> f) =>
       pull().fold(initial, f).flatMap((x) => Pull.output1(x)).rill();
 
-  Rill<O> handleErrorWith(Function1<IOError, Rill<O>> handler) =>
+  Rill<O> handleErrorWith(Function1<RuntimeException, Rill<O>> handler) =>
       Pull.scope(_underlying)
           .handleErrorWith((e) => handler(e)._underlying)
           .rillNoScope();

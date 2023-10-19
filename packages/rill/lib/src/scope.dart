@@ -33,7 +33,7 @@ class Scope {
         () => (s, false),
       ));
 
-  IO<Either<IOError, Scope>> open(bool interruptible) {
+  IO<Either<RuntimeException, Scope>> open(bool interruptible) {
     IO<Scope> createScope() {
       final newScopeId = UniqueToken();
 
@@ -61,7 +61,8 @@ class Scope {
       }).flatMap((s) {
         return s.fold(
           () => parent.fold(
-            () => IO.pure(IOError('cannot re-open root scope').asLeft()),
+            () =>
+                IO.pure(RuntimeException('cannot re-open root scope').asLeft()),
             (parent) => this
                 .interruptible
                 .map((a) => a.cancelParent)
@@ -78,7 +79,7 @@ class Scope {
     Function1<Poll, IO<R>> acquire,
     Function2<R, ExitCase, IO<Unit>> release,
   ) {
-    return interruptibleEval<Either<IOError, R>>(
+    return interruptibleEval<Either<RuntimeException, R>>(
         ScopedResource.create().flatMap((resource) {
       return IO.uncancelable((poll) {
         return acquire(poll).redeemWith(
@@ -91,12 +92,13 @@ class Scope {
               if (result.exists(identity)) {
                 return _register(resource).flatMap((successful) => successful
                     ? IO.pure(Right(r))
-                    : finalizer(ExitCase.canceled())
-                        .as(Left(IOError('Acquire after scope closed'))));
+                    : finalizer(ExitCase.canceled()).as(
+                        Left(RuntimeException('Acquire after scope closed'))));
               } else {
                 return finalizer(ExitCase.canceled()).as(Left(result
                     .swap()
-                    .getOrElse(() => IOError('Acquire after scope closed'))));
+                    .getOrElse(
+                        () => RuntimeException('Acquire after scope closed'))));
               }
             });
           },
@@ -125,18 +127,18 @@ class Scope {
         () => IList.empty(),
       ));
 
-  IO<Either<IOError, Unit>> _traverseError<A>(
+  IO<Either<RuntimeException, Unit>> _traverseError<A>(
     IList<A> ca,
-    Function1<A, IO<Either<IOError, Unit>>> f,
+    Function1<A, IO<Either<RuntimeException, Unit>>> f,
   ) =>
       ca.traverseIO(f).map((results) => CompositeError.fromIList(
               results.foldLeft(
-                  IList.empty<IOError>(),
+                  IList.empty<RuntimeException>(),
                   (acc, elem) =>
                       elem.fold((err) => acc.append(err), (_) => acc)))
           .toLeft(() => Unit()));
 
-  IO<Either<IOError, Unit>> close(ExitCase ec) =>
+  IO<Either<RuntimeException, Unit>> close(ExitCase ec) =>
       state.modify((s) => (_ScopeState.closed, s)).flatMap((s) {
         return s.fold(
           (previous) => (
@@ -232,7 +234,7 @@ class Scope {
   IO<Scope> shiftScope(UniqueToken scopeId, String context) =>
       findStepScope(scopeId).flatMap(
         (s) => s.fold(
-          () => IO.raiseError(IOError(
+          () => IO.raiseError(RuntimeException(
               "Scope lookup failed! Scope ID: $scopeId, Step: $context")),
           (scope) => IO.pure(scope),
         ),
@@ -254,7 +256,8 @@ class Scope {
     }
   }
 
-  IO<IOFiber<Unit>> interruptWhen(IO<Either<IOError, Unit>> haltWhen) =>
+  IO<IOFiber<Unit>> interruptWhen(
+          IO<Either<RuntimeException, Unit>> haltWhen) =>
       interruptible.fold(
         () => IO.pure(IOFiber(IO.unit)),
         (iCtx) {
@@ -285,8 +288,8 @@ class Scope {
     return state.value().flatMap((s) {
       final children = s.fold(
         (x) => IO.pure(x.children),
-        () => IO
-            .raiseError<IList<Scope>>(IOError('Scope closed at time of lease')),
+        () => IO.raiseError<IList<Scope>>(
+            RuntimeException('Scope closed at time of lease')),
       );
 
       return children.flatMap((children) {

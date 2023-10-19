@@ -121,8 +121,9 @@ void main() {
 
   test('handleErrorWith', () async {
     final r = Rill.emits(ilist([1, 2, 3]))
-        .flatMap((x) =>
-            x.isEven ? Rill.raiseError<int>(IOError('boom')) : Rill.emit(x * 2))
+        .flatMap((x) => x.isEven
+            ? Rill.raiseError<int>(RuntimeException('boom'))
+            : Rill.emit(x * 2))
         .handleErrorWith((e) => Rill.emits(ilist([3, 2, 1])));
 
     final result = await r.compile().toIList().unsafeRunToFuture();

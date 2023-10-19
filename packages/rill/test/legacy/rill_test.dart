@@ -198,14 +198,15 @@ void main() {
 
   test('attempt', () async {
     final s = Rill.emits([1, 2, 3, 4, 5, 6])
-        .mapEval(
-            (a) => a == 4 ? IO.raiseError<int>(IOError('boom')) : IO.pure(a))
+        .mapEval((a) =>
+            a == 4 ? IO.raiseError<int>(RuntimeException('boom')) : IO.pure(a))
         .attempt();
 
     final result = await s.compile().toList().unsafeRunToFuture();
 
     expect(result, hasLength(4));
-    expect(result.take(3).toList(), [1, 2, 3].map((x) => x.asRight<IOError>()));
+    expect(result.take(3).toList(),
+        [1, 2, 3].map((x) => x.asRight<RuntimeException>()));
     expect(result[3].isLeft, isTrue);
   });
 

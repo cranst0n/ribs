@@ -6,21 +6,21 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/internal/stack.dart';
 
 /// Specific [Exception] type that is raised within [IO].
-class IOError implements Exception {
+class RuntimeException implements Exception {
   /// Reason for the exception.
   final Object message;
 
   /// StackTrace at the time when the exception was thrown.
   final StackTrace stackTrace;
 
-  IOError(this.message, [StackTrace? stackTrace])
+  RuntimeException(this.message, [StackTrace? stackTrace])
       : stackTrace = stackTrace ?? StackTrace.current;
 
   @override
   String toString() => message.toString();
 }
 
-typedef AsyncCallback<A> = Function1<Either<IOError, A>, void>;
+typedef AsyncCallback<A> = Function1<Either<RuntimeException, A>, void>;
 typedef AsyncBody<A> = Function1<AsyncCallback<A>, void>;
 typedef AsyncBodyWithFin<A> = Function1<AsyncCallback<A>, IO<Option<IO<Unit>>>>;
 
@@ -142,7 +142,7 @@ sealed class IO<A> extends Monad<A> {
         return IO.delay(() {
           op.then(
             (a) => cb(a.asRight()),
-            onError: (e, s) => cb(IOError(e, s).asLeft()),
+            onError: (e, s) => cb(RuntimeException(e, s).asLeft()),
           );
 
           return IO.fromFutureF(() => op.cancel().then((_) => Unit())).some;
@@ -154,14 +154,15 @@ sealed class IO<A> extends Monad<A> {
   /// Alias for `IO.pure` when [either] is [Right], or `IO.raiseError` with
   /// [either] providing the error when [either] is [Left].
   static IO<A> fromEither<A>(Either<Object, A> either) =>
-      either.fold((e) => IO.raiseError<A>(IOError(e)), IO.pure);
+      either.fold((e) => IO.raiseError<A>(RuntimeException(e)), IO.pure);
 
   /// Create an [IO] that returns the value of the underlying [Future] or
   /// the error [fut] emits.
   static IO<A> fromFuture<A>(IO<Future<A>> fut) =>
       fut.flatMap((f) => async_<A>((cb) => f.then(
             (a) => cb(a.asRight()),
-            onError: (Object e, StackTrace s) => cb(IOError(e, s).asLeft()),
+            onError: (Object e, StackTrace s) =>
+                cb(RuntimeException(e, s).asLeft()),
           )));
 
   /// Create an [IO] that returns the value of the underlying [Future] function
@@ -172,7 +173,7 @@ sealed class IO<A> extends Monad<A> {
   /// Alias for `IO.pure` when [option] is [Some], or `IO.raiseError` with
   /// [orElse] providing the error when [option] is [None].
   static IO<A> fromOption<A>(Option<A> option, Function0<Object> orElse) =>
-      option.fold(() => IO.raiseError<A>(IOError(orElse())), IO.pure);
+      option.fold(() => IO.raiseError<A>(RuntimeException(orElse())), IO.pure);
 
   /// Returns a non-terminating [IO], alias for `async_((_) {})`.
   static IO<A> never<A>() => async_((_) {});
@@ -259,21 +260,21 @@ sealed class IO<A> extends Monad<A> {
       _RacePair(ioa, iob);
 
   /// Create an IO that will inject the given error into the IO evaluation.
-  static IO<A> raiseError<A>(IOError error) => _Error(error);
+  static IO<A> raiseError<A>(RuntimeException error) => _Error(error);
 
   /// Returns an `IO.raiseError` when [cond] is false, otherwice `IO.unit`.
-  static IO<Unit> raiseUnless(bool cond, Function0<IOError> e) =>
+  static IO<Unit> raiseUnless(bool cond, Function0<RuntimeException> e) =>
       IO.unlessA(cond, () => IO.raiseError<Unit>(e()));
 
   /// Returns an `IO.raiseError` when [cond] is true, otherwice `IO.unit`.
-  static IO<Unit> raiseWhen(bool cond, Function0<IOError> e) =>
+  static IO<Unit> raiseWhen(bool cond, Function0<RuntimeException> e) =>
       IO.whenA(cond, () => IO.raiseError<Unit>(e()));
 
   /// Reads a line from stdin. **This is a blocking operation and will
   /// not finish until a full line of input is available from the console.**
   static IO<String> readLine() =>
-      IO.delay(() => stdin.readLineSync()).flatMap((l) => Option(l)
-          .fold(() => IO.raiseError(IOError('stdin line ended')), IO.pure));
+      IO.delay(() => stdin.readLineSync()).flatMap((l) => Option(l).fold(
+          () => IO.raiseError(RuntimeException('stdin line ended')), IO.pure));
 
   /// Creates an ansynchronous [IO] that will sleep for the given [duration]
   /// and resume when finished.
@@ -313,7 +314,12 @@ sealed class IO<A> extends Monad<A> {
 
   /// Extracts any exceptions encountered during evaluation into an [Either]
   /// value.
-  IO<Either<IOError, A>> attempt() => _Attempt(this);
+  IO<Either<RuntimeException, A>> attempt() => _Attempt(this);
+
+  /// Creates a new [Resource] that will start the execution of this fiber and
+  /// cancel the execution when the [Resource] is finalized.
+  Resource<IO<Outcome<A>>> background() =>
+      Resource.make(start(), (fiber) => fiber.cancel()).map((f) => f.join());
 
   /// Returns an IO that uses this IO as the resource acquisition, [use] as the
   /// IO action that action that uses the resource, and [release] as the
@@ -350,6 +356,9 @@ sealed class IO<A> extends Monad<A> {
   IO<A> flatTap<B>(covariant Function1<A, IO<B>> f) =>
       flatMap((a) => f(a).as(a));
 
+  /// Continually re-evaluate this [IO] forever, until an error or cancelation.
+  IO<Never> foreverM() => productR(() => foreverM());
+
   /// Executes the provided finalizer [fin] regardless of the [Outcome] of
   /// evaluating this [IO].
   IO<A> guarantee(IO<Unit> fin) => onCancel(fin)
@@ -364,12 +373,23 @@ sealed class IO<A> extends Monad<A> {
           .flatTap((a) => fin(Succeeded(a)));
 
   /// Intercepts any upstream Exception, returning the value generated by [f].
-  IO<A> handleError(Function1<IOError, A> f) =>
+  IO<A> handleError(Function1<RuntimeException, A> f) =>
       handleErrorWith((e) => IO.pure(f(e)));
 
   /// Intercepts any upstream Exception, sequencing in the [IO] generated by [f].
-  IO<A> handleErrorWith(covariant Function1<IOError, IO<A>> f) =>
+  IO<A> handleErrorWith(covariant Function1<RuntimeException, IO<A>> f) =>
       _HandleErrorWith(this, Fn1.of(f));
+
+  /// Continually re-evaluates this [IO] until the computed value satisfies the
+  /// given predicate [p]. The first computed value that satisfies [p] will be
+  /// the final result.
+  IO<A> iterateUntil(Function1<A, bool> p) => iterateWhile((a) => !p(a));
+
+  /// Continually re-evaluates this [IO] while the computed value satisfies the
+  /// given predicate [p]. The first computed value that does not satisfy [p]
+  /// will be the final result.
+  IO<A> iterateWhile(Function1<A, bool> p) =>
+      flatMap((a) => p(a) ? this.iterateWhile(p) : IO.pure(a));
 
   /// Applies [f] to the value of this IO, returning the result.
   @override
@@ -380,8 +400,13 @@ sealed class IO<A> extends Monad<A> {
   IO<A> onCancel(IO<Unit> fin) => _OnCancel(this, fin);
 
   /// Performs the given side-effect if this [IO] results in a error.
-  IO<A> onError(covariant Function1<IOError, IO<Unit>> f) => handleErrorWith(
-      (e) => f(e).attempt().productR(() => IO.raiseError<A>(e)));
+  IO<A> onError(covariant Function1<RuntimeException, IO<Unit>> f) =>
+      handleErrorWith(
+          (e) => f(e).attempt().productR(() => IO.raiseError<A>(e)));
+
+  /// Replaces any failures from this IO with [None]. A successful value is
+  /// wrapped in [Some].
+  IO<Option<A>> option() => redeem((_) => const None(), (a) => Some(a));
 
   /// If the evaluation of this [IO] results in an error, run [that] as an
   /// attempt to recover.
@@ -401,13 +426,14 @@ sealed class IO<A> extends Monad<A> {
 
   /// Returns the value created from [recover] or [map], depending on whether
   /// this [IO] results in an error or is successful.
-  IO<B> redeem<B>(Function1<IOError, B> recover, Function1<A, B> map) =>
+  IO<B> redeem<B>(
+          Function1<RuntimeException, B> recover, Function1<A, B> map) =>
       attempt().map((a) => a.fold(recover, map));
 
   /// Returns the value created from [recover] or [map], depending on whether
   /// this [IO] results in an error or is successful.
   IO<B> redeemWith<B>(
-    Function1<IOError, IO<B>> recover,
+    Function1<RuntimeException, IO<B>> recover,
     Function1<A, IO<B>> bind,
   ) =>
       attempt().flatMap((a) => a.fold(recover, bind));
@@ -436,8 +462,8 @@ sealed class IO<A> extends Monad<A> {
   /// if the evaluation take longer than [duration].
   IO<A> timeout(Duration duration) => timeoutTo(
       duration,
-      IO.defer(
-          () => IO.raiseError(IOError(TimeoutException(duration.toString())))));
+      IO.defer(() => IO.raiseError(
+          RuntimeException(TimeoutException(duration.toString())))));
 
   /// Creates an [IO] that will return the value of this IO, or the value of
   /// [fallback] if the evaluation of this IO exceeds [duration].
@@ -447,6 +473,9 @@ sealed class IO<A> extends Monad<A> {
             (_) => fallback,
           ));
 
+  /// Lifts this [IO] to a [Resource]
+  Resource<A> toResource() => Resource.eval(this);
+
   /// Creates an [IO] that will return the value of this IO tupled with [b],
   /// with [b] taking the first element of the tuple.
   IO<(B, A)> tupleLeft<B>(B b) => map((a) => (b, a));
@@ -455,27 +484,74 @@ sealed class IO<A> extends Monad<A> {
   /// with [b] taking the second element of the tuple.
   IO<(A, B)> tupleRight<B>(B b) => map((a) => (a, b));
 
+  /// Evaluates this [IO] repeatedly until evaluating [cond] results is `true`.
+  /// Results from every evaluation is accumulated in the returned [IList].
+  ///
+  /// Note that [cond] is evaluated *after* evaluating this [IO] for each
+  /// repetition.
+  IO<IList<A>> untilM(IO<bool> cond) {
+    IO<IList<A>> loop(IList<A> acc) => flatMap((a) => cond.ifM(
+          () => IO.pure(acc.append(a)),
+          () => loop(acc.append(a)),
+        ));
+
+    return loop(nil());
+  }
+
+  /// Evaluates this [IO] repeatedly until evaluating [cond] results is `true`.
+  /// Results are discarded.
+  ///
+  /// Note that [cond] is evaluated *after* evaluating this [IO] for each
+  /// repetition.
+  IO<Unit> untilM_(IO<bool> cond) =>
+      productR(() => cond.ifM(() => IO.unit, () => untilM_(cond)));
+
   /// Discards the value of this IO and replaces it with [Unit].
   IO<Unit> voided() => as(Unit());
 
-  /// Evaluates this IO and invokes the given callback [cb] with the [Outcome].
+  /// Evaluates this [IO] repeatedly until evaluating [cond] results is `false`.
+  /// Results from every evaluation is accumulated in the returned [IList].
+  ///
+  /// Note that [cond] is evaluated *before* evaluating this [IO] for each
+  /// repitition.
+  IO<IList<A>> whilelM(IO<bool> cond) {
+    IO<IList<A>> loop(IList<A> acc) {
+      return cond.ifM(
+        () => flatMap((a) => loop(acc.append(a))),
+        () => IO.pure(acc),
+      );
+    }
+
+    return loop(nil());
+  }
+
+  /// Evaluates this [IO] repeatedly until evaluating [cond] results is `false`.
+  /// Results are discarded.
+  ///
+  /// Note that [cond] is evaluated *before* evaluating this [IO] for each
+  /// repitition.
+  IO<Unit> whileM_(IO<bool> cond) => cond.ifM(
+        () => productR(() => whileM_(cond)),
+        () => IO.unit,
+      );
+
+  /// Starts the evaluation this IO and invokes the given callback [cb] with
+  /// the [Outcome].
   void unsafeRunAsync(
     Function1<Outcome<A>, void> cb, {
     int autoCedeN = IOFiber.DefaultAutoCedeN,
-  }) =>
-      IOFiber(
-        this,
-        callback: (a) => a.fold(
-          () => cb(const Canceled()),
-          (err) => cb(Errored(err)),
-          (a) => cb(Succeeded(a)),
-        ),
-        autoCedeN: autoCedeN,
-      )._schedule();
+  }) {
+    _unsafeRunFiber(
+      () => cb(const Canceled()),
+      (ex) => cb(Errored(ex)),
+      (a) => cb(Succeeded(a)),
+      autoCedeN: autoCedeN,
+    );
+  }
 
-  /// Evaluates this IO and discards any results.
+  /// Starts the evaluation of this IO and discards any results.
   void unsafeRunAndForget({int autoCedeN = IOFiber.DefaultAutoCedeN}) =>
-      IOFiber(this, autoCedeN: autoCedeN)._schedule();
+      _unsafeRunFiber(() {}, (a) {}, (a) {}, autoCedeN: autoCedeN);
 
   /// Evaluates this IO and returns a [Future] that will complete with the
   /// [Outcome] of the evaluation. The [Future] will not complete with an error,
@@ -488,28 +564,72 @@ sealed class IO<A> extends Monad<A> {
     return completer.future;
   }
 
-  /// Evaluates this IO and returns a [Future] that will complete with the
-  /// [Outcome] of the evaluation. The [Future] may complete with an error if
-  /// the evaluation of the [IO] encounters and error or is canceled.
-  Future<A> unsafeRunToFuture({int autoCedeN = IOFiber.DefaultAutoCedeN}) {
+  /// Starts the evaluation of this IO and returns a [Future] that will complete
+  /// with the [Outcome] of the evaluation as well as a function that can be
+  /// called to cancel the future. The [Future] will not complete with an error,
+  /// since the value itself is capable of conveying an error was encountered.
+  /// If the evaluation has already finished, the cancelation function is a
+  /// no-op.
+  (Future<A>, Function0<Future<Unit>>) unsafeRunToFutureCancelable(
+      {int autoCedeN = IOFiber.DefaultAutoCedeN}) {
     final completer = Completer<A>();
 
-    unsafeRunAsync(
-      (outcome) => outcome.fold(
-        () => completer.completeError('Fiber canceled'),
-        (err) => completer.completeError(err.message, err.stackTrace),
-        (a) => completer.complete(a),
-      ),
+    final fiber = _unsafeRunFiber(
+      () => completer.completeError('Fiber canceled'),
+      (ex) => completer.completeError(ex.message, ex.stackTrace),
+      (a) => completer.complete(a),
       autoCedeN: autoCedeN,
     );
 
-    return completer.future;
+    return (completer.future, () => fiber.cancel().unsafeRunToFuture());
+  }
+
+  /// Starts the evaluation of this IO and returns a [Future] that will complete
+  /// with the [Outcome] of the evaluation. The [Future] may complete with an
+  /// error if the evaluation of the [IO] encounters and error or is canceled.
+  Future<A> unsafeRunToFuture({int autoCedeN = IOFiber.DefaultAutoCedeN}) =>
+      unsafeRunToFutureCancelable(autoCedeN: autoCedeN).$1;
+
+  /// Starts the evaluation of this IO and returns  a function that can be
+  /// called to cancel the evaluation. If the evaluation has already finished,
+  /// the cancelation function is a no-op.
+  Function0<Future<Unit>> unsafeRunToCancelable({
+    int autoCedeN = IOFiber.DefaultAutoCedeN,
+  }) =>
+      unsafeRunToFutureCancelable(autoCedeN: autoCedeN).$2;
+
+  IOFiber<A> _unsafeRunFiber(
+    Function0<void> canceled,
+    Function1<RuntimeException, void> failure,
+    Function1<A, void> success, {
+    int autoCedeN = IOFiber.DefaultAutoCedeN,
+  }) {
+    final fiber = IOFiber(
+      this,
+      callback: (outcome) {
+        outcome.fold(
+          () => canceled(),
+          (ex) => failure(ex),
+          (a) => success(a),
+        );
+      },
+      autoCedeN: autoCedeN,
+    );
+
+    fiber._schedule();
+
+    return fiber;
   }
 }
 
 extension IONestedOps<A> on IO<IO<A>> {
   /// Returns an [IO] that will complete with the value of the inner [IO].
   IO<A> flatten() => flatMap(id);
+}
+
+extension IOUnitOps<A> on IO<Unit> {
+  /// Ignores any errors.
+  IO<Unit> voidError() => handleError((_) => Unit());
 }
 
 extension IOBoolOps on IO<bool> {
@@ -555,7 +675,7 @@ final class _Pure<A> extends IO<A> {
 }
 
 final class _Error<A> extends IO<A> {
-  final IOError error;
+  final RuntimeException error;
 
   _Error(this.error);
 
@@ -584,7 +704,7 @@ final class _Async<A> extends IO<A> {
 }
 
 final class _AsyncGet<A> extends IO<A> {
-  Either<IOError, dynamic>? value;
+  Either<RuntimeException, dynamic>? value;
 
   _AsyncGet();
 
@@ -612,11 +732,13 @@ final class _FlatMap<A, B> extends IO<B> {
   String toString() => 'FlatMap($ioa, $f)';
 }
 
-final class _Attempt<A> extends IO<Either<IOError, A>> {
+final class _Attempt<A> extends IO<Either<RuntimeException, A>> {
   final IO<A> ioa;
 
-  Either<IOError, A> right(dynamic value) => Right<IOError, A>(value as A);
-  Either<IOError, A> left(IOError error) => Left<IOError, A>(error);
+  Either<RuntimeException, A> right(dynamic value) =>
+      Right<RuntimeException, A>(value as A);
+  Either<RuntimeException, A> left(RuntimeException error) =>
+      Left<RuntimeException, A>(error);
 
   _Attempt(this.ioa);
 
@@ -657,7 +779,7 @@ final class _Start<A> extends IO<IOFiber<A>> {
 
 final class _HandleErrorWith<A> extends IO<A> {
   final IO<A> ioa;
-  final Fn1<IOError, IO<A>> f;
+  final Fn1<RuntimeException, IO<A>> f;
 
   _HandleErrorWith(this.ioa, this.f);
 
@@ -853,7 +975,7 @@ final class IOFiber<A> {
       _runLoop(_succeeded(_objectState.pop(), 0), _autoCedeN);
 
   void _asyncContinueFailedR() =>
-      _runLoop(_failed(_objectState.pop() as IOError, 0), _autoCedeN);
+      _runLoop(_failed(_objectState.pop() as RuntimeException, 0), _autoCedeN);
 
   void _asyncContinueCanceledR() {
     final fin = _prepareFiberForCancelation();
@@ -861,7 +983,7 @@ final class IOFiber<A> {
   }
 
   void _asyncContinueCanceledWithFinalizerR() {
-    final cb = _objectState.pop() as Fn1<Either<IOError, Unit>, void>;
+    final cb = _objectState.pop() as Fn1<Either<RuntimeException, Unit>, void>;
     final fin = _prepareFiberForCancelation(cb);
 
     _runLoop(fin, _autoCedeN);
@@ -908,7 +1030,7 @@ final class IOFiber<A> {
           cur0 =
               Either.catching(() => (cur0 as _Delay).thunk(), (a, b) => (a, b))
                   .fold<IO<dynamic>>(
-            (err) => _failed(IOError(err.$1, err.$2), 0),
+            (err) => _failed(RuntimeException(err.$1, err.$2), 0),
             (v) => _succeeded(v, 0),
           );
         } else if (cur0 is _Map) {
@@ -919,7 +1041,7 @@ final class IOFiber<A> {
           IO<dynamic> next(Function0<dynamic> value) =>
               Either.catching(() => f(value()), (a, b) => (a, b))
                   .fold<IO<dynamic>>(
-                      (err) => _failed(IOError(err.$1, err.$2), 0),
+                      (err) => _failed(RuntimeException(err.$1, err.$2), 0),
                       (v) => _succeeded(v, 0));
 
           if (ioa is _Pure) {
@@ -940,8 +1062,8 @@ final class IOFiber<A> {
           final f = cur0.f;
 
           IO<dynamic> next(Function0<dynamic> value) =>
-              Either.catching(() => f(value()), (a, b) => (a, b))
-                  .fold((err) => _failed(IOError(err.$1, err.$2), 0), id);
+              Either.catching(() => f(value()), (a, b) => (a, b)).fold(
+                  (err) => _failed(RuntimeException(err.$1, err.$2), 0), id);
 
           if (ioa is _Pure) {
             cur0 = next(() => ioa.value);
@@ -965,12 +1087,12 @@ final class IOFiber<A> {
             cur0 = _succeeded(cur0.left(ioa.error), 0);
           } else if (ioa is _Delay) {
             dynamic result;
-            IOError? error;
+            RuntimeException? error;
 
             try {
               result = ioa.thunk();
             } catch (e, s) {
-              error = IOError(e, s);
+              error = RuntimeException(e, s);
             }
 
             cur0 = error == null
@@ -1092,7 +1214,7 @@ final class IOFiber<A> {
           try {
             cur0 = cur0.body(poll);
           } catch (e, s) {
-            cur0 = IO.raiseError(IOError(e, s));
+            cur0 = IO.raiseError(RuntimeException(e, s));
           }
 
           _conts.push(_Cont.Uncancelable);
@@ -1126,7 +1248,7 @@ final class IOFiber<A> {
   }
 
   IO<dynamic> _prepareFiberForCancelation([
-    Fn1<Either<IOError, Unit>, void>? cb,
+    Fn1<Either<RuntimeException, Unit>, void>? cb,
   ]) {
     if (_finalizers.nonEmpty) {
       if (!_finalizing) {
@@ -1161,12 +1283,12 @@ final class IOFiber<A> {
           final f = _objectState.pop() as Fn1F;
 
           dynamic transformed;
-          IOError? error;
+          RuntimeException? error;
 
           try {
             transformed = f(result);
           } catch (e, s) {
-            error = IOError(e, s);
+            error = RuntimeException(e, s);
           }
 
           if (depth > _DefaultMaxStackDepth) {
@@ -1182,12 +1304,12 @@ final class IOFiber<A> {
           final f = _objectState.pop() as Fn1F;
 
           dynamic transformed;
-          IOError? error;
+          RuntimeException? error;
 
           try {
             transformed = f(result);
           } catch (e, s) {
-            error = IOError(e, s);
+            error = RuntimeException(e, s);
           }
 
           return error == null
@@ -1214,7 +1336,7 @@ final class IOFiber<A> {
     }
   }
 
-  IO<dynamic> _failed(IOError error, int depth) {
+  IO<dynamic> _failed(RuntimeException error, int depth) {
     var cont = _conts.pop();
 
     // Drop all the maps / flatMaps since they don't deal with errors
@@ -1236,12 +1358,12 @@ final class IOFiber<A> {
         final f = _objectState.pop() as Fn1F;
 
         dynamic recovered;
-        IOError? err;
+        RuntimeException? err;
 
         try {
           recovered = f(error);
         } catch (e, s) {
-          err = IOError(e, s);
+          err = RuntimeException(e, s);
         }
 
         return err == null ? recovered as IO<dynamic> : _failed(err, depth + 1);
@@ -1257,7 +1379,7 @@ final class IOFiber<A> {
         return _failed(error, depth + 1);
       case _Cont.Attempt:
         _objectState.pop();
-        return _succeeded(Left<IOError, Never>(error), depth);
+        return _succeeded(Left<RuntimeException, Never>(error), depth);
     }
   }
 
@@ -1282,7 +1404,7 @@ final class IOFiber<A> {
     return _EndFiber();
   }
 
-  IO<dynamic> _runTerminusFailureK(IOError error) {
+  IO<dynamic> _runTerminusFailureK(RuntimeException error) {
     _done(Errored(error));
     return _EndFiber();
   }
@@ -1294,7 +1416,7 @@ final class IOFiber<A> {
     } else {
       if (_objectState.nonEmpty) {
         final cb = _objectState.pop() as Fn1F;
-        cb.call(Right<IOError, Unit>(Unit()));
+        cb.call(Right<RuntimeException, Unit>(Unit()));
       }
 
       _done(const Canceled());
@@ -1303,7 +1425,7 @@ final class IOFiber<A> {
     }
   }
 
-  IO<dynamic> _cancelationLoopFailureK(IOError err) =>
+  IO<dynamic> _cancelationLoopFailureK(RuntimeException err) =>
       _cancelationLoopSuccessK();
 }
 

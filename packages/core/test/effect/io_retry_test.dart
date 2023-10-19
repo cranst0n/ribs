@@ -70,7 +70,7 @@ void main() {
   });
 
   test('alwaysGiveUp', () async {
-    final io = IO.raiseError<int>(IOError('fail'));
+    final io = IO.raiseError<int>(RuntimeException('fail'));
     final retryable = io.retrying(RetryPolicy.alwaysGiveUp());
     final result = await retryable.unsafeRunToFutureOutcome();
 
@@ -84,8 +84,9 @@ void main() {
   test('limitRetries (succeed)', () async {
     int attempts = 0;
 
-    final io = IO.delay(() => attempts += 1).flatMap((x) =>
-        x > 3 ? IO.pure(x) : IO.raiseError<int>(IOError('attempts: $x')));
+    final io = IO.delay(() => attempts += 1).flatMap((x) => x > 3
+        ? IO.pure(x)
+        : IO.raiseError<int>(RuntimeException('attempts: $x')));
 
     final retryable = io.retrying(RetryPolicy.constantDelay(Duration.zero)
         .join(RetryPolicy.limitRetries(3)));
@@ -103,7 +104,7 @@ void main() {
   });
 
   test('limitRetries (fail)', () async {
-    final io = IO.raiseError<int>(IOError('fail'));
+    final io = IO.raiseError<int>(RuntimeException('fail'));
 
     final retryable = io.retrying(RetryPolicy.constantDelay(Duration.zero)
         .join(RetryPolicy.limitRetries(2)));
@@ -120,8 +121,9 @@ void main() {
   test('giveUpAfterDelay (succeed)', () async {
     int attempts = 0;
 
-    final io = IO.delay(() => attempts += 1).flatMap((x) =>
-        x > 2 ? IO.pure(x) : IO.raiseError<int>(IOError('attempts: $x')));
+    final io = IO.delay(() => attempts += 1).flatMap((x) => x > 2
+        ? IO.pure(x)
+        : IO.raiseError<int>(RuntimeException('attempts: $x')));
 
     final retryable = io.retrying(
         RetryPolicy.exponentialBackoff(const Duration(seconds: 1))
@@ -142,8 +144,9 @@ void main() {
   test('giveUpAfterDelay (fail)', () async {
     int attempts = 0;
 
-    final io = IO.delay(() => attempts += 1).flatMap((x) =>
-        x > 4 ? IO.pure(x) : IO.raiseError<int>(IOError('attempts: $x')));
+    final io = IO.delay(() => attempts += 1).flatMap((x) => x > 4
+        ? IO.pure(x)
+        : IO.raiseError<int>(RuntimeException('attempts: $x')));
 
     final retryable = io.retrying(
         RetryPolicy.exponentialBackoff(const Duration(seconds: 1))

@@ -8,16 +8,17 @@ abstract class ScopedResource {
 
   UniqueToken get id;
 
-  IO<Either<IOError, Unit>> release(ExitCase ec);
+  IO<Either<RuntimeException, Unit>> release(ExitCase ec);
 
-  IO<Either<IOError, bool>> acquired(Function1<ExitCase, IO<Unit>> finalizer);
+  IO<Either<RuntimeException, bool>> acquired(
+      Function1<ExitCase, IO<Unit>> finalizer);
 
   IO<Option<Lease>> lease();
 }
 
-typedef _Finalizer = Function1<ExitCase, IO<Either<IOError, Unit>>>;
+typedef _Finalizer = Function1<ExitCase, IO<Either<RuntimeException, Unit>>>;
 
-final _pru = IO.pure(Unit().asRight<IOError>());
+final _pru = IO.pure(Unit().asRight<RuntimeException>());
 
 class _ScopedResource extends ScopedResource {
   final Ref<_ScopedResourceState> state;
@@ -26,14 +27,15 @@ class _ScopedResource extends ScopedResource {
   _ScopedResource(this.state, this.token);
 
   @override
-  IO<Either<IOError, bool>> acquired(Function1<ExitCase, IO<Unit>> finalizer) =>
+  IO<Either<RuntimeException, bool>> acquired(
+          Function1<ExitCase, IO<Unit>> finalizer) =>
       state.flatModify((s) {
         if (s.isFinished) {
           return (s, finalizer(ExitCase.succeeded()).as(false).attempt());
         } else {
           return (
             s.copy(finalizer: Some((ExitCase ec) => finalizer(ec).attempt())),
-            IO.pure(true.asRight<IOError>()),
+            IO.pure(true.asRight<RuntimeException>()),
           );
         }
       });
@@ -51,7 +53,7 @@ class _ScopedResource extends ScopedResource {
       });
 
   @override
-  IO<Either<IOError, Unit>> release(ExitCase ec) => state.modify((s) {
+  IO<Either<RuntimeException, Unit>> release(ExitCase ec) => state.modify((s) {
         if (s.leases != 0) {
           return (s.copy(open: false), none<_Finalizer>());
         } else {
@@ -89,7 +91,7 @@ class _ALease extends Lease {
   _ALease(this.state);
 
   @override
-  IO<Either<IOError, Unit>> cancel() => state.modify((s) {
+  IO<Either<RuntimeException, Unit>> cancel() => state.modify((s) {
         final now = s.copy(leases: s.leases + 1);
         return (now, now);
       }).flatMap((now) {

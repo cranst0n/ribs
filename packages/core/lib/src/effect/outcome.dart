@@ -13,7 +13,7 @@ sealed class Outcome<A> {
   static Outcome<A> succeeded<A>(A a) => Succeeded(a);
 
   /// Creates a [Errored] cast as an [Outcome];
-  static Outcome<A> errored<A>(IOError error) => Errored(error);
+  static Outcome<A> errored<A>(RuntimeException error) => Errored(error);
 
   /// Creates a [Canceled] cast as an [Outcome];
   static Outcome<A> canceled<A>() => const Canceled();
@@ -37,7 +37,7 @@ sealed class Outcome<A> {
   /// [succeeded] will be applied if this instance is a [Succeeded].
   B fold<B>(
     Function0<B> canceled,
-    Function1<IOError, B> errored,
+    Function1<RuntimeException, B> errored,
     Function1<A, B> succeeded,
   );
 
@@ -74,7 +74,7 @@ final class Succeeded<A> extends Outcome<A> {
   @override
   B fold<B>(
     Function0<B> canceled,
-    Function1<IOError, B> errored,
+    Function1<RuntimeException, B> errored,
     Function1<A, B> succeeded,
   ) =>
       succeeded(value);
@@ -88,17 +88,17 @@ final class Succeeded<A> extends Outcome<A> {
   int get hashCode => value.hashCode;
 }
 
-/// Failed [Outcome] of an [IO] evaluation, with the [IOError] that caused it.
+/// Failed [Outcome] of an [IO] evaluation, with the [RuntimeException] that caused it.
 final class Errored<A> extends Outcome<A> {
   /// The underlying error.
-  final IOError error;
+  final RuntimeException error;
 
   const Errored(this.error);
 
   @override
   B fold<B>(
     Function0<B> canceled,
-    Function1<IOError, B> errored,
+    Function1<RuntimeException, B> errored,
     Function1<A, B> succeeded,
   ) =>
       errored(error);
@@ -118,7 +118,7 @@ final class Canceled extends Outcome<Never> {
   @override
   B fold<B>(
     Function0<B> canceled,
-    Function1<IOError, B> errored,
+    Function1<RuntimeException, B> errored,
     Function1<Never, B> succeeded,
   ) =>
       canceled();
