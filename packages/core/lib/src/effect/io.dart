@@ -3,7 +3,7 @@ import 'dart:io' show stderr, stdin, stdout;
 
 import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/src/internal/stack.dart';
+import 'package:ribs_core/src/effect/std/internal/stack.dart';
 
 /// Specific [Exception] type that is raised within [IO].
 class RuntimeException implements Exception {
@@ -126,6 +126,9 @@ sealed class IO<A> extends Monad<A> {
 
   /// Suspends the synchronous evaluation of [thunk] in [IO].
   static IO<A> defer<A>(Function0<IO<A>> thunk) => delay(thunk).flatten();
+
+  /// Creates a new [Deferred] of the given generic type.
+  static IO<Deferred<A>> deferred<A>() => Deferred.of<A>();
 
   /// Suspends the synchronous evaluation of [thunk] in [IO].
   static IO<A> delay<A>(Function0<A> thunk) => _Delay(Fn0(thunk));
@@ -275,6 +278,9 @@ sealed class IO<A> extends Monad<A> {
   static IO<String> readLine() =>
       IO.delay(() => stdin.readLineSync()).flatMap((l) => Option(l).fold(
           () => IO.raiseError(RuntimeException('stdin line ended')), IO.pure));
+
+  /// Creates a new [Ref] of the given generic type.
+  static IO<Ref<A>> ref<A>(A a) => Ref.of(a);
 
   /// Creates an ansynchronous [IO] that will sleep for the given [duration]
   /// and resume when finished.
@@ -475,6 +481,9 @@ sealed class IO<A> extends Monad<A> {
 
   /// Lifts this [IO] to a [Resource]
   Resource<A> toResource() => Resource.eval(this);
+
+  SyncIO<Either<IO<A>, A>> toSyncIO(int limit) =>
+      _SyncStep.interpret(this, limit).map((a) => a.map((a) => a.$1));
 
   /// Creates an [IO] that will return the value of this IO tupled with [b],
   /// with [b] taking the first element of the tuple.
@@ -924,6 +933,10 @@ final class IOFiber<A> {
   /// Creates an [IO] that will return the [Outcome] of the fiber when it
   /// completes.
   IO<Outcome<A>> join() => _join;
+
+  IO<A> joinWith(IO<A> onCancel) => join().flatMap((a) => a.embed(onCancel));
+
+  IO<A> joinWithNever() => joinWith(IO.never());
 
   bool _shouldFinalize() => _canceled && _isUnmasked();
   bool _isUnmasked() => _masks == 0;
@@ -1452,4 +1465,50 @@ enum _Resume {
   Cede,
   AutoCede,
   Done,
+}
+
+class _SyncStep {
+  static SyncIO<Either<IO<A>, (A, int)>> interpret<A>(IO<A> io, int limit) {
+    if (limit <= 0) {
+      return SyncIO.pure(Left(io));
+    } else {
+      if (io is _Pure) {
+        return SyncIO.pure(Right(((io as _Pure).value, limit)));
+      } else if (io is _Error) {
+        return SyncIO.raiseError((io as _Error).error);
+      } else if (io is _Delay) {
+        return SyncIO.delay(() => (io as _Delay).thunk())
+            .map((a) => Right((a, limit)));
+      } else if (io is _Map) {
+        final map = io as _Map<dynamic, A>;
+
+        return interpret(map.ioa, limit - 1).map(
+          (e) => e.fold(
+            (io) => Left(io.map(map.f.call)),
+            (result) => Right((map.f(result.$1), result.$2)),
+          ),
+        );
+      } else if (io is _FlatMap) {
+        final fm = io as _FlatMap<dynamic, A>;
+
+        return interpret(fm.ioa, limit - 1).flatMap(
+          (e) => e.fold(
+            (io) => SyncIO.pure(Left(io.flatMap(fm.f.call))),
+            (result) => interpret(fm.f(result.$1), limit - 1),
+          ),
+        );
+      } else if (io is _HandleErrorWith) {
+        final he = io as _HandleErrorWith<A>;
+
+        return interpret(he.ioa, limit - 1)
+            .map((a) => a.fold(
+                  (io) => io.handleErrorWith(he.f.call).asLeft<(A, int)>(),
+                  (result) => result.asRight<IO<A>>(),
+                ))
+            .handleErrorWith((ex) => interpret(he.f(ex), limit - 1));
+      } else {
+        return SyncIO.pure(Left(io));
+      }
+    }
+  }
 }

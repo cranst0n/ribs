@@ -1,4 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/ribs_test.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -25,8 +26,8 @@ void main() {
     final ifFalse = Either.cond(() => false, () => 1, () => 'left');
     final ifTrue = Either.cond(() => true, () => 1, () => 'left');
 
-    expect(ifFalse, testLeft);
-    expect(ifTrue, testRight);
+    expect(ifFalse, isLeft<String, int>('left'));
+    expect(ifTrue, isRight<String, int>(1));
   });
 
   test('Either.fold', () {
@@ -38,17 +39,22 @@ void main() {
     final rF = Either.right<String, Function1<int, int>>(incInt);
     final lF = Either.left<String, Function1<int, int>>('lF');
 
-    expect(testRight.ap(rF), Either.right<String, int>(2));
-    expect(testRight.ap(lF), Either.left<String, int>('lF'));
-    expect(testLeft.ap(rF), testLeft);
-    expect(testLeft.ap(lF), testLeft);
+    expect(testRight.ap(rF), isRight<String, int>(2));
+    expect(testRight.ap(lF), isLeft<String, int>('lF'));
+    expect(testLeft.ap(rF), isLeft<String, int>('left'));
+    expect(testLeft.ap(lF), isLeft<String, int>('left'));
   });
 
   test('Either.bimap', () {
     expect(
-        testRight.bimap(reverseString, incInt), Either.right<String, int>(2));
-    expect(testLeft.bimap(reverseString, incInt),
-        Either.left<String, int>('tfel'));
+      testRight.bimap(reverseString, incInt),
+      isRight<String, int>(2),
+    );
+
+    expect(
+      testLeft.bimap(reverseString, incInt),
+      isLeft<String, int>('tfel'),
+    );
   });
 
   test('Either.contains', () {
@@ -72,8 +78,8 @@ void main() {
   });
 
   test('Either.flatMap', () {
-    expect(testRight.flatMap((a) => Either.right(a + 1)),
-        Either.right<String, int>(2));
+    expect(
+        testRight.flatMap((a) => Either.right(a + 1)), isRight<String, int>(2));
     expect(testLeft.flatMap((a) => Either.right(a + 1)), testLeft);
     expect(testRight.flatMap((_) => testLeft), testLeft);
   });
@@ -114,7 +120,7 @@ void main() {
 
   test('Either.leftMap', () {
     expect(testRight.leftMap(reverseString), testRight);
-    expect(testLeft.leftMap(reverseString), Either.left<String, int>('tfel'));
+    expect(testLeft.leftMap(reverseString), isLeft<String, int>('tfel'));
   });
 
   test('Either.map', () {
@@ -128,8 +134,8 @@ void main() {
   });
 
   test('Either.swap', () {
-    expect(testRight.swap(), Either.left<int, String>(1));
-    expect(testLeft.swap(), Either.right<int, String>('left'));
+    expect(testRight.swap(), isLeft<int, String>(1));
+    expect(testLeft.swap(), isRight<int, String>('left'));
   });
 
   test('Either.toIList', () {
@@ -167,7 +173,7 @@ void main() {
   });
 
   test('Either.mapN', () {
-    expect((testRight, testRight).mapN(sum), Either.right<String, int>(2));
+    expect((testRight, testRight).mapN(sum), isRight<String, int>(2));
     expect((testRight, testLeft).mapN(sum), testLeft);
     expect((testLeft, testRight).mapN(sum), testLeft);
   });
