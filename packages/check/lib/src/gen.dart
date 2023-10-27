@@ -188,7 +188,6 @@ final class Gen<A> extends Monad<A> {
       var sum = 0;
       final tree = SplayTreeMap<int, Gen<A>>();
 
-      // ignore: prefer_final_locals
       for (final (x, gen) in filteredGens.toList()) {
         sum = x + sum;
         tree[sum] = gen;

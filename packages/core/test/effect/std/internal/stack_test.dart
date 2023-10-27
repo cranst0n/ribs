@@ -1,4 +1,4 @@
-import 'package:ribs_core/src/internal/stack.dart';
+import 'package:ribs_core/src/effect/std/internal/stack.dart';
 import 'package:test/test.dart';
 
 void main() {
