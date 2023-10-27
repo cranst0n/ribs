@@ -1,4 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/ribs_test.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -8,27 +9,27 @@ void main() {
   int incInt(int i) => i + 1;
 
   test('Option', () {
-    expect(Option(1), testSome);
-    expect(Option(null), testNone);
+    expect(Option(1), isSome(1));
+    expect(Option(null), isNone());
   });
 
   test('Option.unless', () {
-    expect(Option.unless(() => true, () => 1), testNone);
-    expect(Option.unless(() => false, () => 1), testSome);
+    expect(Option.unless(() => true, () => 1), isNone());
+    expect(Option.unless(() => false, () => 1), isSome(1));
   });
 
   test('Option.when', () {
-    expect(Option.when(() => true, () => 1), testSome);
-    expect(Option.when(() => false, () => 1), testNone);
+    expect(Option.when(() => true, () => 1), isSome(1));
+    expect(Option.when(() => false, () => 1), isNone());
   });
 
   test('Option.ap', () {
     final noneF = none<Function1<int, int>>();
 
-    expect(testSome.ap(incInt.some), 2.some);
-    expect(testSome.ap(noneF), testNone);
-    expect(testNone.ap(incInt.some), testNone);
-    expect(testNone.ap(noneF), testNone);
+    expect(testSome.ap(incInt.some), isSome(2));
+    expect(testSome.ap(noneF), isNone());
+    expect(testNone.ap(incInt.some), isNone());
+    expect(testNone.ap(noneF), isNone());
   });
 
   test('Option.isDefined', () {
@@ -42,24 +43,24 @@ void main() {
   });
 
   test('Option.filter', () {
-    expect(testSome.filter((a) => a > 0), testSome);
-    expect(testSome.filter((a) => a < 0), testNone);
-    expect(testNone.filter((a) => a > 0), testNone);
-    expect(testNone.filter((a) => a < 0), testNone);
+    expect(testSome.filter((a) => a > 0), isSome(1));
+    expect(testSome.filter((a) => a < 0), isNone());
+    expect(testNone.filter((a) => a > 0), isNone());
+    expect(testNone.filter((a) => a < 0), isNone());
   });
 
   test('Option.filterNot', () {
-    expect(testSome.filterNot((a) => a > 0), testNone);
-    expect(testSome.filterNot((a) => a < 0), testSome);
-    expect(testNone.filterNot((a) => a > 0), testNone);
-    expect(testNone.filterNot((a) => a < 0), testNone);
+    expect(testSome.filterNot((a) => a > 0), isNone());
+    expect(testSome.filterNot((a) => a < 0), isSome(1));
+    expect(testNone.filterNot((a) => a > 0), isNone());
+    expect(testNone.filterNot((a) => a < 0), isNone());
   });
 
   test('Option.flatMap', () {
-    expect(testSome.flatMap((a) => (a + 1).some), 2.some);
-    expect(testSome.flatMap((_) => testNone), testNone);
-    expect(testNone.flatMap((a) => (a + 1).some), testNone);
-    expect(testNone.flatMap((_) => testNone), testNone);
+    expect(testSome.flatMap((a) => (a + 1).some), isSome(2));
+    expect(testSome.flatMap((_) => testNone), isNone());
+    expect(testNone.flatMap((a) => (a + 1).some), isNone());
+    expect(testNone.flatMap((_) => testNone), isNone());
   });
 
   test('Option.foldLeft', () {
@@ -88,8 +89,8 @@ void main() {
   });
 
   test('Option.map', () {
-    expect(testSome.map((a) => a * 10), 10.some);
-    expect(testNone.map((a) => a * 10), testNone);
+    expect(testSome.map((a) => a * 10), isSome(10));
+    expect(testNone.map((a) => a * 10), isNone());
   });
 
   test('Option.nonEmpty', () {
@@ -98,9 +99,9 @@ void main() {
   });
 
   test('Option.orElse', () {
-    expect(testSome.orElse(() => 10.some), testSome);
-    expect(testNone.orElse(() => testSome), testSome);
-    expect(testNone.orElse(() => testNone), testNone);
+    expect(testSome.orElse(() => 10.some), isSome(1));
+    expect(testNone.orElse(() => testSome), isSome(1));
+    expect(testNone.orElse(() => testNone), isNone());
   });
 
   test('Option.toIList', () {
@@ -130,13 +131,13 @@ void main() {
 
   test('Option.map2', () {
     expect((testSome, testSome).mapN((a, b) => a + b), 2.some);
-    expect((testSome, testNone).mapN((a, b) => a + b), testNone);
-    expect((testNone, testSome).mapN((a, b) => a + b), testNone);
-    expect((testNone, testNone).mapN((a, b) => a + b), testNone);
+    expect((testSome, testNone).mapN((a, b) => a + b), isNone());
+    expect((testNone, testSome).mapN((a, b) => a + b), isNone());
+    expect((testNone, testNone).mapN((a, b) => a + b), isNone());
   });
 
   test('Option.flatten', () {
-    expect(2.some.some.flatten(), 2.some);
-    expect(none<int>().some.flatten(), none<int>());
+    expect(2.some.some.flatten(), isSome(2));
+    expect(none<int>().some.flatten(), isNone());
   });
 }

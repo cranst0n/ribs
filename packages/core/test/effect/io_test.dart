@@ -4,65 +4,36 @@ import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:test/test.dart';
 
+import '../test.dart';
+
 void main() {
-  test('pure', () async {
-    final io = IO.pure(42);
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('pure should not cancel'),
-      (err) => fail('pure should not error: $err'),
-      (value) => expect(value, 42),
-    );
+  test('pure', () {
+    expect(IO.pure(42), ioSucceeded(42));
   });
 
-  test('raiseError', () async {
-    final io = IO.raiseError<int>(RuntimeException('boom'));
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('raiseError should not fail!'),
-      (err) => expect(err.message, 'boom'),
-      (value) => fail('raiseError should not succeed: $value'),
-    );
+  test('raiseError', () {
+    expect(IO.raiseError<int>(RuntimeException('boom')), ioErrored());
   });
 
-  test('delay', () async {
-    final io = IO.delay(() => 2 * 21);
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('delay should not cancel'),
-      (err) => fail('delay should not fail: $err'),
-      (value) => expect(value, 42),
-    );
+  test('delay', () {
+    expect(IO.delay(() => 2 * 21), ioSucceeded(42));
   });
 
-  test('fromFuture success', () async {
+  test('fromFuture success', () {
     final io = IO.fromFuture(IO.delay(
         () => Future.delayed(const Duration(milliseconds: 250), () => 42)));
-    final outcome = await io.unsafeRunToFutureOutcome();
 
-    outcome.fold(
-      () => fail('fromFuture success should not cancel'),
-      (err) => fail('fromFuture success should not error: $err'),
-      (value) => expect(value, 42),
-    );
+    expect(io, ioSucceeded(42));
   });
 
-  test('fromFuture error', () async {
+  test('fromFuture error', () {
     final io = IO.fromFuture(IO.delay(() => Future<int>.delayed(
         const Duration(milliseconds: 250), () => Future.error('boom'))));
-    final outcome = await io.unsafeRunToFutureOutcome();
 
-    outcome.fold(
-      () => fail('fromFuture error should not cancel'),
-      (err) => expect(err.message, 'boom'),
-      (a) => fail('fromFuture error should not succeed: $a'),
-    );
+    expect(io, ioErrored((RuntimeException ex) => ex.message == 'boom'));
   });
 
-  test('fromCancelableOperation success', () async {
+  test('fromCancelableOperation success', () {
     bool opWasCanceled = false;
 
     final io = IO
@@ -71,10 +42,8 @@ void main() {
               onCancel: () => opWasCanceled = true,
             )));
 
-    final oc = await io.unsafeRunToFutureOutcome();
-
-    expect(oc, const Succeeded(42));
-    expect(opWasCanceled, false);
+    expect(io, ioSucceeded(42));
+    expect(opWasCanceled, isFalse);
   });
 
   test('fromCancelableOperation canceled', () async {
@@ -99,158 +68,84 @@ void main() {
     expect(opWasCanceled, true);
   });
 
-  test('map pure', () async {
+  test('map pure', () {
     const n = 200;
 
     IO<int> build(IO<int> io, int loop) =>
         loop <= 0 ? io : build(io.map((x) => x + 1), loop - 1);
 
     final io = build(IO.pure(0), n);
-    final outcome = await io.unsafeRunToFutureOutcome();
 
-    outcome.fold(
-      () => fail('map pure should not cancel'),
-      (err) => fail('map pure should not fail: $err'),
-      (value) => expect(value, n),
+    expect(io, ioSucceeded(n));
+  });
+
+  test('map error', () {
+    expect(
+      IO.pure(42).map((a) => a ~/ 0),
+      ioErrored((RuntimeException ex) => ex.message is UnsupportedError),
     );
   });
 
-  test('map error', () async {
-    final io = IO.pure(42).map((a) => a ~/ 0);
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('map error should not cancel'),
-      (err) => expect(err.message, isA<UnsupportedError>()),
-      (value) => fail('map error should not succeed: $value'),
-    );
-  });
-
-  test('flatMap pure', () async {
+  test('flatMap pure', () {
     final io = IO.pure(42).flatMap((i) => IO.pure('$i / ${i * 2}'));
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('flatMap pure should not cancel'),
-      (err) => fail('flatMap pure should not fail: $err'),
-      (value) => expect(value, '42 / 84'),
-    );
+    expect(io, ioSucceeded('42 / 84'));
   });
 
-  test('flatMap error', () async {
+  test('flatMap error', () {
     final io = IO
         .pure(42)
         .flatMap((i) => IO.raiseError<String>(RuntimeException('boom')));
-    final outcome = await io.unsafeRunToFutureOutcome();
 
-    outcome.fold(
-      () => fail('flatMap error should not cancel'),
-      (err) => expect(err.message, 'boom'),
-      (value) => fail('flatMap error should not succeed: $value'),
-    );
+    expect(io, ioErrored((RuntimeException ex) => ex.message == 'boom'));
   });
 
-  test('flatMap delay', () async {
+  test('flatMap delay', () {
     final io = IO.delay(() => 3).flatMap((i) => IO.delay(() => '*' * i));
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('flatMap delay should not cancel'),
-      (err) => fail('flatMap delay should not fail: $err'),
-      (value) => expect(value, '***'),
-    );
+    expect(io, ioSucceeded('***'));
   });
 
-  test('attempt pure', () async {
+  test('attempt pure', () {
     final io = IO.pure(42).attempt();
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('attempt pure should not cancel'),
-      (err) => fail('attempt pure should not fail: $err'),
-      (value) => expect(value, 42.asRight<RuntimeException>()),
-    );
+    expect(io, ioSucceeded(42.asRight<RuntimeException>()));
   });
 
-  test('attempt error', () async {
+  test('attempt error', () {
     final io = IO.raiseError<int>(RuntimeException('boom')).attempt();
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('attempt error should not cancel'),
-      (err) => fail('attempt error should not fail: $err'),
-      (value) => value.fold((err) => expect(err.message, 'boom'),
-          (a) => fail('attempt error should not be right: $a')),
-    );
+    expect(io, ioSucceeded((Either<RuntimeException, int> e) => e.isLeft));
   });
 
-  test('attempt delay success', () async {
+  test('attempt delay success', () {
     final io = IO.delay(() => 42).attempt();
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('attempt delay success should not cancel'),
-      (err) => fail('attempt delay success should not fail: $err'),
-      (value) => expect(value, 42.asRight<RuntimeException>()),
-    );
+    expect(io, ioSucceeded(42.asRight<RuntimeException>()));
   });
 
-  test('attempt delay error', () async {
+  test('attempt delay error', () {
     final io = IO.delay(() => 42 ~/ 0).attempt();
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('attempt delay error should not cancel'),
-      (err) => fail('attempt delay error should not fail: $err'),
-      (value) => value.fold(
-        (err) => expect(err.message, isA<UnsupportedError>()),
-        (value) => fail('attempt delay error should not be right: $value'),
-      ),
-    );
+    expect(io, ioSucceeded((Either<RuntimeException, int> e) => e.isLeft));
   });
 
-  test('attempt and map', () async {
+  test('attempt and map', () {
     final io = IO
         .delay(() => throw StateError('boom'))
         .attempt()
         .map((x) => x.fold((a) => 0, (a) => 1));
 
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('attempt and map should not cancel'),
-      (err) => fail('attempt and map should not fail: $err'),
-      (value) => expect(value, 0),
-    );
+    expect(io, ioSucceeded(0));
   });
 
   test('sleep', () async {
     final io = IO.sleep(const Duration(milliseconds: 250));
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    expect(outcome, Succeeded(Unit()));
+    expect(io, ioSucceeded(Unit()));
   });
 
-  test('handleErrorWith pure', () async {
+  test('handleErrorWith pure', () {
     final io = IO.pure(42).handleErrorWith((_) => IO.pure(0));
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('handleErrorWith pure should not cancel'),
-      (err) => fail('handleErrorWith pure should not fail: $err'),
-      (value) => expect(value, 42),
-    );
+    expect(io, ioSucceeded(42));
   });
 
-  test('handleErrorWith error', () async {
+  test('handleErrorWith error', () {
     final io = IO.delay(() => 1 ~/ 0).handleErrorWith((_) => IO.pure(42));
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('handleErrorWith error should not cancel'),
-      (err) => fail('handleErrorWith error should not fail: $err'),
-      (value) => expect(value, 42),
-    );
+    expect(io, ioSucceeded(42));
   });
 
   test('async simple', () async {
@@ -279,13 +174,7 @@ void main() {
           .then((value) => cb(value.asRight()));
     });
 
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('async simple should not cancel'),
-      (err) => fail('async simple should not fail: $err'),
-      (value) => expect(value, 42),
-    );
+    expect(io, ioSucceeded(42));
   });
 
   test('unsafeRunToFuture success', () async {
@@ -311,9 +200,7 @@ void main() {
 
     final io = IO.pure(0).onError((_) => IO.exec(() => count += 1)).as(42);
 
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    expect(outcome, const Succeeded(42));
+    expect(io, ioSucceeded(42));
     expect(count, 0);
   });
 
@@ -327,15 +214,8 @@ void main() {
         .onError((_) => IO.exec(() => count += 3))
         .as(42);
 
-    final outcome = await io.unsafeRunToFutureOutcome();
-
+    await expectLater(io, ioErrored());
     expect(count, 6);
-
-    outcome.fold(
-      () => fail('onError error should not cancel'),
-      (err) => expect(err.message, isA<UnsupportedError>()),
-      (a) => fail('onError error should not succeed: $a'),
-    );
   });
 
   test('onCancel success', () async {
@@ -438,22 +318,25 @@ void main() {
           (_) => IO.exec(() => count += 3),
         );
 
-    await IO.unit.guaranteeCase(fin).unsafeRunToFuture();
+    await expectLater(
+      IO.unit.guaranteeCase(fin),
+      ioSucceeded(),
+    );
 
     expect(count, 3);
 
     count = 0;
 
-    await IO
-        .raiseError<Unit>(RuntimeException('boom'))
-        .guaranteeCase(fin)
-        .unsafeRunToFutureOutcome();
+    await expectLater(
+      IO.raiseError<Unit>(RuntimeException('boom')).guaranteeCase(fin),
+      ioErrored(),
+    );
 
     expect(count, 2);
 
     count = 0;
 
-    await IO.canceled.guaranteeCase(fin).unsafeRunToFutureOutcome();
+    await expectLater(IO.canceled.guaranteeCase(fin), ioCanceled());
 
     expect(count, 1);
   });
@@ -461,14 +344,10 @@ void main() {
   test('timed', () async {
     final ioa = IO.pure(42).delayBy(const Duration(milliseconds: 250)).timed();
 
-    final result = await ioa.unsafeRunToFuture();
+    final (elapsed, value) = await ioa.unsafeRunToFuture();
 
-    result(
-      (elapsed, value) {
-        expect(value, 42);
-        expect(elapsed.inMilliseconds, closeTo(250, 50));
-      },
-    );
+    expect(value, 42);
+    expect(elapsed.inMilliseconds, closeTo(250, 50));
   });
 
   test('map3', () async {
@@ -476,17 +355,13 @@ void main() {
     final iob = IO.pure(2).delayBy(const Duration(milliseconds: 200));
     final ioc = IO.pure(3).delayBy(const Duration(milliseconds: 200));
 
-    final result = await (ioa, iob, ioc)
+    final (elapsed, value) = await (ioa, iob, ioc)
         .mapN((a, b, c) => a + b + c)
         .timed()
         .unsafeRunToFuture();
 
-    result(
-      (elapsed, value) {
-        expect(value, 6);
-        expect(elapsed.inMilliseconds, closeTo(600, 50));
-      },
-    );
+    expect(value, 6);
+    expect(elapsed.inMilliseconds, closeTo(600, 50));
   });
 
   test('asyncMapN', () async {
@@ -494,64 +369,51 @@ void main() {
     final iob = IO.pure(2).delayBy(const Duration(milliseconds: 500));
     final ioc = IO.pure(3).delayBy(const Duration(milliseconds: 500));
 
-    final result = await (ioa, iob, ioc)
+    final (elapsed, value) = await (ioa, iob, ioc)
         .parMapN((a, b, c) => a + b + c)
         .timed()
         .unsafeRunToFuture();
 
-    result(
-      (elapsed, value) {
-        expect(value, 6);
-        expect(elapsed.inMilliseconds, closeTo(500, 150));
-      },
-    );
+    expect(value, 6);
+    expect(elapsed.inMilliseconds, closeTo(500, 150));
   });
 
-  test('timeoutTo initial', () async {
+  test('timeoutTo initial', () {
     final io = IO
         .pure(42)
         .delayBy(const Duration(milliseconds: 200))
         .timeoutTo(const Duration(milliseconds: 100), IO.pure(0));
 
-    final outcome = await io.unsafeRunToFuture();
-
-    expect(outcome, 0);
+    expect(io, ioSucceeded(0));
   });
 
-  test('timeoutTo fallback', () async {
+  test('timeoutTo fallback', () {
     final io = IO
         .pure(42)
         .delayBy(const Duration(milliseconds: 100))
         .timeoutTo(const Duration(milliseconds: 200), IO.pure(0));
 
-    final outcome = await io.unsafeRunToFuture();
-
-    expect(outcome, 42);
+    expect(io, ioSucceeded(42));
   });
 
-  test('timeout success', () async {
+  test('timeout success', () {
     final io = IO
         .pure(42)
         .delayBy(const Duration(milliseconds: 100))
         .timeout(const Duration(milliseconds: 200));
 
-    final oc = await io.unsafeRunToFutureOutcome();
-
-    expect(oc, const Succeeded(42));
+    expect(io, ioSucceeded(42));
   });
 
-  test('timeout failure', () async {
+  test('timeout failure', () {
     final io = IO
         .pure(42)
         .delayBy(const Duration(milliseconds: 200))
         .timeout(const Duration(milliseconds: 100));
 
-    final oc = await io.unsafeRunToFutureOutcome();
-
-    oc.fold(
-      () => fail('timeout failure should not cancel'),
-      (err) => expect(err.message, isA<TimeoutException>()),
-      (a) => fail('timeout failure should not succeed: $a'),
+    expect(
+      io,
+      ioErrored((RuntimeException ex) => ex.message is TimeoutException),
     );
   });
 
@@ -569,9 +431,7 @@ void main() {
         .flatTap((_) => appendOutput('z'))
         .as(42);
 
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    expect(outcome, const Canceled());
+    await expectLater(io, ioCanceled());
     expect(output, ['x', 'y']);
   });
 
@@ -585,9 +445,7 @@ void main() {
         .flatMap((a) => IO.canceled)
         .flatTap((_) => appendOutput('C')));
 
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    expect(outcome, Succeeded(Unit()));
+    await expectLater(io, ioSucceeded());
     expect(output, ['A', 'B', 'C']);
   });
 
@@ -616,9 +474,8 @@ void main() {
           .onCancel(IO.exec(() => outerFinalized = true));
     });
 
-    final outcome = await io.unsafeRunToFutureOutcome();
+    await expectLater(io, ioCanceled());
 
-    expect(outcome, const Canceled());
     expect(output, ['A', 'B', 'C']);
     expect(innerFinalized, false);
     expect(outerFinalized, isTrue);
@@ -646,9 +503,7 @@ void main() {
         .flatTap((_) => appendOutput('outer proceeding'))
         .onCancel(appendOutput('outer canceled'));
 
-    final outcome = await io.unsafeRunToFutureOutcome();
-
-    expect(outcome, const Canceled());
+    await expectLater(io, ioCanceled());
     expect(output, ['A', 'B', 'inner proceeding', 'outer canceled']);
   });
 
@@ -656,10 +511,7 @@ void main() {
     var count = 0;
     const n = 100000;
 
-    final io = IO.exec(() => count += 1).replicate_(n);
-
-    await io.unsafeRunToFutureOutcome();
-
+    await expectLater(IO.exec(() => count += 1).replicate_(n), ioSucceeded());
     expect(count, n);
   });
 
@@ -670,18 +522,6 @@ void main() {
     final race = IO.racePair(ioa, iob);
 
     final outcome = await race.unsafeRunToFutureOutcome();
-
-    // wait for the loser
-    await outcome
-        .fold(
-          () => IO.unit,
-          (_) => IO.unit,
-          (winner) => winner.fold(
-            (aWon) => aWon.$2.join().voided(),
-            (bWon) => bWon.$1.join().voided(),
-          ),
-        )
-        .unsafeRunToFuture();
 
     outcome.fold(
       () => fail('racePair A wins should not cancel'),
@@ -698,24 +538,12 @@ void main() {
   });
 
   test('racePair B wins', () async {
-    final ioa = IO.pure(123).delayBy(const Duration(milliseconds: 500));
+    final ioa = IO.pure(123).delayBy(const Duration(milliseconds: 150));
     final iob = IO.pure('abc').delayBy(const Duration(milliseconds: 50));
 
     final race = IO.racePair(ioa, iob);
 
     final outcome = await race.unsafeRunToFutureOutcome();
-
-    // wait for the loser
-    await outcome
-        .fold(
-          () => IO.unit,
-          (_) => IO.unit,
-          (winner) => winner.fold(
-            (aWon) => aWon.$2.join().voided(),
-            (bWon) => bWon.$1.join().voided(),
-          ),
-        )
-        .unsafeRunToFuture();
 
     outcome.fold(
       () => fail('racePair B wins should not cancel'),
@@ -745,35 +573,30 @@ void main() {
         .delayBy(const Duration(milliseconds: 200))
         .onCancel(IO.exec(() => bCanceled = true));
 
-    final outcome = await IO.race(ioa, iob).unsafeRunToFuture();
-
-    expect(outcome, 42.asLeft<String>());
+    await expectLater(IO.race(ioa, iob), ioSucceeded(42.asLeft<String>()));
     expect(aCanceled, isFalse);
     expect(bCanceled, isTrue);
   });
 
-  test('both success', () async {
+  test('both success', () {
     final ioa = IO.pure(0).delayBy(const Duration(milliseconds: 200));
     final iob = IO.pure(1).delayBy(const Duration(milliseconds: 100));
 
-    final oc = await IO.both(ioa, iob).unsafeRunToFutureOutcome();
-
-    expect(oc, const Succeeded((0, 1)));
+    expect(IO.both(ioa, iob), ioSucceeded((0, 1)));
   });
 
-  test('both error', () async {
+  test('both error', () {
     final ioa = IO
         .pure(0)
         .delayBy(const Duration(milliseconds: 200))
         .productR(() => IO.raiseError<int>(RuntimeException('boom')));
+
     final iob = IO.pure(1).delayBy(const Duration(milliseconds: 100));
 
-    final oc = await IO.both(ioa, iob).unsafeRunToFutureOutcome();
-
-    expect(oc.isError, isTrue);
+    expect(IO.both(ioa, iob), ioErrored());
   });
 
-  test('both [winner (A) canceled]', () async {
+  test('both (A canceled)', () {
     final ioa = IO
         .pure(0)
         .productR(() => IO.canceled)
@@ -781,12 +604,10 @@ void main() {
 
     final iob = IO.pure(1).delayBy(const Duration(milliseconds: 200));
 
-    final oc = await IO.both(ioa, iob).unsafeRunToFutureOutcome();
-
-    expect(oc.isCanceled, isTrue);
+    expect(IO.both(ioa, iob), ioCanceled());
   });
 
-  test('both [winner (B) canceled]', () async {
+  test('both (B canceled)', () {
     final ioa = IO.pure(0).delayBy(const Duration(milliseconds: 200));
 
     final iob = IO
@@ -794,9 +615,7 @@ void main() {
         .productR(() => IO.canceled)
         .delayBy(const Duration(milliseconds: 100));
 
-    final oc = await IO.both(ioa, iob).unsafeRunToFutureOutcome();
-
-    expect(oc.isCanceled, isTrue);
+    expect(IO.both(ioa, iob), ioCanceled());
   });
 
   test('background (child finishes)', () async {
@@ -809,12 +628,10 @@ void main() {
         .iterateWhile((_) => count < 5)
         .onCancel(IO.exec(() => canceled = true));
 
-    final outcome = await tinyTask
-        .background()
-        .surround(IO.sleep(const Duration(seconds: 1)))
-        .unsafeRunToFutureOutcome();
+    final test =
+        tinyTask.background().surround(IO.sleep(const Duration(seconds: 1)));
 
-    expect(outcome.isSuccess, isTrue);
+    await expectLater(test, ioSucceeded());
     expect(count, 5);
     expect(canceled, isFalse);
   });
@@ -829,72 +646,60 @@ void main() {
         .foreverM()
         .onCancel(IO.exec(() => canceled = true));
 
-    final outcome = await foreverTask
+    final test = foreverTask
         .background()
-        .use((_) => IO.sleep(const Duration(seconds: 1)))
-        .unsafeRunToFutureOutcome();
+        .use((_) => IO.sleep(const Duration(seconds: 1)));
 
-    expect(outcome.isSuccess, isTrue);
+    await expectLater(test, ioSucceeded());
     expect(count, 19);
     expect(canceled, isTrue);
   });
 
-  test('whileM', () async {
+  test('whileM', () {
     final start = DateTime.now();
     final cond = IO.delay(() => DateTime.now().difference(start).inSeconds < 1);
+    final test =
+        IO.pure(1).delayBy(const Duration(milliseconds: 200)).whilelM(cond);
 
-    final outcome = await IO
-        .pure(1)
-        .delayBy(const Duration(milliseconds: 200))
-        .whilelM(cond)
-        .unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('whileM should not be canceled'),
-      (ex) => fail('whileM should not have errored: $ex'),
-      (a) => expect(a, IList.fill(5, 1)),
-    );
+    expect(test, ioSucceeded(IList.fill(5, 1)));
   });
 
   test('whileM_', () async {
     int count = 0;
     final cond = IO.delay(() => count < 100);
+    final test = IO.exec(() => count++).whileM_(cond);
 
-    final outcome =
-        await IO.exec(() => count++).whileM_(cond).unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('whileM_ should not be canceled'),
-      (ex) => fail('whileM_ should not have errored: $ex'),
-      (a) => expect(count, 100),
-    );
+    await expectLater(test, ioSucceeded());
+    expect(count, 100);
   });
 
-  test('untilM', () async {
+  test('untilM', () {
     int count = 0;
     final cond = IO.delay(() => count == 100);
+    final test = IO.exec(() => count++).untilM(cond);
 
-    final outcome =
-        await IO.exec(() => count++).untilM(cond).unsafeRunToFutureOutcome();
-
-    outcome.fold(
-      () => fail('untilM should not be canceled'),
-      (ex) => fail('untilM should not have errored: $ex'),
-      (a) => expect(a, IList.fill(100, Unit())),
-    );
+    expect(test, ioSucceeded(IList.fill(100, Unit())));
   });
 
   test('untilM_', () async {
     int count = 0;
     final cond = IO.delay(() => count == 100);
+    final test = IO.exec(() => count++).untilM_(cond);
 
-    final outcome =
-        await IO.exec(() => count++).untilM_(cond).unsafeRunToFutureOutcome();
+    await expectLater(test, ioSucceeded());
+    expect(count, 100);
+  });
 
-    outcome.fold(
-      () => fail('untilM_ should not be canceled'),
-      (ex) => fail('untilM_ should not have errored: $ex'),
-      (a) => expect(count, 100),
+  test('toSyncIO', () {
+    final syncIO = IO
+        .pure(21)
+        .flatMap((x) => IO.pure(x * 2))
+        .toSyncIO(100)
+        .unsafeRunSync();
+
+    syncIO.fold(
+      (io) => fail('IO -> SyncIO failed!'),
+      (syncIO) => expect(syncIO, 42),
     );
   });
 }
