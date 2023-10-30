@@ -1,5 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/ribs_test.dart';
+import 'package:ribs_core/test_matchers.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -14,12 +14,12 @@ void main() {
     expect(
         Either.catching(
             () => 1, (a, b) => fail('Either.catching value should not throw')),
-        Either.pure<Never, int>(1));
+        isRight<Never, int>(1));
   });
 
   test('Either.catching (throw)', () {
     expect(Either.catching(() => throw Exception('boom'), (a, b) => 'OK'),
-        Either.left<String, Never>('OK'));
+        isLeft<String, Never>('OK'));
   });
 
   test('Either.cond', () {

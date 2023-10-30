@@ -32,42 +32,42 @@ extension CandyMachineOps on CandyMachine {
 }
 
 void main() {
-  final machine = State.pure<int, IList<Candy>>(IList.empty());
+  final machine = State.pure<int, IList<Candy>>(nil());
 
   test('State.pure', () {
-    expect(machine.run(0), (0, IList.empty<Candy>()));
+    expect(machine.run(0), (0, nil<Candy>()));
   });
 
   test('Redeem exact', () {
     expect(
       machine.insertDime.insertDime.redeemLollipop.run(0),
-      (0, IList.of([Lollipop])),
+      (0, ilist([Lollipop])),
     );
   });
 
   test('Redeem with change', () {
     expect(
       machine.insertDime.insertDime.insertNickel.redeemLollipop.run(0),
-      (5, IList.of([Lollipop])),
+      (5, ilist([Lollipop])),
     );
   });
 
   test('Not enough', () {
     expect(
       machine.insertDime.insertNickel.redeemLollipop.run(0),
-      (15, IList.of([])),
+      (15, ilist([])),
     );
   });
 
   test('Redeem and Eat', () {
     expect(
       machine.insertQuarter.redeemGum.redeemGum.redeemGum.eatGum.eatGum.run(0),
-      (10, IList.of([Gum])),
+      (10, ilist([Gum])),
     );
   });
 
   test('State.runA', () {
-    expect(machine.insertQuarter.runA(0), IList.empty<Candy>());
+    expect(machine.insertQuarter.runA(0), nil<Candy>());
   });
 
   test('State.runS', () {

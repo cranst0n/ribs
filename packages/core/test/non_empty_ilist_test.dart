@@ -1,4 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/src/test/option.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -44,9 +45,9 @@ void main() {
   });
 
   test('NonEmptyIList.findLast', () {
-    expect(nel(1, [2, 3, 4]).findLast((a) => a > 5), none<int>());
-    expect(nel(1, [2, 3, 4]).findLast((a) => a.isEven), const Some(4));
-    expect(nel(1, [2, 3, 4]).findLast((a) => a.isOdd), const Some(3));
+    expect(nel(1, [2, 3, 4]).findLast((a) => a > 5), isNone());
+    expect(nel(1, [2, 3, 4]).findLast((a) => a.isEven), isSome(4));
+    expect(nel(1, [2, 3, 4]).findLast((a) => a.isOdd), isSome(3));
   });
 
   test('NonEmptyIList.flatMap', () {

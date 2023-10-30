@@ -1,16 +1,16 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/test_matchers.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('pure', () async {
+  test('pure', () {
     final res = Resource.pure(42)
         .map((a) => a * 2)
         .flatMap((a) => Resource.pure('abc'));
 
-    final result =
-        await res.use((a) => IO.pure('${a}123')).unsafeRunToFutureOutcome();
+    final test = res.use((a) => IO.pure('${a}123'));
 
-    expect(result, Outcome.succeeded('abc123'));
+    expect(test, ioSucceeded('abc123'));
   });
 
   test('both', () async {
@@ -22,10 +22,9 @@ void main() {
       Resource.make(IO.pure(43), (a) => IO.exec(() => bReleased = true)),
     );
 
-    final result =
-        await res.use((a) => IO.pure(a.$1 + a.$2)).unsafeRunToFutureOutcome();
+    final test = res.use((a) => IO.pure(a.$1 + a.$2));
 
-    expect(result, Outcome.succeeded(85));
+    await expectLater(test, ioSucceeded(85));
     expect(aReleased, isTrue);
     expect(bReleased, isTrue);
   });
@@ -38,9 +37,9 @@ void main() {
       (_) => IO.exec(() => released = true),
     );
 
-    final result = await res.attempt().use_().unsafeRunToFutureOutcome();
+    final test = res.attempt().use_();
 
-    expect(result, Outcome.succeeded(Unit()));
+    await expectLater(test, ioSucceeded(Unit()));
     expect(released, isTrue);
   });
 
@@ -52,9 +51,9 @@ void main() {
       (_) => IO.exec(() => released = true),
     );
 
-    final result = await res.attempt().use_().unsafeRunToFutureOutcome();
+    final test = res.attempt().use_();
 
-    expect(result, Outcome.succeeded(Unit()));
+    await expectLater(test, ioSucceeded(Unit()));
     expect(released, isFalse);
   });
 }

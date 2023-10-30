@@ -64,16 +64,8 @@ final class Rill<O> {
 
   Rill<O> evalTap<O2>(Function1<O, IO<O2>> f) => evalMap((o) => f(o).as(o));
 
-  Rill<bool> exists(Function1<O, bool> p) {
-    final x = pull().forall((a) => !p(a));
-
-    final y = x.flatMap((r) {
-      final a = Pull.output1(!r);
-      return a;
-    }).rill();
-
-    return y;
-  }
+  Rill<bool> exists(Function1<O, bool> p) =>
+      pull().forall((a) => !p(a)).flatMap((r) => Pull.output1(!r)).rill();
 
   Rill<O> find(Function1<O, bool> f) => pull()
       .find(f)
@@ -274,11 +266,11 @@ class ToPull<O> {
                 },
               )));
 
-  Pull<O, bool> forall(Function1<O, bool> p) =>
-      uncons().flatMap((a) => a.fold(() => Pull.pure<O, bool>(true), (a) {
-            return a((hd, tl) =>
-                hd.forall(p) ? tl.pull().forall(p) : Pull.pure<O, bool>(false));
-          }));
+  Pull<O, bool> forall(Function1<O, bool> p) => uncons().flatMap((a) => a.foldN(
+        () => Pull.pure<O, bool>(true),
+        (hd, tl) =>
+            hd.forall(p) ? tl.pull().forall(p) : Pull.pure<O, bool>(false),
+      ));
 
   Pull<O, Option<(IList<O>, Rill<O>)>> uncons() => self._underlying
       .uncons()

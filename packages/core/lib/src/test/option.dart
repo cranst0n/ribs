@@ -25,7 +25,7 @@ class _IsSome<A> extends Matcher {
 
   @override
   Description describe(Description description) =>
-      description.add('<Instance of Option<${_expected.runtimeType}>>');
+      description.add('<Instance of Option<$A>>');
 }
 
 class _IsNone extends Matcher {

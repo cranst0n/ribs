@@ -2,9 +2,8 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/test_matchers.dart';
 import 'package:test/test.dart';
-
-import '../test.dart';
 
 void main() {
   test('pure', () {
@@ -512,6 +511,21 @@ void main() {
     const n = 100000;
 
     await expectLater(IO.exec(() => count += 1).replicate_(n), ioSucceeded());
+    expect(count, n);
+  });
+
+  test('parReplicate_', () async {
+    var count = 0;
+    const n = 10;
+
+    final (elapsed, _) = await IO
+        .exec(() => count += 1)
+        .delayBy(const Duration(milliseconds: 200))
+        .parReplicate_(n)
+        .timed()
+        .unsafeRunToFuture();
+
+    expect(elapsed.inMilliseconds, closeTo(225, 150));
     expect(count, n);
   });
 

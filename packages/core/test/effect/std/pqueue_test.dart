@@ -1,8 +1,8 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/effect/std/internal/list_queue.dart';
+import 'package:ribs_core/test_matchers.dart';
 import 'package:test/test.dart';
 
-import '../../test.dart';
 import 'queue_test.dart';
 
 void main() {
@@ -34,16 +34,16 @@ void main() {
               .delay(() => q
                   .take()
                   .unsafeRunToFuture()
-                  .then((value) => futureValue = Some(value)))
+                  .then((value) => futureValue = Option(value)))
               .start()
               .flatMap((ff) {
             return ff.joinWithNever().flatMap((f) {
-              expect(futureValue.isDefined, isFalse);
+              expect(futureValue, isNone());
 
               return q.offer(2).flatMap((_) {
                 return IO.fromFuture(IO.pure(f)).flatMap((v2) {
                   return expectIO(v1, 1)
-                      .productR(() => expectIO(v2, const Some(2)));
+                      .productR(() => expectIO(v2, isSome(2)));
                 });
               });
             });
@@ -111,5 +111,14 @@ void main() {
     (n) => PQueue.bounded(Order.ints, n),
     (q, a) => q.tryOffer(a),
     (q) => q.tryTake(),
+  );
+
+  QueueTests.commonTests(
+    (n) => PQueue.bounded(Order.ints, n),
+    (q, a) => q.offer(a),
+    (q, a) => q.tryOffer(a),
+    (q) => q.take(),
+    (q) => q.tryTake(),
+    (q) => q.size(),
   );
 }

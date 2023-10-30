@@ -1,21 +1,18 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/test_matchers.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('additional writes ignored', () async {
+  test('additional writes ignored', () {
     final d = Deferred.unsafe<int>();
 
     final writeA = d.complete(42).delayBy(const Duration(milliseconds: 100));
     final writeB = d.complete(43).delayBy(const Duration(milliseconds: 150));
 
-    final result =
-        await (writeA, writeB, d.value()).parSequence().unsafeRunToFuture();
-
-    result((aSucceeded, bSucceeded, finalValue) {
-      expect(aSucceeded, isTrue);
-      expect(bSucceeded, isFalse);
-      expect(finalValue, 42);
-    });
+    expect(
+      (writeA, writeB, d.value()).parSequence(),
+      ioSucceeded((true, false, 42)),
+    );
   });
 
   test('writer / reader', () async {
@@ -30,14 +27,11 @@ void main() {
         .defer(() => d.complete(42))
         .delayBy(const Duration(milliseconds: 200));
 
-    final result = await IO.both(reader, writer).unsafeRunToFuture();
+    final (_, writerSuccessful) =
+        await IO.both(reader, writer).unsafeRunToFuture();
 
-    result(
-      (_, writerSuccessful) {
-        expect(writerSuccessful, isTrue);
-        expect(readerNotified, isTrue);
-      },
-    );
+    expect(writerSuccessful, isTrue);
+    expect(readerNotified, isTrue);
   });
 
   test('reader canceled', () async {
@@ -55,13 +49,10 @@ void main() {
         .defer(() => d.complete(42))
         .delayBy(const Duration(milliseconds: 200));
 
-    final result = await IO.both(reader, writer).unsafeRunToFuture();
+    final (_, writerSuccessful) =
+        await IO.both(reader, writer).unsafeRunToFuture();
 
-    result(
-      (_, writerSuccessful) {
-        expect(writerSuccessful, isTrue);
-        expect(readerNotified, isFalse);
-      },
-    );
+    expect(writerSuccessful, isTrue);
+    expect(readerNotified, isFalse);
   });
 }
