@@ -1,4 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/test_matchers.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -19,9 +20,9 @@ void main() {
     final f = imap({0: 2, 2: 4})
         .compose((String n) => n.codeUnitAt(0) - 'A'.codeUnitAt(0));
 
-    expect(f('A'), const Some(2));
-    expect(f('B'), none<int>());
-    expect(f('C'), const Some(4));
+    expect(f('A'), isSome(2));
+    expect(f('B'), isNone());
+    expect(f('C'), isSome(4));
   });
 
   test('IMap.concat', () {
@@ -71,8 +72,8 @@ void main() {
   test('IMap.find', () {
     final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
 
-    expect(m.find((k, v) => k + v > 5), const Some((3, 3)));
-    expect(m.find((k, v) => k + v > 10), none<(int, int)>());
+    expect(m.find((k, v) => k + v > 5), isSome((3, 3)));
+    expect(m.find((k, v) => k + v > 10), isNone());
   });
 
   test('IMap.flatMap', () {
@@ -105,10 +106,10 @@ void main() {
   test('IMap.get', () {
     final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
 
-    expect(m.get(0), none<int>());
-    expect(m.get(1), const Some(1));
-    expect(m.get(5), const Some(5));
-    expect(m.get(7), none<int>());
+    expect(m.get(0), isNone());
+    expect(m.get(1), isSome(1));
+    expect(m.get(5), isSome(5));
+    expect(m.get(7), isNone());
   });
 
   test('IMap.getOrElse', () {
@@ -171,9 +172,9 @@ void main() {
   test('IMap.withDefault', () {
     final m = imap({1: 1, 2: 2, 3: 3}).withDefault((k) => k * 2);
 
-    expect(m.get(0), const Some(0));
-    expect(m.get(1), const Some(1));
-    expect(m.get(3), const Some(3));
-    expect(m.get(10), const Some(20));
+    expect(m.get(0), isSome(0));
+    expect(m.get(1), isSome(1));
+    expect(m.get(3), isSome(3));
+    expect(m.get(10), isSome(20));
   });
 }

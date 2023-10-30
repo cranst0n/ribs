@@ -21,34 +21,28 @@ void main() {
 
     expect(
       (iA, vB, vC).sequence(),
-      NonEmptyIList.one('invalid username').invalid<Value>(),
+      'invalid username'.invalidNel<Value>(),
     );
 
     expect(
       (iA, iB, vC).sequence(),
-      NonEmptyIList.of('invalid username', [
-        'invalid password',
-      ]).invalid<Value>(),
+      nel('invalid username', ['invalid password']).invalid<Value>(),
     );
 
     expect(
       (iA, iB, iC).sequence(),
-      NonEmptyIList.of('invalid username', [
-        'invalid password',
-        'invalid birthday',
-      ]).invalid<Value>(),
+      nel('invalid username', ['invalid password', 'invalid birthday'])
+          .invalid<Value>(),
     );
 
     expect(
       (iA, vB, iC).sequence(),
-      NonEmptyIList.of('invalid username', [
-        'invalid birthday',
-      ]).invalid<Value>(),
+      nel('invalid username', ['invalid birthday']).invalid<Value>(),
     );
 
     expect(
       (vA, vB, iC).sequence(),
-      NonEmptyIList.one('invalid birthday').invalid<Value>(),
+      'invalid birthday'.invalidNel<Value>(),
     );
   });
 }

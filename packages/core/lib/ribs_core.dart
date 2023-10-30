@@ -6,6 +6,8 @@ export 'src/effect/io_retry.dart';
 export 'src/effect/outcome.dart';
 export 'src/effect/ref.dart';
 export 'src/effect/resource.dart';
+export 'src/effect/std/count_down_latch.dart';
+export 'src/effect/std/dequeue.dart';
 export 'src/effect/std/pqueue.dart';
 export 'src/effect/std/queue.dart';
 export 'src/effect/sync_io.dart';

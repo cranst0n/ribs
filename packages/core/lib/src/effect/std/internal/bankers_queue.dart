@@ -35,7 +35,7 @@ final class BankersQueue<A> {
     if (backLen > 0) {
       return (
         BankersQueue(front, frontLen, back.tail(), backLen - 1).rebalance(),
-        Some(back[0])
+        Some(back[0]),
       );
     } else if (frontLen > 0) {
       return (BankersQueue(nil(), 0, back, backLen), Some(front[0]));

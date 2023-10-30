@@ -1,4 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/test_matchers.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -36,9 +37,9 @@ void main() {
   });
 
   test('IList.reduceOption', () {
-    expect(IList.empty<int>().reduceOption((a, b) => a + b), none<int>());
-    expect(ilist([1]).reduceOption((a, b) => a + b), const Some(1));
-    expect(ilist([1, 2, 3]).reduceOption((a, b) => a + b), const Some(6));
+    expect(IList.empty<int>().reduceOption((a, b) => a + b), isNone());
+    expect(ilist([1]).reduceOption((a, b) => a + b), isSome(1));
+    expect(ilist([1, 2, 3]).reduceOption((a, b) => a + b), isSome(6));
   });
 
   test('IList.tabulate', () {
@@ -106,10 +107,10 @@ void main() {
   });
 
   test('IList.deleteFirst', () {
-    expect(nil<int>().deleteFirst((x) => x > 0), none<(int, IList<int>)>());
-    expect(ilist([0, 1, 2]).deleteFirst((x) => x > 0), (1, ilist([0, 2])).some);
-    expect(ilist([-2, -1, 0]).deleteFirst((x) => x > 0),
-        none<(int, IList<int>)>());
+    expect(nil<int>().deleteFirst((x) => x > 0), isNone());
+    expect(
+        ilist([0, 1, 2]).deleteFirst((x) => x > 0), isSome((1, ilist([0, 2]))));
+    expect(ilist([-2, -1, 0]).deleteFirst((x) => x > 0), isNone());
   });
 
   test('IList.diff', () {
@@ -180,15 +181,15 @@ void main() {
   test('IList.find', () {
     expect(nil<int>().find((x) => x < 0), none<int>());
     expect(ilist([1, 2, 3]).find((x) => x < 0), none<int>());
-    expect(ilist([-1, 2, 3]).find((x) => x < 0), (-1).some);
-    expect(ilist([-1, -2, 3]).find((x) => x < 0), (-1).some);
+    expect(ilist([-1, 2, 3]).find((x) => x < 0), isSome(-1));
+    expect(ilist([-1, -2, 3]).find((x) => x < 0), isSome(-1));
   });
 
   test('IList.findLast', () {
-    expect(nil<int>().findLast((x) => x < 0), none<int>());
-    expect(ilist([1, 2, 3]).findLast((x) => x < 0), none<int>());
-    expect(ilist([-1, 2, 3]).findLast((x) => x < 0), (-1).some);
-    expect(ilist([-1, -2, 3]).findLast((x) => x < 0), (-2).some);
+    expect(nil<int>().findLast((x) => x < 0), isNone());
+    expect(ilist([1, 2, 3]).findLast((x) => x < 0), isNone());
+    expect(ilist([-1, 2, 3]).findLast((x) => x < 0), isSome(-1));
+    expect(ilist([-1, -2, 3]).findLast((x) => x < 0), isSome(-2));
   });
 
   test('IList.flatMap', () {
@@ -247,19 +248,19 @@ void main() {
 
   test('IList.headOption', () {
     expect(nil<int>().headOption, none<int>());
-    expect(ilist([1, 2, 3]).headOption, 1.some);
+    expect(ilist([1, 2, 3]).headOption, isSome(1));
   });
 
   test('IList.indexOfSlice', () {
-    expect(nil<int>().indexOfSlice(nil<int>()), const Some(0));
-    expect(ilist([1, 2, 3]).indexOfSlice(nil<int>()), const Some(0));
-    expect(nil<int>().indexOfSlice(ilist([1, 2, 3])), none<int>());
-    expect(ilist([1, 2, 3]).indexOfSlice(ilist([2, 3])), const Some(1));
+    expect(nil<int>().indexOfSlice(nil<int>()), isSome(0));
+    expect(ilist([1, 2, 3]).indexOfSlice(nil<int>()), isSome(0));
+    expect(nil<int>().indexOfSlice(ilist([1, 2, 3])), isNone());
+    expect(ilist([1, 2, 3]).indexOfSlice(ilist([2, 3])), isSome(1));
   });
 
   test('IList.indexWhere', () {
-    expect(nil<int>().indexWhere((a) => a.isEven), none<int>());
-    expect(ilist([1, 2, 3]).indexWhere((a) => a.isEven), const Some(1));
+    expect(nil<int>().indexWhere((a) => a.isEven), isNone());
+    expect(ilist([1, 2, 3]).indexWhere((a) => a.isEven), isSome(1));
   });
 
   test('IList.init', () {
@@ -316,23 +317,23 @@ void main() {
   });
 
   test('IList.lastIndexOfSlice', () {
-    expect(nil<int>().lastIndexOfSlice(nil<int>()), const Some(0));
-    expect(ilist([1, 2, 3]).lastIndexOfSlice(nil<int>()), const Some(3));
-    expect(nil<int>().lastIndexOfSlice(ilist([1, 2, 3])), none<int>());
-    expect(ilist([1, 2, 3]).lastIndexOfSlice(ilist([2, 3])), const Some(1));
-    expect(ilist([2, 3, 2, 3]).lastIndexOfSlice(ilist([2, 3])), const Some(2));
+    expect(nil<int>().lastIndexOfSlice(nil<int>()), isSome(0));
+    expect(ilist([1, 2, 3]).lastIndexOfSlice(nil<int>()), isSome(3));
+    expect(nil<int>().lastIndexOfSlice(ilist([1, 2, 3])), isNone());
+    expect(ilist([1, 2, 3]).lastIndexOfSlice(ilist([2, 3])), isSome(1));
+    expect(ilist([2, 3, 2, 3]).lastIndexOfSlice(ilist([2, 3])), isSome(2));
   });
 
   test('IList.lastOption', () {
-    expect(nil<int>().lastOption, none<int>());
-    expect(ilist([1]).lastOption, 1.some);
+    expect(nil<int>().lastOption, isNone());
+    expect(ilist([1]).lastOption, isSome(1));
   });
 
   test('IList.lift', () {
-    expect(nil<int>().lift(0), none<int>());
-    expect(ilist([1, 2, 3]).lift(0), 1.some);
-    expect(ilist([1, 2, 3]).lift(-1), none<int>());
-    expect(ilist([1, 2, 3]).lift(3), none<int>());
+    expect(nil<int>().lift(0), isNone());
+    expect(ilist([1, 2, 3]).lift(0), isSome(1));
+    expect(ilist([1, 2, 3]).lift(-1), isNone());
+    expect(ilist([1, 2, 3]).lift(3), isNone());
   });
 
   test('IList.map', () {
@@ -341,25 +342,25 @@ void main() {
   });
 
   test('IList.maxByOption', () {
-    expect(nil<String>().maxByOption((a) => a.length), none<String>());
+    expect(nil<String>().maxByOption((a) => a.length), isNone());
     expect(ilist(['a', 'bc', 'def']).maxByOption((a) => a.length),
         const Some('def'));
   });
 
   test('IList.minByOption', () {
-    expect(nil<String>().minByOption((a) => a.length), none<String>());
+    expect(nil<String>().minByOption((a) => a.length), isNone());
     expect(ilist(['a', 'bc', 'def']).minByOption((a) => a.length),
         const Some('a'));
   });
 
   test('IList.maxOption', () {
-    expect(nil<int>().maxOption(), none<int>());
-    expect(ilist([1, 2, 3]).maxOption(), const Some(3));
+    expect(nil<int>().maxOption(), isNone());
+    expect(ilist([1, 2, 3]).maxOption(), isSome(3));
   });
 
   test('IList.minOption', () {
-    expect(nil<int>().minOption(), none<int>());
-    expect(ilist([1, 2, 3]).minOption(), const Some(1));
+    expect(nil<int>().minOption(), isNone());
+    expect(ilist([1, 2, 3]).minOption(), isSome(1));
   });
 
   test('IList.mkString', () {
@@ -569,36 +570,26 @@ void main() {
     );
   });
 
-  test('IList.traverseIO', () async {
-    final result = await ilist([1, 2, 3])
-        .traverseIO((a) => IO.pure(a * 2))
-        .unsafeRunToFuture();
-
-    expect(result, ilist([2, 4, 6]));
+  test('IList.traverseIO', () {
+    final io = ilist([1, 2, 3]).traverseIO((a) => IO.pure(a * 2));
+    expect(io, ioSucceeded(ilist([2, 4, 6])));
   });
 
-  test('IList.traverseIO_', () async {
-    final result = await ilist([1, 2, 3])
-        .traverseIO_((a) => IO.pure(a * 2))
-        .unsafeRunToFuture();
-
-    expect(result, Unit());
+  test('IList.traverseIO_', () {
+    final io = ilist([1, 2, 3]).traverseIO_((a) => IO.pure(a * 2));
+    expect(io, ioSucceeded(Unit()));
   });
 
-  test('IList.parTraverseIO', () async {
-    final result = await ilist([1, 2, 3])
-        .parTraverseIO((a) => IO.pure(a * 2))
-        .unsafeRunToFuture();
-
-    expect(result, ilist([2, 4, 6]));
+  test('IList.parTraverseIO', () {
+    final io = ilist([1, 2, 3]).parTraverseIO((a) => IO.pure(a * 2));
+    expect(io, ioSucceeded(ilist([2, 4, 6])));
   });
 
-  test('IList.traverseFilterIO', () async {
-    final result = await ilist([1, 2, 3])
-        .traverseFilterIO((a) => IO.pure(Option.when(() => a.isOdd, () => a)))
-        .unsafeRunToFuture();
+  test('IList.traverseFilterIO', () {
+    final io = ilist([1, 2, 3])
+        .traverseFilterIO((a) => IO.pure(Option.when(() => a.isOdd, () => a)));
 
-    expect(result, ilist([1, 3]));
+    expect(io, ioSucceeded(ilist([1, 3])));
   });
 
   test('IList.traverseOption', () {
@@ -610,7 +601,7 @@ void main() {
     expect(
       ilist([1, 2, 3])
           .traverseOption((a) => Option.when(() => a.isEven, () => a)),
-      none<IList<int>>(),
+      isNone(),
     );
   });
 

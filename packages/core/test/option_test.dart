@@ -1,5 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/ribs_test.dart';
+import 'package:ribs_core/test_matchers.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -110,13 +110,13 @@ void main() {
   });
 
   test('Option.toLeft', () {
-    expect(testSome.toLeft(() => 'right'), Either.left<int, String>(1));
-    expect(testNone.toLeft(() => 'right'), Either.right<int, String>('right'));
+    expect(testSome.toLeft(() => 'right'), isLeft<int, String>(1));
+    expect(testNone.toLeft(() => 'right'), isRight<int, String>('right'));
   });
 
   test('Option.toRight', () {
-    expect(testSome.toRight(() => 'left'), Either.right<String, int>(1));
-    expect(testNone.toRight(() => 'left'), Either.left<String, int>('left'));
+    expect(testSome.toRight(() => 'left'), isRight<String, int>(1));
+    expect(testNone.toRight(() => 'left'), isLeft<String, int>('left'));
   });
 
   test('Option.toString', () {

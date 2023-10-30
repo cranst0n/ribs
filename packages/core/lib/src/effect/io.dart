@@ -148,7 +148,7 @@ sealed class IO<A> extends Monad<A> {
             onError: (e, s) => cb(RuntimeException(e, s).asLeft()),
           );
 
-          return IO.fromFutureF(() => op.cancel().then((_) => Unit())).some;
+          return Some(IO.fromFutureF(() => op.cancel().then((_) => Unit())));
         });
       });
     });
@@ -450,9 +450,20 @@ sealed class IO<A> extends Monad<A> {
       ? IO.pure(nil())
       : flatMap((a) => replicate(n - 1).map((l) => l.prepend(a)));
 
+  /// Runs this [IO] [n] times, accumulating the result from each evaluation
+  /// into an [IList]. All replications will be run asynchronously.
+  IO<IList<A>> parReplicate(int n) => n <= 0
+      ? IO.pure(nil())
+      : IO.both(this, parReplicate(n - 1)).mapN((a, acc) => acc.prepend(a));
+
   /// Runs this [IO] [n] times, discarding any resulting values.
   IO<Unit> replicate_(int n) =>
       n <= 0 ? IO.unit : flatMap((_) => replicate_(n - 1));
+
+  /// Runs this [IO] [n] times, discarding any resulting values.  All
+  /// replications will be run asynchronously.
+  IO<Unit> parReplicate_(int n) =>
+      n <= 0 ? IO.unit : IO.both(this, parReplicate_(n - 1)).voided();
 
   /// Starts the execution of this IO, returning a handle to the running IO in
   /// the form of an [IOFiber]. The fiber can be used to wait for a result

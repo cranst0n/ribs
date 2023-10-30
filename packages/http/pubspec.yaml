@@ -4,6 +4,8 @@ homepage: https://cranst0n.github.io/ribs/
 description: >
   HTTP built on Ribs.
 
+publish_to: none
+
 environment:
   sdk: ">=3.0.0 <4.0.0"
 

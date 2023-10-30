@@ -14,9 +14,6 @@ abstract class Dequeue<A> extends Queue<A> {
   @override
   IO<bool> tryOffer(A a) => tryOfferBack(a);
 
-  @override
-  IO<IList<A>> tryOfferN(IList<A> list) => tryOfferFrontN(list);
-
   IO<Unit> offerBack(A a);
 
   IO<bool> tryOfferBack(A a);
@@ -175,11 +172,11 @@ class _BoundedDequeue<A> extends Dequeue<A> {
   IO<IList<A>> _tryTakeN(IO<Option<A>> tryTakeF, Option<int> maxN) {
     IO<IList<A>> loop(int i, int limit, IList<A> acc) {
       if (i >= limit) {
-        return IO.pure(acc);
+        return IO.pure(acc.reverse());
       } else {
         return tryTakeF.flatMap((a) => a.fold(
-              () => IO.pure(acc),
-              (a) => loop(i + 1, limit, acc.append(a)),
+              () => IO.pure(acc.reverse()),
+              (a) => loop(i + 1, limit, acc.prepend(a)),
             ));
       }
     }

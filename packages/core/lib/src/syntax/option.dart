@@ -28,6 +28,9 @@ extension OptionTuple2Ops<A, B> on Option<(A, B)> {
 
   Option<C> flatMapN<C>(Function2<A, B, Option<C>> f) => flatMap(f.tupled);
 
+  C foldN<C>(Function0<C> ifEmpty, Function2<A, B, C> f) =>
+      fold(ifEmpty, f.tupled);
+
   void forEachN(Function2<A, B, void> ifSome) => forEach(ifSome.tupled);
 
   Option<C> mapN<C>(Function2<A, B, C> f) => map(f.tupled);
@@ -36,6 +39,30 @@ extension OptionTuple2Ops<A, B> on Option<(A, B)> {
       traverseIO(f.tupled);
 
   IO<Unit> traverseION_<C>(Function2<A, B, IO<C>> f) => traverseIO_(f.tupled);
+}
+
+/// Until lambda destructuring arrives, this will provide a little bit
+/// of convenience: https://github.com/dart-lang/language/issues/3001
+extension OptionTuple3Ops<A, B, C> on Option<(A, B, C)> {
+  Option<(A, B, C)> filterN(Function3<A, B, C, bool> p) => filter(p.tupled);
+
+  Option<(A, B, C)> filterNotN(Function3<A, B, C, bool> p) =>
+      filterNot(p.tupled);
+
+  Option<D> flatMapN<D>(Function3<A, B, C, Option<D>> f) => flatMap(f.tupled);
+
+  D foldN<D>(Function0<D> ifEmpty, Function3<A, B, C, D> f) =>
+      fold(ifEmpty, f.tupled);
+
+  void forEachN(Function3<A, B, C, void> ifSome) => forEach(ifSome.tupled);
+
+  Option<D> mapN<D>(Function3<A, B, C, D> f) => map(f.tupled);
+
+  IO<Option<D>> traverseION<D>(Function3<A, B, C, IO<D>> f) =>
+      traverseIO(f.tupled);
+
+  IO<Unit> traverseION_<D>(Function3<A, B, C, IO<D>> f) =>
+      traverseIO_(f.tupled);
 }
 
 /// {@template option_tuple_ops}
