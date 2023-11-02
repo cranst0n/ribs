@@ -127,7 +127,7 @@ sealed class Either<A, B> implements Monad<B>, Foldable<B> {
   /// Tuples the values of this Either and [other] if both are instances of
   /// [Right]. Otherwise, the first [Left] value is returned, this or [other]
   /// in that order.
-  Either<A, (B, C)> product<C>(Either<A, C> other) => (this, other).sequence();
+  Either<A, (B, C)> product<C>(Either<A, C> other) => (this, other).tupled();
 
   /// Returns a new Either where the left and right types are swapped.
   Either<B, A> swap() => fold((a) => right<B, A>(a), (b) => left(b));

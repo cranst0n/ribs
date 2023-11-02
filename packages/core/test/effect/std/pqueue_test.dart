@@ -33,7 +33,7 @@ void main() {
           return IO
               .delay(() => q
                   .take()
-                  .unsafeRunToFuture()
+                  .unsafeRunFuture()
                   .then((value) => futureValue = Option(value)))
               .start()
               .flatMap((ff) {

@@ -89,6 +89,12 @@ sealed class Resource<A> extends Monad<A> {
   ) =>
       applyCase(acquire.map((a) => (a, (ec) => release(a, ec))));
 
+  static Resource<A> makeFull<A>(
+    Function1<Poll, IO<A>> acquire,
+    Function1<A, IO<Unit>> release,
+  ) =>
+      applyFull((poll) => acquire(poll).map((a) => (a, (_) => release(a))));
+
   /// Returns a non-terminating Resource. An alias for
   /// `Resource.eval(IO.never())`.
   static Resource<A> never<A>() => Resource.eval(IO.never());

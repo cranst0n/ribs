@@ -4,19 +4,19 @@ import 'package:ribs_core/src/effect/std/internal/binomial_heap.dart';
 import 'package:test/test.dart';
 
 void main() {
-  forAll('dequeue by priority', Gen.ilistOf(100, Gen.positiveInt))((l) {
+  forAll('dequeue by priority', Gen.ilistOf(100, Gen.positiveInt), (l) {
     final heap = buildHeap(l, Order.ints);
     final back = toList(heap);
 
     expect(back, l.sorted());
-  }).run();
+  });
 
-  forAll('maintain the heap property', Op.genList(Gen.positiveInt))((ops) {
+  forAll('maintain the heap property', Op.genList(Gen.positiveInt), (ops) {
     final heap = Op.toHeap(ops, Order.ints);
     expect(heap.trees.forall((t) => validHeap(t)), isTrue);
-  }).run();
+  });
 
-  forAll('maintain correct subtree ranks', Op.genList(Gen.positiveInt))((ops) {
+  forAll('maintain correct subtree ranks', Op.genList(Gen.positiveInt), (ops) {
     final heap = Op.toHeap(ops, Order.ints);
 
     int currentRank = 0;
@@ -28,7 +28,7 @@ void main() {
       currentRank = r;
       return checkRank(r, t);
     });
-  }).run();
+  });
 }
 
 bool validHeap<A>(BinomialTree<A> tree) {

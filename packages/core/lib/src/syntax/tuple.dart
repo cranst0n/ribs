@@ -58,6 +58,8 @@ extension Tuple3Ops<A, B, C> on (A, B, C) {
   C get last => $3;
 
   (D, A, B, C) prepend<D>(D $4) => ($4, $1, $2, $3);
+
+  (B, C) tail() => ($2, $3);
 }
 
 extension Tuple4Ops<A, B, C, D> on (A, B, C, D) {
@@ -83,6 +85,8 @@ extension Tuple4Ops<A, B, C, D> on (A, B, C, D) {
   D get last => $4;
 
   (E, A, B, C, D) prepend<E>(E $5) => ($5, $1, $2, $3, $4);
+
+  (B, C, D) tail() => ($2, $3, $4);
 }
 
 extension Tuple5Ops<A, B, C, D, E> on (A, B, C, D, E) {
@@ -110,6 +114,8 @@ extension Tuple5Ops<A, B, C, D, E> on (A, B, C, D, E) {
   E get last => $5;
 
   (F, A, B, C, D, E) prepend<F>(F $6) => ($6, $1, $2, $3, $4, $5);
+
+  (B, C, D, E) tail() => ($2, $3, $4, $5);
 }
 
 extension Tuple6Ops<A, B, C, D, E, F> on (A, B, C, D, E, F) {
@@ -139,6 +145,8 @@ extension Tuple6Ops<A, B, C, D, E, F> on (A, B, C, D, E, F) {
   F get last => $6;
 
   (G, A, B, C, D, E, F) prepend<G>(G $7) => ($7, $1, $2, $3, $4, $5, $6);
+
+  (B, C, D, E, F) tail() => ($2, $3, $4, $5, $6);
 }
 
 extension Tuple7Ops<A, B, C, D, E, F, G> on (A, B, C, D, E, F, G) {
@@ -171,6 +179,8 @@ extension Tuple7Ops<A, B, C, D, E, F, G> on (A, B, C, D, E, F, G) {
   G get last => $7;
 
   (H, A, B, C, D, E, F, G) prepend<H>(H $8) => ($8, $1, $2, $3, $4, $5, $6, $7);
+
+  (B, C, D, E, F, G) tail() => ($2, $3, $4, $5, $6, $7);
 }
 
 extension Tuple8Ops<A, B, C, D, E, F, G, H> on (A, B, C, D, E, F, G, H) {
@@ -207,6 +217,8 @@ extension Tuple8Ops<A, B, C, D, E, F, G, H> on (A, B, C, D, E, F, G, H) {
 
   (I, A, B, C, D, E, F, G, H) prepend<I>(I $9) =>
       ($9, $1, $2, $3, $4, $5, $6, $7, $8);
+
+  (B, C, D, E, F, G, H) tail() => ($2, $3, $4, $5, $6, $7, $8);
 }
 
 extension Tuple9Ops<A, B, C, D, E, F, G, H, I> on (A, B, C, D, E, F, G, H, I) {
@@ -245,6 +257,8 @@ extension Tuple9Ops<A, B, C, D, E, F, G, H, I> on (A, B, C, D, E, F, G, H, I) {
 
   (J, A, B, C, D, E, F, G, H, I) prepend<J>(J $10) =>
       ($10, $1, $2, $3, $4, $5, $6, $7, $8, $9);
+
+  (B, C, D, E, F, G, H, I) tail() => ($2, $3, $4, $5, $6, $7, $8, $9);
 }
 
 extension Tuple10Ops<A, B, C, D, E, F, G, H, I, J> on (
@@ -296,6 +310,8 @@ extension Tuple10Ops<A, B, C, D, E, F, G, H, I, J> on (
 
   (K, A, B, C, D, E, F, G, H, I, J) prepend<K>(K $11) =>
       ($11, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+
+  (B, C, D, E, F, G, H, I, J) tail() => ($2, $3, $4, $5, $6, $7, $8, $9, $10);
 }
 
 extension Tuple11Ops<A, B, C, D, E, F, G, H, I, J, K> on (
@@ -351,6 +367,9 @@ extension Tuple11Ops<A, B, C, D, E, F, G, H, I, J, K> on (
 
   (L, A, B, C, D, E, F, G, H, I, J, K) prepend<L>(L $12) =>
       ($12, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
+
+  (B, C, D, E, F, G, H, I, J, K) tail() =>
+      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
 }
 
 extension Tuple12Ops<A, B, C, D, E, F, G, H, I, J, K, L> on (
@@ -409,6 +428,9 @@ extension Tuple12Ops<A, B, C, D, E, F, G, H, I, J, K, L> on (
 
   (M, A, B, C, D, E, F, G, H, I, J, K, L) prepend<M>(M $13) =>
       ($13, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
+
+  (B, C, D, E, F, G, H, I, J, K, L) tail() =>
+      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
 }
 
 extension Tuple13Ops<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
@@ -470,6 +492,9 @@ extension Tuple13Ops<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
 
   (N, A, B, C, D, E, F, G, H, I, J, K, L, M) prepend<N>(N $14) =>
       ($14, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);
+
+  (B, C, D, E, F, G, H, I, J, K, L, M) tail() =>
+      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);
 }
 
 extension Tuple14Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
@@ -534,6 +559,9 @@ extension Tuple14Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
 
   (O, A, B, C, D, E, F, G, H, I, J, K, L, M, N) prepend<O>(O $15) =>
       ($15, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);
+
+  (B, C, D, E, F, G, H, I, J, K, L, M, N) tail() =>
+      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);
 }
 
 extension Tuple15Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
@@ -601,6 +629,9 @@ extension Tuple15Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
 
   (P, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O) prepend<P>(P $16) =>
       ($16, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);
+
+  (B, C, D, E, F, G, H, I, J, K, L, M, N, O) tail() =>
+      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);
 }
 
 extension Tuple16Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> on (
@@ -705,6 +736,9 @@ extension Tuple16Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> on (
         $15,
         $16
       );
+
+  (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) tail() =>
+      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16);
 }
 
 extension Tuple17Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> on (
@@ -816,6 +850,9 @@ extension Tuple17Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> on (
         $16,
         $17
       );
+
+  (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) tail() =>
+      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17);
 }
 
 extension Tuple18Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> on (
@@ -952,6 +989,26 @@ extension Tuple18Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> on (
         $17,
         $18
       );
+
+  (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) tail() => (
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15,
+        $16,
+        $17,
+        $18
+      );
 }
 
 extension Tuple19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
@@ -1058,6 +1115,27 @@ extension Tuple19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
       (
         $20,
         $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15,
+        $16,
+        $17,
+        $18,
+        $19
+      );
+
+  (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) tail() => (
         $2,
         $3,
         $4,
@@ -1208,6 +1286,28 @@ extension Tuple20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
         $19,
         $20
       );
+
+  (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) tail() => (
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15,
+        $16,
+        $17,
+        $18,
+        $19,
+        $20
+      );
 }
 
 extension Tuple21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
@@ -1323,6 +1423,29 @@ extension Tuple21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
       (
         $22,
         $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15,
+        $16,
+        $17,
+        $18,
+        $19,
+        $20,
+        $21
+      );
+
+  (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) tail() => (
         $2,
         $3,
         $4,
@@ -1504,4 +1627,28 @@ extension Tuple22Ops<
             $21,
             $22
           );
+
+  (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) tail() => (
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15,
+        $16,
+        $17,
+        $18,
+        $19,
+        $20,
+        $21,
+        $22
+      );
 }

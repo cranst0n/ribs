@@ -315,6 +315,10 @@ sealed class IO<A> extends Monad<A> {
   /// and then return the result.
   IO<A> andWait(Duration duration) => flatTap((_) => IO.sleep(duration));
 
+  @override
+  IO<B> ap<B>(covariant IO<Function1<A, B>> f) =>
+      flatMap((a) => f.map((f) => f(a)));
+
   /// Replaces the result of this [IO] with the given value.
   IO<B> as<B>(B b) => map((_) => b);
 
@@ -342,6 +346,16 @@ sealed class IO<A> extends Monad<A> {
     Function2<A, Outcome<B>, IO<Unit>> release,
   ) =>
       IO.bracketFull((_) => this, use, release);
+
+  IO<A> cancelable(IO<Unit> fin) => IO.uncancelable((poll) {
+        return start().flatMap((fiber) {
+          return poll(fiber.join())
+              .onCancel(fin.productR(() => fiber.cancel()))
+              .flatMap((oc) {
+            return oc.embed(poll(IO.canceled.productR(() => IO.never())));
+          });
+        });
+      });
 
   /// Prints the value of this IO (value, error or canceled) to stdout
   IO<A> debug({String prefix = 'DEBUG'}) =>
@@ -374,7 +388,7 @@ sealed class IO<A> extends Monad<A> {
   /// Executes the provided finalizer [fin] which can decide what action to
   /// take depending on the [Outcome] of this [IO].
   IO<A> guaranteeCase(Function1<Outcome<A>, IO<Unit>> fin) =>
-      onCancel(fin(const Canceled()))
+      onCancel(fin(Canceled()))
           .onError((e) => fin(Errored(e)))
           .flatTap((a) => fin(Succeeded(a)));
 
@@ -482,6 +496,24 @@ sealed class IO<A> extends Monad<A> {
       IO.defer(() => IO.raiseError(
           RuntimeException(TimeoutException(duration.toString())))));
 
+  IO<A> timeoutAndForget(Duration duration) => IO.uncancelable(
+        (poll) => poll(IO.racePair(this, IO.sleep(duration))).flatMap(
+          (a) => a.fold(
+            (aWon) {
+              final (oc, f) = aWon;
+              return poll(f.cancel().productR(() =>
+                  oc.embed(poll(IO.canceled).productR(() => IO.never<A>()))));
+            },
+            (bWon) {
+              final (f, _) = bWon;
+
+              return f.cancel().start().productR(() => IO.raiseError<A>(
+                  RuntimeException(TimeoutException(duration.toString()))));
+            },
+          ),
+        ),
+      );
+
   /// Creates an [IO] that will return the value of this IO, or the value of
   /// [fallback] if the evaluation of this IO exceeds [duration].
   IO<A> timeoutTo(Duration duration, IO<A> fallback) =>
@@ -562,7 +594,7 @@ sealed class IO<A> extends Monad<A> {
     int autoCedeN = IOFiber.DefaultAutoCedeN,
   }) {
     _unsafeRunFiber(
-      () => cb(const Canceled()),
+      () => cb(Canceled()),
       (ex) => cb(Errored(ex)),
       (a) => cb(Succeeded(a)),
       autoCedeN: autoCedeN,
@@ -576,7 +608,7 @@ sealed class IO<A> extends Monad<A> {
   /// Evaluates this IO and returns a [Future] that will complete with the
   /// [Outcome] of the evaluation. The [Future] will not complete with an error,
   /// since the value itself is capable of conveying an error was encountered.
-  Future<Outcome<A>> unsafeRunToFutureOutcome({
+  Future<Outcome<A>> unsafeRunFutureOutcome({
     int autoCedeN = IOFiber.DefaultAutoCedeN,
   }) {
     final completer = Completer<Outcome<A>>();
@@ -590,7 +622,7 @@ sealed class IO<A> extends Monad<A> {
   /// since the value itself is capable of conveying an error was encountered.
   /// If the evaluation has already finished, the cancelation function is a
   /// no-op.
-  (Future<A>, Function0<Future<Unit>>) unsafeRunToFutureCancelable(
+  (Future<A>, Function0<Future<Unit>>) unsafeRunFutureCancelable(
       {int autoCedeN = IOFiber.DefaultAutoCedeN}) {
     final completer = Completer<A>();
 
@@ -601,22 +633,22 @@ sealed class IO<A> extends Monad<A> {
       autoCedeN: autoCedeN,
     );
 
-    return (completer.future, () => fiber.cancel().unsafeRunToFuture());
+    return (completer.future, () => fiber.cancel().unsafeRunFuture());
   }
 
   /// Starts the evaluation of this IO and returns a [Future] that will complete
   /// with the [Outcome] of the evaluation. The [Future] may complete with an
   /// error if the evaluation of the [IO] encounters and error or is canceled.
-  Future<A> unsafeRunToFuture({int autoCedeN = IOFiber.DefaultAutoCedeN}) =>
-      unsafeRunToFutureCancelable(autoCedeN: autoCedeN).$1;
+  Future<A> unsafeRunFuture({int autoCedeN = IOFiber.DefaultAutoCedeN}) =>
+      unsafeRunFutureCancelable(autoCedeN: autoCedeN).$1;
 
   /// Starts the evaluation of this IO and returns  a function that can be
   /// called to cancel the evaluation. If the evaluation has already finished,
   /// the cancelation function is a no-op.
-  Function0<Future<Unit>> unsafeRunToCancelable({
+  Function0<Future<Unit>> unsafeRunCancelable({
     int autoCedeN = IOFiber.DefaultAutoCedeN,
   }) =>
-      unsafeRunToFutureCancelable(autoCedeN: autoCedeN).$2;
+      unsafeRunFutureCancelable(autoCedeN: autoCedeN).$2;
 
   IOFiber<A> _unsafeRunFiber(
     Function0<void> canceled,
@@ -980,7 +1012,7 @@ final class IOFiber<A> {
 
   void _execR() {
     if (_canceled) {
-      _done(const Canceled());
+      _done(Canceled());
     } else {
       _conts.clear();
       _conts.push(_Cont.RunTerminus);
@@ -1291,7 +1323,7 @@ final class IOFiber<A> {
     } else {
       cb?.call(Right(Unit()));
 
-      _done(const Canceled());
+      _done(Canceled());
       return _EndFiber();
     }
   }
@@ -1443,7 +1475,7 @@ final class IOFiber<A> {
         cb.call(Right<RuntimeException, Unit>(Unit()));
       }
 
-      _done(const Canceled());
+      _done(Canceled());
 
       return _EndFiber();
     }

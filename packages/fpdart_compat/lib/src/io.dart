@@ -6,5 +6,5 @@ extension FpdartTaskOps<A> on fpdart.Task<A> {
 }
 
 extension RibsIOOps<A> on ribs.IO<A> {
-  fpdart.Task<A> toFpdart() => fpdart.Task(() => unsafeRunToFuture());
+  fpdart.Task<A> toFpdart() => fpdart.Task(() => unsafeRunFuture());
 }

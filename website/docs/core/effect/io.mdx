@@ -184,11 +184,11 @@ finished;
 
 * **unsafeRunAndForget**: Same as `unsafeRunAsync` but no callback is provided.
 
-* **unsafeRunToFuture**: Evaluates the `IO` and returns a `Future` that will
+* **unsafeRunFuture**: Evaluates the `IO` and returns a `Future` that will
 complete with the value of the `IO` or any error that is encountered during
 the evaluation.
 
-* **unsafeRunToFutureOutcome**: Returns a `Future` that will complete with
+* **unsafeRunFutureOutcome**: Returns a `Future` that will complete with
 the `Outcome` of the `IO`, being one of 3 possible states:
   * The value itself (successful)
   * The error encountered (errored)

@@ -10,7 +10,7 @@ void main() {
     final writeB = d.complete(43).delayBy(const Duration(milliseconds: 150));
 
     expect(
-      (writeA, writeB, d.value()).parSequence(),
+      (writeA, writeB, d.value()).parTupled(),
       ioSucceeded((true, false, 42)),
     );
   });
@@ -28,7 +28,7 @@ void main() {
         .delayBy(const Duration(milliseconds: 200));
 
     final (_, writerSuccessful) =
-        await IO.both(reader, writer).unsafeRunToFuture();
+        await IO.both(reader, writer).unsafeRunFuture();
 
     expect(writerSuccessful, isTrue);
     expect(readerNotified, isTrue);
@@ -50,9 +50,27 @@ void main() {
         .delayBy(const Duration(milliseconds: 200));
 
     final (_, writerSuccessful) =
-        await IO.both(reader, writer).unsafeRunToFuture();
+        await IO.both(reader, writer).unsafeRunFuture();
 
     expect(writerSuccessful, isTrue);
     expect(readerNotified, isFalse);
+  });
+
+  test('tryValue return None for unset Deferred', () {
+    final test = IO.deferred<Unit>().flatMap((op) {
+      return op.tryValue();
+    });
+
+    expect(test, ioSucceeded(isNone()));
+  });
+
+  test('tryValue return Some() for set Deferred', () {
+    final test = IO.deferred<Unit>().flatMap((op) {
+      return op.complete(Unit()).flatMap((_) {
+        return op.tryValue();
+      });
+    });
+
+    expect(test, ioSucceeded(isSome(Unit())));
   });
 }

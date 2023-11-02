@@ -14,7 +14,7 @@ void main() {
       return IO.both(senders, drain).map((a) => a.$2);
     });
 
-    final result = await test.unsafeRunToFuture();
+    final result = await test.unsafeRunFuture();
 
     expect(result, IList.range(0, 10));
   });
@@ -28,7 +28,7 @@ void main() {
         .flatMap((_) => chan.close())
         .flatMap((_) => chan.rill.compile().toIList()));
 
-    final result = await test.unsafeRunToFuture();
+    final result = await test.unsafeRunFuture();
 
     expect(result, l.take(capacity));
   });

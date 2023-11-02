@@ -19,7 +19,7 @@ void main(List<String> args) async {
       .flatMap((fiber) => fiber.join())
       .debug(prefix: 'Outcome');
 
-  await prog.unsafeRunToFuture();
+  await prog.unsafeRunFuture();
 }
 
 final class Todo {

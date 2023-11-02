@@ -6,5 +6,5 @@ extension DartzTaskOps<A> on dartz.Task<A> {
 }
 
 extension RibsIOOps<A> on ribs.IO<A> {
-  dartz.Task<A> toDartz() => dartz.Task(() => unsafeRunToFuture());
+  dartz.Task<A> toDartz() => dartz.Task(() => unsafeRunFuture());
 }

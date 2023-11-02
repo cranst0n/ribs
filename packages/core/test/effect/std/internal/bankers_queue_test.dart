@@ -6,7 +6,7 @@ import 'package:ribs_core/src/effect/std/internal/bankers_queue.dart';
 import 'package:test/test.dart';
 
 void main() {
-  forAll('maintain size invariants', Op.genList(Gen.positiveInt))((ops) {
+  forAll('maintain size invariants', Op.genList(Gen.positiveInt), (ops) {
     final queue = Op.fold(ops);
 
     expect(
@@ -18,19 +18,19 @@ void main() {
       queue.backLen <= queue.frontLen * BankersQueue.RebalanceConstant + 1,
       isTrue,
     );
-  }).run();
+  });
 
-  forAll('dequeue in order from front', Op.genList(Gen.positiveInt))((ops) {
+  forAll('dequeue in order from front', Op.genList(Gen.positiveInt), (ops) {
     expect(toListFromFront(buildQueue(ops)), ops);
-  }).run();
+  });
 
-  forAll('dequeue in order from back', Op.genList(Gen.positiveInt))((ops) {
+  forAll('dequeue in order from back', Op.genList(Gen.positiveInt), (ops) {
     expect(toListFromBack(buildQueue(ops)), ops.reverse());
-  }).run();
+  });
 
-  forAll('reverse', Op.genList(Gen.positiveInt))((ops) {
+  forAll('reverse', Op.genList(Gen.positiveInt), (ops) {
     expect(toListFromFront(buildQueue(ops).reverse()), ops.reverse());
-  }).run();
+  });
 }
 
 BankersQueue<A> buildQueue<A>(IList<A> elems) =>

@@ -202,6 +202,66 @@ void main() {
 
       expect(test, ioSucceeded());
     });
+
+    test('respect fifo order', () {
+      final test = Queue.synchronous<int>().flatMap((q) {
+        return IList.range(0, 5).traverseIO_((i) {
+          final f = IO
+              .sleep(Duration(milliseconds: i * 200))
+              .flatMap((_) => q.offer(i))
+              .voided();
+
+          return f.start();
+        }).flatMap((_) {
+          return IO.sleep(const Duration(seconds: 2)).flatMap((_) {
+            return q.take().replicate(5);
+          });
+        });
+      });
+
+      expect(test, ioSucceeded(ilist([0, 1, 2, 3, 4])));
+    });
+
+    test('not lose offer when taker is canceled during exchange', () {
+      final test = Queue.synchronous<Unit>().flatMap((q) {
+        return CountDownLatch.create(2).flatMap((latch) {
+          return IO.ref(false).flatMap((offererDone) {
+            return latch
+                .release()
+                .productR(() => latch.await())
+                .productR(() => q.offer(Unit()))
+                .guarantee(offererDone.setValue(true))
+                .start()
+                .flatMap((_) {
+              return latch
+                  .release()
+                  .productR(() => latch.await())
+                  .productR(() => q.take())
+                  .onCancel(IO.println('CANCELED...'))
+                  .start()
+                  .flatMap((taker) {
+                return latch.await().flatMap((_) {
+                  return taker.cancel().flatMap((_) {
+                    return taker.join().flatMap((oc) {
+                      if (oc.isCanceled) {
+                        return offererDone
+                            .value()
+                            .flatMap((b) => expectIO(b, false))
+                            .productR(() => q.take());
+                      } else {
+                        return IO.unit;
+                      }
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+
+      expect(test.parReplicate(1), ioSucceeded());
+    }, skip: true);
   });
 
   group('Unbounded Queue', () {
@@ -763,7 +823,7 @@ class QueueTests {
             return expectIO(v1, 1).flatMap((_) {
               return IO
                   .delay(() => take(q)
-                      .unsafeRunToFuture()
+                      .unsafeRunFuture()
                       .then((value) => futureValue = Option(value)))
                   .flatMap((f) {
                 return expectIO(futureValue, isNone()).flatMap((_) {

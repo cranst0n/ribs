@@ -18,7 +18,7 @@ Future<void> snippet1() async {
   final IO<Uint8List> program =
       fileResource.use((raf) => IO.fromFutureF(() => raf.read(100)));
 
-  (await program.unsafeRunToFutureOutcome()).fold(
+  (await program.unsafeRunFutureOutcome()).fold(
     () => print('Program canceled.'),
     (err) => print('Error: ${err.message}. But the file was still closed!'),
     (bytes) => print('Read ${bytes.length} bytes from file.'),
@@ -48,7 +48,7 @@ void snippet2() {
         openFile(fromPathA),
         openFile(fromPathB),
         openFile(toPath)
-      ).sequence().useN(
+      ).tupled().useN(
         (fromA, fromB, to) {
           return (readBytes(fromA, n), readBytes(fromB, n))
               .parMapN(concatBytes)

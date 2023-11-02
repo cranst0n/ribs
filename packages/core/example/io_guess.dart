@@ -26,5 +26,5 @@ void main(List<String> args) async {
         }
       });
 
-  await game(Random().nextInt(10) + 1).unsafeRunToFuture();
+  await game(Random().nextInt(10) + 1).unsafeRunFuture();
 }

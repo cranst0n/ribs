@@ -32,4 +32,18 @@ class ListQueue<A> {
   bool get isEmpty => _list.isEmpty;
 
   bool get nonEmpty => _list.nonEmpty;
+
+  IList<A> toList() => _list;
+
+  @override
+  String toString() => isEmpty
+      ? 'Empty'
+      : _list.mkString(start: 'ListQueue(', sep: ',', end: ')');
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || (other is ListQueue<A> && _list == other._list);
+
+  @override
+  int get hashCode => _list.hashCode;
 }

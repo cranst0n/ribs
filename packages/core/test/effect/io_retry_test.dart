@@ -72,7 +72,7 @@ void main() {
   test('alwaysGiveUp', () async {
     final io = IO.raiseError<int>(RuntimeException('fail'));
     final retryable = io.retrying(RetryPolicy.alwaysGiveUp());
-    final result = await retryable.unsafeRunToFutureOutcome();
+    final result = await retryable.unsafeRunFutureOutcome();
 
     result.fold(
       () => fail('retryable was canceled'),
@@ -91,7 +91,7 @@ void main() {
     final retryable = io.retrying(RetryPolicy.constantDelay(Duration.zero)
         .join(RetryPolicy.limitRetries(3)));
 
-    final result = await retryable.unsafeRunToFutureOutcome();
+    final result = await retryable.unsafeRunFutureOutcome();
 
     result.fold(
       () => fail('retryable was canceled'),
@@ -109,7 +109,7 @@ void main() {
     final retryable = io.retrying(RetryPolicy.constantDelay(Duration.zero)
         .join(RetryPolicy.limitRetries(2)));
 
-    final result = await retryable.unsafeRunToFutureOutcome();
+    final result = await retryable.unsafeRunFutureOutcome();
 
     result.fold(
       () => fail('retryable was canceled'),
@@ -129,7 +129,7 @@ void main() {
         RetryPolicy.exponentialBackoff(const Duration(seconds: 1))
             .giveUpAfterDelay(const Duration(seconds: 5)));
 
-    final result = await retryable.unsafeRunToFutureOutcome();
+    final result = await retryable.unsafeRunFutureOutcome();
 
     result.fold(
       () => fail('retryable was canceled'),
@@ -153,7 +153,7 @@ void main() {
             .giveUpAfterDelay(const Duration(seconds: 2))
             .capDelay(const Duration(seconds: 3)));
 
-    final result = await retryable.unsafeRunToFutureOutcome();
+    final result = await retryable.unsafeRunFutureOutcome();
 
     result.fold(
       () => fail('retryable was canceled'),

@@ -76,7 +76,7 @@ class RibsMapBenchmark extends AsyncBenchmarkBase {
   }
 
   @override
-  Future<void> run() => io.unsafeRunToFuture();
+  Future<void> run() => io.unsafeRunFuture();
 }
 
 // flatMap
@@ -112,7 +112,7 @@ class RibsFlatmapBenchmark extends AsyncBenchmarkBase {
   RibsFlatmapBenchmark() : super('');
 
   @override
-  Future<void> run() => io.unsafeRunToFuture();
+  Future<void> run() => io.unsafeRunFuture();
 }
 
 // attempt happy
@@ -151,7 +151,7 @@ class RibsAttemptHappyBenchmark extends AsyncBenchmarkBase {
   RibsAttemptHappyBenchmark() : super('');
 
   @override
-  Future<void> run() => io.unsafeRunToFuture();
+  Future<void> run() => io.unsafeRunFuture();
 }
 
 // attempt sad
@@ -222,7 +222,7 @@ class RibsAttemptSadBenchmark extends AsyncBenchmarkBase {
   }
 
   @override
-  Future<void> run() => io.unsafeRunToFuture();
+  Future<void> run() => io.unsafeRunFuture();
 }
 
 class DartzBothBenchmark extends AsyncBenchmarkBase {
@@ -267,7 +267,7 @@ class RibsBothBenchmark extends AsyncBenchmarkBase {
         IO.pure(0).delayBy(const Duration(milliseconds: 15)),
         IO.pure(1).delayBy(const Duration(milliseconds: 30)),
       )
-      .unsafeRunToFuture();
+      .unsafeRunFuture();
 }
 
 const sep = '  |  ';

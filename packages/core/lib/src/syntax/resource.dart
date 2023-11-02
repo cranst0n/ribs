@@ -37,22 +37,22 @@ extension Tuple2ResourceOps<A, B> on (Resource<A>, Resource<B>) {
   /// {@template resource_mapN}
   /// TODO:
   /// {@endtemplate}
-  Resource<C> mapN<C>(Function2<A, B, C> fn) => sequence().map(fn.tupled);
+  Resource<C> mapN<C>(Function2<A, B, C> fn) => tupled().map(fn.tupled);
 
   /// {@template resource_parMapN}
   /// TODO:
   /// {@endtemplate}
-  Resource<C> parMapN<C>(Function2<A, B, C> fn) => parSequence().map(fn.tupled);
+  Resource<C> parMapN<C>(Function2<A, B, C> fn) => parTupled().map(fn.tupled);
 
-  /// {@template resource_sequence}
+  /// {@template resource_tupled}
   /// TODO:
   /// {@endtemplate}
-  Resource<(A, B)> sequence() => $1.flatMap((a) => $2.map((b) => (a, b)));
+  Resource<(A, B)> tupled() => $1.flatMap((a) => $2.map((b) => (a, b)));
 
-  /// {@template resource_parSequence}
+  /// {@template resource_parTupled}
   /// TODO:
   /// {@endtemplate}
-  Resource<(A, B)> parSequence() => Resource.both($1, $2);
+  Resource<(A, B)> parTupled() => Resource.both($1, $2);
 }
 
 /// {@macro resource_tuple_ops}
@@ -62,19 +62,19 @@ extension Tuple3ResourceOps<A, B, C> on (
   Resource<C>
 ) {
   /// {@macro resource_mapN}
-  Resource<D> mapN<D>(Function3<A, B, C, D> fn) => sequence().map(fn.tupled);
+  Resource<D> mapN<D>(Function3<A, B, C, D> fn) => tupled().map(fn.tupled);
 
   /// {@macro resource_parMapN}
   Resource<D> parMapN<D>(Function3<A, B, C, D> fn) =>
-      parSequence().map(fn.tupled);
+      parTupled().map(fn.tupled);
 
-  /// {@macro resource_sequence}
-  Resource<(A, B, C)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro resource_tupled}
+  Resource<(A, B, C)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 
-  /// {@macro resource_parSequence}
-  Resource<(A, B, C)> parSequence() =>
-      Resource.both(init().parSequence(), last).map((t) => t.$1.append(t.$2));
+  /// {@macro resource_parTupled}
+  Resource<(A, B, C)> parTupled() =>
+      Resource.both(init().parTupled(), last).map((t) => t.$1.append(t.$2));
 }
 
 /// {@macro resource_tuple_ops}
@@ -85,19 +85,19 @@ extension Tuple4ResourceOps<A, B, C, D> on (
   Resource<D>
 ) {
   /// {@macro resource_mapN}
-  Resource<E> mapN<E>(Function4<A, B, C, D, E> fn) => sequence().map(fn.tupled);
+  Resource<E> mapN<E>(Function4<A, B, C, D, E> fn) => tupled().map(fn.tupled);
 
   /// {@macro resource_parMapN}
   Resource<E> parMapN<E>(Function4<A, B, C, D, E> fn) =>
-      parSequence().map(fn.tupled);
+      parTupled().map(fn.tupled);
 
-  /// {@macro resource_sequence}
-  Resource<(A, B, C, D)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro resource_tupled}
+  Resource<(A, B, C, D)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 
-  /// {@macro resource_parSequence}
-  Resource<(A, B, C, D)> parSequence() =>
-      Resource.both(init().parSequence(), last).map((t) => t.$1.append(t.$2));
+  /// {@macro resource_parTupled}
+  Resource<(A, B, C, D)> parTupled() =>
+      Resource.both(init().parTupled(), last).map((t) => t.$1.append(t.$2));
 }
 
 /// {@macro resource_tuple_ops}
@@ -110,17 +110,17 @@ extension Tuple5ResourceOps<A, B, C, D, E> on (
 ) {
   /// {@macro resource_mapN}
   Resource<F> mapN<F>(Function5<A, B, C, D, E, F> fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
   /// {@macro resource_parMapN}
   Resource<F> parMapN<F>(Function5<A, B, C, D, E, F> fn) =>
-      parSequence().map(fn.tupled);
+      parTupled().map(fn.tupled);
 
-  /// {@macro resource_sequence}
-  Resource<(A, B, C, D, E)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro resource_tupled}
+  Resource<(A, B, C, D, E)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 
-  /// {@macro resource_parSequence}
-  Resource<(A, B, C, D, E)> parSequence() =>
-      Resource.both(init().parSequence(), last).map((t) => t.$1.append(t.$2));
+  /// {@macro resource_parTupled}
+  Resource<(A, B, C, D, E)> parTupled() =>
+      Resource.both(init().parTupled(), last).map((t) => t.$1.append(t.$2));
 }

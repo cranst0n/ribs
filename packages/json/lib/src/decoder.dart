@@ -91,10 +91,18 @@ abstract mixin class Decoder<A> {
   static Decoder<DateTime> dateTime = string.emap((a) =>
       Either.catching(() => DateTime.parse(a), (err, _) => err.toString()));
 
-  static Decoder<double> dubble = number.map((a) => a.toDouble());
+  static Decoder<double> dubble = Decoder.instance((j) {
+    if (j.value is JNumber) {
+      return (j.value as JNumber).value.toDouble().asRight();
+    } else if (j.value is JNull) {
+      return double.nan.asRight();
+    } else {
+      return _wrongTypeFail('double', j).asLeft();
+    }
+  });
 
   static Decoder<Duration> duration =
-      integer.map((a) => Duration(milliseconds: a));
+      integer.map((a) => Duration(microseconds: a));
 
   static Decoder<T> enumerationByIndex<T extends Enum>(List<T> values) =>
       integer.emap((index) => IList.of(values)
@@ -152,7 +160,7 @@ abstract mixin class Decoder<A> {
           return (
             decodeA.tryDecodeC(c.downN(0)),
             decodeB.tryDecodeC(c.downN(1)),
-          ).sequence();
+          ).tupled();
         } else {
           return _wrongTypeFail('array[2]', c).asLeft();
         }
@@ -169,7 +177,7 @@ abstract mixin class Decoder<A> {
             decodeA.tryDecodeC(c.downN(0)),
             decodeB.tryDecodeC(c.downN(1)),
             decodeC.tryDecodeC(c.downN(2)),
-          ).sequence();
+          ).tupled();
         } else {
           return _wrongTypeFail('array[3]', c).asLeft();
         }
@@ -188,7 +196,7 @@ abstract mixin class Decoder<A> {
             decodeB.tryDecodeC(c.downN(1)),
             decodeC.tryDecodeC(c.downN(2)),
             decodeD.tryDecodeC(c.downN(3)),
-          ).sequence();
+          ).tupled();
         } else {
           return _wrongTypeFail('array[4]', c).asLeft();
         }
@@ -209,7 +217,7 @@ abstract mixin class Decoder<A> {
             decodeC.tryDecodeC(c.downN(2)),
             decodeD.tryDecodeC(c.downN(3)),
             decodeE.tryDecodeC(c.downN(4)),
-          ).sequence();
+          ).tupled();
         } else {
           return _wrongTypeFail('array[5]', c).asLeft();
         }
@@ -232,7 +240,7 @@ abstract mixin class Decoder<A> {
             decodeD.tryDecodeC(c.downN(3)),
             decodeE.tryDecodeC(c.downN(4)),
             decodeF.tryDecodeC(c.downN(5)),
-          ).sequence();
+          ).tupled();
         } else {
           return _wrongTypeFail('array[6]', c).asLeft();
         }
@@ -257,7 +265,7 @@ abstract mixin class Decoder<A> {
             decodeE.tryDecodeC(c.downN(4)),
             decodeF.tryDecodeC(c.downN(5)),
             decodeG.tryDecodeC(c.downN(6)),
-          ).sequence();
+          ).tupled();
         } else {
           return _wrongTypeFail('array[7]', c).asLeft();
         }
@@ -284,7 +292,7 @@ abstract mixin class Decoder<A> {
             decodeF.tryDecodeC(c.downN(5)),
             decodeG.tryDecodeC(c.downN(6)),
             decodeH.tryDecodeC(c.downN(7)),
-          ).sequence();
+          ).tupled();
         } else {
           return _wrongTypeFail('array[8]', c).asLeft();
         }
@@ -313,7 +321,7 @@ abstract mixin class Decoder<A> {
             decodeG.tryDecodeC(c.downN(6)),
             decodeH.tryDecodeC(c.downN(7)),
             decodeI.tryDecodeC(c.downN(8)),
-          ).sequence();
+          ).tupled();
         } else {
           return _wrongTypeFail('array[9]', c).asLeft();
         }
@@ -345,7 +353,7 @@ abstract mixin class Decoder<A> {
                 decodeH.tryDecodeC(c.downN(7)),
                 decodeI.tryDecodeC(c.downN(8)),
                 decodeJ.tryDecodeC(c.downN(9)),
-              ).sequence();
+              ).tupled();
             } else {
               return _wrongTypeFail('array[10]', c).asLeft();
             }
@@ -379,7 +387,7 @@ abstract mixin class Decoder<A> {
                 decodeI.tryDecodeC(c.downN(8)),
                 decodeJ.tryDecodeC(c.downN(9)),
                 decodeK.tryDecodeC(c.downN(10)),
-              ).sequence();
+              ).tupled();
             } else {
               return _wrongTypeFail('array[11]', c).asLeft();
             }
@@ -415,7 +423,7 @@ abstract mixin class Decoder<A> {
                 decodeJ.tryDecodeC(c.downN(9)),
                 decodeK.tryDecodeC(c.downN(10)),
                 decodeL.tryDecodeC(c.downN(11)),
-              ).sequence();
+              ).tupled();
             } else {
               return _wrongTypeFail('array[12]', c).asLeft();
             }
@@ -453,7 +461,7 @@ abstract mixin class Decoder<A> {
                 decodeK.tryDecodeC(c.downN(10)),
                 decodeL.tryDecodeC(c.downN(11)),
                 decodeM.tryDecodeC(c.downN(12)),
-              ).sequence();
+              ).tupled();
             } else {
               return _wrongTypeFail('array[13]', c).asLeft();
             }
@@ -493,7 +501,7 @@ abstract mixin class Decoder<A> {
                 decodeL.tryDecodeC(c.downN(11)),
                 decodeM.tryDecodeC(c.downN(12)),
                 decodeN.tryDecodeC(c.downN(13)),
-              ).sequence();
+              ).tupled();
             } else {
               return _wrongTypeFail('array[14]', c).asLeft();
             }
@@ -535,7 +543,7 @@ abstract mixin class Decoder<A> {
                 decodeM.tryDecodeC(c.downN(12)),
                 decodeN.tryDecodeC(c.downN(13)),
                 decodeO.tryDecodeC(c.downN(14)),
-              ).sequence();
+              ).tupled();
             } else {
               return _wrongTypeFail('array[15]', c).asLeft();
             }
