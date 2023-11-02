@@ -127,7 +127,7 @@ final class IMap<K, V> {
   IMap<K, V> removed(K key) => IMap._(_underlying.remove(key));
 
   /// Returns a new map with all the given [keys] removed.
-  IMap<K, V> removedAll(IList<K> keys) => filter((k, _) => keys.contains(k));
+  IMap<K, V> removedAll(IList<K> keys) => filterNot((k, _) => keys.contains(k));
 
   /// Returns the number of key-value pairs in this map.
   int get size => _underlying.length;

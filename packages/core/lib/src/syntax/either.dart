@@ -20,14 +20,14 @@ extension Tuple2EitherOps<EE, A, B> on (Either<EE, A>, Either<EE, B>) {
   /// are a [Right]. If **any** item is a [Left], the first [Left] encountered
   /// will be returned.
   /// {@endtemplate}
-  Either<EE, C> mapN<C>(Function2<A, B, C> fn) => sequence().map(fn.tupled);
+  Either<EE, C> mapN<C>(Function2<A, B, C> fn) => tupled().map(fn.tupled);
 
-  /// {@template either_sequence}
+  /// {@template either_tupled}
   /// If **all** items of this tuple are a [Right], the respective items are
   /// turned into a tuple and returned as a [Right]. If **any** item is a
   /// [Left], the first [Left] encountered is returned.
   /// {@endtemplate}
-  Either<EE, (A, B)> sequence() => $1.flatMap((a) => last.map((b) => (a, b)));
+  Either<EE, (A, B)> tupled() => $1.flatMap((a) => last.map((b) => (a, b)));
 }
 
 /// {@macro either_tuple_ops}
@@ -37,11 +37,11 @@ extension Tuple3EitherOps<EE, A, B, C> on (
   Either<EE, C>
 ) {
   /// {@macro either_mapN}
-  Either<EE, D> mapN<D>(Function3<A, B, C, D> fn) => sequence().map(fn.tupled);
+  Either<EE, D> mapN<D>(Function3<A, B, C, D> fn) => tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
-  Either<EE, (A, B, C)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro either_tupled}
+  Either<EE, (A, B, C)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -52,12 +52,11 @@ extension Tuple4EitherOps<EE, A, B, C, D> on (
   Either<EE, D>
 ) {
   /// {@macro either_mapN}
-  Either<EE, E> mapN<E>(Function4<A, B, C, D, E> fn) =>
-      sequence().map(fn.tupled);
+  Either<EE, E> mapN<E>(Function4<A, B, C, D, E> fn) => tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
-  Either<EE, (A, B, C, D)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro either_tupled}
+  Either<EE, (A, B, C, D)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -70,11 +69,11 @@ extension Tuple5EitherOps<EE, A, B, C, D, E> on (
 ) {
   /// {@macro either_mapN}
   Either<EE, F> mapN<F>(Function5<A, B, C, D, E, F> fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
-  Either<EE, (A, B, C, D, E)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro either_tupled}
+  Either<EE, (A, B, C, D, E)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -88,11 +87,11 @@ extension Tuple6EitherOps<EE, A, B, C, D, E, F> on (
 ) {
   /// {@macro either_mapN}
   Either<EE, G> mapN<G>(Function6<A, B, C, D, E, F, G> fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
-  Either<EE, (A, B, C, D, E, F)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro either_tupled}
+  Either<EE, (A, B, C, D, E, F)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -107,11 +106,11 @@ extension Tuple7EitherOps<EE, A, B, C, D, E, F, G> on (
 ) {
   /// {@macro either_mapN}
   Either<EE, H> mapN<H>(Function7<A, B, C, D, E, F, G, H> fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
-  Either<EE, (A, B, C, D, E, F, G)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro either_tupled}
+  Either<EE, (A, B, C, D, E, F, G)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -127,11 +126,11 @@ extension Tuple8EitherOps<EE, A, B, C, D, E, F, G, H> on (
 ) {
   /// {@macro either_mapN}
   Either<EE, I> mapN<I>(Function8<A, B, C, D, E, F, G, H, I> fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
-  Either<EE, (A, B, C, D, E, F, G, H)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro either_tupled}
+  Either<EE, (A, B, C, D, E, F, G, H)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -148,11 +147,11 @@ extension Tuple9EitherOps<EE, A, B, C, D, E, F, G, H, I> on (
 ) {
   /// {@macro either_mapN}
   Either<EE, J> mapN<J>(Function9<A, B, C, D, E, F, G, H, I, J> fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
-  Either<EE, (A, B, C, D, E, F, G, H, I)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro either_tupled}
+  Either<EE, (A, B, C, D, E, F, G, H, I)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -170,11 +169,11 @@ extension Tuple10EitherOps<EE, A, B, C, D, E, F, G, H, I, J> on (
 ) {
   /// {@macro either_mapN}
   Either<EE, K> mapN<K>(Function10<A, B, C, D, E, F, G, H, I, J, K> fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
-  Either<EE, (A, B, C, D, E, F, G, H, I, J)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro either_tupled}
+  Either<EE, (A, B, C, D, E, F, G, H, I, J)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -193,11 +192,11 @@ extension Tuple11EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K> on (
 ) {
   /// {@macro either_mapN}
   Either<EE, L> mapN<L>(Function11<A, B, C, D, E, F, G, H, I, J, K, L> fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
-  Either<EE, (A, B, C, D, E, F, G, H, I, J, K)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro either_tupled}
+  Either<EE, (A, B, C, D, E, F, G, H, I, J, K)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -217,11 +216,11 @@ extension Tuple12EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L> on (
 ) {
   /// {@macro either_mapN}
   Either<EE, M> mapN<M>(Function12<A, B, C, D, E, F, G, H, I, J, K, L, M> fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
-  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro either_tupled}
+  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -243,11 +242,11 @@ extension Tuple13EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M> on (
   /// {@macro either_mapN}
   Either<EE, N> mapN<N>(
           Function13<A, B, C, D, E, F, G, H, I, J, K, L, M, N> fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
-  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro either_tupled}
+  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -270,11 +269,11 @@ extension Tuple14EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
   /// {@macro either_mapN}
   Either<EE, O> mapN<O>(
           Function14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
-  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro either_tupled}
+  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -298,11 +297,11 @@ extension Tuple15EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
   /// {@macro either_mapN}
   Either<EE, P> mapN<P>(
           Function15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
-  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro either_tupled}
+  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -328,11 +327,11 @@ extension Tuple16EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>
   /// {@macro either_mapN}
   Either<EE, Q> mapN<Q>(
           Function16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
-  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro either_tupled}
+  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -360,11 +359,11 @@ extension Tuple17EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
   Either<EE, R> mapN<R>(
           Function17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
               fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
-  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q)> sequence() =>
-      init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro either_tupled}
+  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -393,12 +392,11 @@ extension Tuple18EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
   Either<EE, S> mapN<S>(
           Function18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
               fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
-  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R)>
-      sequence() =>
-          init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+  /// {@macro either_tupled}
+  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -428,12 +426,11 @@ extension Tuple19EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
   Either<EE, T> mapN<T>(
           Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
               fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
+  /// {@macro either_tupled}
   Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)>
-      sequence() =>
-          init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+      tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -465,12 +462,11 @@ extension Tuple20EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
           Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
                   U>
               fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
+  /// {@macro either_tupled}
   Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)>
-      sequence() =>
-          init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+      tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -503,12 +499,11 @@ extension Tuple21EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
           Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
                   U, V>
               fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
+  /// {@macro either_tupled}
   Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
-      sequence() =>
-          init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+      tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -542,10 +537,9 @@ extension Tuple22EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
           Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
                   U, V, W>
               fn) =>
-      sequence().map(fn.tupled);
+      tupled().map(fn.tupled);
 
-  /// {@macro either_sequence}
+  /// {@macro either_tupled}
   Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
-      sequence() =>
-          init().sequence().flatMap((x) => last.map((a) => x.append(a)));
+      tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }

@@ -11,24 +11,22 @@ void main() {
 
   forAll(
     'Information.conversion',
-    Gen.tuple3(Gen.positiveInt, informationUnit, informationUnit),
-  )(
+    (Gen.positiveInt, informationUnit, informationUnit).tupled,
     (tuple) => expect(
       tuple((n, unitA, unitB) => unitB(unitA(n).to(unitB)).to(unitA)),
       closeTo(tuple.$1, 1e-6),
     ),
-  ).run();
+  );
 
   forAll(
     'Information.parse',
-    (Gen.positiveInt, Gen.oneOf(ilist(['', ' '])), informationUnit).sequence,
-  )(
+    (Gen.positiveInt, Gen.oneOf(ilist(['', ' '])), informationUnit).tupled,
     (tuple) => expect(
       tuple((n, spaces, unit) =>
           Information.parse('$n$spaces${unit.symbol}').isDefined),
       isTrue,
     ),
-  ).run();
+  );
 
   test('equivalentTo', () {
     expect(1.megabytes.equivalentTo(1000.kilobytes), isTrue);

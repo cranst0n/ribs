@@ -29,7 +29,7 @@ abstract mixin class Encoder<A> {
   static Encoder<DateTime> dateTime =
       Encoder.instance((a) => Json.str(a.toIso8601String()));
 
-  static Encoder<Duration> duration = number.contramap((a) => a.inMilliseconds);
+  static Encoder<Duration> duration = number.contramap((a) => a.inMicroseconds);
 
   static Encoder<double> dubble = number.contramap(id);
 

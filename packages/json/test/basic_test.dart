@@ -6,16 +6,14 @@ import 'package:test/test.dart';
 import 'gen.dart';
 
 void main() {
-  forAll('JSON roundtrip', genJson)(
-    (json) {
-      final str = json.printWith(Printer.spaces2);
+  forAll('JSON roundtrip', genJson, (json) {
+    final str = json.printWith(Printer.spaces2);
 
-      Json.parse(str).fold(
-        (err) => fail('Json.roundtrip failed: $err [$str]'),
-        (value) => expect(value, json),
-      );
-    },
-  ).run(numTests: 10);
+    Json.parse(str).fold(
+      (err) => fail('Json.roundtrip failed: $err [$str]'),
+      (value) => expect(value, json),
+    );
+  });
 
   test('Json.cursor A', () {
     final json = Json.obj([

@@ -554,10 +554,14 @@ final class IList<A> implements Monad<A>, Foldable<A> {
 
     int ix = 0;
 
-    while (ix + n <= size) {
-      final window = _underlying.getRange(ix, ix + n);
+    while (ix < size) {
+      final window = _underlying.getRange(ix, min(ix + n, size));
       buf.add(IList.of(window));
       ix += step;
+
+      if (ix + step == size) {
+        break;
+      }
     }
 
     return IList.of(buf);

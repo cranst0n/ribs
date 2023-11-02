@@ -36,7 +36,7 @@ Future<void> snippet3() async {
   // x and y are different! (probably)
   await rng
       .flatMap((x) => rng.flatMap((y) => IO.println('x: $x / y: $y')))
-      .unsafeRunToFuture();
+      .unsafeRunFuture();
 
   // io-3
 }
@@ -155,14 +155,14 @@ Future<void> cancelationSnippet() async {
 
   // .start() kicks off the IO execution and gives us a handle to that
   // execution in the form of an IOFiber
-  final fiber = await io.start().unsafeRunToFuture();
+  final fiber = await io.start().unsafeRunFuture();
 
   // We immediately cancel the IO
   fiber.cancel().unsafeRunAndForget();
 
   // .join() will wait for the fiber to finish
   // In this case, that's immediate since we've canceled the IO above
-  final outcome = await fiber.join().unsafeRunToFuture();
+  final outcome = await fiber.join().unsafeRunFuture();
 
   // Show the Outcome of the IO as well as confirmation that our `onCancel`
   // handlers have been called since the IO was canceled

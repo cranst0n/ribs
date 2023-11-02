@@ -36,7 +36,7 @@ class _Succeeded extends AsyncMatcher {
       return 'was not an IO';
     }
 
-    return item.unsafeRunToFutureOutcome().then((outcome) {
+    return item.unsafeRunFutureOutcome().then((outcome) {
       return outcome.fold(
         () => fail('IO did not succeed, but was canceled'),
         (err) => fail('IO did not succeed, but errored: $err'),
@@ -62,7 +62,7 @@ class _Errored extends AsyncMatcher {
       return 'was not an IO';
     }
 
-    return item.unsafeRunToFutureOutcome().then((outcome) {
+    return item.unsafeRunFutureOutcome().then((outcome) {
       return outcome.fold(
         () => fail('IO was canceled'),
         (err) => expect(err, _matcher),
@@ -85,7 +85,7 @@ class _Canceled extends AsyncMatcher {
       return 'was not an IO';
     }
 
-    return item.unsafeRunToFutureOutcome().then((outcome) {
+    return item.unsafeRunFutureOutcome().then((outcome) {
       return outcome.fold(
         () => expect(0, 0),
         (err) => fail('IO was not canceled, but errored: $err'),

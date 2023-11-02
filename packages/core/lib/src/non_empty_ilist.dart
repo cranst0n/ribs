@@ -239,7 +239,7 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
       );
 
   /// Returns all elements except the last.
-  IList<A> get init => toIList().init();
+  IList<A> init() => toIList().init();
 
   /// Creates a new [Iterator] for the elements of this list. It may only be
   /// used once.
@@ -247,6 +247,13 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
 
   /// Returns the last element of this list.
   A get last => tail.lastOption.getOrElse(() => head);
+
+  /// Returns the last index, if any, where the element at that index equals
+  /// [elem]. If no index contains [elem], [None] is returned.
+  Option<int> lastIndexOf(A elem) => tail
+      .lastIndexOf(elem)
+      .map((a) => a + 1)
+      .orElse(() => Option.when(() => head == elem, () => 0));
 
   /// Returns the number of elements in this list.
   int get length => size;

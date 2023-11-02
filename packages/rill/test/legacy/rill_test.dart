@@ -10,7 +10,7 @@ void main() {
   test('emits', () async {
     final l = List.generate(5, id);
     final s = Rill.emits(l);
-    final result = await s.compile().toList().unsafeRunToFuture();
+    final result = await s.compile().toList().unsafeRunFuture();
 
     expect(result, l);
   });
@@ -21,8 +21,7 @@ void main() {
     final l =
         ints.take(5).concat(Rill.exec(IO.exec(() => sideEffectCalled = true)));
 
-    final result =
-        await l.compile().fold(0, (a, b) => a + b).unsafeRunToFuture();
+    final result = await l.compile().fold(0, (a, b) => a + b).unsafeRunFuture();
 
     expect(result, 10);
     expect(sideEffectCalled, isTrue);
@@ -32,8 +31,8 @@ void main() {
     final integers = Rill.range(0, 5, 1);
     final doubles = Rill.range(0.0, 0.3, 0.1);
 
-    final intList = await integers.compile().toList().unsafeRunToFuture();
-    final doubleList = await doubles.compile().toList().unsafeRunToFuture();
+    final intList = await integers.compile().toList().unsafeRunFuture();
+    final doubleList = await doubles.compile().toList().unsafeRunFuture();
 
     expect(intList, [0, 1, 2, 3, 4]);
     expect(doubleList, [0.0, 0.1, 0.2]);
@@ -43,7 +42,7 @@ void main() {
     final a = ints.take(5);
     final b = ints.drop(10).take(5);
 
-    final c = await (a + b).compile().toIList().unsafeRunToFuture();
+    final c = await (a + b).compile().toIList().unsafeRunFuture();
 
     expect(c, ilist([0, 1, 2, 3, 4, 10, 11, 12, 13, 14]));
   });
@@ -52,8 +51,7 @@ void main() {
     final strings =
         ints.through((i) => i.map((i) => String.fromCharCode(i + 65)));
 
-    final result =
-        await strings.take(26).compile().toList().unsafeRunToFuture();
+    final result = await strings.take(26).compile().toList().unsafeRunFuture();
 
     expect(result, List.generate(26, (ix) => String.fromCharCode(ix + 65)));
   });
@@ -67,7 +65,7 @@ void main() {
         .mapEval((y) => IO.delay(() => x = x + y).as(y))
         .compile()
         .drain()
-        .unsafeRunToFuture();
+        .unsafeRunFuture();
 
     expect(x, 13);
   });
@@ -76,7 +74,7 @@ void main() {
     final bomb = Rill.eval(IO.delay(() => int.parse('boom')))
         .handleErrorWith((_) => Rill.eval(IO.pure(42)));
 
-    final result = await bomb.compile().toList().unsafeRunToFuture();
+    final result = await bomb.compile().toList().unsafeRunFuture();
 
     expect(result, [42]);
   });
@@ -87,7 +85,7 @@ void main() {
     final bomb = Rill.eval(IO.delay(() => int.parse('123')))
         .onComplete(() => Rill.eval(IO.delay(() => completed = true).as(666)));
 
-    final result = await bomb.compile().toList().unsafeRunToFuture();
+    final result = await bomb.compile().toList().unsafeRunFuture();
 
     expect(result, [123, 666]);
     expect(completed, isTrue);
@@ -97,7 +95,7 @@ void main() {
     final scanned =
         ints.take(10000).scan(0, (x, y) => x + 2).filter((x) => x % 1000 == 0);
 
-    final result = await scanned.compile().last.unsafeRunToFuture();
+    final result = await scanned.compile().last.unsafeRunFuture();
 
     expect(result, 20000.some);
   });
@@ -105,14 +103,14 @@ void main() {
   test('takeWhile', () async {
     final smallInts = ints.take(10000).takeWhile((a) => a < 10);
 
-    final result = await smallInts.compile().toList().unsafeRunToFuture();
+    final result = await smallInts.compile().toList().unsafeRunFuture();
 
     expect(result, List.generate(10, id));
   });
 
   test('dropRight', () async {
     final result =
-        await ints.take(50000).dropRight(2).compile().last.unsafeRunToFuture();
+        await ints.take(50000).dropRight(2).compile().last.unsafeRunFuture();
 
     expect(result, 49997.some);
   });
@@ -120,7 +118,7 @@ void main() {
   test('dropWhile', () async {
     final mediumInts = ints.take(100).dropWhile((a) => a < 10).take(10);
 
-    final result = await mediumInts.compile().toList().unsafeRunToFuture();
+    final result = await mediumInts.compile().toList().unsafeRunFuture();
 
     expect(result, List.generate(10, (ix) => ix + 10));
   });
@@ -132,7 +130,7 @@ void main() {
         .zipWithIndex()
         .compile()
         .last
-        .unsafeRunToFuture();
+        .unsafeRunFuture();
 
     expect(result, (56, 14).some);
   });
@@ -143,7 +141,7 @@ void main() {
 
     final c = a.zip(b);
 
-    final result = await c.compile().toList().unsafeRunToFuture();
+    final result = await c.compile().toList().unsafeRunFuture();
 
     expect(
       result,
@@ -190,7 +188,7 @@ void main() {
 
     final program = Rill.bracket(aquire(path), release).flatMap(use);
 
-    await program.compile().drain().attempt().unsafeRunToFuture();
+    await program.compile().drain().attempt().unsafeRunFuture();
 
     expect(bytesRead, 30);
     expect(fileOpen, isFalse);
@@ -202,7 +200,7 @@ void main() {
             a == 4 ? IO.raiseError<int>(RuntimeException('boom')) : IO.pure(a))
         .attempt();
 
-    final result = await s.compile().toList().unsafeRunToFuture();
+    final result = await s.compile().toList().unsafeRunFuture();
 
     expect(result, hasLength(4));
     expect(result.take(3).toList(),
@@ -213,7 +211,7 @@ void main() {
   test('last', () async {
     final s = Rill.emits([1, 2, 3, 4, 5, 6]);
 
-    final result = await s.compile().last.unsafeRunToFuture();
+    final result = await s.compile().last.unsafeRunFuture();
 
     expect(result, 6.some);
   });
@@ -221,7 +219,7 @@ void main() {
   test('count', () async {
     final s = Rill.emit(1).repeat().take(1000);
 
-    final result = await s.compile().count().unsafeRunToFuture();
+    final result = await s.compile().count().unsafeRunFuture();
 
     expect(result, 1000);
   });
@@ -229,7 +227,7 @@ void main() {
   test('string', () async {
     final s = Rill.emits(['h', 'e', 'l', 'l', 'o']);
 
-    final result = await s.compile().string().unsafeRunToFuture();
+    final result = await s.compile().string().unsafeRunFuture();
 
     expect(result, 'hello');
   });
@@ -238,7 +236,7 @@ void main() {
     final dartStream = Stream.periodic(const Duration(milliseconds: 2), id);
     final rill = Rill.fromStream(dartStream).take(20);
 
-    final result = await rill.compile().toList().unsafeRunToFuture();
+    final result = await rill.compile().toList().unsafeRunFuture();
 
     expect(result, List.generate(20, id));
   });
@@ -247,7 +245,7 @@ void main() {
     final rill =
         Rill.emits([1.some, 2.some, none<int>(), 4.some, none<int>(), 6.some]);
 
-    final result = await rill.unNone().compile().toList().unsafeRunToFuture();
+    final result = await rill.unNone().compile().toList().unsafeRunFuture();
 
     expect(result, [1, 2, 4, 6]);
   });
@@ -259,7 +257,7 @@ void main() {
         .delayBy(const Duration(milliseconds: 100));
     final b = (Rill.emit(42) + Rill.never).compile().last;
 
-    final result = await IO.race(a, b).unsafeRunToFuture();
+    final result = await IO.race(a, b).unsafeRunFuture();
 
     expect(result, 3.some.asLeft<Option<int>>());
   });
@@ -281,7 +279,7 @@ void main() {
 
     final all = odds.interleave(evens);
 
-    final result = await all.compile().toList().unsafeRunToFuture();
+    final result = await all.compile().toList().unsafeRunFuture();
 
     expect(result, List.generate(10, (ix) => ix + 1));
   });
@@ -290,7 +288,7 @@ void main() {
     final ones = Rill.emits([1, 2, 3]);
 
     final result =
-        await ones.intersperse(0).compile().toList().unsafeRunToFuture();
+        await ones.intersperse(0).compile().toList().unsafeRunFuture();
 
     expect(result, [1, 0, 2, 0, 3]);
   });
@@ -302,7 +300,7 @@ void main() {
         .exists((x) => x == 11)
         .compile()
         .last
-        .unsafeRunToFuture();
+        .unsafeRunFuture();
 
     expect(result, true.some);
   });
@@ -314,7 +312,7 @@ void main() {
         .find((x) => x == 11)
         .compile()
         .last
-        .unsafeRunToFuture();
+        .unsafeRunFuture();
 
     expect(result.flatten(), 11.some);
   });
@@ -326,7 +324,7 @@ void main() {
         .forall((x) => x < 10)
         .compile()
         .last
-        .unsafeRunToFuture();
+        .unsafeRunFuture();
 
     expect(result, true.some);
   });
@@ -337,7 +335,7 @@ void main() {
         .take(25)
         .compile()
         .last
-        .unsafeRunToFuture();
+        .unsafeRunFuture();
 
     expect(result, 50.some);
   });
@@ -349,7 +347,7 @@ void main() {
             .delayBy(const Duration(milliseconds: 50)))
         .take(10);
 
-    final result = await now.compile().count().timed().unsafeRunToFuture();
+    final result = await now.compile().count().timed().unsafeRunFuture();
 
     result(
       (elapsed, count) {
@@ -367,7 +365,7 @@ void main() {
             .delayBy(const Duration(milliseconds: 50)))
         .take(10);
 
-    final result = await now.compile().count().timed().unsafeRunToFuture();
+    final result = await now.compile().count().timed().unsafeRunFuture();
 
     result(
       (elapsed, count) {
@@ -381,7 +379,7 @@ void main() {
     final rill = Rill.emits([1, 9, 5, 6, 7, 8, 9, 10])
         .filterWithPrevious((previous, current) => previous < current);
 
-    final result = await rill.compile().toList().unsafeRunToFuture();
+    final result = await rill.compile().toList().unsafeRunFuture();
 
     expect(result, [1, 9, 10]);
   });
@@ -391,7 +389,7 @@ void main() {
         Rill.emits(['hi', 'on', 'the', 'toy', 'a', 'b', 'ribs', 'hello'])
             .changesBy((a, b) => a.length == b.length);
 
-    final result = await rill.compile().toList().unsafeRunToFuture();
+    final result = await rill.compile().toList().unsafeRunFuture();
 
     expect(result, ['hi', 'the', 'a', 'ribs', 'hello']);
   });
@@ -399,7 +397,7 @@ void main() {
   test('split', () async {
     final rill = Rill.range(0, 10, 1).split((a) => a % 4 == 0);
 
-    final result = await rill.compile().toList().unsafeRunToFuture();
+    final result = await rill.compile().toList().unsafeRunFuture();
 
     expect(
       result,
@@ -418,7 +416,7 @@ void main() {
         .sliding(2, step: 3)
         .compile()
         .toList()
-        .unsafeRunToFuture();
+        .unsafeRunFuture();
 
     Future.any([]);
 

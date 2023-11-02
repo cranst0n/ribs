@@ -16,7 +16,7 @@ sealed class Outcome<A> {
   static Outcome<A> errored<A>(RuntimeException error) => Errored(error);
 
   /// Creates a [Canceled] cast as an [Outcome];
-  static Outcome<A> canceled<A>() => const Canceled();
+  static Outcome<A> canceled<A>() => Canceled();
 
   /// Returns an [IO] that will resolve to [onCancel] if the outcome if a
   /// [Canceled], raise an error if the outcome is [Errored] or return the
@@ -49,6 +49,15 @@ sealed class Outcome<A> {
 
   /// Returns `true` if this instance is a [Succeeded], `false` otherwise.
   bool get isSuccess => fold(() => false, (_) => false, (_) => true);
+
+  /// Returns `true` if this instance is the same kind of outcome as [other].
+  /// This will *not* take the wrapped values into consideration of equality.
+  /// Any 2 [Succeeded] instances will result is true being returned, as well
+  /// as any 2 [Errored] or [Canceled].
+  bool isSameType<B>(Outcome<B> other) =>
+      (isSuccess && other.isSuccess) ||
+      (isError && other.isError) ||
+      (isCanceled && other.isCanceled);
 
   @override
   String toString() => fold(
@@ -112,8 +121,8 @@ final class Errored<A> extends Outcome<A> {
 }
 
 /// [IO] [Outcome] when it was canceled before completion.
-final class Canceled extends Outcome<Never> {
-  const Canceled();
+final class Canceled<A> extends Outcome<A> {
+  Canceled();
 
   @override
   B fold<B>(

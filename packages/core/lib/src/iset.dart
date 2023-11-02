@@ -144,11 +144,23 @@ final class ISet<A> {
   int get size => _underlying.length;
 
   /// Returns true if every elements of this set is present in [that].
-  bool subsetOf(ISet<A> that) => that.forall(contains);
+  bool subsetOf(ISet<A> that) => forall(that.contains);
 
   /// Returns a new [IList] with all elements from this set.
   IList<A> toIList() => IList.of(_underlying.toList());
 
   /// Returns a new [List] with all elements from this set.
   List<A> toList() => _underlying.toList();
+
+  @override
+  String toString() =>
+      isEmpty ? 'Empty Set' : mkString(start: 'ISet(', sep: ',', end: ')');
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ISet<A> && _underlying == other._underlying);
+
+  @override
+  int get hashCode => _underlying.hashCode;
 }

@@ -279,7 +279,7 @@ void main() {
   test('IList.traverseIO', () async {
     final result = await ilist([1, 2, 3])
         .traverseIO((a) => IO.pure(a * 2))
-        .unsafeRunToFuture();
+        .unsafeRunFuture();
 
     expect(result, ilist([2, 4, 6]));
   });

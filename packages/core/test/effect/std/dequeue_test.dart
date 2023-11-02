@@ -159,7 +159,7 @@ class DequeueTests {
   static void reverse<Q extends Dequeue<int>>(
     Function1<int, IO<Q>> constructor,
   ) {
-    forAll('reverse', Gen.ilistOf(100, Gen.positiveInt))((l) {
+    forAll('reverse', Gen.ilistOf(100, Gen.positiveInt), (l) {
       final test = constructor(1000000).flatMap((q) {
         return l.traverseIO_(q.offer).flatMap((_) {
           return q.reverse().flatMap((_) {
@@ -171,7 +171,7 @@ class DequeueTests {
       });
 
       expect(test, ioSucceeded());
-    }).run();
+    });
   }
 }
 
@@ -207,7 +207,7 @@ void boundedDequeueTests<Q extends Dequeue<int>>(
       return offer(q, 1).start().flatMap((_) {
         return take(q).flatMap((v1) {
           return IO
-              .delay(() => take(q).unsafeRunToFuture())
+              .delay(() => take(q).unsafeRunFuture())
               .start()
               .flatMap((ff) {
             return ff.joinWithNever().flatMap((f) {

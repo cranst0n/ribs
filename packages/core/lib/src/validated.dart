@@ -65,7 +65,7 @@ sealed class Validated<E, A> implements Functor<A> {
 
   /// Applies the given side-effet [f] for every valid value this instance
   /// represents.
-  Unit foreach(Function1<A, Unit> f) => fold((_) => Unit(), f);
+  void foreach(Function1<A, void> f) => fold((_) => Unit(), f);
 
   /// Returns the value of this instance if it is a [Valid], otherwise returns
   /// the result of evaluating [orElse].

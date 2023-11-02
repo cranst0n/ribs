@@ -1,13 +1,43 @@
+import 'dart:async';
+
 import 'package:ribs_check/src/gen.dart';
 import 'package:ribs_check/src/seeded_random.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:test/test.dart';
 
-Prop<T> Function(TestBody<T> testBody) forAll<T>(
-        String description, Gen<T> gen) =>
-    (testBody) => Prop(description, gen, testBody);
+void forAll<T>(
+  String description,
+  Gen<T> gen,
+  TestBody<T> testBody, {
+  int? numTests,
+  int? seed,
+  String? testOn,
+  Timeout? timeout,
+  dynamic skip,
+  dynamic tags,
+  Map<String, dynamic>? onPlatform,
+  int? retry,
+}) =>
+    Prop(description, gen, testBody).run(
+      numTests: numTests,
+      seed: seed,
+      testOn: testOn,
+      timeout: timeout,
+      skip: skip,
+      tags: tags,
+      onPlatform: onPlatform,
+      retry: retry,
+    );
 
-typedef TestBody<T> = Function1<T, void>;
+typedef TestBody<T> = Function1<T, FutureOr<void>>;
+
+final class TestOptions {
+  final int numTests;
+
+  const TestOptions({
+    this.numTests = 100,
+  });
+}
 
 final class Prop<T> {
   final String description;
@@ -17,7 +47,7 @@ final class Prop<T> {
   Prop(this.description, this.gen, this.testBody);
 
   void run({
-    int numTests = 100,
+    int? numTests,
     int? seed,
     String? testOn,
     Timeout? timeout,
@@ -33,8 +63,8 @@ final class Prop<T> {
 
       final firstFailure = await gen
           .stream(StatefulRandom(seedNN))
-          .take(numTests)
-          .map((value) {
+          .take(numTests ?? 100)
+          .asyncMap((value) {
         count++;
         return _runProp(value, testBody);
       }).firstWhere((result) => result.isDefined,
@@ -50,9 +80,10 @@ final class Prop<T> {
     }, testOn: testOn);
   }
 
-  Option<PropFailure<T>> _runProp(T value, TestBody<T> testBody) {
+  FutureOr<Option<PropFailure<T>>> _runProp(
+      T value, TestBody<T> testBody) async {
     try {
-      testBody(value);
+      await testBody(value);
       return none<PropFailure<T>>();
     } on TestFailure catch (tf) {
       return Some(PropFailure(value, tf));
@@ -68,9 +99,10 @@ final class Prop<T> {
         ? Future.value(Some(original))
         : gen
             .shrink(original.value)
-            .asyncMap((value) => _runProp(value, testBody).fold(
-                () => Future.value(Some(original)),
-                (fail) => _shrink(fail, testBody, count: count - 1)))
+            .asyncMap((value) async => (await _runProp(value, testBody)).fold(
+                  () => Future.value(Some(original)),
+                  (fail) => _shrink(fail, testBody, count: count - 1),
+                ))
             .firstWhere((result) => result.isDefined,
                 orElse: () => Some(original));
   }
