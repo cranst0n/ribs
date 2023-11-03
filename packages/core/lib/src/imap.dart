@@ -143,9 +143,12 @@ final class IMap<K, V> {
   IList<(K, V)> toIList() =>
       ilist(_underlying.entries).map((e) => (e.key, e.value));
 
-  /// Returns an [List] of every key-value pair as a tuple.
+  /// Returns a [List] of every key-value pair as a tuple.
   List<(K, V)> toList() =>
       _underlying.entries.map((e) => (e.key, e.value)).toList();
+
+  /// Returns a new [Map] containing the same key-value pairs.
+  Map<K, V> toMap() => Map.fromEntries(_underlying.entries);
 
   /// Return a new map where the keys and values are creating by applying [f]
   /// to every key-value pair in this map.

@@ -28,12 +28,18 @@ void main() {
     ),
   );
 
-  test('equivalentTo', () {
-    expect(1.megabytes.equivalentTo(1000.kilobytes), isTrue);
+  forAll('equivalentTo',
+      (Gen.positiveInt, informationUnit, informationUnit).tupled, (t) {
+    t((n, unitA, unitB) {
+      expect(unitB(unitA(n).to(unitB)).equivalentTo(unitA(n)), isTrue);
+    });
   });
 
   test('Information.toCoarsest', () {
-    expect(1000000.kilobytes.toCoarsest(), 1.gigabytes);
+    expect(1000000000.bytes.toCoarsest(), 1.gigabytes);
+    expect(4294967296.kibibytes.toCoarsest(), 4.tebibytes);
+    expect(1000000000.bits.toCoarsest(), 1.gigabits);
+    expect(4294967296.kibibits.toCoarsest(), 4.tebibits);
   });
 }
 

@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
 import 'package:ribs_check/src/gen.dart';
 import 'package:ribs_check/src/seeded_random.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:test/test.dart';
 
+@isTest
 void forAll<T>(
   String description,
   Gen<T> gen,

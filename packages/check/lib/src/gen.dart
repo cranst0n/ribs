@@ -53,10 +53,6 @@ final class Gen<A> extends Monad<A> {
   // Instances //
   ///////////////
 
-  static Gen<String> alphaDigit = Choose.integer
-      .choose('0'.codeUnitAt(0), '9'.codeUnitAt(0) + 1)
-      .map(String.fromCharCode);
-
   static Gen<String> alphaLowerChar = Choose.integer
       .choose('a'.codeUnitAt(0), 'z'.codeUnitAt(0) + 1)
       .map(String.fromCharCode);
@@ -79,11 +75,14 @@ final class Gen<A> extends Monad<A> {
   static Gen<String> alphaUpperString([int? size]) =>
       stringOf(alphaLowerChar, size);
 
+  static Gen<String> asciiChar = chooseInt(0, 127).map(String.fromCharCode);
+  static Gen<String> unicodeChar = chooseInt(0, 32768).map(String.fromCharCode);
+
   static Gen<IList<A>> atLeastOne<A>(IList<A> as) =>
       chooseInt(1, as.size - 1).flatMap((size) => ilistOf(size, oneOf(as)));
 
   static Gen<BigInt> bigInt = Gen.chooseInt(1, 20).flatMap(
-      (n) => Gen.listOf(n, Gen.alphaDigit).map((a) => BigInt.parse(a.join())));
+      (n) => Gen.listOf(n, Gen.numChar).map((a) => BigInt.parse(a.join())));
 
   static Gen<bool> boolean = Gen(State((r) => r.nextBool()));
 
@@ -182,6 +181,8 @@ final class Gen<A> extends Monad<A> {
   static Gen<IList<A>> ilistOf<A>(int size, Gen<A> gen) =>
       sequence(IList.fill(size, gen));
 
+  static Gen<int> integer = Gen.chooseInt(-2147483648, 2147483647);
+
   static Gen<List<A>> listOf<A>(int size, Gen<A> gen) =>
       ilistOf(size, gen).map((a) => a.toList());
 
@@ -189,6 +190,10 @@ final class Gen<A> extends Monad<A> {
           int size, Gen<A> keyGen, Gen<B> valueGen) =>
       ilistOf(size, (keyGen, valueGen).tupled).map(
           (a) => Map.fromEntries(a.map((x) => MapEntry(x.$1, x.$2)).toList()));
+
+  static Gen<IMap<A, B>> imapOfN<A, B>(
+          int size, Gen<A> keyGen, Gen<B> valueGen) =>
+      mapOfN(size, keyGen, valueGen).map(IMap.fromMap);
 
   static Gen<NonEmptyIList<A>> nonEmptyIList<A>(Gen<A> gen, [int? limit]) =>
       Choose.integer.choose(1, limit ?? 1000).flatMap((size) =>
@@ -224,7 +229,7 @@ final class Gen<A> extends Monad<A> {
 
   static Gen<String> _charSample(String chars) => oneOf(ilist(chars.split('')));
 
-  static const int _intMaxValue = 4294967296;
+  static const int _intMaxValue = 2147483647;
 }
 
 final class Streams {

@@ -64,6 +64,9 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
   static Codec<Map<K, V>> mapOf<K, V>(KeyCodec<K> codecK, Codec<V> codecV) =>
       from(Decoder.mapOf(codecK, codecV), Encoder.mapOf(codecK, codecV));
 
+  static Codec<IMap<K, V>> imapOf<K, V>(KeyCodec<K> codecK, Codec<V> codecV) =>
+      from(Decoder.imapOf(codecK, codecV), Encoder.imapOf(codecK, codecV));
+
   static Codec<NonEmptyIList<A>> nonEmptyIList<A>(Codec<A> codec) =>
       from(Decoder.nonEmptyIList(codec), Encoder.nonEmptyIList(codec));
 

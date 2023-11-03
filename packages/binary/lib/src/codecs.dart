@@ -49,7 +49,7 @@ Codec<int> uint8 = IntCodec(8, false, Endian.big);
 Codec<int> uint16 = IntCodec(16, false, Endian.big);
 Codec<int> uint24 = IntCodec(24, false, Endian.big);
 Codec<int> uint32 = IntCodec(32, false, Endian.big);
-Codec<int> uint64 = IntCodec(64, false, Endian.big);
+// Codec<int> uint64 = IntCodec(64, false, Endian.big);
 
 Codec<int> int8L = IntCodec(8, true, Endian.little);
 Codec<int> int16L = IntCodec(16, true, Endian.little);

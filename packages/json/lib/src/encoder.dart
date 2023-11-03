@@ -56,6 +56,10 @@ abstract mixin class Encoder<A> {
           KeyEncoder<K> encodeK, Encoder<V> encodeV) =>
       MapEncoder(encodeK, encodeV);
 
+  static Encoder<IMap<K, V>> imapOf<K, V>(
+          KeyEncoder<K> encodeK, Encoder<V> encodeV) =>
+      mapOf(encodeK, encodeV).contramap((im) => im.toMap());
+
   static Encoder<NonEmptyIList<A>> nonEmptyIList<A>(Encoder<A> encodeA) =>
       list(encodeA).contramap((a) => a.toList());
 

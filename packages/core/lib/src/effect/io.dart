@@ -351,9 +351,8 @@ sealed class IO<A> extends Monad<A> {
         return start().flatMap((fiber) {
           return poll(fiber.join())
               .onCancel(fin.productR(() => fiber.cancel()))
-              .flatMap((oc) {
-            return oc.embed(poll(IO.canceled.productR(() => IO.never())));
-          });
+              .flatMap((oc) =>
+                  oc.embed(poll(IO.canceled.productR(() => IO.never()))));
         });
       });
 
