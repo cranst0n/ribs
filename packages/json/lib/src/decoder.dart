@@ -135,6 +135,10 @@ abstract mixin class Decoder<A> {
           KeyDecoder<K> decodeK, Decoder<V> decodeV) =>
       MapDecoder<K, V>(decodeK, decodeV);
 
+  static Decoder<IMap<K, V>> imapOf<K, V>(
+          KeyDecoder<K> decodeK, Decoder<V> decodeV) =>
+      mapOf(decodeK, decodeV).map(IMap.fromMap);
+
   static Decoder<NonEmptyIList<A>> nonEmptyIList<A>(Decoder<A> decodeA) =>
       NonEmptyIListDecoder(decodeA);
 

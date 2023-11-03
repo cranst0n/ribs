@@ -267,13 +267,10 @@ void main() {
 
       test('support re-enablement via cancelable', () {
         final io = IO.deferred<Unit>().flatMap((gate) {
-          final test = IO.deferred<Unit>().flatMap((latch) {
-            final a = gate.complete(Unit()).productR(() => latch.value());
-            final b = IO.uncancelable((_) => a);
-            final c = b.cancelable(latch.complete(Unit()).voided());
-
-            return c;
-          });
+          final test = IO.deferred<Unit>().flatMap((latch) => IO
+              .uncancelable(
+                  (_) => gate.complete(Unit()).productR(() => latch.value()))
+              .cancelable(latch.complete(Unit()).voided()));
 
           return test
               .start()
@@ -281,7 +278,7 @@ void main() {
         });
 
         expect(io, ioSucceeded(Unit()));
-      }, skip: true);
+      }, skip: 'No ticker');
 
       test('only unmask within current fiber', () async {
         var passed = false;

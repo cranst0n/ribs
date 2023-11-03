@@ -433,7 +433,7 @@ final class _Drop extends BitVector {
   _Bytes align() => interpretDrop();
 
   @override
-  bool get(int n) => _underlying.get(n);
+  bool get(int n) => _underlying.get(offset + n);
 
   @override
   BitVector drop(int n) {
