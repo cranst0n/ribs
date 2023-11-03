@@ -11,12 +11,10 @@ jobs:
     name: CI
 
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.experimental }}
 
     strategy:
       matrix:
         sdk: [stable, beta]
-        experimental: [false, true]
 
     steps:
       - uses: actions/checkout@v4
@@ -42,11 +40,11 @@ jobs:
       
       - name: Analyze project source
         run: melos exec dart analyze
-        if: ${{ matrix.experimental == false }}
+        if: ${{ matrix.sdk == 'stable' }}
 
       - name: Analyze project source (No fatal)
         run: melos exec dart analyze --no-fatal-warnings
-        if: ${{ matrix.experimental == true }}
+        if: ${{ matrix.sdk != 'stable' }}
 
       - name: Run tests (with coverage)
         run: melos coverage --no-select
