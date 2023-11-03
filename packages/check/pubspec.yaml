@@ -1,5 +1,5 @@
 name: ribs_check
-version: 1.0.0-dev.4
+version: 1.0.0-dev.5
 homepage: https://cranst0n.github.io/ribs/
 description: >
   Property based testing.

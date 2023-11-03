@@ -100,7 +100,7 @@ Gen<int> genUint8 = Gen.chooseInt(0, 2 ^ 8);
 Gen<int> genUint16 = Gen.chooseInt(0, 2 ^ 16);
 Gen<int> genUint24 = Gen.chooseInt(0, 2 ^ 24);
 Gen<int> genUint32 = Gen.chooseInt(0, 2 ^ 32);
-Gen<int> genUint64 = Gen.chooseInt(0, 2 ^ 32);
+// Gen<int> genUint64 = Gen.chooseInt(0, 2 ^ 32);
 
 // floating point math FTW
 Gen<double> genFloat32 = Gen.chooseDouble(-10000000.0, 10000000.0);

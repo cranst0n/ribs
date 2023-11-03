@@ -1,3 +1,9 @@
+## 1.0.0-dev.5
+
+- Bug fixes and API changes
+- Documentation
+- Update dependencies
+
 ## 1.0.0-dev.4
 
 - Documentation

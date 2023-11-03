@@ -1,3 +1,9 @@
+## 1.0.0-dev.6
+
+- Bug fixes
+- API enchancements
+- Documentation
+
 ## 1.0.0-dev.5
 
 - Update BitVector hashCode

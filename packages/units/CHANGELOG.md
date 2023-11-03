@@ -1,3 +1,7 @@
+## 1.0.0-dev.6
+
+- Update dependencies
+
 ## 1.0.0-dev.5
 
 - Update Quantity hashCode
