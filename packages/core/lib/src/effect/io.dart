@@ -1,8 +1,10 @@
 import 'dart:async';
-import 'dart:io' show stderr, stdin, stdout;
 
 import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/src/effect/platform/stub.dart'
+    if (dart.library.html) 'platform/web.dart'
+    if (dart.library.io) 'platform/non_web.dart';
 import 'package:ribs_core/src/effect/std/internal/stack.dart';
 
 /// Specific [Exception] type that is raised within [IO].
@@ -31,6 +33,8 @@ typedef RacePairOutcome<A, B> = Either<AWon<A, B>, BWon<A, B>>;
 /// IO is a datatype that can be used to control side-effects within
 /// synchronous and asynchronous code.
 sealed class IO<A> extends Monad<A> {
+  static final PlatformImpl _platformImpl = PlatformImpl();
+
   /// Suspends the asynchronous effect [k] within [IO]. When evaluation is
   /// completed, the callback will be invoked with the result of the [IO].
   /// If the newly created [IO] is canceled, the provided finalizer will be
@@ -188,21 +192,19 @@ sealed class IO<A> extends Monad<A> {
   static IO<DateTime> now = IO.delay(() => DateTime.now());
 
   /// Writes [message] to stdout, delaying the effect until evaluation.
-  static IO<Unit> print(String message) => IO.exec(() => stdout.write(message));
+  static IO<Unit> print(String message) => _platformImpl.print(message);
 
   /// Writes [message] with a newline to stdout, delaying the effect until
   /// evaluation.
-  static IO<Unit> println(String message) =>
-      IO.exec(() => stdout.writeln(message));
+  static IO<Unit> println(String message) => _platformImpl.println(message);
 
   /// Writes [message] to stderr, delaying the effect until evaluation.
-  static IO<Unit> printErr(String message) =>
-      IO.exec(() => stderr.write(message));
+  static IO<Unit> printErr(String message) => _platformImpl.printErr(message);
 
   /// Writes [message] with a newline to stderr, delaying the effect until
   /// evaluation.
   static IO<Unit> printErrLn(String message) =>
-      IO.exec(() => stderr.writeln(message));
+      _platformImpl.printErrLn(message);
 
   /// Lifts a pure value into [IO].
   static IO<A> pure<A>(A a) => _Pure(a);
@@ -275,9 +277,7 @@ sealed class IO<A> extends Monad<A> {
 
   /// Reads a line from stdin. **This is a blocking operation and will
   /// not finish until a full line of input is available from the console.**
-  static IO<String> readLine() =>
-      IO.delay(() => stdin.readLineSync()).flatMap((l) => Option(l).fold(
-          () => IO.raiseError(RuntimeException('stdin line ended')), IO.pure));
+  static IO<String> readLine() => _platformImpl.readLine();
 
   /// Creates a new [Ref] of the given generic type.
   static IO<Ref<A>> ref<A>(A a) => Ref.of(a);

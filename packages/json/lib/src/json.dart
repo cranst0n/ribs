@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
@@ -29,17 +28,11 @@ sealed class Json {
   static Either<ParsingFailure, Json> parseBytes(Uint8List input) =>
       dawn.Parser.parseFromBytes(input);
 
-  static Either<ParsingFailure, Json> parseFile(File f) =>
-      dawn.Parser.parseFromBytes(f.readAsBytesSync());
-
   static Either<Error, A> decode<A>(String input, Decoder<A> decoder) =>
       parse(input).leftMap<Error>(id).flatMap((a) => decoder.decode(a));
 
   static Either<Error, A> decodeBytes<A>(Uint8List input, Decoder<A> decoder) =>
       parseBytes(input).leftMap<Error>(id).flatMap((a) => decoder.decode(a));
-
-  static Either<Error, A> decodeFile<A>(File f, Decoder<A> decoder) =>
-      parseFile(f).leftMap<Error>(id).flatMap((a) => decoder.decode(a));
 
   A foldWith<A>(JsonFolder<A> folder);
 
