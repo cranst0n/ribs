@@ -3,8 +3,8 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
 const _maxJsonDepth = 3;
-const _maxArraySize = 4;
-const _maxObjectSize = 4;
+const _maxArraySize = 5;
+const _maxObjectSize = 5;
 
 Gen<Json> genJson = genJsonAtDepth(_maxJsonDepth);
 
@@ -21,14 +21,14 @@ Gen<JString> genString = Gen.chooseInt(1, 6)
 
 Gen<JArray> genArray(int depth) {
   return Gen.chooseInt(0, _maxArraySize).flatMap((size) {
-    return Gen.listOf(size, genJsonAtDepth(depth - 1))
+    return Gen.listOfN(size, genJsonAtDepth(depth - 1))
         .map((a) => JArray(a.toIList()));
   });
 }
 
 Gen<JsonObject> genObject(int depth) {
   return Gen.chooseInt(0, _maxObjectSize).flatMap((size) {
-    final fields = Gen.listOf(
+    final fields = Gen.listOfN(
         size,
         Gen.alphaNumString(3).flatMap(
             (key) => genJsonAtDepth(depth - 1).map((value) => (key, value))));
@@ -38,13 +38,12 @@ Gen<JsonObject> genObject(int depth) {
 }
 
 Gen<Json> genJsonAtDepth(int depth) {
-  final deeperJsons = depth > 0
-      ? ilist([
-          genArray(depth),
-          genObject(depth).map(Json.fromJsonObject),
-        ])
-      : nil<Gen<Json>>();
-
-  return Gen.oneOfGen(
-      ilist([genNull, genBoolean, genNumber, genString]).concat(deeperJsons));
+  return Gen.oneOfGen(ilist([
+    genNull,
+    genBoolean,
+    genNumber,
+    genString,
+    if (depth > 0) genArray(depth),
+    if (depth > 0) genObject(depth).map(Json.fromJsonObject),
+  ]));
 }

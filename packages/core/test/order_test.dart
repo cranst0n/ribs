@@ -1,3 +1,4 @@
+import 'package:ribs_check/ribs_check.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:test/test.dart';
 
@@ -56,5 +57,25 @@ void main() {
 
     expect(Order.strings.gt('cat', 'chat'), isFalse);
     expect(Order.strings.gt('cat', 'cat'), isFalse);
+  });
+
+  test('gteqv', () {
+    expect(Order.ints.gteqv(1, 2), isFalse);
+    expect(Order.ints.gteqv(1, 1), isTrue);
+
+    expect(Order.doubles.gteqv(1.1, 1.2), isFalse);
+    expect(Order.doubles.gteqv(1.1, 1.1), isTrue);
+
+    expect(Order.strings.gteqv('cat', 'chat'), isFalse);
+    expect(Order.strings.gteqv('cat', 'cat'), isTrue);
+  });
+
+  forAll('reverse', Gen.integer.tuple2, (ab) {
+    final (a, b) = ab;
+
+    expect(
+      Order.ints.reverse().reverse().compare(a, b),
+      Order.ints.compare(a, b),
+    );
   });
 }

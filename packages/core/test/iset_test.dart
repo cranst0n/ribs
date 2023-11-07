@@ -1,3 +1,4 @@
+import 'package:ribs_check/ribs_check.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/test_matchers.dart';
 import 'package:test/test.dart';
@@ -97,6 +98,14 @@ void main() {
       expect(iset({-1, -2, 3}).forall((x) => x > 0), isFalse);
     });
 
+    forAll('forEach',
+        Gen.ilistOf(Gen.chooseInt(0, 100), Gen.integer).map((l) => l.toISet()),
+        (aSet) {
+      var count = 0;
+      aSet.forEach((_) => count += 1);
+      expect(count, aSet.size);
+    });
+
     test('groupBy', () {
       final s = iset({1, 2, 3, 4, 5, 6, 7, 8, 9});
 
@@ -161,6 +170,15 @@ void main() {
       expect(iset<int>({2, 4, 6}).subsetOf(iset({2, 4, 6})), isTrue);
       expect(iset<int>({2, 4, 6}).subsetOf(iset({2, 4, 6, 8})), isTrue);
       expect(iset<int>({2, 4, 6}).subsetOf(iset({2, 4})), isFalse);
+    });
+
+    forAll(
+        'size/emptines',
+        Gen.chooseInt(0, 100)
+            .map((n) => IList.tabulate(n, id))
+            .map((a) => a.toISet()), (aSet) {
+      expect(aSet.size > 0, aSet.isNotEmpty);
+      expect(aSet.size == 0, aSet.isEmpty);
     });
   });
 }

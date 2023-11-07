@@ -29,7 +29,7 @@ final class FloatCodec {
     });
 
     final decoder = Decoder.instance<double>(
-      (bv) => bv.aquire(nBits).fold(
+      (bv) => bv.acquire(nBits).fold(
             (_) => Either.left(Err.insufficientBits(nBits, bv.size)),
             (bits) => Either.right(
               DecodeResult(

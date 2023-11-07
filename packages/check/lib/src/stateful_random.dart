@@ -7,6 +7,8 @@ final class StatefulRandom {
 
   const StatefulRandom([this._seed]);
 
+  int? get currentSeed => _seed;
+
   (StatefulRandom, bool) nextBool() => _next((rnd) => rnd.nextBool());
 
   (StatefulRandom, double) nextDouble() => _next((rnd) => rnd.nextDouble());

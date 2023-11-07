@@ -55,7 +55,8 @@ void main() {
     final codec = uint8;
 
     final value = codec
-        .decode(ByteVector.fromBin('101').getOrElse(() => fail('boom')).bits)
+        .decode(
+            ByteVector.fromBinString('101').getOrElse(() => fail('boom')).bits)
         .getOrElse(() => fail('boom'))
         .value;
 

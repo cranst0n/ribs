@@ -21,9 +21,22 @@ void main() {
     expect(SyncIO.pure(21).map((a) => a * 2).unsafeRunSync(), 42);
   });
 
+  test('as', () {
+    expect(SyncIO.pure(21).as('hi').unsafeRunSync(), 'hi');
+  });
+
   test('flatMap', () {
     expect(
       SyncIO.pure(21).flatMap((a) => SyncIO.pure(a * 2)).unsafeRunSync(),
+      42,
+    );
+  });
+
+  test('handleError', () {
+    expect(
+      SyncIO.raiseError<int>(RuntimeException('boom!'))
+          .handleError((a) => 42)
+          .unsafeRunSync(),
       42,
     );
   });
@@ -34,6 +47,47 @@ void main() {
           .handleErrorWith((a) => SyncIO.pure(42))
           .unsafeRunSync(),
       42,
+    );
+  });
+
+  test('productL', () {
+    expect(SyncIO.pure(42).productL(() => SyncIO.pure(0)).unsafeRunSync(), 42);
+  });
+
+  test('productR', () {
+    expect(SyncIO.pure(42).productR(() => SyncIO.pure(0)).unsafeRunSync(), 0);
+  });
+
+  test('redeem', () {
+    expect(SyncIO.pure(42).redeem((_) => 'bad', (_) => 'good').unsafeRunSync(),
+        'good');
+
+    expect(
+        SyncIO.raiseError<int>(RuntimeException('boom'))
+            .redeem((_) => 'bad', (_) => 'good')
+            .unsafeRunSync(),
+        'bad');
+  });
+
+  test('redeemWith', () {
+    expect(
+      SyncIO.pure(42)
+          .redeemWith(
+            (_) => SyncIO.pure('bad'),
+            (_) => SyncIO.pure('good'),
+          )
+          .unsafeRunSync(),
+      'good',
+    );
+
+    expect(
+      SyncIO.raiseError<int>(RuntimeException('boom'))
+          .redeemWith(
+            (_) => SyncIO.pure('bad'),
+            (_) => SyncIO.pure('good'),
+          )
+          .unsafeRunSync(),
+      'bad',
     );
   });
 

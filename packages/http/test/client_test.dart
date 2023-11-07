@@ -31,7 +31,7 @@ void main() {
       return client
           .requestString('https://postman-echo.com/get?foo1=bar1&foo2=bar2');
     }).unsafeRunFuture();
-  });
+  }, skip: true);
 
   test('post json', () async {
     await Client.sdk().use((client) {
@@ -46,7 +46,7 @@ void main() {
           ))
           .flatTap((r) => EntityDecoder.string.decode(r, false));
     }).unsafeRunFuture();
-  });
+  }, skip: true);
 
   test('post form', () async {
     await Client.sdk().use((client) {
@@ -66,7 +66,7 @@ void main() {
         return EntityDecoder.string.decode(r, false);
       });
     }).unsafeRunFuture();
-  });
+  }, skip: true);
 
   test('json', () async {
     await Client.sdk().use((client) {
@@ -74,5 +74,5 @@ void main() {
           .fetchJsonString('https://postman-echo.com/get?foo1=bar1&foo2=bar2')
           .map((a) => a.printWith(Printer.spaces2));
     }).unsafeRunFuture();
-  });
+  }, skip: true);
 }

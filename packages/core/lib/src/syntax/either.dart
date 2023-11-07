@@ -11,6 +11,12 @@ extension EitherSyntaxOps<A> on A {
   Either<B, A> asRight<B>() => Either.right(this);
 }
 
+/// Until lambda destructuring arrives, this will provide a little bit
+/// of convenience: https://github.com/dart-lang/language/issues/3001
+extension EitherTuple2Ops<EE, A, B> on Either<EE, (A, B)> {
+  Either<EE, C> mapN<C>(Function2<A, B, C> f) => map(f.tupled);
+}
+
 /// {@template either_tuple_ops}
 /// Functions available on a tuple of [Either]s.
 /// {@endtemplate}

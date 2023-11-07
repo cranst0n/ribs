@@ -4,13 +4,13 @@ import 'package:ribs_core/test_matchers.dart';
 import 'package:test/test.dart';
 
 void main() {
-  forAll('Foldable.count', Gen.ilistOf(100, Gen.positiveInt), (l) {
+  forAll('Foldable.count', Gen.ilistOfN(100, Gen.positiveInt), (l) {
     expect(l.count((a) => a > 0), 100);
     expect(l.count((a) => a <= 0), 0);
   });
 
   forAll('Foldable.find',
-      Gen.ilistOf(20, Gen.chooseInt(0, 1000).map((x) => x * 2)), (l) {
+      Gen.ilistOfN(20, Gen.chooseInt(0, 1000).map((x) => x * 2)), (l) {
     expect(l.find((x) => x.isEven).isDefined, isTrue);
   });
 
@@ -19,7 +19,7 @@ void main() {
   });
 
   forAll('Foldable.exists',
-      Gen.ilistOf(20, Gen.chooseInt(0, 1000).map((x) => x * 2)), (l) {
+      Gen.ilistOfN(20, Gen.chooseInt(0, 1000).map((x) => x * 2)), (l) {
     expect(l.exists((x) => x.isEven), isTrue);
   });
 

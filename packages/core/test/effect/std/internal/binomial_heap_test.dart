@@ -4,7 +4,7 @@ import 'package:ribs_core/src/effect/std/internal/binomial_heap.dart';
 import 'package:test/test.dart';
 
 void main() {
-  forAll('dequeue by priority', Gen.ilistOf(100, Gen.positiveInt), (l) {
+  forAll('dequeue by priority', Gen.ilistOfN(100, Gen.positiveInt), (l) {
     final heap = buildHeap(l, Order.ints);
     final back = toList(heap);
 
@@ -78,7 +78,7 @@ sealed class Op<A> {
       ]));
 
   static Gen<IList<Op<A>>> genList<A>(Gen<A> genA) =>
-      Gen.ilistOf(100, gen(genA));
+      Gen.ilistOfN(100, gen(genA));
 }
 
 final class Insert<A> extends Op<A> {

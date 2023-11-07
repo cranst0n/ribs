@@ -40,9 +40,7 @@ void main() {
 
     testCodec('integer', Gen.integer, Codec.integer);
 
-    testCodec(
-        'ilist',
-        Gen.chooseInt(0, 20).flatMap((n) => Gen.ilistOf(n, Gen.boolean)),
+    testCodec('ilist', Gen.ilistOf(Gen.chooseInt(0, 20), Gen.boolean),
         Codec.ilist(Codec.boolean));
 
     testCodec(
@@ -53,9 +51,7 @@ void main() {
 
     testCodec('json', genJson, Codec.json);
 
-    forAll(
-        'list', Gen.chooseInt(0, 20).flatMap((n) => Gen.listOf(n, Gen.boolean)),
-        (l) {
+    forAll('list', Gen.listOf(Gen.chooseInt(0, 20), Gen.boolean), (l) {
       Codec.list(Codec.boolean)
           .decode(Codec.list(Codec.boolean).encode(l))
           .fold(

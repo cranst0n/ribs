@@ -798,6 +798,78 @@ void main() {
     expect(opWasCanceled, true);
   });
 
+  test('fromEither', () {
+    expect(IO.fromEither(42.asRight<String>()), ioSucceeded(42));
+    expect(IO.fromEither('boom'.asLeft<int>()), ioErrored());
+  });
+
+  test('fromOption', () {
+    expect(IO.fromOption(const Some(42), () => 'boom'), ioSucceeded(42));
+    expect(IO.fromOption(none<int>(), () => 'boom'), ioErrored());
+  });
+
+  test('bothOutcome', () {
+    final err = RuntimeException('boom');
+
+    expect(
+      IO.bothOutcome(IO.canceled, IO.raiseError<Unit>(err)),
+      ioSucceeded((Outcome.canceled<Unit>(), Outcome.errored<Unit>(err))),
+    );
+
+    expect(
+      IO.bothOutcome(IO.canceled, IO.pure(Unit())),
+      ioSucceeded((Outcome.canceled<Unit>(), Outcome.succeeded<Unit>(Unit()))),
+    );
+
+    expect(
+      IO.bothOutcome(
+        IO.unit.delayBy(const Duration(milliseconds: 100)),
+        IO.unit.delayBy(const Duration(milliseconds: 200)),
+      ),
+      ioSucceeded(
+        (Outcome.succeeded<Unit>(Unit()), Outcome.succeeded<Unit>(Unit())),
+      ),
+    );
+
+    expect(
+      IO.bothOutcome(
+        IO.unit.delayBy(const Duration(milliseconds: 200)),
+        IO.unit.delayBy(const Duration(milliseconds: 100)),
+      ),
+      ioSucceeded(
+        (Outcome.succeeded<Unit>(Unit()), Outcome.succeeded<Unit>(Unit())),
+      ),
+    );
+  });
+
+  test('raceOutcome', () {
+    expect(
+      IO.raceOutcome(IO.canceled, IO.pure(42)),
+      ioSucceeded(Outcome.canceled<Unit>().asLeft<Outcome<int>>()),
+    );
+
+    expect(
+      IO.raceOutcome(IO.pure(42), IO.canceled),
+      ioSucceeded(Outcome.succeeded(42).asLeft<Outcome<Unit>>()),
+    );
+
+    expect(
+      IO.raceOutcome(
+        IO.pure(0).delayBy(const Duration(milliseconds: 200)),
+        IO.pure(42).delayBy(const Duration(milliseconds: 100)),
+      ),
+      ioSucceeded(Outcome.succeeded(42).asRight<Outcome<int>>()),
+    );
+
+    expect(
+      IO.raceOutcome(
+        IO.pure(0).delayBy(const Duration(milliseconds: 100)),
+        IO.pure(42).delayBy(const Duration(milliseconds: 200)),
+      ),
+      ioSucceeded(Outcome.succeeded(0).asLeft<Outcome<int>>()),
+    );
+  });
+
   test('map pure', () {
     const n = 200;
 
@@ -1106,6 +1178,149 @@ void main() {
 
     expect(value, 6);
     expect(elapsed.inMilliseconds, closeTo(500, 150));
+  });
+
+  test('bracket', () async {
+    var count = 0;
+
+    await expectLater(
+      IO.pure(41).bracket(
+          (a) => IO.delay(() => a + 1), (_) => IO.exec(() => count += 1)),
+      ioSucceeded(42),
+    );
+
+    expect(count, 1);
+
+    await expectLater(
+      IO.pure(41).bracket(
+          (a) => IO
+              .delay(() => a + 1)
+              .productR(() => IO.raiseError<int>(RuntimeException('boom'))),
+          (_) => IO.exec(() => count += 1)),
+      ioErrored(),
+    );
+
+    expect(count, 2);
+
+    await expectLater(
+      IO.pure(41).bracket(
+          (a) => IO.delay(() => a + 1).productR(() => IO.canceled),
+          (_) => IO.exec(() => count += 1)),
+      ioCanceled(),
+    );
+
+    expect(count, 3);
+  });
+
+  test('iterateUntil', () {
+    var count = 0;
+
+    expect(
+      IO
+          .exec(() => count += 1)
+          .flatMap((a) => IO.pure(count))
+          .iterateUntil((a) => a == 42),
+      ioSucceeded(42),
+    );
+  });
+
+  test('option', () {
+    expect(IO.pure(42).option(), ioSucceeded(const Some(42)));
+    expect(IO.raiseError<int>(RuntimeException('boom')).option(),
+        ioSucceeded(none<int>()));
+    expect(IO.canceled.option(), ioCanceled());
+  });
+
+  test('orElse', () {
+    expect(IO.pure(42).orElse(() => IO.pure(0)), ioSucceeded(42));
+    expect(
+        IO.raiseError<int>(RuntimeException('boom')).orElse(() => IO.pure(0)),
+        ioSucceeded(0));
+    expect(IO.canceled.orElse(() => IO.pure(Unit())), ioCanceled());
+  });
+
+  test('raiseUnless', () {
+    expect(IO.raiseUnless(false, () => RuntimeException('boom')), ioErrored());
+    expect(IO.raiseUnless(true, () => RuntimeException('boom')), ioSucceeded());
+  });
+
+  test('raiseWhen', () {
+    expect(IO.raiseWhen(true, () => RuntimeException('boom')), ioErrored());
+    expect(IO.raiseWhen(false, () => RuntimeException('boom')), ioSucceeded());
+  });
+
+  test('redeem', () {
+    expect(
+      IO.pure(42).redeem((err) => 'a', (a) => a.toString()),
+      ioSucceeded('42'),
+    );
+
+    expect(
+      IO
+          .raiseError<int>(RuntimeException('boom'))
+          .redeem((err) => 'a', (a) => a.toString()),
+      ioSucceeded('a'),
+    );
+  });
+
+  test('redeemWith', () {
+    expect(
+      IO
+          .pure(42)
+          .redeemWith((err) => IO.pure('a'), (a) => IO.pure(a.toString())),
+      ioSucceeded('42'),
+    );
+
+    expect(
+      IO
+          .raiseError<int>(RuntimeException('boom'))
+          .redeemWith((err) => IO.pure('a'), (a) => IO.pure(a.toString())),
+      ioSucceeded('a'),
+    );
+  });
+
+  test('tupleLeft', () {
+    expect(IO.pure(42).tupleLeft('hi'), ioSucceeded(('hi', 42)));
+  });
+
+  test('tupleRight', () {
+    expect(IO.pure(42).tupleRight('hi'), ioSucceeded((42, 'hi')));
+  });
+
+  test('unlessA', () async {
+    var count = 0;
+
+    await expectLater(
+        IO.unlessA(true, () => IO.exec(() => count += 1)), ioSucceeded());
+
+    expect(count, 0);
+
+    await expectLater(
+        IO.unlessA(false, () => IO.exec(() => count += 1)), ioSucceeded());
+
+    expect(count, 1);
+  });
+
+  test('whenA', () async {
+    var count = 0;
+
+    await expectLater(
+        IO.whenA(true, () => IO.exec(() => count += 1)), ioSucceeded());
+
+    expect(count, 1);
+
+    await expectLater(
+        IO.whenA(false, () => IO.exec(() => count += 1)), ioSucceeded());
+
+    expect(count, 1);
+  });
+
+  test('expect', () {
+    expect(IO.stub, ioErrored());
+  });
+
+  test('andWait', () {
+    expect(IO.pure(42).andWait(Duration.zero), ioSucceeded());
   });
 
   test('timeoutTo initial', () {

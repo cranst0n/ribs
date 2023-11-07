@@ -21,7 +21,8 @@ Codec<ByteVector> bytes = bits
 
 Codec<ByteVector> bytesN(int size) => FixedSizeCodec(size, bytes);
 
-Codec<ByteVector> bytesStrict(int size) => FixedSizeStrictCodec(size, bytes);
+Codec<ByteVector> bytesStrict(int size) =>
+    FixedSizeStrictCodec(size * 8, bytes);
 
 Codec<Unit> constant(BitVector bytes) => ConstantCodec(bytes);
 Codec<A> provide<A>(A value) => ProvideCodec(value);
@@ -37,13 +38,13 @@ Codec<bool> booleanN(int size) {
 Codec<B> discriminatedBy<A, B>(Codec<A> by, IMap<A, Codec<B>> typecases) =>
     DiscriminatorCodec.typecases(by, typecases);
 
+Codec<int> int4 = IntCodec(4, true, Endian.big);
 Codec<int> int8 = IntCodec(8, true, Endian.big);
 Codec<int> int16 = IntCodec(16, true, Endian.big);
 Codec<int> int24 = IntCodec(24, true, Endian.big);
 Codec<int> int32 = IntCodec(32, true, Endian.big);
 Codec<int> int64 = IntCodec(64, true, Endian.big);
 
-Codec<int> uint2 = IntCodec(2, false, Endian.big);
 Codec<int> uint4 = IntCodec(4, false, Endian.big);
 Codec<int> uint8 = IntCodec(8, false, Endian.big);
 Codec<int> uint16 = IntCodec(16, false, Endian.big);
@@ -51,13 +52,13 @@ Codec<int> uint24 = IntCodec(24, false, Endian.big);
 Codec<int> uint32 = IntCodec(32, false, Endian.big);
 // Codec<int> uint64 = IntCodec(64, false, Endian.big);
 
+Codec<int> int4L = IntCodec(4, true, Endian.little);
 Codec<int> int8L = IntCodec(8, true, Endian.little);
 Codec<int> int16L = IntCodec(16, true, Endian.little);
 Codec<int> int24L = IntCodec(24, true, Endian.little);
 Codec<int> int32L = IntCodec(32, true, Endian.little);
 Codec<int> int64L = IntCodec(64, true, Endian.little);
 
-Codec<int> uint2L = IntCodec(2, false, Endian.little);
 Codec<int> uint4L = IntCodec(4, false, Endian.little);
 Codec<int> uint8L = IntCodec(8, false, Endian.little);
 Codec<int> uint16L = IntCodec(16, false, Endian.little);
@@ -89,6 +90,8 @@ Codec<String> utf16_32 = VariableSizedCodec(int32, utf16);
 Codec<String> utf16_32L = VariableSizedCodec(int32L, utf16);
 
 Codec<String> cstring = StringCodec.cstring();
+
+Codec<Unit> ignore(int size) => IgnoreCodec(size);
 
 Codec<List<A>> list<A>(Codec<A> codec, [int? limit]) =>
     ListCodec(codec, limit: Option(limit));

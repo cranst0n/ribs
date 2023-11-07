@@ -8,7 +8,7 @@ final class ConstantCodec extends Codec<Unit> {
 
   @override
   Either<Err, DecodeResult<Unit>> decode(BitVector bv) {
-    return bv.aquire(constant.size).fold(
+    return bv.acquire(constant.size).fold(
         (err) => Either.left(Err.insufficientBits(constant.size, bv.size)),
         (actual) => Either.cond(
               () => actual == constant,

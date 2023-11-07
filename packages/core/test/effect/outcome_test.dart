@@ -57,6 +57,20 @@ void main() {
     test('canceled', () {
       expect(Outcome.canceled<Unit>() == Outcome.canceled<Unit>(), isTrue);
     });
+
+    test('isSameType', () {
+      final err = RuntimeException('boom');
+
+      expect(Outcome.succeeded('a').isSameType(Outcome.succeeded(42)), isTrue);
+      expect(Outcome.errored<int>(err).isSameType(Outcome.errored<Unit>(err)),
+          isTrue);
+      expect(
+          Outcome.canceled<int>().isSameType(Outcome.canceled<Unit>()), isTrue);
+
+      expect(Outcome.succeeded(0).isSameType(Outcome.canceled<int>()), isFalse);
+      expect(Outcome.canceled<Unit>().isSameType(Outcome.errored<int>(err)),
+          isFalse);
+    });
   });
 
   group('embed', () {

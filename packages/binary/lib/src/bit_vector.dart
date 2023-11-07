@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:ribs_binary/ribs_binary.dart';
+import 'package:ribs_binary/src/internal/byte_vector.dart';
 import 'package:ribs_core/ribs_core.dart';
 
 sealed class BitVector {
@@ -23,6 +24,23 @@ sealed class BitVector {
   }
 
   factory BitVector.fromByteVector(ByteVector bs) => _toBytes(bs, bs.size * 8);
+
+  static BitVector fromValidBinString(String s) => fromBinString(s).fold(
+        (err) => throw Exception('Illegal binary string: $s ($err)'),
+        id,
+      );
+
+  static Either<String, BitVector> fromBinString(String s) {
+    return fromBinInternal(s).mapN((bytes, size) {
+      final toDrop = switch (size) {
+        0 => 0,
+        _ when size % 8 == 0 => 0,
+        _ => 8 - (size % 8),
+      };
+
+      return bytes.bits.drop(toDrop);
+    });
+  }
 
   factory BitVector.fromInt(
     int i, [
@@ -53,7 +71,11 @@ sealed class BitVector {
 
   _Bytes align();
 
+  bool call(int n) => get(n);
+
   BitVector concat(BitVector b2);
+
+  bool containsSlice(BitVector slice) => indexOfSlice(slice).isDefined;
 
   BitVector drop(int n);
 
@@ -75,7 +97,7 @@ sealed class BitVector {
 
   BitVector append(bool bit) => concat(BitVector.bit(bit));
 
-  Either<String, BitVector> aquire(int bits) => Either.cond(
+  Either<String, BitVector> acquire(int bits) => Either.cond(
         () => sizeGreaterThanOrEqual(bits),
         () => take(bits),
         () => 'Cannot acquire $bits bits from BitVector of size $size',
@@ -91,6 +113,13 @@ sealed class BitVector {
     } else {
       return take(size - n);
     }
+  }
+
+  BitVector dropWhile(Function1<bool, bool> f) {
+    int toDrop(BitVector b, int ix) =>
+        b.nonEmpty && f(b.head) ? toDrop(b.tail(), ix + 1) : ix;
+
+    return drop(toDrop(this, 0));
   }
 
   bool endsWith(BitVector b) => takeRight(b.size) == b;
@@ -117,6 +146,24 @@ sealed class BitVector {
 
   Option<bool> get headOption => lift(0);
 
+  Option<int> indexOfSlice(BitVector slice, [int from = 0]) {
+    Option<int> go(BitVector b, int ix) {
+      if (b.isEmpty) {
+        return none();
+      } else if (b.startsWith(slice)) {
+        return Some(ix);
+      } else {
+        return go(b.tail(), ix + 1);
+      }
+    }
+
+    return go(drop(from), 0);
+  }
+
+  BitVector init() => dropRight(1);
+
+  bool get last => call(size - 1);
+
   Option<bool> get lastOption => lift(size - 1);
 
   BitVector invertReverseByteOrder() {
@@ -137,7 +184,15 @@ sealed class BitVector {
 
   bool get nonEmpty => !isEmpty;
 
-  BitVector padTo(int n) => size < n ? concat(BitVector.low(n - size)) : this;
+  BitVector splice(int ix, BitVector b) => take(ix).concat(b).concat(drop(ix));
+
+  BitVector padLeft(int n) =>
+      size < n ? BitVector.low(n - size).concat(this) : this;
+
+  BitVector padRight(int n) =>
+      size < n ? concat(BitVector.low(n - size)) : this;
+
+  BitVector padTo(int n) => padRight(n);
 
   BitVector patch(int ix, BitVector b) =>
       take(ix).concat(b).concat(drop(ix + b.size));

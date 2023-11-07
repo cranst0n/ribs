@@ -23,7 +23,18 @@ void main() {
       expect(() => nel(1, [2, 3])[5], throwsRangeError);
     });
 
+    test('ap', () {
+      int inc1(int i) => i + 1;
+      int inc2(int i) => i + 2;
+
+      expect(
+        nel(1, [2]).ap(nel(inc1, [inc2])),
+        nel(2, [3, 3, 4]),
+      );
+    });
+
     test('append', () {
+      expect(nel(1) + 42, nel(1, [42]));
       expect(nel(1).append(2), nel(1, [2]));
     });
 
@@ -102,6 +113,15 @@ void main() {
     test('flatMap', () {
       expect(nel(1, [2, 3]).flatMap((n) => nel(n - 1, [n, n + 1])),
           nel(0, [1, 2, 1, 2, 3, 2, 3, 4]));
+    });
+
+    test('flatTraverseIO', () {
+      IO<IList<int>> f(int i) => IO.pure(ilist([i - 1, i, i + 1]));
+
+      expect(
+        ilist([1, 2, 3]).flatTraverseIO(f),
+        ioSucceeded(ilist([0, 1, 2, 1, 2, 3, 2, 3, 4])),
+      );
     });
 
     test('flatten', () {
@@ -226,6 +246,7 @@ void main() {
     });
 
     test('prependAll', () {
+      expect(nel(1).prependAll(nil()), nel(1));
       expect(nel(3).prependAll(ilist([0, 1, 2])), nel(0, [1, 2, 3]));
     });
 
@@ -356,6 +377,14 @@ void main() {
             .traverseOption((a) => Option.when(() => a.isEven, () => a)),
         isNone(),
       );
+    });
+
+    test('updated', () {
+      expect(nel(1, [2, 3]).updated(-1, (a) => a + 1), nel(1, [2, 3]));
+      expect(nel(1, [2, 3]).updated(0, (a) => a + 1), nel(2, [2, 3]));
+      expect(nel(1, [2, 3]).updated(1, (a) => a + 1), nel(1, [3, 3]));
+      expect(nel(1, [2, 3]).updated(2, (a) => a + 1), nel(1, [2, 4]));
+      expect(nel(1, [2, 3]).updated(3, (a) => a + 1), nel(1, [2, 3]));
     });
 
     test('zip', () {

@@ -17,7 +17,7 @@ final class IntCodec extends Codec<int> {
 
   @override
   Either<Err, DecodeResult<int>> decode(BitVector bv) {
-    return bv.aquire(bits).fold(
+    return bv.acquire(bits).fold(
       (_) => Either.left(Err.insufficientBits(bits, bv.size)),
       (intBits) {
         final i = intBits.toInt(signed, ordering);

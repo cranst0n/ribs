@@ -7,12 +7,12 @@ final class IgnoreCodec extends Codec<Unit> {
   IgnoreCodec(this.size);
 
   @override
-  Either<Err, DecodeResult<Unit>> decode(BitVector bv) => bv.aquire(size).fold(
+  Either<Err, DecodeResult<Unit>> decode(BitVector bv) => bv.acquire(size).fold(
       (_) => Either.left(Err.insufficientBits(size, bv.size)),
       (bytes) => Either.right(DecodeResult(Unit(), bv.drop(size))));
 
   @override
-  Either<Err, BitVector> encode(void a) => Either.right(BitVector.low(size));
+  Either<Err, BitVector> encode(Unit _) => Either.right(BitVector.low(size));
 
   @override
   String? get description => 'ignore($size)';

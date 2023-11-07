@@ -54,7 +54,7 @@ sealed class Op<A> {
       );
 
   static Gen<IList<Op<A>>> genList<A>(Gen<A> genA) =>
-      Gen.ilistOf(100, gen(genA));
+      Gen.ilistOfN(100, gen(genA));
 
   static BankersQueue<A> fold<A>(IList<Op<A>> ops) => ops.foldLeft(
       BankersQueue.empty<A>(),

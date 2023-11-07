@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 import 'package:ribs_check/src/gen.dart';
-import 'package:ribs_check/src/seeded_random.dart';
+import 'package:ribs_check/src/stateful_random.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:test/test.dart';
 
@@ -33,14 +33,6 @@ void forAll<T>(
 
 typedef TestBody<T> = Function1<T, FutureOr<void>>;
 
-final class TestOptions {
-  final int numTests;
-
-  const TestOptions({
-    this.numTests = 100,
-  });
-}
-
 final class Prop<T> {
   final String description;
   final Gen<T> gen;
@@ -60,26 +52,35 @@ final class Prop<T> {
   }) {
     final seedNN = seed ?? DateTime.now().millisecondsSinceEpoch;
 
-    test(description, () async {
-      var count = 0;
+    test(
+      description,
+      () async {
+        var count = 0;
 
-      final firstFailure = await gen
-          .stream(StatefulRandom(seedNN))
-          .take(numTests ?? 100)
-          .asyncMap((value) {
-        count++;
-        return _runProp(value, testBody);
-      }).firstWhere((result) => result.isDefined,
-              orElse: () => none<PropFailure<T>>());
+        final firstFailure = await gen
+            .stream(StatefulRandom(seedNN))
+            .take(numTests ?? 100)
+            .asyncMap((value) {
+          count++;
+          return _runProp(value, testBody);
+        }).firstWhere((result) => result.isDefined,
+                orElse: () => none<PropFailure<T>>());
 
-      final shrunkenFailure = await firstFailure.fold(
-          () => Future.value(firstFailure), (a) => _shrink(a, testBody));
+        final shrunkenFailure = await firstFailure.fold(
+            () => Future.value(firstFailure), (a) => _shrink(a, testBody));
 
-      shrunkenFailure.forEach((a) {
-        throw TestFailure(
-            '${a.underlying.message} Failed after $count iterations using value [${a.value}] and seed [$seedNN].');
-      });
-    }, testOn: testOn);
+        shrunkenFailure.forEach((a) {
+          throw TestFailure(
+              '${a.underlying.message} Failed after $count iterations using value <${a.value}> and initial seed of [$seedNN].');
+        });
+      },
+      testOn: testOn,
+      timeout: timeout,
+      skip: skip,
+      tags: tags,
+      onPlatform: onPlatform,
+      retry: retry,
+    );
   }
 
   FutureOr<Option<PropFailure<T>>> _runProp(
