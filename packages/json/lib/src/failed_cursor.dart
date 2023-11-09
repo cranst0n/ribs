@@ -16,13 +16,13 @@ final class FailedCursor extends ACursor {
       Option(lastOp).exists((a) => a is Field || a is DownField);
 
   @override
-  Option<Json> get focus => none();
+  Option<Json> focus() => none();
 
   @override
   bool get succeeded => false;
 
   @override
-  Option<HCursor> get success => none();
+  Option<HCursor> success() => none();
 
   @override
   Option<Json> top() => none();

@@ -28,26 +28,41 @@ final class Gen<A> extends Monad<A> {
 
   Gen<(A, A)> get tuple2 => (this, this).tupled;
 
-  Gen<(A, A, A)> get tuple3 => (this, this, this).tupled;
+  Gen<(A, A, A)> get tuple3 => tuple2.flatMap((t) => this.map(t.append));
 
-  Gen<(A, A, A, A)> get tuple4 => (this, this, this, this).tupled;
+  Gen<(A, A, A, A)> get tuple4 => tuple3.flatMap((t) => this.map(t.append));
 
-  Gen<(A, A, A, A, A)> get tuple5 => (this, this, this, this, this).tupled;
+  Gen<(A, A, A, A, A)> get tuple5 => tuple4.flatMap((t) => this.map(t.append));
 
   Gen<(A, A, A, A, A, A)> get tuple6 =>
-      (this, this, this, this, this, this).tupled;
+      tuple5.flatMap((t) => this.map(t.append));
 
   Gen<(A, A, A, A, A, A, A)> get tuple7 =>
-      (this, this, this, this, this, this, this).tupled;
+      tuple6.flatMap((t) => this.map(t.append));
 
   Gen<(A, A, A, A, A, A, A, A)> get tuple8 =>
-      (this, this, this, this, this, this, this, this).tupled;
+      tuple7.flatMap((t) => this.map(t.append));
 
   Gen<(A, A, A, A, A, A, A, A, A)> get tuple9 =>
-      (this, this, this, this, this, this, this, this, this).tupled;
+      tuple8.flatMap((t) => this.map(t.append));
 
   Gen<(A, A, A, A, A, A, A, A, A, A)> get tuple10 =>
-      (this, this, this, this, this, this, this, this, this, this).tupled;
+      tuple9.flatMap((t) => this.map(t.append));
+
+  Gen<(A, A, A, A, A, A, A, A, A, A, A)> get tuple11 =>
+      tuple10.flatMap((t) => this.map(t.append));
+
+  Gen<(A, A, A, A, A, A, A, A, A, A, A, A)> get tuple12 =>
+      tuple11.flatMap((t) => this.map(t.append));
+
+  Gen<(A, A, A, A, A, A, A, A, A, A, A, A, A)> get tuple13 =>
+      tuple12.flatMap((t) => this.map(t.append));
+
+  Gen<(A, A, A, A, A, A, A, A, A, A, A, A, A, A)> get tuple14 =>
+      tuple13.flatMap((t) => this.map(t.append));
+
+  Gen<(A, A, A, A, A, A, A, A, A, A, A, A, A, A, A)> get tuple15 =>
+      tuple14.flatMap((t) => this.map(t.append));
 
   ///////////////
   // Instances //
@@ -60,14 +75,17 @@ final class Gen<A> extends Monad<A> {
   static Gen<String> alphaLowerString([int? size]) =>
       stringOf(alphaLowerChar, size);
 
-  static Gen<String> alphaNumChar = frequency(ilist([
+  static Gen<String> alphaNumChar = frequency([
     (26, Gen.alphaLowerChar),
     (26, Gen.alphaUpperChar),
     (10, numChar),
-  ]));
+  ]);
 
-  static Gen<String> alphaNumString([int? size]) =>
-      stringOf(alphaNumChar, size);
+  static Gen<String> alphaNumString([int? limit]) =>
+      stringOf(alphaNumChar, limit);
+
+  static Gen<String> nonEmptyAlphaNumString([int? limit]) =>
+      nonEmptyStringOf(alphaNumChar, limit);
 
   static Gen<String> alphaUpperChar =
       alphaLowerChar.map((c) => c.toUpperCase());
@@ -77,8 +95,8 @@ final class Gen<A> extends Monad<A> {
 
   static Gen<String> asciiChar = chooseInt(0, 127).map(String.fromCharCode);
 
-  static Gen<IList<A>> atLeastOne<A>(IList<A> as) =>
-      chooseInt(1, as.size - 1).flatMap((size) => ilistOfN(size, oneOf(as)));
+  static Gen<IList<A>> atLeastOne<A>(List<A> as) =>
+      chooseInt(1, as.length - 1).flatMap((size) => ilistOfN(size, oneOf(as)));
 
   static Gen<BigInt> bigInt = Gen.chooseInt(1, 20).flatMap(
       (n) => Gen.listOfN(n, Gen.numChar).map((a) => BigInt.parse(a.join())));
@@ -115,7 +133,7 @@ final class Gen<A> extends Monad<A> {
         .map((t) => (1, constant(t)));
     final others = (basicsAndSpecials.size, choose.choose(min, max));
 
-    return frequency(basicsAndSpecials.append(others));
+    return frequency(basicsAndSpecials.append(others).toList());
   }
 
   static Gen<A> constant<A>(A a) => Gen(State.pure(a));
@@ -132,12 +150,12 @@ final class Gen<A> extends Monad<A> {
   ).tupled.map((t) => DateTime(t.$1, t.$2, t.$3, t.$4, t.$5, t.$6, t.$7, t.$8));
 
   static Gen<Duration> duration = (
-    chooseInt(0, 365),
-    chooseInt(0, 23),
-    chooseInt(0, 59),
-    chooseInt(0, 59),
-    chooseInt(0, 9999),
-    chooseInt(0, 999999),
+    chooseInt(-365, 365),
+    chooseInt(-23, 23),
+    chooseInt(-59, 59),
+    chooseInt(-59, 59),
+    chooseInt(-9999, 9999),
+    chooseInt(-999999, 999999),
   ).tupled.map((t) => Duration(
         days: t.$1,
         hours: t.$2,
@@ -152,8 +170,8 @@ final class Gen<A> extends Monad<A> {
           ? genA.map((x) => Either.left<A, B>(x))
           : genB.map((x) => Either.right<A, B>(x)));
 
-  static Gen<A> frequency<A>(IList<(int, Gen<A>)> gs) {
-    final filteredGens = gs.filter((t) => t.$1 > 0);
+  static Gen<A> frequency<A>(Iterable<(int, Gen<A>)> gs) {
+    final filteredGens = ilist(gs).filter((t) => t.$1 > 0);
 
     return filteredGens.headOption.fold(
       () => throw Exception('No items with positive weights!'),
@@ -176,6 +194,9 @@ final class Gen<A> extends Monad<A> {
   static Gen<String> hexChar = charSample('01234567890abcdefABCDEF');
 
   static Gen<String> hexString([int? size]) => stringOf(hexChar, size);
+
+  static Gen<String> nonEmptyHexString([int? size]) =>
+      nonEmptyStringOf(hexChar, size);
 
   static Gen<IList<A>> ilistOf<A>(Gen<int> sizeGen, Gen<A> gen) =>
       sizeGen.flatMap((size) => ilistOfN(size, gen));
@@ -216,18 +237,18 @@ final class Gen<A> extends Monad<A> {
 
   static Gen<String> numChar = charSample('01234567890');
 
-  static Gen<A> oneOf<A>(IList<A> xs) =>
-      Choose.integer.choose(0, xs.size).map((ix) => xs
+  static Gen<A> oneOf<A>(Iterable<A> xs) =>
+      Choose.integer.choose(0, xs.length).map((ix) => ilist(xs)
           .lift(ix)
           .getOrElse(() => throw Exception('oneOf called on empty list')));
 
-  static Gen<A> oneOfGen<A>(IList<Gen<A>> xs) =>
-      Choose.integer.choose(0, xs.size).flatMap((ix) => xs
+  static Gen<A> oneOfGen<A>(List<Gen<A>> xs) =>
+      Choose.integer.choose(0, xs.length).flatMap((ix) => ilist(xs)
           .lift(ix)
           .getOrElse(() => throw Exception('oneOfGen called on empty list')));
 
   static Gen<Option<A>> option<A>(Gen<A> a) =>
-      frequency(ilist([(1, constant(none<A>())), (9, some(a))]));
+      frequency([(1, constant(none<A>())), (9, some(a))]);
 
   static Gen<int> positiveInt = chooseInt(1, _intMaxValue);
 
@@ -237,10 +258,13 @@ final class Gen<A> extends Monad<A> {
       constant(nil<A>()),
       (acc, elem) => acc.flatMap((x) => elem.map((a) => x.append(a))));
 
-  static Gen<String> stringOf(Gen<String> char, [int? size]) =>
-      listOfN(size ?? 20, char).map((a) => a.join());
+  static Gen<String> stringOf(Gen<String> char, [int? limit]) =>
+      listOf(Gen.chooseInt(0, limit ?? 100), char).map((a) => a.join());
 
-  static Gen<String> charSample(String chars) => oneOf(ilist(chars.split('')));
+  static Gen<String> nonEmptyStringOf(Gen<String> char, [int? limit]) =>
+      listOf(Gen.chooseInt(1, limit ?? 100), char).map((a) => a.join());
+
+  static Gen<String> charSample(String chars) => oneOf(chars.split(''));
 
   static const int _intMaxValue = 2147483647;
 }
@@ -260,7 +284,9 @@ final class Streams {
               .whenComplete(() => step(a)));
     }
 
-    step(initial);
+    controller
+        .addStream(Stream.value(initial))
+        .whenComplete(() => step(initial));
 
     return controller.stream;
   }

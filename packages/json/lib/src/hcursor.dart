@@ -7,7 +7,7 @@ import 'package:ribs_json/src/cursor/top_cursor.dart';
 abstract class HCursor extends ACursor {
   const HCursor(super.lastCursor, super.lastOp);
 
-  static HCursor fromJson(Json value) => TopCursor(value, null, null);
+  static HCursor fromJson(Json json) => TopCursor(json, null, null);
 
   Json get value;
 
@@ -21,10 +21,10 @@ abstract class HCursor extends ACursor {
   bool get succeeded => true;
 
   @override
-  Option<HCursor> get success => Some(this);
+  Option<HCursor> success() => Some(this);
 
   @override
-  Option<Json> get focus => Some(value);
+  Option<Json> focus() => Some(value);
 
   @override
   Option<IList<Json>> get values =>

@@ -32,64 +32,128 @@ final class PathToRoot {
 
   static Either<String, PathToRoot> fromHistory(IList<CursorOp> ops) {
     final initial = Either.right<String, IList<PathElem>>(IList.empty());
-    const moveUpErrStr =
-        'Attempt to move to sibling field, but cursor history didnt indicate we were in an object.';
 
-    return ops.reverse().foldLeft<Either<String, IList<PathElem>>>(initial,
-        (acc, op) {
-      return acc.flatMap((acc) {
-        final lastOp = acc.lastOption;
+    return ops.reverse().foldLeft<Either<String, IList<PathElem>>>(
+      initial,
+      (acc, op) {
+        return acc.flatMap((acc) {
+          final result = _onMoveLeft(acc, op)
+              .orElse(() => _onMoveRight(acc, op))
+              .orElse(() => _onMoveUp(acc, op))
+              .orElse(() => _onField(acc, op))
+              .orElse(() => _onDownField(acc, op))
+              .orElse(() => _onDownArray(acc, op))
+              .orElse(() => _onDownN(acc, op))
+              .orElse(() => _onDeleteGoParent(acc, op));
 
-        if (lastOp is Some<ArrayIndex> && op is MoveLeft) {
-          // MoveLeft
-          return Either.cond(
-            () => lastOp.value.index >= 0,
-            () => acc.append(PathElem.arrayIndex(lastOp.value.index - 1)),
-            () =>
-                'Attempt to move beyond beginning of array in cursor history.',
+          return result.fold(
+            () => Left('Invalid cursor history state: $op'),
+            (a) => a.fold((a) => a.asLeft(), (x) => x.asRight()),
           );
-          // MoveRight
-        } else if (lastOp is Some<ArrayIndex> && op is MoveRight) {
-          return Either.cond(
-            () => lastOp.value.index < 4294967296,
-            () => acc.append(PathElem.arrayIndex(lastOp.value.index)),
-            () =>
-                'Attepmt to move to index > 4294967296 in array in cursor history',
-          );
-        } else if (op is MoveUp) {
-          // MoveUp
-          return Either.cond(
-            () => acc.nonEmpty,
-            () => acc,
-            () => 'Attempt to move up above the root of the JSON.',
-          );
-        } else if (op is Field) {
-          // Field
-          return Either.cond(
-            () => acc.lastOption.exists((pe) => pe is ObjectKey),
-            () => acc.append(PathElem.objectKey(op.key)),
-            () => moveUpErrStr,
-          );
-        } else if (op is DownField) {
-          // DownField
-          return Right(acc.append(PathElem.objectKey(op.key)));
-        } else if (op is DownArray) {
-          // DownArray
-          return Right(acc.append(PathElem.arrayIndex(0)));
-        } else if (op is DownN) {
-          // DownN
-          return Right(acc.append(PathElem.arrayIndex(op.n)));
-        } else if (op is DeleteGoParent) {
-          return Either.cond(
-            () => acc.nonEmpty,
-            () => acc,
-            () => moveUpErrStr,
-          );
-        } else {
-          return Left('Invalid cursor history state: $op');
-        }
+        });
+      },
+    ).map(PathToRoot.new);
+  }
+
+  static Option<Either<String, IList<PathElem>>> _onMoveLeft(
+    IList<PathElem> acc,
+    CursorOp op,
+  ) {
+    return Option.when(() => op is MoveLeft, () {
+      return acc.lastOption
+          .flatMap((lastOp) => lastOp.asArrayIndex())
+          .map((arrIx) {
+        return Either.cond(
+          () => arrIx.index >= 0,
+          () => acc.append(PathElem.arrayIndex(arrIx.index - 1)),
+          () => 'Attempt to move beyond beginning of array.',
+        );
       });
-    }).map(PathToRoot.new);
+    }).flatten();
+  }
+
+  static Option<Either<String, IList<PathElem>>> _onMoveRight(
+    IList<PathElem> acc,
+    CursorOp op,
+  ) {
+    return Option.when(() => op is MoveRight, () {
+      return acc.lastOption
+          .flatMap((lastOp) => lastOp.asArrayIndex())
+          .map((arrIx) {
+        return Either.cond(
+          () => arrIx.index < 2147483647,
+          () => acc.append(PathElem.arrayIndex(arrIx.index + 1)),
+          () => 'Attempt to move to index > 2147483647 in array.',
+        );
+      });
+    }).flatten();
+  }
+
+  static Option<Either<String, IList<PathElem>>> _onMoveUp(
+    IList<PathElem> acc,
+    CursorOp op,
+  ) {
+    return Option.when(() => op is MoveUp, () {
+      return Either.cond(
+        () => acc.nonEmpty,
+        () => acc,
+        () => 'Attempt to move up above the root of the JSON.',
+      );
+    });
+  }
+
+  static Option<Either<String, IList<PathElem>>> _onField(
+    IList<PathElem> acc,
+    CursorOp op,
+  ) {
+    return Option.when(() => op is Field, () {
+      return Either.cond(
+        () => acc.lastOption.exists((pe) => pe is ObjectKey),
+        () => acc.append(PathElem.objectKey((op as Field).key)),
+        () =>
+            'Attempt to move to sibling field, but cursor history didnt indicate we were in an object.',
+      );
+    });
+  }
+
+  static Option<Either<String, IList<PathElem>>> _onDownField(
+    IList<PathElem> acc,
+    CursorOp op,
+  ) {
+    return Option.when(() => op is DownField, () {
+      return Right(acc.append(PathElem.objectKey((op as DownField).key)));
+    });
+  }
+
+  static Option<Either<String, IList<PathElem>>> _onDownArray(
+    IList<PathElem> acc,
+    CursorOp op,
+  ) {
+    return Option.when(() => op is DownArray, () {
+      return Right(acc.append(PathElem.arrayIndex(0)));
+    });
+  }
+
+  static Option<Either<String, IList<PathElem>>> _onDownN(
+    IList<PathElem> acc,
+    CursorOp op,
+  ) {
+    return Option.when(() => op is DownN, () {
+      return Right(acc.append(PathElem.arrayIndex((op as DownN).n)));
+    });
+  }
+
+  static Option<Either<String, IList<PathElem>>> _onDeleteGoParent(
+    IList<PathElem> acc,
+    CursorOp op,
+  ) {
+    return Option.when(() => op is DeleteGoParent, () {
+      return Either.cond(
+        () => acc.nonEmpty,
+        () => acc,
+        () => 'Attempt to move up above the root of the JSON.',
+      );
+    });
   }
 
   @override
@@ -106,12 +170,22 @@ final class PathToRoot {
 sealed class PathElem {
   static PathElem objectKey(String keyName) => ObjectKey(keyName);
   static PathElem arrayIndex(int index) => ArrayIndex(index);
+
+  Option<ObjectKey> asObjectKey();
+
+  Option<ArrayIndex> asArrayIndex();
 }
 
 final class ObjectKey extends PathElem {
   final String keyName;
 
   ObjectKey(this.keyName);
+
+  @override
+  Option<ObjectKey> asObjectKey() => Some(this);
+
+  @override
+  Option<ArrayIndex> asArrayIndex() => const None();
 
   @override
   bool operator ==(Object other) =>
@@ -126,6 +200,12 @@ final class ArrayIndex extends PathElem {
   final int index;
 
   ArrayIndex(this.index);
+
+  @override
+  Option<ObjectKey> asObjectKey() => const None();
+
+  @override
+  Option<ArrayIndex> asArrayIndex() => Some(this);
 
   @override
   bool operator ==(Object other) =>

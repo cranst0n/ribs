@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
-import 'package:ribs_json/src/dawn/dawn.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -30,7 +29,7 @@ void _testGroup(
       final bytes = File(fileEntity.path).readAsBytesSync();
 
       test(desc, () {
-        f(Parser.parseFromBytes(bytes));
+        f(Json.parseBytes(bytes));
       });
     });
   });

@@ -12,7 +12,7 @@ abstract class ACursor {
 
   const ACursor(this.lastCursor, this.lastOp);
 
-  Option<Json> get focus;
+  Option<Json> focus();
 
   IList<CursorOp> history() {
     IList<CursorOp> loop(ACursor? c) => Option(c?.lastOp).fold(
@@ -27,7 +27,7 @@ abstract class ACursor {
 
   bool get failed => !succeeded;
 
-  Option<HCursor> get success;
+  Option<HCursor> success();
 
   Option<Json> top();
 
@@ -45,14 +45,29 @@ abstract class ACursor {
 
   Option<String> get key => none();
 
+  /// Delete the focus and move to the parent.
   ACursor delete();
+
+  /// Move focus to the parent.
   ACursor up();
+
+  /// If the focus is an element in a JSON array, move to the left.
   ACursor left();
+
+  /// If the focus is an element in a JSON array, move to the right.
   ACursor right();
+
+  /// If the focus is a JSON array, move to the first element.
   ACursor downArray();
 
+  /// If the focus is a JSON array, move to element at the given
+  /// index.
   ACursor downN(int n);
+
+  /// If the focus is a JSON object, move to the sibling at the given key.
   ACursor field(String key);
+
+  /// If the focus is a JSON object, move to the value at the given key.
   ACursor downField(String key);
 
   String get pathString => PathToRoot.toPathString(pathToRoot());
@@ -130,6 +145,13 @@ abstract class ACursor {
 
   DecodeResult<A> get<A>(String key, Decoder<A> decoder) =>
       downField(key).decode(decoder);
+
+  DecodeResult<A> getOrElse<A>(
+          String key, Decoder<A> decoder, Function0<A> fallback) =>
+      get(key, decoder.optional()).fold(
+        (err) => fallback().asRight(),
+        (aOpt) => aOpt.fold(() => fallback().asRight(), (a) => a.asRight()),
+      );
 
   @override
   String toString() => 'ACursor($lastCursor, $lastOp)';

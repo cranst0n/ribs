@@ -53,15 +53,15 @@ sealed class Json {
         final JObject o => jsonObject(o.value),
       };
 
-  Json get dropNullValues =>
+  Json dropNullValues() =>
       mapObject((a) => a.filter((keyValue) => !keyValue.$2.isNull));
 
-  Json get deepDropNullValues => foldWith(_DropNullFolder());
+  Json deepDropNullValues() => foldWith(_DropNullFolder());
 
   static Json deepMergeAll(Iterable<Json> json) =>
       json.fold(Json.obj([]), (a, b) => a.deepMerge(b));
 
-  Json deepMerge(Json that) => (asObject, that.asObject)
+  Json deepMerge(Json that) => (asObject(), that.asObject())
       .mapN(
         (lhs, rhs) => fromJsonObject(lhs.toIList().foldLeft(
               rhs,
@@ -82,12 +82,12 @@ sealed class Json {
   bool get isArray;
   bool get isObject;
 
-  Option<Unit> get asNull;
-  Option<bool> get asBoolean;
-  Option<num> get asNumber;
-  Option<String> get asString;
-  Option<IList<Json>> get asArray;
-  Option<JsonObject> get asObject;
+  Option<Unit> asNull();
+  Option<bool> asBoolean();
+  Option<num> asNumber();
+  Option<String> asString();
+  Option<IList<Json>> asArray();
+  Option<JsonObject> asObject();
 
   Json withNull(Function0<Json> f);
   Json withBoolean(Function1<bool, Json> f);
@@ -145,22 +145,22 @@ final class JNull extends Json {
   bool get isObject => false;
 
   @override
-  Option<IList<Json>> get asArray => none();
+  Option<IList<Json>> asArray() => none();
 
   @override
-  Option<bool> get asBoolean => none();
+  Option<bool> asBoolean() => none();
 
   @override
-  Option<Unit> get asNull => Some(Unit());
+  Option<Unit> asNull() => Some(Unit());
 
   @override
-  Option<num> get asNumber => none();
+  Option<num> asNumber() => none();
 
   @override
-  Option<JsonObject> get asObject => none();
+  Option<JsonObject> asObject() => none();
 
   @override
-  Option<String> get asString => none();
+  Option<String> asString() => none();
 
   @override
   Json withArray(Function1<IList<Json>, Json> f) => this;
@@ -221,22 +221,22 @@ final class JBoolean extends Json {
   bool get isObject => false;
 
   @override
-  Option<IList<Json>> get asArray => none();
+  Option<IList<Json>> asArray() => none();
 
   @override
-  Option<bool> get asBoolean => Some(value);
+  Option<bool> asBoolean() => Some(value);
 
   @override
-  Option<Unit> get asNull => none();
+  Option<Unit> asNull() => none();
 
   @override
-  Option<num> get asNumber => none();
+  Option<num> asNumber() => none();
 
   @override
-  Option<JsonObject> get asObject => none();
+  Option<JsonObject> asObject() => none();
 
   @override
-  Option<String> get asString => none();
+  Option<String> asString() => none();
 
   @override
   Json withArray(Function1<IList<Json>, Json> f) => this;
@@ -297,22 +297,22 @@ final class JNumber extends Json {
   bool get isObject => false;
 
   @override
-  Option<IList<Json>> get asArray => none();
+  Option<IList<Json>> asArray() => none();
 
   @override
-  Option<bool> get asBoolean => none();
+  Option<bool> asBoolean() => none();
 
   @override
-  Option<Unit> get asNull => none();
+  Option<Unit> asNull() => none();
 
   @override
-  Option<num> get asNumber => Some(value);
+  Option<num> asNumber() => Option(value);
 
   @override
-  Option<JsonObject> get asObject => none();
+  Option<JsonObject> asObject() => none();
 
   @override
-  Option<String> get asString => none();
+  Option<String> asString() => none();
 
   @override
   Json withArray(Function1<IList<Json>, Json> f) => this;
@@ -376,22 +376,22 @@ final class JString extends Json {
   bool get isObject => false;
 
   @override
-  Option<IList<Json>> get asArray => none();
+  Option<IList<Json>> asArray() => none();
 
   @override
-  Option<bool> get asBoolean => none();
+  Option<bool> asBoolean() => none();
 
   @override
-  Option<Unit> get asNull => none();
+  Option<Unit> asNull() => none();
 
   @override
-  Option<num> get asNumber => none();
+  Option<num> asNumber() => none();
 
   @override
-  Option<JsonObject> get asObject => none();
+  Option<JsonObject> asObject() => none();
 
   @override
-  Option<String> get asString => Some(value);
+  Option<String> asString() => Some(value);
 
   @override
   Json withArray(Function1<IList<Json>, Json> f) => this;
@@ -452,22 +452,22 @@ final class JArray extends Json {
   bool get isObject => false;
 
   @override
-  Option<IList<Json>> get asArray => Some(value);
+  Option<IList<Json>> asArray() => Some(value);
 
   @override
-  Option<bool> get asBoolean => none();
+  Option<bool> asBoolean() => none();
 
   @override
-  Option<Unit> get asNull => none();
+  Option<Unit> asNull() => none();
 
   @override
-  Option<num> get asNumber => none();
+  Option<num> asNumber() => none();
 
   @override
-  Option<JsonObject> get asObject => none();
+  Option<JsonObject> asObject() => none();
 
   @override
-  Option<String> get asString => none();
+  Option<String> asString() => none();
 
   @override
   Json withArray(Function1<IList<Json>, Json> f) => f(value);
@@ -528,22 +528,22 @@ final class JObject extends Json {
   bool get isObject => true;
 
   @override
-  Option<IList<Json>> get asArray => none();
+  Option<IList<Json>> asArray() => none();
 
   @override
-  Option<bool> get asBoolean => none();
+  Option<bool> asBoolean() => none();
 
   @override
-  Option<Unit> get asNull => none();
+  Option<Unit> asNull() => none();
 
   @override
-  Option<num> get asNumber => none();
+  Option<num> asNumber() => none();
 
   @override
-  Option<JsonObject> get asObject => Some(value);
+  Option<JsonObject> asObject() => Some(value);
 
   @override
-  Option<String> get asString => none();
+  Option<String> asString() => none();
 
   @override
   Json withArray(Function1<IList<Json>, Json> f) => this;

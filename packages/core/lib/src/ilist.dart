@@ -35,9 +35,19 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   static IList<A> pure<A>(A a) => IList.of([a]);
 
   /// Creates an IList where elements are every integer from [start] (inclusive)
-  /// to [end] (exclusive).
+  /// to [end] (exclusive) and each element adds [step] from the previous.
   static IList<int> range(int start, int end, [int step = 1]) =>
       IList.of(_rangeImpl(start, end, step));
+
+  /// Creates an IList where elements are every integer from [start] (inclusive)
+  /// to [end] (inclusive) and each element adds [step] from the previous.
+  static IList<int> rangeTo(int start, int end, [int step = 1]) =>
+      range(start, end + 1, step);
+
+  /// Creates an IList where elements are every integer from [start] (inclusive)
+  /// to [end] (exclusive) and each element adds [step] from the previous.
+  static IList<int> rangeUntil(int start, int end, [int step = 1]) =>
+      range(start, end, step);
 
   static Iterable<int> _rangeImpl(int start, int end, int step) sync* {
     if (step == 0) throw ArgumentError('IList step must be non zero: $step');

@@ -20,7 +20,7 @@ void main() {
 
   forAll(
     'Information.parse',
-    (Gen.positiveInt, Gen.oneOf(ilist(['', ' '])), informationUnit).tupled,
+    (Gen.positiveInt, Gen.oneOf(['', ' ']), informationUnit).tupled,
     (tuple) => expect(
       tuple((n, spaces, unit) =>
           Information.parse('$n$spaces${unit.symbol}').isDefined),
@@ -37,11 +37,10 @@ void main() {
 
   test('Information.toCoarsest', () {
     expect(1000000000.bytes.toCoarsest(), 1.gigabytes);
-    expect(4294967296.kibibytes.toCoarsest(), 4.tebibytes);
+    expect(2147483648.kibibytes.toCoarsest(), 2.tebibytes);
     expect(1000000000.bits.toCoarsest(), 1.gigabits);
-    expect(4294967296.kibibits.toCoarsest(), 4.tebibits);
+    expect(2147483648.kibibits.toCoarsest(), 2.tebibits);
   });
 }
 
-final Gen<InformationUnit> informationUnit =
-    Gen.oneOf(Information.units.toIList());
+final Gen<InformationUnit> informationUnit = Gen.oneOf(Information.units);

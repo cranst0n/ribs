@@ -72,10 +72,10 @@ sealed class Op<A> {
                 Take _ => heap.tryTake().$1,
               });
 
-  static Gen<Op<A>> gen<A>(Gen<A> genA) => Gen.frequency(ilist([
+  static Gen<Op<A>> gen<A>(Gen<A> genA) => Gen.frequency([
         (1, Gen.constant(Take())),
         (3, genA.map(Insert.new)),
-      ]));
+      ]);
 
   static Gen<IList<Op<A>>> genList<A>(Gen<A> genA) =>
       Gen.ilistOfN(100, gen(genA));

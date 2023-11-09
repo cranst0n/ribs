@@ -32,16 +32,35 @@ class _UnconstrainedOp extends CursorOp {
 final class MoveLeft extends _UnconstrainedOp {
   @override
   String toString() => 'MoveLeft';
+
+  @override
+  int get hashCode => 0;
+
+  @override
+  bool operator ==(Object other) => identical(this, other) || other is MoveLeft;
 }
 
 final class MoveRight extends _UnconstrainedOp {
   @override
   String toString() => 'MoveRight';
+
+  @override
+  int get hashCode => 0;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is MoveRight;
 }
 
 final class MoveUp extends _UnconstrainedOp {
   @override
   String toString() => 'MoveUp';
+
+  @override
+  int get hashCode => 0;
+
+  @override
+  bool operator ==(Object other) => identical(this, other) || other is MoveUp;
 }
 
 final class Field extends _UnconstrainedOp {
@@ -51,6 +70,13 @@ final class Field extends _UnconstrainedOp {
 
   @override
   String toString() => 'Field($key)';
+
+  @override
+  int get hashCode => key.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || (other is Field && key == other.key);
 }
 
 final class DownField extends _ObjectOp {
@@ -60,11 +86,25 @@ final class DownField extends _ObjectOp {
 
   @override
   String toString() => 'DownField($key)';
+
+  @override
+  int get hashCode => key.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || (other is DownField && key == other.key);
 }
 
 final class DownArray extends _ArrayOp {
   @override
   String toString() => 'DownArray';
+
+  @override
+  int get hashCode => 0;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is DownArray;
 }
 
 final class DownN extends _ArrayOp {
@@ -74,9 +114,23 @@ final class DownN extends _ArrayOp {
 
   @override
   String toString() => 'DownN($n)';
+
+  @override
+  int get hashCode => n.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || (other is DownN && n == other.n);
 }
 
 final class DeleteGoParent extends _UnconstrainedOp {
   @override
   String toString() => 'DeleteGoParent';
+
+  @override
+  int get hashCode => 0;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is DeleteGoParent;
 }

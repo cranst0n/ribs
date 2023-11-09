@@ -38,6 +38,8 @@ final class KeyValueCodec<A> extends Codec<A> {
   KeyValueCodec<B> xmap<B>(Function1<A, B> f, Function1<B, A> g) =>
       KeyValueCodec(key, value.xmap(f, g));
 
+  KeyValueCodec<A> withKey(String newKey) => KeyValueCodec(newKey, value);
+
   //////////////////////////////////////////////////////////////////////////////
   /// Product Instances
   //////////////////////////////////////////////////////////////////////////////

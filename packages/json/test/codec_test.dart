@@ -15,7 +15,11 @@ void main() {
 
     testCodec('dateTime', Gen.dateTime, Codec.dateTime);
 
-    forAll('dubble', Gen.chooseDouble(-double.maxFinite, double.maxFinite),
+    forAll(
+        'dubble',
+        Gen.chooseDouble(-double.maxFinite, double.maxFinite,
+            specials:
+                ilist([double.infinity, double.negativeInfinity, double.nan])),
         (a) {
       if (a.isFinite) {
         expect(
@@ -80,24 +84,196 @@ void main() {
     testCodec('nonEmptyIList', Gen.nonEmptyIList(Gen.positiveInt, 500),
         Codec.nonEmptyIList(Codec.integer));
 
-    testCodec('num', Gen.oneOf(ilist([1, 3.14, -1238.12])), Codec.number);
+    testCodec('num', Gen.oneOf([1, 3.14, -1238.12]), Codec.number);
 
     testCodec('option', Gen.option(Gen.positiveInt), Codec.integer.optional());
 
-    forAll('product2', prod2Gen(Gen.positiveInt, Codec.integer), (c) {
-      final (codec, json) = c;
-      expect(
-        codec.decode(json).map(codec.encode),
-        json.asRight<DecodingFailure>(),
-      );
+    forAll('tuple2', Gen.integer.tuple2, (t) {
+      final d = Codec.tuple2(Codec.integer, Codec.integer);
+      expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('product3', prod3Gen(Gen.positiveInt, Codec.integer), (c) {
-      final (codec, json) = c;
-      expect(
-        codec.decode(json).map(codec.encode),
-        json.asRight<DecodingFailure>(),
+    forAll('tuple3', Gen.integer.tuple3, (t) {
+      final d = Codec.tuple3(Codec.integer, Codec.integer, Codec.integer);
+      expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
+    });
+
+    forAll('tuple4', Gen.integer.tuple4, (t) {
+      final d = Codec.tuple4(
+          Codec.integer, Codec.integer, Codec.integer, Codec.integer);
+      expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
+    });
+
+    forAll('tuple5', Gen.integer.tuple5, (t) {
+      final d = Codec.tuple5(Codec.integer, Codec.integer, Codec.integer,
+          Codec.integer, Codec.integer);
+      expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
+    });
+
+    forAll('tuple6', Gen.integer.tuple6, (t) {
+      final d = Codec.tuple6(Codec.integer, Codec.integer, Codec.integer,
+          Codec.integer, Codec.integer, Codec.integer);
+      expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
+    });
+
+    forAll('tuple7', Gen.integer.tuple7, (t) {
+      final d = Codec.tuple7(Codec.integer, Codec.integer, Codec.integer,
+          Codec.integer, Codec.integer, Codec.integer, Codec.integer);
+      expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
+    });
+
+    forAll('tuple8', Gen.integer.tuple8, (t) {
+      final d = Codec.tuple8(
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
       );
+      expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
+    });
+
+    forAll('tuple9', Gen.integer.tuple9, (t) {
+      final d = Codec.tuple9(
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+      );
+      expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
+    });
+
+    forAll('tuple9', Gen.integer.tuple9, (t) {
+      final d = Codec.tuple9(
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+      );
+      expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
+    });
+
+    forAll('tuple10', Gen.integer.tuple10, (t) {
+      final d = Codec.tuple10(
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+      );
+      expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
+    });
+    forAll('tuple11', Gen.integer.tuple11, (t) {
+      final d = Codec.tuple11(
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+      );
+      expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
+    });
+
+    forAll('tuple12', Gen.integer.tuple12, (t) {
+      final d = Codec.tuple12(
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+      );
+      expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
+    });
+
+    forAll('tuple13', Gen.integer.tuple13, (t) {
+      final d = Codec.tuple13(
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+      );
+      expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
+    });
+
+    forAll('tuple14', Gen.integer.tuple14, (t) {
+      final d = Codec.tuple14(
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+      );
+      expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
+    });
+
+    forAll('tuple15', Gen.integer.tuple15, (t) {
+      final d = Codec.tuple15(
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+      );
+      expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
   });
 }
@@ -113,46 +289,3 @@ void testCodec<A>(String description, Gen<A> gen, Codec<A> codec) {
 }
 
 enum Vehicles { Car, Bike, Motorcycle, Bus, Airplane }
-
-final keyGen = Gen.stringOf(Gen.alphaNumChar, 20);
-
-Gen<(Codec<(A, A)>, Json)> prod2Gen<A>(Gen<A> valueGen, Codec<A> valueCodec) {
-  return (keyGen, valueGen).tupled.tuple2.map((tup) {
-    final ((k1, v1), (k2, v2)) = tup;
-
-    return (
-      KeyValueCodec.product2<A, A, (A, A)>(
-        KeyValueCodec(k1, valueCodec),
-        KeyValueCodec(k2, valueCodec),
-        (a, b) => (a, b),
-        id,
-      ),
-      Json.obj([
-        (k1, valueCodec.encode(v1)),
-        (k2, valueCodec.encode(v2)),
-      ]),
-    );
-  });
-}
-
-Gen<(Codec<(A, A, A)>, Json)> prod3Gen<A>(
-    Gen<A> valueGen, Codec<A> valueCodec) {
-  return (keyGen, valueGen).tupled.tuple3.map((tup) {
-    final ((k1, v1), (k2, v2), (k3, v3)) = tup;
-
-    return (
-      KeyValueCodec.product3<A, A, A, (A, A, A)>(
-        KeyValueCodec(k1, valueCodec),
-        KeyValueCodec(k2, valueCodec),
-        KeyValueCodec(k3, valueCodec),
-        (a, b, c) => (a, b, c),
-        id,
-      ),
-      Json.obj([
-        (k1, valueCodec.encode(v1)),
-        (k2, valueCodec.encode(v2)),
-        (k3, valueCodec.encode(v3)),
-      ]),
-    );
-  });
-}

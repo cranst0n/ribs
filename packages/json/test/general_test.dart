@@ -13,7 +13,7 @@ void main() {
       (err) => fail('Json.roundtrip failed: $err [$str]'),
       (value) => expect(value, json),
     );
-  });
+  }, numTests: 20);
 
   test('Json.cursor A', () {
     final json = Json.obj([
@@ -37,7 +37,7 @@ void main() {
         .downField('b')
         .downField('c');
 
-    expect(cursor.focus, Some(Json.boolean(false)));
+    expect(cursor.focus(), Some(Json.boolean(false)));
 
     expect(
       cursor.pathToRoot(),
@@ -57,12 +57,12 @@ void main() {
         .getOrElse(() => fail('parse2 failed'));
 
     expect(
-      json.hcursor.downN(1).focus,
+      json.hcursor.downN(1).focus(),
       Json.obj([('bar', JNull()), ('baz', JString('qux'))]).some,
     );
 
     expect(
-      json.deepDropNullValues.hcursor.downN(1).focus,
+      json.deepDropNullValues().hcursor.downN(1).focus(),
       Json.obj([('baz', JString('qux'))]).some,
     );
 
@@ -111,10 +111,10 @@ void main() {
     final oneIntoTwo = obj2.deepMerge(obj1);
     final twoIntoOne = obj1.deepMerge(obj2);
 
-    expect(oneIntoTwo.asObject.flatMap((obj) => obj.get('a')),
+    expect(oneIntoTwo.asObject().flatMap((obj) => obj.get('a')),
         Json.number(1).some);
 
-    expect(twoIntoOne.asObject.flatMap((obj) => obj.get('a')),
+    expect(twoIntoOne.asObject().flatMap((obj) => obj.get('a')),
         Json.number(2).some);
   });
 

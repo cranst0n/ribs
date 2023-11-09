@@ -45,12 +45,12 @@ IList<A> toListFromBack<A>(BankersQueue<A> queue) => queue.tryPopBack()(
 
 sealed class Op<A> {
   static Gen<Op<A>> gen<A>(Gen<A> genA) => Gen.frequency(
-        ilist([
+        [
           (1, Gen.constant(PopFront())),
           (1, Gen.constant(PopBack())),
           (3, genA.map(PushFront.new)),
           (3, genA.map(PushBack.new)),
-        ]),
+        ],
       );
 
   static Gen<IList<Op<A>>> genList<A>(Gen<A> genA) =>
