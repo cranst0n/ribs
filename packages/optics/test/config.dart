@@ -1,129 +1,5 @@
-// ignore_for_file: unreachable_from_main
-
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_optics/ribs_optics.dart';
-import 'package:test/test.dart';
-
-void main() {
-  final config = AppConfig(
-    '/tmp',
-    '1.0.2',
-    DBConfig(Credentials('user', 'pass'), 1234, 'dbhost'.some),
-    Languages(NonEmptyIList.of(Language('en', 'English'), [
-      Language('es', 'Spanish'),
-      Language('fr', 'French'),
-      Language('de', 'German'),
-    ])),
-  );
-
-  test('getter', () {
-    expect(AppConfig.versionG.get(config), config.version);
-
-    expect(AppConfig.dbPortG.get(config), 1234);
-  });
-
-  test('setter', () {
-    expect(AppConfig.baseDirS.modify((a) => a.toUpperCase())(config).baseDir,
-        '/TMP');
-    expect(AppConfig.dbPortS.replace(8888)(config).dbConfig.port, 8888);
-  });
-
-  test('optional', () {
-    final first = Optional<IList<int>, int>(
-      (a) => a.headOption.toRight(() => a),
-      (a) => (s) => s.isEmpty ? s : s.tail().prepend(a),
-    );
-
-    final second = Optional<IList<int>, int>(
-      (a) => a.tail().headOption.toRight(() => a),
-      (a) => (s) => s.tail().isEmpty ? s : s.replace(1, a),
-    );
-
-    final a = IList.of([1, 2, 3]);
-    final b = nil<int>();
-
-    expect(first.replace(42)(a), ilist([42, 2, 3]));
-    expect(second.replace(42)(b), nil<int>());
-
-    expect(first.modify((i) => i + 1)(a), ilist([2, 2, 3]));
-    expect(second.modify((i) => i + 1)(a), ilist([1, 3, 3]));
-
-    expect(second.getOrModify(a), 2.asRight<IList<int>>());
-    expect(second.getOrModify(b), nil<int>().asLeft<int>());
-
-    expect(first.modifyOption((i) => i + 1)(a), ilist([2, 2, 3]).some);
-    expect(second.modifyOption((i) => i + 1)(b), none<IList<int>>());
-  });
-
-  test('lens', () {
-    final baseDirL = Lens<AppConfig, String>(
-        (cfg) => cfg.baseDir, (b) => (s) => s.copy(baseDir: b));
-
-    final versionL = Lens<AppConfig, Version>(
-        (cfg) => cfg.version, (v) => (s) => s.copy(version: v));
-
-    final reverseL = Lens<String, String>(
-      (str) => String.fromCharCodes(str.codeUnits.reversed),
-      (str) => (_) => String.fromCharCodes(str.codeUnits.reversed),
-    );
-
-    final replaceFrench =
-        AppConfig.languagesL.andThenL(Languages.replaceLang('fr'));
-
-    final reverseBaseDir = baseDirL.andThenL(reverseL);
-
-    expect(
-      versionL.modify((a) => 'Ver: $a')(config).version,
-      'Ver: ${config.version}',
-    );
-
-    expect(reverseBaseDir.replace('HELLO')(config).baseDir, 'OLLEH');
-    expect(reverseBaseDir.getOption(config), 'pmt/'.some);
-    expect(
-      replaceFrench
-          .replace(Language('ru', 'Russian').some)(config)
-          .languages
-          .supported
-          .contains(Language('fr', 'French')),
-      isFalse,
-    );
-
-    expect(
-      AppConfig.supportedLanguages
-          .exists((a) => a.exists((a) => a.code == 'fr'))(config),
-      isTrue,
-    );
-
-    final noFrench = AppConfig.supportedLanguages.modify((langs) =>
-        NonEmptyIList.of(langs.head,
-            langs.tail.filter((a) => a.code != 'fr').toList()))(config);
-
-    expect(
-      AppConfig.supportedLanguages
-          .exists((a) => a.exists((a) => a.code == 'fr'))(noFrench),
-      isFalse,
-    );
-  });
-
-  test('iso', () {
-    final creds = config.dbConfig.credentials;
-
-    expect(Credentials.iso.get(creds), ('user', 'pass'));
-
-    expect(
-      Credentials.iso.modify((x) => x.copy($1: '<${x.$1}>'))(creds),
-      Credentials('<user>', 'pass'),
-    );
-
-    expect(
-      AppConfig.dbConfigL
-          .andThenL(DBConfig.hostL)
-          .modifyOption((xOpt) => xOpt.map((a) => '>> $a'))(config)
-          .flatMap((c) => c.dbConfig.host),
-      '>> ${config.dbConfig.host.getOrElse(() => '???')}'.some,
-    );
-  });
-}
 
 typedef Version = String;
 
@@ -150,6 +26,17 @@ class AppConfig {
 
   @override
   String toString() => 'AppConfig($baseDir, $version, $dbConfig,$languages)';
+
+  static final test = AppConfig(
+    '/tmp',
+    '1.0.2',
+    DBConfig(Credentials('user', 'pass'), 1234, 'dbhost'.some),
+    Languages(NonEmptyIList.of(Language('en', 'English'), [
+      Language('es', 'Spanish'),
+      Language('fr', 'French'),
+      Language('de', 'German'),
+    ])),
+  );
 
   static final versionG = Getter<AppConfig, Version>((cfg) => cfg.version);
   static final baseDirS = Setter<AppConfig, String>(

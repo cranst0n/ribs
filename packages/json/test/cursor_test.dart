@@ -290,6 +290,22 @@ void main() {
             .pathString,
         '.a[0]');
   });
+
+  group('ArrayCursor', () {
+    test('field should always fail', () {
+      final json = Json.arr([Json.False, Json.number(0)]);
+      final cursor = HCursor.fromJson(json).downArray().field('key');
+
+      expect(cursor.failed, isTrue);
+    });
+
+    test('left should fail when at index 0', () {
+      final json = Json.arr([Json.False, Json.number(0)]);
+      final cursor = HCursor.fromJson(json).downArray().left();
+
+      expect(cursor.failed, isTrue);
+    });
+  });
 }
 
 final j1 = Json.obj([

@@ -34,6 +34,7 @@ mixin StringBasedParser on Parser {
     return j + 1;
   }
 
+  /// Parse a string that is known to have escape sequences.
   int _parseStringComplex(int i, FContext ctxt) {
     int j = i + 1;
     final sb = _buffer;

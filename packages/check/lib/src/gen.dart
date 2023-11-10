@@ -84,14 +84,11 @@ final class Gen<A> extends Monad<A> {
   static Gen<String> alphaNumString([int? limit]) =>
       stringOf(alphaNumChar, limit);
 
-  static Gen<String> nonEmptyAlphaNumString([int? limit]) =>
-      nonEmptyStringOf(alphaNumChar, limit);
-
   static Gen<String> alphaUpperChar =
       alphaLowerChar.map((c) => c.toUpperCase());
 
   static Gen<String> alphaUpperString([int? size]) =>
-      stringOf(alphaLowerChar, size);
+      stringOf(alphaUpperChar, size);
 
   static Gen<String> asciiChar = chooseInt(0, 127).map(String.fromCharCode);
 
@@ -195,8 +192,13 @@ final class Gen<A> extends Monad<A> {
 
   static Gen<String> hexString([int? size]) => stringOf(hexChar, size);
 
-  static Gen<String> nonEmptyHexString([int? size]) =>
-      nonEmptyStringOf(hexChar, size);
+  static Gen<IMap<A, B>> imapOf<A, B>(
+          Gen<int> sizeGen, Gen<A> keyGen, Gen<B> valueGen) =>
+      sizeGen.flatMap((size) => imapOfN(size, keyGen, valueGen));
+
+  static Gen<IMap<A, B>> imapOfN<A, B>(
+          int size, Gen<A> keyGen, Gen<B> valueGen) =>
+      mapOfN(size, keyGen, valueGen).map(IMap.fromMap);
 
   static Gen<IList<A>> ilistOf<A>(Gen<int> sizeGen, Gen<A> gen) =>
       sizeGen.flatMap((size) => ilistOfN(size, gen));
@@ -221,13 +223,11 @@ final class Gen<A> extends Monad<A> {
       ilistOfN(size, (keyGen, valueGen).tupled).map(
           (a) => Map.fromEntries(a.map((x) => MapEntry(x.$1, x.$2)).toList()));
 
-  static Gen<IMap<A, B>> imapOf<A, B>(
-          Gen<int> sizeGen, Gen<A> keyGen, Gen<B> valueGen) =>
-      sizeGen.flatMap((size) => imapOfN(size, keyGen, valueGen));
+  static Gen<String> nonEmptyAlphaNumString([int? limit]) =>
+      nonEmptyStringOf(alphaNumChar, limit);
 
-  static Gen<IMap<A, B>> imapOfN<A, B>(
-          int size, Gen<A> keyGen, Gen<B> valueGen) =>
-      mapOfN(size, keyGen, valueGen).map(IMap.fromMap);
+  static Gen<String> nonEmptyHexString([int? size]) =>
+      nonEmptyStringOf(hexChar, size);
 
   static Gen<NonEmptyIList<A>> nonEmptyIList<A>(Gen<A> gen, [int? limit]) =>
       Choose.integer.choose(1, limit ?? 1000).flatMap((size) =>
