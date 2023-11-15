@@ -98,6 +98,8 @@ final class Gen<A> extends Monad<A> {
   static Gen<BigInt> bigInt = Gen.chooseInt(1, 20).flatMap(
       (n) => Gen.listOfN(n, Gen.numChar).map((a) => BigInt.parse(a.join())));
 
+  static Gen<String> binChar = charSample('01');
+
   static Gen<bool> boolean = Gen(State((r) => r.nextBool()));
 
   static Gen<double> chooseDouble(

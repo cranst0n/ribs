@@ -17,7 +17,7 @@ final class DecodeResult<A> {
       DecodeResult(value, f(remainder));
 
   @override
-  String toString() => 'DecodeResult($value, ${remainder.toHexString()})';
+  String toString() => 'DecodeResult($value, ${remainder.toHex()})';
 }
 
 typedef DecodeF<A> = Function1<BitVector, Either<Err, DecodeResult<A>>>;

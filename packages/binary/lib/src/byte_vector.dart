@@ -24,52 +24,85 @@ final class ByteVector {
   static ByteVector concatAll(IList<ByteVector> bvs) =>
       bvs.foldLeft(ByteVector.empty(), (acc, bv) => acc.concat(bv));
 
-  static ByteVector fromValidBinString(String s) => fromBinString(s).fold(
-        (err) => throw Exception('Illegal binary string: $s ($err)'),
-        id,
-      );
+  static Option<ByteVector> fromBin(String s) =>
+      fromBinDescriptive(s).toOption();
 
-  static Either<String, ByteVector> fromBinString(String s) =>
-      fromBinInternal(s).map((a) => a.$1);
+  static ByteVector fromValidBin(
+    String s, [
+    BinaryAlphabet alphabet = Alphabets.binary,
+  ]) =>
+      fromBinDescriptive(s, alphabet)
+          .fold((err) => throw ArgumentError(err), id);
 
-  static ByteVector fromValidHexString(String s) => fromHexString(s).fold(
-        (err) => throw Exception('Illegal hex string: $s ($err)'),
-        id,
-      );
+  static Either<String, ByteVector> fromBinDescriptive(
+    String str, [
+    BinaryAlphabet alphabet = Alphabets.binary,
+  ]) =>
+      fromBinInternal(str, alphabet).map((a) => a.$1);
 
-  static Either<String, ByteVector> fromHexString(String s) {
-    Either<String, List<Byte>> takeParse(String s, List<Byte> acc) {
-      if (s.length >= 2) {
-        final next = s.substring(0, 2);
-        final rest = s.substring(2);
+  static Option<ByteVector> fromHex(
+    String s, [
+    HexAlphabet alphabet = Alphabets.hexLower,
+  ]) =>
+      fromHexDescriptive(s, alphabet).toOption();
 
-        final b = Option(int.tryParse(next, radix: 16))
-            .toRight(() => 'Failed to parse byte: $next');
+  static ByteVector fromValidHex(
+    String s, [
+    HexAlphabet alphabet = Alphabets.hexLower,
+  ]) =>
+      fromHexDescriptive(s, alphabet)
+          .fold((err) => throw ArgumentError(err), id);
 
-        return b.flatMap((byte) => takeParse(rest, acc..add(byte)));
-      } else if (s.isNotEmpty) {
-        return Either.left('Failed to parse byte: $s');
-      } else {
-        return Either.right(acc);
-      }
-    }
+  static Either<String, ByteVector> fromHexDescriptive(
+    String str, [
+    HexAlphabet alphabet = Alphabets.hexLower,
+  ]) =>
+      fromHexInternal(str, alphabet).map((a) => a.$1);
 
-    final removeLeading = s.startsWith('0x') ? s.substring(2) : s;
-    final padded = removeLeading.padLeft(
-        removeLeading.length + (removeLeading.length % 2), '0');
+  static Option<ByteVector> fromBase32(
+    String s, [
+    Base32Alphabet alphabet = Alphabets.base32,
+  ]) =>
+      fromBase32Descriptive(s, alphabet).toOption();
 
-    return takeParse(
-      padded,
-      List.empty(growable: true),
-    ).map(ByteVector.fromList);
-  }
+  static ByteVector fromValidBase32(
+    String s, [
+    Base32Alphabet alphabet = Alphabets.base32,
+  ]) =>
+      fromBase32Descriptive(s, alphabet)
+          .fold((err) => throw ArgumentError(err), id);
+
+  static Either<String, ByteVector> fromBase32Descriptive(
+    String str, [
+    Base32Alphabet alphabet = Alphabets.base32,
+  ]) =>
+      fromBase32Internal(str, alphabet).map((a) => a.$1);
+
+  static Option<ByteVector> fromBase64(
+    String s, [
+    Base64Alphabet alphabet = Alphabets.base64,
+  ]) =>
+      fromBase64Descriptive(s, alphabet).toOption();
+
+  static ByteVector fromValidBase64(
+    String s, [
+    Base64Alphabet alphabet = Alphabets.base64,
+  ]) =>
+      fromBase64Descriptive(s, alphabet)
+          .fold((err) => throw ArgumentError(err), id);
+
+  static Either<String, ByteVector> fromBase64Descriptive(
+    String str, [
+    Base64Alphabet alphabet = Alphabets.base64,
+  ]) =>
+      fromBase64Internal(str, alphabet).map((a) => a.$1);
 
   factory ByteVector.fromInt(
     int i, [
     int size = 4,
     Endian ordering = Endian.big,
   ]) =>
-      BitVector.fromInt(i, size * 8, ordering).toByteVector();
+      BitVector.fromInt(i, size * 8, ordering).bytes();
 
   factory ByteVector.fromList(List<Byte> ints) =>
       ByteVector(Uint8List.fromList(ints));
@@ -117,6 +150,17 @@ final class ByteVector {
 
   Byte get(int n) => _underlying[n];
 
+  IList<ByteVector> grouped(int chunkSize) {
+    if (isEmpty) {
+      return nil();
+    } else if (size <= chunkSize) {
+      return IList.of([this]);
+    } else {
+      return IList.of([take(chunkSize)])
+          .concat(drop(chunkSize).grouped(chunkSize));
+    }
+  }
+
   A foldLeft<A>(A init, Function2<A, Byte, A> f) {
     var acc = init;
 
@@ -129,6 +173,8 @@ final class ByteVector {
 
   A foldRight<A>(A init, Function2<Byte, A, A> f) =>
       reverse().foldLeft(init, (a, b) => f(b, a));
+
+  void forEach(Function1<int, void> f) => _underlying.forEach(f);
 
   Byte get head => _underlying[0];
 
@@ -187,14 +233,14 @@ final class ByteVector {
 
   ByteVector reverse() => ByteVector.fromList(_underlying.reversed.toList());
 
-  ByteVector rotateLeft(int n) => bits.rotateLeft(n).toByteVector();
+  ByteVector rotateLeft(int n) => bits.rotateLeft(n).bytes();
 
-  ByteVector rotateRight(int n) => bits.rotateRight(n).toByteVector();
+  ByteVector rotateRight(int n) => bits.rotateRight(n).bytes();
 
-  ByteVector shiftLeft(int n) => bits.shiftLeft(n).toByteVector();
+  ByteVector shiftLeft(int n) => bits.shiftLeft(n).bytes();
 
   ByteVector shiftRight(int n, bool signExtension) =>
-      bits.shiftRight(n, signExtension).toByteVector();
+      bits.shiftRight(n, signExtension).bytes();
 
   int get size => _underlying.length;
 
@@ -222,24 +268,156 @@ final class ByteVector {
     return take(toTake(this, 0));
   }
 
+  BitVector toBitVector() => BitVector.fromByteVector(this);
+
   Uint8List toByteArray() => _underlying;
 
   ByteVector update(int n, Byte byte) =>
       take(n).append(byte).concat(drop(n + 1));
 
-  String toHexString() => isEmpty
-      ? ''
-      : _underlying
-          .toIList()
-          .map((b) => b.toRadixString(16).padLeft(2, '0'))
-          .mkString(sep: '');
+  String toBin([BinaryAlphabet alphabet = Alphabets.binary]) {
+    final bldr = StringBuffer();
 
-  String toBinString() => isEmpty
-      ? ''
-      : _underlying
-          .toIList()
-          .map((b) => b.toRadixString(2).padLeft(8, '0'))
-          .mkString(sep: '');
+    forEach((b) {
+      var n = 7;
+
+      while (n >= 0) {
+        final idx = 1 & (b >> n);
+        bldr.write(alphabet.toChar(idx));
+        n -= 1;
+      }
+    });
+
+    return bldr.toString();
+  }
+
+  String toHex([HexAlphabet alphabet = Alphabets.hexLower]) {
+    final out = List.filled(size * 2, '');
+    var i = 0;
+
+    forEach((b) {
+      out[i] = alphabet.toChar(b >> 4 & 0x0f);
+      out[i + 1] = alphabet.toChar(b & 0x0f);
+      i += 2;
+    });
+
+    return out.join();
+  }
+
+  String toHexDump() => HexDumpFormat.NoAnsi.renderBytes(this);
+
+  String toHexDumpColorized() => HexDumpFormat.Default.renderBytes(this);
+
+  void printHexDump() => HexDumpFormat.Default.printBytes(this);
+
+  String toBase16([HexAlphabet alphabet = Alphabets.hexLower]) =>
+      toHex(alphabet);
+
+  String toBase32([Base32Alphabet alphabet = Alphabets.base32]) {
+    const bitsPerChar = 5;
+
+    final bytes = toByteArray();
+    final bldr = StringBuffer();
+
+    int bidx = 0;
+    while ((bidx ~/ 8) < bytes.length) {
+      final char = alphabet.toChar(_bitsAtOffset(bytes, bidx, bitsPerChar));
+      bldr.write(char);
+      bidx += bitsPerChar;
+    }
+
+    if (alphabet.pad != '0') {
+      final padLen =
+          (((bytes.length + bitsPerChar - 1) ~/ bitsPerChar * bitsPerChar) -
+                  bytes.length) *
+              8 ~/
+              bitsPerChar;
+
+      var i = 0;
+
+      while (i < padLen) {
+        bldr.write(alphabet.pad);
+        i += 1;
+      }
+    }
+
+    return bldr.toString();
+  }
+
+  String toBase64([Base64Alphabet alphabet = Alphabets.base64]) {
+    final bytes = toByteArray();
+    final bldr = StringBuffer();
+
+    var idx = 0;
+    final mod = bytes.length % 3;
+
+    while (idx < bytes.length - mod) {
+      var buffer = ((bytes[idx] & 0x0ff) << 16) |
+          ((bytes[idx + 1] & 0x0ff) << 8) |
+          (bytes[idx + 2] & 0x0ff);
+
+      final fourth = buffer & 0x3f;
+      buffer = buffer >> 6;
+
+      final third = buffer & 0x3f;
+      buffer = buffer >> 6;
+
+      final second = buffer & 0x3f;
+      buffer = buffer >> 6;
+
+      final first = buffer;
+
+      bldr
+        ..write(alphabet.toChar(first))
+        ..write(alphabet.toChar(second))
+        ..write(alphabet.toChar(third))
+        ..write(alphabet.toChar(fourth));
+
+      idx += 3;
+    }
+
+    if (mod == 1) {
+      var buffer = (bytes[idx] & 0x0ff) << 4;
+      final second = buffer & 0x3f;
+      buffer = buffer >> 6;
+      final first = buffer;
+
+      bldr
+        ..write(alphabet.toChar(first))
+        ..write(alphabet.toChar(second));
+
+      if (alphabet.pad != '0') {
+        bldr
+          ..write(alphabet.pad)
+          ..write(alphabet.pad);
+      }
+    } else if (mod == 2) {
+      var buffer =
+          ((bytes[idx] & 0x0ff) << 10) | ((bytes[idx + 1] & 0x0ff) << 2);
+      final third = buffer & 0x3f;
+      buffer = buffer >> 6;
+      final second = buffer & 0x3f;
+      buffer = buffer >> 6;
+      final first = buffer;
+
+      bldr
+        ..write(alphabet.toChar(first))
+        ..write(alphabet.toChar(second))
+        ..write(alphabet.toChar(third));
+
+      if (alphabet.pad != '0') {
+        bldr.write(alphabet.pad);
+      }
+    }
+
+    return bldr.toString();
+  }
+
+  String toBase64NoPad() => toBase64(Alphabets.base64NoPad);
+
+  String toBase64Url() => toBase64(Alphabets.base64Url);
+
+  String toBase64UrlNoPad() => toBase64(Alphabets.base64UrlNoPad);
 
   int toInt([Endian ordering = Endian.big]) => bits.toInt(true, ordering);
 
@@ -263,7 +441,7 @@ final class ByteVector {
 
   @override
   String toString() =>
-      toHexString(); // TODO: Only show first n bytes if vector is very long
+      toHex(); // TODO: Only show first n bytes if vector is very long
 
   @override
   bool operator ==(Object other) {
@@ -290,4 +468,27 @@ final class ByteVector {
 
   @override
   int get hashCode => Object.hashAll([size, Object.hashAll(_underlying)]);
+
+  int _bitsAtOffset(Uint8List bytes, int bitIndex, int length) {
+    final i = bitIndex ~/ 8;
+
+    if (i >= bytes.length) {
+      return 0;
+    } else {
+      final off = bitIndex - (i * 8);
+      final mask = ((1 << length) - 1) << (8 - length);
+      final half = (bytes[i] << off) & mask;
+
+      final int full;
+
+      if (off + length <= 8 || i + 1 >= bytes.length) {
+        full = half;
+      } else {
+        full = half |
+            ((bytes[i + 1] & ((mask << (8 - off)) & 0xff)) >>> (8 - off));
+      }
+
+      return full >>> (8 - length);
+    }
+  }
 }

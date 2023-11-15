@@ -114,7 +114,7 @@ void main() {
       Gen.chooseInt(0, 8)
           .flatMap((a) => Gen.listOfN(a, Gen.charSample('01')))
           .map((a) => a.join())
-          .map(BitVector.fromValidBinString)
+          .map(BitVector.fromValidBin)
           .map((a) => a.padTo(8)),
       bitsN(8),
     );

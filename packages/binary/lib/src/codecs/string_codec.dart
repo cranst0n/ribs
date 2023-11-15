@@ -38,7 +38,7 @@ final class StringCodec {
   static Codec<String> cstring() {
     final nul = ByteVector.low(1);
     final filter = Codec.of<BitVector>(
-      Decoder.instance((bv) => bv.toByteVector().indexOfSlice(nul).fold(
+      Decoder.instance((bv) => bv.bytes().indexOfSlice(nul).fold(
           () => Either.left(
               Err.general('Does not contain a NUL termination byte.')),
           (ix) => Either.right(

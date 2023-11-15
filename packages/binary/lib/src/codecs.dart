@@ -16,7 +16,7 @@ Codec<BitVector> bitsN(int size) => FixedSizeCodec(size, bits);
 Codec<BitVector> bitsStrict(int size) => FixedSizeStrictCodec(size, bits);
 
 Codec<ByteVector> bytes = bits
-    .xmap((bits) => bits.toByteVector(), (bytes) => bytes.bits)
+    .xmap((bits) => bits.bytes(), (bytes) => bytes.bits)
     .withDescription('bytes');
 
 Codec<ByteVector> bytesN(int size) => FixedSizeCodec(size, bytes);

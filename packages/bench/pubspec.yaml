@@ -12,7 +12,7 @@ environment:
 dependencies:
   benchmark_harness:          ^2.2.2
   dartz:                      ^0.10.1
-  fast_immutable_collections: ^9.1.6
+  fast_immutable_collections: ^9.2.0
   fpdart:                     ^1.1.0
   ribs_core:                  ^1.0.0-dev.6
 

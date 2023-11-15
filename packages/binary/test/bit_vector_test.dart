@@ -19,6 +19,21 @@ void main() {
     }
   });
 
+  test('fromBin', () {
+    expect(BitVector.fromBinDescriptive('0b 0000 0101').isRight, isTrue);
+    expect(BitVector.fromBinDescriptive('0000 0101').isRight, isTrue);
+    expect(BitVector.fromBinDescriptive('1010 1101').isRight, isTrue);
+
+    expect(BitVector.fromBinDescriptive('0000 a0101').isLeft, isTrue);
+  });
+
+  test('fromHex', () {
+    expect(BitVector.fromHexDescriptive('dead beef').isRight, isTrue);
+    expect(BitVector.fromHexDescriptive('0x1234').isRight, isTrue);
+
+    expect(BitVector.fromHexDescriptive('0x1234 zzzz').isLeft, isTrue);
+  });
+
   test('1-bit vectors', () {
     expect(BitVector.zero.head, isFalse);
     expect(BitVector.one.head, isTrue);
@@ -27,21 +42,20 @@ void main() {
   });
 
   test('construct via high', () {
-    expect(BitVector.high(1).toByteVector(), ByteVector.fromList([0x80]));
-    expect(BitVector.high(2).toByteVector(), ByteVector.fromList([0xc0]));
-    expect(BitVector.high(3).toByteVector(), ByteVector.fromList([0xe0]));
-    expect(BitVector.high(4).toByteVector(), ByteVector.fromList([0xf0]));
-    expect(BitVector.high(5).toByteVector(), ByteVector.fromList([0xf8]));
-    expect(BitVector.high(6).toByteVector(), ByteVector.fromList([0xfc]));
-    expect(BitVector.high(7).toByteVector(), ByteVector.fromList([0xfe]));
-    expect(BitVector.high(8).toByteVector(), ByteVector.fromList([0xff]));
-    expect(BitVector.high(9).toByteVector(), ByteVector.fromList([0xff, 0x80]));
-    expect(
-        BitVector.high(10).toByteVector(), ByteVector.fromList([0xff, 0xc0]));
+    expect(BitVector.high(1).bytes(), ByteVector.fromList([0x80]));
+    expect(BitVector.high(2).bytes(), ByteVector.fromList([0xc0]));
+    expect(BitVector.high(3).bytes(), ByteVector.fromList([0xe0]));
+    expect(BitVector.high(4).bytes(), ByteVector.fromList([0xf0]));
+    expect(BitVector.high(5).bytes(), ByteVector.fromList([0xf8]));
+    expect(BitVector.high(6).bytes(), ByteVector.fromList([0xfc]));
+    expect(BitVector.high(7).bytes(), ByteVector.fromList([0xfe]));
+    expect(BitVector.high(8).bytes(), ByteVector.fromList([0xff]));
+    expect(BitVector.high(9).bytes(), ByteVector.fromList([0xff, 0x80]));
+    expect(BitVector.high(10).bytes(), ByteVector.fromList([0xff, 0xc0]));
   });
 
   test('empty toByteVector', () {
-    expect(BitVector.empty().toByteVector(), ByteVector.empty());
+    expect(BitVector.empty().bytes(), ByteVector.empty());
   });
 
   test('indexing', () {
@@ -65,7 +79,7 @@ void main() {
   });
 
   forAll('getByte', bitVector, (x) {
-    final bytes = x.toByteVector();
+    final bytes = x.bytes();
     IList.range(0, (x.size + 7) ~/ 8).forEach((i) {
       expect(bytes(i), x.getByte(i));
     });
@@ -80,17 +94,17 @@ void main() {
 
   test('drop (1)', () {
     expect(
-      BitVector.high(8).drop(4).toByteVector(),
+      BitVector.high(8).drop(4).bytes(),
       ByteVector.fromList([0xf0]),
     );
 
     expect(
-      BitVector.high(8).drop(3).toByteVector(),
+      BitVector.high(8).drop(3).bytes(),
       ByteVector.fromList([0xf8]),
     );
 
     expect(
-      BitVector.high(10).drop(3).toByteVector(),
+      BitVector.high(10).drop(3).bytes(),
       ByteVector.fromList([0xfe]),
     );
 
@@ -100,7 +114,7 @@ void main() {
     );
 
     expect(
-      BitVector.high(12).drop(3).toByteVector(),
+      BitVector.high(12).drop(3).bytes(),
       ByteVector.fromList([0xff, 0x80]),
     );
 
@@ -205,13 +219,13 @@ void main() {
 
   test('rotations (1)', () {
     expect(
-      BitVector.fromValidBinString('10101').rotateRight(3),
-      BitVector.fromValidBinString('10110'),
+      BitVector.fromValidBin('10101').rotateRight(3),
+      BitVector.fromValidBin('10110'),
     );
 
     expect(
-      BitVector.fromValidBinString('10101').rotateLeft(3),
-      BitVector.fromValidBinString('01101'),
+      BitVector.fromValidBin('10101').rotateLeft(3),
+      BitVector.fromValidBin('01101'),
     );
   });
 
@@ -232,5 +246,13 @@ void main() {
     final n = x.nonEmpty ? (n0 % x.size).abs() : 0;
     expect(x.splice(n, BitVector.empty()), x);
     expect(x.splice(n, y), x.take(n).concat(y).concat(x.drop(n)));
+  });
+
+  forAll('toBin / fromBin roundtrip', bitVector, (bv) {
+    expect(BitVector.fromBin(bv.toBin()), isSome(bv));
+  });
+
+  forAll('toHex / fromHex roundtrip', bitVector, (bv) {
+    expect(BitVector.fromHex(bv.toHex()), isSome(bv));
   });
 }

@@ -55,8 +55,7 @@ void main() {
     final codec = uint8;
 
     final value = codec
-        .decode(
-            ByteVector.fromBinString('101').getOrElse(() => fail('boom')).bits)
+        .decode(ByteVector.fromBin('101').getOrElse(() => fail('boom')).bits)
         .getOrElse(() => fail('boom'))
         .value;
 
@@ -106,13 +105,13 @@ void main() {
   test('update', () {
     final res = BitVector.high(6).update(1, false).update(4, false);
 
-    expect(res.toBinString(), '101101');
+    expect(res.toBin(), '101101');
   });
 
   test('BitVector.bits', () {
     final bv = BitVector.bits([false, false, true, false, true, false]);
 
-    expect(bv.toBinString(), '001010');
+    expect(bv.toBin(), '001010');
   });
 
   test('StreamDecoder', () async {

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_check/ribs_check.dart';
 import 'package:ribs_core/ribs_core.dart';
@@ -17,36 +19,36 @@ void main() {
 
     test('fromValidBin (invalid)', () {
       expect(
-        () => ByteVector.fromValidBinString('21010'),
-        throwsException,
+        () => ByteVector.fromValidBin('21010'),
+        throwsArgumentError,
       );
     });
 
     forAll('fromValidBin (gen)', binString, (str) {
-      expect(ByteVector.fromValidBinString(str).size, str.length / 8);
+      expect(ByteVector.fromValidBin(str).size, str.length / 8);
     });
 
     test('fromValidHex (invalid)', () {
-      expect(ByteVector.fromValidHexString('aa0').toHexString(), '0aa0');
+      expect(ByteVector.fromValidHex('aa0').toHex(), '0aa0');
 
       expect(
-        () => ByteVector.fromValidHexString('ff324V'),
-        throwsException,
+        () => ByteVector.fromValidHex('ff324V'),
+        throwsArgumentError,
       );
     });
 
     forAll('fromValidHex (gen)', hexString, (str) {
-      expect(ByteVector.fromValidHexString(str).size, str.length / 2);
+      expect(ByteVector.fromValidHex(str).size, str.length / 2);
     });
 
     test('fromValidHex', () {
-      expect(ByteVector.fromValidHexString('00').toHexString(), '00');
-      expect(ByteVector.fromValidHexString('0x00').toHexString(), '00');
-      expect(ByteVector.fromValidHexString('0x000F').toHexString(), '000f');
+      expect(ByteVector.fromValidHex('00').toHex(), '00');
+      expect(ByteVector.fromValidHex('0x00').toHex(), '00');
+      expect(ByteVector.fromValidHex('0x000F').toHex(), '000f');
 
       expect(
-        () => ByteVector.fromValidHexString('0x00QF').toHexString(),
-        throwsException,
+        () => ByteVector.fromValidHex('0x00QF').toHex(),
+        throwsArgumentError,
       );
     });
 
@@ -116,6 +118,33 @@ void main() {
 
     forAll('foldRight', byteVector, (bv) {
       expect(bv.foldRight(ByteVector.empty(), (b, acc) => acc.prepend(b)), bv);
+    });
+
+    test('grouped', () {
+      final bv = ByteVector.fromList([0, 1, 2, 3, 4, 5, 6]);
+
+      expect(
+        bv.grouped(1),
+        IList.of([
+          ByteVector.fromList([0]),
+          ByteVector.fromList([1]),
+          ByteVector.fromList([2]),
+          ByteVector.fromList([3]),
+          ByteVector.fromList([4]),
+          ByteVector.fromList([5]),
+          ByteVector.fromList([6]),
+        ]),
+      );
+
+      expect(
+        bv.grouped(2),
+        IList.of([
+          ByteVector.fromList([0, 1]),
+          ByteVector.fromList([2, 3]),
+          ByteVector.fromList([4, 5]),
+          ByteVector.fromList([6]),
+        ]),
+      );
     });
 
     forAll('headOption', byteVector, (bv) {
@@ -241,11 +270,49 @@ void main() {
     });
 
     forAll('toBin / fromBin roundtrip', byteVector, (bv) {
-      expect(ByteVector.fromBinString(bv.toBinString()), bv.asRight<String>());
+      expect(ByteVector.fromBin(bv.toBin()), isSome(bv));
     });
 
     forAll('toHex / fromHex roundtrip', byteVector, (bv) {
-      expect(ByteVector.fromHexString(bv.toHexString()), bv.asRight<String>());
+      expect(ByteVector.fromHex(bv.toHex()), isSome(bv));
+    });
+
+    forAll('toBase32 / fromBase32 roundtrip', base32String, (str) {
+      expect(ByteVector.fromBase32(str), isSome<ByteVector>());
+    });
+
+    test('fromBase64 exemplars', () {
+      expect(ByteVector.fromValidBase64('AB').toHex(), '00');
+      expect(ByteVector.fromValidBase64('ABC').toHex(), '0010');
+      expect(ByteVector.fromValidBase64('ABCD').toHex(), '001083');
+      expect(ByteVector.fromValidBase64('e1MTVE').toHex(), '7b531354');
+    });
+
+    forAll('toBase64 / fromBase64 roundtrip', base64String, (str) {
+      final dartBytes = base64Decode(str);
+      final ribsBytes = ByteVector.fromValidBase64(str).toByteArray();
+
+      expect(dartBytes.length, ribsBytes.length);
+
+      dartBytes
+          .toIList()
+          .zip(ribsBytes.toIList())
+          .forEachN((dart, ribs) => expect(dart, ribs));
+    });
+
+    forAll('toBase64Url / fromBase64Url roundtrip', base64UrlString, (str) {
+      const dartCodec = Base64Codec.urlSafe();
+
+      final dartBytes = dartCodec.decode(str);
+      final ribsBytes =
+          ByteVector.fromValidBase64(str, Alphabets.base64Url).toByteArray();
+
+      expect(dartBytes.length, ribsBytes.length);
+
+      dartBytes
+          .toIList()
+          .zip(ribsBytes.toIList())
+          .forEachN((dart, ribs) => expect(dart, ribs));
     });
 
     forAll('int conversion', Gen.integer, (i) {

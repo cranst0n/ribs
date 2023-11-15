@@ -25,13 +25,24 @@ sealed class BitVector {
 
   factory BitVector.fromByteVector(ByteVector bs) => _toBytes(bs, bs.size * 8);
 
-  static BitVector fromValidBinString(String s) => fromBinString(s).fold(
-        (err) => throw Exception('Illegal binary string: $s ($err)'),
-        id,
-      );
+  static Option<BitVector> fromBin(
+    String s, [
+    BinaryAlphabet alphabet = Alphabets.binary,
+  ]) =>
+      fromBinDescriptive(s, alphabet).toOption();
 
-  static Either<String, BitVector> fromBinString(String s) {
-    return fromBinInternal(s).mapN((bytes, size) {
+  static BitVector fromValidBin(
+    String s, [
+    BinaryAlphabet alphabet = Alphabets.binary,
+  ]) =>
+      fromBinDescriptive(s, alphabet)
+          .fold((err) => throw ArgumentError(err), id);
+
+  static Either<String, BitVector> fromBinDescriptive(
+    String s, [
+    BinaryAlphabet alphabet = Alphabets.binary,
+  ]) {
+    return fromBinInternal(s, alphabet).mapN((bytes, size) {
       final toDrop = switch (size) {
         0 => 0,
         _ when size % 8 == 0 => 0,
@@ -41,6 +52,64 @@ sealed class BitVector {
       return bytes.bits.drop(toDrop);
     });
   }
+
+  static Option<BitVector> fromHex(
+    String s, [
+    HexAlphabet alphabet = Alphabets.hexLower,
+  ]) =>
+      fromHexDescriptive(s, alphabet).toOption();
+
+  static BitVector fromValidHex(
+    String s, [
+    HexAlphabet alphabet = Alphabets.hexLower,
+  ]) =>
+      fromHexDescriptive(s, alphabet)
+          .fold((err) => throw ArgumentError(err), id);
+
+  static Either<String, BitVector> fromHexDescriptive(
+    String s, [
+    HexAlphabet alphabet = Alphabets.hexLower,
+  ]) =>
+      fromHexInternal(s, alphabet)
+          .mapN((bytes, count) => bytes.bits.drop(count.isEven ? 0 : 4));
+
+  static Option<BitVector> fromBase32(
+    String s, [
+    Base32Alphabet alphabet = Alphabets.base32,
+  ]) =>
+      fromBase32Descriptive(s, alphabet).toOption();
+
+  static BitVector fromValidBase32(
+    String s, [
+    Base32Alphabet alphabet = Alphabets.base32,
+  ]) =>
+      fromBase32Descriptive(s, alphabet)
+          .fold((err) => throw ArgumentError(err), id);
+
+  static Either<String, BitVector> fromBase32Descriptive(
+    String str, [
+    Base32Alphabet alphabet = Alphabets.base32,
+  ]) =>
+      fromBase32Internal(str, alphabet).map((a) => a.$1.toBitVector());
+
+  static Option<BitVector> fromBase64(
+    String s, [
+    Base64Alphabet alphabet = Alphabets.base64,
+  ]) =>
+      fromBase64Descriptive(s, alphabet).toOption();
+
+  static BitVector fromValidBase64(
+    String s, [
+    Base64Alphabet alphabet = Alphabets.base64,
+  ]) =>
+      fromBase64Descriptive(s, alphabet)
+          .fold((err) => throw ArgumentError(err), id);
+
+  static Either<String, BitVector> fromBase64Descriptive(
+    String str, [
+    Base64Alphabet alphabet = Alphabets.base64,
+  ]) =>
+      fromBase64Internal(str, alphabet).map((a) => a.$1.toBitVector());
 
   factory BitVector.fromInt(
     int i, [
@@ -91,7 +160,9 @@ sealed class BitVector {
 
   BitVector take(int n);
 
-  ByteVector toByteVector();
+  ByteVector bytes();
+
+  ByteVector toByteVector() => bytes();
 
   BitVector update(int n, bool high);
 
@@ -173,7 +244,7 @@ sealed class BitVector {
       final validFinalBits = _validBitsInLastByte(size);
       final (init, last) = splitAt(size - validFinalBits);
 
-      return last.concat(init.toByteVector().reverse().bits);
+      return last.concat(init.bytes().reverse().bits);
     }
   }
 
@@ -213,11 +284,11 @@ sealed class BitVector {
 
   BitVector reverseByteOrder() {
     if (size % 8 == 0) {
-      return BitVector.fromByteVector(toByteVector().reverse());
+      return BitVector.fromByteVector(bytes().reverse());
     } else {
       final validFinalBits = _validBitsInLastByte(size);
       final last = take(validFinalBits);
-      final b = drop(validFinalBits).toByteVector().reverse();
+      final b = drop(validFinalBits).bytes().reverse();
       final init = _toBytes(b, size - last.size);
 
       return init.concat(last);
@@ -285,7 +356,43 @@ sealed class BitVector {
 
   BitVector takeRight(int n) => n >= size ? this : drop(size - n);
 
-  Uint8List toByteArray() => toByteVector().toByteArray();
+  Uint8List toByteArray() => bytes().toByteArray();
+
+  String toBin([BinaryAlphabet alphabet = Alphabets.binary]) =>
+      toByteVector().toBin(alphabet).substring(0, size);
+
+  String toHex([HexAlphabet alphabet = Alphabets.hexLower]) {
+    final full = toByteVector().toHex(alphabet);
+
+    if (size % 8 == 0) {
+      return full;
+    } else if (size % 8 <= 4) {
+      return full.substring(0, full.length - 2);
+    } else {
+      return full;
+    }
+  }
+
+  String toHexDump() => HexDumpFormat.NoAnsi.renderBits(this);
+
+  String toHexDumpColorized() => HexDumpFormat.Default.renderBits(this);
+
+  void printHexDump() => HexDumpFormat.Default.printBits(this);
+
+  String toBase16([HexAlphabet alphabet = Alphabets.hexLower]) =>
+      toHex(alphabet);
+
+  String toBase32([Base32Alphabet alphabet = Alphabets.base32]) =>
+      bytes().toBase32(alphabet);
+
+  String toBase64([Base64Alphabet alphabet = Alphabets.base64]) =>
+      toByteVector().toBase64(alphabet);
+
+  String toBase64NoPad() => toBase64(Alphabets.base64NoPad);
+
+  String toBase64Url() => toBase64(Alphabets.base64Url);
+
+  String toBase64UrlNoPad() => toBase64(Alphabets.base64UrlNoPad);
 
   int toInt(bool signed, [Endian ordering = Endian.big]) => switch (this) {
         final _Bytes _ => ordering == Endian.little
@@ -296,12 +403,8 @@ sealed class BitVector {
             : getBigEndianInt(0, size, signed),
       };
 
-  String toBinString() => toByteVector().toBinString().substring(0, size);
-
-  String toHexString() => toByteVector().toHexString();
-
   @override
-  String toString() => toByteVector().toHexString();
+  String toString() => bytes().toHex();
 
   @override
   bool operator ==(Object other) {
@@ -319,7 +422,7 @@ sealed class BitVector {
           final chunkX = x.take(chunkSize);
           final chunkY = y.take(chunkSize);
 
-          return chunkX.toByteVector() == chunkY.toByteVector() &&
+          return chunkX.bytes() == chunkY.bytes() &&
               go(x.drop(chunkSize), y.drop(chunkSize));
         }
       }
@@ -329,7 +432,7 @@ sealed class BitVector {
   }
 
   @override
-  int get hashCode => Object.hash(size, toByteVector());
+  int get hashCode => Object.hash(size, bytes());
 
   static int topNBits(int n) => -1 << (8 - n);
 
@@ -397,7 +500,7 @@ final class _Bytes extends BitVector {
 
       final updatedOurBytes =
           bytesCleared.update(bytesCleared.size - 1, hi | lo);
-      final updatedOtherBytes = other.drop(nInvalidBits).toByteVector();
+      final updatedOtherBytes = other.drop(nInvalidBits).bytes();
 
       return BitVector._toBytes(
           updatedOurBytes.concat(updatedOtherBytes), size + other.size);
@@ -455,7 +558,7 @@ final class _Bytes extends BitVector {
   _Bytes take(int n) => BitVector._toBytes(_underlying, max(0, min(size, n)));
 
   @override
-  ByteVector toByteVector() => BitVector._clearUnneededBits(size, _underlying);
+  ByteVector bytes() => BitVector._clearUnneededBits(size, _underlying);
 
   @override
   _Bytes update(int n, bool high) {
@@ -577,7 +680,7 @@ final class _Drop extends BitVector {
   }
 
   @override
-  ByteVector toByteVector() => interpretDrop().toByteVector();
+  ByteVector bytes() => interpretDrop().bytes();
 
   @override
   BitVector update(int n, bool high) =>
