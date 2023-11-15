@@ -27,8 +27,8 @@ void snippet2() {
   final bits =
       BitVector.bits([true, false, true, true, false, false, true, true]);
 
-  print(bits.toBinString()); // 10110011
-  print('0x${bits.toHexString()}'); // 0xb3
+  print(bits.toBin()); // 10110011
+  print('0x${bits.toHex()}'); // 0xb3
 
   bits.concat(bits); // combine 2 BitVectors
   bits.drop(6); // drop the first 6 bits
