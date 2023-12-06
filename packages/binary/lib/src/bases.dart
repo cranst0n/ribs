@@ -42,6 +42,7 @@ final class Alphabets {
   static const HexAlphabet hexUpper = _HexUppercase();
 
   static const Base32Alphabet base32 = _Base32();
+  static const Base32Alphabet base32NoPad = _Base32NoPad();
 
   static const Base64Alphabet base64 = _Base64();
   static const Base64Alphabet base64NoPad = _Base64NoPad();
@@ -127,8 +128,8 @@ final class _HexUppercase extends _LenientHex {
   static final chars = _charRange('0', '9').concat(_charRange('A', 'F'));
 }
 
-final class _Base32 extends Base32Alphabet {
-  const _Base32();
+final class _Base32Base extends Base32Alphabet {
+  const _Base32Base();
 
   @override
   bool ignore(String c) => c.trim().isEmpty;
@@ -157,6 +158,17 @@ final class _Base32 extends Base32Alphabet {
   static final foo = charIndicesLookupArray(chars.zipWithIndex().toIMap());
   static final indicesMin = foo.$1;
   static final indices = foo.$2;
+}
+
+final class _Base32 extends _Base32Base {
+  const _Base32();
+}
+
+final class _Base32NoPad extends _Base32Base {
+  const _Base32NoPad();
+
+  @override
+  String get pad => '0';
 }
 
 abstract class _Base64Base extends Base64Alphabet {
