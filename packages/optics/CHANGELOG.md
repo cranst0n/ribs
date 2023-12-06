@@ -1,3 +1,8 @@
+## 1.0.0-dev.6
+
+- Bug fixes
+- API enchancements
+
 ## 1.0.0-dev.5
 
 - Update dependencies

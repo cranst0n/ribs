@@ -1,3 +1,7 @@
+## 1.0.0-dev.6
+
+- Bug fixes and API changes
+
 ## 1.0.0-dev.5
 
 - Bug fixes and API changes
