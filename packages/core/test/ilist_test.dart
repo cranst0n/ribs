@@ -80,6 +80,17 @@ void main() {
       expect(l.collect(g), l);
     });
 
+    test('collectFirst', () {
+      final l = ilist([1, 2, 3]);
+      Option<int> f(int n) => Option.when(() => n.isOdd, () => n * 2);
+      Option<int> g(int n) => Option.when(() => n > 0, () => n);
+      Option<int> h(int n) => Option.when(() => n == 10, () => n);
+
+      expect(l.collectFirst(f), isSome(2));
+      expect(l.collectFirst(g), isSome(1));
+      expect(l.collectFirst(h), isNone());
+    });
+
     test('concat', () {
       expect(nil<int>().concat(nil<int>()), nil<int>());
       expect(ilist([1, 2, 3]).concat(nil<int>()), ilist([1, 2, 3]));
@@ -460,6 +471,13 @@ void main() {
       expect(IList.empty<int>().reduceOption((a, b) => a + b), isNone());
       expect(ilist([1]).reduceOption((a, b) => a + b), isSome(1));
       expect(ilist([1, 2, 3]).reduceOption((a, b) => a + b), isSome(6));
+      expect(ilist([1, 2, 3]).reduceOption((a, b) => a - b), isSome(-4));
+    });
+
+    test('reduceRightOption', () {
+      expect(IList.empty<int>().reduceRightOption((a, b) => a - b), isNone());
+      expect(ilist([1]).reduceRightOption((a, b) => a - b), isSome(1));
+      expect(ilist([1, 2, 3]).reduceRightOption((a, b) => a - b), isSome(0));
     });
 
     test('removeAt', () {
@@ -485,6 +503,14 @@ void main() {
     test('reverse', () {
       expect(nil<int>().reverse(), nil<int>());
       expect(ilist([1, 2, 3]).reverse(), ilist([3, 2, 1]));
+    });
+
+    test('sameElements', () {
+      expect(nil<int>().sameElements(nil<int>()), isTrue);
+      expect(ilist([1, 2, 3]).sameElements(ilist([1, 2, 3])), isTrue);
+      expect(ilist([1, 2, 3, 4]).sameElements(ilist([1, 2, 3])), isFalse);
+      expect(ilist([1, 2, 3]).sameElements(ilist([1, 2, 3, 4])), isFalse);
+      expect(ilist([1, 2, 3]).sameElements(ilist([3, 2, 1])), isFalse);
     });
 
     test('scan (Left)', () {
@@ -523,6 +549,7 @@ void main() {
           ilist([2, 3]),
           ilist([3, 4]),
           ilist([4, 5]),
+          ilist([5]),
         ]),
       );
 
@@ -541,6 +568,14 @@ void main() {
           ilist([1, 2]),
           ilist([3, 4]),
           ilist([5]),
+        ]),
+      );
+
+      expect(
+        ilist([1, 2, 3, 4]).sliding(2, 2),
+        ilist([
+          ilist([1, 2]),
+          ilist([3, 4]),
         ]),
       );
     });
@@ -574,6 +609,9 @@ void main() {
       expect(
           ilist([1, 2, 3]).span((n) => n > 3), (nil<int>(), ilist([1, 2, 3])));
       expect(ilist([1, 2, 3]).span((n) => n < 2), (ilist([1]), ilist([2, 3])));
+      expect(ilist([1, 2, 3]).span((n) => n < 3), (ilist([1, 2]), ilist([3])));
+      expect(ilist([1, 2, 3, 2, 1]).span((n) => n < 3),
+          (ilist([1, 2]), ilist([3, 2, 1])));
     });
 
     test('splitAt', () {

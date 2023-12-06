@@ -233,6 +233,7 @@ void main() {
           ilist([2, 3]),
           ilist([3, 4]),
           ilist([4, 5]),
+          ilist([5]),
         ]));
 
     expect(

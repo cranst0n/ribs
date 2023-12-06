@@ -92,6 +92,20 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// results of type [Some].
   IList<B> collect<B>(Function1<A, Option<B>> f) => map(f).unNone();
 
+  /// Applies [f] to each element of this list, returning the first element
+  /// that results in a [Some], if any.
+  Option<B> collectFirst<B>(Function1<A, Option<B>> f) {
+    for (final x in _underlying) {
+      final y = f(x);
+
+      if (y.isDefined) {
+        return y;
+      }
+    }
+
+    return none();
+  }
+
   /// Returns a copy of this IList, with [elems] added to the end.
   IList<A> concat(IList<A> elems) =>
       IList._(_underlying.addAll(elems._underlying));
@@ -275,7 +289,7 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   Option<int> indexOfSlice(IList<A> that, [int from = 0]) {
     if (that.isEmpty) {
       return const Some(0);
-    } else if (size < that.size) {
+    } else if (size - from < that.size) {
       return none<int>();
     } else {
       return IList.range(from, size - that.size + 1)
@@ -485,11 +499,24 @@ final class IList<A> implements Monad<A>, Foldable<A> {
       IList.of(_underlying.insertAll(0, elems._underlying));
 
   /// Returns a summary values of all elements of this list by applying [f] to
-  /// each element.
+  /// each element, moving left to right.
   ///
   /// If this list is empty, [None] will be returned.
-  Option<A> reduceOption(Function2<A, A, A> f) =>
+  Option<A> reduceOption(Function2<A, A, A> f) => reduceLeftOption(f);
+
+  /// Returns a summary values of all elements of this list by applying [f] to
+  /// each element, moving left to right.
+  ///
+  /// If this list is empty, [None] will be returned.
+  Option<A> reduceLeftOption(Function2<A, A, A> f) =>
       headOption.map((hd) => tail().foldLeft(hd, f));
+
+  /// Returns a summary values of all elements of this list by applying [f] to
+  /// each element, moving right to left.
+  ///
+  /// If this list is empty, [None] will be returned.
+  Option<A> reduceRightOption(Function2<A, A, A> f) =>
+      headOption.map((hd) => tail().foldRight(hd, f));
 
   /// Returns a new list with the element at index [ix] removed. If [ix] is
   /// outside the bounds of this list, then the original list is returned.
@@ -514,6 +541,11 @@ final class IList<A> implements Monad<A>, Foldable<A> {
 
   /// Returns a new list with the order of the elements reversed.
   IList<A> reverse() => IList.of(_underlying.reversed);
+
+  /// Returns true if this list has the same elements, in the same order, as
+  /// [that].
+  bool sameElements(IList<A> that) =>
+      size == that.size && zip(that).forall((t) => t.$1 == t.$2);
 
   /// Returns a new list of the accumulation of results by applying [f] to all
   /// elements of the list, including the inital value [z]. List traversal moves
@@ -568,10 +600,6 @@ final class IList<A> implements Monad<A>, Foldable<A> {
       final window = _underlying.getRange(ix, min(ix + n, size));
       buf.add(IList.of(window));
       ix += step;
-
-      if (ix + step == size) {
-        break;
-      }
     }
 
     return IList.of(buf);
@@ -607,7 +635,7 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// the longest suffix that satisfies the given predicate [p] and the
   /// second list is the remainder of this list.
   (IList<A>, IList<A>) span(Function1<A, bool> p) =>
-      splitAt(lastIndexWhere(p).map((n) => n + 1).getOrElse(() => 0));
+      splitAt(indexWhere((a) => !p(a)).getOrElse(() => size));
 
   /// Returns a new list with the first element removed. If this list is empty,
   /// the empty list is returned.
@@ -638,6 +666,15 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// {@endtemplate}
   IList<A> takeWhile(Function1<A, bool> p) =>
       IList.of(_underlying.takeWhile(p));
+
+  /// {@template ilist_tapEach}
+  /// Performs the given side effect [f] for every element in this
+  /// list, returning this list.
+  /// {@endtemplate}
+  IList<A> tapEach<U>(Function1<A, U> f) {
+    forEach(f);
+    return this;
+  }
 
   /// Returns a new [ISet] with the same elements as this [IList], with
   /// duplicates removed.
@@ -687,10 +724,10 @@ final class IList<A> implements Monad<A>, Foldable<A> {
     IO<IList<B>> result = IO.pure(nil());
 
     for (final elem in _underlying) {
-      result = result.flatMap((l) => f(elem).map((b) => l.prepend(b)));
+      result = result.flatMap((l) => f(elem).map((b) => l.append(b)));
     }
 
-    return result.map((a) => a.reverse());
+    return result;
   }
 
   /// {@template ilist_traverseIO_}

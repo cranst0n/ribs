@@ -121,6 +121,9 @@ extension IListTuple2Ops<A, B> on IList<(A, B)> {
   /// {@macro ilist_takeWhile}
   IList<(A, B)> takeWhileN(Function2<A, B, bool> p) => takeWhile(p.tupled);
 
+  /// {@macro ilist_tapEach}
+  IList<(A, B)> tapEachN<U>(Function2<A, B, U> f) => tapEach(f.tupled);
+
   /// Creates a new [IMap] where element tuple element of this list is used to
   /// create a key and value respectively.
   IMap<A, B> toIMap() => IMap.fromIList(this);
@@ -231,6 +234,9 @@ extension IListTuple3Ops<A, B, C> on IList<(A, B, C)> {
   /// {@macro ilist_takeWhile}
   IList<(A, B, C)> takeWhileN(Function3<A, B, C, bool> p) =>
       takeWhile(p.tupled);
+
+  /// {@macro ilist_tapEach}
+  IList<(A, B, C)> tapEachN<U>(Function3<A, B, C, U> f) => tapEach(f.tupled);
 
   /// {@macro ilist_traverseEither}
   Either<D, IList<E>> traverseEitherN<D, E>(
