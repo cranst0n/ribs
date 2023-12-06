@@ -1,6 +1,7 @@
 name: ribs_http
 version: 1.0.0-dev.1
 homepage: https://cranst0n.github.io/ribs/
+repository: https://github.com/cranst0n/ribs
 description: >
   HTTP built on Ribs.
 

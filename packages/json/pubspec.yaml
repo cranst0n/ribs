@@ -1,6 +1,7 @@
 name: ribs_json
 version: 1.0.0-dev.7
 homepage: https://cranst0n.github.io/ribs/
+repository: https://github.com/cranst0n/ribs
 description: >
   Library provides fully typed JSON parsing, encoding and decoding. Also
   supports streaming parsing.
