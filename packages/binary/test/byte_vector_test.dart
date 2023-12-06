@@ -52,6 +52,59 @@ void main() {
       );
     });
 
+    test('fromValidBase32', () {
+      ByteVector hex(String s) => ByteVector.fromValidHex(s);
+      ByteVector base32(String s) => ByteVector.fromValidBase32(s);
+
+      expect(base32(''), ByteVector.empty());
+      expect(base32('AA======'), hex('00'));
+      expect(base32('ME======'), hex('61'));
+      expect(base32('MJRGE==='), hex('626262'));
+      expect(base32('MNRWG==='), hex('636363'));
+      expect(
+        base32('ONUW24DMPEQGCIDMN5XGOIDTORZGS3TH'),
+        hex('73696d706c792061206c6f6e6720737472696e67'),
+      );
+      expect(
+        base32('ADVRKIY57TVWBESYQ23H2BSSTGJFSFNOWFZMAZSH'),
+        hex('00eb15231dfceb60925886b67d065299925915aeb172c06647'),
+      );
+      expect(base32('KFVW7TIP'), hex('516b6fcd0f'));
+      expect(base32('X5HYSAA6M4BHJXI='), hex('bf4f89001e670274dd'));
+      expect(base32('K4XEPFA='), hex('572e4794'));
+      expect(base32('5SWITSWZHER4AIZB'), hex('ecac89cad93923c02321'));
+      expect(base32('CDEFCHQ='), hex('10c8511e'));
+      expect(base32('AAAAAAAAAAAAAAAA'), hex('00000000000000000000'));
+    });
+
+    test('toBase32', () {
+      ByteVector hex(String s) => ByteVector.fromValidHex(s);
+
+      expect(hex('').toBase32(), '');
+      expect(hex('00').toBase32(), 'AA======');
+      expect(hex('61').toBase32(), 'ME======');
+      expect(hex('626262').toBase32(), 'MJRGE===');
+      expect(hex('636363').toBase32(), 'MNRWG===');
+      expect(
+        hex('73696d706c792061206c6f6e6720737472696e67').toBase32(),
+        'ONUW24DMPEQGCIDMN5XGOIDTORZGS3TH',
+      );
+      expect(
+        hex('00eb15231dfceb60925886b67d065299925915aeb172c06647').toBase32(),
+        'ADVRKIY57TVWBESYQ23H2BSSTGJFSFNOWFZMAZSH',
+      );
+      expect(hex('516b6fcd0f').toBase32(), 'KFVW7TIP');
+      expect(hex('bf4f89001e670274dd').toBase32(), 'X5HYSAA6M4BHJXI=');
+      expect(hex('572e4794').toBase32(), 'K4XEPFA=');
+      expect(hex('ecac89cad93923c02321').toBase32(), '5SWITSWZHER4AIZB');
+      expect(hex('10c8511e').toBase32(), 'CDEFCHQ=');
+      expect(hex('00000000000000000000').toBase32(), 'AAAAAAAAAAAAAAAA');
+    });
+
+    forAll('fromValidBase64 (gen)', base64String, (str) {
+      expect(ByteVector.fromBase64(str).isDefined, isTrue);
+    });
+
     forAll('and/or/not/xor', byteVector, (bv) {
       expect(bv & bv, bv);
       expect(bv & ~bv, ByteVector.low(bv.size));
@@ -290,7 +343,8 @@ void main() {
 
     forAll('toBase64 / fromBase64 roundtrip', base64String, (str) {
       final dartBytes = base64Decode(str);
-      final ribsBytes = ByteVector.fromValidBase64(str).toByteArray();
+      final bv = ByteVector.fromValidBase64(str);
+      final ribsBytes = bv.toByteArray();
 
       expect(dartBytes.length, ribsBytes.length);
 
@@ -298,14 +352,19 @@ void main() {
           .toIList()
           .zip(ribsBytes.toIList())
           .forEachN((dart, ribs) => expect(dart, ribs));
+
+      final dartString = base64Encode(dartBytes);
+      final ribsString = bv.toBase64();
+
+      expect(dartString, ribsString);
     });
 
     forAll('toBase64Url / fromBase64Url roundtrip', base64UrlString, (str) {
       const dartCodec = Base64Codec.urlSafe();
 
       final dartBytes = dartCodec.decode(str);
-      final ribsBytes =
-          ByteVector.fromValidBase64(str, Alphabets.base64Url).toByteArray();
+      final bv = ByteVector.fromValidBase64(str, Alphabets.base64Url);
+      final ribsBytes = bv.toByteArray();
 
       expect(dartBytes.length, ribsBytes.length);
 
@@ -313,6 +372,11 @@ void main() {
           .toIList()
           .zip(ribsBytes.toIList())
           .forEachN((dart, ribs) => expect(dart, ribs));
+
+      final dartString = dartCodec.encode(dartBytes);
+      final ribsString = bv.toBase64Url();
+
+      expect(dartString, ribsString);
     });
 
     forAll('int conversion', Gen.integer, (i) {

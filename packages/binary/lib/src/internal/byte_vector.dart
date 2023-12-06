@@ -186,7 +186,7 @@ Either<String, (ByteVector, int)> fromBase32Internal(
     final expectedPadding =
         (((bytes.size + bitsPerChar - 1) ~/ bitsPerChar * bitsPerChar) -
                 bytes.size) *
-            8 /
+            8 ~/
             bitsPerChar;
 
     return Either.cond(
@@ -301,27 +301,3 @@ Either<String, (ByteVector, int)> fromBase64Internal(
 
 const Base64PaddingError =
     'Malformed padding - final quantum may optionally be padded with one or two padding characters such that the quantum is completed';
-
-BigInt readBytes(Uint8List bytes) {
-  BigInt result = BigInt.zero;
-
-  for (final byte in bytes) {
-    // reading in big-endian, so we essentially concat the new byte to the end
-    result = (result << 8) | BigInt.from(byte & 0xff);
-  }
-  return result;
-}
-
-IList<int> writeBigInt(BigInt number) {
-  BigInt bi = number;
-
-  // Not handling negative numbers. Decide how you want to do that.
-  final bytes = (bi.bitLength + 7) >> 3;
-  final b256 = BigInt.from(256);
-  final result = Uint8List(bytes);
-  for (int i = 0; i < bytes; i++) {
-    result[bytes - 1 - i] = bi.remainder(b256).toInt();
-    bi = bi >> 8;
-  }
-  return result.toIList();
-}
