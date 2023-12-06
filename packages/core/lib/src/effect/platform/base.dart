@@ -1,6 +1,8 @@
 import 'package:ribs_core/ribs_core.dart';
 
 abstract class PlatformBase {
+  IO<A> isolate<A>(IO<A> io, {String? debugName});
+
   IO<Unit> print(String message);
   IO<Unit> println(String message);
 

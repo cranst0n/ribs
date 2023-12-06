@@ -4,6 +4,9 @@ import 'package:ribs_core/src/unit.dart';
 
 class PlatformImpl extends PlatformBase {
   @override
+  IO<A> isolate<A>(IO<A> io, {String? debugName}) => throw UnimplementedError();
+
+  @override
   IO<Unit> print(String message) => throw UnimplementedError();
 
   @override

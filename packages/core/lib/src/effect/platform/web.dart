@@ -6,6 +6,9 @@ import 'package:ribs_core/src/unit.dart';
 
 final class PlatformImpl extends PlatformBase {
   @override
+  IO<A> isolate<A>(IO<A> io, {String? debugName}) => io;
+
+  @override
   IO<Unit> print(String message) =>
       IO.exec(() => html.window.console.log(message));
 
