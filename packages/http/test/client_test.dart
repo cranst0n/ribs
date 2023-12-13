@@ -13,11 +13,11 @@ void main() {
         Header.authorization.bearer('token123'),
         Header.cacheControl(
           CacheDirective.noCache(['foo', 'bar']),
-          [CacheDirective.mustRevalidate],
+          CacheDirective.mustRevalidate,
         ),
         Header.cookie(
           const RequestCookie('a', 'aaa'),
-          [const RequestCookie('b', 'bbb')],
+          const RequestCookie('b', 'bbb'),
         ),
         Header.set_cookie(const RequestCookie('c', 'ccc')),
       ]),

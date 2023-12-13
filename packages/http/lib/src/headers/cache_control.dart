@@ -11,13 +11,30 @@ class CacheControl {
   CacheControl._();
 
   Header call(
-    CacheDirective head, [
-    Iterable<CacheDirective> tail = const [],
+    CacheDirective directiveA, [
+    CacheDirective? directiveB,
+    CacheDirective? directiveC,
+    CacheDirective? directiveD,
+    CacheDirective? directiveE,
+    CacheDirective? directiveF,
+    CacheDirective? directiveG,
+    CacheDirective? directiveH,
+    CacheDirective? directiveI,
+    CacheDirective? directiveJ,
   ]) =>
       Header(
         name,
-        NonEmptyIList(head, ilist(tail))
-            .map((a) => a.toString())
-            .mkString(sep: '; '),
+        ilist([
+          directiveA,
+          directiveB,
+          directiveC,
+          directiveD,
+          directiveE,
+          directiveF,
+          directiveG,
+          directiveH,
+          directiveI,
+          directiveJ,
+        ]).noNulls().map((a) => a.toString()).mkString(sep: '; '),
       );
 }

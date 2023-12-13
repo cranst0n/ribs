@@ -11,13 +11,30 @@ class Cookie {
   Cookie._();
 
   Header call(
-    RequestCookie head, [
-    Iterable<RequestCookie> tail = const [],
+    RequestCookie cookieA, [
+    RequestCookie? cookieB,
+    RequestCookie? cookieC,
+    RequestCookie? cookieD,
+    RequestCookie? cookieE,
+    RequestCookie? cookieF,
+    RequestCookie? cookieG,
+    RequestCookie? cookieH,
+    RequestCookie? cookieI,
+    RequestCookie? cookieJ,
   ]) =>
       Header(
         name,
-        NonEmptyIList(head, ilist(tail))
-            .map((a) => a.toString())
-            .mkString(sep: ', '),
+        ilist([
+          cookieA,
+          cookieB,
+          cookieC,
+          cookieD,
+          cookieE,
+          cookieF,
+          cookieG,
+          cookieH,
+          cookieI,
+          cookieJ,
+        ]).noNulls().map((a) => a.toString()).mkString(sep: ', '),
       );
 }
