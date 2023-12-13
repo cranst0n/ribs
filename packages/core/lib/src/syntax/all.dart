@@ -1,8 +1,10 @@
 export 'either.dart';
+export 'foldable.dart';
 export 'ilist.dart';
 export 'io.dart';
 export 'iset.dart';
 export 'iterable.dart';
+export 'iterator.dart';
 export 'option.dart';
 export 'resource.dart';
 export 'tuple.dart';
