@@ -15,6 +15,11 @@ abstract class Order<A> {
   /// Creates a new [Order] that compares 2 elements using [f].
   factory Order.from(Function2<A, A, int> f) => _OrderF(f);
 
+  /// Creates a new [Order] for type `A` by applying [f] to and instances and
+  /// comparing the resulting [Comparable].
+  static Order<A> by<A, B extends Comparable<dynamic>>(Function1<A, B> f) =>
+      Order.from((a, b) => f(a).compareTo(f(b)));
+
   /// Order for [int] type.
   static final ints = Order.fromComparable<int>();
 
