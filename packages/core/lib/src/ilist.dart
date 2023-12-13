@@ -31,6 +31,10 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// Creates an IList from the given [Iterable].
   static IList<A> of<A>(Iterable<A> it) => IList._(fic.IList(it));
 
+  /// Creates a new IList by adding all elements emitted by the given
+  /// [Iterator].
+  static IList<A> fromIterator<A>(Iterator<A> it) => of(it.toIterable());
+
   /// Creates an IList with a single element, [a];
   static IList<A> pure<A>(A a) => IList.of([a]);
 
@@ -88,12 +92,16 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// Returns a copy of this IList, with the given [elem] added to the end.
   IList<A> append(A elem) => IList.of(_underlying.add(elem));
 
+  /// {@template ilist_collect}
   /// Returns a new list by applying [f] to each element an only keeping
   /// results of type [Some].
+  /// {@endtemplate}
   IList<B> collect<B>(Function1<A, Option<B>> f) => map(f).unNone();
 
+  /// {@template ilist_collectFirst}
   /// Applies [f] to each element of this list, returning the first element
   /// that results in a [Some], if any.
+  /// {@endtemplate}
   Option<B> collectFirst<B>(Function1<A, Option<B>> f) {
     for (final x in _underlying) {
       final y = f(x);
@@ -105,6 +113,19 @@ final class IList<A> implements Monad<A>, Foldable<A> {
 
     return none();
   }
+
+  /// Returns an [Iterator] that will produce all combinations of elements from
+  /// this list of size [n] **in order**.
+  ///
+  /// Given the list [1, 2, 2, 2], combinations of size 2 would result in [1, 2]
+  /// and [2, 2]. Note that [2, 1] would not be included since combinations
+  /// are taken from element **in order**.
+  ///
+  /// Also note from the example above, [1, 2] would only be included once even
+  /// though there are technically 3 ways to generate a combination of [1, 2],
+  /// only one will be included in the result since the other 2 are duplicates.
+  Iterator<IList<A>> combinations(int n) =>
+      isEmpty ? _EmptyIterator() : _CombinationsIterator.fromIList(n, this);
 
   /// Returns a copy of this IList, with [elems] added to the end.
   IList<A> concat(IList<A> elems) =>
@@ -246,7 +267,8 @@ final class IList<A> implements Monad<A>, Foldable<A> {
 
   /// Returns a new lists where each element is a list of [size] elements from
   /// the original list. The last element may contain less than [size] elements.
-  IList<IList<A>> grouped(int size) => sliding(size, size);
+  Iterator<IList<A>> grouped(int size) =>
+      _GroupedIterator(iterator, size, size);
 
   /// {@template ilist_groupBy}
   /// Partitions all elements of this list by applying [f] to each element
@@ -262,16 +284,37 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   IMap<K, IList<V>> groupMap<K, V>(
     Function1<A, K> key,
     Function1<A, V> value,
-  ) =>
-      foldLeft(
-        imap({}),
-        (acc, a) => acc.updatedWith(
-          key(a),
-          (prev) => prev
-              .map((l) => l.append(value(a)))
-              .orElse(() => ilist([value(a)]).some),
-        ),
-      );
+  ) {
+    final m = <K, IList<V>>{};
+
+    forEach((elem) => m.update(
+          key(elem),
+          (b) => b.append(value(elem)),
+          ifAbsent: () => ilist([value(elem)]),
+        ));
+
+    return imap(m);
+  }
+
+  /// Partitions all elements of this list by applying [key] to each element.
+  /// Additionally [f] is applied to each element to generate a value. If
+  /// multiple values are generating for the same key, those values will be
+  /// combined using [reduce].
+  IMap<K, V> groupMapReduce<K, V>(
+    Function1<A, K> key,
+    Function1<A, V> f,
+    Function2<V, V, V> reduce,
+  ) {
+    final m = <K, V>{};
+
+    forEach((elem) => m.update(
+          key(elem),
+          (b) => reduce(b, f(elem)),
+          ifAbsent: () => f(elem),
+        ));
+
+    return imap(m);
+  }
 
   /// Returns the first element of this list as a [Some] if non-empty. If this
   /// list is empty, [None] is returned.
@@ -458,6 +501,13 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   (IList<A>, IList<A>) partition(Function1<A, bool> p) =>
       (IList.of(_underlying.where(p)), IList.of(_underlying.whereNot(p)));
 
+  /// {@template ilist_partitionMap}
+  /// Applies [f] to each element of this list and returns a separate list for
+  /// all applications resulting in a [Left] and [Right] respectively.
+  /// {@endtemplate}
+  (IList<A1>, IList<A2>) partitionMap<A1, A2>(Function1<A, Either<A1, A2>> f) =>
+      map(f).unzip();
+
   /// {@template ilist_parTraverseIO}
   /// **Asynchronously** applies [f] to each element of this list and collects
   /// the results into a new list. If an error or cancelation is encountered
@@ -497,6 +547,15 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// Returns a new list with all [elems] added to the beginning of this list.
   IList<A> prependAll(IList<A> elems) =>
       IList.of(_underlying.insertAll(0, elems._underlying));
+
+  /// Returns an [Iterator] that will emit all possible permutations of the
+  /// elements in this list.
+  ///
+  /// Note that only distinct permutations are emitted. Given the example
+  /// [1, 2, 2, 2] the permutations will only include [1, 2, 2, 2] once, even
+  /// though there are 3 different way to generate that permutation.
+  Iterator<IList<A>> permutations() =>
+      isEmpty ? _EmptyIterator() : _PermutationsIterator.fromIList(this);
 
   /// Returns a summary values of all elements of this list by applying [f] to
   /// each element, moving left to right.
@@ -591,18 +650,14 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// Returns a new list where elements are fixed size chunks of size [n] of
   /// the original list. Each chunk is calculated by sliding a 'window' of size
   /// [n] over the original list, moving the window [step] elements at a time.
-  IList<IList<A>> sliding(int n, [int step = 1]) {
-    final buf = List<IList<A>>.empty(growable: true);
-
-    int ix = 0;
-
-    while (ix < size) {
-      final window = _underlying.getRange(ix, min(ix + n, size));
-      buf.add(IList.of(window));
-      ix += step;
+  Iterator<IList<A>> sliding(int n, [int step = 1]) {
+    if (isEmpty) {
+      return _EmptyIterator();
+    } else if (n >= size) {
+      return ilist([this]).iterator;
+    } else {
+      return _GroupedIterator(iterator, n, step);
     }
-
-    return IList.of(buf);
   }
 
   /// Returns a new list that is sorted according to the [Order] [o].
@@ -632,7 +687,7 @@ final class IList<A> implements Monad<A>, Foldable<A> {
               .corresponds(that._underlying, (a, b) => a == b);
 
   /// Splits this list into a 2 new lists where the first returned list is
-  /// the longest suffix that satisfies the given predicate [p] and the
+  /// the longest prefix that satisfies the given predicate [p] and the
   /// second list is the remainder of this list.
   (IList<A>, IList<A>) span(Function1<A, bool> p) =>
       splitAt(indexWhere((a) => !p(a)).getOrElse(() => size));
@@ -675,6 +730,9 @@ final class IList<A> implements Monad<A>, Foldable<A> {
     forEach(f);
     return this;
   }
+
+  /// Returns an [Iterable] that contains all elements of this list.
+  Iterable<A> toIterable() => _underlying;
 
   /// Returns a new [ISet] with the same elements as this [IList], with
   /// duplicates removed.
@@ -848,4 +906,297 @@ final class IList<A> implements Monad<A>, Foldable<A> {
 
   @override
   int get hashCode => _underlying.hashCode;
+}
+
+// Derived from: https://github.com/scala/scala/blob/d561c4ea7c81aaa0f687aafbd89dc1faea445732/src/library/scala/collection/Iterator.scala#L156
+class _GroupedIterator<A> implements Iterator<IList<A>> {
+  final Iterator<A> _self;
+  final int _size;
+  final int _step;
+
+  late List<A>? _buffer;
+  List<A>? _prev;
+
+  bool first = true;
+  bool filled = false;
+  bool partial = true;
+
+  Function0<A>? padding;
+
+  late IList<A> _current;
+
+  _GroupedIterator(this._self, this._size, this._step) : partial = _step > 1;
+
+  @override
+  IList<A> get current => _current;
+
+  @override
+  bool moveNext() {
+    if (!fill()) {
+      return false;
+    } else {
+      filled = false;
+
+      if (_step < _size) {
+        if (first) {
+          _prev = _buffer!.skip(_step).toList();
+        } else if (_buffer!.length == _size) {
+          _prev = List.from(_buffer!.getRange(_step, _buffer!.length));
+        } else {
+          _prev = null;
+        }
+      }
+
+      final res = IList.of(_buffer!);
+      _buffer = null;
+      first = false;
+
+      _current = res;
+    }
+
+    return true;
+  }
+
+  bool get pad => padding != null;
+
+  _GroupedIterator<A> withPadding(Function0<A> x) {
+    padding = x;
+    partial = true;
+    return this;
+  }
+
+  _GroupedIterator<A> withPartial(bool x) {
+    partial = x;
+    padding = null;
+    return this;
+  }
+
+  /// Eagerly fetch `size` elements to buffer.
+  ///
+  ///  If buffer is dirty and stepping, copy prefix.
+  ///  If skipping, skip ahead.
+  ///  Fetch remaining elements.
+  ///  If unable to deliver size, then pad if padding enabled, otherwise drop segment.
+  ///  Returns true if successful in delivering `count` elements,
+  ///  or padded segment, or partial segment.
+  bool _fulfill() {
+    final builder = List<A>.empty(growable: true);
+    bool done = false;
+
+    if (_prev != null) {
+      builder.addAll(_prev!);
+    }
+
+    if (!first && _step > _size) {
+      var dropping = _step - _size;
+      while (dropping > 0 && _self.moveNext()) {
+        dropping -= 1;
+      }
+      done = dropping > 0;
+    }
+
+    int index = builder.length;
+
+    if (!done) {
+      // advance to rest of segment if possible
+      while (index < _size && _self.moveNext()) {
+        builder.add(_self.current);
+        index += 1;
+      }
+
+      // if unable to complete segment, pad if possible
+      if (index < _size && pad) {
+        while (index < _size) {
+          builder.add(padding!());
+          index += 1;
+        }
+      }
+    }
+
+    // segment must have data, and must be complete unless they allow partial
+    final ok = index > 0 && (partial || index == _size);
+
+    if (ok) {
+      _buffer = List.from(builder);
+    } else {
+      _prev = null;
+    }
+
+    return ok;
+  }
+
+  // fill() returns false if no more sequences can be produced
+  bool fill() {
+    if (filled) {
+      return true;
+    } else {
+      return filled = _fulfill();
+    }
+  }
+}
+
+// Derived from: https://github.com/scala/scala/blob/d561c4ea7c81aaa0f687aafbd89dc1faea445732/src/library/scala/collection/Seq.scala#L637
+class _CombinationsIterator<A> implements Iterator<IList<A>> {
+  final int n;
+
+  final List<A> _elems;
+  final List<int> _cnts;
+  final List<int> _nums;
+  final List<int> _offs;
+
+  var _hasNext = true;
+
+  late IList<A> _current;
+
+  _CombinationsIterator._(
+      this.n, this._elems, this._cnts, this._nums, this._offs);
+
+  static _CombinationsIterator<A> fromIList<A>(int n, IList<A> l) {
+    final m = <A, int>{};
+
+    final (elems, idxs) = l
+        .map((e) => (e, m.putIfAbsent(e, () => m.length)))
+        .sortBy((a) => a.$2)
+        .unzip();
+
+    final cnts = List.filled(m.length, 0);
+    idxs.forEach((i) => cnts[i] += 1);
+
+    final nums = List.filled(cnts.length, 0);
+    int r = n;
+    for (int k = 0; k < nums.length; k++) {
+      nums[k] = min(r, cnts[k]);
+      r -= nums[k];
+    }
+
+    final offs = ilist(cnts).scanLeft(0, (a, b) => a + b).toList();
+
+    return _CombinationsIterator._(n, elems.toList(), cnts, nums, offs);
+  }
+
+  @override
+  IList<A> get current => _current;
+
+  @override
+  bool moveNext() {
+    if (!_hasNext) {
+      return false;
+    } else {
+      // calculate next
+      final buf = List<A>.empty(growable: true);
+      for (int k = 0; k < _nums.length; k++) {
+        for (int j = 0; j < _nums[k]; j++) {
+          buf.add(_elems[_offs[k] + j]);
+        }
+      }
+
+      _current = ilist(buf);
+
+      // prepare for next call to moveNext
+      int idx = _nums.length - 1;
+      while (idx >= 0 && _nums[idx] == _cnts[idx]) {
+        idx -= 1;
+      }
+
+      idx = _nums.lastIndexWhere((x) => x > 0, idx - 1);
+
+      if (idx < 0) {
+        _hasNext = false;
+      } else {
+        int sum = 1;
+        int i = idx + 1;
+
+        while (i < _nums.length) {
+          sum += _nums[i];
+          i += 1;
+        }
+
+        _nums[idx] -= 1;
+
+        for (int k = idx + 1; k < _nums.length; k++) {
+          _nums[k] = min(sum, _cnts[k]);
+          sum -= _nums[k];
+        }
+      }
+
+      return true;
+    }
+  }
+}
+
+/// Derived from: https://github.com/scala/scala/blob/d561c4ea7c81aaa0f687aafbd89dc1faea445732/src/library/scala/collection/Seq.scala#L588
+class _PermutationsIterator<A> implements Iterator<IList<A>> {
+  final List<A> _elems;
+  final List<int> _idxs;
+
+  var _hasNext = true;
+
+  late IList<A> _current;
+
+  _PermutationsIterator._(this._elems, this._idxs);
+
+  static _PermutationsIterator<A> fromIList<A>(IList<A> l) {
+    final m = <A, int>{};
+
+    final (elems, idxs) = l
+        .map((e) => (e, m.putIfAbsent(e, () => m.length)))
+        .sortBy((a) => a.$2)
+        .unzip();
+
+    return _PermutationsIterator._(elems.toList(), idxs.toList());
+  }
+
+  @override
+  IList<A> get current => _current;
+
+  @override
+  bool moveNext() {
+    if (!_hasNext) {
+      return false;
+    } else {
+      _current = ilist(_elems);
+
+      int i = _idxs.length - 2;
+
+      while (i >= 0 && _idxs[i] > _idxs[i + 1]) {
+        i -= 1;
+      }
+
+      if (i < 0) {
+        _hasNext = false;
+      } else {
+        int j = _idxs.length - 1;
+        while (_idxs[j] <= _idxs[i]) {
+          j -= 1;
+        }
+        _swap(i, j);
+
+        final len = (_idxs.length - i) ~/ 2;
+        int k = 1;
+        while (k <= len) {
+          _swap(i + k, _idxs.length - k);
+          k += 1;
+        }
+      }
+
+      return true;
+    }
+  }
+
+  void _swap(int i, int j) {
+    final tmpI = _idxs[i];
+    _idxs[i] = _idxs[j];
+    _idxs[j] = tmpI;
+    final tmpE = _elems[i];
+    _elems[i] = _elems[j];
+    _elems[j] = tmpE;
+  }
+}
+
+final class _EmptyIterator<A> implements Iterator<A> {
+  @override
+  A get current => throw StateError('called "current" on empty Iterator');
+
+  @override
+  bool moveNext() => false;
 }

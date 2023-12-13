@@ -91,6 +91,46 @@ void main() {
       expect(l.collectFirst(h), isNone());
     });
 
+    test('combinations', () {
+      expect(nil<int>().combinations(2).toIList(), nil<IList<int>>());
+
+      expect(
+        ilist([1, 2, 3]).combinations(2).toIList(),
+        ilist([
+          ilist([1, 2]),
+          ilist([1, 3]),
+          ilist([2, 3]),
+        ]),
+      );
+
+      expect(
+        ilist([1, 2, 3, 4, 5]).combinations(3).toIList(),
+        ilist([
+          ilist([1, 2, 3]),
+          ilist([1, 2, 4]),
+          ilist([1, 2, 5]),
+          ilist([1, 3, 4]),
+          ilist([1, 3, 5]),
+          ilist([1, 4, 5]),
+          ilist([2, 3, 4]),
+          ilist([2, 3, 5]),
+          ilist([2, 4, 5]),
+          ilist([3, 4, 5]),
+        ]),
+      );
+
+      expect(
+        ilist([1, 1, 2, 3, 2]).combinations(3).toIList(),
+        ilist([
+          ilist([1, 1, 2]),
+          ilist([1, 1, 3]),
+          ilist([1, 2, 2]),
+          ilist([1, 2, 3]),
+          ilist([2, 2, 3]),
+        ]),
+      );
+    });
+
     test('concat', () {
       expect(nil<int>().concat(nil<int>()), nil<int>());
       expect(ilist([1, 2, 3]).concat(nil<int>()), ilist([1, 2, 3]));
@@ -264,17 +304,17 @@ void main() {
     });
 
     test('grouped', () {
-      expect(nil<int>().grouped(2), nil<IList<int>>());
+      expect(nil<int>().grouped(2).toIList(), nil<IList<int>>());
 
       expect(
-        ilist([1]).grouped(2),
+        ilist([1]).grouped(2).toIList(),
         ilist([
           ilist([1])
         ]),
       );
 
       expect(
-        ilist([1, 2, 3]).grouped(2),
+        ilist([1, 2, 3]).grouped(2).toIList(),
         ilist([
           ilist([1, 2]),
           ilist([3]),
@@ -306,6 +346,15 @@ void main() {
           2: ilist([4, 10, 16]),
         }),
       );
+    });
+
+    test('groupMapReduce', () {
+      IMap<A, int> occurances<A>(IList<A> l) =>
+          l.groupMapReduce(id, (_) => 1, (a, b) => a + b);
+
+      expect(occurances(nil<int>()), imap({}));
+      expect(occurances(ilist([1, 2, 3])), imap({1: 1, 2: 1, 3: 1}));
+      expect(occurances(ilist([1, 2, 3, 2, 1])), imap({1: 2, 2: 2, 3: 1}));
     });
 
     test('headOption', () {
@@ -457,6 +506,14 @@ void main() {
           (ilist([-2]), ilist([1, 3, 4])));
     });
 
+    test('partitionMap', () {
+      Either<String, int> f(int x) =>
+          Either.cond(() => x.isEven, () => x, () => '$x');
+
+      expect(nil<int>().partitionMap(f), (nil<String>(), nil<int>()));
+      expect(ilist([1, 2, 3]).partitionMap(f), (ilist(['1', '3']), ilist([2])));
+    });
+
     test('prepend', () {
       expect(nil<int>().prepend(1), ilist([1]));
       expect(ilist([1, 2, 3]).prepend(0), ilist([0, 1, 2, 3]));
@@ -465,6 +522,21 @@ void main() {
     test('prependAll', () {
       expect(nil<int>().prependAll(ilist([1])), ilist([1]));
       expect(ilist([3]).prependAll(ilist([0, 1, 2])), ilist([0, 1, 2, 3]));
+    });
+
+    test('permutations', () {
+      expect(nil<int>().permutations().toIList(), nil<IList<int>>());
+
+      expect(
+          ilist([1, 2, 3]).permutations().toIList(),
+          ilist([
+            ilist([1, 2, 3]),
+            ilist([1, 3, 2]),
+            ilist([2, 1, 3]),
+            ilist([2, 3, 1]),
+            ilist([3, 1, 2]),
+            ilist([3, 2, 1]),
+          ]));
     });
 
     test('reduceOption', () {
@@ -543,18 +615,31 @@ void main() {
 
     test('sliding', () {
       expect(
-        ilist([1, 2, 3, 4, 5]).sliding(2, 1),
+        ilist([1, 2]).sliding(3).toIList(),
+        ilist([
+          ilist([1, 2])
+        ]),
+      );
+
+      expect(
+        ilist([1, 2]).sliding(2).toIList(),
+        ilist([
+          ilist([1, 2])
+        ]),
+      );
+
+      expect(
+        ilist([1, 2, 3, 4, 5]).sliding(2).toIList(),
         ilist([
           ilist([1, 2]),
           ilist([2, 3]),
           ilist([3, 4]),
           ilist([4, 5]),
-          ilist([5]),
         ]),
       );
 
       expect(
-        ilist([1, 2, 3, 4, 5]).sliding(1, 2),
+        ilist([1, 2, 3, 4, 5]).sliding(1, 2).toIList(),
         ilist([
           ilist([1]),
           ilist([3]),
@@ -563,7 +648,7 @@ void main() {
       );
 
       expect(
-        ilist([1, 2, 3, 4, 5]).sliding(2, 2),
+        ilist([1, 2, 3, 4, 5]).sliding(2, 2).toIList(),
         ilist([
           ilist([1, 2]),
           ilist([3, 4]),
@@ -572,7 +657,7 @@ void main() {
       );
 
       expect(
-        ilist([1, 2, 3, 4]).sliding(2, 2),
+        ilist([1, 2, 3, 4]).sliding(2, 2).toIList(),
         ilist([
           ilist([1, 2]),
           ilist([3, 4]),

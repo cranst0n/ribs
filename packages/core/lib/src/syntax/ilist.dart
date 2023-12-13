@@ -7,6 +7,18 @@ extension IListNestedOps<A> on IList<IList<A>> {
 
 extension IListEitherOps<A, B> on IList<Either<A, B>> {
   Either<A, IList<B>> sequence() => traverseEither(id);
+
+  /// Returns 2 new lists as a tuple. The first list is all the [Left] items
+  /// from each element of this list. The second list is all the [Right] items
+  /// from each element of this list.
+  (IList<A>, IList<B>) unzip() {
+    final a1s = List<A>.empty(growable: true);
+    final a2s = List<B>.empty(growable: true);
+
+    forEach((elem) => elem.fold((a1) => a1s.add(a1), (a2) => a2s.add(a2)));
+
+    return (ilist(a1s), ilist(a2s));
+  }
 }
 
 /// Operations avaiable when [IList] elements are of type [IO].
@@ -24,7 +36,7 @@ extension IListIOOps<A> on IList<IO<A>> {
   IO<Unit> parSequence_() => parTraverseIO_(id);
 }
 
-/// Operations avaiable when [IList] elemention are of type [Option].
+/// Operations avaiable when [IList] elements are of type [Option].
 extension IListOptionOps<A> on IList<Option<A>> {
   /// Accumulates all elements in this list as one [Option]. If any element is
   /// a [None], [None] will be returned. If all elements are [Some], then the
@@ -36,27 +48,57 @@ extension IListOptionOps<A> on IList<Option<A>> {
       nil(), (acc, elem) => elem.fold(() => acc, (a) => acc.append(a)));
 }
 
+/// Operations avaiable when [IList] elements are nullable.
+extension IListNullableOps<A> on IList<A?> {
+  /// Returns a new list with all null elements removed.
+  IList<A> noNulls() => foldLeft(
+      nil(), (acc, elem) => Option(elem).fold(() => acc, (a) => acc.append(a)));
+}
+
 extension IListComparableOps<A extends Comparable<dynamic>> on IList<A> {
+  /// Returns the maximum item in this list as defined by the behavior of this
+  /// element types [Comparable] implementation. If the list is empty, [None]
+  /// is returned.
   Option<A> maxOption() => headOption.map((hd) =>
       tail().foldLeft(hd, (acc, elem) => acc.compareTo(elem) > 0 ? acc : elem));
 
+  /// Returns the minimum item in this list as defined by the behavior of this
+  /// element types [Comparable] implementation. If the list is empty, [None]
+  /// is returned.
   Option<A> minOption() => headOption.map((hd) =>
       tail().foldLeft(hd, (acc, elem) => acc.compareTo(elem) < 0 ? acc : elem));
 
+  /// Returns a new list with all elements sorted from least to greatest
+  /// according to the implementation of this [Comparable].
   IList<A> sorted() => sortWith((a, b) => a.compareTo(b) < 0);
 }
 
 extension IListIntOps on IList<int> {
+  /// Returns the sum of all elements in this list
   int sum() => foldLeft(0, (a, b) => a + b);
+
+  /// Returns the product of all elements in this list
+  int product() => foldLeft(1, (a, b) => a * b);
 }
 
 extension IListDoubleOps on IList<double> {
+  /// Returns the sum of all elements in this list
   double sum() => foldLeft(0, (a, b) => a + b);
+
+  /// Returns the product of all elements in this list
+  double product() => foldLeft(1, (a, b) => a * b);
 }
 
 /// Until lambda destructuring arrives, this will provide a little bit
 /// of convenience: https://github.com/dart-lang/language/issues/3001
 extension IListTuple2Ops<A, B> on IList<(A, B)> {
+  /// {@macro ilist_collect}
+  IList<C> collectN<C>(Function2<A, B, Option<C>> f) => map(f.tupled).unNone();
+
+  /// {@macro ilist_collectFirst}
+  Option<C> collectFirstN<C>(Function2<A, B, Option<C>> f) =>
+      collectFirst(f.tupled);
+
   /// {@macro ilist_deleteFirst}
   Option<((A, B), IList<(A, B)>)> deleteFirstN(Function2<A, B, bool> p) =>
       deleteFirst(p.tupled);
@@ -115,6 +157,11 @@ extension IListTuple2Ops<A, B> on IList<(A, B)> {
   (IList<(A, B)>, IList<(A, B)>) partitionN(Function2<A, B, bool> p) =>
       partition(p.tupled);
 
+  /// {@macro ilist_partitionMap}
+  (IList<A1>, IList<A2>) partitionMapN<A1, A2>(
+          Function2<A, B, Either<A1, A2>> f) =>
+      partitionMap(f.tupled);
+
   /// {@macro ilist_removeFirst}
   IList<(A, B)> removeFirstN(Function2<A, B, bool> p) => removeFirst(p.tupled);
 
@@ -170,6 +217,14 @@ extension IListTuple2Ops<A, B> on IList<(A, B)> {
 }
 
 extension IListTuple3Ops<A, B, C> on IList<(A, B, C)> {
+  /// {@macro ilist_collect}
+  IList<D> collectN<D>(Function3<A, B, C, Option<D>> f) =>
+      map(f.tupled).unNone();
+
+  /// {@macro ilist_collectFirst}
+  Option<D> collectFirstN<D>(Function3<A, B, C, Option<D>> f) =>
+      collectFirst(f.tupled);
+
   /// {@macro ilist_deleteFirst}
   Option<((A, B, C), IList<(A, B, C)>)> deleteFirstN(
           Function3<A, B, C, bool> p) =>
@@ -226,6 +281,11 @@ extension IListTuple3Ops<A, B, C> on IList<(A, B, C)> {
   /// {@macro ilist_partition}
   (IList<(A, B, C)>, IList<(A, B, C)>) partitionN(Function3<A, B, C, bool> p) =>
       partition(p.tupled);
+
+  /// {@macro ilist_partitionMap}
+  (IList<A1>, IList<A2>) partitionMapN<A1, A2>(
+          Function3<A, B, C, Either<A1, A2>> f) =>
+      partitionMap(f.tupled);
 
   /// {@macro ilist_removeFirst}
   IList<(A, B, C)> removeFirstN(Function3<A, B, C, bool> p) =>

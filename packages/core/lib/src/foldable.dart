@@ -14,18 +14,24 @@ abstract class Foldable<A> {
 }
 
 extension FoldableOps<A> on Foldable<A> {
+  /// {@template foldable_count}
   /// Return the number of elements in this [Foldable] that satisfy the given
   /// predicate.
+  /// {@endtemplate}
   int count(Function1<A, bool> p) =>
       foldLeft(0, (count, elem) => count + (p(elem) ? 1 : 0));
 
+  /// {@template foldable_forall}
   /// Returns true if **all** elements of this [Foldable] satisfy the given
   /// predicate, false if any elements do not.
+  /// {@endtemplate}
   bool forall(Function1<A, bool> p) =>
       foldLeft(true, (acc, elem) => acc && p(elem));
 
+  /// {@template foldable_exists}
   /// Returns true if **any** element of this [Foldable] satisfies the given
   /// predicate, false if no elements satisfy it.
+  /// {@endtemplate}
   bool exists(Function1<A, bool> p) =>
       foldLeft(false, (acc, elem) => acc || p(elem));
 
