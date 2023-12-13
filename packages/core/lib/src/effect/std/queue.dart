@@ -27,10 +27,9 @@ abstract class Queue<A> {
 
   IO<bool> tryOffer(A a);
 
-  IO<IList<A>> tryOfferN(IList<A> list) => list.uncons((hdtl) => hdtl.fold(
+  IO<IList<A>> tryOfferN(IList<A> list) => list.uncons((hdtl) => hdtl.foldN(
         () => IO.pure(list),
-        (hdtl) => hdtl((hd, tl) =>
-            tryOffer(hd).ifM(() => tryOfferN(tl), () => IO.pure(list))),
+        (hd, tl) => tryOffer(hd).ifM(() => tryOfferN(tl), () => IO.pure(list)),
       ));
 
   IO<A> take();

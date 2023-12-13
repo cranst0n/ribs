@@ -11,9 +11,9 @@ class ListQueue<A> {
       ListQueue._(_list.concat(suffix._list));
 
   (A, ListQueue<A>) dequeue() => _list.uncons(
-        (hdtl) => hdtl.fold(
+        (hdtl) => hdtl.foldN(
           () => throw StateError('Called dequeue on an empty Queue'),
-          (hdtl) => (hdtl.$1, ListQueue._(hdtl.$2)),
+          (hd, tl) => (hd, ListQueue._(tl)),
         ),
       );
 

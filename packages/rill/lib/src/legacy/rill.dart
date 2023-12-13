@@ -538,9 +538,8 @@ sealed class Pull<O, R> {
       ? Pull.done
       : _Output(os.first).flatMap((_) => fromIterable(os.skip(1)));
 
-  static Pull<O, Unit> fromIList<O>(IList<O> os) => os.uncons((x) => x.fold(
-      () => Pull.done,
-      (hdtl) => _Output(hdtl.$1).flatMap((_) => fromIList(hdtl.$2))));
+  static Pull<O, Unit> fromIList<O>(IList<O> os) => os.uncons((x) => x.foldN(
+      () => Pull.done, (hd, tl) => _Output(hd).flatMap((_) => fromIList(tl))));
 
   static Pull<O, Unit> iterate<O>(O initial, Function1<O, O> f) =>
       _Output(initial).flatMap((_) => iterate(f(initial), f));

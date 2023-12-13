@@ -161,12 +161,12 @@ class _BoundedDequeue<A> extends Dequeue<A> {
   }
 
   IO<IList<A>> _tryOfferN(IList<A> list, Function1<A, IO<bool>> tryOfferF) =>
-      list.uncons((hdtl) => hdtl.fold(
+      list.uncons((hdtl) => hdtl.foldN(
             () => IO.pure(list),
-            (hdtl) => hdtl((hd, tl) => tryOfferF(hd).ifM(
-                  () => tryOfferN(tl),
-                  () => IO.pure(list),
-                )),
+            (hd, tl) => tryOfferF(hd).ifM(
+              () => tryOfferN(tl),
+              () => IO.pure(list),
+            ),
           ));
 
   IO<IList<A>> _tryTakeN(IO<Option<A>> tryTakeF, Option<int> maxN) {

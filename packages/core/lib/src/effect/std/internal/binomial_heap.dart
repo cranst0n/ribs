@@ -72,11 +72,9 @@ final class BinomialHeap<A> {
       IList<BinomialTree<A>> trees,
     ) {
       return trees.uncons((hdtl) {
-        return hdtl.fold(
+        return hdtl.foldN(
           () => throw StateError('BinomialHead.take: empty trees'),
-          (hdtl) {
-            final (t, ts) = hdtl;
-
+          (t, ts) {
             if (ts.isEmpty) {
               return (t, nil());
             } else {
