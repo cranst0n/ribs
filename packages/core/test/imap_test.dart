@@ -151,6 +151,15 @@ void main() {
       expect(imap({1: 1, 2: 2, 3: 3}).map((a, b) => a + b), ilist([2, 4, 6]));
     });
 
+    test('mapValues', () {
+      expect(imap<int, int>({}).mapValues((a) => a + 1), imap<int, int>({}));
+
+      expect(
+        imap({1: 1, 2: 2, 3: 3}).mapValues((a) => a + 1),
+        imap({1: 2, 2: 3, 3: 4}),
+      );
+    });
+
     test('partition', () {
       final m = imap({1: 1, 2: 2, 3: 3});
 

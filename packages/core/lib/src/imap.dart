@@ -108,6 +108,11 @@ final class IMap<K, V> {
   /// as a new list.
   IList<B> map<B>(Function2<K, V, B> f) => toIList().map(f.tupled);
 
+  /// Applies [f] to each value in this map and returns a new map with the same
+  /// keys, with the resulting values of the function application.
+  IMap<K, V2> mapValues<V2>(Function1<V, V2> f) =>
+      toIList().mapN((k, v) => (k, f(v))).toIMap();
+
   /// Returns true if this map has any elements, false otherwise.
   bool get nonEmpty => _underlying.isNotEmpty;
 
