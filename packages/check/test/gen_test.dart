@@ -19,6 +19,27 @@ void main() {
   forAll('tuple14', Gen.integer.tuple14, (t) => expect(t, isNotNull));
   forAll('tuple15', Gen.integer.tuple15, (t) => expect(t, isNotNull));
 
+  forAll(
+      '15-tupled',
+      (
+        Gen.integer,
+        Gen.integer,
+        Gen.integer,
+        Gen.integer,
+        Gen.integer,
+        Gen.integer,
+        Gen.integer,
+        Gen.integer,
+        Gen.integer,
+        Gen.integer,
+        Gen.integer,
+        Gen.integer,
+        Gen.integer,
+        Gen.integer,
+        Gen.integer,
+      ).tupled,
+      (t) => expect(t, isNotNull));
+
   forAll('alphaLowerChar', Gen.alphaLowerChar, (c) {
     expect(c.toLowerCase(), c);
     expect(c.toUpperCase(), isNot(c));
@@ -62,6 +83,13 @@ void main() {
 
   forAll('duration', Gen.duration, (x) {
     expect(x.inDays, anyOf(isNegative, 0, isPositive));
+  });
+
+  forAll('either', Gen.either(Gen.dateTime, Gen.positiveInt), (e) {
+    e.fold(
+      (dateTime) => expect(dateTime.year, isPositive),
+      (i) => expect(i, isPositive),
+    );
   });
 
   forAll('hexString', Gen.hexString(8).map((a) => a.padLeft(1, '0')), (str) {

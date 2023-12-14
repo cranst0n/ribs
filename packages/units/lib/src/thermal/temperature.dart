@@ -2,12 +2,12 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_units/ribs_units.dart';
 
 final class Temperature extends Quantity<Temperature> {
-  Temperature._(super.value, super.unit);
+  Temperature(super.value, super.unit);
 
   Temperature operator +(Temperature that) =>
-      Temperature._(value + that._convert(unit, withOffset: false).value, unit);
+      Temperature(value + that._convert(unit, withOffset: false).value, unit);
   Temperature operator -(Temperature that) =>
-      Temperature._(value - that._convert(unit, withOffset: false).value, unit);
+      Temperature(value - that._convert(unit, withOffset: false).value, unit);
 
   @override
   double to(UnitOfMeasure<Temperature> uom) => _convert(uom).value;
@@ -118,7 +118,7 @@ abstract class TemperatureScale extends UnitOfMeasure<Temperature> {
   const TemperatureScale(this.symbol);
 
   @override
-  Temperature call(num value) => Temperature._(value.toDouble(), this);
+  Temperature call(num value) => Temperature(value.toDouble(), this);
 }
 
 final class Celcius extends TemperatureScale {

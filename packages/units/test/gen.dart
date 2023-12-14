@@ -46,6 +46,12 @@ final length = (_doubleValue, lengthUnit).tupled.map(Length.new.tupled);
 final volumeUnit = Gen.oneOf(Volume.units);
 final volume = (_doubleValue, volumeUnit).tupled.map(Volume.new.tupled);
 
+// Thermal
+
+final temperatureUnit = Gen.oneOf(Temperature.units);
+final temperature =
+    (_doubleValue, temperatureUnit).tupled.map(Temperature.new.tupled);
+
 // Time
 
 final frequencyUnit = Gen.oneOf(Frequency.units);
@@ -56,7 +62,7 @@ final timeUnit = Gen.oneOf(Time.units);
 final time = (_doubleValue, timeUnit).tupled.map(Time.new.tupled);
 
 Gen<String> quantityString<A extends Quantity<A>>(
-  Iterable<BaseUnit<A>> units,
+  Iterable<UnitOfMeasure<A>> units,
 ) =>
     (Gen.positiveInt, Gen.oneOf(['', ' ']), Gen.oneOf(units))
         .tupled

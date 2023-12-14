@@ -8,7 +8,7 @@ import 'gen.dart';
 class QuantityProperties {
   static void parsing<A extends Quantity<A>>(
     Function1<String, Option<A>> parse,
-    Iterable<BaseUnit<A>> units,
+    Iterable<UnitOfMeasure<A>> units,
   ) {
     forAll(
       'parse',
@@ -17,7 +17,7 @@ class QuantityProperties {
     );
   }
 
-  static void equivalence<A extends Quantity<A>, B extends BaseUnit<A>>(
+  static void equivalence<A extends Quantity<A>, B extends UnitOfMeasure<A>>(
     Gen<A> gen,
     Gen<B> genUnit,
   ) {
