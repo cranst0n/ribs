@@ -4,19 +4,21 @@ import 'package:ribs_units/ribs_units.dart';
 final class Area extends Quantity<Area> {
   Area(super.value, super.unit);
 
-  Volume operator *(Length that) {
-    if (unit == squareUsMiles) {
-      return Volume.cubicUsMiles(value * that.toUsMiles.value);
-    } else if (unit == squareYards) {
-      return Volume.cubicYards(value * that.toYards.value);
-    } else if (unit == squareFeet) {
-      return Volume.cubicFeet(value * that.toFeet.value);
-    } else if (unit == squareInches) {
-      return Volume.cubicInches(value * that.toInches.value);
-    } else {
-      return Volume.cubicMeters(toSquareMeters.value * that.toMeters.value);
-    }
-  }
+  Volume operator *(Length that) => switch (unit) {
+        SquareUsMiles _ => Volume.cubicUsMiles(value * that.toUsMiles.value),
+        SquareYards _ => Volume.cubicYards(value * that.toYards.value),
+        SquareFeet _ => Volume.cubicFeet(value * that.toFeet.value),
+        SquareInches _ => Volume.cubicInches(value * that.toInches.value),
+        _ => Volume.cubicMeters(toSquareMeters.value * that.toMeters.value),
+      };
+
+  Length operator /(Length that) => switch (unit) {
+        SquareUsMiles _ => Length.usMiles(value / that.toUsMiles.value),
+        SquareYards _ => Length.yards(value / that.toYards.value),
+        SquareFeet _ => Length.feet(value / that.toFeet.value),
+        SquareInches _ => Length.inches(value / that.toInches.value),
+        _ => Length.meters(toSquareMeters.value / that.toMeters.value),
+      };
 
   Area get toSquareMeters => to(squareMeters).squareMeters;
   Area get toSquareCentimeters => to(squareCentimeters).squareCentimeters;

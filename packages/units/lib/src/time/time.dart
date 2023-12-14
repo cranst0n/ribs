@@ -10,6 +10,7 @@ final class Time extends Quantity<Time> {
   Time get toSeconds => to(seconds).seconds;
   Time get toMinutes => to(minutes).minutes;
   Time get toHours => to(hours).hours;
+  Time get toDays => to(days).days;
 
   static const nanoseconds = Nanoseconds._();
   static const microseconds = Microseconds._();
@@ -17,6 +18,7 @@ final class Time extends Quantity<Time> {
   static const seconds = Seconds._();
   static const minutes = Minutes._();
   static const hours = Hours._();
+  static const days = Days._();
 
   static const units = {
     nanoseconds,
@@ -25,6 +27,7 @@ final class Time extends Quantity<Time> {
     seconds,
     minutes,
     hours,
+    days,
   };
 
   Time fromDuration(Duration d) => microseconds(d.inMicroseconds);
@@ -91,4 +94,5 @@ extension TimeOps on num {
   Time get seconds => Time.seconds(this);
   Time get minutes => Time.minutes(this);
   Time get hours => Time.hours(this);
+  Time get days => Time.days(this);
 }

@@ -22,8 +22,6 @@ final class Length extends Quantity<Length> {
     }
   }
 
-  Area get squared => this * this;
-
   Length get toNanometers => to(nanometers).nanometers;
   Length get toMicrons => to(microns).microns;
   Length get toMillimeters => to(millimeters).millimeters;
