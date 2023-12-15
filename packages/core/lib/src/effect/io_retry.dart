@@ -167,7 +167,7 @@ class RetryPolicy {
     final micros = BigInt.from(duration.inMicroseconds) * factor;
 
     return Duration(
-      microseconds: micros.isValidInt ? micros.toInt() : 9223372036854775807,
+      microseconds: micros.isValidInt ? micros.toInt() : 2147483648,
     );
   }
 

@@ -50,7 +50,6 @@ Codec<int> uint8 = IntCodec(8, false, Endian.big);
 Codec<int> uint16 = IntCodec(16, false, Endian.big);
 Codec<int> uint24 = IntCodec(24, false, Endian.big);
 Codec<int> uint32 = IntCodec(32, false, Endian.big);
-// Codec<int> uint64 = IntCodec(64, false, Endian.big);
 
 Codec<int> int4L = IntCodec(4, true, Endian.little);
 Codec<int> int8L = IntCodec(8, true, Endian.little);
@@ -64,7 +63,6 @@ Codec<int> uint8L = IntCodec(8, false, Endian.little);
 Codec<int> uint16L = IntCodec(16, false, Endian.little);
 Codec<int> uint24L = IntCodec(24, false, Endian.little);
 Codec<int> uint32L = IntCodec(32, false, Endian.little);
-Codec<int> uint64L = IntCodec(64, false, Endian.little);
 
 Codec<int> integer(int size) => IntCodec(size, true, Endian.big);
 Codec<int> integerL(int size) => IntCodec(size, true, Endian.little);

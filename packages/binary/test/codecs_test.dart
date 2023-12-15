@@ -146,15 +146,18 @@ Gen<int> genInt8 = Gen.chooseInt(-128, 127);
 Gen<int> genInt16 = Gen.chooseInt(-32768, 32767);
 Gen<int> genInt24 = Gen.chooseInt(-8388608, 8388607);
 Gen<int> genInt32 = Gen.chooseInt(-2147483648, 2147483647);
-Gen<int> genInt64 = Gen.chooseInt(-2147483648, 2147483647);
-// Gen<int> genInt64 = Gen.chooseInt(-9223372036854775808, 9223372036854775807);
+
+const bool kIsWeb = bool.fromEnvironment('dart.library.js_util');
+Gen<int> genInt64 = Gen.chooseInt(
+  kIsWeb ? -2147483648 : -4.611686e18.round(),
+  kIsWeb ? 2147483647 : 4.611686e18.round(),
+);
 
 Gen<int> genUint4 = Gen.chooseInt(0, 2 ^ 4);
 Gen<int> genUint8 = Gen.chooseInt(0, 2 ^ 8);
 Gen<int> genUint16 = Gen.chooseInt(0, 2 ^ 16);
 Gen<int> genUint24 = Gen.chooseInt(0, 2 ^ 24);
 Gen<int> genUint32 = Gen.chooseInt(0, 2 ^ 32);
-// Gen<int> genUint64 = Gen.chooseInt(0, 2 ^ 32);
 
 // floating point math FTW
 Gen<double> genFloat32 = Gen.chooseDouble(-10000000.0, 10000000.0);

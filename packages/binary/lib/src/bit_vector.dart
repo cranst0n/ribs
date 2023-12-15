@@ -116,6 +116,7 @@ sealed class BitVector {
     int size = 64,
     Endian ordering = Endian.big,
   ]) {
+    // TODO: Unsupported on web
     final bytes = Uint8List(8)..buffer.asByteData().setInt64(0, i);
     final relevantBits = ByteVector(bytes).bits.shiftLeft(64 - size).take(size);
 
