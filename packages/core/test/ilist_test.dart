@@ -37,6 +37,11 @@ void main() {
       expect(() => IList.range(0, 3, -1), throwsArgumentError);
     });
 
+    test('rangeTo', () {
+      expect(IList.rangeTo(0, 3), ilist([0, 1, 2, 3]));
+      expect(IList.rangeTo(3, 0, -1), ilist([3, 2, 1, 0]));
+    });
+
     test('tabulate', () {
       expect(IList.tabulate(3, (ix) => ix * 2), ilist([0, 2, 4]));
     });

@@ -46,7 +46,7 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// Creates an IList where elements are every integer from [start] (inclusive)
   /// to [end] (inclusive) and each element adds [step] from the previous.
   static IList<int> rangeTo(int start, int end, [int step = 1]) =>
-      range(start, end + 1, step);
+      step > 0 ? range(start, end + 1, step) : range(start, end - 1, step);
 
   /// Creates an IList where elements are every integer from [start] (inclusive)
   /// to [end] (exclusive) and each element adds [step] from the previous.
