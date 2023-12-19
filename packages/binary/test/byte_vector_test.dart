@@ -6,7 +6,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/test_matchers.dart';
 import 'package:test/test.dart';
 
-import 'gen.dart';
+import 'arbitraries.dart';
 
 void main() {
   group('ByteVector', () {

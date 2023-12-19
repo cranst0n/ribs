@@ -4,7 +4,7 @@ import 'package:ribs_core/test_matchers.dart';
 import 'package:ribs_json/ribs_json.dart';
 import 'package:test/test.dart';
 
-import 'gen.dart';
+import 'arbitraries.dart';
 
 void main() {
   group('Json', () {

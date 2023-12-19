@@ -4,7 +4,7 @@ import 'package:ribs_check/ribs_check.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:test/test.dart';
 
-import 'gen.dart';
+import 'arbitraries.dart';
 
 void main() {
   group('Binary Codecs', () {

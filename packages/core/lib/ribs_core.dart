@@ -23,6 +23,7 @@ export 'src/monad.dart';
 export 'src/non_empty_ilist.dart';
 export 'src/option.dart';
 export 'src/order.dart';
+export 'src/ordered.dart';
 export 'src/state.dart';
 export 'src/syntax/all.dart';
 export 'src/unique_token.dart';

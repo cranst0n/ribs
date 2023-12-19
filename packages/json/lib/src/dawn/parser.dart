@@ -126,7 +126,7 @@ abstract class Parser {
         c = at(j);
       } while ('0' <= c && c <= '9');
     } else {
-      die(i, "expected digit");
+      die(i, 'expected digit');
     }
 
     if (c == '.') {
@@ -140,7 +140,7 @@ abstract class Parser {
           c = at(j);
         } while ('0' <= c && c <= '9');
       } else {
-        die(i, "expected digit");
+        die(i, 'expected digit');
       }
     }
 
@@ -159,7 +159,7 @@ abstract class Parser {
           c = at(j);
         } while ('0' <= c && c <= '9');
       } else {
-        die(i, "expected digit");
+        die(i, 'expected digit');
       }
     }
 
@@ -199,7 +199,7 @@ abstract class Parser {
         c = at(j);
       } while ('0' <= c && c <= '9');
     } else {
-      die(i, "expected digit");
+      die(i, 'expected digit');
     }
 
     if (c == '.') {
@@ -219,7 +219,7 @@ abstract class Parser {
           c = at(j);
         } while ('0' <= c && c <= '9');
       } else {
-        die(i, "expected digit");
+        die(i, 'expected digit');
       }
     }
 
@@ -245,7 +245,7 @@ abstract class Parser {
           c = at(j);
         } while ('0' <= c && c <= '9');
       } else {
-        die(i, "expected digit");
+        die(i, 'expected digit');
       }
     }
 
@@ -262,7 +262,7 @@ abstract class Parser {
       final n = _HexChars[s.codeUnitAt(i)];
 
       if (n < 0) {
-        die(pos, "expected valid unicode escape");
+        die(pos, 'expected valid unicode escape');
       }
 
       x = (x << 4) | n;
@@ -278,7 +278,7 @@ abstract class Parser {
     if (at(i + 1) == 'r' && at(i + 2) == 'u' && at(i + 3) == 'e') {
       return Json.True;
     } else {
-      die(i, "expected true");
+      die(i, 'expected true');
     }
   }
 
@@ -289,7 +289,7 @@ abstract class Parser {
         at(i + 4) == 'e') {
       return Json.False;
     } else {
-      die(i, "expected false");
+      die(i, 'expected false');
     }
   }
 
@@ -297,7 +297,7 @@ abstract class Parser {
     if (at(i + 1) == 'u' && at(i + 2) == 'l' && at(i + 3) == 'l') {
       return Json.Null;
     } else {
-      die(i, "expected null");
+      die(i, 'expected null');
     }
   }
 
@@ -418,7 +418,7 @@ abstract class Parser {
           iState = iContext.isObject ? _OBJEND : _ARREND;
           iJ = i + 4;
         } else {
-          die(i, "expected json value");
+          die(i, 'expected json value');
         }
       } else if ((c == ']' && (iState == _ARREND || iState == _ARRBEG)) ||
           (c == '}' && (iState == _OBJEND || iState == _OBJBEG))) {
@@ -449,7 +449,7 @@ abstract class Parser {
           iState = _DATA;
           iJ = i + 1;
         } else {
-          die(i, "expected :");
+          die(i, 'expected :');
         }
       } else if (iState == _ARREND) {
         // we are in an array, expecting to see a comma (before more data).
@@ -457,7 +457,7 @@ abstract class Parser {
           iState = _DATA;
           iJ = i + 1;
         } else {
-          die(i, "expected ] or ,");
+          die(i, 'expected ] or ,');
         }
       } else if (iState == _OBJEND) {
         // we are in an object, expecting to see a comma (before more data).
@@ -465,7 +465,7 @@ abstract class Parser {
           iState = _KEY;
           iJ = i + 1;
         } else {
-          die(i, "expected } or ,");
+          die(i, 'expected } or ,');
         }
       } else if (iState == _ARRBEG) {
         // we are starting an array, expecting to see data or a closing bracket.

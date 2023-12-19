@@ -77,7 +77,7 @@ mixin ByteBasedParser on Parser {
             );
         }
       } else if (c < 32) {
-        die(j, "control char ($c) in string", chars: 1);
+        die(j, 'control char ($c) in string', chars: 1);
       } else if (c < 128) {
         // 1-byte UTF-8 sequence
         sb.write(String.fromCharCode(c));
@@ -95,7 +95,7 @@ mixin ByteBasedParser on Parser {
         sb.write(atRange(j, j + 4));
         j += 4;
       } else {
-        die(j, "invalid UTF-8 encoding");
+        die(j, 'invalid UTF-8 encoding');
       }
 
       c = byte(j) & 0xff;

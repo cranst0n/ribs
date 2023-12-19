@@ -4,7 +4,7 @@ import 'package:ribs_core/test_matchers.dart';
 import 'package:ribs_json/ribs_json.dart';
 import 'package:test/test.dart';
 
-import 'gen.dart';
+import 'arbitraries.dart';
 
 void main() {
   group('Cursor', () {
@@ -233,7 +233,7 @@ void main() {
   });
 
   test('key should return None if the cursor is not in an object', () {
-    expect(cursor.downField("a").downN(1).key, isNone());
+    expect(cursor.downField('a').downN(1).key, isNone());
   });
 
   test('key should return None if the cursor has failed', () {

@@ -172,7 +172,7 @@ final class HexDumpFormat {
     final printable =
         _replaceNoPrintable(decoded, replaceWith: nonPrintableReplacement);
     final colorized =
-        ansiEnabled ? printable.replaceAll("�", _FaintUnmappable) : printable;
+        ansiEnabled ? printable.replaceAll('�', _FaintUnmappable) : printable;
 
     bldr.write(colorized);
   }
@@ -211,12 +211,12 @@ final class _Ansi {
 
   static void foregroundColor(StringBuffer bldr, (int, int, int) rgb) {
     bldr
-      ..write("\u001b[38;2;")
+      ..write('\u001b[38;2;')
       ..write(rgb.$1)
-      ..write(";")
+      ..write(';')
       ..write(rgb.$2)
-      ..write(";")
+      ..write(';')
       ..write(rgb.$3)
-      ..write("m");
+      ..write('m');
   }
 }

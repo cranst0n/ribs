@@ -193,7 +193,7 @@ Either<String, (ByteVector, int)> fromBase32Internal(
       () => padding == 0 || padding == expectedPadding,
       () => (bytes, count),
       () =>
-          "Malformed padding - optionally expected $expectedPadding padding characters such that the quantum is completed",
+          'Malformed padding - optionally expected $expectedPadding padding characters such that the quantum is completed',
     );
   } else {
     return err.asLeft();

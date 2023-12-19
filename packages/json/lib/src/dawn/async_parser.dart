@@ -203,12 +203,12 @@ final class AsyncParser extends Parser with ByteBasedParser {
                   _offset += 1;
                   _state = _ASYNC_END;
                 } else {
-                  die(_offset, "expected json value or eof");
+                  die(_offset, 'expected json value or eof');
                 }
               } else if (_state == _ASYNC_END) {
-                die(_offset, "expected eof");
+                die(_offset, 'expected eof');
               } else {
-                die(_offset, "expected json value");
+                die(_offset, 'expected json value');
               }
             default:
               if (_state == _ASYNC_END) {
