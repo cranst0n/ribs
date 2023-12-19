@@ -1,4 +1,4 @@
-import 'package:ribs_core/src/function.dart';
+import 'package:ribs_core/ribs_core.dart';
 
 /// Defines a total ordering for elements of type `A`.
 ///
@@ -10,6 +10,9 @@ abstract class Order<A> {
   /// Creates a new [Order] that uses the [Comparable.compareTo] defined for
   /// the given type.
   static Order<A> fromComparable<A extends Comparable<dynamic>>() =>
+      Order.from((A a, A b) => a.compareTo(b));
+
+  static Order<A> fromOrdered<A extends Ordered<dynamic>>() =>
       Order.from((A a, A b) => a.compareTo(b));
 
   /// Creates a new [Order] that compares 2 elements using [f].
