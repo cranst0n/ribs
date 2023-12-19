@@ -17,6 +17,18 @@ final class Gen<A> extends Monad<A> {
   @override
   Gen<B> map<B>(Function1<A, B> f) => flatMap((a) => Gen(sample.map(f)));
 
+  Gen<A> retryUntil(Function1<A, bool> p) {
+    Gen<A> go(int retriesSoFar) {
+      if (retriesSoFar >= 1000) {
+        throw Exception('Gen.retryUntil exceeded max retries: 1000');
+      } else {
+        return flatMap((a) => p(a) ? Gen.constant(a) : go(retriesSoFar + 1));
+      }
+    }
+
+    return go(0);
+  }
+
   Stream<A> shrink(A a) => shrinker?.shrink(a) ?? Stream<A>.empty();
 
   Gen<A> withShrinker(Shrinker<A> shrinker) => Gen(sample, shrinker: shrinker);
@@ -64,6 +76,9 @@ final class Gen<A> extends Monad<A> {
   Gen<(A, A, A, A, A, A, A, A, A, A, A, A, A, A, A)> get tuple15 =>
       tuple14.flatMap((t) => this.map(t.append));
 
+  Gen<(A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A)> get tuple16 =>
+      tuple15.flatMap((t) => this.map(t.append));
+
   ///////////////
   // Instances //
   ///////////////
@@ -101,6 +116,8 @@ final class Gen<A> extends Monad<A> {
   static Gen<String> binChar = charSample('01');
 
   static Gen<bool> boolean = Gen(State((r) => r.nextBool()));
+
+  static Gen<int> byte = chooseInt(0, 255);
 
   static Gen<double> chooseDouble(
     double min,
