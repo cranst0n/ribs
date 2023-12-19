@@ -65,7 +65,7 @@ final class MediaType extends MediaRange {
 
   String _renderExtensions() {
     if (extensions.nonEmpty) {
-      return extensions.map((k, v) => '; $k=${_quote(v)}').mkString(sep: '');
+      return extensions.map((k, v) => '; $k=${_quote(v)}').mkString();
     } else {
       return '';
     }

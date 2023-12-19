@@ -466,12 +466,12 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// between each element. If [start] is defined, it will be prepended to the
   /// resulting string. If [end] is defined, it will be appended to the
   /// resulting string.
-  String mkString({String? start, required String sep, String? end}) {
+  String mkString({String? start, String? sep, String? end}) {
     final buf = StringBuffer(start ?? '');
 
     for (int i = 0; i < size; i++) {
       buf.write(_underlying[i]);
-      if (i < size - 1) buf.write(sep);
+      if (i < size - 1 && sep != null) buf.write(sep);
     }
 
     buf.write(end ?? '');
