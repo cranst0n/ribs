@@ -256,8 +256,6 @@ sealed class BitVector {
 
   bool get nonEmpty => !isEmpty;
 
-  BitVector splice(int ix, BitVector b) => take(ix).concat(b).concat(drop(ix));
-
   BitVector padLeft(int n) =>
       size < n ? BitVector.low(n - size).concat(this) : this;
 
@@ -348,6 +346,8 @@ sealed class BitVector {
   }
 
   BitVector slice(int from, int until) => drop(from).take(until - max(from, 0));
+
+  BitVector splice(int ix, BitVector b) => take(ix).concat(b).concat(drop(ix));
 
   (BitVector, BitVector) splitAt(int n) => (take(n), drop(n));
 
