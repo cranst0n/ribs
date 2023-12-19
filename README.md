@@ -14,13 +14,14 @@
 [![optics](https://img.shields.io/pub/v/ribs_optics?label=ribs_optics&color=00c000)](https://pub.dev/packages/ribs_optics)
 [![units](https://img.shields.io/pub/v/ribs_units?label=ribs_units&color=00c000)](https://pub.dev/packages/ribs_units)
 [![check](https://img.shields.io/pub/v/ribs_check?label=ribs_check&color=00c000)](https://pub.dev/packages/ribs_check)
+[![ip](https://img.shields.io/pub/v/ribs_ip?label=ribs_ip&color=00c000)](https://pub.dev/packages/ribs_ip)
 
-![rill](https://img.shields.io/badge/ribs__http-unpublished-f00000)
+![http](https://img.shields.io/badge/ribs__http-unpublished-f00000)
 ![rill](https://img.shields.io/badge/ribs__rill-unpublished-f00000)
 
 **🧪 Experimental FP packages for Dart 🧪**
 
-[![Reinvent the Wheel](https://raw.githubusercontent.com/cranst0n/ribs/main/.github/assets/reinventing_the_wheel.png)](https://twitter.com/rockthejvm/status/1640320394438508545)
+[![Reinventing the Wheel](https://raw.githubusercontent.com/cranst0n/ribs/main/.github/assets/reinventing_the_wheel.png)](https://twitter.com/rockthejvm/status/1640320394438508545)
 
 
 [Documentation](https://cranst0n.github.io/ribs/)
@@ -38,6 +39,7 @@ that you won't find here.
 
 * [dartz](https://github.com/spebbe/dartz)
 * [fpdart](https://github.com/SandroMaglione/fpdart)
+* [FIC](https://pub.dev/packages/fast_immutable_collections)
 
 There are also provided `compat` libraries to make it easier converting between
 similar types in those libraries if you want to use both.
@@ -56,9 +58,5 @@ the following libraries.
 * [sqaunts](https://github.com/typelevel/squants)
 * [cats-retry](https://github.com/cb372/cats-retry)
 * [dart-check](https://github.com/wigahluk/dart-check)
-
-Additional inspiration provided by:
-
-* [FIC](https://pub.dev/packages/fast_immutable_collections)
-* [dartz](https://github.com/spebbe/dartz)
-* [fpdart](https://github.com/SandroMaglione/fpdart)
+* [ip4s](https://github.com/Comcast/ip4s)
+* [punycode_converter](https://github.com/darkxanter/punycode_converter)

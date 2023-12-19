@@ -41,17 +41,9 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-  
-  - package-ecosystem: "pub"
-    directory: "/packages/dartz_compat"
-    schedule:
-      interval: "weekly"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
 
   - package-ecosystem: "pub"
-    directory: "/packages/fpdart_compat"
+    directory: "/packages/ip"
     schedule:
       interval: "weekly"
     commit-message:
