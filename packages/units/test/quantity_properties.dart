@@ -3,7 +3,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_units/ribs_units.dart';
 import 'package:test/test.dart';
 
-import 'gen.dart';
+import 'arbitraries.dart';
 
 class QuantityProperties {
   static void parsing<A extends Quantity<A>>(
