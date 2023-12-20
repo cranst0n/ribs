@@ -1,49 +1,20 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_ip/ribs_ip.dart';
+import 'package:ribs_ip/src/host.dart';
+import 'package:ribs_ip/src/platform/stub.dart'
+    if (dart.library.html) 'platform/web.dart'
+    if (dart.library.io) 'platform/native.dart';
 
-sealed class Dns {
-  IO<IpAddress> resolve(Hostname hostname);
+final class Dns {
+  static final PlatformImpl _platformImpl = PlatformImpl();
 
-  IO<Option<IpAddress>> resolveOption(Hostname hostname);
+  static IO<IList<IpAddress>> loopback() => _platformImpl.loopback();
 
-  IO<IList<IpAddress>> resolveAll(Hostname hostname);
+  static IO<IList<IpAddress>> resolve(Hostname hostname) =>
+      _platformImpl.resolve(hostname);
 
-  IO<Hostname> reverse(IpAddress address);
+  static IO<Hostname> reverse(IpAddress address) =>
+      _platformImpl.reverse(address);
 
-  IO<Option<Hostname>> reverseOption(IpAddress address);
-
-  IO<IpAddress> loopback();
-}
-
-// TODO: Platformize
-final class DnsNative extends Dns {
-  @override
-  IO<IpAddress> loopback() {
-    throw UnimplementedError();
-  }
-
-  @override
-  IO<IpAddress> resolve(Hostname hostname) {
-    throw UnimplementedError();
-  }
-
-  @override
-  IO<IList<IpAddress>> resolveAll(Hostname hostname) {
-    throw UnimplementedError();
-  }
-
-  @override
-  IO<Option<IpAddress>> resolveOption(Hostname hostname) {
-    throw UnimplementedError();
-  }
-
-  @override
-  IO<Hostname> reverse(IpAddress address) {
-    throw UnimplementedError();
-  }
-
-  @override
-  IO<Option<Hostname>> reverseOption(IpAddress address) {
-    throw UnimplementedError();
-  }
+  static IO<Option<Hostname>> reverseOption(IpAddress address) =>
+      _platformImpl.reverseOption(address);
 }

@@ -12,6 +12,12 @@ sealed class Host extends Ordered<Host> {
       .orElse(() => Hostname.fromString(value))
       .orElse(() => IDN.fromString(value));
 
+  IO<IList<IpAddress>> resolve() => switch (this) {
+        final IpAddress ip => IO.pure(ilist([ip])),
+        final Hostname hostname => Dns.resolve(hostname),
+        final IDN idn => Dns.resolve(idn.hostname),
+      };
+
   @override
   int compareTo(Host that) {
     return switch (this) {
@@ -126,6 +132,12 @@ sealed class IpAddress extends Host {
       Ipv4Address.fromByteList(bytes)
           .map((a) => a.asIpAddress)
           .orElse(() => Ipv6Address.fromByteList(bytes));
+
+  static IO<IList<IpAddress>> loopback() => Dns.loopback();
+
+  IO<Hostname> reverse() => Dns.reverse(this);
+
+  IO<Option<Hostname>> reverseOption() => Dns.reverseOption(this);
 
   A fold<A>(Function1<Ipv4Address, A> v4, Function1<Ipv6Address, A> v6);
 
