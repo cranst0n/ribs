@@ -1,4 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/test_matchers.dart';
 import 'package:ribs_optics/ribs_optics.dart';
 import 'package:test/test.dart';
 
@@ -35,6 +36,18 @@ void main() {
     test('modifyOption', () {
       expect(first.modifyOption((i) => i + 1)(a), ilist([2, 2, 3]).some);
       expect(second.modifyOption((i) => i + 1)(b), none<IList<int>>());
+    });
+
+    test('replaceOption', () {
+      expect(second.replaceOption(10)(a), isSome(ilist([1, 10, 3])));
+      expect(second.replaceOption(10)(b), isNone());
+    });
+
+    test('andThenO', () {
+      final doubleSecond = second.andThenO(
+          Optional<int, int>((a) => a.asRight(), (a) => (b) => a * b));
+
+      expect(doubleSecond.modify((x) => x)(a), ilist([1, 4, 3]));
     });
   });
 }

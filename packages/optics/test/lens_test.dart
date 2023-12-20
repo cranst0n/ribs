@@ -57,5 +57,15 @@ void main() {
         isFalse,
       );
     });
+
+    test('andThenG', () {
+      final versionL = Lens<AppConfig, Version>(
+          (cfg) => cfg.version, (v) => (s) => s.copy(version: v));
+
+      final reverseString =
+          Getter<Version, String>((v) => v.split('').reversed.join());
+
+      expect(versionL.andThenG(reverseString).get(AppConfig.test), "2.0.1");
+    });
   });
 }
