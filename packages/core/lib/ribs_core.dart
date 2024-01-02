@@ -1,3 +1,4 @@
+export 'src/applicative.dart';
 export 'src/cast.dart';
 export 'src/effect/deferred.dart';
 export 'src/effect/exit_case.dart';

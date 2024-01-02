@@ -73,7 +73,7 @@ sealed class Option<A> implements Monad<A>, Foldable<A> {
 
   /// Returns the value if this is a [Some] or the value returned from
   /// evaluating [ifEmpty].
-  A getOrElse(Function0<A> ifEmpty) => fold(() => ifEmpty(), id);
+  A getOrElse(Function0<A> ifEmpty) => fold(() => ifEmpty(), identity);
 
   /// If this is a [Some], the side-effect [ifSome] is evaluated by passing the
   /// value.
@@ -112,7 +112,7 @@ sealed class Option<A> implements Monad<A>, Foldable<A> {
 
   /// Returns a nullable value, which is the value itself if this is a [Some],
   /// or null if this is a [None].
-  A? toNullable() => fold(() => null, id);
+  A? toNullable() => fold(() => null, identity);
 
   @override
   String toString() => fold(() => 'None', (a) => 'Some($a)');

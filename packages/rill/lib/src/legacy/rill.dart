@@ -71,7 +71,7 @@ final class Rill<O> implements Monad<O> {
     }
   }
 
-  static Rill<O> force<O>(IO<Rill<O>> f) => eval(f).flatMap(id);
+  static Rill<O> force<O>(IO<Rill<O>> f) => eval(f).flatMap(identity);
 
   static Rill<O> fromFuture<O>(Function0<Future<O>> f) =>
       eval(IO.fromFuture(IO.delay(f)));
@@ -310,7 +310,7 @@ final class Rill<O> implements Monad<O> {
 }
 
 extension RillNestedOps<O> on Rill<Rill<O>> {
-  Rill<O> flatten() => flatMap(id);
+  Rill<O> flatten() => flatMap(identity);
 }
 
 extension RillOptionOps<O> on Rill<Option<O>> {
@@ -571,7 +571,7 @@ extension PullOps<O> on Pull<O, Unit> {
 }
 
 extension PullNestedOps<O, R> on Pull<O, Pull<O, R>> {
-  Pull<O, R> flatten() => flatMap(id);
+  Pull<O, R> flatten() => flatMap(identity);
 }
 
 extension PullOptionOps<O, R> on Pull<Option<O>, R> {

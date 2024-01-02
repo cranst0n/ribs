@@ -6,7 +6,7 @@ extension IListNestedOps<A> on IList<IList<A>> {
 }
 
 extension IListEitherOps<A, B> on IList<Either<A, B>> {
-  Either<A, IList<B>> sequence() => traverseEither(id);
+  Either<A, IList<B>> sequence() => traverseEither(identity);
 
   /// Returns 2 new lists as a tuple. The first list is all the [Left] items
   /// from each element of this list. The second list is all the [Right] items
@@ -24,16 +24,16 @@ extension IListEitherOps<A, B> on IList<Either<A, B>> {
 /// Operations avaiable when [IList] elements are of type [IO].
 extension IListIOOps<A> on IList<IO<A>> {
   /// Alias for [traverseIO], using [id] as the function parameter.
-  IO<IList<A>> sequence() => traverseIO(id);
+  IO<IList<A>> sequence() => traverseIO(identity);
 
   /// Alias for [traverseIO_], using [id] as the function parameter.
-  IO<Unit> sequence_() => traverseIO_(id);
+  IO<Unit> sequence_() => traverseIO_(identity);
 
   /// Alias for [parTraverseIO], using [id] as the function parameter.
-  IO<IList<A>> parSequence() => parTraverseIO(id);
+  IO<IList<A>> parSequence() => parTraverseIO(identity);
 
   /// Alias for [parTraverseIO_], using [id] as the function parameter.
-  IO<Unit> parSequence_() => parTraverseIO_(id);
+  IO<Unit> parSequence_() => parTraverseIO_(identity);
 }
 
 /// Operations avaiable when [IList] elements are of type [Option].
@@ -41,7 +41,7 @@ extension IListOptionOps<A> on IList<Option<A>> {
   /// Accumulates all elements in this list as one [Option]. If any element is
   /// a [None], [None] will be returned. If all elements are [Some], then the
   /// entire list is returned, wrapped in a [Some].
-  Option<IList<A>> sequence() => traverseOption(id);
+  Option<IList<A>> sequence() => traverseOption(identity);
 
   /// Returns a new list with all [None] elements removed.
   IList<A> unNone() => foldLeft(
@@ -134,7 +134,7 @@ extension IListTuple2Ops<A, B> on IList<(A, B)> {
 
   /// {@macro ilist_groupBy}
   IMap<K, IList<(A, B)>> groupByN<K>(Function2<A, B, K> f) =>
-      groupMap(f.tupled, id);
+      groupMap(f.tupled, identity);
 
   /// {@macro ilist_groupMap}
   IMap<K, IList<V>> groupMapN<K, V>(
@@ -263,7 +263,7 @@ extension IListTuple3Ops<A, B, C> on IList<(A, B, C)> {
 
   /// {@macro ilist_groupBy}
   IMap<K, IList<(A, B, C)>> groupByN<K>(Function3<A, B, C, K> f) =>
-      groupMap(f.tupled, id);
+      groupMap(f.tupled, identity);
 
   /// {@macro ilist_groupMap}
   IMap<K, IList<V>> groupMapN<K, V>(

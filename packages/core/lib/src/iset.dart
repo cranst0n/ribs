@@ -87,7 +87,7 @@ final class ISet<A> {
 
   /// Partitions all elements of this set by applying [f] to each element
   /// and accumulating duplicate keys in the returned [IMap].
-  IMap<K, ISet<A>> groupBy<K>(Function1<A, K> f) => groupMap(f, id);
+  IMap<K, ISet<A>> groupBy<K>(Function1<A, K> f) => groupMap(f, identity);
 
   /// Creates a new map by generating a key-value pair for each elements of this
   /// set using [key] and [value]. Any elements that generate the same key will

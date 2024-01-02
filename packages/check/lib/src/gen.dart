@@ -4,7 +4,7 @@ import 'dart:collection';
 import 'package:ribs_check/src/stateful_random.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-final class Gen<A> extends Monad<A> {
+final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
   final State<StatefulRandom, A> sample;
   final Shrinker<A>? shrinker;
 

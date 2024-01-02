@@ -32,7 +32,7 @@ final class ByteVector {
     BinaryAlphabet alphabet = Alphabets.binary,
   ]) =>
       fromBinDescriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), id);
+          .fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromBinDescriptive(
     String str, [
@@ -51,7 +51,7 @@ final class ByteVector {
     HexAlphabet alphabet = Alphabets.hexLower,
   ]) =>
       fromHexDescriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), id);
+          .fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromHexDescriptive(
     String str, [
@@ -70,7 +70,7 @@ final class ByteVector {
     Base32Alphabet alphabet = Alphabets.base32,
   ]) =>
       fromBase32Descriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), id);
+          .fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromBase32Descriptive(
     String str, [
@@ -89,7 +89,7 @@ final class ByteVector {
     Base64Alphabet alphabet = Alphabets.base64,
   ]) =>
       fromBase64Descriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), id);
+          .fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromBase64Descriptive(
     String str, [

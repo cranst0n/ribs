@@ -32,7 +32,7 @@ typedef RacePairOutcome<A, B> = Either<AWon<A, B>, BWon<A, B>>;
 
 /// IO is a datatype that can be used to control side-effects within
 /// synchronous and asynchronous code.
-sealed class IO<A> extends Monad<A> {
+sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   static final PlatformImpl _platformImpl = PlatformImpl();
 
   /// Suspends the asynchronous effect [k] within [IO]. When evaluation is
@@ -678,7 +678,7 @@ sealed class IO<A> extends Monad<A> {
 
 extension IONestedOps<A> on IO<IO<A>> {
   /// Returns an [IO] that will complete with the value of the inner [IO].
-  IO<A> flatten() => flatMap(id);
+  IO<A> flatten() => flatMap(identity);
 }
 
 extension IOUnitOps<A> on IO<Unit> {
@@ -1121,7 +1121,8 @@ final class IOFiber<A> {
 
           IO<dynamic> next(Function0<dynamic> value) =>
               Either.catching(() => f(value()), (a, b) => (a, b)).fold(
-                  (err) => _failed(RuntimeException(err.$1, err.$2), 0), id);
+                  (err) => _failed(RuntimeException(err.$1, err.$2), 0),
+                  identity);
 
           if (ioa is _Pure) {
             cur0 = next(() => ioa.value);

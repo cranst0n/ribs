@@ -155,7 +155,7 @@ sealed class IpAddress extends Host {
       asSourceSpecificMulticastLenient() =>
           SourceSpecificMulticast.fromIpAddressLenient(this);
 
-  IpAddress collapseMappedV4() => fold(id, (v6) {
+  IpAddress collapseMappedV4() => fold(identity, (v6) {
         if (v6.isMappedV4) {
           return IpAddress.fromBytes(
                   v6.toBytes().toIList().takeRight(4).toIterable())
@@ -775,21 +775,6 @@ final class IDN extends Host {
   static Option<String> toAscii(String s) =>
       Either.catching(() => Punycode.domainEncode(s), (err, _) => err)
           .toOption();
-
-  static String toAscii2(String s) {
-    String mapDomain(String domain, Function1<String, String> f) {
-      throw UnimplementedError();
-    }
-
-    String encode(String str) {
-      throw UnimplementedError();
-    }
-
-    final nonAsciiRegex = RegExp(r'/[^\0-\x7F]/');
-
-    return mapDomain(s,
-        (char) => nonAsciiRegex.hasMatch(char) ? 'xn--${encode(char)}' : char);
-  }
 
   @override
   String toString() => _toStringF;

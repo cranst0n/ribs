@@ -1,6 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
 
-A id<A>(A a) => a;
 A identity<A>(A a) => a;
 
 typedef Function0<A> = A Function();

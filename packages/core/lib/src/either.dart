@@ -100,7 +100,7 @@ sealed class Either<A, B> implements Monad<B>, Foldable<B> {
 
   /// Returns thes value if this is a [Right], otherwise, the result of
   /// evaluating [orElse] is returned.
-  B getOrElse(Function0<B> orElse) => fold((_) => orElse(), id);
+  B getOrElse(Function0<B> orElse) => fold((_) => orElse(), identity);
 
   /// Returns true if this is a [Left], otherwise false is returned.
   bool get isLeft => fold((_) => true, (_) => false);
@@ -180,5 +180,5 @@ final class Right<A, B> extends Either<A, B> {
 
 extension EitherNestedOps<A, B> on Either<A, Either<A, B>> {
   /// Extracts the nested [Either] via [fold].
-  Either<A, B> flatten() => fold((a) => Either.left<A, B>(a), id);
+  Either<A, B> flatten() => fold((a) => Either.left<A, B>(a), identity);
 }

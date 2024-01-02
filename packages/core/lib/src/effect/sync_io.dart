@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/effect/std/internal/stack.dart';
 
-sealed class SyncIO<A> extends Monad<A> {
+sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
   static SyncIO<A> delay<A>(Function0<A> thunk) => _Suspend(Fn0(thunk));
 
   static SyncIO<A> pure<A>(A a) => _Pure(a);
@@ -96,7 +96,7 @@ sealed class SyncIO<A> extends Monad<A> {
         conts.push(_Cont.Attempt);
         cur0 = cur0.ioa;
       } else {
-        throw UnimplementedError('SyncIO.runLoop: $cur0');
+        throw StateError('SyncIO.runLoop: $cur0');
       }
     }
   }

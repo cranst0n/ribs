@@ -217,7 +217,8 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   /// Partitions all elements of this list by applying [f] to each element
   /// and accumulating duplicate keys in the returned [IMap].
   /// {@endtemplate}
-  IMap<K, NonEmptyIList<A>> groupBy<K>(Function1<A, K> f) => groupMap(f, id);
+  IMap<K, NonEmptyIList<A>> groupBy<K>(Function1<A, K> f) =>
+      groupMap(f, identity);
 
   /// {@template nel_groupMap}
   /// Creates a new map by generating a key-value pair for each elements of this
@@ -496,22 +497,22 @@ extension NonEmptyIListNestedOps<A> on NonEmptyIList<NonEmptyIList<A>> {
 }
 
 extension NonEmptyIListEitherOps<A, B> on NonEmptyIList<Either<A, B>> {
-  Either<A, NonEmptyIList<B>> sequence() => traverseEither(id);
+  Either<A, NonEmptyIList<B>> sequence() => traverseEither(identity);
 }
 
 /// Operations avaiable when [NonEmptyIList] elements are of type [IO].
 extension NonEmptyIListIOOps<A> on NonEmptyIList<IO<A>> {
   /// Alias for [traverseIO], using [id] as the function parameter.
-  IO<NonEmptyIList<A>> sequence() => traverseIO(id);
+  IO<NonEmptyIList<A>> sequence() => traverseIO(identity);
 
   /// Alias for [traverseIO_], using [id] as the function parameter.
-  IO<Unit> sequence_() => traverseIO_(id);
+  IO<Unit> sequence_() => traverseIO_(identity);
 
   /// Alias for [parTraverseIO], using [id] as the function parameter.
-  IO<NonEmptyIList<A>> parSequence() => parTraverseIO(id);
+  IO<NonEmptyIList<A>> parSequence() => parTraverseIO(identity);
 
   /// Alias for [parTraverseIO_], using [id] as the function parameter.
-  IO<Unit> parSequence_() => parTraverseIO_(id);
+  IO<Unit> parSequence_() => parTraverseIO_(identity);
 }
 
 /// Operations avaiable when [IList] elemention are of type [Option].
@@ -519,16 +520,16 @@ extension NonEmptyIListOptionOps<A> on NonEmptyIList<Option<A>> {
   /// Accumulates all elements in this list as one [Option]. If any element is
   /// a [None], [None] will be returned. If all elements are [Some], then the
   /// entire list is returned, wrapped in a [Some].
-  Option<NonEmptyIList<A>> sequence() => traverseOption(id);
+  Option<NonEmptyIList<A>> sequence() => traverseOption(identity);
 }
 
 extension NonEmptyIListComparableOps<A extends Comparable<dynamic>>
     on NonEmptyIList<A> {
   /// Returns the maximum element as decided by this [Comparable].
-  A max() => maxBy(id);
+  A max() => maxBy(identity);
 
   /// Returns the minimum element as decided by this [Comparable].
-  A min() => minBy(id);
+  A min() => minBy(identity);
 
   /// Returns a new list sorted from least to greatest, as decided by this [Comparable].
   NonEmptyIList<A> sorted() => sortWith((a, b) => a.compareTo(b) < 0);

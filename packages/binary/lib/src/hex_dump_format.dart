@@ -40,7 +40,6 @@ final class HexDumpFormat {
     return bldr.toString();
   }
 
-  // ignore: avoid_print
   void printBytes(ByteVector bytes) => printBits(bytes.bits);
 
   // ignore: avoid_print

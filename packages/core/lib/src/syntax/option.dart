@@ -8,7 +8,7 @@ extension OptionSyntaxOps<A> on A {
 /// Additional functions that can be called on a nested [Option].
 extension OptionNestedOps<A> on Option<Option<A>> {
   /// If this is a [Some], the value is returned, otherwise [None] is returned.
-  Option<A> flatten() => fold(() => none<A>(), id);
+  Option<A> flatten() => fold(() => none<A>(), identity);
 }
 
 extension OptionIOOps<A> on Option<IO<A>> {

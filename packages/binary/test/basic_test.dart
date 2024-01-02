@@ -161,7 +161,7 @@ void main() {
 }
 
 Stream<Animal> get animalStream =>
-    Stream.periodic(Duration.zero, id).map((age) => switch (age) {
+    Stream.periodic(Duration.zero, identity).map((age) => switch (age) {
           _ when age.isEven => Dog(age),
           _ when age % 3 == 0 => const Cat(),
           _ => const Lion(),

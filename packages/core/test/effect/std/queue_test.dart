@@ -11,21 +11,21 @@ void main() {
       constructor,
       (q, a) => q.tryOfferN(a),
       (q, a) => q.tryTakeN(a),
-      id,
+      identity,
     );
 
     QueueTests.batchTakeTests(
       constructor,
       (q, a) => q.offer(a),
       (q, a) => q.tryTakeN(a),
-      id,
+      identity,
     );
 
     QueueTests.boundedBatchOfferTests(
       constructor,
       (q, a) => q.tryOfferN(a),
       (q, a) => q.tryTakeN(a),
-      id,
+      identity,
     );
 
     QueueTests.cancelableOfferTests(
@@ -90,14 +90,14 @@ void main() {
       constructor,
       (q, a) => q.tryOfferN(a),
       (q, a) => q.tryTakeN(a),
-      id,
+      identity,
     );
 
     QueueTests.batchTakeTests(
       constructor,
       (q, a) => q.offer(a),
       (q, a) => q.tryTakeN(a),
-      id,
+      identity,
     );
 
     QueueTests.commonTests(
@@ -136,14 +136,14 @@ void main() {
       constructor,
       (q, a) => q.tryOfferN(a),
       (q, a) => q.tryTakeN(a),
-      id,
+      identity,
     );
 
     QueueTests.batchTakeTests(
       constructor,
       (q, a) => q.offer(a),
       (q, a) => q.tryTakeN(a),
-      id,
+      identity,
     );
 
     QueueTests.cancelableOfferTests(
@@ -271,7 +271,7 @@ void main() {
       constructor,
       (q, a) => q.tryOfferN(a),
       (q, a) => q.tryTakeN(a),
-      id,
+      identity,
     );
 
     QueueTests.commonTests(
@@ -287,7 +287,7 @@ void main() {
       constructor,
       (q, a) => q.offer(a),
       (q, a) => q.tryTakeN(a),
-      id,
+      identity,
     );
 
     QueueTests.tryOfferOnFullTests(

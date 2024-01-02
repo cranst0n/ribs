@@ -143,7 +143,7 @@ final class Rill<O> {
 }
 
 extension RillNestedOps<O> on Rill<Rill<O>> {
-  Rill<O> flatten() => flatMap(id);
+  Rill<O> flatten() => flatMap(identity);
 }
 
 final class StepLeg<O> {

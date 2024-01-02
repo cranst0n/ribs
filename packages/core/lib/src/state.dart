@@ -4,7 +4,7 @@ import 'package:ribs_core/ribs_core.dart';
 /// Data type that models state transitions of type `T`, yielding a value of
 /// type `A`.
 @immutable
-final class State<S, A> extends Monad<A> {
+final class State<S, A> with Functor<A>, Applicative<A>, Monad<A> {
   final Function1<S, (S, A)> _run;
 
   /// Creates a new state that will run according to the given function.

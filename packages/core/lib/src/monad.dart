@@ -1,8 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/src/applicative.dart';
 
 /// Provides the ability to compose dependent effectful functions.
-abstract class Monad<A> extends Applicative<A> {
+mixin Monad<A> on Functor<A>, Applicative<A> {
   /// Apply[f] to the value in this monadic context, returning the result in
   /// the same context.
   Monad<B> flatMap<B>(covariant Function1<A, Monad<B>> f);

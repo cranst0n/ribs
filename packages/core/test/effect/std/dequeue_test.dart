@@ -40,14 +40,14 @@ void main() {
       constructor,
       (q, a) => q.tryOfferBackN(a),
       (q, a) => q.tryTakeFrontN(a),
-      id,
+      identity,
     );
 
     QueueTests.batchOfferTests(
       constructor,
       (q, a) => q.tryOfferFrontN(a),
       (q, a) => q.tryTakeFrontN(a),
-      id,
+      identity,
     );
 
     QueueTests.batchOfferTests(
@@ -68,7 +68,7 @@ void main() {
       constructor,
       (q, a) => q.offer(a),
       (q, a) => q.tryTakeN(a),
-      id,
+      identity,
     );
 
     QueueTests.boundedBatchOfferTests(
@@ -264,14 +264,14 @@ void unboundedDequeueTests<Q extends Dequeue<int>>(
     constructor,
     (q, a) => q.tryOfferBackN(a),
     (q, a) => q.tryTakeFrontN(a),
-    id,
+    identity,
   );
 
   QueueTests.batchOfferTests(
     constructor,
     (q, a) => q.tryOfferFrontN(a),
     (q, a) => q.tryTakeFrontN(a),
-    id,
+    identity,
   );
 
   QueueTests.batchOfferTests(
@@ -292,7 +292,7 @@ void unboundedDequeueTests<Q extends Dequeue<int>>(
     constructor,
     (q, a) => q.offer(a),
     (q, a) => q.tryTakeFrontN(a),
-    id,
+    identity,
   );
 
   QueueTests.batchTakeTests(

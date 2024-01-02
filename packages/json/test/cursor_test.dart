@@ -84,7 +84,7 @@ void main() {
 
     forAll('withFocus should have no effect when given the identity function',
         genJson, (json) {
-      expect(HCursor.fromJson(json).withFocus(id).focus(), isSome(json));
+      expect(HCursor.fromJson(json).withFocus(identity).focus(), isSome(json));
     });
 
     test('withFocus should support adding an element to an array', () {

@@ -31,7 +31,7 @@ abstract mixin class Encoder<A> {
 
   static Encoder<Duration> duration = number.contramap((a) => a.inMicroseconds);
 
-  static Encoder<double> dubble = number.contramap(id);
+  static Encoder<double> dubble = number.contramap(identity);
 
   static Encoder<T> enumerationByIndex<T extends Enum>() =>
       integer.contramap((e) => e.index);
@@ -39,9 +39,9 @@ abstract mixin class Encoder<A> {
   static Encoder<T> enumerationByName<T extends Enum>() =>
       string.contramap((e) => e.name);
 
-  static Encoder<int> integer = number.contramap(id);
+  static Encoder<int> integer = number.contramap(identity);
 
-  static Encoder<Json> json = Encoder.instance(id);
+  static Encoder<Json> json = Encoder.instance(identity);
 
   static Encoder<num> number =
       Encoder.instance((a) => a.isFinite ? Json.number(a) : Json.Null);

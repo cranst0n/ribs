@@ -355,7 +355,7 @@ void main() {
 
     test('groupMapReduce', () {
       IMap<A, int> occurances<A>(IList<A> l) =>
-          l.groupMapReduce(id, (_) => 1, (a, b) => a + b);
+          l.groupMapReduce(identity, (_) => 1, (a, b) => a + b);
 
       expect(occurances(nil<int>()), imap({}));
       expect(occurances(ilist([1, 2, 3])), imap({1: 1, 2: 1, 3: 1}));

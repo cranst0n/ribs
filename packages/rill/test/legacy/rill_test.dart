@@ -8,7 +8,7 @@ void main() {
   final ints = Rill.iterate(0, (x) => x + 1);
 
   test('emits', () async {
-    final l = List.generate(5, id);
+    final l = List.generate(5, identity);
     final s = Rill.emits(l);
     final result = await s.compile().toList().unsafeRunFuture();
 
@@ -105,7 +105,7 @@ void main() {
 
     final result = await smallInts.compile().toList().unsafeRunFuture();
 
-    expect(result, List.generate(10, id));
+    expect(result, List.generate(10, identity));
   });
 
   test('dropRight', () async {
@@ -233,12 +233,13 @@ void main() {
   });
 
   test('fromStream', () async {
-    final dartStream = Stream.periodic(const Duration(milliseconds: 2), id);
+    final dartStream =
+        Stream.periodic(const Duration(milliseconds: 2), identity);
     final rill = Rill.fromStream(dartStream).take(20);
 
     final result = await rill.compile().toList().unsafeRunFuture();
 
-    expect(result, List.generate(20, id));
+    expect(result, List.generate(20, identity));
   });
 
   test('unNone', () async {

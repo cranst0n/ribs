@@ -29,10 +29,12 @@ sealed class Json {
       dawn.Parser.parseFromBytes(input);
 
   static Either<Error, A> decode<A>(String input, Decoder<A> decoder) =>
-      parse(input).leftMap<Error>(id).flatMap((a) => decoder.decode(a));
+      parse(input).leftMap<Error>(identity).flatMap((a) => decoder.decode(a));
 
   static Either<Error, A> decodeBytes<A>(Uint8List input, Decoder<A> decoder) =>
-      parseBytes(input).leftMap<Error>(id).flatMap((a) => decoder.decode(a));
+      parseBytes(input)
+          .leftMap<Error>(identity)
+          .flatMap((a) => decoder.decode(a));
 
   A foldWith<A>(JsonFolder<A> folder);
 

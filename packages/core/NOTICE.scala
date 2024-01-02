@@ -1,0 +1,1 @@
+../../licences/NOTICE.scala

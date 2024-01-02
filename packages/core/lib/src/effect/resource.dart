@@ -9,7 +9,7 @@ typedef Update = Function1<Function1<Finalizer, Finalizer>, IO<Unit>>;
 ///
 /// A common example is opening a file to read/write to it, which requires
 /// closing the file after, or else risking a leak.
-sealed class Resource<A> extends Monad<A> {
+sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// Creates a resource from an allocating effect.
   ///
   /// The provided [resource] will supply both the result and the finalizer.
@@ -60,8 +60,8 @@ sealed class Resource<A> extends Monad<A> {
       });
     }).evalMap((store) {
       return IO.both(
-        allocate(ra, (f) => store.update((a) => a.bimap(f, id))),
-        allocate(rb, (f) => store.update((a) => a.bimap(id, f))),
+        allocate(ra, (f) => store.update((a) => a.bimap(f, identity))),
+        allocate(rb, (f) => store.update((a) => a.bimap(identity, f))),
       );
     });
   }
@@ -225,7 +225,7 @@ sealed class Resource<A> extends Monad<A> {
 }
 
 extension ResourceIOOps<A> on Resource<IO<A>> {
-  IO<A> useEval() => use(id);
+  IO<A> useEval() => use(identity);
 }
 
 sealed class _ResourceStack<A> {}

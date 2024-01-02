@@ -82,8 +82,8 @@ sealed class Op<A> {
 }
 
 final class Insert<A> extends Op<A> {
-  // ignore: unreachable_from_main
-  final A a;
+  final A a; // ignore: unreachable_from_main
+
   Insert(this.a);
 }
 

@@ -175,7 +175,7 @@ void main() {
     forAll(
         'size/emptines',
         Gen.chooseInt(0, 100)
-            .map((n) => IList.tabulate(n, id))
+            .map((n) => IList.tabulate(n, identity))
             .map((a) => a.toISet()), (aSet) {
       expect(aSet.size > 0, aSet.isNotEmpty);
       expect(aSet.size == 0, aSet.isEmpty);

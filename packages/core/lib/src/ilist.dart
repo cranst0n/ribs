@@ -274,7 +274,7 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// Partitions all elements of this list by applying [f] to each element
   /// and accumulating duplicate keys in the returned [IMap].
   /// {@endtemplate}
-  IMap<K, IList<A>> groupBy<K>(Function1<A, K> f) => groupMap(f, id);
+  IMap<K, IList<A>> groupBy<K>(Function1<A, K> f) => groupMap(f, identity);
 
   /// {@template ilist_groupMap}
   /// Creates a new map by generating a key-value pair for each elements of this
