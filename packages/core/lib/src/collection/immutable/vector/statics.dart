@@ -66,11 +66,15 @@ void _arraycopy(List<dynamic> src, int srcPos, List<dynamic> dest, int destPos,
       destPos, destPos + length, src.getRange(srcPos, srcPos + length));
 }
 
-List<A> _copyOrUse<A>(List<A> a, int start, int end) {
+List<dynamic> _copyOrUse(List<dynamic> a, int start, int end) {
   if (start == 0 && end == a.length) {
     return a;
   } else {
-    return List.from(a.getRange(start, end));
+    final newLength = end - start;
+    final copy = List<dynamic>.filled(newLength, null);
+    _arraycopy(a, start, copy, 0, min(a.length - start, newLength));
+
+    return copy;
   }
 }
 

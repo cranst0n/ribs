@@ -77,7 +77,12 @@ final class VectorBuilder<A> {
 
   VectorBuilder<A> _initFromVector(IVector<dynamic> v) {
     switch (v._vectorSliceCount) {
-      case 0 || 1:
+      case 0:
+        final v0 = v as _Vector0;
+        _depth = 1;
+        setLen(v0._prefix1.length);
+        a1 = _copyOrUse(v0._prefix1, 0, _WIDTH);
+      case 1:
         final v1 = v as _Vector1;
         _depth = 1;
         setLen(v1._prefix1.length);
