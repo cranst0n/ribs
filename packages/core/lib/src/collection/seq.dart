@@ -1,7 +1,9 @@
 import 'dart:math';
 
+import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/collection.dart';
+import 'package:ribs_core/src/collection/collection.dart' as rc;
 import 'package:ribs_core/src/collection/seq_views.dart' as seqviews;
 import 'package:ribs_core/src/collection/views.dart' as views;
 
@@ -13,8 +15,7 @@ mixin Seq<A> on RibsIterable<A> {
     if (elems is Seq<A>) {
       return elems;
     } else {
-      // TODO: change this to IList
-      return IVector.from(elems.iterator);
+      return rc.IList.from(elems.iterator);
     }
   }
 
@@ -25,7 +26,7 @@ mixin Seq<A> on RibsIterable<A> {
 
   Seq<A> appended(A elem);
 
-  Seq<A> appendedAll(Seq<A> suffix) => super.concat(suffix).toSeq();
+  Seq<A> appendedAll(IterableOnce<A> suffix) => super.concat(suffix).toSeq();
 
   Seq<A> prepended(A elem) => views.Prepended(elem, this).toSeq();
 
@@ -67,7 +68,7 @@ mixin Seq<A> on RibsIterable<A> {
   }
 
   Seq<A> diff(Seq<A> that) {
-    final occ = _occCounts(that);
+    final occ = occCounts(that);
 
     final it = iterator.filter((key) {
       var include = false;
@@ -95,7 +96,13 @@ mixin Seq<A> on RibsIterable<A> {
   Seq<A> distinctBy<B>(Function1<A, B> f) => views.DistinctBy(this, f).toSeq();
 
   @override
-  Seq<A> drop(int n) => view().drop(n).toSeq();
+  Seq<A> drop(int n) => seqviews.Drop(this, n);
+
+  @override
+  Seq<A> dropRight(int n) => seqviews.DropRight(this, n);
+
+  @override
+  Seq<A> dropWhile(Function1<A, bool> p) => super.dropWhile(p).toSeq();
 
   bool endsWith(RibsIterable<A> that) {
     if (that.isEmpty) {
@@ -167,7 +174,7 @@ mixin Seq<A> on RibsIterable<A> {
   Seq<A> init() => drop(1);
 
   Seq<A> intersect(Seq<A> that) {
-    final occ = _occCounts(that);
+    final occ = occCounts(that);
 
     final it = iterator.filter((key) {
       var include = true;
@@ -283,6 +290,7 @@ mixin Seq<A> on RibsIterable<A> {
   @override
   int get size => length;
 
+  // TODO: do better?
   Seq<A> sorted(Order<A> order) => fromDart(toList()..sort(order.compare));
 
   Seq<A> sortBy<B>(Order<B> order, Function1<A, B> f) =>
@@ -301,7 +309,8 @@ mixin Seq<A> on RibsIterable<A> {
   @override
   Seq<A> tail() => view().tail().toSeq();
 
-  Map<B, int> _occCounts<B>(Seq<B> sq) {
+  @protected
+  Map<B, int> occCounts<B>(Seq<B> sq) {
     final occ = <B, int>{};
     sq.foreach((y) => occ.update(y, (value) => value + 1, ifAbsent: () => 1));
     return occ;

@@ -242,8 +242,8 @@ final class _VectorSliceBuilder {
         _slices[suffixIdx(n)] = null;
       } else {
         balancePrefix(n + 1);
-        final preN1 = _slices[prefixIdx(n + 1)]! as _Arr2;
-        _slices[prefixIdx(n)] = preN1[0];
+        final preN1 = _slices[prefixIdx(n + 1)]!;
+        _slices[prefixIdx(n)] = preN1[0] as _Arr1;
         if (preN1.length == 1) {
           _slices[prefixIdx(n + 1)] = null;
           if ((maxDim == n + 1) && (_slices[suffixIdx(n + 1)] == null)) {
@@ -263,8 +263,8 @@ final class _VectorSliceBuilder {
         _slices[prefixIdx(n)] = null;
       } else {
         balanceSuffix(n + 1);
-        final sufN1 = _slices[suffixIdx(n + 1)]! as _Arr2;
-        _slices[suffixIdx(n)] = sufN1[sufN1.length - 1];
+        final sufN1 = _slices[suffixIdx(n + 1)]!;
+        _slices[suffixIdx(n)] = sufN1[sufN1.length - 1] as _Arr1;
         if (sufN1.length == 1) {
           _slices[suffixIdx(n + 1)] = null;
           if ((maxDim == n + 1) && (_slices[prefixIdx(n + 1)] == null)) {

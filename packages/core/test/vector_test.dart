@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:ribs_core/ribs_collection.dart';
-import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/ribs_core.dart' hide IList;
 import 'package:test/test.dart';
 
 void main() {
@@ -148,6 +148,26 @@ void main() {
       final v1 = v0.view().map((a) => a + 1).take(4).takeRight(3).toList();
 
       expect(v1, [2, 3, 4]);
+    });
+
+    test('foo', () {
+      // final v = IVector.tabulate(10, identity);
+      // final v0 = v.filter((a) => a.isEven);
+      // print(v0.toList());
+
+      // final l = IList.tabulate(10, identity).map((a) => a * 2);
+      // print(l.updated(1, 42).toList());
+
+      print(IList.tabulate(10, identity).filter((a) => a.isEven).toList());
+    });
+
+    test('bar', () {
+      final b = ListBuffer<int>();
+
+      b.addOne(1);
+      b.addOne(2);
+
+      print(b.toIList().toList());
     });
   });
 }

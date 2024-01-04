@@ -23,16 +23,16 @@ extension IListEitherOps<A, B> on IList<Either<A, B>> {
 
 /// Operations avaiable when [IList] elements are of type [IO].
 extension IListIOOps<A> on IList<IO<A>> {
-  /// Alias for [traverseIO], using [id] as the function parameter.
+  /// Alias for [traverseIO], using [identity] as the function parameter.
   IO<IList<A>> sequence() => traverseIO(identity);
 
-  /// Alias for [traverseIO_], using [id] as the function parameter.
+  /// Alias for [traverseIO_], using [identity] as the function parameter.
   IO<Unit> sequence_() => traverseIO_(identity);
 
-  /// Alias for [parTraverseIO], using [id] as the function parameter.
+  /// Alias for [parTraverseIO], using [identity] as the function parameter.
   IO<IList<A>> parSequence() => parTraverseIO(identity);
 
-  /// Alias for [parTraverseIO_], using [id] as the function parameter.
+  /// Alias for [parTraverseIO_], using [identity] as the function parameter.
   IO<Unit> parSequence_() => parTraverseIO_(identity);
 }
 

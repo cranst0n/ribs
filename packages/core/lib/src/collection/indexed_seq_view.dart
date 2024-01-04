@@ -14,11 +14,11 @@ mixin IndexedSeqView<A>
   IndexedSeqView<A> appended(A elem) => iseqview.Appended(this, elem);
 
   @override
-  IndexedSeqView<A> appendedAll(covariant IndexedSeq<A> suffix) =>
-      iseqview.Concat(this, suffix);
+  IndexedSeqView<A> appendedAll(IterableOnce<A> suffix) =>
+      iseqview.Concat(this, suffix.toIndexedSeq());
 
   @override
-  IndexedSeqView<A> concat(covariant IterableOnce<A> suffix) =>
+  IndexedSeqView<A> concat(IterableOnce<A> suffix) =>
       iseqview.Concat(this, suffix.toIndexedSeq());
 
   @override

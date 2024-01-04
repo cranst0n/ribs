@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
-import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/collection.dart';
+import 'package:ribs_core/src/function.dart';
+import 'package:ribs_core/src/option.dart';
+import 'package:ribs_core/src/order.dart';
 
 // Developer Note
 //
@@ -108,15 +110,9 @@ mixin IterableOnce<A> {
 
   (IterableOnce<A>, IterableOnce<A>) span(Function1<A, bool> p);
 
-  (IterableOnce<A>, IterableOnce<A>) splitAt(int n);
-
   IterableOnce<A> take(int n);
 
   IterableOnce<A> takeWhile(Function1<A, bool> p);
-
-  IterableOnce<A> tapEach<U>(Function1<A, U> f);
-
-  IterableOnce<(A, int)> zipWithIndex();
 
   // ///////////////////////////////////////////////////////////////////////////
 
@@ -281,11 +277,27 @@ mixin IterableOnce<A> {
     return buf.toString();
   }
 
+  A reduce(Function2<A, A, A> op) => reduceLeft(op);
+
   Option<A> reduceOption(Function2<A, A, A> op) => reduceLeftOption(op);
+
+  A reduceLeft(Function2<A, A, A> op) => switch (this) {
+        final IndexedSeq<A> seq when seq.length > 0 =>
+          _foldl(seq, 1, seq[0], op),
+        _ when knownSize == 0 => throw UnsupportedError('empty.reduceLeft'),
+        _ => _reduceLeftIterator(
+            () => throw UnsupportedError('empty.reduceLeft'), op),
+      };
 
   Option<A> reduceLeftOption(Function2<A, A, A> op) => switch (knownSize) {
         0 => none(),
         _ => _reduceOptionIterator(iterator, op),
+      };
+
+  A reduceRight(Function2<A, A, A> op) => switch (this) {
+        final IndexedSeq<A> seq when seq.length > 0 => _foldr(seq, op),
+        _ when knownSize == 0 => throw UnsupportedError('empty.reduceLeft'),
+        _ => reversed().reduceLeft((x, y) => op(y, x)),
       };
 
   Option<A> reduceRightOption(Function2<A, A, A> op) => switch (knownSize) {
@@ -293,9 +305,19 @@ mixin IterableOnce<A> {
         _ => _reduceOptionIterator(reversed().iterator, (x, y) => op(y, x)),
       };
 
+  (IterableOnce<A>, IterableOnce<A>) splitAt(int n) {
+    final spanner = _Spanner<A>(n);
+    return span(spanner.call);
+  }
+
+  IterableOnce<A> tapEach<U>(Function1<A, U> f) {
+    foreach(f);
+    return this;
+  }
+
   List<A> toList() {
-    final res = List<A>.empty(growable: true);
     final it = iterator;
+    final res = List<A>.empty(growable: true);
 
     while (it.hasNext) {
       res.add(it.next());
@@ -304,16 +326,14 @@ mixin IterableOnce<A> {
     return res;
   }
 
-  // TODO: Make appropriate constructors from RibsIterable, etc...
-  RibsIterable<A> toIterable() => Seq.from(this);
-  Seq<A> toSeq() => Seq.from(this);
+  IList<A> toIList() => IList.from(this);
   IndexedSeq<A> toIndexedSeq() => IndexedSeq.from(this);
   IVector<A> toIVector() => IVector.from(this);
+  Seq<A> toSeq() => Seq.from(this);
 
   @protected
   RibsIterable<A> reversed() {
-    // TODO: Change to IList
-    var xs = IVector.empty<A>();
+    var xs = IList.empty<A>();
     final it = iterator;
 
     while (it.hasNext) {
@@ -362,6 +382,62 @@ mixin IterableOnce<A> {
       return Some(acc);
     } else {
       return none();
+    }
+  }
+
+  A _reduceLeftIterator(Function0<A> onEmpty, Function2<A, A, A> op) {
+    final it = iterator;
+
+    if (it.hasNext) {
+      var acc = it.next();
+
+      while (it.hasNext) {
+        acc = op(acc, it.next());
+      }
+
+      return acc;
+    } else {
+      return onEmpty();
+    }
+  }
+
+  A _foldl(IndexedSeq<A> seq, int start, A z, Function2<A, A, A> op) {
+    var at = start;
+    var acc = z;
+
+    while (at < seq.length) {
+      acc = op(acc, seq[at]);
+      at = at + 1;
+    }
+
+    return acc;
+  }
+
+  A _foldr(IndexedSeq<A> seq, Function2<A, A, A> op) {
+    var at = seq.length - 1;
+    var acc = seq[seq.length - 1];
+
+    while (at > 0) {
+      acc = op(seq[at - 1], acc);
+      at = at - 1;
+    }
+
+    return acc;
+  }
+}
+
+final class _Spanner<A> {
+  final int n;
+  var _i = 0;
+
+  _Spanner(this.n);
+
+  bool call(A a) {
+    if (_i >= n) {
+      return false;
+    } else {
+      _i += 1;
+      return true;
     }
   }
 }

@@ -1,0 +1,33 @@
+---
+sidebar_position: 1
+---
+
+# Sequences
+
+import Seq10 from '../../benchmark-data/seq-benchmark-10.md';
+import Seq100 from '../../benchmark-data/seq-benchmark-100.md';
+import Seq1000 from '../../benchmark-data/seq-benchmark-1000.md';
+import Seq10000 from '../../benchmark-data/seq-benchmark-10000.md';
+import Seq100000 from '../../benchmark-data/seq-benchmark-100000.md';
+import Seq1000000 from '../../benchmark-data/seq-benchmark-1000000.md';
+
+<Seq10 />
+<Seq100 />
+<Seq1000 />
+<Seq10000 />
+<Seq100000 />
+<Seq1000000 />
+
+## Memory
+
+Memory usage for integer collections as observed in Dart DevTools:
+
+|              |    10 elements |   100 elements |  1000 elements | 10000 elements | 100000 elements |
+| :---         |           ---: |           ---: |           ---: |           ---: |            ---: |
+| SDK          |          0.2KB |          0.9KB |          7.9KB |         78.2KB |         781.3KB |
+| Ribs IList   |          0.3KB |          3.2KB |         31.3KB |        312.5KB |        3100.0KB |
+| Ribs IVector |          0.2KB |          1.1KB |          9.2KB |         90.9KB |         907.5KB |
+| FIC IList    |          0.2KB |          0.9KB |          7.9KB |         78.2KB |         781.4KB |
+| Dartz IList  |          0.3KB |          3.2KB |         31.3KB |        312.5KB |        3100.0KB |
+| BuiltList    |          0.2KB |          0.9KB |          7.9KB |         78.2KB |         781.3KB |
+| KtList       |          0.2KB |          0.9KB |          7.9KB |         78.2KB |         781.3KB |

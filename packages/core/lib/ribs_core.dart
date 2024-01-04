@@ -29,4 +29,5 @@ export 'src/state.dart';
 export 'src/syntax/all.dart';
 export 'src/unique_token.dart';
 export 'src/unit.dart';
+export 'src/util/murmur_hash_3.dart';
 export 'src/validated.dart';

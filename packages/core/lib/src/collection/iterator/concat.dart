@@ -21,9 +21,8 @@ final class _ConcatIterator<A> extends RibsIterator<A> {
       return true;
     } else {
       // If we advanced the current iterator to a ConcatIterator, merge it into this one
-      // TODO: tailrec
       void merge() {
-        if (current is _ConcatIterator) {
+        while (current is _ConcatIterator) {
           final c = current! as _ConcatIterator<A>;
           current = c.current;
           _currentHasNextChecked = c._currentHasNextChecked;
@@ -32,7 +31,6 @@ final class _ConcatIterator<A> extends RibsIterator<A> {
             c.lastCell!.tailCell = tailCell;
             tailCell = c.tailCell;
           }
-          merge();
         }
       }
 

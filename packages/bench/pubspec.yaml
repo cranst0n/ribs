@@ -12,10 +12,15 @@ environment:
 
 dependencies:
   benchmark_harness:          ^2.2.2
+  built_collection:           ^5.1.1
+  chalk:                      ^1.2.1
+  chalkdart:                  ^2.0.9
+  cli_table:                  ^1.0.2
   dartz:                      ^0.10.1
   fast_immutable_collections: ^9.2.0
   fpdart:                     ^1.1.0
-  ribs_core:                  ^1.0.0-dev.7
+  kt_dart:                    ^1.1.0
+  ribs_core:                  ^1.0.0-dev.8
 
 dev_dependencies:
   lint:      ^2.2.0

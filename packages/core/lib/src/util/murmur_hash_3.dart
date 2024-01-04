@@ -1,0 +1,250 @@
+// ignore_for_file: avoid_dynamic_calls
+
+import 'dart:typed_data';
+
+import 'package:ribs_core/ribs_collection.dart';
+
+sealed class MurmurHash3 {
+  // static final _MapSeed = 'Map'.hashCode;
+  static final _SeqSeed = 'Seq'.hashCode;
+  // static final _SetSeed = 'Set'.hashCode;
+
+  static final _Murmur3Impl _impl = _Murmur3Impl();
+
+  static int listHash(IList<dynamic> xs) => _impl.listHash(xs, _SeqSeed);
+
+  static int seqHash(Seq<dynamic> seq) {
+    return switch (seq) {
+      final IndexedSeq<dynamic> xs => _impl.indexedSeqHash(xs, _SeqSeed),
+      final IList<dynamic> xs => _impl.listHash(xs, _SeqSeed),
+      _ => _impl.orderedHash(seq, _SeqSeed),
+    };
+  }
+}
+
+final class _Murmur3Impl {
+  int mix(int hash, int data) {
+    var h = mixLast(hash, data);
+    h = rotateLeft(h, 13);
+    return h * 5 + 0xe6546b64;
+  }
+
+  int mixLast(int hash, int data) {
+    var k = data;
+
+    k *= 0xcc9e2d51;
+    k = rotateLeft(k, 15);
+    k *= 0x1b873593;
+
+    return hash ^ k;
+  }
+
+  int finalizeHash(int hash, int length) => avalanche(hash ^ length);
+
+  int avalanche(int hash) {
+    var h = hash;
+
+    h ^= h >>> 16;
+    h *= 0x85ebca6b;
+    h ^= h >>> 13;
+    h *= 0xc2b2ae35;
+    h ^= h >>> 16;
+
+    return h;
+  }
+
+  int stringHash(String str, int seed) {
+    var h = seed;
+    var i = 0;
+
+    while (i + 1 < str.length) {
+      final data = (str.codeUnitAt(i) << 16) + str.codeUnitAt(i + 1);
+      h = mix(h, data);
+      i += 2;
+    }
+
+    if (i < str.length) h = mixLast(h, str.codeUnitAt(i));
+
+    return finalizeHash(h, str.length);
+  }
+
+  int unorderedHash(IterableOnce<dynamic> xs, int seed) {
+    var a = 0;
+    var b = 0;
+    var n = 0;
+    var c = 1;
+
+    final iterator = xs.iterator;
+
+    while (iterator.hasNext) {
+      final x = iterator.next();
+      final h = x.hashCode;
+      a += h;
+      b ^= h;
+      c *= h | 1;
+      n += 1;
+    }
+
+    var h = seed;
+    h = mix(h, a);
+    h = mix(h, b);
+    h = mixLast(h, c);
+
+    return finalizeHash(h, n);
+  }
+
+  int orderedHash(IterableOnce<dynamic> xs, int seed) {
+    final it = xs.iterator;
+    var h = seed;
+
+    if (!it.hasNext) return finalizeHash(h, 0);
+
+    final x0 = it.next();
+    if (!it.hasNext) return finalizeHash(mix(h, x0.hashCode), 1);
+
+    final x1 = it.next();
+
+    final initial = x0.hashCode;
+    h = mix(h, initial);
+    final h0 = h;
+    var prev = x1.hashCode;
+    final rangeDiff = prev - initial;
+    var i = 2;
+
+    while (it.hasNext) {
+      h = mix(h, prev);
+      final hash = it.next().hashCode;
+
+      if (rangeDiff != hash - prev) {
+        h = mix(h, hash);
+        i += 1;
+        while (it.hasNext) {
+          h = mix(h, it.next().hashCode);
+          i += 1;
+        }
+        return finalizeHash(h, i);
+      }
+
+      prev = hash;
+      i += 1;
+    }
+    return avalanche(mix(mix(h0, rangeDiff), prev));
+  }
+
+  int rangeHash(int start, int step, int last, int seed) =>
+      avalanche(mix(mix(mix(seed, start), step), last));
+
+  int bytesHash(Uint8List data, int seed) {
+    var len = data.length;
+    var h = seed;
+
+    // Body
+    var i = 0;
+    while (len >= 4) {
+      var k = data[i + 0] & 0xFF;
+      k |= (data[i + 1] & 0xFF) << 8;
+      k |= (data[i + 2] & 0xFF) << 16;
+      k |= (data[i + 3] & 0xFF) << 24;
+
+      h = mix(h, k);
+
+      i += 4;
+      len -= 4;
+    }
+
+    // Tail
+    var k = 0;
+    if (len == 3) k ^= (data[i + 2] & 0xFF) << 16;
+    if (len >= 2) k ^= (data[i + 1] & 0xFF) << 8;
+    if (len >= 1) {
+      k ^= data[i + 0] & 0xFF;
+      h = mixLast(h, k);
+    }
+
+    // Finalization
+    return finalizeHash(h, data.length);
+  }
+
+  int indexedSeqHash(IndexedSeq<dynamic> a, int seed) {
+    var h = seed;
+    final l = a.length;
+
+    switch (l) {
+      case 0:
+        return finalizeHash(h, 0);
+      case 1:
+        return finalizeHash(mix(h, a[0].hashCode), 1);
+      default:
+        final initial = a[0].hashCode;
+        h = mix(h, initial);
+        final h0 = h;
+        var prev = a[1].hashCode;
+        final rangeDiff = prev - initial;
+        var i = 2;
+
+        while (i < l) {
+          h = mix(h, prev);
+          final hash = a[i].hashCode;
+          if (rangeDiff != hash - prev) {
+            h = mix(h, hash);
+            i += 1;
+            while (i < l) {
+              h = mix(h, a[i].hashCode);
+              i += 1;
+            }
+            return finalizeHash(h, l);
+          }
+          prev = hash;
+          i += 1;
+        }
+
+        return avalanche(mix(mix(h0, rangeDiff), prev));
+    }
+  }
+
+  int listHash(IList<dynamic> xs, int seed) {
+    var n = 0;
+    var h = seed;
+
+    // 0 = no data, 1 = first elem read, 2 = has valid diff, 3 = invalid
+    var rangeState = 0;
+
+    var rangeDiff = 0;
+    var prev = 0;
+    var initial = 0;
+    var elems = xs;
+
+    while (!elems.isEmpty) {
+      final head = elems.head;
+      final hash = head.hashCode;
+
+      h = mix(h, hash);
+
+      switch (rangeState) {
+        case 0:
+          initial = hash;
+          rangeState = 1;
+        case 1:
+          rangeDiff = hash - prev;
+          rangeState = 2;
+        case 2:
+          if (rangeDiff != hash - prev) rangeState = 3;
+        default:
+      }
+
+      prev = hash;
+      n += 1;
+      elems = elems.tail();
+    }
+
+    if (rangeState == 2) {
+      return rangeHash(initial, rangeDiff, prev, seed);
+    } else {
+      return finalizeHash(h, n);
+    }
+  }
+
+  // TODO: 32 for web
+  int rotateLeft(int i, int distance) =>
+      (i << distance) | (i >>> 64 - distance);
+}

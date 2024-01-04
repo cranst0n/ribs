@@ -9,8 +9,8 @@ mixin SeqView<A> on IterableOnce<A>, RibsIterable<A>, Seq<A>, View<A> {
   SeqView<A> appended(A elem) => seqview.Appended(this, elem);
 
   @override
-  SeqView<A> appendedAll(covariant Seq<A> suffix) =>
-      seqview.Concat(this, suffix);
+  SeqView<A> appendedAll(IterableOnce<A> suffix) =>
+      seqview.Concat(this, suffix.toSeq());
 
   @override
   SeqView<A> concat(covariant IterableOnce<A> suffix) =>
@@ -29,8 +29,8 @@ mixin SeqView<A> on IterableOnce<A>, RibsIterable<A>, Seq<A>, View<A> {
   SeqView<A> prepended(A elem) => seqview.Prepended(elem, this);
 
   @override
-  SeqView<A> prependedAll(covariant Seq<A> prefix) =>
-      seqview.Concat(prefix, this);
+  SeqView<A> prependedAll(IterableOnce<A> prefix) =>
+      seqview.Concat(prefix.toSeq(), this);
 
   @override
   SeqView<A> reverse() => seqview.Reverse(this);

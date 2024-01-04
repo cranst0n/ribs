@@ -433,12 +433,12 @@ final class VectorBuilder<A> {
         // there is no copy2 because there can't be another a6 to copy to
         final destPos = _lenRest >>> _BITS5;
         if (destPos + copy1 > _LASTWIDTH) {
-          throw StateError('exceeding 2^31 elements');
+          throw UnsupportedError('exceeding 2^31 elements');
         }
         _arraycopy(slice, 0, a6!, destPos, copy1);
         _advanceN(_WIDTH5 * copy1);
       default:
-        throw StateError('VectorBuilder.addArrN: $dim');
+        throw UnsupportedError('VectorBuilder.addArrN: $dim');
     }
   }
 

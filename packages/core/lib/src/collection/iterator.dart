@@ -12,6 +12,7 @@ part 'iterator/empty.dart';
 part 'iterator/fill.dart';
 part 'iterator/filter.dart';
 part 'iterator/flatmap.dart';
+part 'iterator/grouped.dart';
 part 'iterator/iterate.dart';
 part 'iterator/map.dart';
 part 'iterator/pad_to.dart';
@@ -31,7 +32,7 @@ part 'iterator/drop_while.dart';
 part 'iterator/distinct_by.dart';
 part 'iterator/slice.dart';
 
-abstract class RibsIterator<A> with IterableOnce<A>, RibsIterable<A> {
+abstract class RibsIterator<A> with IterableOnce<A> {
   const RibsIterator();
 
   bool get hasNext;
@@ -39,7 +40,7 @@ abstract class RibsIterator<A> with IterableOnce<A>, RibsIterable<A> {
 
   @protected
   Never noSuchElement([String? message]) =>
-      throw StateError(message ?? 'Called "next" on an empty iterator');
+      throw UnsupportedError(message ?? 'Called "next" on an empty iterator');
 
   @override
   RibsIterator<A> get iterator => this;
@@ -70,7 +71,6 @@ abstract class RibsIterator<A> with IterableOnce<A>, RibsIterable<A> {
   RibsIterator<B> collect<B>(Function1<A, Option<B>> f) =>
       _CollectIterator(this, f);
 
-  @override
   RibsIterator<A> concat(IterableOnce<A> xs) => _ConcatIterator(this);
 
   RibsIterator<A> distinct<B>(Function1<A, B> f) => distinctBy(identity);
@@ -96,6 +96,8 @@ abstract class RibsIterator<A> with IterableOnce<A>, RibsIterable<A> {
   @override
   RibsIterator<B> flatMap<B>(Function1<A, IterableOnce<B>> f) =>
       _FlatMapIterator(this, f);
+
+  RibsIterator<Seq<A>> grouped(int size) => _GroupedIterator(this, size, size);
 
   Option<int> indexOf(A elem, [int from = 0]) => indexWhere((a) => a == elem);
 
@@ -138,6 +140,9 @@ abstract class RibsIterator<A> with IterableOnce<A>, RibsIterable<A> {
   RibsIterator<A> slice(int from, int until) =>
       sliceIterator(from, max(until, 0));
 
+  RibsIterator<Seq<A>> sliding(int size, [int step = 1]) =>
+      _GroupedIterator(this, size, step);
+
   @override
   (RibsIterator<A>, RibsIterator<A>) span(Function1<A, bool> p) =>
       spanIterator(this, p);
@@ -155,7 +160,6 @@ abstract class RibsIterator<A> with IterableOnce<A>, RibsIterable<A> {
           IterableOnce<B> that, A thisElem, B thatElem) =>
       _ZipAllIterator(this, that, thisElem, thatElem);
 
-  @override
   RibsIterator<(A, int)> zipWithIndex() => _ZipWithIndexIterator(this);
 
   @protected

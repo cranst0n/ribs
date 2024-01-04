@@ -1,0 +1,7 @@
+#!/bin/bash
+
+parent_dir=$(dirname $(dirname "$0"))
+
+dart compile exe -o /tmp/seq_ops $parent_dir/packages/bench/lib/seq_ops.dart
+/tmp/seq_ops $parent_dir/website/benchmark-data
+rm /tmp/seq_ops

@@ -16,7 +16,7 @@ final class _DartIterator<A> extends RibsIterator<A> {
 
   @override
   A next() {
-    if (!hasNext) throw StateError('Called "next" on an empty iterator');
+    if (!hasNext) noSuchElement();
 
     final result = _nextElem;
 

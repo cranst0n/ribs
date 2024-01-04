@@ -117,12 +117,12 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// Returns an [Iterator] that will produce all combinations of elements from
   /// this list of size [n] **in order**.
   ///
-  /// Given the list [1, 2, 2, 2], combinations of size 2 would result in [1, 2]
-  /// and [2, 2]. Note that [2, 1] would not be included since combinations
-  /// are taken from element **in order**.
+  /// Given the list `[1, 2, 2, 2]`, combinations of size 2 would result in
+  /// `[1, 2]` and `[2, 2]`. Note that `[2, 1]` would not be included since
+  /// combinations are taken from element **in order**.
   ///
-  /// Also note from the example above, [1, 2] would only be included once even
-  /// though there are technically 3 ways to generate a combination of [1, 2],
+  /// Also note from the example above, `[1, 2]` would only be included once even
+  /// though there are technically 3 ways to generate a combination of `[1, 2]`,
   /// only one will be included in the result since the other 2 are duplicates.
   Iterator<IList<A>> combinations(int n) =>
       isEmpty ? _EmptyIterator() : _CombinationsIterator.fromIList(n, this);
@@ -552,8 +552,8 @@ final class IList<A> implements Monad<A>, Foldable<A> {
   /// elements in this list.
   ///
   /// Note that only distinct permutations are emitted. Given the example
-  /// [1, 2, 2, 2] the permutations will only include [1, 2, 2, 2] once, even
-  /// though there are 3 different way to generate that permutation.
+  /// `[1, 2, 2, 2]` the permutations will only include `[1, 2, 2, 2]` once,
+  /// even though there are 3 different way to generate that permutation.
   Iterator<IList<A>> permutations() =>
       isEmpty ? _EmptyIterator() : _PermutationsIterator.fromIList(this);
 
@@ -1195,7 +1195,7 @@ class _PermutationsIterator<A> implements Iterator<IList<A>> {
 
 final class _EmptyIterator<A> implements Iterator<A> {
   @override
-  A get current => throw StateError('called "current" on empty Iterator');
+  A get current => throw UnsupportedError('called "current" on empty Iterator');
 
   @override
   bool moveNext() => false;

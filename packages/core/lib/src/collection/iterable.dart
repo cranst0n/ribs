@@ -1,16 +1,16 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/collection.dart';
+import 'package:ribs_core/src/collection/collection.dart' as rc;
 import 'package:ribs_core/src/collection/views.dart' as views;
 
 mixin RibsIterable<A> on IterableOnce<A> {
-  static RibsIterable<A> empty<A>() => IVector.empty();
+  static RibsIterable<A> empty<A>() => rc.IList.empty();
 
   static RibsIterable<A> from<A>(IterableOnce<A> elems) {
     if (elems is RibsIterable<A>) {
       return elems;
     } else {
-      // TODO: change this to IList?
-      return IVector.from(elems.iterator);
+      return rc.IList.from(elems.iterator);
     }
   }
 
@@ -51,18 +51,18 @@ mixin RibsIterable<A> on IterableOnce<A> {
     Function1<A, B> f,
   ) {
     // TODO: use ribs collections, revist implementation
-    final m = <K, List<B>>{};
+    final m = <K, ListBuffer<B>>{};
     final it = iterator;
 
     while (it.hasNext) {
       final elem = it.next();
       final k = key(elem);
-      final bldr = m.putIfAbsent(k, () => List.empty(growable: true));
-      bldr.add(f(elem));
+      final bldr = m.putIfAbsent(k, () => ListBuffer<B>());
+      bldr.addOne(f(elem));
     }
 
     return IMap.fromMap(
-      m.map((key, value) => MapEntry(key, RibsIterable.fromDart(value))),
+      m.map((key, value) => MapEntry(key, value.toIList())),
     );
   }
 
@@ -80,7 +80,7 @@ mixin RibsIterable<A> on IterableOnce<A> {
     return IMap.fromMap(m);
   }
 
-  RibsIterator<RibsIterable<A>> grouped(int size) => iterator.grouped(size);
+  RibsIterator<Seq<A>> grouped(int size) => iterator.grouped(size);
 
   RibsIterator<RibsIterable<A>> inits() => _iterateUntilEmpty((a) => a.init());
 
@@ -88,34 +88,27 @@ mixin RibsIterable<A> on IterableOnce<A> {
   RibsIterable<B> map<B>(covariant Function1<A, B> f) => views.Map(this, f);
 
   (RibsIterable<A>, RibsIterable<A>) partition(Function1<A, bool> p) {
-    final l = List<A>.empty(growable: true);
-    final r = List<A>.empty(growable: true);
+    final first = views.Filter(this, p, false);
+    final second = views.Filter(this, p, true);
 
-    iterator.foreach((x) {
-      if (p(x)) {
-        l.add(x);
-      } else {
-        r.add(x);
-      }
-    });
-
-    return (RibsIterable.fromDart(l), RibsIterable.fromDart(r));
+    return (first.toIList(), second.toIList());
   }
 
+  // TODO: Optimize with view?
   (RibsIterable<A1>, RibsIterable<A2>) partitionMap<A1, A2>(
     Function1<A, Either<A1, A2>> f,
   ) {
-    final l = List<A1>.empty(growable: true);
-    final r = List<A2>.empty(growable: true);
+    final l = ListBuffer<A1>();
+    final r = ListBuffer<A2>();
 
     iterator.foreach((x) {
       f(x).fold(
-        (x1) => l.add(x1),
-        (x2) => r.add(x2),
+        (x1) => l.addOne(x1),
+        (x2) => r.addOne(x2),
       );
     });
 
-    return (RibsIterable.fromDart(l), RibsIterable.fromDart(r));
+    return (l.toIList(), r.toIList());
   }
 
   @override
@@ -126,7 +119,7 @@ mixin RibsIterable<A> on IterableOnce<A> {
   RibsIterable<A> slice(int from, int until) =>
       views.Drop(views.Take(this, until), from);
 
-  RibsIterator<RibsIterable<A>> sliding(int size, [int step = 1]) =>
+  RibsIterator<Seq<A>> sliding(int size, [int step = 1]) =>
       iterator.sliding(size, step);
 
   @override
@@ -155,7 +148,7 @@ mixin RibsIterable<A> on IterableOnce<A> {
   RibsIterable<(A, B)> zip<B>(IterableOnce<B> that) {
     return switch (that) {
       final RibsIterable<B> that => views.Zip(this, that),
-      _ => iterator.zip(that),
+      _ => RibsIterable.from(iterator.zip(that)),
     };
   }
 
@@ -166,10 +159,11 @@ mixin RibsIterable<A> on IterableOnce<A> {
   ) =>
       views.ZipAll(this, that, thisElem, thatElem);
 
-  @override
   RibsIterable<(A, int)> zipWithIndex() => views.ZipWithIndex(this);
 
   // ///////////////////////////////////////////////////////////////////////////
+
+  A get head => iterator.next();
 
   Option<A> get headOption {
     final it = iterator;
@@ -177,6 +171,17 @@ mixin RibsIterable<A> on IterableOnce<A> {
   }
 
   RibsIterable<A> init() => dropRight(1);
+
+  A get last {
+    final it = iterator;
+    var lst = it.next();
+
+    while (it.hasNext) {
+      lst = it.next();
+    }
+
+    return lst;
+  }
 
   Option<A> get lastOption {
     if (isEmpty) {
@@ -195,8 +200,7 @@ mixin RibsIterable<A> on IterableOnce<A> {
 
   RibsIterable<B> scanRight<B>(B z, Function2<A, B, B> op) {
     var acc = z;
-    // TODO: change to IList
-    var scanned = IVector.empty<B>().prepended(acc);
+    var scanned = rc.IList.empty<B>().prepended(acc);
 
     reversed().foreach((elem) {
       acc = op(elem, acc);

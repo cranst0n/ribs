@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:ribs_core/src/collection/collection.dart';
 import 'package:ribs_core/src/collection/indexed_seq_views.dart' as iseqviews;
 import 'package:ribs_core/src/function.dart';
+import 'package:ribs_core/src/util/murmur_hash_3.dart';
 
 part 'vector/statics.dart';
 part 'vector/vector0.dart';
@@ -34,6 +35,9 @@ sealed class IVector<A>
 
     return b.result();
   }
+
+  static IVector<A> fromDart<A>(Iterable<A> elems) =>
+      from(RibsIterator.fromDart(elems.iterator));
 
   static IVector<A> fill<A>(int n, A elem) {
     final b = VectorBuilder<A>();
@@ -113,7 +117,7 @@ sealed class IVector<A>
     if (k == 0) {
       return this;
     } else if (k < 0) {
-      return view().concat(suffix).toIVector(); // TODO: revisit
+      return VectorBuilder<A>().addAll(this).addAll(suffix).result();
     } else {
       return _appendedAll0(suffix, k);
     }
@@ -124,6 +128,26 @@ sealed class IVector<A>
 
   @override
   IVector<A> dropRight(int n) => slice(0, length - max(n, 0));
+
+  @override
+  IVector<A> filter(Function1<A, bool> p) => _filterImpl(p, false);
+
+  @override
+  IVector<A> filterNot(Function1<A, bool> p) => _filterImpl(p, true);
+
+  IVector<A> _filterImpl(Function1<A, bool> p, bool isFlipped) {
+    final b = VectorBuilder<A>();
+    final it = iterator;
+
+    while (it.hasNext) {
+      final elem = it.next();
+      if (p(elem) != isFlipped) {
+        b.addOne(elem);
+      }
+    }
+
+    return b.result();
+  }
 
   @override
   IVector<A> init() => slice(0, length - 1);
@@ -173,6 +197,18 @@ sealed class IVector<A>
 
   @override
   IndexedSeqView<A> view() => iseqviews.Id(this);
+
+  // TODO: opt: late final int hashCode = ...
+  @override
+  int get hashCode => MurmurHash3.seqHash(this);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      switch (other) {
+        final Seq<A> that => sameElements(that),
+        _ => false,
+      };
 
   // ///////////////////////////////////////////////////////////////////////////
 
