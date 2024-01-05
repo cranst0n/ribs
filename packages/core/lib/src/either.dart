@@ -134,7 +134,7 @@ sealed class Either<A, B> implements Monad<B>, Foldable<B> {
 
   /// Converts this Either to an [IList] with one element if this instance is
   /// a [Right] or an empty [IList] if this is a [Left].
-  IList<B> toIList() => fold((_) => nil<B>(), (b) => IList.pure(b));
+  IList<B> toIList() => fold((_) => nil<B>(), (b) => IList.fromDart([b]));
 
   /// Converts this Either to an [Option]. If this instance is a [Right], the
   /// value will be returned as a [Some]. If this instance is a [Left], [None]

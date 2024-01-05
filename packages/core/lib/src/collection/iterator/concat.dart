@@ -46,7 +46,9 @@ final class _ConcatIterator<A> extends RibsIterator<A> {
           current = tailCell!.headIterator;
           if (lastCell == tailCell) lastCell = lastCell!.tailCell;
           tailCell = tailCell!.tailCell;
+
           merge();
+
           if (_currentHasNextChecked) {
             return true;
           } else if (current != null && current!.hasNext) {

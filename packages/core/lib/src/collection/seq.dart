@@ -2,8 +2,6 @@ import 'dart:math';
 
 import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/src/collection/collection.dart';
-import 'package:ribs_core/src/collection/collection.dart' as rc;
 import 'package:ribs_core/src/collection/seq_views.dart' as seqviews;
 import 'package:ribs_core/src/collection/views.dart' as views;
 
@@ -15,7 +13,7 @@ mixin Seq<A> on RibsIterable<A> {
     if (elems is Seq<A>) {
       return elems;
     } else {
-      return rc.IList.from(elems.iterator);
+      return IList.from(elems.iterator);
     }
   }
 
@@ -156,7 +154,7 @@ mixin Seq<A> on RibsIterable<A> {
       } else {
         var i = from;
         var s = drop(i);
-        while (!s.isEmpty) {
+        while (s.nonEmpty) {
           if (s.startsWith(that)) return Some(i);
 
           i += 1;
@@ -171,7 +169,7 @@ mixin Seq<A> on RibsIterable<A> {
       iterator.indexWhere(p, from);
 
   @override
-  Seq<A> init() => drop(1);
+  Seq<A> init() => dropRight(1);
 
   Seq<A> intersect(Seq<A> that) {
     final occ = occCounts(that);
@@ -197,10 +195,26 @@ mixin Seq<A> on RibsIterable<A> {
     return Seq.from(it);
   }
 
+  Seq<A> intersperse(A x) {
+    final b = IList.builder<A>();
+    final it = iterator;
+
+    if (it.hasNext) {
+      b.addOne(it.next());
+
+      while (it.hasNext) {
+        b.addOne(x);
+        b.addOne(it.next());
+      }
+    }
+
+    return b.toIList();
+  }
+
   bool isDefinedAt(int idx) => 0 <= idx && idx < size;
 
-  Option<int> lastIndexOf(A elem, {int? end}) =>
-      lastIndexWhere((a) => a == elem, end: end);
+  Option<int> lastIndexOf(A elem, [int end = 2147483647]) =>
+      lastIndexWhere((a) => a == elem, end);
 
   Option<int> lastIndexOfSlice(Seq<A> that, [int end = 2147483647]) {
     final l = length;
@@ -218,16 +232,14 @@ mixin Seq<A> on RibsIterable<A> {
     }
   }
 
-  Option<int> lastIndexWhere(Function1<A, bool> p, {int? end}) {
-    final endIx = end ?? length - 1;
+  Option<int> lastIndexWhere(Function1<A, bool> p, [int end = 2147483647]) {
     var i = length - 1;
-
     final it = reverseIterator();
 
-    while (it.hasNext && i > endIx) {
+    while (it.hasNext) {
       final elem = it.next();
 
-      if (p(elem)) return Some(i);
+      if (i < end && p(elem)) return Some(i);
 
       i -= 1;
     }
@@ -414,7 +426,8 @@ class _CombinationsItr<A> extends RibsIterator<Seq<A>> {
       r -= nums[k];
     }
 
-    final offs = Seq.fromDart(cnts).scanLeft(0, (a, b) => a + b).toList();
+    final offs =
+        RibsIterable.fromDart(cnts).scanLeft(0, (a, b) => a + b).toList();
 
     return _CombinationsItr._(n, elems.toList(), cnts, nums, offs);
   }
@@ -448,7 +461,7 @@ class _CombinationsItr<A> extends RibsIterator<Seq<A>> {
     if (idx < 0) {
       _hasNext = false;
     } else {
-      //   // OPT: hand rolled version of `sum = nums.view(idx + 1, nums.length).sum + 1`
+      // OPT: hand rolled version of `sum = nums.view(idx + 1, nums.length).sum + 1`
       var sum = 1;
       var i = idx + 1;
       while (i < _nums.length) {

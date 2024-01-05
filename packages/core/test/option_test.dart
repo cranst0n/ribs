@@ -106,7 +106,7 @@ void main() {
     });
 
     test('toIList', () {
-      expect(testSome.toIList(), IList.of([1]));
+      expect(testSome.toIList(), IList.fromDart([1]));
       expect(testNone.toIList(), isEmpty);
     });
 

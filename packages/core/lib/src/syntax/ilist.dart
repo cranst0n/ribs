@@ -15,7 +15,7 @@ extension IListEitherOps<A, B> on IList<Either<A, B>> {
     final a1s = List<A>.empty(growable: true);
     final a2s = List<B>.empty(growable: true);
 
-    forEach((elem) => elem.fold((a1) => a1s.add(a1), (a2) => a2s.add(a2)));
+    foreach((elem) => elem.fold((a1) => a1s.add(a1), (a2) => a2s.add(a2)));
 
     return (ilist(a1s), ilist(a2s));
   }
@@ -45,14 +45,14 @@ extension IListOptionOps<A> on IList<Option<A>> {
 
   /// Returns a new list with all [None] elements removed.
   IList<A> unNone() => foldLeft(
-      nil(), (acc, elem) => elem.fold(() => acc, (a) => acc.append(a)));
+      nil(), (acc, elem) => elem.fold(() => acc, (a) => acc.appended(a)));
 }
 
 /// Operations avaiable when [IList] elements are nullable.
 extension IListNullableOps<A> on IList<A?> {
   /// Returns a new list with all null elements removed.
-  IList<A> noNulls() => foldLeft(
-      nil(), (acc, elem) => Option(elem).fold(() => acc, (a) => acc.append(a)));
+  IList<A> noNulls() => foldLeft(nil(),
+      (acc, elem) => Option(elem).fold(() => acc, (a) => acc.appended(a)));
 }
 
 extension IListComparableOps<A extends Comparable<dynamic>> on IList<A> {
@@ -130,7 +130,7 @@ extension IListTuple2Ops<A, B> on IList<(A, B)> {
       foldRight(init, (elem, acc) => op(elem.$1, elem.$2, acc));
 
   /// {@macro ilist_forEach}
-  void forEachN<C>(Function2<A, B, C> f) => forEach(f.tupled);
+  void forEachN<C>(Function2<A, B, C> f) => foreach(f.tupled);
 
   /// {@macro ilist_groupBy}
   IMap<K, IList<(A, B)>> groupByN<K>(Function2<A, B, K> f) =>
@@ -205,15 +205,11 @@ extension IListTuple2Ops<A, B> on IList<(A, B)> {
   Option<IList<C>> traverseOptionN<C>(Function2<A, B, Option<C>> f) =>
       traverseOption(f.tupled);
 
-  /// {@macro ilist_updated}
-  IList<(A, B)> updatedN(int index, Function2<A, B, (A, B)> f) =>
-      updated(index, f.tupled);
-
   /// Returns 2 new lists as a tuple. The first list is all the first items
   /// from each tuple element of this list. The second list is all the second
   /// items from each tuple element of this list.
   (IList<A>, IList<B>) unzip() => foldLeft((nil<A>(), nil<B>()),
-      (acc, ab) => (acc.$1.append(ab.$1), acc.$2.append(ab.$2)));
+      (acc, ab) => (acc.$1.appended(ab.$1), acc.$2.appended(ab.$2)));
 }
 
 extension IListTuple3Ops<A, B, C> on IList<(A, B, C)> {
@@ -259,7 +255,7 @@ extension IListTuple3Ops<A, B, C> on IList<(A, B, C)> {
       foldRight(init, (elem, acc) => op(elem.$1, elem.$2, elem.$3, acc));
 
   /// {@macro ilist_forEach}
-  void forEachN<D>(Function3<A, B, C, D> f) => forEach(f.tupled);
+  void forEachN<D>(Function3<A, B, C, D> f) => foreach(f.tupled);
 
   /// {@macro ilist_groupBy}
   IMap<K, IList<(A, B, C)>> groupByN<K>(Function3<A, B, C, K> f) =>
@@ -327,10 +323,6 @@ extension IListTuple3Ops<A, B, C> on IList<(A, B, C)> {
   Option<IList<D>> traverseOptionN<D>(Function3<A, B, C, Option<D>> f) =>
       traverseOption(f.tupled);
 
-  /// {@macro ilist_updated}
-  IList<(A, B, C)> updatedN(int index, Function3<A, B, C, (A, B, C)> f) =>
-      updated(index, f.tupled);
-
   /// Returns 3 new lists as a tuple. The first list is all the first items
   /// from each tuple element of this list. The second list is all the second
   /// items from each tuple element of this list. The third list is all the
@@ -338,9 +330,9 @@ extension IListTuple3Ops<A, B, C> on IList<(A, B, C)> {
   (IList<A>, IList<B>, IList<C>) unzip() => foldLeft(
         (nil<A>(), nil<B>(), nil<C>()),
         (acc, abc) => (
-          acc.$1.append(abc.$1),
-          acc.$2.append(abc.$2),
-          acc.$3.append(abc.$3)
+          acc.$1.appended(abc.$1),
+          acc.$2.appended(abc.$2),
+          acc.$3.appended(abc.$3)
         ),
       );
 }

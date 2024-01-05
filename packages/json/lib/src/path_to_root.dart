@@ -10,9 +10,9 @@ final class PathToRoot {
 
   String asPathString() => PathToRoot.toPathString(this);
 
-  PathToRoot appendElem(PathElem elem) => PathToRoot(value.append(elem));
+  PathToRoot appendElem(PathElem elem) => PathToRoot(value.appended(elem));
 
-  PathToRoot prependElem(PathElem elem) => PathToRoot(value.prepend(elem));
+  PathToRoot prependElem(PathElem elem) => PathToRoot(value.prepended(elem));
 
   static PathToRoot empty = PathToRoot(IList.empty());
 
@@ -65,7 +65,7 @@ final class PathToRoot {
           .map((arrIx) {
         return Either.cond(
           () => arrIx.index >= 0,
-          () => acc.append(PathElem.arrayIndex(arrIx.index - 1)),
+          () => acc.appended(PathElem.arrayIndex(arrIx.index - 1)),
           () => 'Attempt to move beyond beginning of array.',
         );
       });
@@ -82,7 +82,7 @@ final class PathToRoot {
           .map((arrIx) {
         return Either.cond(
           () => arrIx.index < 2147483647,
-          () => acc.append(PathElem.arrayIndex(arrIx.index + 1)),
+          () => acc.appended(PathElem.arrayIndex(arrIx.index + 1)),
           () => 'Attempt to move to index > 2147483647 in array.',
         );
       });
@@ -109,7 +109,7 @@ final class PathToRoot {
     return Option.when(() => op is Field, () {
       return Either.cond(
         () => acc.lastOption.exists((pe) => pe is ObjectKey),
-        () => acc.append(PathElem.objectKey((op as Field).key)),
+        () => acc.appended(PathElem.objectKey((op as Field).key)),
         () =>
             'Attempt to move to sibling field, but cursor history didnt indicate we were in an object.',
       );
@@ -121,7 +121,7 @@ final class PathToRoot {
     CursorOp op,
   ) {
     return Option.when(() => op is DownField, () {
-      return Right(acc.append(PathElem.objectKey((op as DownField).key)));
+      return Right(acc.appended(PathElem.objectKey((op as DownField).key)));
     });
   }
 
@@ -130,7 +130,7 @@ final class PathToRoot {
     CursorOp op,
   ) {
     return Option.when(() => op is DownArray, () {
-      return Right(acc.append(PathElem.arrayIndex(0)));
+      return Right(acc.appended(PathElem.arrayIndex(0)));
     });
   }
 
@@ -139,7 +139,7 @@ final class PathToRoot {
     CursorOp op,
   ) {
     return Option.when(() => op is DownN, () {
-      return Right(acc.append(PathElem.arrayIndex((op as DownN).n)));
+      return Right(acc.appended(PathElem.arrayIndex((op as DownN).n)));
     });
   }
 

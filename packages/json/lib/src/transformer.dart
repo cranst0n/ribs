@@ -41,7 +41,7 @@ abstract class JsonTransformer<A> implements StreamTransformer<A, Json> {
   void _emit(Either<ParseException, IList<Json>> value) {
     value.fold(
       (err) => _controller.addError(err),
-      (items) => items.forEach(_controller.add),
+      (items) => items.foreach(_controller.add),
     );
   }
 

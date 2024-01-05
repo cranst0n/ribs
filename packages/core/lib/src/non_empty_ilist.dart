@@ -16,17 +16,22 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   final IList<A> tail;
 
   /// Creates a list with the given [head] and [tail].
-  const NonEmptyIList(this.head, [this.tail = const IList.nil()]);
+  const NonEmptyIList(this.head, [this.tail = const Nil()]);
+
+  static Option<NonEmptyIList<A>> from<A>(IterableOnce<A> as) =>
+      Option.when(() => as.nonEmpty, () {
+        final l = as.toIList();
+        return NonEmptyIList(l.head, l.tail());
+      });
 
   /// If the given [Iterable] is non-empty, a [NonEmptyIList] wrapped in a
   /// [Some] is returned. If the [Iterable] is empty, [None] is returned.
   ///
   /// ```dart main
-  /// assert(NonEmptyIList.fromIterable([1, 2, 3]) == Some(nel(1, [2, 3])));
-  /// assert(NonEmptyIList.fromIterable([]) == None<NonEmptyIList<int>>());
+  /// assert(NonEmptyIList.fromDart([1, 2, 3]) == Some(nel(1, [2, 3])));
+  /// assert(NonEmptyIList.fromDart([]) == None<NonEmptyIList<int>>());
   /// ```
-  static Option<NonEmptyIList<A>> fromIterable<A>(Iterable<A> as) =>
-      Option.when(
+  static Option<NonEmptyIList<A>> fromDart<A>(Iterable<A> as) => Option.when(
         () => as.isNotEmpty,
         () => NonEmptyIList(as.first, as.toIList().tail()),
       );
@@ -39,7 +44,7 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
 
   /// Creates a [NonEmptyIList] with the given [head] and [tail] elements.
   static NonEmptyIList<A> of<A>(A head, [Iterable<A>? tail]) =>
-      NonEmptyIList(head, IList.of(tail ?? []));
+      NonEmptyIList(head, IList.fromDart(tail ?? []));
 
   /// Creates a [NonEmptyIList] with a single element.
   static NonEmptyIList<A> one<A>(A head) => of(head, []);
@@ -73,7 +78,7 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   /// ```dart main
   /// assert(nel(1, [2, 3, 4, 5]).append(6) == nel(1, [2, 3, 4, 5, 6]));
   /// ```
-  NonEmptyIList<A> append(A a) => NonEmptyIList(head, tail.append(a));
+  NonEmptyIList<A> append(A a) => NonEmptyIList(head, tail.appended(a));
 
   /// Adds all elements of [as] to the end of this list.
   ///
@@ -90,7 +95,7 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   /// assert(l.concatNel(l) == nel(1, [2, 3, 4, 5, 1, 2, 3, 4, 5]));
   /// ```
   NonEmptyIList<A> concatNel(NonEmptyIList<A> nel) =>
-      NonEmptyIList(head, tail.append(nel.head).concat(nel.tail));
+      NonEmptyIList(head, tail.appended(nel.head).concat(nel.tail));
 
   /// Returns true if any element of this list == [elem], otherwise false.
   ///
@@ -210,7 +215,7 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   /// ```
   void forEach<B>(Function1<A, B> f) {
     f(head);
-    tail.forEach(f);
+    tail.foreach(f);
   }
 
   /// {@template nel_groupBy}
@@ -244,7 +249,7 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
 
   /// Creates a new [Iterator] for the elements of this list. It may only be
   /// used once.
-  Iterator<A> get iterator => toIList().iterator;
+  RibsIterator<A> get iterator => toIList().iterator;
 
   /// Returns the last element of this list.
   A get last => tail.lastOption.getOrElse(() => head);
@@ -304,21 +309,21 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   NonEmptyIList<A> prependAll(IList<A> elems) => elems.headOption.fold(
       () => this,
       (newHead) =>
-          NonEmptyIList(newHead, elems.tail().append(head).concat(tail)));
+          NonEmptyIList(newHead, elems.tail().appended(head).concat(tail)));
 
   /// Returns a new list with the first element that satisfies the predicate [p]
   /// removed. If no element satisfies [p], the original list is returned.
   IList<A> removeFirst(Function1<A, bool> p) =>
-      p(head) ? tail : tail.removeFirst(p).prepend(head);
+      p(head) ? tail : tail.removeFirst(p).prepended(head);
 
   /// Replaces the element at the given [index] with specified [elem] (value).
-  NonEmptyIList<A> replace(int index, A elem) => updated(index, (_) => elem);
+  NonEmptyIList<A> replace(int index, A elem) => updated(index, elem);
 
   /// Returns a new [NonEmptyIList] with elements in reverse order as this one.
   NonEmptyIList<A> reverse() => tail.isEmpty
       ? this
       : NonEmptyIList(tail.lastOption.getOrElse(() => head),
-          tail.init().reverse().append(head));
+          tail.init().reverse().appended(head));
 
   /// Returns a new list of the accumulation of results by applying [f] to all
   /// elements of the list, including the inital value [z]. List traversal moves
@@ -344,13 +349,13 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   }
 
   /// Returns a new list that is sorted according to the [Order] [o].
-  NonEmptyIList<A> sort(Order<A> o) =>
-      fromIterableUnsafe(toIList().sort(o).toList());
+  NonEmptyIList<A> sorted(Order<A> o) =>
+      fromIterableUnsafe(toIList().sorted(o).toList());
 
   /// Returns a new list that is sorted according to the transformation [f]
   /// which will result in the [Comparable] used to detemine sort order.
   NonEmptyIList<A> sortBy<B extends Comparable<dynamic>>(Function1<A, B> f) =>
-      sort(Order.from((a, b) => f(a).compareTo(f(b))));
+      sorted(Order.from((a, b) => f(a).compareTo(f(b))));
 
   /// Returns a new list sorted using the provided function [lt] which is used
   /// to determine if one element is less than the other.
@@ -383,7 +388,7 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   IList<A> takeWhile(Function1<A, bool> p) => toIList().takeWhile(p);
 
   /// Returns a new [IList] with all elements of this non empty list.
-  IList<A> toIList() => tail.prepend(head);
+  IList<A> toIList() => tail.prepended(head);
 
   /// Returns a new [List] with all elements of this non empty list.
   List<A> toList() => toIList().toList();
@@ -447,11 +452,11 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   ///
   /// If [index] is outside the range of this list, the original list is
   /// returned.
-  NonEmptyIList<A> updated(int index, Function1<A, A> f) {
+  NonEmptyIList<A> updated(int index, A elem) {
     if (index == 0) {
-      return NonEmptyIList(f(head), tail);
+      return NonEmptyIList(elem, tail);
     } else if (1 <= index && index < size) {
-      return NonEmptyIList(head, tail.updated(index - 1, f));
+      return NonEmptyIList(head, tail.updated(index - 1, elem));
     } else {
       return this;
     }

@@ -11,7 +11,7 @@ final class _FillIterator<A> extends RibsIterator<A> {
   bool get hasNext => _i < len;
 
   @override
-  int get knownSize => max(len - 1, 0);
+  int get knownSize => max(len, 0);
 
   @override
   A next() {

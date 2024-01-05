@@ -1,5 +1,5 @@
+import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/effect/std/internal/list_queue.dart';
-import 'package:ribs_core/src/ilist.dart';
 import 'package:ribs_core/test_matchers.dart';
 import 'package:test/test.dart';
 

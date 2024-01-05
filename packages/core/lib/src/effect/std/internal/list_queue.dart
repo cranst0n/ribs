@@ -20,7 +20,7 @@ class ListQueue<A> {
   Option<(A, ListQueue<A>)> dequeueOption() =>
       Option.when(() => nonEmpty, () => dequeue());
 
-  ListQueue<A> enqueue(A elem) => ListQueue._(_list.append(elem));
+  ListQueue<A> enqueue(A elem) => ListQueue._(_list.appended(elem));
 
   ListQueue<A> enqueueAll(Iterable<A> elems) =>
       ListQueue._(_list.concat(elems.toIList()));

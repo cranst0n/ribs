@@ -147,7 +147,7 @@ final class ISet<A> {
   bool subsetOf(ISet<A> that) => forall(that.contains);
 
   /// Returns a new [IList] with all elements from this set.
-  IList<A> toIList() => IList.of(_underlying.toList());
+  IList<A> toIList() => IList.fromDart(_underlying.toList());
 
   /// Returns a new [List] with all elements from this set.
   List<A> toList() => _underlying.toList();

@@ -10,7 +10,7 @@ sealed class BitVector {
 
   factory BitVector.bit(bool high) => high ? one : zero;
 
-  factory BitVector.bits(Iterable<bool> b) => IList.of(b)
+  factory BitVector.bits(Iterable<bool> b) => IList.fromDart(b)
       .zipWithIndex()
       .foldLeft(BitVector.low(b.length), (acc, b) => acc.update(b.$2, b.$1));
 

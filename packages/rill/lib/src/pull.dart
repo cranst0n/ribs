@@ -209,7 +209,7 @@ sealed class Pull<O, R> {
         case final _Succeeded _:
           return interruption;
         case final _Fail f:
-          final errs = interruption.deferredError.toIList().append(f.error);
+          final errs = interruption.deferredError.toIList().appended(f.error);
           return _Fail(CompositeError.fromIList(errs).getOrElse(() => f.error));
         default:
           throw StateError('Pull.compile.interruptBoundary: $v');

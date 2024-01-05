@@ -43,7 +43,7 @@ void main() {
     final r = Rill.empty<int>();
     final result = await r.compile().toIList().unsafeRunFuture();
 
-    expect(result, const IList<int>.nil());
+    expect(result, const Nil<int>());
   });
 
   test('eval', () async {

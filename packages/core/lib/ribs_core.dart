@@ -1,5 +1,6 @@
 export 'src/applicative.dart';
 export 'src/cast.dart';
+export 'src/collection/collection.dart';
 export 'src/effect/deferred.dart';
 export 'src/effect/exit_case.dart';
 export 'src/effect/io.dart';
@@ -17,7 +18,7 @@ export 'src/fn.dart';
 export 'src/foldable.dart';
 export 'src/function.dart';
 export 'src/functor.dart';
-export 'src/ilist.dart';
+// export 'src/ilist.dart';
 export 'src/imap.dart';
 export 'src/iset.dart';
 export 'src/monad.dart';

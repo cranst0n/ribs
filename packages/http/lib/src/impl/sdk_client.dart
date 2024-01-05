@@ -42,7 +42,7 @@ class SdkClient {
           .flatTap((r) => IO.exec(() => req.headers
               .concat(req.body.headers)
               .headers
-              .forEach((hdr) => r.headers.add(hdr.name.value, hdr.value))))
+              .foreach((hdr) => r.headers.add(hdr.name.value, hdr.value))))
           .flatTap((a) => IO.exec(() => req.body.bodyLength
               .forEach((len) => a.headers.add('Content-Length', len))))
           .flatTap((a) => IO.fromFutureF(() => a.addStream(req.body)))

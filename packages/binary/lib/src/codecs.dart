@@ -103,10 +103,10 @@ Codec<List<A>> listOfN<A>(Codec<int> countCodec, Codec<A> valueCodec) =>
     );
 
 Codec<IList<A>> ilist<A>(Codec<A> codec, [int? limit]) =>
-    list(codec, limit).xmap(IList.of, (il) => il.toList());
+    list(codec, limit).xmap(IList.fromDart, (il) => il.toList());
 
 Codec<IList<A>> ilistOfN<A>(Codec<int> countCodec, Codec<A> valueCodec) =>
-    listOfN(countCodec, valueCodec).xmap(IList.of, (il) => il.toList());
+    listOfN(countCodec, valueCodec).xmap(IList.fromDart, (il) => il.toList());
 
 Codec<A> peek<A>(Codec<A> target) => Codec.of(
       Decoder.instance(

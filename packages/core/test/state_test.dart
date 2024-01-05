@@ -28,7 +28,7 @@ extension CandyMachineOps on CandyMachine {
       map((myCandy) => myCandy.removeFirst((c) => c == candy));
 
   CandyMachine _extract(int cost, Candy candy) =>
-      transform((s, a) => s >= cost ? (s - cost, a.append(candy)) : (s, a));
+      transform((s, a) => s >= cost ? (s - cost, a.appended(candy)) : (s, a));
 }
 
 void main() {

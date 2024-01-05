@@ -1,8 +1,5 @@
 import 'package:meta/meta.dart';
-import 'package:ribs_core/src/collection/collection.dart';
-import 'package:ribs_core/src/function.dart';
-import 'package:ribs_core/src/option.dart';
-import 'package:ribs_core/src/order.dart';
+import 'package:ribs_core/ribs_core.dart';
 
 // Developer Note
 //
@@ -121,6 +118,8 @@ mixin IterableOnce<A> {
         0 => true,
         _ => false,
       };
+
+  bool get isNotEmpty => !isEmpty;
 
   bool get isTraversableAgain => false;
 
@@ -254,7 +253,7 @@ mixin IterableOnce<A> {
 
   String mkString({String? start, String? sep, String? end}) {
     if (knownSize == 0) {
-      return '$start$end';
+      return '${start ?? ""}${end ?? ""}';
     } else {
       return _mkStringImpl(StringBuffer(), start ?? '', sep ?? '', end ?? '');
     }
@@ -301,9 +300,12 @@ mixin IterableOnce<A> {
       };
 
   Option<A> reduceRightOption(Function2<A, A, A> op) => switch (knownSize) {
+        -1 => _reduceOptionIterator(reversed().iterator, (x, y) => op(y, x)),
         0 => none(),
-        _ => _reduceOptionIterator(reversed().iterator, (x, y) => op(y, x)),
+        _ => Some(reduceRight(op)),
       };
+
+  IterableOnce<B> scan<B>(B z, Function2<B, A, B> op) => scanLeft(z, op);
 
   (IterableOnce<A>, IterableOnce<A>) splitAt(int n) {
     final spanner = _Spanner<A>(n);
@@ -328,6 +330,7 @@ mixin IterableOnce<A> {
 
   IList<A> toIList() => IList.from(this);
   IndexedSeq<A> toIndexedSeq() => IndexedSeq.from(this);
+  ISet<A> toISet() => ISet.of(toList());
   IVector<A> toIVector() => IVector.from(this);
   Seq<A> toSeq() => Seq.from(this);
 
@@ -375,6 +378,7 @@ mixin IterableOnce<A> {
   Option<A> _reduceOptionIterator(RibsIterator<A> it, Function2<A, A, A> op) {
     if (it.hasNext) {
       var acc = it.next();
+
       while (it.hasNext) {
         acc = op(acc, it.next());
       }

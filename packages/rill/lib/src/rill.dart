@@ -94,7 +94,7 @@ final class Rill<O> {
                     final (acc, last) = accLast;
 
                     if (f(last, o)) {
-                      return (acc.append(o), o);
+                      return (acc.appended(o), o);
                     } else {
                       return (acc, last);
                     }

@@ -6,15 +6,15 @@ import 'package:test/test.dart';
 void main() {
   final first = Optional<IList<int>, int>(
     (a) => a.headOption.toRight(() => a),
-    (a) => (s) => s.isEmpty ? s : s.tail().prepend(a),
+    (a) => (s) => s.isEmpty ? s : s.tail().prepended(a),
   );
 
   final second = Optional<IList<int>, int>(
-    (a) => a.tail().headOption.toRight(() => a),
-    (a) => (s) => s.tail().isEmpty ? s : s.replace(1, a),
+    (a) => a.lift(1).toRight(() => a),
+    (a) => (s) => s.length < 2 ? s : s.updated(1, a),
   );
 
-  final a = IList.of([1, 2, 3]);
+  final a = IList.fromDart([1, 2, 3]);
   final b = nil<int>();
 
   group('Optional', () {

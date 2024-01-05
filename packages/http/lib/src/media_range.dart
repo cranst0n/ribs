@@ -33,7 +33,7 @@ final class MediaType extends MediaRange {
     this.subType, {
     this.compressible = false,
     this.binary = false,
-    this.fileExtensions = const IList.nil(),
+    this.fileExtensions = const Nil(),
     super.extensions,
   });
 
@@ -42,7 +42,7 @@ final class MediaType extends MediaRange {
     this.subType,
     this.compressible,
     this.binary,
-  ) : fileExtensions = const IList.nil();
+  ) : fileExtensions = const Nil();
 
   const MediaType._full(
     super.mainType,

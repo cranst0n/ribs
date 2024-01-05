@@ -122,7 +122,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
   static Gen<double> chooseDouble(
     double min,
     double max, {
-    IList<double> specials = const IList.nil(),
+    IList<double> specials = const Nil(),
   }) =>
       chooseNum(min, max, ilist([min, max, 0.0, 1.0, -1.0]).concat(specials),
           Choose.dubble);
@@ -133,7 +133,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
   static Gen<int> chooseInt(
     int min,
     int max, {
-    IList<int> specials = const IList.nil(),
+    IList<int> specials = const Nil(),
   }) =>
       chooseNum(min, max, ilist([min, max, 0, 1, -1]).concat(specials),
           Choose.integer);
@@ -149,7 +149,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
         .map((t) => (1, constant(t)));
     final others = (basicsAndSpecials.size, choose.choose(min, max));
 
-    return frequency(basicsAndSpecials.append(others).toList());
+    return frequency(basicsAndSpecials.appended(others).toList());
   }
 
   static Gen<A> constant<A>(A a) => Gen(State.pure(a));
@@ -275,7 +275,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   static Gen<IList<A>> sequence<A>(IList<Gen<A>> gs) => gs.foldLeft(
       constant(nil<A>()),
-      (acc, elem) => acc.flatMap((x) => elem.map((a) => x.append(a))));
+      (acc, elem) => acc.flatMap((x) => elem.map((a) => x.appended(a))));
 
   static Gen<String> stringOf(Gen<String> char, [int? limit]) =>
       listOf(Gen.chooseInt(0, limit ?? 100), char).map((a) => a.join());

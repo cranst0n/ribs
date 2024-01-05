@@ -234,10 +234,10 @@ final class Rill<O> implements Monad<O> {
           (r) => buffer.size == size ? _Output(buffer) : cast(Pull.done),
           (tuple) => tuple((hd, tl) {
             if (buffer.size == size) {
-              return _Output(buffer).flatMap((_) =>
-                  go(IList.empty(), tl.prepend(buffer.append(hd)).drop(step)));
+              return _Output(buffer).flatMap((_) => go(
+                  IList.empty(), tl.prepend(buffer.appended(hd)).drop(step)));
             } else {
-              return go(buffer.append(hd), tl);
+              return go(buffer.appended(hd), tl);
             }
           }),
         );
@@ -258,7 +258,7 @@ final class Rill<O> implements Monad<O> {
             if (f(hd)) {
               return _Output(buffer).flatMap((_) => go(IList.empty(), tl));
             } else {
-              return go(buffer.append(hd), tl);
+              return go(buffer.appended(hd), tl);
             }
           }),
         );
@@ -339,7 +339,7 @@ class RillCompiled<O> {
       .map((a) => a.$1.getOrElse(() => fallback));
 
   IO<IList<O>> toIList() =>
-      _pull.fold(nil<O>(), (acc, elem) => acc.append(elem)).map((t) => t.$2);
+      _pull.fold(nil<O>(), (acc, elem) => acc.appended(elem)).map((t) => t.$2);
 
   IO<List<O>> toList() => _pull
       .fold(List<O>.empty(growable: true), (acc, elem) => acc..add(elem))
@@ -377,7 +377,7 @@ sealed class Pull<O, R> {
           return step.fold(
             (r) => _Result(r),
             (tuple) => tuple((hd, tl) {
-              final all = acc.append(hd);
+              final all = acc.appended(hd);
               return fromIList(all.dropRight(n))
                   .flatMap((_) => go(all.takeRight(n), tl));
             }),

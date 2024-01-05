@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:ribs_core/ribs_collection.dart';
 import 'package:ribs_core/ribs_core.dart' hide IList;
 import 'package:test/test.dart';
 

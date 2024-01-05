@@ -86,7 +86,7 @@ void snippet5() {
   // codecs-5
   final doc = Document(
       const Header(1.1, 'Top Secret', 3),
-      IList.of([
+      IList.fromDart([
         Info('Hello!'),
         Debug(123, 'breakpoint-1'),
         Info('Goodbye!'),

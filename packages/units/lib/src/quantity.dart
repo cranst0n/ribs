@@ -30,8 +30,8 @@ abstract class Quantity<A extends Quantity<A>> {
       Option(_unitsRegex(units).firstMatch(s)).flatMap(
         (match) => (
           Option(match.group(1)).flatMap((str) => Option(num.tryParse(str))),
-          Option(match.group(2)).flatMap((str) =>
-              IList.of(units.toList()).find((a) => a.symbol == str.trim())),
+          Option(match.group(2)).flatMap((str) => IList.fromDart(units.toList())
+              .find((a) => a.symbol == str.trim())),
         ).mapN((value, unit) => unit(value)),
       );
 

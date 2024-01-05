@@ -19,7 +19,7 @@ final class UrlForm {
           key,
           (values) => Some(values.fold(
             () => ilist([value]),
-            (existing) => existing.append(value),
+            (existing) => existing.appended(value),
           )),
         ),
       );
@@ -38,7 +38,7 @@ final class UrlForm {
         sb.write(encodedKey);
       } else {
         var first = true;
-        vs.forEach((v) {
+        vs.foreach((v) {
           if (!first) {
             sb.write('&');
           } else {

@@ -158,7 +158,7 @@ sealed class IpAddress extends Host {
   IpAddress collapseMappedV4() => fold(identity, (v6) {
         if (v6.isMappedV4) {
           return IpAddress.fromBytes(
-                  v6.toBytes().toIList().takeRight(4).toIterable())
+                  v6.toBytes().toIList().takeRight(4).toList())
               .getOrElse(() =>
                   throw Exception('IpAddress.collapseMappedV4 failure: $v6'));
         } else {
@@ -216,7 +216,7 @@ sealed class IpAddress extends Host {
   @override
   bool operator ==(Object that) => switch (that) {
         final IpAddress that => version == that.version &&
-            ilist(_bytes).zip(ilist(that._bytes)).forallN((a, b) => a == b),
+            ilist(_bytes).zip(ilist(that._bytes)).forall((t) => t.$1 == t.$2),
         _ => false,
       };
 
@@ -285,7 +285,7 @@ final class Ipv4Address extends IpAddress {
 
     var rem = value;
 
-    IList.rangeTo(3, 0, -1).forEach((i) {
+    IList.rangeTo(3, 0, -1).foreach((i) {
       bytes[i] = rem & 0x0ff;
       rem = rem >> 8;
     });
@@ -436,9 +436,9 @@ final class Ipv6Address extends IpAddress {
           final fieldValue = int.tryParse(field, radix: 16);
           if (fieldValue != null) {
             if (beforeCondenser) {
-              prefix = prefix.prepend(fieldValue);
+              prefix = prefix.prepended(fieldValue);
             } else {
-              suffix = suffix.prepend(fieldValue);
+              suffix = suffix.prepended(fieldValue);
             }
           } else {
             result = none();
@@ -552,7 +552,7 @@ final class Ipv6Address extends IpAddress {
     final bytes = Uint8List(16);
 
     var rem = value;
-    IList.rangeTo(15, 0, -1).forEach((i) {
+    IList.rangeTo(15, 0, -1).foreach((i) {
       bytes[i] = (rem & BigInt.from(0x0ff)).toInt();
       rem = rem >> 8;
     });

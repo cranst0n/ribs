@@ -105,17 +105,17 @@ abstract mixin class Decoder<A> {
       integer.map((a) => Duration(microseconds: a));
 
   static Decoder<T> enumerationByIndex<T extends Enum>(List<T> values) =>
-      integer.emap((index) => IList.of(values)
+      integer.emap((index) => IList.fromDart(values)
           .find((v) => v.index == index)
           .toRight(() => 'Invalid enum index for $T: $index'));
 
   static Decoder<T> enumerationByName<T extends Enum>(List<T> values) =>
-      string.emap((name) => IList.of(values)
+      string.emap((name) => IList.fromDart(values)
           .find((v) => v.name == name)
           .toRight(() => 'Invalid enum name for $T: $name'));
 
   static Decoder<IList<A>> ilist<A>(Decoder<A> decodeA) =>
-      list(decodeA).map(IList.of);
+      list(decodeA).map(IList.fromDart);
 
   static Decoder<int> integer = number.emap((number) => Either.cond(
       () => number is int,

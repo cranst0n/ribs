@@ -1,4 +1,3 @@
-import 'package:ribs_core/ribs_collection.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/indexed_seq_views.dart' as iseqview;
 

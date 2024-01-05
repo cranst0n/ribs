@@ -27,7 +27,7 @@ final class General extends Err {
   General(this.message, this.context);
 
   @override
-  Err pushContext(String ctx) => General(message, context.append(ctx));
+  Err pushContext(String ctx) => General(message, context.appended(ctx));
 }
 
 final class InsufficientBits extends Err {
@@ -44,5 +44,5 @@ final class InsufficientBits extends Err {
 
   @override
   Err pushContext(String ctx) =>
-      InsufficientBits(have, needed, context.append(ctx));
+      InsufficientBits(have, needed, context.appended(ctx));
 }

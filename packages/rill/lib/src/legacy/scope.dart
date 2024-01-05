@@ -19,7 +19,7 @@ final class Scope {
 
           return (
             ScopeState.open(
-                openState.finalizer, openState.subScopes.append(sub)),
+                openState.finalizer, openState.subScopes.appended(sub)),
             IO.pure(sub),
           );
         },
@@ -44,7 +44,7 @@ final class Scope {
             final finalizers = open.subScopes
                 .reverse()
                 .map((a) => a.close)
-                .append(open.finalizer);
+                .appended(open.finalizer);
 
             // Ensure all finalizers are called, regardless of failures
             IO<Unit> go(IList<IO<Unit>> rem, Option<RuntimeException> error) =>

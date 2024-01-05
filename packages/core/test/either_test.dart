@@ -158,7 +158,7 @@ void main() {
     });
 
     test('toIList', () {
-      expect(testRight.toIList(), IList.of([1]));
+      expect(testRight.toIList(), IList.fromDart([1]));
       expect(testLeft.toIList(), isEmpty);
     });
 

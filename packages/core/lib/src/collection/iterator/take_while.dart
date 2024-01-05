@@ -12,6 +12,9 @@ final class _TakeWhileIterator<A> extends RibsIterator<A> {
 
   @override
   bool get hasNext {
+    if (hdDefined) return true;
+    if (!tailIt.hasNext) return false;
+
     hd = tailIt.next();
 
     if (p(hd)) {

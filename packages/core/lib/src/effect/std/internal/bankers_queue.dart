@@ -13,10 +13,10 @@ final class BankersQueue<A> {
   bool get nonEmpty => frontLen > 0 || backLen > 0;
 
   BankersQueue<A> pushFront(A a) =>
-      BankersQueue(front.prepend(a), frontLen + 1, back, backLen).rebalance();
+      BankersQueue(front.prepended(a), frontLen + 1, back, backLen).rebalance();
 
   BankersQueue<A> pushBack(A a) =>
-      BankersQueue(front, frontLen, back.prepend(a), backLen + 1).rebalance();
+      BankersQueue(front, frontLen, back.prepended(a), backLen + 1).rebalance();
 
   (BankersQueue<A>, Option<A>) tryPopFront() {
     if (frontLen > 0) {

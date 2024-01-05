@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:ribs_core/ribs_collection.dart';
 import 'package:ribs_core/ribs_core.dart';
 
 abstract class AbstractView<A> with IterableOnce<A>, RibsIterable<A>, View<A> {

@@ -1,16 +1,15 @@
 import 'dart:math';
 
 import 'package:meta/meta.dart';
-import 'package:ribs_core/ribs_collection.dart';
-import 'package:ribs_core/src/either.dart';
-import 'package:ribs_core/src/function.dart';
-import 'package:ribs_core/src/imap.dart';
-import 'package:ribs_core/src/option.dart';
-import 'package:ribs_core/src/order.dart';
-import 'package:ribs_core/src/util/murmur_hash_3.dart';
+import 'package:ribs_core/ribs_core.dart';
+
+IList<A> ilist<A>(Iterable<A> as) => IList.fromDart(as);
+IList<A> nil<A>() => IList.empty();
 
 sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
-  IList();
+  const IList();
+
+  static ListBuffer<A> builder<A>() => ListBuffer();
 
   static IList<A> empty<A>() => Nil<A>();
 
@@ -76,7 +75,7 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
 
   @override
   IList<A> appended(A elem) {
-    final b = ListBuffer<A>();
+    final b = builder<A>();
 
     b.addAll(this);
     b.addOne(elem);
@@ -87,7 +86,7 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   @override
   IList<A> appendedAll(IterableOnce<A> suffix) => switch (suffix) {
         final IList<A> xs => xs.prependedAll(this),
-        _ => ListBuffer<A>().addAll(this).addAll(suffix).toIList(),
+        _ => builder<A>().addAll(this).addAll(suffix).toIList(),
       };
 
   @override
@@ -144,6 +143,38 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
     return false;
   }
 
+  // TODO: This probably shouldn't exist. Use Chain for this
+  Option<(A, IList<A>)> deleteFirst(Function1<A, bool> p) {
+    if (isEmpty) {
+      return none();
+    } else {
+      final b = builder<A>();
+
+      A? found;
+
+      var these = this;
+
+      while (these.nonEmpty && found == null) {
+        final hd = these.head;
+
+        if (p(hd)) {
+          found = hd;
+          b.addAll(these.tail());
+        } else {
+          b.addOne(hd);
+        }
+
+        these = these.tail();
+      }
+
+      if (found != null) {
+        return Some((found, b.toIList()));
+      } else {
+        return none();
+      }
+    }
+  }
+
   @override
   IList<A> distinct() => super.distinct().toIList();
 
@@ -159,7 +190,7 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
     var i = n;
 
     while (l.nonEmpty && i > 0) {
-      l = tail();
+      l = l.tail();
       i -= 1;
     }
 
@@ -174,7 +205,7 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
       final lead = iterator.drop(n);
       final it = iterator;
 
-      final res = ListBuffer<A>();
+      final res = builder<A>();
 
       while (lead.hasNext) {
         res.addOne(it.next());
@@ -260,7 +291,7 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
       current = (current as Cons<A>).next;
     }
 
-    return z;
+    return res;
   }
 
   @override
@@ -300,6 +331,15 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   RibsIterator<IList<A>> grouped(int size) =>
       super.grouped(size).map((a) => a.toIList());
 
+  IList<A> insertAt(int idx, A elem) {
+    if (0 <= idx && idx <= length) {
+      return splitAt(idx)(
+          (before, after) => before.concat(after.prepended(elem)));
+    } else {
+      throw RangeError('$idx is out of bounds (min 0, max $length)');
+    }
+  }
+
   @override
   bool get isEmpty => this is Nil;
 
@@ -318,16 +358,19 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
       return Nil<A>();
     } else {
       final occ = occCounts(that);
-      final b = ListBuffer<A>();
+      final b = builder<A>();
 
       foreach((x) {
         final count = occ[x] ?? -1;
 
-        if (count > 1) {
+        if (count > 0) {
           b.addOne(x);
-          occ[x] = count - 1;
-        } else if (count == 1) {
-          occ.remove(x);
+
+          if (count == 1) {
+            occ.remove(x);
+          } else {
+            occ[x] = count - 1;
+          }
         }
       });
 
@@ -371,7 +414,7 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   @override
   IList<A> padTo(int len, A elem) {
     if (len > size) {
-      final b = ListBuffer<A>();
+      final b = builder<A>();
       var diff = len - size;
 
       b.addAll(this);
@@ -401,7 +444,7 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
 
   @override
   IList<A> patch(int from, IterableOnce<A> other, int replaced) {
-    final b = ListBuffer<A>();
+    final b = builder<A>();
     var i = 0;
     final it = iterator;
 
@@ -473,6 +516,22 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
     }
   }
 
+  IList<A> removeAt(int idx) {
+    if (0 <= idx && idx < length) {
+      if (idx == 0) {
+        return tail();
+      } else {
+        final (a, b) = splitAt(idx);
+        return a.concat(b.tail());
+      }
+    } else {
+      throw RangeError('$idx is out of bounds (min 0, max ${length - 1})');
+    }
+  }
+
+  IList<A> removeFirst(Function1<A, bool> p) =>
+      indexWhere(p).fold(() => this, removeAt);
+
   @override
   IList<A> reverse() {
     IList<A> result = Nil<A>();
@@ -524,7 +583,7 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
 
   @override
   (IList<A>, IList<A>) span(Function1<A, bool> p) {
-    final b = ListBuffer<A>();
+    final b = builder<A>();
 
     var these = this;
 
@@ -538,7 +597,7 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
 
   @override
   (IList<A>, IList<A>) splitAt(int n) {
-    final b = ListBuffer<A>();
+    final b = builder<A>();
     var i = 0;
     var these = this;
 
@@ -587,11 +646,13 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
 
   @override
   IList<A> takeRight(int n) {
+    if (isEmpty || n <= 0) return Nil<A>();
+
     var lead = drop(n);
     var lag = this;
 
     while (lead.nonEmpty) {
-      lead = tail();
+      lead = lead.tail();
       lag = lag.tail();
     }
 
@@ -600,7 +661,7 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
 
   @override
   IList<A> takeWhile(Function1<A, bool> p) {
-    final b = ListBuffer<A>();
+    final b = builder<A>();
     var these = this;
 
     while (!these.isEmpty && p(these.head)) {
@@ -617,13 +678,26 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
     return this;
   }
 
+  Option<NonEmptyIList<A>> toNel() => NonEmptyIList.from(this);
+
   @override
   Seq<A> toSeq() => this;
+
+  @override
+  String toString() => 'IList${mkString(start: '(', sep: ', ', end: ')')}';
+
+  B uncons<B>(Function1<Option<(A, IList<A>)>, B> f) {
+    if (isEmpty) {
+      return f(none());
+    } else {
+      return f(Some((head, tail())));
+    }
+  }
 
   IList<A> updated(int idx, A elem) {
     var i = 0;
     var current = this;
-    final prefix = ListBuffer<A>();
+    final prefix = builder<A>();
 
     while (i < idx && current.nonEmpty) {
       i += 1;
@@ -634,14 +708,13 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
     if (i == idx && current.nonEmpty) {
       return prefix.prependToList(Cons(elem, current.tail()));
     } else {
-      throw RangeError.index(
-          idx, "$idx is out of bounds (min 0, max ${length - 1})");
+      throw RangeError('$idx is out of bounds (min 0, max ${length - 1})');
     }
   }
 
   @override
-  RibsIterable<(A, B)> zip<B>(IterableOnce<B> that) {
-    final b = ListBuffer<(A, B)>();
+  IList<(A, B)> zip<B>(IterableOnce<B> that) {
+    final b = builder<(A, B)>();
     final it1 = iterator;
     final it2 = that.iterator;
 
@@ -653,7 +726,7 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   }
 
   @override
-  RibsIterable<(A, B)> zipAll<B>(
+  IList<(A, B)> zipAll<B>(
     IterableOnce<B> that,
     A thisElem,
     B thatElem,
@@ -661,8 +734,8 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
       super.zipAll(that, thisElem, thatElem).toIList();
 
   @override
-  RibsIterable<(A, int)> zipWithIndex() {
-    final b = ListBuffer<(A, int)>();
+  IList<(A, int)> zipWithIndex() {
+    final b = builder<(A, int)>();
     var i = 0;
     final it = iterator;
 
@@ -674,7 +747,135 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
     return b.toIList();
   }
 
-  // TODO: opt: late final int hashCode = ...
+  // ///////////////////////////////////////////////////////////////////////////
+
+  /// {@template ilist_parTraverseIO}
+  /// **Asynchronously** applies [f] to each element of this list and collects
+  /// the results into a new list. If an error or cancelation is encountered
+  /// for any element, that result is returned and all other elements will be
+  /// canceled if possible.
+  /// {@endtemplate}
+  IO<IList<B>> parTraverseIO<B>(Function1<A, IO<B>> f) {
+    IO<IList<B>> result = IO.pure(nil());
+
+    foreach((elem) {
+      result =
+          IO.both(result, f(elem)).map((t) => t((acc, b) => acc.prepended(b)));
+    });
+
+    return result.map((a) => a.reverse());
+  }
+
+  /// {@template ilist_parTraverseIO_}
+  /// **Asynchronously** applies [f] to each element of this list, discarding
+  /// any results. If an error or cancelation is encountered for any element,
+  /// that result is returned and all other elements will be canceled if
+  /// possible.
+  /// {@endtemplate}
+  IO<Unit> parTraverseIO_<B>(Function1<A, IO<B>> f) {
+    IO<Unit> result = IO.pure(Unit());
+
+    foreach((elem) {
+      result = IO.both(result, f(elem)).map((t) => t((acc, b) => Unit()));
+    });
+
+    return result;
+  }
+
+  /// {@template ilist_traverseEither}
+  /// Applies [f] to each element of this list and collects the results into a
+  /// new list. If [Left] is encountered for any element, that result is
+  /// returned and any additional elements will not be evaluated.
+  /// {@endtemplate}
+  Either<B, IList<C>> traverseEither<B, C>(Function1<A, Either<B, C>> f) {
+    Either<B, IList<C>> result = Either.pure(nil());
+
+    foreach((elem) {
+      // short circuit
+      if (result.isLeft) {
+        return result;
+      }
+
+      // Workaround for contravariant issues in error case
+      result = result.fold(
+        (_) => result,
+        (acc) => f(elem).fold(
+          (err) => err.asLeft(),
+          (a) => acc.appended(a).asRight(),
+        ),
+      );
+    });
+
+    return result;
+  }
+
+  /// {@template ilist_traverseIO}
+  /// Applies [f] to each element of this list and collects the results into a
+  /// new list. If an error or cancelation is encountered for any element,
+  /// that result is returned and any additional elements will not be evaluated.
+  /// {@endtemplate}
+  IO<IList<B>> traverseIO<B>(Function1<A, IO<B>> f) {
+    IO<IList<B>> result = IO.pure(nil());
+
+    foreach((elem) {
+      result = result.flatMap((l) => f(elem).map((b) => l.prepended(b)));
+    });
+
+    return result.map((a) => a.reverse());
+  }
+
+  /// {@template ilist_traverseIO_}
+  /// Applies [f] to each element of this list, discarding any results. If an
+  /// error or cancelation is encountered for any element, that result is
+  /// returned and any additional elements will not be evaluated.
+  /// {@endtemplate}
+  IO<Unit> traverseIO_<B>(Function1<A, IO<B>> f) {
+    var result = IO.pure(Unit());
+
+    foreach((elem) {
+      result = result.flatMap((l) => f(elem).map((b) => Unit()));
+    });
+
+    return result;
+  }
+
+  /// Applies [f] to each element of this list and collects the results into a
+  /// new list that is flattened using concatenation. If an error or cancelation
+  /// is encountered for any element, that result is returned and any additional
+  /// elements will not be evaluated.
+  IO<IList<B>> flatTraverseIO<B>(Function1<A, IO<IList<B>>> f) =>
+      traverseIO(f).map((a) => a.flatten());
+
+  /// {@template ilist_traverseFilterIO}
+  /// Applies [f] to each element of this list and collects the results into a
+  /// new list. Any results from [f] that are [None] are discarded from the
+  /// resulting list. If an error or cancelation is encountered for any element,
+  /// that result is returned and any additional elements will not be evaluated.
+  /// {@endtemplate}
+  IO<IList<B>> traverseFilterIO<B>(Function1<A, IO<Option<B>>> f) =>
+      traverseIO(f).map((opts) => opts.foldLeft(IList.empty<B>(),
+          (acc, elem) => elem.fold(() => acc, (elem) => acc.appended(elem))));
+
+  /// {@template ilist_traverseOption}
+  /// Applies [f] to each element of this list and collects the results into a
+  /// new list. If [None] is encountered for any element, that result is
+  /// returned and any additional elements will not be evaluated.
+  /// {@endtemplate}
+  Option<IList<B>> traverseOption<B>(Function1<A, Option<B>> f) {
+    Option<IList<B>> result = Option.pure(nil());
+
+    foreach((elem) {
+      // short circuit
+      if (result.isEmpty) {
+        return result;
+      }
+
+      result = result.flatMap((l) => f(elem).map((b) => l.prepended(b)));
+    });
+
+    return result.map((a) => a.reverse());
+  }
+
   @override
   int get hashCode => MurmurHash3.listHash(this);
 
@@ -807,7 +1008,7 @@ final class Cons<A> extends IList<A> {
 }
 
 final class Nil<A> extends IList<A> {
-  Nil();
+  const Nil();
 
   @override
   int get knownSize => 0;

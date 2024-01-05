@@ -5,9 +5,9 @@ import 'package:test/test.dart';
 void main() {
   group('NonEmptyIList', () {
     test('fromIterable', () {
-      expect(NonEmptyIList.fromIterable(<int>[]), none<NonEmptyIList<int>>());
-      expect(NonEmptyIList.fromIterable([1]), Some(nel(1)));
-      expect(NonEmptyIList.fromIterable([1, 2, 3]), Some(nel(1, [2, 3])));
+      expect(NonEmptyIList.fromDart(<int>[]), none<NonEmptyIList<int>>());
+      expect(NonEmptyIList.fromDart([1]), Some(nel(1)));
+      expect(NonEmptyIList.fromDart([1, 2, 3]), Some(nel(1, [2, 3])));
     });
 
     test('fromIterableUnsafe', () {
@@ -280,7 +280,7 @@ void main() {
     });
 
     test('sort', () {
-      expect(nel(2, [3, 1]).sort(Order.ints), nel(1, [2, 3]));
+      expect(nel(2, [3, 1]).sorted(Order.ints), nel(1, [2, 3]));
     });
 
     test('sortBy', () {
@@ -298,7 +298,7 @@ void main() {
     });
 
     test('sorted', () {
-      expect(nel(4, [2, 8, 1]).sorted(), nel(1, [2, 4, 8]));
+      expect(nel(4, [2, 8, 1]).sorted(Order.ints), nel(1, [2, 4, 8]));
     });
 
     test('startsWith', () {
@@ -380,11 +380,11 @@ void main() {
     });
 
     test('updated', () {
-      expect(nel(1, [2, 3]).updated(-1, (a) => a + 1), nel(1, [2, 3]));
-      expect(nel(1, [2, 3]).updated(0, (a) => a + 1), nel(2, [2, 3]));
-      expect(nel(1, [2, 3]).updated(1, (a) => a + 1), nel(1, [3, 3]));
-      expect(nel(1, [2, 3]).updated(2, (a) => a + 1), nel(1, [2, 4]));
-      expect(nel(1, [2, 3]).updated(3, (a) => a + 1), nel(1, [2, 3]));
+      expect(nel(1, [2, 3]).updated(-1, 0), nel(1, [2, 3]));
+      expect(nel(1, [2, 3]).updated(0, 2), nel(2, [2, 3]));
+      expect(nel(1, [2, 3]).updated(1, 3), nel(1, [3, 3]));
+      expect(nel(1, [2, 3]).updated(2, 4), nel(1, [2, 4]));
+      expect(nel(1, [2, 3]).updated(3, 5), nel(1, [2, 3]));
     });
 
     test('zip', () {

@@ -4,7 +4,7 @@ final class _DartIterator<A> extends RibsIterator<A> {
   final Iterator<A> self;
 
   bool _hasNext = false;
-  A? _nextElem;
+  dynamic _nextElem;
 
   _DartIterator(this.self) {
     _hasNext = self.moveNext();
@@ -23,6 +23,6 @@ final class _DartIterator<A> extends RibsIterator<A> {
     _hasNext = self.moveNext();
     if (_hasNext) _nextElem = self.current;
 
-    return result!;
+    return result as A;
   }
 }

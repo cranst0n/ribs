@@ -44,7 +44,7 @@ abstract class Queue<A> {
       } else {
         return tryTake().flatMap((a) => a.fold(
               () => IO.pure(acc.reverse()),
-              (a) => loop(i + 1, limit, acc.prepend(a)),
+              (a) => loop(i + 1, limit, acc.prepended(a)),
             ));
       }
     }

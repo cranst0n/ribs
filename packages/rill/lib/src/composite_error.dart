@@ -16,7 +16,7 @@ class CompositeError extends RuntimeException {
   static CompositeError from(
     RuntimeException first,
     RuntimeException second, [
-    IList<RuntimeException> rest = const IList.nil(),
+    IList<RuntimeException> rest = const Nil(),
   ]) =>
       CompositeError(first, NonEmptyIList.of(second, rest.toList()));
 

@@ -102,7 +102,7 @@ sealed class Validated<E, A> implements Functor<A> {
 
   /// Returns a new [IList] with the valid value of this instance, if any.
   /// If this instance is [Invalid], an empty [IList] is returned.
-  IList<A> toIList() => fold((_) => nil(), (a) => IList.of([a]));
+  IList<A> toIList() => fold((_) => nil(), (a) => IList.fromDart([a]));
 
   /// Returns [None] if this instance is an [Invalid], otherwise a [Some] with
   /// the valid value.

@@ -71,7 +71,8 @@ abstract class RibsIterator<A> with IterableOnce<A> {
   RibsIterator<B> collect<B>(Function1<A, Option<B>> f) =>
       _CollectIterator(this, f);
 
-  RibsIterator<A> concat(IterableOnce<A> xs) => _ConcatIterator(this);
+  RibsIterator<A> concat(IterableOnce<A> xs) =>
+      _ConcatIterator(this).concat(xs);
 
   RibsIterator<A> distinct<B>(Function1<A, B> f) => distinctBy(identity);
 

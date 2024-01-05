@@ -38,10 +38,11 @@ BankersQueue<A> buildQueue<A>(IList<A> elems) =>
 
 IList<A> toListFromFront<A>(BankersQueue<A> queue) =>
     queue.tryPopFront()((rest, hd) =>
-        hd.fold(() => nil(), (a) => toListFromFront(rest).prepend(a)));
+        hd.fold(() => nil(), (a) => toListFromFront(rest).prepended(a)));
 
-IList<A> toListFromBack<A>(BankersQueue<A> queue) => queue.tryPopBack()(
-    (rest, hd) => hd.fold(() => nil(), (a) => toListFromBack(rest).prepend(a)));
+IList<A> toListFromBack<A>(BankersQueue<A> queue) =>
+    queue.tryPopBack()((rest, hd) =>
+        hd.fold(() => nil(), (a) => toListFromBack(rest).prepended(a)));
 
 sealed class Op<A> {
   static Gen<Op<A>> gen<A>(Gen<A> genA) => Gen.frequency(

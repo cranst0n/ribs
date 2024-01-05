@@ -1,5 +1,4 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/src/collection/collection.dart';
 import 'package:ribs_core/src/collection/seq_views.dart' as seqview;
 
 mixin SeqView<A> on IterableOnce<A>, RibsIterable<A>, Seq<A>, View<A> {

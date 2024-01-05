@@ -154,9 +154,9 @@ final class ByteVector {
     if (isEmpty) {
       return nil();
     } else if (size <= chunkSize) {
-      return IList.of([this]);
+      return IList.fromDart([this]);
     } else {
-      return IList.of([take(chunkSize)])
+      return IList.fromDart([take(chunkSize)])
           .concat(drop(chunkSize).grouped(chunkSize));
     }
   }

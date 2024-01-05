@@ -11,7 +11,7 @@ sealed class Json {
   static Json True = JBoolean(true);
   static Json False = JBoolean(false);
 
-  static Json arr(Iterable<Json> values) => JArray(IList.of(values));
+  static Json arr(Iterable<Json> values) => JArray(IList.fromDart(values));
   static Json arrI(IList<Json> values) => JArray(values);
 
   static Json obj(Iterable<(String, Json)> fields) =>

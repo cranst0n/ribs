@@ -85,7 +85,7 @@ final class IMap<K, V> {
       _underlying.everyEntry((e) => p(e.key, e.value));
 
   /// Applies [f] to each element of this list, discarding any resulting values.
-  void forEach<A>(Function2<K, V, A> f) => toIList().forEach(f.tupled);
+  void forEach<A>(Function2<K, V, A> f) => toIList().foreach(f.tupled);
 
   /// Returns the value for the given key [key] as a [Some], or [None] if this
   /// map doesn't contain the key.

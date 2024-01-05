@@ -17,11 +17,15 @@ part 'vector/vector_builder.dart';
 part 'vector/vector_slice_builder.dart';
 part 'vector/iterator.dart';
 
+IVector<A> ivec<A>(Iterable<A> as) => IVector.fromDart(as);
+
 sealed class IVector<A>
     with IterableOnce<A>, RibsIterable<A>, Seq<A>, IndexedSeq<A> {
   final _Arr1 _prefix1;
 
   IVector._(this._prefix1);
+
+  static VectorBuilder<A> builder<A>() => VectorBuilder();
 
   static IVector<A> empty<A>() => _Vector0();
 
@@ -124,6 +128,9 @@ sealed class IVector<A>
   }
 
   @override
+  IVector<A> concat(covariant IterableOnce<A> suffix) => appendedAll(suffix);
+
+  @override
   IVector<A> drop(int n) => slice(n, length);
 
   @override
@@ -162,6 +169,9 @@ sealed class IVector<A>
   }
 
   @override
+  int get knownSize => length;
+
+  @override
   IVector<B> map<B>(Function1<A, B> f);
 
   @override
@@ -191,6 +201,9 @@ sealed class IVector<A>
   IVector<A> takeRight(int n) => slice(length - max(n, 0), length);
 
   @override
+  String toString() => 'IVector${mkString(start: '(', sep: ', ', end: ')')}';
+
+  @override
   IVector<A> slice(int from, int until);
 
   IVector<A> updated(int index, A elem);
@@ -198,7 +211,6 @@ sealed class IVector<A>
   @override
   IndexedSeqView<A> view() => iseqviews.Id(this);
 
-  // TODO: opt: late final int hashCode = ...
   @override
   int get hashCode => MurmurHash3.seqHash(this);
 

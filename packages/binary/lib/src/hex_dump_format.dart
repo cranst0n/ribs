@@ -89,7 +89,7 @@ final class HexDumpFormat {
       bldr.write('  ');
     }
 
-    bytes.grouped(dataColumnWidthInBytes).forEach((columnBytes) {
+    bytes.grouped(dataColumnWidthInBytes).foreach((columnBytes) {
       _renderHex(bldr, columnBytes);
       bldr.write(' ');
     });

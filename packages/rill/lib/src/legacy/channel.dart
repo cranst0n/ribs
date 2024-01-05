@@ -77,7 +77,7 @@ final class _BoundedChannel<A> extends Channel<A> {
               } else if (state.size < capacity) {
                 return (
                   state.copy(
-                    values: state.values.append(a),
+                    values: state.values.appended(a),
                     size: state.size + 1,
                     waiting: none(),
                   ),
@@ -87,7 +87,7 @@ final class _BoundedChannel<A> extends Channel<A> {
                 return (
                   state.copy(
                     waiting: none(),
-                    producers: state.producers.append((a, producer)),
+                    producers: state.producers.appended((a, producer)),
                   ),
                   notifyStream(state.waiting)
                       .as(rightUnit)
@@ -114,7 +114,7 @@ final class _BoundedChannel<A> extends Channel<A> {
           } else if (state.size < capacity) {
             return (
               state.copy(
-                values: state.values.append(a),
+                values: state.values.appended(a),
                 size: state.size + 1,
                 waiting: none(),
               ),
@@ -141,7 +141,7 @@ final class _BoundedChannel<A> extends Channel<A> {
               final tailValues = List<A>.empty(growable: true);
               var unblock = IO.unit;
 
-              s.producers.forEach(
+              s.producers.foreach(
                 (tuple) => tuple(
                   (value, producer) {
                     tailValues.add(value);

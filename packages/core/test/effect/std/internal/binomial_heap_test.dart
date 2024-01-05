@@ -8,7 +8,7 @@ void main() {
     final heap = buildHeap(l, Order.ints);
     final back = toList(heap);
 
-    expect(back, l.sorted());
+    expect(back, l.sorted(Order.ints));
   });
 
   forAll('maintain the heap property', Op.genList(Gen.positiveInt), (ops) {
@@ -48,7 +48,7 @@ IList<A> toList<A>(BinomialHeap<A> heap) {
 
   return a.fold(
     () => nil(),
-    (a) => toList(remaining).prepend(a),
+    (a) => toList(remaining).prepended(a),
   );
 }
 

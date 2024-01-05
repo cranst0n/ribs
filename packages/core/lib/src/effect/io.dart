@@ -464,13 +464,13 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// into an [IList].
   IO<IList<A>> replicate(int n) => n <= 0
       ? IO.pure(nil())
-      : flatMap((a) => replicate(n - 1).map((l) => l.prepend(a)));
+      : flatMap((a) => replicate(n - 1).map((l) => l.prepended(a)));
 
   /// Runs this [IO] [n] times, accumulating the result from each evaluation
   /// into an [IList]. All replications will be run asynchronously.
   IO<IList<A>> parReplicate(int n) => n <= 0
       ? IO.pure(nil())
-      : IO.both(this, parReplicate(n - 1)).mapN((a, acc) => acc.prepend(a));
+      : IO.both(this, parReplicate(n - 1)).mapN((a, acc) => acc.prepended(a));
 
   /// Runs this [IO] [n] times, discarding any resulting values.
   IO<Unit> replicate_(int n) =>
@@ -545,8 +545,8 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// repetition.
   IO<IList<A>> untilM(IO<bool> cond) {
     IO<IList<A>> loop(IList<A> acc) => flatMap((a) => cond.ifM(
-          () => IO.pure(acc.append(a)),
-          () => loop(acc.append(a)),
+          () => IO.pure(acc.appended(a)),
+          () => loop(acc.appended(a)),
         ));
 
     return loop(nil());
@@ -571,7 +571,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   IO<IList<A>> whilelM(IO<bool> cond) {
     IO<IList<A>> loop(IList<A> acc) {
       return cond.ifM(
-        () => flatMap((a) => loop(acc.append(a))),
+        () => flatMap((a) => loop(acc.appended(a))),
         () => IO.pure(acc),
       );
     }

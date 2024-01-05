@@ -198,8 +198,8 @@ abstract class _Base64Base extends Base64Alphabet {
   static final chars = _charRange('A', 'Z')
       .concat(_charRange('a', 'z'))
       .concat(_charRange('0', '9'))
-      .append('+')
-      .append('/');
+      .appended('+')
+      .appended('/');
 }
 
 final class _Base64 extends _Base64Base {
@@ -240,8 +240,8 @@ abstract class _Base64UrlBase extends Base64Alphabet {
   static final chars = _charRange('A', 'Z')
       .concat(_charRange('a', 'z'))
       .concat(_charRange('0', '9'))
-      .append('-')
-      .append('_');
+      .appended('-')
+      .appended('_');
 }
 
 final class _Base64Url extends _Base64UrlBase {
@@ -261,12 +261,12 @@ IList<String> _charRange(String start, String end) =>
 
 (int, IList<int>) charIndicesLookupArray(IMap<String, int> indicesMap) {
   final indicesMin = indicesMap.keys
-      .minOption()
+      .minOption(Order.strings)
       .getOrElse(() => throw Exception('charIndicesLookupArray: empty map'))
       .codeUnitAt(0);
 
   final indicesMax = indicesMap.keys
-      .maxOption()
+      .maxOption(Order.strings)
       .getOrElse(() => throw Exception('charIndicesLookupArray: empty map'))
       .codeUnitAt(0);
 

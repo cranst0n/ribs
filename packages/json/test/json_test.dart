@@ -315,11 +315,11 @@ void main() {
             (s) => strings += 1,
             (arr) {
               arrs += 1;
-              arr.forEach((a) => a.foldWith(folder()));
+              arr.foreach((a) => a.foldWith(folder()));
             },
             (obj) {
               objs += 1;
-              obj.values.forEach((a) => a.foldWith(folder()));
+              obj.values.foreach((a) => a.foldWith(folder()));
             },
           );
 

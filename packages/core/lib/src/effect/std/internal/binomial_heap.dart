@@ -36,7 +36,7 @@ final class BinomialHeap<A> {
       trees.headOption.fold(
         () => ilist([tree]),
         (hd) => tree.rank < hd.rank
-            ? trees.prepend(tree)
+            ? trees.prepended(tree)
             : _insertTreeImpl(tree.link(hd), trees.tail()),
       );
 
@@ -55,9 +55,9 @@ final class BinomialHeap<A> {
       final ts2 = rhs.tail();
 
       if (t1.rank < t2.rank) {
-        return _merge(ts1, rhs).prepend(t1);
+        return _merge(ts1, rhs).prepended(t1);
       } else if (t1.rank > t2.rank) {
-        return _merge(lhs, ts2).prepend(t2);
+        return _merge(lhs, ts2).prepended(t2);
       } else {
         return _insertTreeImpl(t1.link(t2), _merge(ts1, ts2));
       }
@@ -82,7 +82,7 @@ final class BinomialHeap<A> {
               if (order.lteqv(t.value, t1.value)) {
                 return (t, ts);
               } else {
-                return (t1, ts1.prepend(t));
+                return (t1, ts1.prepended(t));
               }
             }
           },
@@ -110,10 +110,10 @@ final class BinomialTree<A> {
 
   BinomialTree<A> link(BinomialTree<A> other) {
     if (order.lteqv(value, other.value)) {
-      return BinomialTree(rank + 1, value, children.prepend(other), order);
+      return BinomialTree(rank + 1, value, children.prepended(other), order);
     } else {
       return BinomialTree(
-          rank + 1, other.value, other.children.prepend(this), order);
+          rank + 1, other.value, other.children.prepended(this), order);
     }
   }
 }

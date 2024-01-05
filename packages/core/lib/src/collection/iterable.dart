@@ -1,5 +1,4 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/src/collection/collection.dart';
 import 'package:ribs_core/src/collection/collection.dart' as rc;
 import 'package:ribs_core/src/collection/views.dart' as views;
 
@@ -98,8 +97,8 @@ mixin RibsIterable<A> on IterableOnce<A> {
   (RibsIterable<A1>, RibsIterable<A2>) partitionMap<A1, A2>(
     Function1<A, Either<A1, A2>> f,
   ) {
-    final l = ListBuffer<A1>();
-    final r = ListBuffer<A2>();
+    final l = IList.builder<A1>();
+    final r = IList.builder<A2>();
 
     iterator.foreach((x) {
       f(x).fold(
@@ -213,6 +212,9 @@ mixin RibsIterable<A> on IterableOnce<A> {
   RibsIterable<A> tail() => drop(1);
 
   View<A> view() => View.fromIterableProvider(() => this);
+
+  @override
+  String toString() => 'Iterable${mkString(start: '(', sep: ', ', end: ')')}';
 
   RibsIterator<RibsIterable<A>> _iterateUntilEmpty(
     Function1<RibsIterable<A>, RibsIterable<A>> f,
