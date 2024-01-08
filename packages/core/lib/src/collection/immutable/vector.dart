@@ -13,7 +13,7 @@ part 'vector/vector3.dart';
 part 'vector/vector4.dart';
 part 'vector/vector5.dart';
 part 'vector/vector6.dart';
-part 'vector/vector_builder.dart';
+part 'vector/builder.dart';
 part 'vector/vector_slice_builder.dart';
 part 'vector/iterator.dart';
 

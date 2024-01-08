@@ -7,7 +7,7 @@ import 'package:ribs_core/ribs_collection.dart';
 sealed class MurmurHash3 {
   // static final _MapSeed = 'Map'.hashCode;
   static final _SeqSeed = 'Seq'.hashCode;
-  // static final _SetSeed = 'Set'.hashCode;
+  static final _SetSeed = 'Set'.hashCode;
 
   static final _Murmur3Impl _impl = _Murmur3Impl();
 
@@ -20,6 +20,8 @@ sealed class MurmurHash3 {
       _ => _impl.orderedHash(seq, _SeqSeed),
     };
   }
+
+  static int setHash(ISet<dynamic> xs) => _impl.unorderedHash(xs, _SetSeed);
 }
 
 final class _Murmur3Impl {

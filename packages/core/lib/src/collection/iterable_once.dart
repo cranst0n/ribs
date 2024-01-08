@@ -317,15 +317,20 @@ mixin IterableOnce<A> {
     return this;
   }
 
-  List<A> toList() {
-    final it = iterator;
-    final res = List<A>.empty(growable: true);
+  List<A> toList({bool growable = true}) {
+    if (growable) {
+      final it = iterator;
+      final res = List<A>.empty(growable: true);
 
-    while (it.hasNext) {
-      res.add(it.next());
+      while (it.hasNext) {
+        res.add(it.next());
+      }
+
+      return res;
+    } else {
+      final it = iterator;
+      return List.generate(size, (_) => it.next());
     }
-
-    return res;
   }
 
   IList<A> toIList() => IList.from(this);

@@ -47,10 +47,10 @@ final defaultValue2 = map.withDefault((key) => key.length);
 
 // iset
 
-final iset = ISet.of([1, 3, 5, 7, 9]);
+final aSet = ISet.of([1, 3, 5, 7, 9]);
 
-final remove5 = iset.excl(5);
-final remove1and9 = iset.removedAll([1, 9]);
-final add11 = iset + 11;
+final remove5 = aSet.excl(5);
+final remove1and9 = aSet.removedAll(iset([1, 9]));
+final add11 = aSet + 11;
 
 // iset

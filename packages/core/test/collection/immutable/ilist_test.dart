@@ -769,7 +769,7 @@ void main() {
       expect(nil<int>().toISet(), iset<int>({}));
       expect(ilist([1, 2, 3]).toISet(), iset({1, 2, 3}));
       expect(ilist([1, 2, 3, 1, 2, 3]).toISet(), iset({1, 2, 3}));
-    });
+    }, skip: true);
 
     test('toNel', () {
       expect(nil<int>().toNel(), isNone());

@@ -6,13 +6,13 @@ import 'package:test/test.dart';
 void main() {
   group('ISet', () {
     test('empty', () {
-      expect(const ISet<int>.empty().size, 0);
+      expect(ISet.empty<int>().size, 0);
     });
 
     test('fromIList', () {
-      expect(ISet.fromIList(nil<int>()).size, 0);
-      expect(ISet.fromIList(ilist([1, 2, 3])), iset([1, 2, 3]));
-      expect(ISet.fromIList(ilist([1, 2, 3, 2])), iset([1, 2, 3]));
+      expect(ISet.from(nil<int>()).size, 0);
+      expect(ISet.from(ilist([1, 2, 3])), iset([1, 2, 3]));
+      expect(ISet.from(ilist([1, 2, 3, 2])), iset([1, 2, 3]));
     });
 
     test('incl', () {
@@ -27,7 +27,7 @@ void main() {
 
     test('contains', () {
       expect(iset({1, 2}).contains(0), isFalse);
-      expect(iset({1, 2})(1), isTrue);
+      expect(iset({1, 2}).contains(2), isTrue);
     });
 
     test('concat', () {
@@ -78,7 +78,7 @@ void main() {
     });
 
     test('flatMap', () {
-      List<int> f(int x) => [x - 1, x, x + 1];
+      IList<int> f(int x) => ilist([x - 1, x, x + 1]);
 
       expect(iset<int>({}).flatMap(f), iset<int>({}));
       expect(iset([1, 2, 3]).flatMap(f), iset({0, 1, 2, 3, 4}));
@@ -102,7 +102,7 @@ void main() {
         Gen.ilistOf(Gen.chooseInt(0, 100), Gen.integer).map((l) => l.toISet()),
         (aSet) {
       var count = 0;
-      aSet.forEach((_) => count += 1);
+      aSet.foreach((_) => count += 1);
       expect(count, aSet.size);
     });
 
@@ -154,15 +154,17 @@ void main() {
     });
 
     test('reduceOption', () {
-      expect(const ISet<int>.empty().reduceOption((a, b) => a + b), isNone());
+      expect(ISet.empty<int>().reduceOption((a, b) => a + b), isNone());
       expect(iset({1}).reduceOption((a, b) => a + b), isSome(1));
       expect(iset({1, 2, 3}).reduceOption((a, b) => a + b), isSome(6));
     });
 
     test('removedAll', () {
-      expect(iset<int>({}).removedAll([1, 2, 3]), iset<int>({}));
-      expect(iset<int>({2, 4, 6}).removedAll([1, 2, 3]), iset<int>({4, 6}));
-      expect(iset<int>({1, 2, 3}).removedAll([1, 2, 3, 1]), iset<int>({}));
+      expect(iset<int>({}).removedAll(iset([1, 2, 3])), iset<int>({}));
+      expect(
+          iset<int>({2, 4, 6}).removedAll(iset([1, 2, 3])), iset<int>({4, 6}));
+      expect(
+          iset<int>({1, 2, 3}).removedAll(iset([1, 2, 3, 1])), iset<int>({}));
     });
 
     test('subsetOf', () {

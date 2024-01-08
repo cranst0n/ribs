@@ -18,6 +18,5 @@ dependencies:
   test:                       ^1.24.8
 
 dev_dependencies:
-  daco:       ^0.2.6
   lint:       ^2.2.0
   ribs_check: ^1.0.0-dev.6
