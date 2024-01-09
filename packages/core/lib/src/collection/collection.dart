@@ -1,6 +1,6 @@
 export 'immutable/ilist.dart';
 export 'immutable/iset.dart';
-export 'immutable/vector.dart';
+export 'immutable/ivector.dart';
 export 'indexed_seq.dart';
 export 'indexed_seq_view.dart';
 export 'iterable.dart';
