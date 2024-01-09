@@ -36,26 +36,26 @@ final class _ConcatIterator<A> extends RibsIterator<A> {
 
       // Advance current to the next non-empty iterator
       // current is set to null when all iterators are exhausted
-      // TODO: tailrec
       bool advance() {
-        if (tailCell == null) {
-          current = null;
-          lastCell = null;
-          return false;
-        } else {
-          current = tailCell!.headIterator;
-          if (lastCell == tailCell) lastCell = lastCell!.tailCell;
-          tailCell = tailCell!.tailCell;
-
-          merge();
-
-          if (_currentHasNextChecked) {
-            return true;
-          } else if (current != null && current!.hasNext) {
-            _currentHasNextChecked = true;
-            return true;
+        // due to lack of  tailrec
+        while (true) {
+          if (tailCell == null) {
+            current = null;
+            lastCell = null;
+            return false;
           } else {
-            return advance();
+            current = tailCell!.headIterator;
+            if (lastCell == tailCell) lastCell = lastCell!.tailCell;
+            tailCell = tailCell!.tailCell;
+
+            merge();
+
+            if (_currentHasNextChecked) {
+              return true;
+            } else if (current != null && current!.hasNext) {
+              _currentHasNextChecked = true;
+              return true;
+            }
           }
         }
       }

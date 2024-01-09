@@ -64,35 +64,36 @@ final class _SpanLeadingIterator<A> extends RibsIterator<A> {
     _lookahead!.addFirst(a);
   }
 
-  // TODO: tailrec?
   bool finish() {
-    switch (_status) {
-      case -2:
-        _status = -1;
-        return true;
-      case -1:
-        return false;
-      case 1:
-        store(_hd);
-        _status = 0;
-        return finish();
-      case 0:
-        _status = -1;
+    // due to lack of tailrec
+    while (true) {
+      switch (_status) {
+        case -2:
+          _status = -1;
+          return true;
+        case -1:
+          return false;
+        case 1:
+          store(_hd);
+          _status = 0;
+        case 0:
+          _status = -1;
 
-        while (self.hasNext) {
-          final a = self.next();
+          while (self.hasNext) {
+            final a = self.next();
 
-          if (p(a)) {
-            store(a);
-          } else {
-            _hd = a;
-            return true;
+            if (p(a)) {
+              store(a);
+            } else {
+              _hd = a;
+              return true;
+            }
           }
-        }
 
-        return false;
-      default:
-        throw StateError('SpanLeadingIterator: $_status');
+          return false;
+        default:
+          throw StateError('SpanLeadingIterator: $_status');
+      }
     }
   }
 
