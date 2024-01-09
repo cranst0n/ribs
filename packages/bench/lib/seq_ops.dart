@@ -13,7 +13,7 @@ import 'package:ribs_core/ribs_core.dart' as ribs;
 void main(List<String> args) {
   int tabulateFn(int x) => x;
 
-  List<int> genSdkList(int n) => List.generate(n, tabulateFn);
+  List<int> genDartList(int n) => List.generate(n, tabulateFn);
 
   ribs.IList<int> genRibsIList(int n) => ribs.IList.tabulate(n, tabulateFn);
 
@@ -50,7 +50,7 @@ void main(List<String> args) {
 
     final benchmarks = [
       // apply
-      ComparativeBenchmark('Dart List', 'apply', () => genSdkList(n),
+      ComparativeBenchmark('Dart List', 'apply', () => genDartList(n),
           (l) => tap(l, (l) => l[n ~/ 2]), emitter),
       ComparativeBenchmark('Built List', 'apply', () => genBuiltList(n),
           (l) => tap(l, (l) => l[n ~/ 2]), emitter),
@@ -64,7 +64,7 @@ void main(List<String> args) {
           (l) => tap(l, (l) => l[n ~/ 2]), emitter),
 
       // append
-      ComparativeBenchmark('Dart List', 'append', () => genSdkList(n),
+      ComparativeBenchmark('Dart List', 'append', () => genDartList(n),
           (l) => l..add(0), emitter),
       ComparativeBenchmark('Built List', 'append', () => genBuiltList(n),
           (l) => l.rebuild((p0) => p0.add(0)), emitter),
@@ -80,7 +80,7 @@ void main(List<String> args) {
           (l) => l.appended(0), emitter),
 
       // prepend
-      ComparativeBenchmark('Dart List', 'prepend', () => genSdkList(n),
+      ComparativeBenchmark('Dart List', 'prepend', () => genDartList(n),
           (l) => l..add(0), emitter),
       ComparativeBenchmark('Built List', 'prepend', () => genBuiltList(n),
           (l) => l.rebuild((p0) => p0.insert(0, 0)), emitter),
@@ -94,7 +94,7 @@ void main(List<String> args) {
           (l) => l.prepended(0), emitter),
 
       // updated
-      ComparativeBenchmark('Dart List', 'update', () => genSdkList(n),
+      ComparativeBenchmark('Dart List', 'update', () => genDartList(n),
           (l) => tap(l, (l) => l[n ~/ 2] = 1), emitter),
       ComparativeBenchmark('Built List', 'update', () => genBuiltList(n),
           (l) => l.rebuild((p0) => p0[n ~/ 2] = 1), emitter),
@@ -106,7 +106,7 @@ void main(List<String> args) {
           (l) => l.updated(n ~/ 2, 1), emitter),
 
       // map
-      ComparativeBenchmark('Dart List', 'map', () => genSdkList(n),
+      ComparativeBenchmark('Dart List', 'map', () => genDartList(n),
           (l) => l.map((e) => e + 1).toList(), emitter),
       ComparativeBenchmark('Built List', 'map', () => genBuiltList(n),
           (l) => l.rebuild((p0) => p0.map((x) => x + 1)), emitter),
@@ -122,7 +122,7 @@ void main(List<String> args) {
           (l) => l.map((x) => x + 1), emitter),
 
       // filter
-      ComparativeBenchmark('Dart List', 'filter', () => genSdkList(n),
+      ComparativeBenchmark('Dart List', 'filter', () => genDartList(n),
           (l) => l.where((e) => e.isOdd).toList(), emitter),
       ComparativeBenchmark('Built List', 'filter', () => genBuiltList(n),
           (l) => l.rebuild((p0) => p0.where((x) => x.isOdd)), emitter),
@@ -138,7 +138,7 @@ void main(List<String> args) {
           (l) => l.filter((x) => x.isOdd), emitter),
 
       // init
-      ComparativeBenchmark('Dart List', 'tail', () => genSdkList(n),
+      ComparativeBenchmark('Dart List', 'tail', () => genDartList(n),
           (l) => l.getRange(0, n - 1).toList(), emitter),
       ComparativeBenchmark('Built List', 'init', () => genBuiltList(n),
           (l) => l.rebuild((p0) => p0.take(n - 1)), emitter),
@@ -152,7 +152,7 @@ void main(List<String> args) {
           (l) => l.init(), emitter),
 
       // tail
-      ComparativeBenchmark('Dart List', 'tail', () => genSdkList(n),
+      ComparativeBenchmark('Dart List', 'tail', () => genDartList(n),
           (l) => l.skip(1).toList(), emitter),
       ComparativeBenchmark('Built List', 'tail', () => genBuiltList(n),
           (l) => l.rebuild((p0) => p0.skip(1)), emitter),
@@ -168,7 +168,7 @@ void main(List<String> args) {
           (l) => l.tail(), emitter),
 
       // drop
-      ComparativeBenchmark('Dart List', 'drop', () => genSdkList(n),
+      ComparativeBenchmark('Dart List', 'drop', () => genDartList(n),
           (l) => l.skip(n ~/ 2).toList(), emitter),
       ComparativeBenchmark('Built List', 'drop', () => genBuiltList(n),
           (l) => l.rebuild((p0) => p0.skip(n ~/ 2)), emitter),
@@ -182,7 +182,7 @@ void main(List<String> args) {
           (l) => l.drop(n ~/ 2), emitter),
 
       // take
-      ComparativeBenchmark('Dart List', 'take', () => genSdkList(n),
+      ComparativeBenchmark('Dart List', 'take', () => genDartList(n),
           (l) => l.take(n ~/ 2).toList(), emitter),
       ComparativeBenchmark('Built List', 'take', () => genBuiltList(n),
           (l) => l.rebuild((p0) => p0.take(n ~/ 2)), emitter),
@@ -196,7 +196,7 @@ void main(List<String> args) {
           (l) => l.take(n ~/ 2), emitter),
 
       // fold
-      ComparativeBenchmark('Dart List', 'fold', () => genSdkList(n),
+      ComparativeBenchmark('Dart List', 'fold', () => genDartList(n),
           (l) => tap(l, (l) => l.fold(0, (a, b) => a + b)), emitter),
       ComparativeBenchmark('Built List', 'fold', () => genBuiltList(n),
           (l) => tap(l, (l) => l.fold(0, (a, b) => a + b)), emitter),
@@ -212,7 +212,7 @@ void main(List<String> args) {
           (l) => tap(l, (l) => l.fold(0, (a, b) => a + b)), emitter),
 
       // reverse
-      ComparativeBenchmark('Dart List', 'reverse', () => genSdkList(n),
+      ComparativeBenchmark('Dart List', 'reverse', () => genDartList(n),
           (l) => l.reversed.toList(), emitter),
       ComparativeBenchmark('Built List', 'reverse', () => genBuiltList(n),
           (l) => l.rebuild((p0) => p0.reverse()), emitter),
@@ -228,7 +228,7 @@ void main(List<String> args) {
           (l) => l.reverse(), emitter),
 
       // contains
-      ComparativeBenchmark('Dart List', 'contains', () => genSdkList(n),
+      ComparativeBenchmark('Dart List', 'contains', () => genDartList(n),
           (l) => tap(l, (l) => l.contains(n ~/ 2)), emitter),
       ComparativeBenchmark('Built List', 'contains', () => genBuiltList(n),
           (l) => tap(l, (l) => l.contains(n ~/ 2)), emitter),
@@ -244,7 +244,7 @@ void main(List<String> args) {
           (l) => tap(l, (l) => l.contains(n ~/ 2)), emitter),
 
       // concat
-      ComparativeBenchmark('Dart List', 'concat', () => genSdkList(n),
+      ComparativeBenchmark('Dart List', 'concat', () => genDartList(n),
           (l) => l.concat(l), emitter),
       ComparativeBenchmark('Built List', 'concat', () => genBuiltList(n),
           (l) => l.rebuild((p0) => p0.addAll(l)), emitter),

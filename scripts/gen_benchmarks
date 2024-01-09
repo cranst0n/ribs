@@ -2,6 +2,9 @@
 
 parent_dir=$(dirname $(dirname "$0"))
 
-dart compile exe -o /tmp/seq_ops $parent_dir/packages/bench/lib/seq_ops.dart
-/tmp/seq_ops $parent_dir/website/benchmark-data
-rm /tmp/seq_ops
+for f in set_ops seq_ops
+do
+    dart compile exe -o /tmp/$f $parent_dir/packages/bench/lib/$f.dart
+    /tmp/$f $parent_dir/website/benchmark-data
+    rm /tmp/$f
+done
