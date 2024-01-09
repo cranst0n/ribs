@@ -1,5 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 
+@pragma('vm:prefer-inline')
+@pragma('dart2js:tryInline')
 A identity<A>(A a) => a;
 
 typedef Function0<A> = A Function();
