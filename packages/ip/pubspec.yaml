@@ -6,12 +6,12 @@ description: >
   Typesafe representations for hosts, ports and addresses.
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.2.0 <4.0.0"
 
 dependencies:
   ribs_core:   ^1.0.0-dev.8
 
 dev_dependencies:
-  lint:       ^2.2.0
+  lint:       ^2.3.0
   ribs_check: ^1.0.0-dev.6
   test:       ^1.24.8
