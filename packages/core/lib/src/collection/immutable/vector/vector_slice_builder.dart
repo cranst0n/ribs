@@ -1,4 +1,4 @@
-part of '../vector.dart';
+part of '../ivector.dart';
 
 final class _VectorSliceBuilder {
   final int lo;

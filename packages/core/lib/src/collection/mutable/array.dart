@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/src/collection/immutable/range.dart';
 
 Array<A> arr<A>(List<A?> l) => Array._(List.of(l));
 
@@ -20,9 +21,6 @@ final class Array<A> {
 
   static Array<A> fill<A>(int len, A? elem) => Array._(List.filled(len, elem));
 
-  static Array<A> tabulate<A>(int n, Function1<int, A?> f) =>
-      Array._(List.generate(n, f));
-
   static Array<A> from<A>(IterableOnce<A?> elems) =>
       fromDart(elems.toList(growable: false));
 
@@ -31,6 +29,25 @@ final class Array<A> {
   }
 
   static Array<A> ofDim<A>(int len) => Array._(List.filled(len, null));
+
+  static Array<int> range(int start, int end, [int step = 1]) {
+    if (step == 0) throw ArgumentError('zero step');
+
+    final array = Array.ofDim<int>(Range.count(start, end, step, false));
+
+    var n = 0;
+    var i = start;
+    while (step < 0 ? end < i : i < end) {
+      array[n] = i;
+      i += step;
+      n += 1;
+    }
+
+    return array;
+  }
+
+  static Array<A> tabulate<A>(int n, Function1<int, A?> f) =>
+      Array._(List.generate(n, f));
 
   A? operator [](int idx) => _list[idx];
 
@@ -66,6 +83,22 @@ final class Array<A> {
       Array.tabulate(length, (idx) => f(this[idx] as A));
 
   bool get nonEmpty => _list.isNotEmpty;
+
+  Array<A> slice(int from, int until) {
+    final lo = max(from, 0);
+    final hi = min(until, length);
+
+    if (hi > lo) {
+      return copyOfRange(this, lo, hi);
+    } else {
+      return Array.empty();
+    }
+  }
+
+  Array<A> update(int idx, A? value) {
+    this[idx] = value;
+    return this;
+  }
 
   List<A?> toList() => List.of(_list);
 

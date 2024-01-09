@@ -12,7 +12,13 @@ abstract class Node<T extends Node<T>> {
   static int maskFrom(int hash, int shift) =>
       (hash >>> shift) & BitPartitionMask;
 
-  static int bitposFrom(int mask) => 1 << mask;
+  static int bitposFrom(int mask) {
+    if (mask >= 0) {
+      return 1 << mask;
+    } else {
+      return 1 << Integer.Size + mask;
+    }
+  }
 
   static int indexFrom(int bitmap, int bitpos) =>
       Integer.bitCount(bitmap & (bitpos - 1));
@@ -131,7 +137,7 @@ abstract class ChampBaseIterator<A, T extends Node<T>> extends RibsIterator<A> {
 
   void _pushNode(T node) {
     _initNodes();
-    _currentStackLevel = _currentStackLevel + 1;
+    _currentStackLevel += 1;
 
     final cursorIndex = _currentStackLevel * 2;
     final lengthIndex = _currentStackLevel * 2 + 1;
@@ -142,7 +148,7 @@ abstract class ChampBaseIterator<A, T extends Node<T>> extends RibsIterator<A> {
   }
 
   void _popNode() {
-    _currentStackLevel = _currentStackLevel - 1;
+    _currentStackLevel -= 1;
   }
 
   bool _searchNextValueNode() {
@@ -166,6 +172,67 @@ abstract class ChampBaseIterator<A, T extends Node<T>> extends RibsIterator<A> {
         }
       } else {
         _popNode();
+      }
+    }
+
+    return false;
+  }
+}
+
+@internal
+abstract class ChampBaseReverseIterator<A, T extends Node<T>>
+    extends RibsIterator<A> {
+  @protected
+  int currentValueCursor = 0;
+  @protected
+  T? currentValueNode;
+
+  var _currentStackLevel = -1;
+  final _nodeIndex = Array.ofDim<int>(Node.MaxDepth + 1);
+  final _nodeStack = Array.ofDim<T>(Node.MaxDepth + 1);
+
+  ChampBaseReverseIterator(T rootNode) {
+    _pushNode(rootNode);
+    _searchNextValueNode();
+  }
+
+  @override
+  bool get hasNext => currentValueCursor >= 0 || _searchNextValueNode();
+
+  void _setupPayloadNode(T node) {
+    currentValueNode = node;
+    currentValueCursor = node.payloadArity - 1;
+  }
+
+  void _pushNode(T node) {
+    _currentStackLevel += 1;
+
+    _nodeStack[_currentStackLevel] = node;
+    _nodeIndex[_currentStackLevel] = node.nodeArity - 1;
+  }
+
+  void _popNode() {
+    _currentStackLevel -= 1;
+  }
+
+  // Searches for rightmost node that contains payload values,
+  // and pushes encountered sub-nodes on a stack for depth-first traversal.
+  bool _searchNextValueNode() {
+    while (_currentStackLevel >= 0) {
+      final nodeCursor = _nodeIndex[_currentStackLevel]!;
+      _nodeIndex[_currentStackLevel] = nodeCursor - 1;
+
+      if (nodeCursor >= 0) {
+        final nextNode = _nodeStack[_currentStackLevel]!.getNode(nodeCursor);
+        _pushNode(nextNode);
+      } else {
+        final currNode = _nodeStack[_currentStackLevel]!;
+        _popNode();
+
+        if (currNode.hasPayload) {
+          _setupPayloadNode(currNode);
+          return true;
+        }
       }
     }
 

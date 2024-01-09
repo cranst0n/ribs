@@ -192,6 +192,26 @@ void main() {
       expect(iset<int>({2, 4, 6}).subsetOf(iset({2, 4})), isFalse);
     });
 
+    test('subsets', () {
+      expect(iset<int>({}).subsets().toList(), [iset<int>({})]);
+
+      expect(iset({1}).subsets().toList(), [
+        iset<int>({}),
+        iset<int>({1}),
+      ]);
+
+      expect(iset({1, 2, 3}).subsets().toList(), [
+        iset<int>({}),
+        iset<int>({1}),
+        iset<int>({2}),
+        iset<int>({3}),
+        iset<int>({1, 2}),
+        iset<int>({1, 3}),
+        iset<int>({2, 3}),
+        iset<int>({1, 2, 3}),
+      ]);
+    });
+
     forAll(
         'size/emptines',
         Gen.chooseInt(0, 100)

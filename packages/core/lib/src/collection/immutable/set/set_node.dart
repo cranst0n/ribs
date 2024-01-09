@@ -368,7 +368,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
   }
 
   @override
-  SetNode<A> diff(SetNode<A> that, int shift) {
+  BitmapIndexedSetNode<A> diff(SetNode<A> that, int shift) {
     if (that is BitmapIndexedSetNode<A>) {
       final bm = that;
 
@@ -497,7 +497,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
   }
 
   @override
-  SetNode<A> filterImpl(Function1<A, bool> pred, bool flipped) {
+  BitmapIndexedSetNode<A> filterImpl(Function1<A, bool> pred, bool flipped) {
     if (size == 0) {
       return this;
     } else if (size == 1) {
@@ -898,7 +898,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
     final mask = Node.maskFrom(elementHash, shift);
     final bitpos = Node.bitposFrom(mask);
 
-    if ((dataMap & bitpos) != 0) {
+    if (dataMap & bitpos != 0) {
       final index = Node.indexFromMask(dataMap, mask, bitpos);
       final element0 = this.getPayload(index);
 
@@ -939,6 +939,39 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
 
     return copyAndInsertValue(bitpos, element, originalHash, elementHash);
   }
+
+  @override
+  bool operator ==(Object that) => switch (that) {
+        final BitmapIndexedSetNode<A> node => identical(this, node) ||
+            ((this.cachedDartKeySetHashCode == node.cachedDartKeySetHashCode) &&
+                (this.nodeMap == node.nodeMap) &&
+                (this.dataMap == node.dataMap) &&
+                (this.size == node.size) &&
+                Array.equals(this.originalHashes, node.originalHashes) &&
+                _deepContentEquality(
+                    this.content, node.content, content.length)),
+        _ => false,
+      };
+
+  bool _deepContentEquality(Array<dynamic> a1, Array<dynamic> a2, int length) {
+    if (identical(a1, a2)) {
+      return true;
+    } else {
+      var isEqual = true;
+      var i = 0;
+
+      while (isEqual && i < length) {
+        isEqual = a1[i] == a2[i];
+        i += 1;
+      }
+
+      return isEqual;
+    }
+  }
+
+  @override
+  int get hashCode =>
+      throw UnimplementedError('Trie nodes do not support hashing');
 
   int dataIndex(int bitpos) => Integer.bitCount(dataMap & (bitpos - 1));
 

@@ -1,4 +1,4 @@
-part of '../vector.dart';
+part of '../ivector.dart';
 
 final class _Vector2<A> extends _BigVector<A> {
   final int len1;

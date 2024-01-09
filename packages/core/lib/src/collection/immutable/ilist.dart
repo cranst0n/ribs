@@ -357,7 +357,7 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
     if (isEmpty || that.isEmpty) {
       return Nil<A>();
     } else {
-      final occ = occCounts(that);
+      final occ = _occCounts(that);
       final b = builder<A>();
 
       foreach((x) {
@@ -377,6 +377,9 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
       return b.toIList();
     }
   }
+
+  @override
+  IList<A> intersperse(A x) => super.intersperse(x).toIList();
 
   @override
   int get length {
@@ -547,6 +550,9 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
 
   @override
   IList<A> reversed() => reverse();
+
+  @override
+  IList<B> scan<B>(B z, Function2<B, A, B> op) => scanLeft(z, op);
 
   @override
   IList<B> scanLeft<B>(B z, Function2<B, A, B> op) =>
@@ -988,6 +994,12 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
     }
 
     return noneIn(this);
+  }
+
+  Map<B, int> _occCounts<B>(Seq<B> sq) {
+    final occ = <B, int>{};
+    sq.foreach((y) => occ.update(y, (value) => value + 1, ifAbsent: () => 1));
+    return occ;
   }
 }
 

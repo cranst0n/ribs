@@ -1,4 +1,4 @@
-part of '../vector.dart';
+part of '../ivector.dart';
 
 final class _Vector0<A> extends _BigVector<A> {
   _Vector0() : super(_empty1, _empty1, 0);

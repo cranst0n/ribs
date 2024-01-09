@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/seq_views.dart' as seqviews;
 import 'package:ribs_core/src/collection/views.dart' as views;
@@ -66,7 +65,7 @@ mixin Seq<A> on RibsIterable<A> {
   }
 
   Seq<A> diff(Seq<A> that) {
-    final occ = occCounts(that);
+    final occ = _occCounts(that);
 
     final it = iterator.filter((key) {
       var include = false;
@@ -172,7 +171,7 @@ mixin Seq<A> on RibsIterable<A> {
   Seq<A> init() => dropRight(1);
 
   Seq<A> intersect(Seq<A> that) {
-    final occ = occCounts(that);
+    final occ = _occCounts(that);
 
     final it = iterator.filter((key) {
       var include = true;
@@ -321,8 +320,7 @@ mixin Seq<A> on RibsIterable<A> {
   @override
   Seq<A> tail() => view().tail().toSeq();
 
-  @protected
-  Map<B, int> occCounts<B>(Seq<B> sq) {
+  Map<B, int> _occCounts<B>(Seq<B> sq) {
     final occ = <B, int>{};
     sq.foreach((y) => occ.update(y, (value) => value + 1, ifAbsent: () => 1));
     return occ;

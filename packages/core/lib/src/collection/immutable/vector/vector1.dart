@@ -1,4 +1,4 @@
-part of '../vector.dart';
+part of '../ivector.dart';
 
 final class _Vector1<A> extends _VectorImpl<A> {
   _Vector1(super._prefix) : super();

@@ -79,7 +79,7 @@ mixin RibsIterable<A> on IterableOnce<A> {
     return IMap.fromMap(m);
   }
 
-  RibsIterator<Seq<A>> grouped(int size) => iterator.grouped(size);
+  RibsIterator<RibsIterable<A>> grouped(int size) => iterator.grouped(size);
 
   RibsIterator<RibsIterable<A>> inits() => _iterateUntilEmpty((a) => a.init());
 
@@ -93,7 +93,6 @@ mixin RibsIterable<A> on IterableOnce<A> {
     return (first.toIList(), second.toIList());
   }
 
-  // TODO: Optimize with view?
   (RibsIterable<A1>, RibsIterable<A2>) partitionMap<A1, A2>(
     Function1<A, Either<A1, A2>> f,
   ) {
@@ -118,7 +117,7 @@ mixin RibsIterable<A> on IterableOnce<A> {
   RibsIterable<A> slice(int from, int until) =>
       views.Drop(views.Take(this, until), from);
 
-  RibsIterator<Seq<A>> sliding(int size, [int step = 1]) =>
+  RibsIterator<IterableOnce<A>> sliding(int size, [int step = 1]) =>
       iterator.sliding(size, step);
 
   @override

@@ -1,4 +1,4 @@
-part of '../vector.dart';
+part of '../ivector.dart';
 
 typedef _Arr1 = Array<dynamic>;
 typedef _Arr2 = Array<_Arr1>;

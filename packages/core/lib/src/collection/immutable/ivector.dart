@@ -1,9 +1,7 @@
 import 'dart:math';
 
-import 'package:ribs_core/src/collection/collection.dart';
+import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/indexed_seq_views.dart' as iseqviews;
-import 'package:ribs_core/src/function.dart';
-import 'package:ribs_core/src/util/murmur_hash_3.dart';
 
 part 'vector/statics.dart';
 part 'vector/vector0.dart';
@@ -131,10 +129,31 @@ sealed class IVector<A>
   IVector<A> concat(covariant IterableOnce<A> suffix) => appendedAll(suffix);
 
   @override
+  IVector<B> collect<B>(Function1<A, Option<B>> f) =>
+      super.collect(f).toIVector();
+
+  @override
+  RibsIterator<IVector<A>> combinations(int n) =>
+      super.combinations(n).map((a) => a.toIVector());
+
+  @override
+  IVector<A> diff(Seq<A> that) => super.diff(that).toIVector();
+
+  @override
+  IVector<A> distinct() => distinctBy(identity);
+
+  @override
+  IVector<A> distinctBy<B>(Function1<A, B> f) =>
+      super.distinctBy(f).toIVector();
+
+  @override
   IVector<A> drop(int n) => slice(n, length);
 
   @override
   IVector<A> dropRight(int n) => slice(0, length - max(n, 0));
+
+  @override
+  IVector<A> dropWhile(Function1<A, bool> p) => super.dropWhile(p).toIVector();
 
   @override
   IVector<A> filter(Function1<A, bool> p) => _filterImpl(p, false);
@@ -157,7 +176,32 @@ sealed class IVector<A>
   }
 
   @override
+  IVector<B> flatMap<B>(covariant Function1<A, IterableOnce<B>> f) =>
+      super.flatMap(f).toIVector();
+
+  @override
+  IMap<K, IVector<A>> groupBy<K>(Function1<A, K> f) =>
+      super.groupBy(f).mapValues((a) => a.toIVector());
+
+  @override
+  RibsIterator<IVector<A>> grouped(int size) =>
+      super.grouped(size).map((a) => a.toIVector());
+
+  @override
+  IMap<K, IVector<B>> groupMap<K, B>(Function1<A, K> key, Function1<A, B> f) =>
+      super.groupMap(key, f).mapValues((a) => a.toIVector());
+
+  @override
   IVector<A> init() => slice(0, length - 1);
+
+  @override
+  RibsIterator<IVector<A>> inits() => super.inits().map((a) => a.toIVector());
+
+  @override
+  IVector<A> intersect(Seq<A> that) => super.intersect(that).toIVector();
+
+  @override
+  IVector<A> intersperse(A x) => super.intersperse(x).toIVector();
 
   @override
   RibsIterator<A> get iterator {
@@ -173,6 +217,31 @@ sealed class IVector<A>
 
   @override
   IVector<B> map<B>(Function1<A, B> f);
+
+  @override
+  IVector<A> padTo(int len, A elem) => super.padTo(len, elem).toIVector();
+
+  @override
+  (IVector<A>, IVector<A>) partition(Function1<A, bool> p) {
+    final (a, b) = super.partition(p);
+    return (a.toIVector(), b.toIVector());
+  }
+
+  @override
+  (IVector<A1>, IVector<A2>) partitionMap<A1, A2>(
+    Function1<A, Either<A1, A2>> f,
+  ) {
+    final (a, b) = super.partitionMap(f);
+    return (a.toIVector(), b.toIVector());
+  }
+
+  @override
+  IVector<A> patch(int from, IterableOnce<A> other, int replaced) =>
+      super.patch(from, other, replaced).toIVector();
+
+  @override
+  RibsIterator<IVector<A>> permutations() =>
+      super.permutations().map((a) => a.toIVector());
 
   @override
   IVector<A> prepended(A elem);
@@ -193,12 +262,63 @@ sealed class IVector<A>
   IVector<A> reverse() => view().reverse().toIVector();
 
   @override
+  IVector<B> scan<B>(B z, Function2<B, A, B> op) => scanLeft(z, op);
+
+  @override
+  IVector<B> scanLeft<B>(B z, Function2<B, A, B> op) =>
+      super.scanLeft(z, op).toIVector();
+
+  @override
+  IVector<B> scanRight<B>(B z, Function2<A, B, B> op) =>
+      super.scanRight(z, op).toIVector();
+
+  @override
+  RibsIterator<IVector<A>> sliding(int size, [int step = 1]) =>
+      super.sliding(size, step).map((a) => a.toIVector());
+
+  @override
+  IVector<A> sorted(Order<A> order) => super.sorted(order).toIVector();
+
+  @override
+  IVector<A> sortBy<B>(Order<B> order, Function1<A, B> f) =>
+      super.sortBy(order, f).toIVector();
+
+  @override
+  IVector<A> sortWith(Function2<A, A, bool> lt) =>
+      super.sortWith(lt).toIVector();
+
+  @override
+  (IVector<A>, IVector<A>) span(Function1<A, bool> p) {
+    final (a, b) = super.span(p);
+    return (a.toIVector(), b.toIVector());
+  }
+
+  @override
+  (IVector<A>, IVector<A>) splitAt(int n) {
+    final (a, b) = super.splitAt(n);
+    return (a.toIVector(), b.toIVector());
+  }
+
+  @override
   IVector<A> tail() => slice(1, length);
+
+  @override
+  RibsIterator<IVector<A>> tails() => super.tails().map((a) => a.toIVector());
+
   @override
   IVector<A> take(int n) => slice(0, n);
 
   @override
   IVector<A> takeRight(int n) => slice(length - max(n, 0), length);
+
+  @override
+  IVector<A> takeWhile(Function1<A, bool> p) => super.takeWhile(p).toIVector();
+
+  @override
+  RibsIterable<A> tapEach<U>(Function1<A, U> f) {
+    foreach(f);
+    return this;
+  }
 
   @override
   String toString() => 'IVector${mkString(start: '(', sep: ', ', end: ')')}';
@@ -210,6 +330,16 @@ sealed class IVector<A>
 
   @override
   IndexedSeqView<A> view() => iseqviews.Id(this);
+
+  @override
+  IVector<(A, B)> zip<B>(IterableOnce<B> that) => super.zip(that).toIVector();
+
+  @override
+  IVector<(A, B)> zipAll<B>(IterableOnce<B> that, A thisElem, B thatElem) =>
+      super.zipAll(that, thisElem, thatElem).toIVector();
+
+  @override
+  IVector<(A, int)> zipWithIndex() => super.zipWithIndex().toIVector();
 
   @override
   int get hashCode => MurmurHash3.seqHash(this);
