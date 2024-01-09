@@ -92,9 +92,9 @@ void main() {
       );
     });
 
-    testCodec('option', Gen.option(Gen.positiveInt), int32.optional(boolean));
+    testCodec('option', Gen.option(genInt32), int32.optional(boolean));
 
-    testCodec('either', Gen.either(Gen.positiveInt, Gen.boolean),
+    testCodec('either', Gen.either(genInt32, Gen.boolean),
         either(boolean, int32, boolean));
 
     forAll('byteAligned', Gen.chooseInt(0, 8).map((a) => BitVector.low(a)),

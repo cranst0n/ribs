@@ -143,7 +143,7 @@ final class _Vector2<A> extends _BigVector<A> {
   int get _vectorSliceCount => 3;
 
   @override
-  List<dynamic> _vectorSlice(int idx) => switch (idx) {
+  Array<dynamic> _vectorSlice(int idx) => switch (idx) {
         0 => _prefix1,
         1 => data2,
         2 => suffix1,

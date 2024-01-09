@@ -11,7 +11,7 @@ class _Set1<A> with IterableOnce<A>, RibsIterable<A>, ISet<A> {
   @override
   ISet<A> excl(A elem) {
     if (elem == elem1) {
-      return const _EmptySet();
+      return _EmptySet();
     } else {
       return this;
     }

@@ -54,11 +54,11 @@ final class _Vector1<A> extends _VectorImpl<A> {
 
   @override
   IVector<A> _slice0(int lo, int hi) =>
-      _Vector1(_copyOfRange(_prefix1, lo, hi));
+      _Vector1(Array.copyOfRange(_prefix1, lo, hi));
 
   @override
   int get _vectorSliceCount => 1;
 
   @override
-  List<dynamic> _vectorSlice(int idx) => _prefix1;
+  Array<dynamic> _vectorSlice(int idx) => _prefix1;
 }

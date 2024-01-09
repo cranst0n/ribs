@@ -363,7 +363,7 @@ final class _Vector6<A> extends _BigVector<A> {
   }
 
   @override
-  List<dynamic> _vectorSlice(int idx) => switch (idx) {
+  Array<dynamic> _vectorSlice(int idx) => switch (idx) {
         0 => _prefix1,
         1 => prefix2,
         2 => prefix3,

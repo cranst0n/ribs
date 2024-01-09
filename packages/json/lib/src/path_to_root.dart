@@ -81,9 +81,9 @@ final class PathToRoot {
           .flatMap((lastOp) => lastOp.asArrayIndex())
           .map((arrIx) {
         return Either.cond(
-          () => arrIx.index < 2147483647,
+          () => arrIx.index < Integer.MaxValue,
           () => acc.appended(PathElem.arrayIndex(arrIx.index + 1)),
-          () => 'Attempt to move to index > 2147483647 in array.',
+          () => 'Attempt to move to index > ${Integer.MaxValue} in array.',
         );
       });
     }).flatten();

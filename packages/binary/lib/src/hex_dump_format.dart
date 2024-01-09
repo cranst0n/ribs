@@ -25,7 +25,7 @@ final class HexDumpFormat {
   );
 
   static final Default = HexDumpFormat._(
-      true, 2, 8, true, Alphabets.hexLower, true, 0, 2147483647);
+      true, 2, 8, true, Alphabets.hexLower, true, 0, Integer.MaxValue);
 
   static final NoAnsi = Default.withAnsi(false);
 

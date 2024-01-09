@@ -252,7 +252,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
       Choose.integer.choose(1, limit ?? 1000).flatMap((size) =>
           Gen.listOfN(size, gen).map(NonEmptyIList.fromIterableUnsafe));
 
-  static Gen<int> nonNegativeInt = chooseInt(0, _intMaxValue);
+  static Gen<int> nonNegativeInt = chooseInt(0, Integer.MaxValue);
 
   static Gen<String> numChar = charSample('01234567890');
 
@@ -269,7 +269,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
   static Gen<Option<A>> option<A>(Gen<A> a) =>
       frequency([(1, constant(none<A>())), (9, some(a))]);
 
-  static Gen<int> positiveInt = chooseInt(1, _intMaxValue);
+  static Gen<int> positiveInt = chooseInt(1, Integer.MaxValue);
 
   static Gen<Option<A>> some<A>(Gen<A> a) => a.map((a) => Some(a));
 
@@ -284,8 +284,6 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
       listOf(Gen.chooseInt(1, limit ?? 100), char).map((a) => a.join());
 
   static Gen<String> charSample(String chars) => oneOf(chars.split(''));
-
-  static const int _intMaxValue = 2147483647;
 }
 
 final class Streams {
@@ -342,11 +340,13 @@ final class Choose<A> {
         shrinker: Shrinker.dubble,
       ));
 
-  static Choose<int> integer = Choose((int min, int max) => Gen(
-        State((r) =>
-            r.nextInt(max - min).call((rand, value) => (rand, value + min))),
-        shrinker: Shrinker.integer,
-      ));
+  static Choose<int> integer = Choose((int min, int max) {
+    return Gen(
+      State((r) =>
+          r.nextInt(max - min).call((rand, value) => (rand, value + min))),
+      shrinker: Shrinker.integer,
+    );
+  });
 }
 
 extension GenTuple2Ops<A, B> on (Gen<A>, Gen<B>) {

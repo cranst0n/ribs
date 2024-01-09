@@ -1,8 +1,6 @@
 part of '../iset.dart';
 
 final class _EmptySet<A> with IterableOnce<A>, RibsIterable<A>, ISet<A> {
-  const _EmptySet();
-
   @override
   bool contains(A elem) => false;
 

@@ -1,6 +1,10 @@
 import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart' hide ISet;
+import 'package:ribs_core/src/collection/hashing.dart';
+import 'package:ribs_core/src/collection/immutable/set/champ_common.dart';
+import 'package:ribs_core/src/collection/immutable/set/set_node.dart';
+import 'package:ribs_core/src/collection/views.dart' as views;
 
 part 'set/builder.dart';
 part 'set/empty.dart';
@@ -14,32 +18,24 @@ part 'set/set4.dart';
 ISet<A> iset<A>(Iterable<A> as) => ISet.of(as);
 
 mixin ISet<A> on RibsIterable<A> {
-  static ISet<A> empty<A>() => const _EmptySet();
+  static ISetBuilder<A> builder<A>() => ISetBuilder();
+
+  static ISet<A> empty<A>() => _EmptySet<A>();
 
   static ISet<A> from<A>(IterableOnce<A> xs) {
-    final seq = xs.toSeq();
-    return switch (xs.size) {
-      0 => _EmptySet<A>(),
-      1 => _Set1(seq[0]),
-      2 => _Set2(seq[0], seq[1]),
-      3 => _Set3(seq[0], seq[1], seq[2]),
-      4 => _Set4(seq[0], seq[1], seq[2], seq[3]),
-      _ => throw UnimplementedError('ISet.of'),
+    return switch (xs) {
+      final _EmptySet<A> s => s,
+      final _Set1<A> s => s,
+      final _Set2<A> s => s,
+      final _Set3<A> s => s,
+      final _Set4<A> s => s,
+      final IHashSet<A> s => s,
+      _ => ISetBuilder<A>().addAll(xs).result(),
     };
   }
 
-  static ISet<A> of<A>(Iterable<A> xs) {
-    final l = xs.toList();
-
-    return switch (xs.length) {
-      0 => _EmptySet<A>(),
-      1 => _Set1(l[0]),
-      2 => _Set2(l[0], l[1]),
-      3 => _Set3(l[0], l[1], l[2]),
-      4 => _Set4(l[0], l[1], l[2], l[3]),
-      _ => throw UnimplementedError('ISet.of'),
-    };
-  }
+  static ISet<A> of<A>(Iterable<A> xs) =>
+      from(RibsIterator.fromDart(xs.iterator));
 
   /// Creates a new set with an additonal element [a].
   ISet<A> operator +(A a) => incl(a);
@@ -49,14 +45,20 @@ mixin ISet<A> on RibsIterable<A> {
 
   @override
   ISet<A> concat(covariant IterableOnce<A> suffix) {
-    throw UnimplementedError('ISet.concat');
+    var result = this;
+    final it = suffix.iterator;
+
+    while (it.hasNext) {
+      result = result + it.next();
+    }
+
+    return result;
   }
 
   bool contains(A elem);
 
-  ISet<A> diff(ISet<A> that) {
-    throw UnimplementedError('ISet.diff');
-  }
+  ISet<A> diff(ISet<A> that) => foldLeft(ISet.empty<A>(),
+      (result, elem) => that.contains(elem) ? result : result + elem);
 
   ISet<A> excl(A elem);
 
@@ -71,31 +73,41 @@ mixin ISet<A> on RibsIterable<A> {
   }
 
   @override
-  ISet<B> flatMap<B>(covariant Function1<A, IterableOnce<B>> f) {
-    throw UnimplementedError('ISet.flatMap');
-  }
+  ISet<B> flatMap<B>(covariant Function1<A, IterableOnce<B>> f) =>
+      views.FlatMap(this, f).toISet();
+
+  @override
+  IMap<K, ISet<A>> groupBy<K>(Function1<A, K> f) =>
+      super.groupBy(f).mapValues((a) => a.toISet());
+
+  @override
+  IMap<K, ISet<B>> groupMap<K, B>(
+    Function1<A, K> key,
+    Function1<A, B> f,
+  ) =>
+      super.groupMap(key, f).mapValues((a) => a.toISet());
 
   ISet<A> incl(A elem);
 
   ISet<A> intersect(ISet<A> that) => filter(that.contains).toISet();
 
   @override
-  ISet<B> map<B>(covariant Function1<A, B> f) {
-    throw UnimplementedError('ISet.map');
-  }
+  ISet<B> map<B>(covariant Function1<A, B> f) => views.Map(this, f).toISet();
 
   ISet<A> removedAll(IterableOnce<A> that) =>
       that.iterator.foldLeft(this, (acc, elem) => acc - elem);
 
   bool subsetOf(ISet<A> that) => forall(that.contains);
 
-  RibsIterator<ISet<A>> subsets() => _SubsetsItr(toIndexedSeq());
-
-  RibsIterator<ISet<A>> subsetsOfN(int len) {
-    if (0 <= len && len <= size) {
-      return _SubsetsOfNItr(toIndexedSeq(), len);
+  RibsIterator<ISet<A>> subsets({int? length}) {
+    if (length != null) {
+      if (0 <= length && length <= size) {
+        return _SubsetsOfNItr(toIndexedSeq(), length);
+      } else {
+        return RibsIterator.empty();
+      }
     } else {
-      return RibsIterator.empty();
+      return _SubsetsItr(toIndexedSeq());
     }
   }
 

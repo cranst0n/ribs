@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import 'package:ribs_core/src/collection/collection.dart';
 import 'package:ribs_core/src/function.dart';
 import 'package:ribs_core/src/option.dart';
+import 'package:ribs_core/src/util/integer.dart';
 
 part 'iterator/concat.dart';
 part 'iterator/dart.dart';

@@ -290,7 +290,7 @@ sealed class IVector<A>
   IVector<A> _slice0(int lo, int hi);
 
   int get _vectorSliceCount;
-  List<dynamic> _vectorSlice(int idx);
+  Array<dynamic> _vectorSlice(int idx);
 }
 
 sealed class _VectorImpl<A> extends IVector<A> {

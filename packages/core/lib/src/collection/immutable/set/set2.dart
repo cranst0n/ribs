@@ -35,7 +35,7 @@ class _Set2<A> with IterableOnce<A>, RibsIterable<A>, ISet<A> {
     } else if (p2) {
       return _Set1(elem2);
     } else {
-      return const _EmptySet();
+      return _EmptySet();
     }
   }
 

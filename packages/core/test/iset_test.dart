@@ -13,21 +13,29 @@ void main() {
       expect(ISet.from(nil<int>()).size, 0);
       expect(ISet.from(ilist([1, 2, 3])), iset([1, 2, 3]));
       expect(ISet.from(ilist([1, 2, 3, 2])), iset([1, 2, 3]));
+      expect(ISet.from(ilist([1, 2, 3, 2, 4, 5, 5])), iset([1, 2, 3, 4, 5]));
     });
 
     test('incl', () {
       expect(iset({1, 2}) + 3, iset({1, 2, 3}));
       expect(iset({1, 2}) + 2, iset({1, 2}));
+      expect(iset({1, 2, 3, 4, 5}) + 5, iset({1, 2, 3, 4, 5}));
+      expect(iset({1, 2, 3, 4, 5}) + 6, iset({1, 2, 3, 4, 5, 6}));
     });
 
     test('excl', () {
       expect(iset({1, 2}) - 3, iset({1, 2}));
       expect(iset({1, 2}) - 2, iset({1}));
+      expect(iset({1, 2, 3, 4, 5}) - 5, iset({1, 2, 3, 4}));
+      expect(iset({1, 2, 3, 4, 5}) - 6, iset({1, 2, 3, 4, 5}));
     });
 
     test('contains', () {
       expect(iset({1, 2}).contains(0), isFalse);
       expect(iset({1, 2}).contains(2), isTrue);
+      expect(iset({1, 2, 3, 4, 5}).contains(0), isFalse);
+      expect(iset({1, 2, 3, 4, 5}).contains(2), isTrue);
+      expect(iset({1, 2, 3, 4, 5}).contains(11), isFalse);
     });
 
     test('concat', () {
@@ -35,6 +43,10 @@ void main() {
       expect(iset({1, 2}).concat(ilist([3, 4])), iset({1, 2, 3, 4}));
       expect(iset({1, 2}).concat(ilist([2, 3, 4])), iset({1, 2, 3, 4}));
       expect(iset<int>({}).concat(ilist([2, 3, 4])), iset({2, 3, 4}));
+      expect(
+        iset({1, 2, 3, 4, 5}).concat(ilist([5, 6, 7, 8, 9])),
+        iset({1, 2, 3, 4, 5, 6, 7, 8, 9}),
+      );
     });
 
     test('count', () {
@@ -48,12 +60,24 @@ void main() {
       expect(iset({1, 2}).diff(iset<int>({})), iset({1, 2}));
       expect(iset({1, 2}).diff(iset<int>({1, 2})), iset<int>({}));
       expect(iset({1, 2}).diff(iset({2, 3, 4})), iset({1}));
+      expect(iset({1, 2, 3, 4, 5}).diff(iset({2, 3, 4})), iset({1, 5}));
     });
 
     test('exists', () {
       expect(iset<int>({}).exists((a) => a.isEven), isFalse);
       expect(iset({1, 2, 3}).exists((a) => a.isEven), isTrue);
       expect(iset({1, 2, 3}).exists((a) => a > 10), isFalse);
+    });
+
+    test('equality', () {
+      expect(iset<int>({}) == iset<int>({}), isTrue);
+      expect(iset<int>({1}) == iset<int>({1}), isTrue);
+      expect(iset<int>({1, 2}) == iset<int>({1, 2}), isTrue);
+      expect(iset<int>({1, 2, 3}) == iset<int>({1, 2, 3}), isTrue);
+      expect(iset<int>({1, 2, 3, 4}) == iset<int>({1, 2, 3, 4}), isTrue);
+      expect(iset<int>({1, 2, 3, 4, 5}) == iset<int>({1, 2, 3, 4, 5}), isTrue);
+
+      expect(iset({1, 2, 3}) == iset({1, 3, 2}), isTrue);
     });
 
     test('filter', () {
@@ -108,28 +132,22 @@ void main() {
 
     test('groupBy', () {
       final s = iset({1, 2, 3, 4, 5, 6, 7, 8, 9});
+      final m = s.groupBy((a) => a % 3);
 
-      expect(
-        s.groupBy((a) => a % 3),
-        imap({
-          0: iset({3, 6, 9}),
-          1: iset({1, 4, 7}),
-          2: iset({2, 5, 8}),
-        }),
-      );
+      expect(m.get(0), isSome(iset({3, 6, 9})));
+      expect(m.get(1), isSome(iset({1, 4, 7})));
+      expect(m.get(2), isSome(iset({2, 5, 8})));
+      expect(m.get(3), isNone());
     });
 
     test('groupMap', () {
       final s = iset({1, 2, 3, 4, 5, 6, 7, 8, 9});
+      final m = s.groupMap((a) => a % 3, (a) => a * 2);
 
-      expect(
-        s.groupMap((a) => a % 3, (a) => a * 2),
-        imap({
-          0: iset({6, 12, 18}),
-          1: iset({2, 8, 14}),
-          2: iset({4, 10, 16}),
-        }),
-      );
+      expect(m.get(0), isSome(iset({6, 12, 18})));
+      expect(m.get(1), isSome(iset({2, 8, 14})));
+      expect(m.get(2), isSome(iset({4, 10, 16})));
+      expect(m.get(3), isNone());
     });
 
     test('isEmpty', () {

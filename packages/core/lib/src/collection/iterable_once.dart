@@ -335,7 +335,7 @@ mixin IterableOnce<A> {
 
   IList<A> toIList() => IList.from(this);
   IndexedSeq<A> toIndexedSeq() => IndexedSeq.from(this);
-  ISet<A> toISet() => ISet.of(toList());
+  ISet<A> toISet() => ISet.from(this);
   IVector<A> toIVector() => IVector.from(this);
   Seq<A> toSeq() => Seq.from(this);
 

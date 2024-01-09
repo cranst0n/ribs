@@ -1,10 +1,11 @@
 import 'dart:math';
 
-import 'package:ribs_core/ribs_core.dart' hide IList;
+import 'package:ribs_core/ribs_core.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('Vector', () {
+    // 0, 2^5, 2^10, 2^15, 2^20, 2^25
     final vectorNBounds =
         [0, 32, 1024, 32768, 1048576, 33554432].expand((n) => [n, n + 1]);
 
@@ -48,6 +49,18 @@ void main() {
     test('appendedAll', () {
       for (final n in vectorNBounds) {
         final addN = max(n ~/ 2, 1);
+        expect(
+            IVector.fill(n, 0)
+                .appendedAll(IVector.fill(addN, 0))
+                .toList()
+                .length,
+            n + addN);
+      }
+    });
+
+    test('appendedAll (random)', () {
+      for (final n in vectorNBounds) {
+        final addN = Random.secure().nextInt(max(n, 1));
         expect(
             IVector.fill(n, 0)
                 .appendedAll(IVector.fill(addN, 0))

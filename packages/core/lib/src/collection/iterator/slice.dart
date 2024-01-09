@@ -55,7 +55,7 @@ final class _SliceIterator<A> extends RibsIterator<A> {
       return RibsIterator.empty();
     } else {
       final sum = _dropping + lo;
-      _dropping = sum < 0 ? 2147483647 : sum;
+      _dropping = sum < 0 ? Integer.MaxValue : sum;
       _remaining = rest;
       return this;
     }

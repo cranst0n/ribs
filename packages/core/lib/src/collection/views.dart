@@ -502,7 +502,7 @@ RibsIterator<A> _takeRightIterator<A>(RibsIterator<A> it, int n) {
 
   if (k == 0 || n <= 0) {
     return RibsIterator.empty<A>();
-  } else if (n == 2147483647) {
+  } else if (n == Integer.MaxValue) {
     return it;
   } else if (k > 0) {
     return it.drop(max(k - n, 0));

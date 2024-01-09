@@ -43,7 +43,7 @@ class _Set3<A> with IterableOnce<A>, RibsIterable<A>, ISet<A> {
     }
 
     if (p(elem3)) {
-      n == 0 ? r1 = elem2 : r2 = elem2;
+      n == 0 ? r1 = elem2 : r2 = elem3;
       n += 1;
     }
 

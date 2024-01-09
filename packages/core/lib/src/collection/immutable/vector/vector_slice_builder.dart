@@ -15,7 +15,7 @@ final class _VectorSliceBuilder {
   int prefixIdx(int n) => n - 1;
   int suffixIdx(int n) => 11 - n;
 
-  void consider<T>(int n, List<T> a) {
+  void consider<T>(int n, Array<T> a) {
     final count = a.length * (1 << (_BITS * (n - 1)));
     final lo0 = max(lo - pos, 0);
     final hi0 = min(hi - pos, count);
@@ -26,7 +26,7 @@ final class _VectorSliceBuilder {
     pos += count;
   }
 
-  void addSlice<T>(int n, List<T> a, int lo, int hi) {
+  void addSlice<T>(int n, Array<T> a, int lo, int hi) {
     if (n == 1) {
       add(1, _copyOrUse(a, lo, hi));
     } else {
@@ -42,25 +42,25 @@ final class _VectorSliceBuilder {
           add(n, _copyOrUse(a, loN, hiN));
         } else {
           if (hiN > loN) add(n, _copyOrUse(a, loN, hiN));
-          addSlice(n - 1, a[hiN] as _Arr1, 0, hiRest);
+          addSlice(n - 1, a[hiN]! as _Arr1, 0, hiRest);
         }
       } else {
         if (hiN == loN) {
-          addSlice(n - 1, a[loN] as _Arr1, loRest, hiRest);
+          addSlice(n - 1, a[loN]! as _Arr1, loRest, hiRest);
         } else {
-          addSlice(n - 1, a[loN] as _Arr1, loRest, widthN);
+          addSlice(n - 1, a[loN]! as _Arr1, loRest, widthN);
           if (hiRest == 0) {
             if (hiN > loN + 1) add(n, _copyOrUse(a, loN + 1, hiN));
           } else {
             if (hiN > loN + 1) add(n, _copyOrUse(a, loN + 1, hiN));
-            addSlice(n - 1, a[hiN] as _Arr1, 0, hiRest);
+            addSlice(n - 1, a[hiN]! as _Arr1, 0, hiRest);
           }
         }
       }
     }
   }
 
-  void add<T>(int n, List<T> a) {
+  void add<T>(int n, Array<T> a) {
     final int idx;
     if (n <= maxDim) {
       idx = suffixIdx(n);
@@ -250,7 +250,7 @@ final class _VectorSliceBuilder {
             maxDim = n;
           }
         } else {
-          _slices[prefixIdx(n + 1)] = _copyOfRange(preN1, 1, preN1.length);
+          _slices[prefixIdx(n + 1)] = Array.copyOfRange(preN1, 1, preN1.length);
         }
       }
     }
@@ -271,7 +271,8 @@ final class _VectorSliceBuilder {
             maxDim = n;
           }
         } else {
-          _slices[suffixIdx(n + 1)] = _copyOfRange(sufN1, 0, sufN1.length - 1);
+          _slices[suffixIdx(n + 1)] =
+              Array.copyOfRange(sufN1, 0, sufN1.length - 1);
         }
       }
     }

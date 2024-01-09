@@ -2,32 +2,35 @@
 
 import 'dart:typed_data';
 
-import 'package:ribs_core/ribs_collection.dart';
+import 'package:ribs_core/ribs_core.dart';
 
 sealed class MurmurHash3 {
   // static final _MapSeed = 'Map'.hashCode;
-  static final _SeqSeed = 'Seq'.hashCode;
-  static final _SetSeed = 'Set'.hashCode;
+  static final seqSeed = 'Seq'.hashCode;
+  static final setSeed = 'Set'.hashCode;
 
   static final _Murmur3Impl _impl = _Murmur3Impl();
 
-  static int listHash(IList<dynamic> xs) => _impl.listHash(xs, _SeqSeed);
+  static int listHash(IList<dynamic> xs) => _impl.listHash(xs, seqSeed);
 
   static int seqHash(Seq<dynamic> seq) {
     return switch (seq) {
-      final IndexedSeq<dynamic> xs => _impl.indexedSeqHash(xs, _SeqSeed),
-      final IList<dynamic> xs => _impl.listHash(xs, _SeqSeed),
-      _ => _impl.orderedHash(seq, _SeqSeed),
+      final IndexedSeq<dynamic> xs => _impl.indexedSeqHash(xs, seqSeed),
+      final IList<dynamic> xs => _impl.listHash(xs, seqSeed),
+      _ => _impl.orderedHash(seq, seqSeed),
     };
   }
 
-  static int setHash(ISet<dynamic> xs) => _impl.unorderedHash(xs, _SetSeed);
+  static int setHash(ISet<dynamic> xs) => _impl.unorderedHash(xs, setSeed);
+
+  static int unorderedHash(IterableOnce<dynamic> xs, int seed) =>
+      _impl.unorderedHash(xs, seed);
 }
 
 final class _Murmur3Impl {
   int mix(int hash, int data) {
     var h = mixLast(hash, data);
-    h = rotateLeft(h, 13);
+    h = Integer.rotateLeft(h, 13);
     return h * 5 + 0xe6546b64;
   }
 
@@ -35,7 +38,7 @@ final class _Murmur3Impl {
     var k = data;
 
     k *= 0xcc9e2d51;
-    k = rotateLeft(k, 15);
+    k = Integer.rotateLeft(k, 15);
     k *= 0x1b873593;
 
     return hash ^ k;
@@ -245,8 +248,4 @@ final class _Murmur3Impl {
       return finalizeHash(h, n);
     }
   }
-
-  // TODO: 32 for web
-  int rotateLeft(int i, int distance) =>
-      (i << distance) | (i >>> 64 - distance);
 }

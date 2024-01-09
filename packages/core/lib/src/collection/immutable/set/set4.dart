@@ -33,32 +33,52 @@ class _Set4<A> with IterableOnce<A>, RibsIterable<A>, ISet<A> {
 
   @override
   ISet<A> filter(Function1<A, bool> p) {
-    // A? r1;
-    // A? r2;
-    // int n = 0;
+    A? r1;
+    A? r2;
+    A? r3;
+    int n = 0;
 
-    // if (p(elem1)) {
-    //   r1 = elem1;
-    //   n += 1;
-    // }
+    if (p(elem1)) {
+      r1 = elem1;
+      n += 1;
+    }
 
-    // if (p(elem2)) {
-    //   n == 0 ? r1 = elem2 : r2 = elem2;
-    //   n += 1;
-    // }
+    if (p(elem2)) {
+      n == 0 ? r1 = elem2 : r2 = elem2;
+      n += 1;
+    }
 
-    // if (p(elem3)) {
-    //   n == 0 ? r1 = elem2 : r2 = elem2;
-    //   n += 1;
-    // }
+    if (p(elem3)) {
+      if (n == 0) {
+        r1 = elem3;
+      } else if (n == 1) {
+        r2 = elem3;
+      } else if (n == 2) {
+        r3 = elem3;
+      }
 
-    // return switch (n) {
-    //   0 => _EmptySet<A>(),
-    //   1 => _Set1(r1 as A),
-    //   2 => _Set2(r1 as A, r2 as A),
-    //   _ => this,
-    // };
-    throw UnimplementedError();
+      n += 1;
+    }
+
+    if (p(elem4)) {
+      if (n == 0) {
+        r1 = elem4;
+      } else if (n == 1) {
+        r2 = elem4;
+      } else if (n == 2) {
+        r3 = elem4;
+      }
+
+      n += 1;
+    }
+
+    return switch (n) {
+      0 => _EmptySet<A>(),
+      1 => _Set1(r1 as A),
+      2 => _Set2(r1 as A, r2 as A),
+      3 => _Set3(r1 as A, r2 as A, r3 as A),
+      _ => this,
+    };
   }
 
   @override
@@ -91,7 +111,7 @@ class _Set4<A> with IterableOnce<A>, RibsIterable<A>, ISet<A> {
     if (contains(elem)) {
       return this;
     } else {
-      throw UnimplementedError('_Set4.incl');
+      return IHashSet.empty<A>() + elem1 + elem2 + elem3 + elem4 + elem;
     }
   }
 
