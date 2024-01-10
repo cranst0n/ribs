@@ -34,7 +34,7 @@ void main() {
       expect(IList.range(3, -3, -1), ilist([3, 2, 1, 0, -1, -2]));
 
       expect(() => IList.range(0, 10, 0), throwsArgumentError);
-      expect(() => IList.range(0, 3, -1), throwsArgumentError);
+      expect(IList.range(0, 3, -1), ilist([]));
     });
 
     test('rangeTo', () {

@@ -6,25 +6,27 @@ mixin IndexedSeqView<A>
         IterableOnce<A>,
         RibsIterable<A>,
         Seq<A>,
-        IndexedSeq<A>,
         View<A>,
-        SeqView<A> {
-  @override
-  IndexedSeqView<A> appended(A elem) => iseqview.Appended(this, elem);
+        SeqView<A>,
+        IndexedSeq<A> {
+  static IndexedSeqView<A> from<A>(IndexedSeq<A> v) => iseqview.Id(v);
 
   @override
-  IndexedSeqView<A> appendedAll(IterableOnce<A> suffix) =>
+  IndexedSeq<A> appended(A elem) => iseqview.Appended(this, elem);
+
+  @override
+  IndexedSeq<A> appendedAll(IterableOnce<A> suffix) =>
       iseqview.Concat(this, suffix.toIndexedSeq());
 
   @override
-  IndexedSeqView<A> concat(IterableOnce<A> suffix) =>
+  IndexedSeq<A> concat(IterableOnce<A> suffix) =>
       iseqview.Concat(this, suffix.toIndexedSeq());
 
   @override
-  IndexedSeqView<A> drop(int n) => iseqview.Drop(this, n);
+  IndexedSeq<A> drop(int n) => iseqview.Drop(this, n);
 
   @override
-  IndexedSeqView<A> dropRight(int n) => iseqview.DropRight(this, n);
+  IndexedSeq<A> dropRight(int n) => iseqview.DropRight(this, n);
 
   @override
   RibsIterator<A> get iterator => iseqview.IndexedSeqViewIterator(this);
@@ -33,31 +35,30 @@ mixin IndexedSeqView<A>
   IndexedSeqView<B> map<B>(Function1<A, B> f) => iseqview.Map(this, f);
 
   @override
-  IndexedSeqView<A> prepended(A elem) => iseqview.Prepended(elem, this);
+  IndexedSeq<A> prepended(A elem) => iseqview.Prepended(elem, this);
 
   @override
-  IndexedSeqView<A> prependedAll(covariant IndexedSeq<A> prefix) =>
-      iseqview.Concat(prefix, this);
+  IndexedSeq<A> prependedAll(IterableOnce<A> prefix) =>
+      iseqview.Concat(prefix.toIndexedSeq(), this);
 
   @override
-  IndexedSeqView<A> reverse() => iseqview.Reverse(this);
+  IndexedSeq<A> reverse() => iseqview.Reverse(this);
 
   @override
   RibsIterator<A> reverseIterator() =>
       iseqview.IndexedSeqViewReverseIterator(this);
 
   @override
-  IndexedSeqView<A> slice(int from, int until) =>
-      iseqview.Slice(this, from, until);
+  IndexedSeq<A> slice(int from, int until) => iseqview.Slice(this, from, until);
 
   @override
-  IndexedSeqView<A> take(int n) => iseqview.Take(this, n);
+  IndexedSeq<A> take(int n) => iseqview.Take(this, n);
 
   @override
-  IndexedSeqView<A> takeRight(int n) => iseqview.TakeRight(this, n);
+  IndexedSeq<A> takeRight(int n) => iseqview.TakeRight(this, n);
 
   @override
-  IndexedSeqView<A> tapEach<U>(Function1<A, U> f) => iseqview.Map(this, (a) {
+  IndexedSeq<A> tapEach<U>(Function1<A, U> f) => iseqview.Map(this, (a) {
         f(a);
         return a;
       });

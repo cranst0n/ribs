@@ -12,11 +12,20 @@ void main(List<String> args) {
 
   Set<int> genDartSet(int n) => List.generate(n, tabulateFn).toSet();
 
+  Set<int> genDartSet2(int n) =>
+      List.generate(n, (x) => -tabulateFn(x)).toSet();
+
   fic.ISet<int> genFicISet(int n) =>
       fic.ISet(fic.IList.tabulate(n, tabulateFn));
 
+  fic.ISet<int> genFicISet2(int n) =>
+      fic.ISet(fic.IList.tabulate(n, (x) => -tabulateFn(x)));
+
   ribs.ISet<int> genRibsISet(int n) =>
       ribs.IList.tabulate(n, tabulateFn).toISet();
+
+  ribs.ISet<int> genRibsISet2(int n) =>
+      ribs.IList.tabulate(n, (x) => -tabulateFn(x)).toISet();
 
   A tap<A, U>(A x, U Function(A) f) {
     f(x);
@@ -44,13 +53,33 @@ void main(List<String> args) {
       ComparativeBenchmark(
           'Ribs ISet', 'add', () => genRibsISet(n), (s) => s.incl(n), emitter),
 
-      // addAll
-      ComparativeBenchmark('Dart Set', 'addAll', () => genDartSet(n),
+      // addAll (same)
+      ComparativeBenchmark('Dart Set', 'addAll (same)', () => genDartSet(n),
           (s) => s..addAll(s), emitter),
-      ComparativeBenchmark('FIC ISet', 'addAll', () => genFicISet(n),
+      ComparativeBenchmark('FIC ISet', 'addAll (same)', () => genFicISet(n),
           (s) => s.addAll(s), emitter),
-      ComparativeBenchmark('Ribs ISet', 'addAll', () => genRibsISet(n),
+      ComparativeBenchmark('Ribs ISet', 'addAll (same)', () => genRibsISet(n),
           (s) => s.concat(s), emitter),
+
+      // addAll (different)
+      ComparativeBenchmark(
+          'Dart Set',
+          'addAll (different)',
+          () => (genDartSet(n), genDartSet2(n)),
+          (s) => (s.$1..addAll(s.$2), s.$1),
+          emitter),
+      ComparativeBenchmark(
+          'FIC ISet',
+          'addAll (different)',
+          () => (genFicISet(n), genFicISet2(n)),
+          (s) => (s.$1.addAll(s.$2), s.$1),
+          emitter),
+      ComparativeBenchmark(
+          'Ribs ISet',
+          'addAll (different)',
+          () => (genRibsISet(n), genRibsISet2(n)),
+          (s) => (s.$1.concat(s.$2), s.$1),
+          emitter),
 
       // remove
       ComparativeBenchmark('Dart Set', 'remove', () => genDartSet(n),

@@ -19,23 +19,25 @@ mixin Seq<A> on RibsIterable<A> {
   static Seq<A> fromDart<A>(Iterable<A> elems) =>
       from(RibsIterator.fromDart(elems.iterator));
 
-  // ///////////////////////////////////////////////////////////////////////////
+  /// Returns a new Seq, with the given [elem] added to the end.
+  Seq<A> appended(A elem) => seqviews.Appended(this, elem).toSeq();
 
-  Seq<A> appended(A elem);
-
+  /// Returns a new Seq, with [elems] added to the end.
   Seq<A> appendedAll(IterableOnce<A> suffix) => super.concat(suffix).toSeq();
-
-  Seq<A> prepended(A elem) => views.Prepended(elem, this).toSeq();
-
-  Seq<A> prependedAll(Seq<A> prefix) => seqviews.Concat(prefix, this);
-
-  Seq<A> reverse();
-
-  // ///////////////////////////////////////////////////////////////////////////
 
   @override
   Seq<B> collect<B>(Function1<A, Option<B>> f) => super.collect(f).toSeq();
 
+  /// Returns an [Iterator] that will produce all combinations of elements from
+  /// this sequence of size [n] **in order**.
+  ///
+  /// Given the list [1, 2, 2, 2], combinations of size 2 would result in [1, 2]
+  /// and [2, 2]. Note that [2, 1] would not be included since combinations
+  /// are taken from element **in order**.
+  ///
+  /// Also note from the example above, [1, 2] would only be included once even
+  /// though there are technically 3 ways to generate a combination of [1, 2],
+  /// only one will be included in the result since the other 2 are duplicates.
   RibsIterator<Seq<A>> combinations(int n) {
     if (n < 0 || n > size) {
       return RibsIterator.empty();
@@ -48,8 +50,10 @@ mixin Seq<A> on RibsIterable<A> {
   Seq<A> concat(IterableOnce<A> suffix) =>
       seqviews.Concat(this, suffix.toSeq());
 
+  /// Returns true, if any element of this collection equals [elem].
   bool contains(A elem) => exists((a) => a == elem);
 
+  /// Returns true if [that] is contained in this collection, in order.
   bool containsSlice(Seq<A> that) => indexOfSlice(that).isDefined;
 
   @override
@@ -64,6 +68,8 @@ mixin Seq<A> on RibsIterable<A> {
     return !i.hasNext && !j.hasNext;
   }
 
+  /// Returns a new collection with the difference of this and [that], i.e.
+  /// all elements that appear in **only** this collection.
   Seq<A> diff(Seq<A> that) {
     final occ = _occCounts(that);
 
@@ -88,8 +94,12 @@ mixin Seq<A> on RibsIterable<A> {
     return Seq.from(it);
   }
 
+  /// Returns a new collection where every element is distinct according to
+  /// equality.
   Seq<A> distinct() => distinctBy(identity);
 
+  /// Returns a new collection where every element is distinct according to
+  /// the application of [f] to each element.
   Seq<A> distinctBy<B>(Function1<A, B> f) => views.DistinctBy(this, f).toSeq();
 
   @override
@@ -101,6 +111,8 @@ mixin Seq<A> on RibsIterable<A> {
   @override
   Seq<A> dropWhile(Function1<A, bool> p) => super.dropWhile(p).toSeq();
 
+  /// Returns true if the end of this collection has the same elements in order
+  /// as [that]. Otherwise, false is returned.
   bool endsWith(RibsIterable<A> that) {
     if (that.isEmpty) {
       return true;
@@ -126,12 +138,31 @@ mixin Seq<A> on RibsIterable<A> {
   }
 
   @override
+  Seq<A> filter(Function1<A, bool> p) => super.filter(p).toSeq();
+
+  @override
+  Seq<A> filterNot(Function1<A, bool> p) => super.filterNot(p).toSeq();
+
+  @override
   Seq<B> flatMap<B>(Function1<A, IterableOnce<B>> f) =>
       views.FlatMap(this, f).toSeq();
 
+  @override
+  IMap<K, Seq<A>> groupBy<K>(Function1<A, K> f) =>
+      super.groupBy(f).mapValues((a) => a.toSeq());
+
+  @override
+  IMap<K, Seq<B>> groupMap<K, B>(Function1<A, K> key, Function1<A, B> f) =>
+      super.groupMap(key, f).mapValues((a) => a.toSeq());
+
+  /// Returns the first index, if any, where the element at that index equals
+  /// [elem]. If no index contains [elem], [None] is returned.
   Option<int> indexOf(A elem, [int from = 0]) =>
       indexWhere((a) => a == elem, from);
 
+  /// Finds the first index in this collection where the next sequence of
+  /// elements is equal to [that]. If [that] cannot be found in this collection,
+  /// [None] is returned.
   Option<int> indexOfSlice(Seq<A> that, [int from = 0]) {
     if (that.isEmpty && from == 0) {
       return const Some(0);
@@ -164,12 +195,18 @@ mixin Seq<A> on RibsIterable<A> {
     }
   }
 
+  /// {@template seq_indexWhere}
+  /// Returns the index of the first element that satisfies the predicate [p].
+  /// If no element satisfies, [None] is returned.
+  /// {@endtemplate}
   Option<int> indexWhere(Function1<A, bool> p, [int from = 0]) =>
       iterator.indexWhere(p, from);
 
   @override
   Seq<A> init() => dropRight(1);
 
+  /// Returns a new collection with the intersection of this and [that], i.e.
+  /// all elements that appear in both collections.
   Seq<A> intersect(Seq<A> that) {
     final occ = _occCounts(that);
 
@@ -194,6 +231,7 @@ mixin Seq<A> on RibsIterable<A> {
     return Seq.from(it);
   }
 
+  /// Returns a new collection with [sep] inserted between each element.
   Seq<A> intersperse(A x) {
     final b = IList.builder<A>();
     final it = iterator;
@@ -210,11 +248,17 @@ mixin Seq<A> on RibsIterable<A> {
     return b.toIList();
   }
 
+  /// Returns true if this collection has an element at the given [idx].
   bool isDefinedAt(int idx) => 0 <= idx && idx < size;
 
+  /// Returns the last index, if any, where the element at that index equals
+  /// [elem]. If no index contains [elem], [None] is returned.
   Option<int> lastIndexOf(A elem, [int end = 2147483647]) =>
       lastIndexWhere((a) => a == elem, end);
 
+  /// Finds the last index in this collection where the next sequence of
+  /// elements is equal to [that]. If [that] cannot be found in this collection,
+  /// [None] is returned.
   Option<int> lastIndexOfSlice(Seq<A> that, [int end = 2147483647]) {
     final l = length;
     final tl = that.length;
@@ -231,6 +275,10 @@ mixin Seq<A> on RibsIterable<A> {
     }
   }
 
+  /// {@template seq_lastIndexWhere}
+  /// Returns the index of the last element that satisfies the predicate [p].
+  /// If no element satisfies, [None] is returned.
+  /// {@endtemplate}
   Option<int> lastIndexWhere(Function1<A, bool> p, [int end = 2147483647]) {
     var i = length - 1;
     final it = reverseIterator();
@@ -246,17 +294,45 @@ mixin Seq<A> on RibsIterable<A> {
     return none();
   }
 
+  /// Returns the element at index [ix] as a [Some]. If [ix] is outside the
+  /// range of this collection, [None] is returned.
   Option<A> lift(int idx) =>
       Option.when(() => isDefinedAt(idx), () => this[idx]);
 
   @override
   Seq<B> map<B>(covariant Function1<A, B> f) => seqviews.Map(this, f).toSeq();
 
+  /// Returns a new collection with a length of at least [len].
+  ///
+  /// If this collection is shorter than [len], the returned collection will
+  /// have size [len] and [elem] will be used for each new element needed to
+  /// reach that size.
+  ///
+  /// If this collection is already at least [len] in size, this collection
+  /// will be returned.
   Seq<A> padTo(int len, A elem) => views.PadTo(this, len, elem).toSeq();
 
   Seq<A> patch(int from, IterableOnce<A> other, int replaced) =>
       views.Patched(this, from, other, replaced).toSeq();
 
+  @override
+  (Seq<A>, Seq<A>) partition(Function1<A, bool> p) {
+    final (a, b) = super.partition(p);
+    return (a.toSeq(), b.toSeq());
+  }
+
+  @override
+  (Seq<A1>, Seq<A2>) partitionMap<A1, A2>(Function1<A, Either<A1, A2>> f) {
+    final (a, b) = super.partitionMap(f);
+    return (a.toSeq(), b.toSeq());
+  }
+
+  /// Returns an [Iterator] that will emit all possible permutations of the
+  /// elements in this collection.
+  ///
+  /// Note that only distinct permutations are emitted. Given the example
+  /// [1, 2, 2, 2] the permutations will only include [1, 2, 2, 2] once, even
+  /// though there are 3 different way to generate that permutation.
   RibsIterator<Seq<A>> permutations() {
     if (isEmpty) {
       return RibsIterator.empty();
@@ -265,8 +341,22 @@ mixin Seq<A> on RibsIterable<A> {
     }
   }
 
+  /// Returns a new collection with [elem] added to the beginning.
+  Seq<A> prepended(A elem) => seqviews.Prepended(elem, this).toSeq();
+
+  /// Returns a new collection with all [elems] added to the beginning.
+  Seq<A> prependedAll(IterableOnce<A> prefix) =>
+      seqviews.Concat(prefix.toSeq(), this);
+
+  /// Returns a new collection with the order of the elements reversed.
+  Seq<A> reverse();
+
+  /// Returns an iterator that will emit all elements in this collection, in
+  /// reverse order.
   RibsIterator<A> reverseIterator() => reverse().iterator;
 
+  /// Returns true if this collection has the same elements, in the same order,
+  /// as [that].
   bool sameElements(RibsIterable<A> that) {
     final thisKnownSize = knownSize;
     final thatKnownSize = that.knownSize;
@@ -277,15 +367,20 @@ mixin Seq<A> on RibsIterable<A> {
     return !knownDifference && iterator.sameElements(that);
   }
 
-  bool startsWith(IterableOnce<A> that, [int offset = 0]) {
-    final i = iterator.drop(offset);
-    final j = that.iterator;
-    while (j.hasNext && i.hasNext) {
-      if (i.next() != j.next()) return false;
-    }
+  @override
+  Seq<B> scan<B>(B z, Function2<B, A, B> op) => super.scan(z, op).toSeq();
 
-    return !j.hasNext;
-  }
+  @override
+  Seq<B> scanLeft<B>(B z, Function2<B, A, B> op) =>
+      super.scanLeft(z, op).toSeq();
+
+  @override
+  Seq<B> scanRight<B>(B z, Function2<A, B, B> op) =>
+      super.scanRight(z, op).toSeq();
+
+  @override
+  RibsIterator<Seq<A>> sliding(int size, [int step = 1]) =>
+      super.sliding(size, step).map((a) => a.toSeq());
 
   int segmentLength(Function1<A, bool> p, [int from = 0]) {
     var i = 0;
@@ -301,12 +396,16 @@ mixin Seq<A> on RibsIterable<A> {
   @override
   int get size => length;
 
-  // TODO: do better?
+  /// Returns a new collection that is sorted according to [o].
   Seq<A> sorted(Order<A> order) => fromDart(toList()..sort(order.compare));
 
+  /// Returns a new collection that is sorted according to [order] after
+  /// applying [f] to each element in this collection.
   Seq<A> sortBy<B>(Order<B> order, Function1<A, B> f) =>
       sorted(order.contramap(f));
 
+  /// Returns a new collection sorted using the provided function [lt] which is
+  /// used to determine if one element is less than the other.
   Seq<A> sortWith(Function2<A, A, bool> lt) => sorted(Order.fromLessThan(lt));
 
   @override
@@ -317,8 +416,32 @@ mixin Seq<A> on RibsIterable<A> {
   (Seq<A>, Seq<A>) splitAt(int n) =>
       super.splitAt(n)((a, b) => (a.toSeq(), b.toSeq()));
 
+  /// Returns true if the beginning of this collection corresponds with [that].
+  bool startsWith(IterableOnce<A> that, [int offset = 0]) {
+    final i = iterator.drop(offset);
+    final j = that.iterator;
+    while (j.hasNext && i.hasNext) {
+      if (i.next() != j.next()) return false;
+    }
+
+    return !j.hasNext;
+  }
+
   @override
   Seq<A> tail() => view().tail().toSeq();
+
+  @override
+  SeqView<A> view() => SeqView.from(this);
+
+  @override
+  Seq<(A, B)> zip<B>(IterableOnce<B> that) => super.zip(that).toSeq();
+
+  @override
+  Seq<(A, B)> zipAll<B>(IterableOnce<B> that, A thisElem, B thatElem) =>
+      super.zipAll(that, thisElem, thatElem).toSeq();
+
+  @override
+  Seq<(A, int)> zipWithIndex() => super.zipWithIndex().toSeq();
 
   Map<B, int> _occCounts<B>(Seq<B> sq) {
     final occ = <B, int>{};

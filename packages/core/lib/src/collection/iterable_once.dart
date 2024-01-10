@@ -3,90 +3,30 @@ import 'package:ribs_core/ribs_core.dart';
 
 // Developer Note
 //
-// When mixing in [IterableOnce], you'll likely want to override the following
-// methods so they return the appropriate collection type. Until Dart supports
-// Higher Kinded Types (which could be never), this is what we're left to do.
+// When mixing in [IterableOnce], you'll likely want to override any functions
+// that return a new collection so they return the appropriate collection type.
+// Until Dart supports Higher Kinded Types (which could be never), this is what
+// we're left to do.
 //
 // Could possibly employ some 'dynamic' shenanigans to get around this in
-// the near term, but would rather avoid that.
+// the near term, but would rather avoid that. Will look into it further.
 //
 // @see https://github.com/dart-lang/language/issues/1655
 //
-// * appended           (Seq)
-// * appendedAll        (Seq)
-// * collect
-// * combinations       (Seq)
-// * concat
-// * diff               (Seq)
-// * distinct
-// * distinctBy
-// * drop
-// * dropRight
-// * dropWhile
-// * empty
-// * filter
-// * filterNot
-// * flatten
-// * groupBy
-// * groupMap
-// * grouped
-// * init
-// * inits
-// * intersect          (Seq)
-// * padTo              (Seq)
-// * partition
-// * partitionMap
-// * patch
-// * permutations       (Seq)
-// * prepended          (Seq)
-// * prependedAll       (Seq)
-// * reverse            (Seq)
-// * scanLeft
-// * scanRight
-// * slice
-// * sliding
-// * sorted             (Seq)
-// * sortBy             (Seq)
-// * sortWith           (Seq)
-// * span
-// * splitAt
-// * tail
-// * tails
-// * take
-// * takeRight
-// * takeWhile
-// * tapEach
-// * unzip
-// * unzip3
-// * updated
-// * view (?)
-// * zip
-// * zipAll
-// * zipWithIndex
-
-// Need to add the following functions to Iterable / Once / Seq
-//
-// * search    (Seq)
-// * toSet
-
-// And these extensions:
-//
-// * flatten
-// * product
-// * sum
-// * toMap
-
-// And these constructors:
-//
-// * range
 
 mixin IterableOnce<A> {
   RibsIterator<A> get iterator;
 
+  /// Returns the number of elements in this collection, if that number is
+  /// already known. If not, -1 is returned.
   int get knownSize => -1;
 
   // ///////////////////////////////////////////////////////////////////////////
 
+  /// {@template iterable_once_collect}
+  /// Returns a new collection by applying [f] to each element an only keeping
+  /// results of type [Some].
+  /// {@endtemplate}
   IterableOnce<B> collect<B>(Function1<A, Option<B>> f);
 
   IterableOnce<A> drop(int n);
@@ -125,6 +65,7 @@ mixin IterableOnce<A> {
 
   bool get nonEmpty => !isEmpty;
 
+  /// Returns the number of elements in this collection.
   int get size {
     if (knownSize >= 0) {
       return knownSize;
@@ -141,8 +82,10 @@ mixin IterableOnce<A> {
     }
   }
 
-  // ///////////////////////////////////////////////////////////////////////////
-
+  /// {@template iterable_once_collectFirst}
+  /// Applies [f] to each element of this collection, returning the first
+  /// element that results in a [Some], if any.
+  /// {@endtemplate}
   Option<B> collectFirst<B>(Function1<A, Option<B>> f) {
     final it = iterator;
 
@@ -154,6 +97,9 @@ mixin IterableOnce<A> {
     return none();
   }
 
+  /// Returns true if this collection has the same size as [that] and each
+  /// corresponding element from this and [that] satisfies the given
+  /// predicate [p].
   bool corresponds<B>(
     covariant RibsIterable<B> that,
     Function2<A, B, bool> p,
@@ -168,6 +114,10 @@ mixin IterableOnce<A> {
     return a.hasNext && b.hasNext;
   }
 
+  /// {@template iterable_once_count}
+  /// Return the number of elements in this collection that satisfy the given
+  /// predicate.
+  /// {@endtemplate}
   int count(Function1<A, bool> p) {
     var res = 0;
     final it = iterator;
@@ -179,6 +129,10 @@ mixin IterableOnce<A> {
     return res;
   }
 
+  /// {@template iterable_once_exists}
+  /// Returns true if **any** element of this collection satisfies the given
+  /// predicate, false if no elements satisfy it.
+  /// {@endtemplate}
   bool exists(Function1<A, bool> p) {
     var res = false;
     final it = iterator;
@@ -190,6 +144,10 @@ mixin IterableOnce<A> {
     return res;
   }
 
+  /// {@template iterable_once_find}
+  /// Returns the first element from this collection that satisfies the given
+  /// predicate [p]. If no element satisfies [p], [None] is returned.
+  /// {@endtemplate}
   Option<A> find(Function1<A, bool> p) {
     final it = iterator;
 
@@ -201,8 +159,14 @@ mixin IterableOnce<A> {
     return none();
   }
 
+  /// {@macro iterable_once_foldLeft}
   A fold(A init, Function2<A, A, A> op) => foldLeft(init, op);
 
+  /// {@template iterable_once_foldLeft}
+  /// Returns a summary value by applying [op] to all elements of this
+  /// collection, moving from left to right. The fold uses a seed value of
+  /// [init].
+  /// {@endtemplate}
   B foldLeft<B>(B z, Function2<B, A, B> op) {
     var result = z;
     final it = iterator;
@@ -214,9 +178,18 @@ mixin IterableOnce<A> {
     return result;
   }
 
+  /// {@template iterableonce_foldRight}
+  /// Returns a summary value by applying [op] to all elements of this
+  /// collection, moving from right to left. The fold uses a seed value of
+  /// [init].
+  /// {@endtemplate}
   B foldRight<B>(B z, Function2<A, B, B> op) =>
       reversed().foldLeft(z, (b, a) => op(a, b));
 
+  /// {@template iterable_forall}
+  /// Returns true if **all** elements of this collection satisfy the given
+  /// predicate, false if any elements do not.
+  /// {@endtemplate}
   bool forall(Function1<A, bool> p) {
     var res = true;
     final it = iterator;
@@ -228,6 +201,10 @@ mixin IterableOnce<A> {
     return res;
   }
 
+  /// {@template iterable_once_forEach}
+  /// Applies [f] to each element of this collection, discarding any resulting
+  /// values.
+  /// {@endtemplate}
   void foreach<U>(Function1<A, U> f) {
     final it = iterator;
     while (it.hasNext) {
@@ -235,22 +212,42 @@ mixin IterableOnce<A> {
     }
   }
 
+  /// Finds the largest element in this collection according to the given
+  /// [Order].
+  ///
+  /// If this collection is empty, [None] is returned.
   Option<A> maxOption(Order<A> order) => switch (knownSize) {
         0 => none(),
         _ => _reduceOptionIterator(iterator, order.max),
       };
 
+  /// Finds the largest element in this collection by applying [f] to each element
+  /// and using the given [Order] to find the greatest.
+  ///
+  /// If this collection is empty, [None] is returned.
   Option<A> maxByOption<B>(Function1<A, B> f, Order<B> order) =>
       _minMaxByOption(f, order.max);
 
+  /// Finds the largest element in this collection according to the given
+  /// [Order].
+  ///
+  /// If this collection is empty, [None] is returned.
   Option<A> minOption(Order<A> order) => switch (knownSize) {
         0 => none(),
         _ => _reduceOptionIterator(iterator, order.min),
       };
 
+  /// Finds the smallest element in this collection by applying [f] to each element
+  /// and using the given [Order] to find the greatest.
+  ///
+  /// If this collection is empty, [None] is returned.
   Option<A> minByOption<B>(Function1<A, B> f, Order<B> order) =>
       _minMaxByOption(f, order.min);
 
+  /// Returns a [String] by using each elements [toString()], adding [sep]
+  /// between each element. If [start] is defined, it will be prepended to the
+  /// resulting string. If [end] is defined, it will be appended to the
+  /// resulting string.
   String mkString({String? start, String? sep, String? end}) {
     if (knownSize == 0) {
       return '${start ?? ""}${end ?? ""}';
@@ -278,6 +275,10 @@ mixin IterableOnce<A> {
 
   A reduce(Function2<A, A, A> op) => reduceLeft(op);
 
+  /// Returns a summary values of all elements of this collection by applying
+  /// [f] to each element, moving left to right.
+  ///
+  /// If this collection is empty, [None] will be returned.
   Option<A> reduceOption(Function2<A, A, A> op) => reduceLeftOption(op);
 
   A reduceLeft(Function2<A, A, A> op) => switch (this) {
@@ -288,6 +289,10 @@ mixin IterableOnce<A> {
             () => throw UnsupportedError('empty.reduceLeft'), op),
       };
 
+  /// Returns a summary values of all elements of this collection by applying
+  /// [f] to each element, moving left to right.
+  ///
+  /// If this collection is empty, [None] will be returned.
   Option<A> reduceLeftOption(Function2<A, A, A> op) => switch (knownSize) {
         0 => none(),
         _ => _reduceOptionIterator(iterator, op),
@@ -299,24 +304,36 @@ mixin IterableOnce<A> {
         _ => reversed().reduceLeft((x, y) => op(y, x)),
       };
 
+  /// Returns a summary values of all elements of this collection by applying
+  /// [f] to each element, moving right to left.
+  ///
+  /// If this collection is empty, [None] will be returned.
   Option<A> reduceRightOption(Function2<A, A, A> op) => switch (knownSize) {
         -1 => _reduceOptionIterator(reversed().iterator, (x, y) => op(y, x)),
         0 => none(),
         _ => Some(reduceRight(op)),
       };
 
+  /// Returns a new collection of the accumulation of results by applying [f] to
+  /// all elements of the collection, including the inital value [z]. Traversal
+  /// moves from left to right.
   IterableOnce<B> scan<B>(B z, Function2<B, A, B> op) => scanLeft(z, op);
 
+  /// Returns 2 collectins of all elements before and after index [ix]
+  /// respectively.
   (IterableOnce<A>, IterableOnce<A>) splitAt(int n) {
     final spanner = _Spanner<A>(n);
     return span(spanner.call);
   }
 
+  /// Applies [f] to each element in this collection, discarding any results and
+  /// returns this collection.
   IterableOnce<A> tapEach<U>(Function1<A, U> f) {
     foreach(f);
     return this;
   }
 
+  /// Returns a new [List] with the same elements as this collection.
   List<A> toList({bool growable = true}) {
     if (growable) {
       final it = iterator;
@@ -333,10 +350,20 @@ mixin IterableOnce<A> {
     }
   }
 
+  /// Returns an [IList] with the same elements as this collection.
   IList<A> toIList() => IList.from(this);
+
+  /// Returns an [IndexedSeq] with the same elements as this collection.
   IndexedSeq<A> toIndexedSeq() => IndexedSeq.from(this);
+
+  /// Returns an [ISet] with the same elements as this collection, duplicates
+  /// removed.
   ISet<A> toISet() => ISet.from(this);
+
+  /// Returns an [IVector] with the same elements as this collection.
   IVector<A> toIVector() => IVector.from(this);
+
+  /// Returns a [Seq] with the same elements as this collection.
   Seq<A> toSeq() => Seq.from(this);
 
   @protected

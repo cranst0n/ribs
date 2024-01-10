@@ -4,7 +4,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/views.dart' as views;
 
 abstract class AbstractSeqView<A>
-    with IterableOnce<A>, RibsIterable<A>, Seq<A>, View<A>, SeqView<A> {
+    with IterableOnce<A>, RibsIterable<A>, View<A>, Seq<A>, SeqView<A> {
   const AbstractSeqView();
 }
 
@@ -48,7 +48,7 @@ class Drop<A> extends views.Drop<A> with Seq<A>, SeqView<A> {
   int get length => max(underlying.size - normN, 0);
 
   @override
-  SeqView<A> drop(int n) => Drop(seq, this.n + n);
+  Seq<A> drop(int n) => Drop(seq, this.n + n);
 }
 
 class DropRight<A> extends views.DropRight<A> with Seq<A>, SeqView<A> {
@@ -154,13 +154,13 @@ class Sorted<A> extends AbstractSeqView<A> {
   int get length => len;
 
   @override
-  SeqView<A> reverse() => _ReverseSorted(this);
+  Seq<A> reverse() => _ReverseSorted(this);
 
   @override
   RibsIterable<A> reversed() => _ReverseSorted(this);
 
   @override
-  SeqView<A> sorted(Order<A> order) {
+  Seq<A> sorted(Order<A> order) {
     if (order == this.order) {
       return this;
     } else if (order.isReverseOf(this.order)) {
@@ -247,13 +247,13 @@ class _ReverseSorted<A> extends AbstractSeqView<A> {
   int get length => outer.len;
 
   @override
-  SeqView<A> reverse() => outer;
+  Seq<A> reverse() => outer;
 
   @override
   RibsIterable<A> reversed() => outer;
 
   @override
-  SeqView<A> sorted(Order<A> order) {
+  Seq<A> sorted(Order<A> order) {
     if (order == outer.order) {
       return outer;
     } else if (order.isReverseOf(outer.order)) {

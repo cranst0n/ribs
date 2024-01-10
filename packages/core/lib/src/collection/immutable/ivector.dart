@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/src/collection/indexed_seq_views.dart' as iseqviews;
 
 part 'vector/statics.dart';
 part 'vector/vector0.dart';
@@ -329,7 +328,7 @@ sealed class IVector<A>
   IVector<A> updated(int index, A elem);
 
   @override
-  IndexedSeqView<A> view() => iseqviews.Id(this);
+  IndexedSeqView<A> view() => IndexedSeqView.from(this);
 
   @override
   IVector<(A, B)> zip<B>(IterableOnce<B> that) => super.zip(that).toIVector();

@@ -1,5 +1,5 @@
-| N = 10 | add (existing) | add (new) | contains (false) | contains (true) |
-| :--- | ---: | ---: | ---: | ---: |
-| Dart Set | **0.20** | **0.20** | **0.28** | **0.32** |
-| FIC ISet | 0.43 | 0.46 | 0.40 | 0.44 |
-| Ribs ISet | 0.83 | 7.17 | 0.28 | 0.51 |
+| N = 10 | add | addAll (different) | addAll (same) | contains | remove |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| Dart Set | **0.22** | **3.36** | 2.81 | **0.32** | **0.22** |
+| FIC ISet | 0.48 | 14.28 | 5.60 | 0.45 | 6.71 |
+| Ribs ISet | 7.93 | 17.26 | **0.45** | 0.55 | 7.23 |

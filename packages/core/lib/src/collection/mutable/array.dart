@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/src/collection/immutable/range.dart';
 
 Array<A> arr<A>(List<A?> l) => Array._(List.of(l));
 
@@ -33,7 +32,7 @@ final class Array<A> {
   static Array<int> range(int start, int end, [int step = 1]) {
     if (step == 0) throw ArgumentError('zero step');
 
-    final array = Array.ofDim<int>(Range.count(start, end, step, false));
+    final array = Array.ofDim<int>(Range.elementCount(start, end, step));
 
     var n = 0;
     var i = start;

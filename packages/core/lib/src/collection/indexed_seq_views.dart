@@ -7,8 +7,8 @@ abstract class AbstractIndexedSeqView<A>
     with
         IterableOnce<A>,
         RibsIterable<A>,
-        Seq<A>,
         View<A>,
+        Seq<A>,
         SeqView<A>,
         IndexedSeq<A>,
         IndexedSeqView<A> {
@@ -53,7 +53,7 @@ class Reverse<A> extends seqviews.Reverse<A>
   const Reverse(IndexedSeq<A> super.underlying);
 
   @override
-  IndexedSeqView<A> reverse() => switch (underlying) {
+  IndexedSeq<A> reverse() => switch (underlying) {
         final IndexedSeqView<A> x => x,
         _ => super.reverse(),
       };

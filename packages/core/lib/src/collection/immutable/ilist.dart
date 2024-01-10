@@ -11,13 +11,17 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
 
   static ListBuffer<A> builder<A>() => ListBuffer();
 
+  /// Create an empty list.
   static IList<A> empty<A>() => Nil<A>();
 
+  /// Create an empty list.
   static IList<A> nil<A>() => Nil<A>();
 
+  /// Creates an IList of size [len] where each element is set to [elem].
   static IList<A> fill<A>(int len, A elem) =>
       from(RibsIterator.fill(len, elem));
 
+  /// Creates an IList from the given Ribs [IterableOnce].
   static IList<A> from<A>(IterableOnce<A> elems) {
     if (elems is IList<A>) {
       return elems;
@@ -26,9 +30,12 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
     }
   }
 
+  /// Creates an IList from the given Dart [Iterable].
   static IList<A> fromDart<A>(Iterable<A> elems) =>
       from(RibsIterator.fromDart(elems.iterator));
 
+  /// Create an IList of size [n] and sets the element at each index by
+  /// invoking [f] and passing the index.
   static IList<A> tabulate<A>(int n, Function1<int, A> f) {
     IList<A> result = Nil<A>();
     int i = n - 1;
@@ -41,27 +48,20 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
     return result;
   }
 
+  /// Creates an IList where elements are every integer from [start] (inclusive)
+  /// to [end] (exclusive) and each element adds [step] from the previous.
   static IList<int> range(int start, int end, [int step = 1]) =>
-      _rangeImpl(start, end, step);
+      Range.exclusive(start, end, step).toIList();
 
+  /// Creates an IList where elements are every integer from [start] (inclusive)
+  /// to [end] (inclusive) and each element adds [step] from the previous.
   static IList<int> rangeTo(int start, int end, [int step = 1]) =>
-      step > 0 ? range(start, end + 1, step) : range(start, end - 1, step);
+      Range.inclusive(start, end, step).toIList();
 
+  /// Creates an IList where elements are every integer from [start] (inclusive)
+  /// to [end] (exclusive) and each element adds [step] from the previous.
   static IList<int> rangeUntil(int start, int end, [int step = 1]) =>
-      range(start, end, step);
-
-  // TODO: Introduce Numeric/Range
-  // This only exists to ease migration to new collections
-  static IList<int> _rangeImpl(int start, int end, [int step = 1]) {
-    if (step == 0) throw ArgumentError('IList step must be non zero: $step');
-
-    if (start != end && (end - start).sign != step.sign) {
-      throw ArgumentError('Invalid IList range: [$start, $end; $step]');
-    }
-
-    return from(RibsIterator.iterate(start, (x) => x + step)
-        .takeWhile((n) => n != end && n.compareTo(end) != step.sign));
-  }
+      Range.exclusive(start, end, step).toIList();
 
   @override
   A operator [](int idx) {

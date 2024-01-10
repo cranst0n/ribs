@@ -13,6 +13,9 @@ sealed class MurmurHash3 {
 
   static int listHash(IList<dynamic> xs) => _impl.listHash(xs, seqSeed);
 
+  static int rangeHash(int start, int step, int last) =>
+      _impl.rangeHash(start, step, last, seqSeed);
+
   static int seqHash(Seq<dynamic> seq) {
     return switch (seq) {
       final IndexedSeq<dynamic> xs => _impl.indexedSeqHash(xs, seqSeed),

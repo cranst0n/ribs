@@ -351,7 +351,7 @@ void main() {
       dartBytes
           .toIList()
           .zip(ribsBytes.toIList())
-          .forEachN((dart, ribs) => expect(dart, ribs));
+          .foreach((t) => expect(t.$1, t.$2));
 
       final dartString = base64Encode(dartBytes);
       final ribsString = bv.toBase64();
@@ -371,7 +371,7 @@ void main() {
       dartBytes
           .toIList()
           .zip(ribsBytes.toIList())
-          .forEachN((dart, ribs) => expect(dart, ribs));
+          .foreach((t) => expect(t.$1, t.$2));
 
       final dartString = dartCodec.encode(dartBytes);
       final ribsString = bv.toBase64Url();

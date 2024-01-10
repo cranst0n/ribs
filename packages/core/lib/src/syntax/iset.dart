@@ -8,13 +8,8 @@ extension ISetNestedOps<A> on ISet<ISet<A>> {
 // Until lambda destructuring arrives, this will provide a little bit
 // of convenience: https://github.com/dart-lang/language/issues/3001
 extension ISetTuple2Ops<A, B> on ISet<(A, B)> {
-  ISet<(A, B)> filterN(Function2<A, B, bool> p) => filter(p.tupled);
-
-  ISet<(A, B)> filterNotN(Function2<A, B, bool> p) => filterNot(p.tupled);
-
-  ISet<C> mapN<C>(Function2<A, B, C> f) => map(f.tupled);
-
   IMap<A, B> toIMap() => IMap.fromIList(toIList());
 
-  Map<A, B> toMap() => Map.fromEntries(mapN((k, v) => MapEntry(k, v)).toList());
+  Map<A, B> toMap() =>
+      Map.fromEntries(map((kv) => MapEntry(kv.$1, kv.$2)).toList());
 }

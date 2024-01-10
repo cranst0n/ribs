@@ -67,7 +67,7 @@ final class IMap<K, V> {
   /// Returns the first key-value pair that satisifes the given predicate [p]
   /// as [Some], or [None] if no key-value pair satisfies [p].
   Option<(K, V)> find(Function2<K, V, bool> p) =>
-      toIList().findN((k, v) => p(k, v));
+      toIList().find((kv) => p(kv.$1, kv.$2));
 
   /// Applies [f] to each key-value pair of this map, and returns all the
   /// resulting key-value pairs as a new map.
@@ -111,7 +111,7 @@ final class IMap<K, V> {
   /// Applies [f] to each value in this map and returns a new map with the same
   /// keys, with the resulting values of the function application.
   IMap<K, V2> mapValues<V2>(Function1<V, V2> f) =>
-      toIList().mapN((k, v) => (k, f(v))).toIMap();
+      toIList().map((kv) => (kv.$1, f(kv.$2))).toIMap();
 
   /// Returns true if this map has any elements, false otherwise.
   bool get nonEmpty => _underlying.isNotEmpty;
@@ -158,7 +158,7 @@ final class IMap<K, V> {
   /// Return a new map where the keys and values are creating by applying [f]
   /// to every key-value pair in this map.
   IMap<K, W> transform<W>(Function2<K, V, W> f) =>
-      toIList().mapN((k, v) => (k, f(k, v))).toIMap();
+      toIList().map((kv) => (kv.$1, f(kv.$1, kv.$2))).toIMap();
 
   /// Returns a tuple of 2 [IList]s where the first item is the keys from this
   /// map, and the second is the corresponding values.
