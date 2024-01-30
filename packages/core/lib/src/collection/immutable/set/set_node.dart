@@ -7,37 +7,37 @@ import 'package:ribs_core/src/collection/immutable/set/champ_common.dart';
 
 @internal
 sealed class SetNode<A> extends Node<SetNode<A>> {
+  static const TupleLength = 1;
+
   static BitmapIndexedSetNode<A> empty<A>() =>
       BitmapIndexedSetNode(0, 0, Array.empty(), Array.empty(), 0, 0);
 
-  static const TupleLength = 1;
+  SetNode<A> concat(SetNode<A> that, int shift);
 
   bool contains(A element, int originalHash, int hash, int shift);
 
-  SetNode<A> updated(A element, int originalHash, int hash, int shift);
-
-  SetNode<A> removed(A element, int originalHash, int hash, int shift);
-
-  @override
-  SetNode<A> getNode(int index);
-
-  int get size;
-
-  void foreach<U>(Function1<A, U> f);
-
-  bool subsetOf(SetNode<A> that, int shift);
-
   SetNode<A> copy();
-
-  SetNode<A> filterImpl(Function1<A, bool> pred, bool flipped);
 
   SetNode<A> diff(SetNode<A> that, int shift);
 
-  SetNode<A> concat(SetNode<A> that, int shift);
+  SetNode<A> filterImpl(Function1<A, bool> pred, bool flipped);
+
+  void foreach<U>(Function1<A, U> f);
 
   void foreachWithHash(Function2<A, int, void> f);
 
   bool foreachWithHashWhile(Function2<A, int, bool> f);
+
+  @override
+  SetNode<A> getNode(int index);
+
+  SetNode<A> removed(A element, int originalHash, int hash, int shift);
+
+  int get size;
+
+  bool subsetOf(SetNode<A> that, int shift);
+
+  SetNode<A> updated(A element, int originalHash, int hash, int shift);
 }
 
 @internal
@@ -461,13 +461,13 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
                 nodesToPassThroughMap |= bitpos;
               } else {
                 mapOfNewNodes |= bitpos;
-                newNodes ??= Queue<SetNode<A>>();
+                newNodes ??= Queue();
                 newNodes.add(newSubNode);
               }
             } else if (newSubNode.size == 1) {
               newDataMap |= bitpos;
               nodeMigrateToDataTargetMap |= bitpos;
-              nodesToMigrateToData ??= Queue<SetNode<A>>();
+              nodesToMigrateToData ??= Queue();
               nodesToMigrateToData.add(newSubNode);
             }
 
@@ -1451,14 +1451,14 @@ final class HashCollisionSetNode<A> extends SetNode<A> {
       if (that == this) {
         return this;
       } else {
-        VectorBuilder<A>? newContent;
+        IVectorBuilder<A>? newContent;
         final iter = that.content.iterator;
 
         while (iter.hasNext) {
           final nextPayload = iter.next();
           if (!content.contains(nextPayload)) {
             if (newContent == null) {
-              newContent = VectorBuilder();
+              newContent = IVectorBuilder();
               newContent.addAll(this.content);
             }
 

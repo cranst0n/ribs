@@ -401,7 +401,7 @@ final class IHashSetBuilder<A> {
   }
 
   Array<int> _insertElement(Array<int> arr, int ix, int elem) {
-    if (ix < 0) throw RangeError('HashSetBuilder.insert: $ix');
+    if (ix < 0) throw RangeError('IHashSetBuilder.insert: $ix');
     if (ix > arr.length) throw RangeError('$ix > ${arr.length}');
 
     final result = Array.ofDim<int>(arr.length + 1);

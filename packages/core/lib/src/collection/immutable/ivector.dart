@@ -22,12 +22,12 @@ sealed class IVector<A>
 
   IVector._(this._prefix1);
 
-  static VectorBuilder<A> builder<A>() => VectorBuilder();
+  static IVectorBuilder<A> builder<A>() => IVectorBuilder();
 
   static IVector<A> empty<A>() => _Vector0();
 
   static IVector<A> from<A>(IterableOnce<A> elems) {
-    final b = VectorBuilder<A>();
+    final b = IVectorBuilder<A>();
     final it = elems.iterator;
 
     while (it.hasNext) {
@@ -41,7 +41,7 @@ sealed class IVector<A>
       from(RibsIterator.fromDart(elems.iterator));
 
   static IVector<A> fill<A>(int n, A elem) {
-    final b = VectorBuilder<A>();
+    final b = IVectorBuilder<A>();
     b._initSparse(n, elem);
     return b.result();
   }
@@ -63,7 +63,7 @@ sealed class IVector<A>
 
   static IVector<A> tabulate<A>(int n, Function1<int, A> f) {
     if (n > 0) {
-      final b = VectorBuilder<A>();
+      final b = IVectorBuilder<A>();
       int i = 0;
 
       while (i < n) {
@@ -118,7 +118,7 @@ sealed class IVector<A>
     if (k == 0) {
       return this;
     } else if (k < 0) {
-      return VectorBuilder<A>().addAll(this).addAll(suffix).result();
+      return IVectorBuilder<A>().addAll(this).addAll(suffix).result();
     } else {
       return _appendedAll0(suffix, k);
     }
@@ -161,7 +161,7 @@ sealed class IVector<A>
   IVector<A> filterNot(Function1<A, bool> p) => _filterImpl(p, true);
 
   IVector<A> _filterImpl(Function1<A, bool> p, bool isFlipped) {
-    final b = VectorBuilder<A>();
+    final b = IVectorBuilder<A>();
     final it = iterator;
 
     while (it.hasNext) {
@@ -251,7 +251,7 @@ sealed class IVector<A>
     if (k == 0) {
       return this;
     } else if (k < 0) {
-      return VectorBuilder<A>().addAll(prefix).addAll(this).result();
+      return IVectorBuilder<A>().addAll(prefix).addAll(this).result();
     } else {
       return _prependedAll0(prefix, k);
     }
@@ -377,13 +377,13 @@ sealed class IVector<A>
       return v;
     } else if (size < k - _AlignToFaster && suffix is IVector) {
       final v = suffix as IVector<A>;
-      return VectorBuilder<A>()
+      return IVectorBuilder<A>()
           ._alignTo(size, v)
           .addAll(this)
           .addAll(v)
           .result();
     } else {
-      return VectorBuilder<A>()._initFromVector(this).addAll(suffix).result();
+      return IVectorBuilder<A>()._initFromVector(this).addAll(suffix).result();
     }
   }
 
@@ -408,7 +408,7 @@ sealed class IVector<A>
       }
       return v;
     } else {
-      return VectorBuilder<A>()
+      return IVectorBuilder<A>()
           ._alignTo(k, this)
           .addAll(prefix)
           .addAll(this)

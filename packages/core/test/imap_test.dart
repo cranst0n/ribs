@@ -52,37 +52,37 @@ void main() {
     });
 
     test('count', () {
-      final m = imap({1: 1, 2: 2, 3: 3, 4: 4});
+      final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
 
-      expect(m.count((kv) => kv.$1.isOdd), 2);
+      expect(m.count((kv) => kv.$1.isOdd), 3);
       expect(m.count((kv) => kv.$1 + kv.$2 <= 5), 2);
     });
 
     test('exists', () {
-      final m = imap({1: 1, 2: 2, 3: 3, 4: 4});
+      final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
 
       expect(m.exists((kv) => kv.$1 == kv.$2), isTrue);
       expect(m.exists((kv) => kv.$1 != kv.$2), isFalse);
     });
 
     test('filter', () {
-      final m = imap({1: 1, 2: 2, 3: 3, 4: 4});
+      final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
 
       expect(m.filter((kv) => kv.$1.isEven), imap({2: 2, 4: 4}));
       expect(m.filter((kv) => kv.$1 > 10), imap({}));
     });
 
     test('filterNot', () {
-      final m = imap({1: 1, 2: 2, 3: 3, 4: 4});
+      final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
 
-      expect(m.filterNot((kv) => kv.$1.isEven), imap({1: 1, 3: 3}));
+      expect(m.filterNot((kv) => kv.$1.isEven), imap({1: 1, 3: 3, 5: 5}));
       expect(m.filterNot((kv) => kv.$1 > 10), m);
     });
 
     test('find', () {
-      final m = imap({1: 1, 2: 2, 3: 3, 4: 4});
+      final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
 
-      expect(m.find((kv) => kv.$1 + kv.$2 > 5), isSome((3, 3)));
+      expect(m.find((kv) => kv.$1 + kv.$2 > 5), isSome<(int, int)>());
       expect(m.find((kv) => kv.$1 + kv.$2 > 10), isNone());
     });
 

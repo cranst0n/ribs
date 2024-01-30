@@ -1,4 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/src/collection/hashing.dart';
+import 'package:ribs_core/src/collection/immutable/map/map_node.dart';
+import 'package:ribs_core/src/collection/immutable/set/champ_common.dart';
 
 part 'map/builder.dart';
 part 'map/hash_map.dart';

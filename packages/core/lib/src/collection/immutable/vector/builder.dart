@@ -1,6 +1,6 @@
 part of '../ivector.dart';
 
-final class VectorBuilder<A> {
+final class IVectorBuilder<A> {
   _Arr6? a6;
   _Arr5? a5;
   _Arr4? a4;
@@ -75,7 +75,7 @@ final class VectorBuilder<A> {
     }
   }
 
-  VectorBuilder<A> _initFromVector(IVector<dynamic> v) {
+  IVectorBuilder<A> _initFromVector(IVector<dynamic> v) {
     switch (v._vectorSliceCount) {
       case 0:
         final v0 = v as _Vector0;
@@ -194,7 +194,7 @@ final class VectorBuilder<A> {
     return this;
   }
 
-  VectorBuilder<A> _alignTo(int before, IVector<A> bigVector) {
+  IVectorBuilder<A> _alignTo(int before, IVector<A> bigVector) {
     if (_len1 != 0 || _lenRest != 0) {
       throw Exception(
           "A non-empty VectorBuilder cannot be aligned retrospectively. Please call .reset() or use a new VectorBuilder.");
@@ -338,7 +338,7 @@ final class VectorBuilder<A> {
     _prefixIsRightAligned = false;
   }
 
-  VectorBuilder<A> addOne(A elem) {
+  IVectorBuilder<A> addOne(A elem) {
     if (_len1 == _WIDTH) _advance();
 
     a1[_len1] = elem;
@@ -447,7 +447,7 @@ final class VectorBuilder<A> {
     }
   }
 
-  VectorBuilder<A> _addVector(IVector<A> xs) {
+  IVectorBuilder<A> _addVector(IVector<A> xs) {
     final sliceCount = xs._vectorSliceCount;
     var sliceIdx = 0;
 
@@ -469,7 +469,7 @@ final class VectorBuilder<A> {
     return this;
   }
 
-  VectorBuilder<A> addAll(IterableOnce<A> xs) {
+  IVectorBuilder<A> addAll(IterableOnce<A> xs) {
     if (xs is IVector) {
       if (_len1 == 0 && _lenRest == 0 && !_prefixIsRightAligned) {
         return _initFromVector(xs as IVector<A>);
