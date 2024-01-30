@@ -157,9 +157,6 @@ class Sorted<A> extends AbstractSeqView<A> {
   Seq<A> reverse() => _ReverseSorted(this);
 
   @override
-  RibsIterable<A> reversed() => _ReverseSorted(this);
-
-  @override
   Seq<A> sorted(Order<A> order) {
     if (order == this.order) {
       return this;
@@ -248,9 +245,6 @@ class _ReverseSorted<A> extends AbstractSeqView<A> {
 
   @override
   Seq<A> reverse() => outer;
-
-  @override
-  RibsIterable<A> reversed() => outer;
 
   @override
   Seq<A> sorted(Order<A> order) {

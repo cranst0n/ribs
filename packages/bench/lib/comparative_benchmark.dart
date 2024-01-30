@@ -67,7 +67,7 @@ class ComparativeEmitter implements ScoreEmitter {
     libs.foreach((lib) {
       final opValues = ops.map((op) {
         final bestValue = imap(values)
-            .filter((k, v) => k.$2 == op)
+            .filter((kv) => kv.$1.$2 == op)
             .values
             .minOption(Order.doubles);
 
@@ -106,7 +106,7 @@ class ComparativeEmitter implements ScoreEmitter {
     libs.foreach((lib) {
       final cells = ops.map((op) {
         final bestValue = imap(values)
-            .filter((k, v) => k.$2 == op)
+            .filter((kv) => kv.$1.$2 == op)
             .values
             .minOption(Order.doubles);
 

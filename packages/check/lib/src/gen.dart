@@ -217,7 +217,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   static Gen<IMap<A, B>> imapOfN<A, B>(
           int size, Gen<A> keyGen, Gen<B> valueGen) =>
-      mapOfN(size, keyGen, valueGen).map(IMap.fromMap);
+      mapOfN(size, keyGen, valueGen).map(IMap.fromDart);
 
   static Gen<IList<A>> ilistOf<A>(Gen<int> sizeGen, Gen<A> gen) =>
       sizeGen.flatMap((size) => ilistOfN(size, gen));

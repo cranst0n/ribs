@@ -219,7 +219,18 @@ class ListBuffer<A> with IterableOnce<A>, RibsIterable<A>, Seq<A>, Buffer<A> {
   }
 
   @override
-  ListBuffer<A> reverse() => ListBuffer<A>().addAll(reversed());
+  ListBuffer<A> reverse() => ListBuffer<A>().addAll(_reversed());
+
+  RibsIterable<A> _reversed() {
+    var xs = IList.empty<A>();
+    final it = iterator;
+
+    while (it.hasNext) {
+      xs = xs.prepended(it.next());
+    }
+
+    return xs;
+  }
 
   @override
   ListBuffer<A> subtractOne(A elem) {

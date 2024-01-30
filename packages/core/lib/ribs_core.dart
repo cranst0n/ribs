@@ -18,7 +18,6 @@ export 'src/fn.dart';
 export 'src/foldable.dart';
 export 'src/function.dart';
 export 'src/functor.dart';
-export 'src/imap.dart';
 export 'src/monad.dart';
 export 'src/non_empty_ilist.dart';
 export 'src/option.dart';

@@ -1,4 +1,5 @@
 export 'immutable/ilist.dart';
+export 'immutable/imap.dart';
 export 'immutable/iset.dart';
 export 'immutable/ivector.dart';
 export 'immutable/range.dart';

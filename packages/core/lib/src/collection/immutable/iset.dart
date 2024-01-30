@@ -19,17 +19,15 @@ mixin ISet<A> on RibsIterable<A> {
 
   static ISet<A> empty<A>() => _EmptySet<A>();
 
-  static ISet<A> from<A>(IterableOnce<A> xs) {
-    return switch (xs) {
-      final _EmptySet<A> s => s,
-      final _Set1<A> s => s,
-      final _Set2<A> s => s,
-      final _Set3<A> s => s,
-      final _Set4<A> s => s,
-      final IHashSet<A> s => s,
-      _ => ISetBuilder<A>().addAll(xs).result(),
-    };
-  }
+  static ISet<A> from<A>(IterableOnce<A> xs) => switch (xs) {
+        final _EmptySet<A> s => s,
+        final _Set1<A> s => s,
+        final _Set2<A> s => s,
+        final _Set3<A> s => s,
+        final _Set4<A> s => s,
+        final IHashSet<A> s => s,
+        _ => ISetBuilder<A>().addAll(xs).result(),
+      };
 
   static ISet<A> of<A>(Iterable<A> xs) =>
       from(RibsIterator.fromDart(xs.iterator));

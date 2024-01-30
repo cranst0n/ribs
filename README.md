@@ -49,6 +49,7 @@ similar types in those libraries if you want to use both.
 Much of the design and functionality in this repository is closely derived from
 the following libraries.
 
+* [scala](https://github.com/scala/scala)
 * [cats-effect](https://github.com/typelevel/cats-effect)
 * [fs2](https://github.com/typelevel/fs2)
 * [scodec](https://github.com/scodec/scodec)

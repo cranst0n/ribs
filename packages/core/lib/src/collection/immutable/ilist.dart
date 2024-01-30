@@ -549,9 +549,6 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   }
 
   @override
-  IList<A> reversed() => reverse();
-
-  @override
   IList<B> scan<B>(B z, Function2<B, A, B> op) => scanLeft(z, op);
 
   @override

@@ -137,7 +137,7 @@ abstract mixin class Decoder<A> {
 
   static Decoder<IMap<K, V>> imapOf<K, V>(
           KeyDecoder<K> decodeK, Decoder<V> decodeV) =>
-      mapOf(decodeK, decodeV).map(IMap.fromMap);
+      mapOf(decodeK, decodeV).map(IMap.fromDart);
 
   static Decoder<NonEmptyIList<A>> nonEmptyIList<A>(Decoder<A> decodeA) =>
       NonEmptyIListDecoder(decodeA);

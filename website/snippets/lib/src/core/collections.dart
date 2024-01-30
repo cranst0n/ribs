@@ -29,7 +29,7 @@ final nelOdds = nonEmptyList.filter((a) => a.isOdd);
 
 // imap
 
-final map = IMap.fromIterable([
+final map = IMap.fromDartIterable([
   ('red', 1),
   ('orange', 2),
   ('yellow', 3),

@@ -1,4 +1,3 @@
-import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 
 // Developer Note
@@ -184,7 +183,7 @@ mixin IterableOnce<A> {
   /// [init].
   /// {@endtemplate}
   B foldRight<B>(B z, Function2<A, B, B> op) =>
-      reversed().foldLeft(z, (b, a) => op(a, b));
+      _reversed().foldLeft(z, (b, a) => op(a, b));
 
   /// {@template iterable_forall}
   /// Returns true if **all** elements of this collection satisfy the given
@@ -301,7 +300,7 @@ mixin IterableOnce<A> {
   A reduceRight(Function2<A, A, A> op) => switch (this) {
         final IndexedSeq<A> seq when seq.length > 0 => _foldr(seq, op),
         _ when knownSize == 0 => throw UnsupportedError('empty.reduceLeft'),
-        _ => reversed().reduceLeft((x, y) => op(y, x)),
+        _ => _reversed().reduceLeft((x, y) => op(y, x)),
       };
 
   /// Returns a summary values of all elements of this collection by applying
@@ -309,7 +308,7 @@ mixin IterableOnce<A> {
   ///
   /// If this collection is empty, [None] will be returned.
   Option<A> reduceRightOption(Function2<A, A, A> op) => switch (knownSize) {
-        -1 => _reduceOptionIterator(reversed().iterator, (x, y) => op(y, x)),
+        -1 => _reduceOptionIterator(_reversed().iterator, (x, y) => op(y, x)),
         0 => none(),
         _ => Some(reduceRight(op)),
       };
@@ -366,8 +365,7 @@ mixin IterableOnce<A> {
   /// Returns a [Seq] with the same elements as this collection.
   Seq<A> toSeq() => Seq.from(this);
 
-  @protected
-  RibsIterable<A> reversed() {
+  RibsIterable<A> _reversed() {
     var xs = IList.empty<A>();
     final it = iterator;
 

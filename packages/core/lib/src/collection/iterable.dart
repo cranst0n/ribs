@@ -59,7 +59,7 @@ mixin RibsIterable<A> on IterableOnce<A> {
     Function1<A, K> key,
     Function1<A, B> f,
   ) {
-    // TODO: use ribs collections, revist implementation
+    // TODO: use IMap.builder, revist implementation
     final m = <K, ListBuffer<B>>{};
     final it = iterator;
 
@@ -70,7 +70,7 @@ mixin RibsIterable<A> on IterableOnce<A> {
       bldr.addOne(f(elem));
     }
 
-    return IMap.fromMap(
+    return IMap.fromDart(
       m.map((key, value) => MapEntry(key, value.toIList())),
     );
   }
@@ -90,7 +90,7 @@ mixin RibsIterable<A> on IterableOnce<A> {
       m.update(key(elem), (b) => reduce(b, f(elem)), ifAbsent: () => f(elem));
     });
 
-    return IMap.fromMap(m);
+    return IMap.fromDart(m);
   }
 
   /// Returns a new iterator where each element is a collection of [size]
@@ -189,7 +189,7 @@ mixin RibsIterable<A> on IterableOnce<A> {
     var acc = z;
     var scanned = IList.empty<B>().prepended(acc);
 
-    reversed().foreach((elem) {
+    _reversed().foreach((elem) {
       acc = op(elem, acc);
       scanned = scanned.prepended(acc);
     });
@@ -279,6 +279,17 @@ mixin RibsIterable<A> on IterableOnce<A> {
   ) {
     final it = RibsIterator.iterate(this, f).takeWhile((a) => a.nonEmpty);
     return it.concat(RibsIterator.single(RibsIterable.empty()));
+  }
+
+  RibsIterable<A> _reversed() {
+    var xs = IList.empty<A>();
+    final it = iterator;
+
+    while (it.hasNext) {
+      xs = xs.prepended(it.next());
+    }
+
+    return xs;
   }
 }
 

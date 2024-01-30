@@ -92,7 +92,7 @@ extension IListDoubleOps on IList<double> {
 extension IListTuple2Ops<A, B> on IList<(A, B)> {
   /// Creates a new [IMap] where element tuple element of this list is used to
   /// create a key and value respectively.
-  IMap<A, B> toIMap() => IMap.fromIList(this);
+  IMap<A, B> toIMap() => IMap.from(this);
 
   /// Creates a new [Map] where element tuple element of this list is used to
   /// create a key and value respectively.
