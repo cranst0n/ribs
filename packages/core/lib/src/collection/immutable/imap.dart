@@ -33,10 +33,14 @@ mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
   static IMap<K, V> fromDartIterable<K, V>(Iterable<(K, V)> elems) =>
       from(RibsIterator.fromDart(elems.iterator));
 
+  /// Returns a new map with the given value for the given key.
   IMap<K, V> operator +((K, V) elem) => updated(elem.$1, elem.$2);
 
+  /// Returns a new map with the value for given [key] removed.
   IMap<K, V> operator -(K key) => removed(key);
 
+  /// Returns the value associated with the given [key], or the [defaultValue]
+  /// of this map (which could potentially throw).
   V operator [](K key) => get(key).getOrElse(() => defaultValue(key));
 
   /// Returns a new function that will accept a key of type [K] and apply
@@ -52,6 +56,7 @@ mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
   IMap<K, V> concat(covariant IterableOnce<(K, V)> suffix) =>
       IMap.from(super.concat(suffix));
 
+  /// Returns true if this map contains the key [key], false otherwise.
   bool contains(K key) => get(key).isDefined;
 
   V defaultValue(K key) => throw Exception("No such value for key: '$key'");
@@ -72,10 +77,13 @@ mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
   @override
   IMap<K, V> filterNot(Function1<(K, V), bool> p) => from(super.filterNot(p));
 
+  /// Returns the value for the given key [key] as a [Some], or [None] if this
+  /// map doesn't contain the key.
   Option<V> get(K key);
 
-  V getOrElse(K key, Function0<V> defaultValue) =>
-      get(key).getOrElse(defaultValue);
+  /// Returns the value for the given key [key], or [orElse] if this map doesn't
+  /// contain the key.
+  V getOrElse(K key, Function0<V> orElse) => get(key).getOrElse(orElse);
 
   @override
   IMap<K2, IMap<K, V>> groupBy<K2>(Function1<(K, V), K2> f) =>
@@ -91,8 +99,11 @@ mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
   @override
   RibsIterator<IMap<K, V>> inits() => super.inits().map(IMap.from);
 
+  /// Returns a [Set] of all the keys stored in the map.
   ISet<K> get keys;
 
+  /// Applies [f] to each value in this map and returns a new map with the same
+  /// keys, with the resulting values of the function application.
   IMap<K, W> mapValues<W>(Function1<V, W> f) =>
       from(iterator.map((kv) => (kv.$1, f(kv.$2))));
 
@@ -102,8 +113,10 @@ mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
     return (IMap.from(first), IMap.from(second));
   }
 
+  /// Returns a new map with the value for given [key] removed.
   IMap<K, V> removed(K key);
 
+  /// Returns a new map with all the given [keys] removed.
   IMap<K, V> removedAll(IterableOnce<K> keys) =>
       keys.iterator.foldLeft(this, (acc, k) => acc.removed(k));
 
@@ -148,12 +161,17 @@ mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
     return this;
   }
 
+  /// Returns a new [Map] containing the same key-value pairs.
   Map<K, V> toMap() =>
       Map.fromEntries(iterator.map((a) => MapEntry(a.$1, a.$2)).toList());
 
+  /// Return a new map where the keys and values are creating by applying [f]
+  /// to every key-value pair in this map.
   IMap<K, W> transform<W>(Function2<K, V, W> f) =>
       from(iterator.map((kv) => (kv.$1, f(kv.$1, kv.$2))));
 
+  /// Returns a tuple of 2 [RibsIterable]s where the first item is the keys from
+  /// this map, and the second is the corresponding values.
   (RibsIterable<K>, RibsIterable<V>) unzip() {
     final (bldr1, bldr2) = (IList.builder<K>(), IList.builder<V>());
 
@@ -165,10 +183,18 @@ mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
     return (bldr1.toIList(), bldr2.toIList());
   }
 
+  /// Returns a new map with the given [key] set to the given [value].
   IMap<K, V> updated(K key, V value);
 
+  /// Returns a new map with [remappingFunction] applied to the value for the
+  /// given [key] in this map.
+  ///
+  /// If [remappingFunction] returns [None], the returned map will not have a
+  /// value associated with the given [key].
   IMap<K, V> updatedWith(
-      K key, Function1<Option<V>, Option<V>> remappingFunction) {
+    K key,
+    Function1<Option<V>, Option<V>> remappingFunction,
+  ) {
     final previousValue = get(key);
 
     return remappingFunction(previousValue).fold(
@@ -177,11 +203,16 @@ mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
     );
   }
 
+  /// Returns a list of all values stored in this map.
+  RibsIterator<V> get values;
+
+  /// Returns a new map where key lookups will return [f] if the map doesn't
+  /// contain a value for the corresponding key.
   IMap<K, V> withDefault(Function1<K, V> f) => _WithDefault(this, f);
 
+  /// Returns a new map where key lookups will return [f] if the map doesn't
+  /// contain a value for the corresponding key.
   IMap<K, V> withDefaultValue(V value) => _WithDefault(this, (_) => value);
-
-  RibsIterator<V> get values;
 
   @override
   bool operator ==(Object other) =>

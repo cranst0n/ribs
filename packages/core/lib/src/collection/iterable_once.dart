@@ -318,7 +318,7 @@ mixin IterableOnce<A> {
   /// moves from left to right.
   IterableOnce<B> scan<B>(B z, Function2<B, A, B> op) => scanLeft(z, op);
 
-  /// Returns 2 collectins of all elements before and after index [ix]
+  /// Returns 2 collectins of all elements before and after index [n]
   /// respectively.
   (IterableOnce<A>, IterableOnce<A>) splitAt(int n) {
     final spanner = _Spanner<A>(n);

@@ -112,8 +112,8 @@ mixin RibsIterable<A> on IterableOnce<A> {
   /// collection is empty, an empty collection is returned.
   RibsIterable<A> init() => dropRight(1);
 
-  /// Returns an iterator of all potential tails of this list, starting with the
-  /// entire list and ending with the empty list.
+  /// Returns an iterator of all potential tails of this collection, starting
+  /// with the entire collection and ending with an empty one.
   RibsIterator<RibsIterable<A>> inits() => _iterateUntilEmpty((a) => a.init());
 
   /// Returns the last element of this collection, or throws if it is empty.
@@ -128,8 +128,8 @@ mixin RibsIterable<A> on IterableOnce<A> {
     return lst;
   }
 
-  /// Returns the last element of this list as a [Some], or [None] if this
-  /// list is empty.
+  /// Returns the last element of this collection as a [Some], or [None] if this
+  /// collection is empty.
   Option<A> get lastOption {
     if (isEmpty) {
       return none();
@@ -203,8 +203,8 @@ mixin RibsIterable<A> on IterableOnce<A> {
 
   /// Returns an iterator where elements are fixed size chunks of size [n] of
   /// the original collection. Each chunk is calculated by sliding a 'window'
-  /// of size [n] over the original list, moving the window [step] elements at
-  /// a time.
+  /// of size [n] over the original collection, moving the window [step]
+  /// elements at a time.
   RibsIterator<IterableOnce<A>> sliding(int size, [int step = 1]) =>
       iterator.sliding(size, step);
 

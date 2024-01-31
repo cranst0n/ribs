@@ -115,16 +115,6 @@ class IHashMapBuilder<K, V> {
     }
   }
 
-  V _getOrElse(K key, V value) {
-    if (_rootNode.size == 0) {
-      return value;
-    } else {
-      final originalHash = key.hashCode;
-      return _rootNode.getOrElse(
-          key, originalHash, Hashing.improve(originalHash), 0, () => value);
-    }
-  }
-
   Array<int> _insertElement(Array<int> as, int ix, int elem) {
     if (ix < 0) throw RangeError('IHashMapBuilder.insert: $ix');
     if (ix > as.length) throw RangeError('IHashMapBuilder.insert: $ix');

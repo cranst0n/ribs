@@ -31,13 +31,14 @@ mixin Seq<A> on RibsIterable<A> {
   /// Returns an [Iterator] that will produce all combinations of elements from
   /// this sequence of size [n] **in order**.
   ///
-  /// Given the list [1, 2, 2, 2], combinations of size 2 would result in [1, 2]
-  /// and [2, 2]. Note that [2, 1] would not be included since combinations
-  /// are taken from element **in order**.
+  /// Given the list `[1, 2, 2, 2]`, combinations of size 2 would result in
+  /// `[1, 2]` and `[2, 2]`. Note that `[2, 1]` would not be included since
+  /// combinations are taken from element **in order**.
   ///
-  /// Also note from the example above, [1, 2] would only be included once even
-  /// though there are technically 3 ways to generate a combination of [1, 2],
-  /// only one will be included in the result since the other 2 are duplicates.
+  /// Also note from the example above, `[1, 2]` would only be included once
+  /// even though there are technically 3 ways to generate a combination of
+  /// `[1, 2]`, only one will be included in the result since the other 2 are
+  /// duplicates.
   RibsIterator<Seq<A>> combinations(int n) {
     if (n < 0 || n > size) {
       return RibsIterator.empty();
@@ -296,8 +297,7 @@ mixin Seq<A> on RibsIterable<A> {
 
   /// Returns the element at index [ix] as a [Some]. If [ix] is outside the
   /// range of this collection, [None] is returned.
-  Option<A> lift(int idx) =>
-      Option.when(() => isDefinedAt(idx), () => this[idx]);
+  Option<A> lift(int ix) => Option.when(() => isDefinedAt(ix), () => this[ix]);
 
   @override
   Seq<B> map<B>(covariant Function1<A, B> f) => seqviews.Map(this, f).toSeq();
@@ -331,8 +331,8 @@ mixin Seq<A> on RibsIterable<A> {
   /// elements in this collection.
   ///
   /// Note that only distinct permutations are emitted. Given the example
-  /// [1, 2, 2, 2] the permutations will only include [1, 2, 2, 2] once, even
-  /// though there are 3 different way to generate that permutation.
+  /// `[1, 2, 2, 2]` the permutations will only include `[1, 2, 2, 2]` once,
+  /// even though there are 3 different way to generate that permutation.
   RibsIterator<Seq<A>> permutations() {
     if (isEmpty) {
       return RibsIterator.empty();
@@ -396,7 +396,7 @@ mixin Seq<A> on RibsIterable<A> {
   @override
   int get size => length;
 
-  /// Returns a new collection that is sorted according to [o].
+  /// Returns a new collection that is sorted according to [order].
   Seq<A> sorted(Order<A> order) => fromDart(toList()..sort(order.compare));
 
   /// Returns a new collection that is sorted according to [order] after

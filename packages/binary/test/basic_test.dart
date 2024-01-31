@@ -5,8 +5,8 @@ import 'package:test/test.dart';
 sealed class Animal {
   const Animal();
 
-  static final codec = discriminatedBy(
-      uint8,
+  static final codec = Codec.discriminatedBy(
+      Codec.uint8,
       imap({
         7: Dog.codec,
         1: Cat.codec,
@@ -20,9 +20,9 @@ class Dog extends Animal {
   const Dog(this.age);
 
   static final codec = Codec.product3(
-    constant(ByteVector.fromList([1, 2]).bits),
-    int8,
-    constant(BitVector.bit(true)),
+    Codec.constant(ByteVector.fromList([1, 2]).bits),
+    Codec.int8,
+    Codec.constant(BitVector.bit(true)),
     (_, age, __) => Dog(age),
     (Dog dog) => (Unit(), dog.age, Unit()),
   );
@@ -40,19 +40,19 @@ class Dog extends Animal {
 
 class Cat extends Animal {
   const Cat();
-  static final codec = constant(ByteVector.fromList([1, 2]).bits)
+  static final codec = Codec.constant(ByteVector.fromList([1, 2]).bits)
       .xmap((a) => const Cat(), (_) => Unit());
 }
 
 class Lion extends Cat {
   const Lion();
-  static final codec = constant(ByteVector.fromList([1, 2]).bits)
+  static final codec = Codec.constant(ByteVector.fromList([1, 2]).bits)
       .xmap((a) => const Lion(), (_) => Unit());
 }
 
 void main() {
   test('uint8', () {
-    final codec = uint8;
+    final codec = Codec.uint8;
 
     final value = codec
         .decode(ByteVector.fromBin('101').getOrElse(() => fail('boom')).bits)
@@ -89,7 +89,7 @@ void main() {
 
   test('prepend', () {
     final codec = Dog.codec
-        .prepend((dog) => provide(BitVector.low(dog.age)))
+        .prepend((dog) => Codec.provide(BitVector.low(dog.age)))
         .xmap((a) => a.$1, (a) => (a, BitVector.low(a.age)));
 
     expect(
