@@ -1,4 +1,8 @@
+import 'dart:typed_data';
+
 import 'package:ribs_binary/ribs_binary.dart';
+import 'package:ribs_binary/src/codecs/codecs.dart';
+import 'package:ribs_binary/src/codecs/either_codec.dart';
 import 'package:ribs_core/ribs_core.dart';
 
 abstract class Codec<A> extends Encoder<A> with Decoder<A> {
@@ -34,6 +38,142 @@ abstract class Codec<A> extends Encoder<A> with Decoder<A> {
 
   @override
   String toString() => description ?? super.toString();
+
+  //////////////////////////////////////////////////////////////////////////////
+  /// Instances
+  //////////////////////////////////////////////////////////////////////////////
+
+  static final Codec<BitVector> bits = Codec.of(
+    Decoder.instance((b) => Either.right(DecodeResult.successful(b))),
+    Encoder.instance((b) => Either.right(b)),
+    description: 'bits',
+  );
+
+  static Codec<BitVector> bitsN(int size) => FixedSizeCodec(size, bits);
+
+  static Codec<BitVector> bitsStrict(int size) =>
+      FixedSizeStrictCodec(size, bits);
+
+  static final Codec<ByteVector> bytes = bits
+      .xmap((bits) => bits.bytes(), (bytes) => bytes.bits)
+      .withDescription('bytes');
+
+  static Codec<ByteVector> bytesN(int size) => FixedSizeCodec(size, bytes);
+
+  static Codec<ByteVector> bytesStrict(int size) =>
+      FixedSizeStrictCodec(size * 8, bytes);
+
+  static Codec<Unit> constant(BitVector bytes) => ConstantCodec(bytes);
+  static Codec<A> provide<A>(A value) => ProvideCodec(value);
+
+  static final Codec<bool> boolean = BooleanCodec();
+
+  static Codec<bool> booleanN(int size) {
+    final zeros = BitVector.low(size);
+    final ones = BitVector.high(size);
+    return bitsN(size).xmap<bool>((b) => b != zeros, (b) => b ? ones : zeros);
+  }
+
+  static Codec<B> discriminatedBy<A, B>(
+          Codec<A> by, IMap<A, Codec<B>> typecases) =>
+      DiscriminatorCodec.typecases(by, typecases);
+
+  static final Codec<int> int4 = IntCodec(4, true, Endian.big);
+  static final Codec<int> int8 = IntCodec(8, true, Endian.big);
+  static final Codec<int> int16 = IntCodec(16, true, Endian.big);
+  static final Codec<int> int24 = IntCodec(24, true, Endian.big);
+  static final Codec<int> int32 = IntCodec(32, true, Endian.big);
+  static final Codec<int> int64 = IntCodec(64, true, Endian.big);
+
+  static final Codec<int> uint4 = IntCodec(4, false, Endian.big);
+  static final Codec<int> uint8 = IntCodec(8, false, Endian.big);
+  static final Codec<int> uint16 = IntCodec(16, false, Endian.big);
+  static final Codec<int> uint24 = IntCodec(24, false, Endian.big);
+  static final Codec<int> uint32 = IntCodec(32, false, Endian.big);
+
+  static final Codec<int> int4L = IntCodec(4, true, Endian.little);
+  static final Codec<int> int8L = IntCodec(8, true, Endian.little);
+  static final Codec<int> int16L = IntCodec(16, true, Endian.little);
+  static final Codec<int> int24L = IntCodec(24, true, Endian.little);
+  static final Codec<int> int32L = IntCodec(32, true, Endian.little);
+  static final Codec<int> int64L = IntCodec(64, true, Endian.little);
+
+  static final Codec<int> uint4L = IntCodec(4, false, Endian.little);
+  static final Codec<int> uint8L = IntCodec(8, false, Endian.little);
+  static final Codec<int> uint16L = IntCodec(16, false, Endian.little);
+  static final Codec<int> uint24L = IntCodec(24, false, Endian.little);
+  static final Codec<int> uint32L = IntCodec(32, false, Endian.little);
+
+  static Codec<int> integer(int size) => IntCodec(size, true, Endian.big);
+  static Codec<int> integerL(int size) => IntCodec(size, true, Endian.little);
+  static Codec<int> uinteger(int size) => IntCodec(size, false, Endian.big);
+  static Codec<int> uintegerL(int size) => IntCodec(size, false, Endian.little);
+
+  static final Codec<double> float32 = FloatCodec.float32(Endian.big);
+  static final Codec<double> float64 = FloatCodec.float64(Endian.big);
+
+  static final Codec<double> float32L = FloatCodec.float32(Endian.little);
+  static final Codec<double> float64L = FloatCodec.float64(Endian.little);
+
+  static final Codec<String> ascii = StringCodec.acsii();
+  static final Codec<String> ascii32 = VariableSizedCodec(int32, ascii);
+  static final Codec<String> ascii32L = VariableSizedCodec(int32L, ascii);
+
+  static final Codec<String> utf8 = StringCodec.utf8();
+  static final Codec<String> utf8_32 = VariableSizedCodec(int32, utf8);
+  static final Codec<String> utf8_32L = VariableSizedCodec(int32L, utf8);
+
+  static final Codec<String> utf16 = StringCodec.utf16();
+  static final Codec<String> utf16_32 = VariableSizedCodec(int32, utf16);
+  static final Codec<String> utf16_32L = VariableSizedCodec(int32L, utf16);
+
+  static final Codec<String> cstring = StringCodec.cstring();
+
+  static Codec<Unit> ignore(int size) => IgnoreCodec(size);
+
+  static Codec<List<A>> list<A>(Codec<A> codec, [int? limit]) =>
+      ListCodec(codec, limit: Option(limit));
+
+  static Codec<List<A>> listOfN<A>(
+          Codec<int> countCodec, Codec<A> valueCodec) =>
+      Codec.of(
+        countCodec.flatMap((count) => list(valueCodec, count)),
+        Encoder.instance((as) => countCodec
+            .encode(as.length)
+            .flatMap((x) => valueCodec.encodeAll(as).map((y) => x.concat(y)))),
+      );
+
+  static Codec<IList<A>> ilist<A>(Codec<A> codec, [int? limit]) =>
+      list(codec, limit).xmap(IList.fromDart, (il) => il.toList());
+
+  static Codec<IList<A>> ilistOfN<A>(
+          Codec<int> countCodec, Codec<A> valueCodec) =>
+      listOfN(countCodec, valueCodec).xmap(IList.fromDart, (il) => il.toList());
+
+  static Codec<A> peek<A>(Codec<A> target) => Codec.of(
+        Decoder.instance(
+            (b) => target.decode(b).map((a) => a.mapRemainder((_) => b))),
+        target,
+        description: 'peek($target)',
+      );
+
+  static Codec<Option<A>> option<A>(
+          Codec<bool> indicator, Codec<A> valueCodec) =>
+      either(indicator, provide(null), valueCodec)
+          .xmap((a) => a.toOption(), (a) => a.toRight(() => null));
+
+  static Codec<Either<A, B>> either<A, B>(
+    Codec<bool> indicator,
+    Codec<A> leftCodec,
+    Codec<B> rightCodec,
+  ) =>
+      EitherCodec(indicator, leftCodec, rightCodec);
+
+  static Codec<A> byteAligned<A>(Codec<A> codec) => ByteAlignedCodec(codec);
+
+  //////////////////////////////////////////////////////////////////////////////
+  /// Tuple Instances
+  //////////////////////////////////////////////////////////////////////////////
 
   static Codec<(A, B)> tuple2<A, B>(
     Codec<A> codecA,
@@ -310,6 +450,10 @@ abstract class Codec<A> extends Encoder<A> with Decoder<A> {
                   codecN,
                   codecO));
 
+  //////////////////////////////////////////////////////////////////////////////
+  /// Product Instances
+  //////////////////////////////////////////////////////////////////////////////
+
   static Codec<C> product2<A, B, C>(
     Codec<A> codecA,
     Codec<B> codecB,
@@ -548,4 +692,9 @@ class CodecF<A> extends Codec<A> {
 
   @override
   Either<Err, BitVector> encode(A a) => encoder.encode(a);
+}
+
+extension CodecOps<A> on Codec<A> {
+  Codec<Option<A>> optional(Codec<bool> indicator) =>
+      Codec.option(indicator, this);
 }

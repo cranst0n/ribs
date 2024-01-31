@@ -14,12 +14,12 @@ final class Event {
   const Event(this.timestamp, this.id, this.message);
 
   static final codec = Codec.product3(
-    int64.xmap(
+    Codec.int64.xmap(
       (i) => DateTime.fromMillisecondsSinceEpoch(i),
       (date) => date.millisecondsSinceEpoch,
     ),
-    uint24,
-    utf8_32,
+    Codec.uint24,
+    Codec.utf8_32,
     Event.new,
     (evt) => (evt.timestamp, evt.id, evt.message),
   );

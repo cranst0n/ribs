@@ -8,78 +8,79 @@ import 'arbitraries.dart';
 
 void main() {
   group('Binary Codecs', () {
-    testCodec('bits', bitVector, bits);
+    testCodec('bits', bitVector, Codec.bits);
     testCodec('bitsStrict', bitVector.map((a) => a.padTo(100).take(100)),
-        bitsStrict(100));
-    testCodec('boolean', Gen.boolean, boolean);
-    testCodec('booleanN', Gen.boolean, booleanN(2));
-    testCodec('bytes', byteVector, bytes);
+        Codec.bitsStrict(100));
+    testCodec('boolean', Gen.boolean, Codec.boolean);
+    testCodec('booleanN', Gen.boolean, Codec.booleanN(2));
+    testCodec('bytes', byteVector, Codec.bytes);
     testCodec('bytesStrict', byteVector.map((a) => a.padTo(16).take(16)),
-        bytesStrict(16));
-    testCodec('int4', genInt4, int4);
-    testCodec('int8', genInt8, int8);
-    testCodec('int16', genInt16, int16);
-    testCodec('int24', genInt24, int24);
-    testCodec('int32', genInt32, int32);
-    testCodec('int64', genInt64, int64);
+        Codec.bytesStrict(16));
+    testCodec('int4', genInt4, Codec.int4);
+    testCodec('int8', genInt8, Codec.int8);
+    testCodec('int16', genInt16, Codec.int16);
+    testCodec('int24', genInt24, Codec.int24);
+    testCodec('int32', genInt32, Codec.int32);
+    testCodec('int64', genInt64, Codec.int64);
 
-    testCodec('int4L', genInt4, int4L);
-    testCodec('int8L', genInt8, int8L);
-    testCodec('int16L', genInt16, int16L);
-    testCodec('int24L', genInt24, int24L);
-    testCodec('int32L', genInt32, int32L);
-    testCodec('int64L', genInt64, int64L);
+    testCodec('int4L', genInt4, Codec.int4L);
+    testCodec('int8L', genInt8, Codec.int8L);
+    testCodec('int16L', genInt16, Codec.int16L);
+    testCodec('int24L', genInt24, Codec.int24L);
+    testCodec('int32L', genInt32, Codec.int32L);
+    testCodec('int64L', genInt64, Codec.int64L);
 
-    testCodec('uint4', genUint4, uint4);
-    testCodec('uint8', genUint8, uint8);
-    testCodec('uint16', genUint16, uint16);
-    testCodec('uint24', genUint24, uint24);
-    testCodec('uint32', genUint32, uint32);
+    testCodec('uint4', genUint4, Codec.uint4);
+    testCodec('uint8', genUint8, Codec.uint8);
+    testCodec('uint16', genUint16, Codec.uint16);
+    testCodec('uint24', genUint24, Codec.uint24);
+    testCodec('uint32', genUint32, Codec.uint32);
 
-    testCodec('uint4L', genUint4, uint4L);
-    testCodec('uint8L', genUint8, uint8L);
-    testCodec('uint16L', genUint16, uint16L);
-    testCodec('uint24L', genUint24, uint24L);
-    testCodec('uint32L', genUint32, uint32L);
+    testCodec('uint4L', genUint4, Codec.uint4L);
+    testCodec('uint8L', genUint8, Codec.uint8L);
+    testCodec('uint16L', genUint16, Codec.uint16L);
+    testCodec('uint24L', genUint24, Codec.uint24L);
+    testCodec('uint32L', genUint32, Codec.uint32L);
 
-    testVariableInt('integer', genIntN(true), (bits) => integer(bits));
-    testVariableInt('integerL', genIntN(true), (bits) => integerL(bits));
+    testVariableInt('integer', genIntN(true), (bits) => Codec.integer(bits));
+    testVariableInt('integerL', genIntN(true), (bits) => Codec.integerL(bits));
 
-    testVariableInt('uinteger', genIntN(false), (bits) => uinteger(bits));
-    testVariableInt('uintegerL', genIntN(false), (bits) => uintegerL(bits));
+    testVariableInt('uinteger', genIntN(false), (bits) => Codec.uinteger(bits));
+    testVariableInt(
+        'uintegerL', genIntN(false), (bits) => Codec.uintegerL(bits));
 
-    testCodec('float32', genFloat32, float32, (f) => closeTo(f, 1));
-    testCodec('float64', genFloat64, float64, (f) => closeTo(f, 1));
+    testCodec('float32', genFloat32, Codec.float32, (f) => closeTo(f, 1));
+    testCodec('float64', genFloat64, Codec.float64, (f) => closeTo(f, 1));
 
-    testCodec('float32L', genFloat32, float32L, (f) => closeTo(f, 1));
-    testCodec('float64L', genFloat64, float64L, (f) => closeTo(f, 1));
+    testCodec('float32L', genFloat32, Codec.float32L, (f) => closeTo(f, 1));
+    testCodec('float64L', genFloat64, Codec.float64L, (f) => closeTo(f, 1));
 
-    testCodec('ascii', Gen.stringOf(Gen.asciiChar), ascii);
-    testCodec('ascii32', Gen.stringOf(Gen.asciiChar), ascii32);
-    testCodec('ascii32L', Gen.stringOf(Gen.asciiChar), ascii32L);
+    testCodec('ascii', Gen.stringOf(Gen.asciiChar), Codec.ascii);
+    testCodec('ascii32', Gen.stringOf(Gen.asciiChar), Codec.ascii32);
+    testCodec('ascii32L', Gen.stringOf(Gen.asciiChar), Codec.ascii32L);
 
-    testCodec('utf8', Gen.stringOf(Gen.asciiChar), utf8);
-    testCodec('utf8_32', Gen.stringOf(Gen.asciiChar), utf8_32);
-    testCodec('utf8_32L', Gen.stringOf(Gen.asciiChar), utf8_32L);
+    testCodec('utf8', Gen.stringOf(Gen.asciiChar), Codec.utf8);
+    testCodec('utf8_32', Gen.stringOf(Gen.asciiChar), Codec.utf8_32);
+    testCodec('utf8_32L', Gen.stringOf(Gen.asciiChar), Codec.utf8_32L);
 
-    testCodec('utf16', Gen.stringOf(Gen.asciiChar), utf16);
-    testCodec('utf16_32', Gen.stringOf(Gen.asciiChar), utf16_32);
-    testCodec('utf16_32L', Gen.stringOf(Gen.asciiChar), utf16_32L);
+    testCodec('utf16', Gen.stringOf(Gen.asciiChar), Codec.utf16);
+    testCodec('utf16_32', Gen.stringOf(Gen.asciiChar), Codec.utf16_32);
+    testCodec('utf16_32L', Gen.stringOf(Gen.asciiChar), Codec.utf16_32L);
 
     testCodec(
       'cstring',
       Gen.stringOf(Gen.chooseInt(1, 127).map(String.fromCharCode)),
-      cstring,
+      Codec.cstring,
     );
 
     testCodec('listOfN', Gen.listOfN(100, Gen.chooseInt(-100, 100)),
-        listOfN(int8, int32));
+        Codec.listOfN(Codec.int8, Codec.int32));
 
     testCodec('ilistOfN', Gen.ilistOfN(100, Gen.chooseInt(-100, 100)),
-        ilistOfN(int8, int32));
+        Codec.ilistOfN(Codec.int8, Codec.int32));
 
     forAll('peek', Gen.stringOf(Gen.asciiChar), (str) {
-      final codec = peek(ascii32);
+      final codec = Codec.peek(Codec.ascii32);
       final result = codec.encode(str).flatMap((a) => codec.decode(a));
 
       result.fold(
@@ -92,14 +93,15 @@ void main() {
       );
     });
 
-    testCodec('option', Gen.option(genInt32), int32.optional(boolean));
+    testCodec(
+        'option', Gen.option(genInt32), Codec.int32.optional(Codec.boolean));
 
     testCodec('either', Gen.either(genInt32, Gen.boolean),
-        either(boolean, int32, boolean));
+        Codec.either(Codec.boolean, Codec.int32, Codec.boolean));
 
     forAll('byteAligned', Gen.chooseInt(0, 8).map((a) => BitVector.low(a)),
         (bv) {
-      final codec = byteAligned(bits);
+      final codec = Codec.byteAligned(Codec.bits);
 
       codec.encode(bv).fold(
         (err) => fail('byteAligned codec failed on input [$bv]: $err'),
@@ -116,11 +118,11 @@ void main() {
           .map((a) => a.join())
           .map(BitVector.fromValidBin)
           .map((a) => a.padTo(8)),
-      bitsN(8),
+      Codec.bitsN(8),
     );
 
     forAll('ignore', Gen.chooseInt(0, 100), (nBits) {
-      final codec = ignore(nBits);
+      final codec = Codec.ignore(nBits);
 
       final encoded = codec.encode(Unit());
       final decoded = encoded.flatMap(codec.decode);
@@ -137,7 +139,7 @@ void main() {
     });
 
     testCodec('bytesStrict', byteVector.map((a) => a.padTo(16).take(16)),
-        bytesStrict(16));
+        Codec.bytesStrict(16));
   });
 }
 

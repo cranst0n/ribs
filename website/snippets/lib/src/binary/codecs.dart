@@ -39,11 +39,12 @@ final class Debug extends Message {
 
 // codecs-2
 
-final infoCodec = utf16_32.xmap((str) => Info(str), (info) => info.message);
+final infoCodec =
+    Codec.utf16_32.xmap((str) => Info(str), (info) => info.message);
 
 final debugCodec = Codec.product2(
-  int32L, // 32-bit little endian int
-  ascii32, // ascii bytes with 32bit size prefix
+  Codec.int32L, // 32-bit little endian int
+  Codec.ascii32, // ascii bytes with 32bit size prefix
   Debug.new,
   (dbg) => (dbg.lineNumber, dbg.message),
 );
@@ -52,8 +53,8 @@ final debugCodec = Codec.product2(
 
 // codecs-3
 
-final messageCodec = discriminatedBy(
-  uint8, // encode identifier using an 8-bit integer
+final messageCodec = Codec.discriminatedBy(
+  Codec.uint8, // encode identifier using an 8-bit integer
   imap({
     0: infoCodec, // instances of Info prefixed by ID 0
     1: debugCodec, // instances of Debug prefixed by ID 1
@@ -67,15 +68,15 @@ final messageCodec = discriminatedBy(
 final documentCodec = Codec.product2(
   headerCodec,
   // ilist of Messages with 16-bit int prefix indicating # of elements
-  ilistOfN(int16, messageCodec),
+  Codec.ilistOfN(Codec.int16, messageCodec),
   Document.new,
   (doc) => (doc.header, doc.messages),
 );
 
 final headerCodec = Codec.product3(
-  float32, // 32-bit floating point
-  utf8_32, // utf8 bytes with 32bit size prefix
-  int64, // 64-bit integer
+  Codec.float32, // 32-bit floating point
+  Codec.utf8_32, // utf8 bytes with 32bit size prefix
+  Codec.int64, // 64-bit integer
   (version, comment, numMessages) => Header(version, comment, numMessages),
   (hdr) => (hdr.version, hdr.comment, hdr.numMessages),
 );
