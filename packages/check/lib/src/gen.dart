@@ -287,25 +287,15 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
 }
 
 final class Streams {
-  static Stream<A> unfold<A>(A initial, Function1<A, Option<A>> f) {
-    final controller = StreamController<A>();
+  static Stream<A> unfold<A>(A initial, Function1<A, Option<A>> f) async* {
+    Option<A> state = Some(initial);
 
-    var closeController = false;
-    controller.onCancel = () => closeController = true;
+    while (state.isDefined) {
+      final next = f(state.getOrElse(() => throw ''));
+      state = next;
 
-    void step(A a) {
-      f(a).filter((_) => !closeController).fold(
-          () => controller.close(),
-          (a) => controller
-              .addStream(Stream.value(a))
-              .whenComplete(() => step(a)));
+      if (state.isDefined) yield state.getOrElse(() => throw '');
     }
-
-    controller
-        .addStream(Stream.value(initial))
-        .whenComplete(() => step(initial));
-
-    return controller.stream;
   }
 }
 

@@ -70,14 +70,10 @@ mixin ISet<A> on RibsIterable<A> {
   ISet<A> excl(A elem);
 
   @override
-  ISet<A> filter(Function1<A, bool> p) {
-    throw UnimplementedError('ISet.filter');
-  }
+  ISet<A> filter(Function1<A, bool> p) => super.filter(p).toISet();
 
   @override
-  ISet<A> filterNot(Function1<A, bool> p) {
-    throw UnimplementedError('ISet.filterNot');
-  }
+  ISet<A> filterNot(Function1<A, bool> p) => super.filterNot(p).toISet();
 
   @override
   ISet<B> flatMap<B>(covariant Function1<A, IterableOnce<B>> f) =>

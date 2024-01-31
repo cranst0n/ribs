@@ -403,14 +403,8 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
       }
 
       if (anyChangesMadeSoFar) {
-        return BitmapIndexedMapNode(
-          dataMap = newDataMap,
-          nodeMap = newNodeMap,
-          content = newContent,
-          originalHashes = newOriginalHashes,
-          size = newSize,
-          newCachedHashCode,
-        );
+        return BitmapIndexedMapNode(newDataMap, newNodeMap, newContent,
+            newOriginalHashes, newSize, newCachedHashCode);
       } else {
         return bm;
       }
@@ -959,7 +953,7 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
   }
 
   @override
-  int get nodeArity => Integer.bitCount(dataMap);
+  int get nodeArity => Integer.bitCount(nodeMap);
 
   @override
   int get payloadArity => Integer.bitCount(dataMap);

@@ -22,7 +22,7 @@ final class IHashMap<K, V>
   RibsIterator<(K, V)> get iterator => _MapKeyValueTupleIterator(_rootNode);
 
   @override
-  ISet<K> get keys => throw UnimplementedError();
+  ISet<K> get keys => _MapKeyIterator(_rootNode).toISet();
 
   @override
   int get knownSize => _rootNode.size;
@@ -55,8 +55,7 @@ final class IHashMap<K, V>
   }
 
   @override
-  // TODO: implement values
-  RibsIterator<V> get values => throw UnimplementedError();
+  RibsIterator<V> get values => _MapValueIterator(_rootNode);
 
   IHashMap<K, V> _newHashMapOrThis(BitmapIndexedMapNode<K, V> newRootNode) =>
       newRootNode == _rootNode ? this : IHashMap._(newRootNode);
@@ -256,5 +255,34 @@ final class _MapKeyValueTupleIterator<K, V>
     currentValueCursor += 1;
 
     return payload;
+  }
+}
+
+final class _MapKeyIterator<K, V> extends ChampBaseIterator<K, MapNode<K, V>> {
+  _MapKeyIterator(super.rootNode);
+
+  @override
+  K next() {
+    if (!hasNext) noSuchElement();
+
+    final key = currentValueNode!.getKey(currentValueCursor);
+    currentValueCursor += 1;
+
+    return key;
+  }
+}
+
+final class _MapValueIterator<K, V>
+    extends ChampBaseIterator<V, MapNode<K, V>> {
+  _MapValueIterator(super.rootNode);
+
+  @override
+  V next() {
+    if (!hasNext) noSuchElement();
+
+    final value = currentValueNode!.getValue(currentValueCursor);
+    currentValueCursor += 1;
+
+    return value;
   }
 }

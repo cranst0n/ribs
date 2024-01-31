@@ -87,7 +87,12 @@ final class _Map4<K, V>
     } else if (key == key3) {
       return _Map4(key1, value1, key2, value2, key3, value, key4, value4);
     } else {
-      throw UnimplementedError('IMap4.updated');
+      return IHashMap.empty<K, V>()
+          .updated(key1, value1)
+          .updated(key2, value2)
+          .updated(key3, value3)
+          .updated(key4, value4)
+          .updated(key, value);
     }
   }
 

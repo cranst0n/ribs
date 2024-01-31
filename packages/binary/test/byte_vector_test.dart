@@ -52,10 +52,6 @@ void main() {
       );
     });
 
-    test('foo', () {
-      print(ByteVector.fromValidBase32('AAAAA'));
-    });
-
     test('fromValidBase32', () {
       ByteVector hex(String s) => ByteVector.fromValidHex(s);
       ByteVector base32(String s) => ByteVector.fromValidBase32(s);
