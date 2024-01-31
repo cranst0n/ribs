@@ -117,7 +117,7 @@ final class HexDumpFormat {
   }
 
   void _renderHex(StringBuffer bldr, ByteVector bytes) {
-    bytes.forEach((b) {
+    bytes.foreach((b) {
       if (ansiEnabled) {
         _Ansi.foregroundColor(bldr, _rgbForByte(b));
       }

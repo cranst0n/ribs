@@ -101,7 +101,7 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
 
       // Special case for first element
       while (h == null) {
-        f(rest.head).forEach((x) => h = Cons(x, nilB));
+        f(rest.head).foreach((x) => h = Cons(x, nilB));
         rest = rest.tail();
 
         if (rest.isEmpty) return h ?? nilB;
@@ -111,7 +111,7 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
 
       // Remaining elements
       while (rest.nonEmpty) {
-        f(rest.head).forEach((x) {
+        f(rest.head).foreach((x) {
           final nx = Cons(x, nilB);
           t!.next = nx;
           t = nx;

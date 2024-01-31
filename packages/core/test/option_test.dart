@@ -79,13 +79,13 @@ void main() {
       expect(testNone.getOrElse(() => 42), 42);
     });
 
-    test('forEach', () {
+    test('foreach', () {
       var count = 0;
 
-      testNone.forEach((a) => count += a);
+      testNone.foreach((a) => count += a);
       expect(count, 0);
 
-      testSome.forEach((a) => count += a);
+      testSome.foreach((a) => count += a);
       expect(count, 1);
     });
 

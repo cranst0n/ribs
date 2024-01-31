@@ -213,7 +213,7 @@ final class NonEmptyIList<A> implements Monad<A>, Foldable<A> {
   /// nel(1, [2, 3, 4, 5]).forEach((_) => count += 1);
   /// assert(count == 5);
   /// ```
-  void forEach<B>(Function1<A, B> f) {
+  void foreach<B>(Function1<A, B> f) {
     f(head);
     tail.foreach(f);
   }

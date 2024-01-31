@@ -41,9 +41,6 @@ that you won't find here.
 * [fpdart](https://github.com/SandroMaglione/fpdart)
 * [FIC](https://pub.dev/packages/fast_immutable_collections)
 
-There are also provided `compat` libraries to make it easier converting between
-similar types in those libraries if you want to use both.
-
 ### Credits
 
 Much of the design and functionality in this repository is closely derived from

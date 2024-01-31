@@ -59,7 +59,7 @@ mixin Buffer<A> on IterableOnce<A>, RibsIterable<A>, Seq<A> {
       takeInPlace(end).dropInPlace(start);
 
   Buffer<A> subtractOne(A x) {
-    indexOf(x).forEach(remove);
+    indexOf(x).foreach(remove);
     return this;
   }
 

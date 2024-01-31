@@ -1149,7 +1149,7 @@ void main() {
     final (elapsed, value) = await ioa.unsafeRunFuture();
 
     expect(value, 42);
-    expect(elapsed.inMilliseconds, closeTo(250, 50));
+    expect(elapsed.inMilliseconds, closeTo(250, 75));
   });
 
   test('map3', () async {

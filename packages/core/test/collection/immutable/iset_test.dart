@@ -122,7 +122,7 @@ void main() {
       expect(iset({-1, -2, 3}).forall((x) => x > 0), isFalse);
     });
 
-    forAll('forEach',
+    forAll('foreach',
         Gen.ilistOf(Gen.chooseInt(0, 100), Gen.integer).map((l) => l.toISet()),
         (aSet) {
       var count = 0;

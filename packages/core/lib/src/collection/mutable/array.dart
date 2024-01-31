@@ -59,7 +59,7 @@ final class Array<A> {
 
     var i = 0;
     while (i < _list.length) {
-      f(_list[i] as A).forEach(b.addOne);
+      f(_list[i] as A).foreach(b.addOne);
       i += 1;
     }
 

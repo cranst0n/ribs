@@ -31,7 +31,7 @@ extension OptionTuple2Ops<A, B> on Option<(A, B)> {
   C foldN<C>(Function0<C> ifEmpty, Function2<A, B, C> f) =>
       fold(ifEmpty, f.tupled);
 
-  void forEachN(Function2<A, B, void> ifSome) => forEach(ifSome.tupled);
+  void foreachN(Function2<A, B, void> ifSome) => foreach(ifSome.tupled);
 
   Option<C> mapN<C>(Function2<A, B, C> f) => map(f.tupled);
 
@@ -54,7 +54,7 @@ extension OptionTuple3Ops<A, B, C> on Option<(A, B, C)> {
   D foldN<D>(Function0<D> ifEmpty, Function3<A, B, C, D> f) =>
       fold(ifEmpty, f.tupled);
 
-  void forEachN(Function3<A, B, C, void> ifSome) => forEach(ifSome.tupled);
+  void foreachN(Function3<A, B, C, void> ifSome) => foreach(ifSome.tupled);
 
   Option<D> mapN<D>(Function3<A, B, C, D> f) => map(f.tupled);
 

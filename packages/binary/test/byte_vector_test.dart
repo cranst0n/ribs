@@ -132,8 +132,8 @@ void main() {
 
       expect(c.size, bvs.foldLeft(0, (acc, bv) => acc + bv.size));
 
-      bvs.headOption.forEach((h) => expect(c.startsWith(h), isTrue));
-      bvs.lastOption.forEach((l) => expect(c.endsWith(l), isTrue));
+      bvs.headOption.foreach((h) => expect(c.startsWith(h), isTrue));
+      bvs.lastOption.foreach((l) => expect(c.endsWith(l), isTrue));
     });
 
     forAll('containsSlice', byteVector, (bv) {

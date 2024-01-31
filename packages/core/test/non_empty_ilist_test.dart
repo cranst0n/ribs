@@ -148,10 +148,10 @@ void main() {
       expect(nel(1, [2, 3]).forall((a) => a < 10), isTrue);
     });
 
-    test('forEach', () {
+    test('foreach', () {
       var count = 0;
 
-      nel(1, [2, 3]).forEach((a) => count += a);
+      nel(1, [2, 3]).foreach((a) => count += a);
 
       expect(count, 6);
     });

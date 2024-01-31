@@ -16,7 +16,7 @@ final class _CollectIterator<A, B> extends RibsIterator<B> {
         final x = self.next();
         final v = f(x);
 
-        v.forEach((v) {
+        v.foreach((v) {
           _hd = v;
           _status = 1;
         });

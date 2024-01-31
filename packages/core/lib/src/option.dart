@@ -77,7 +77,7 @@ sealed class Option<A> implements Monad<A>, Foldable<A> {
 
   /// If this is a [Some], the side-effect [ifSome] is evaluated by passing the
   /// value.
-  void forEach(Function1<A, void> ifSome) {
+  void foreach(Function1<A, void> ifSome) {
     if (this is Some<A>) {
       ifSome((this as Some<A>).value);
     }
