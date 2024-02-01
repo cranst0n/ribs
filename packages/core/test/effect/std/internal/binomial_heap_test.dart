@@ -57,7 +57,7 @@ int rank<A>(BinomialTree<A> tree) =>
 
 bool checkRank<A>(int rank, BinomialTree<A> tree) => switch (tree.children) {
       final IList<A> l when l.isEmpty => rank == 1,
-      _ => IList.range(0, rank)
+      _ => Range.exclusive(0, rank)
           .reverse()
           .zip(tree.children)
           .forall((tup) => tup((r, t) => checkRank(r, t))),

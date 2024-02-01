@@ -285,7 +285,7 @@ final class Ipv4Address extends IpAddress {
 
     var rem = value;
 
-    IList.rangeTo(3, 0, -1).foreach((i) {
+    Range.inclusive(3, 0, -1).foreach((i) {
       bytes[i] = rem & 0x0ff;
       rem = rem >> 8;
     });
@@ -552,7 +552,7 @@ final class Ipv6Address extends IpAddress {
     final bytes = Uint8List(16);
 
     var rem = value;
-    IList.rangeTo(15, 0, -1).foreach((i) {
+    Range.inclusive(15, 0, -1).foreach((i) {
       bytes[i] = (rem & BigInt.from(0x0ff)).toInt();
       rem = rem >> 8;
     });

@@ -249,8 +249,9 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
       nonEmptyStringOf(hexChar, size);
 
   static Gen<NonEmptyIList<A>> nonEmptyIList<A>(Gen<A> gen, [int? limit]) =>
-      Choose.integer.choose(1, limit ?? 1000).flatMap((size) =>
-          Gen.listOfN(size, gen).map(NonEmptyIList.fromIterableUnsafe));
+      Choose.integer
+          .choose(1, limit ?? 1000)
+          .flatMap((size) => Gen.ilistOfN(size, gen).map(NonEmptyIList.unsafe));
 
   static Gen<int> nonNegativeInt = chooseInt(0, Integer.MaxValue);
 

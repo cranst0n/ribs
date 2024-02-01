@@ -519,21 +519,11 @@ sealed class IList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
     }
   }
 
-  IList<A> removeAt(int idx) {
-    if (0 <= idx && idx < length) {
-      if (idx == 0) {
-        return tail();
-      } else {
-        final (a, b) = splitAt(idx);
-        return a.concat(b.tail());
-      }
-    } else {
-      throw RangeError('$idx is out of bounds (min 0, max ${length - 1})');
-    }
-  }
+  @override
+  IList<A> removeAt(int idx) => super.removeAt(idx).toIList();
 
-  IList<A> removeFirst(Function1<A, bool> p) =>
-      indexWhere(p).fold(() => this, removeAt);
+  @override
+  IList<A> removeFirst(Function1<A, bool> p) => super.removeFirst(p).toIList();
 
   @override
   IList<A> reverse() {

@@ -348,6 +348,22 @@ mixin Seq<A> on RibsIterable<A> {
   Seq<A> prependedAll(IterableOnce<A> prefix) =>
       seqviews.Concat(prefix.toSeq(), this);
 
+  Seq<A> removeAt(int idx) {
+    if (0 <= idx && idx < length) {
+      if (idx == 0) {
+        return tail();
+      } else {
+        final (a, b) = splitAt(idx);
+        return a.concat(b.tail());
+      }
+    } else {
+      throw RangeError('$idx is out of bounds (min 0, max ${length - 1})');
+    }
+  }
+
+  Seq<A> removeFirst(Function1<A, bool> p) =>
+      indexWhere(p).fold(() => this, removeAt);
+
   /// Returns a new collection with the order of the elements reversed.
   Seq<A> reverse();
 

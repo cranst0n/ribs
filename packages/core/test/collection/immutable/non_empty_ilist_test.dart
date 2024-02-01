@@ -11,9 +11,9 @@ void main() {
     });
 
     test('fromIterableUnsafe', () {
-      expect(NonEmptyIList.fromIterableUnsafe([1]), nel(1));
-      expect(NonEmptyIList.fromIterableUnsafe([1, 2, 3]), nel(1, [2, 3]));
-      expect(() => NonEmptyIList.fromIterableUnsafe(<int>[]), throwsStateError);
+      expect(NonEmptyIList.fromDartUnsafe([1]), nel(1));
+      expect(NonEmptyIList.fromDartUnsafe([1, 2, 3]), nel(1, [2, 3]));
+      expect(() => NonEmptyIList.fromDartUnsafe(<int>[]), throwsStateError);
     });
 
     test('NonEmptyIList[]', () {
@@ -23,19 +23,9 @@ void main() {
       expect(() => nel(1, [2, 3])[5], throwsRangeError);
     });
 
-    test('ap', () {
-      int inc1(int i) => i + 1;
-      int inc2(int i) => i + 2;
-
-      expect(
-        nel(1, [2]).ap(nel(inc1, [inc2])),
-        nel(2, [3, 3, 4]),
-      );
-    });
-
     test('append', () {
-      expect(nel(1) + 42, nel(1, [42]));
-      expect(nel(1).append(2), nel(1, [2]));
+      expect(nel(1).appended(42), nel(1, [42]));
+      expect(nel(1).appended(2), nel(1, [2]));
     });
 
     test('concat', () {
@@ -57,9 +47,9 @@ void main() {
     });
 
     test('distinct', () {
-      expect(nel(1, [2, 3]).distinct(), ilist([1, 2, 3]));
-      expect(nel(3, [1, 2, 3]).distinct(), ilist([3, 1, 2]));
-      expect(nel(2, [1, 2, 3, 2, 2]).distinct(), ilist([2, 1, 3]));
+      expect(nel(1, [2, 3]).distinct(), nel(1, [2, 3]));
+      expect(nel(3, [1, 2, 3]).distinct(), nel(3, [1, 2]));
+      expect(nel(2, [1, 2, 3, 2, 2]).distinct(), nel(2, [1, 3]));
     });
 
     test('drop', () {
@@ -208,19 +198,17 @@ void main() {
     });
 
     test('maxBy', () {
-      expect(nel('a', ['bc', 'def']).maxBy((a) => a.length), 'def');
-    });
-
-    test('max', () {
-      expect(nel(1, [2, 3]).max(), 3);
+      expect(
+        nel('a', ['bc', 'def']).maxByOption((a) => a.length, Order.ints),
+        const Some('def'),
+      );
     });
 
     test('minBy', () {
-      expect(nel('a', ['bc', 'def']).minBy((a) => a.length), 'a');
-    });
-
-    test('min', () {
-      expect(nel(1, [2, 3]).min(), 1);
+      expect(
+        nel('a', ['bc', 'def']).minByOption((a) => a.length, Order.ints),
+        const Some('a'),
+      );
     });
 
     test('mkString', () {
@@ -242,12 +230,12 @@ void main() {
     });
 
     test('prepend', () {
-      expect(nel(1, [2, 3]).prepend(0), nel(0, [1, 2, 3]));
+      expect(nel(1, [2, 3]).prepended(0), nel(0, [1, 2, 3]));
     });
 
     test('prependAll', () {
-      expect(nel(1).prependAll(nil()), nel(1));
-      expect(nel(3).prependAll(ilist([0, 1, 2])), nel(0, [1, 2, 3]));
+      expect(nel(1).prependedAll(nil()), nel(1));
+      expect(nel(3).prependedAll(ilist([0, 1, 2])), nel(0, [1, 2, 3]));
     });
 
     test('removeFirst', () {
@@ -290,7 +278,7 @@ void main() {
 
       final l = nel(m2, [m3, m1]);
 
-      expect(l.sortBy((a) => a.size), nel(m1, [m2, m3]));
+      expect(l.sortBy(Order.ints, (a) => a.size), nel(m1, [m2, m3]));
     });
 
     test('sortWith', () {
@@ -392,11 +380,11 @@ void main() {
       final b = nel(5, [4, 3, 2, 1]);
       final c = nel(5, [4, 3]);
 
-      expect(a.zip(b), nel((1, 5), [(2, 4), (3, 3), (4, 2), (5, 1)]));
-      expect(b.zip(a), nel((5, 1), [(4, 2), (3, 3), (2, 4), (1, 5)]));
+      expect(a.zip(b), ilist([(1, 5), (2, 4), (3, 3), (4, 2), (5, 1)]));
+      expect(b.zip(a), ilist([(5, 1), (4, 2), (3, 3), (2, 4), (1, 5)]));
 
-      expect(a.zip(c), nel((1, 5), [(2, 4), (3, 3)]));
-      expect(c.zip(a), nel((5, 1), [(4, 2), (3, 3)]));
+      expect(a.zip(c), ilist([(1, 5), (2, 4), (3, 3)]));
+      expect(c.zip(a), ilist([(5, 1), (4, 2), (3, 3)]));
     });
 
     test('zipAll', () {

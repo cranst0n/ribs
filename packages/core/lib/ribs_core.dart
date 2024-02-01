@@ -19,7 +19,6 @@ export 'src/foldable.dart';
 export 'src/function.dart';
 export 'src/functor.dart';
 export 'src/monad.dart';
-export 'src/non_empty_ilist.dart';
 export 'src/option.dart';
 export 'src/order.dart';
 export 'src/ordered.dart';

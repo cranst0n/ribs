@@ -258,6 +258,13 @@ sealed class IVector<A>
   }
 
   @override
+  IVector<A> removeAt(int idx) => super.removeAt(idx).toIVector();
+
+  @override
+  IVector<A> removeFirst(Function1<A, bool> p) =>
+      super.removeFirst(p).toIVector();
+
+  @override
   IVector<A> reverse() => view().reverse().toIVector();
 
   @override

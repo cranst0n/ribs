@@ -31,7 +31,7 @@ final class MacAddress extends Ordered<MacAddress> {
 
     var rem = value;
 
-    IList.rangeTo(-5, 0, -1).foreach((i) {
+    Range.inclusive(-5, 0, -1).foreach((i) {
       bytes[i] = rem & 0x0ff;
       rem = rem >> 8;
     });

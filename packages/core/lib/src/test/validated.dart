@@ -1,4 +1,4 @@
-import 'package:ribs_core/src/non_empty_ilist.dart';
+import 'package:ribs_core/src/collection/immutable/non_empty_ilist.dart';
 import 'package:ribs_core/src/validated.dart';
 import 'package:test/test.dart';
 
