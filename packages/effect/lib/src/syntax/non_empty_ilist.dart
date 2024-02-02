@@ -45,15 +45,15 @@ extension IONonEmptyIListOps<A> on NonEmptyIList<A> {
 
 /// Operations avaiable when [NonEmptyIList] elements are of type [IO].
 extension NonEmptyIListIOOps<A> on NonEmptyIList<IO<A>> {
-  /// Alias for [traverseIO], using [identity] as the function parameter.
+  /// Alias for `traverseIO`, using [identity] as the function parameter.
   IO<NonEmptyIList<A>> sequence() => traverseIO(identity);
 
-  /// Alias for [traverseIO_], using [identity] as the function parameter.
+  /// Alias for `traverseIO_`, using [identity] as the function parameter.
   IO<Unit> sequence_() => traverseIO_(identity);
 
-  /// Alias for [parTraverseIO], using [identity] as the function parameter.
+  /// Alias for `parTraverseIO`, using [identity] as the function parameter.
   IO<NonEmptyIList<A>> parSequence() => parTraverseIO(identity);
 
-  /// Alias for [parTraverseIO_], using [identity] as the function parameter.
+  /// Alias for `parTraverseIO_`, using [identity] as the function parameter.
   IO<Unit> parSequence_() => parTraverseIO_(identity);
 }

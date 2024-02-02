@@ -6,8 +6,6 @@ void main() {
   const testSome = Some(1);
   const testNone = None<int>();
 
-  int incInt(int i) => i + 1;
-
   group('Option', () {
     test('constructor', () {
       expect(Option(1), isSome(1));
@@ -22,15 +20,6 @@ void main() {
     test('when', () {
       expect(Option.when(() => true, () => 1), isSome(1));
       expect(Option.when(() => false, () => 1), isNone());
-    });
-
-    test('ap', () {
-      final noneF = none<Function1<int, int>>();
-
-      expect(testSome.ap(incInt.some), isSome(2));
-      expect(testSome.ap(noneF), isNone());
-      expect(testNone.ap(incInt.some), isNone());
-      expect(testNone.ap(noneF), isNone());
     });
 
     test('isDefined', () {

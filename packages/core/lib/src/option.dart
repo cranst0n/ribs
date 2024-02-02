@@ -12,7 +12,7 @@ Option<A> none<A>() => None<A>();
 /// flexibility. There are also conversions to move between optional and
 /// nullable types.
 @immutable
-sealed class Option<A> implements Monad<A> {
+sealed class Option<A> with RIterableOnce<A> {
   /// Creates an [Option] from the nullable value. If the value is null, a
   /// [None] will be returned. If the value is non-null, a [Some] will be
   /// returned.
@@ -33,78 +33,69 @@ sealed class Option<A> implements Monad<A> {
   factory Option.when(Function0<bool> condition, Function0<A> a) =>
       condition() ? Some(a()) : None<A>();
 
+  @override
+  Option<B> collect<B>(Function1<A, Option<B>> f) => flatMap(f);
+
+  @override
+  Option<A> drop(int n) => filter((_) => n <= 0);
+
+  @override
+  RIterableOnce<A> dropWhile(Function1<A, bool> p) => filterNot(p);
+
+  @override
+  RIterator<A> get iterator => fold(() => RIterator.empty(), RIterator.single);
+
   /// Returns the result of applying `f` to this [Option] value if non-empty.
   B fold<B>(Function0<B> ifEmpty, Function1<A, B> f);
-
-  /// Applies the optional function provided if both the function and this
-  /// [Option] are both defined. Otherwise, [None] is returned.
-  @override
-  Option<B> ap<B>(Option<Function1<A, B>> f) =>
-      flatMap((a) => f.map((f) => f(a)));
 
   /// Returns true if this Option is a [Some], false if it's a [None].
   bool get isDefined => fold(() => false, (_) => true);
 
-  /// Returns true if this Option is a [None], false if it's a [Some].
-  bool get isEmpty => !isDefined;
+  @override
+  bool get isEmpty => this is None;
 
-  bool exists(Function1<A, bool> p) =>
-      foldLeft(false, (acc, elem) => acc || p(elem));
-
-  bool forall(Function1<A, bool> p) =>
-      foldLeft(true, (acc, elem) => acc && p(elem));
-
-  /// Returns a [Some] if this Option is non-empty **and** if applying the value
-  /// of this [Option] to the given predicate returns true.
+  @override
   Option<A> filter(Function1<A, bool> p) =>
       fold(() => this, (a) => p(a) ? this : none<A>());
 
-  /// Returns a [Some] if this Option is non-empty **and** if applying the value
-  /// of this [Option] to the given predicate returns false.
+  @override
   Option<A> filterNot(Function1<A, bool> p) => filter((a) => !p(a));
 
-  /// Returns the result of applying [f] to the value of this [Option] if
-  /// non-empty.
   @override
   Option<B> flatMap<B>(covariant Function1<A, Option<B>> f) =>
       fold(() => none<B>(), f);
-
-  /// Applies the given binary operator to the start value and all values of
-  /// this [Foldable], moving left to right.
-  B foldLeft<B>(B init, Function2<B, A, B> op) =>
-      fold(() => init, (a) => op(init, a));
-
-  B foldRight<B>(B init, Function2<A, B, B> op) =>
-      fold(() => init, (a) => op(a, init));
 
   /// Returns the value if this is a [Some] or the value returned from
   /// evaluating [ifEmpty].
   A getOrElse(Function0<A> ifEmpty) => fold(() => ifEmpty(), identity);
 
-  /// If this is a [Some], the side-effect [ifSome] is evaluated by passing the
-  /// value.
-  void foreach(Function1<A, void> ifSome) {
-    if (this is Some<A>) {
-      ifSome((this as Some<A>).value);
-    }
-  }
-
-  /// If this is a [Some], returns a new [Some] with the result of applying [f]
-  /// to the value. Otherwise, [None] is returned.
   @override
   Option<B> map<B>(Function1<A, B> f) => flatMap((a) => Some(f(a)));
 
-  /// Return true if this is a [Some], otherwise false is returned;
-  bool get nonEmpty => isDefined;
+  @override
+  bool get nonEmpty => this is Some;
 
   /// If this is a [Some], this is returned, otherwise the result of evaluating
   /// [orElse] is returned.
   Option<A> orElse(Function0<Option<A>> orElse) =>
       fold(() => orElse(), (_) => this);
 
-  /// Returns a single element [IList] if this is a [Some]. Otherwise an empty
-  /// [IList] is returned.
-  IList<A> toIList() => fold(() => nil<A>(), (a) => ilist([a]));
+  @override
+  RIterableOnce<B> scanLeft<B>(B z, Function2<B, A, B> op) =>
+      toIList().scanLeft(z, op);
+
+  @override
+  RIterableOnce<A> slice(int from, int until) => toIList().slice(from, until);
+
+  @override
+  (RIterableOnce<A>, RIterableOnce<A>) span(Function1<A, bool> p) =>
+      toIList().span(p);
+
+  @override
+  RIterableOnce<A> take(int n) => toIList().take(n);
+
+  @override
+  RIterableOnce<A> takeWhile(Function1<A, bool> p) => toIList().takeWhile(p);
 
   /// If this is a [Some] a [Left] is returned with the value. It this is a
   /// [None], a [Right] is returned with the result of evaluating [ifEmpty].

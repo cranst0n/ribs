@@ -39,6 +39,9 @@ mixin RIterable<A> on RIterableOnce<A> {
   RIterable<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) =>
       views.FlatMap(this, f);
 
+  /// {@macro iterable_once_foldLeft}
+  A fold(A init, Function2<A, A, A> op) => foldLeft(init, op);
+
   /// {@template iterable_groupBy}
   /// Partitions all elements of this collection by applying [f] to each element
   /// and accumulating duplicate keys in the returned [IMap].

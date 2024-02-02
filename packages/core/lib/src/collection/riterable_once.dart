@@ -158,13 +158,10 @@ mixin RIterableOnce<A> {
     return none();
   }
 
-  /// {@macro iterable_once_foldLeft}
-  A fold(A init, Function2<A, A, A> op) => foldLeft(init, op);
-
   /// {@template iterable_once_foldLeft}
   /// Returns a summary value by applying [op] to all elements of this
   /// collection, moving from left to right. The fold uses a seed value of
-  /// [init].
+  /// [z].
   /// {@endtemplate}
   B foldLeft<B>(B z, Function2<B, A, B> op) {
     var result = z;
@@ -180,7 +177,7 @@ mixin RIterableOnce<A> {
   /// {@template iterableonce_foldRight}
   /// Returns a summary value by applying [op] to all elements of this
   /// collection, moving from right to left. The fold uses a seed value of
-  /// [init].
+  /// [z].
   /// {@endtemplate}
   B foldRight<B>(B z, Function2<A, B, B> op) =>
       _reversed().foldLeft(z, (b, a) => op(a, b));
