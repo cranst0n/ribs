@@ -280,6 +280,12 @@ abstract class Range
   }
 
   @override
+  Range tapEach<U>(Function1<int, U> f) {
+    foreach(f);
+    return this;
+  }
+
+  @override
   String toString() {
     final preposition = isInclusive ? 'to' : 'until';
     final stepped = step == 1 ? '' : ' by $step';

@@ -188,9 +188,6 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   @override
   IList<A> removeFirst(Function1<A, bool> p) => toIList().removeFirst(p);
 
-  /// Replaces the element at the given [index] with specified [elem] (value).
-  NonEmptyIList<A> replace(int index, A elem) => updated(index, elem);
-
   @override
   NonEmptyIList<A> reverse() => _tail.isEmpty
       ? this
@@ -200,16 +197,10 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   @override
   NonEmptyIList<B> scan<B>(B z, Function2<B, A, B> f) => scanLeft(z, f);
 
-  /// Returns a new list of the accumulation of results by applying [f] to all
-  /// elements of the list, including the inital value [z]. List traversal moves
-  /// from left to right.
   @override
   NonEmptyIList<B> scanLeft<B>(B z, Function2<B, A, B> f) =>
       NonEmptyIList(z, _tail.scanLeft(f(z, head), f));
 
-  /// Returns a new list of the accumulation of results by applying [f] to all
-  /// elements of the list, including the inital value [z]. List traversal moves
-  /// from right to left.
   @override
   NonEmptyIList<B> scanRight<B>(B z, Function2<A, B, B> f) {
     final newTail = _tail.scanRight(z, f);
@@ -224,19 +215,14 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   RibsIterator<IList<A>> sliding(int size, [int step = 1]) =>
       toIList().sliding(size, step);
 
-  /// Returns a new list that is sorted according to the [Order] [o].
   @override
   NonEmptyIList<A> sorted(Order<A> o) =>
       fromDartUnsafe(toIList().sorted(o).toList());
 
-  /// Returns a new list that is sorted according to the transformation [f]
-  /// which will result in the [Comparable] used to detemine sort order.
   @override
   NonEmptyIList<A> sortBy<B>(Order<B> order, Function1<A, B> f) =>
       NonEmptyIList.unsafe(super.sortBy(order, f));
 
-  /// Returns a new list sorted using the provided function [lt] which is used
-  /// to determine if one element is less than the other.
   @override
   NonEmptyIList<A> sortWith(Function2<A, A, bool> lt) =>
       fromDartUnsafe(toIList().sortWith(lt).toList());
@@ -258,22 +244,12 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   @override
   RibsIterator<IList<A>> tails() => toIList().tails();
 
-  /// Return a new [IList] with the first [n] elements of this non empty list.
-  ///
-  /// If [n] is less than or equal to 0, the empty list is returned.
-  /// If [n] is greater than or equal to the size of this list, the original
-  /// list is returned as an [IList].
   @override
   IList<A> take(int n) => toIList().take(n);
 
-  /// Returns a new [IList] with the last [n] elements of this non empty list.
-  /// If [n] is greater than the size of this list, the original list is
-  /// returned.
   @override
   IList<A> takeRight(int n) => toIList().takeRight(n);
 
-  /// Returns a new [IList] of the longest prefix that satisfies the
-  /// predicate [p].
   @override
   IList<A> takeWhile(Function1<A, bool> p) => toIList().takeWhile(p);
 
@@ -283,7 +259,6 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
     return this;
   }
 
-  /// Returns a new [IList] with all elements of this non empty list.
   @override
   IList<A> toIList() => _tail.prepended(head);
 
@@ -356,17 +331,9 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
     }
   }
 
-  /// Returns a new list that combines corresponding elements from this list
-  /// and [that] as a tuple. The length of the returned list will be the minimum
-  /// of this lists size and thes size of [that].
   @override
   IList<(A, B)> zip<B>(IterableOnce<B> that) => toIList().zip(that);
 
-  /// Returns a new list that combines corresponding elements from this list
-  /// and [that] as a tuple. The length of the returned list will be the maximum
-  /// of this lists size and thes size of [that]. If this list is shorter than
-  /// [that], [thisElem] will be used to fill in the resulting list. If [that] is
-  /// shorter, [thatElem] will be used to will in the resulting list.
   @override
   NonEmptyIList<(A, B)> zipAll<B>(
     IterableOnce<B> that,
@@ -375,8 +342,6 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   ) =>
       NonEmptyIList.unsafe(super.zipAll(that, thisElem, thatElem));
 
-  /// Return a new list with each element of this list paired with it's
-  /// respective index.
   @override
   NonEmptyIList<(A, int)> zipWithIndex() => NonEmptyIList(
       (head, 0), _tail.zipWithIndex().map((a) => a.copy($2: a.$2 + 1)));

@@ -243,11 +243,6 @@ void main() {
       expect(nel(1, [-2, -3]).removeFirst((x) => x > 10), ilist([1, -2, -3]));
     });
 
-    test('replace', () {
-      expect(nel(1, [2, 3]).replace(1, 42), nel(1, [42, 3]));
-      expect(nel(1, [2, 3]).replace(100, 42), nel(1, [2, 3]));
-    });
-
     test('reverse', () {
       expect(nel(1, [2, 3]).reverse(), nel(3, [2, 1]));
     });
