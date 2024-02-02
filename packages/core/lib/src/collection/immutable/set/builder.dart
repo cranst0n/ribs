@@ -5,7 +5,7 @@ final class ISetBuilder<A> {
   var _switchedToHashSetBuilder = false;
   late final _hashSetBuilder = IHashSetBuilder<A>();
 
-  ISetBuilder<A> addAll(IterableOnce<A> elems) {
+  ISetBuilder<A> addAll(RIterableOnce<A> elems) {
     final it = elems.iterator;
 
     while (it.hasNext) {

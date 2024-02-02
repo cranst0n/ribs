@@ -1,13 +1,13 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _ScanLeftIterator<A, B> extends RibsIterator<B> {
-  final RibsIterator<A> self;
+final class _ScanLeftIterator<A, B> extends RIterator<B> {
+  final RIterator<A> self;
   final B z;
   final Function2<B, A, B> op;
 
   B acc;
 
-  late RibsIterator<B> _current = _RibsIteratorF(
+  late RIterator<B> _current = _RibsIteratorF(
     hasNextF: () => true,
     nextF: () {
       // Here we change our self-reference to a new iterator that iterates through `self`
@@ -37,7 +37,7 @@ final class _ScanLeftIterator<A, B> extends RibsIterator<B> {
   B next() => _current.next();
 }
 
-final class _RibsIteratorF<A> extends RibsIterator<A> {
+final class _RibsIteratorF<A> extends RIterator<A> {
   final Function0<bool> hasNextF;
   final Function0<A> nextF;
   final Function0<int> knownSizeF;

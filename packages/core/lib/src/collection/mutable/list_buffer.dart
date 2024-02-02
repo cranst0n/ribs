@@ -4,7 +4,7 @@ import 'package:ribs_core/ribs_collection.dart';
 import 'package:ribs_core/src/collection/mutable/mutation_tracker.dart';
 import 'package:ribs_core/src/option.dart';
 
-class ListBuffer<A> with IterableOnce<A>, RibsIterable<A>, Seq<A>, Buffer<A> {
+class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, Seq<A>, Buffer<A> {
   IList<A> _first = Nil<A>();
   Cons<A>? _last0;
 
@@ -16,7 +16,7 @@ class ListBuffer<A> with IterableOnce<A>, RibsIterable<A>, Seq<A>, Buffer<A> {
   A operator [](int idx) => _first[idx];
 
   @override
-  ListBuffer<A> addAll(IterableOnce<A> elems) {
+  ListBuffer<A> addAll(RIterableOnce<A> elems) {
     final it = elems.iterator;
     if (it.hasNext) {
       final fresh = ListBuffer<A>()._freshFrom(it);
@@ -91,7 +91,7 @@ class ListBuffer<A> with IterableOnce<A>, RibsIterable<A>, Seq<A>, Buffer<A> {
   }
 
   @override
-  void insertAll(int idx, IterableOnce<A> elems) {
+  void insertAll(int idx, RIterableOnce<A> elems) {
     if (idx < 0 || idx > _len) {
       throw RangeError('$idx is out of bounds (min 0, max ${_len - 1})');
     }
@@ -112,7 +112,7 @@ class ListBuffer<A> with IterableOnce<A>, RibsIterable<A>, Seq<A>, Buffer<A> {
   bool get isEmpty => _len == 0;
 
   @override
-  RibsIterator<A> get iterator => MutationTrackerIterator(
+  RIterator<A> get iterator => MutationTrackerIterator(
         _first.iterator,
         _mutationCount,
         () => _mutationCount,
@@ -138,7 +138,7 @@ class ListBuffer<A> with IterableOnce<A>, RibsIterable<A>, Seq<A>, Buffer<A> {
   int get length => _len;
 
   @override
-  ListBuffer<A> patchInPlace(int from, IterableOnce<A> patch, int replaced) {
+  ListBuffer<A> patchInPlace(int from, RIterableOnce<A> patch, int replaced) {
     final len_ = _len;
     final from_ = max(from, 0); // normalized
     final replaced_ = max(replaced, 0); // normalized
@@ -221,7 +221,7 @@ class ListBuffer<A> with IterableOnce<A>, RibsIterable<A>, Seq<A>, Buffer<A> {
   @override
   ListBuffer<A> reverse() => ListBuffer<A>().addAll(_reversed());
 
-  RibsIterable<A> _reversed() {
+  RIterable<A> _reversed() {
     var xs = IList.empty<A>();
     final it = iterator;
 
@@ -272,7 +272,7 @@ class ListBuffer<A> with IterableOnce<A>, RibsIterable<A>, Seq<A>, Buffer<A> {
     if (_aliased) _copyElems();
   }
 
-  ListBuffer<A> _freshFrom(IterableOnce<A> xs) {
+  ListBuffer<A> _freshFrom(RIterableOnce<A> xs) {
     final it = xs.iterator;
 
     if (it.hasNext) {

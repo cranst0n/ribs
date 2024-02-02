@@ -1,6 +1,6 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _SingleIterator<A> extends RibsIterator<A> {
+final class _SingleIterator<A> extends RIterator<A> {
   final A a;
   bool _consumed = false;
 
@@ -20,9 +20,9 @@ final class _SingleIterator<A> extends RibsIterator<A> {
   }
 
   @override
-  RibsIterator<A> sliceIterator(int from, int until) {
+  RIterator<A> sliceIterator(int from, int until) {
     if (_consumed || from > 0 || until == 0) {
-      return RibsIterator.empty();
+      return RIterator.empty();
     } else {
       return this;
     }

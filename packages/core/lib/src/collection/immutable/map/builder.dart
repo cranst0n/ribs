@@ -5,7 +5,7 @@ final class IMapBuilder<K, V> {
   var _switchedToHashMapBuilder = false;
   late final _hashMapBuilder = IHashMapBuilder<K, V>();
 
-  IMapBuilder<K, V> addAll(IterableOnce<(K, V)> elems) {
+  IMapBuilder<K, V> addAll(RIterableOnce<(K, V)> elems) {
     final it = elems.iterator;
 
     while (it.hasNext) {

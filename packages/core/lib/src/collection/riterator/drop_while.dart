@@ -1,7 +1,7 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _DropWhileIterator<A> extends RibsIterator<A> {
-  final RibsIterator<A> self;
+final class _DropWhileIterator<A> extends RIterator<A> {
+  final RIterator<A> self;
   final Function1<A, bool> p;
 
   // Magic value: -1 = hasn't dropped, 0 = found first, 1 = defer to parent iterator

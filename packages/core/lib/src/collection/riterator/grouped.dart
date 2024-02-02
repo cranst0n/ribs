@@ -1,7 +1,7 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _GroupedIterator<A> extends RibsIterator<Seq<A>> {
-  final RibsIterator<A> self;
+final class _GroupedIterator<A> extends RIterator<Seq<A>> {
+  final RIterator<A> self;
   final int groupSize;
   final int step;
 

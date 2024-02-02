@@ -20,7 +20,7 @@ final class Array<A> {
 
   static Array<A> fill<A>(int len, A? elem) => Array._(List.filled(len, elem));
 
-  static Array<A> from<A>(IterableOnce<A?> elems) =>
+  static Array<A> from<A>(RIterableOnce<A?> elems) =>
       fromDart(elems.toList(growable: false));
 
   static Array<A> fromDart<A>(Iterable<A?> elems) {
@@ -74,7 +74,7 @@ final class Array<A> {
 
   bool get isNotEmpty => _list.isNotEmpty;
 
-  RibsIterator<A?> get iterator => RibsIterator.fromDart(_list.iterator);
+  RIterator<A?> get iterator => RIterator.fromDart(_list.iterator);
 
   int get length => _list.length;
 
@@ -140,7 +140,7 @@ final class ArrayBuilder<A> {
   int size = 0;
   Array<A>? _elems;
 
-  ArrayBuilder<A> addAll(IterableOnce<A> xs) {
+  ArrayBuilder<A> addAll(RIterableOnce<A> xs) {
     final k = xs.knownSize;
 
     if (k > 0) _ensureSize(size + k);

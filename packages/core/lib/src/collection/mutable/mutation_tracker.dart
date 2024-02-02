@@ -1,8 +1,8 @@
 import 'package:ribs_core/src/collection/collection.dart';
 import 'package:ribs_core/src/function.dart';
 
-final class MutationTrackerIterator<A> extends RibsIterator<A> {
-  final RibsIterator<A> underlying;
+final class MutationTrackerIterator<A> extends RIterator<A> {
+  final RIterator<A> underlying;
   final int expectedCount;
   final Function0<int> mutationCount;
 

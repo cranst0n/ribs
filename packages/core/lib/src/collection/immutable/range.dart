@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:ribs_core/ribs_core.dart';
 
 abstract class Range
-    with IterableOnce<int>, RibsIterable<int>, Seq<int>, IndexedSeq<int> {
+    with RIterableOnce<int>, RIterable<int>, Seq<int>, IndexedSeq<int> {
   final int start;
   final int end;
   final int step;
@@ -108,7 +108,7 @@ abstract class Range
   Range exclusive() => !isInclusive ? this : Range.exclusive(start, end, step);
 
   @override
-  RibsIterator<Range> grouped(int size) => _RangeGroupedIterator(this, size);
+  RIterator<Range> grouped(int size) => _RangeGroupedIterator(this, size);
 
   Range inclusive() => isInclusive ? this : Range.inclusive(start, end, step);
 
@@ -125,10 +125,10 @@ abstract class Range
   Range init() => isEmpty ? throw _emptyRangeError('init') : dropRight(1);
 
   @override
-  RibsIterator<Range> inits() => _RangeInitsIterator(this);
+  RIterator<Range> inits() => _RangeInitsIterator(this);
 
   @override
-  RibsIterator<int> get iterator =>
+  RIterator<int> get iterator =>
       _RangeIterator(start, step, _lastElement, isEmpty);
 
   @override
@@ -154,7 +154,7 @@ abstract class Range
       isEmpty ? this : Range.inclusive(last, start, -step);
 
   @override
-  bool sameElements(RibsIterable<int> that) {
+  bool sameElements(RIterable<int> that) {
     if (that is Range) {
       return switch (length) {
         0 => that.isEmpty,
@@ -230,7 +230,7 @@ abstract class Range
   }
 
   @override
-  RibsIterator<Range> tails() => _RangeTailsIterator(this);
+  RIterator<Range> tails() => _RangeTailsIterator(this);
 
   @override
   Range take(int n) {
@@ -438,7 +438,7 @@ final class _RangeExclusive extends Range {
   bool get isInclusive => false;
 }
 
-final class _RangeIterator extends RibsIterator<int> {
+final class _RangeIterator extends RIterator<int> {
   final int start;
   final int step;
   final int lastElement;
@@ -452,7 +452,7 @@ final class _RangeIterator extends RibsIterator<int> {
         _next = start;
 
   @override
-  RibsIterator<int> drop(int n) {
+  RIterator<int> drop(int n) {
     if (n > 0) {
       final longPos = _next + step * n;
       if (step > 0) {
@@ -485,7 +485,7 @@ final class _RangeIterator extends RibsIterator<int> {
   }
 }
 
-final class _RangeInitsIterator extends RibsIterator<Range> {
+final class _RangeInitsIterator extends RIterator<Range> {
   final Range self;
   var _i = 0;
 
@@ -506,7 +506,7 @@ final class _RangeInitsIterator extends RibsIterator<Range> {
   }
 }
 
-final class _RangeTailsIterator extends RibsIterator<Range> {
+final class _RangeTailsIterator extends RIterator<Range> {
   final Range self;
   var _i = 0;
 
@@ -527,7 +527,7 @@ final class _RangeTailsIterator extends RibsIterator<Range> {
   }
 }
 
-final class _RangeGroupedIterator extends RibsIterator<Range> {
+final class _RangeGroupedIterator extends RIterator<Range> {
   final Range self;
   final int n;
   var _i = 0;

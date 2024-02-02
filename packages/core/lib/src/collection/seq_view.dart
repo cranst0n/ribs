@@ -1,18 +1,18 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/seq_views.dart' as seqview;
 
-mixin SeqView<A> on IterableOnce<A>, RibsIterable<A>, Seq<A>, View<A> {
+mixin SeqView<A> on RIterableOnce<A>, RIterable<A>, Seq<A>, View<A> {
   static SeqView<A> from<A>(Seq<A> v) => seqview.Id(v);
 
   @override
   Seq<A> appended(A elem) => seqview.Appended(this, elem);
 
   @override
-  Seq<A> appendedAll(IterableOnce<A> suffix) =>
+  Seq<A> appendedAll(RIterableOnce<A> suffix) =>
       seqview.Concat(this, suffix.toSeq());
 
   @override
-  Seq<A> concat(covariant IterableOnce<A> suffix) =>
+  Seq<A> concat(covariant RIterableOnce<A> suffix) =>
       seqview.Concat(this, suffix.toSeq());
 
   @override
@@ -28,7 +28,7 @@ mixin SeqView<A> on IterableOnce<A>, RibsIterable<A>, Seq<A>, View<A> {
   Seq<A> prepended(A elem) => seqview.Prepended(elem, this);
 
   @override
-  Seq<A> prependedAll(IterableOnce<A> prefix) =>
+  Seq<A> prependedAll(RIterableOnce<A> prefix) =>
       seqview.Concat(prefix.toSeq(), this);
 
   @override

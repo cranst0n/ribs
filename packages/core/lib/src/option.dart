@@ -12,7 +12,7 @@ Option<A> none<A>() => None<A>();
 /// flexibility. There are also conversions to move between optional and
 /// nullable types.
 @immutable
-sealed class Option<A> implements Monad<A>, Foldable<A> {
+sealed class Option<A> implements Monad<A> {
   /// Creates an [Option] from the nullable value. If the value is null, a
   /// [None] will be returned. If the value is non-null, a [Some] will be
   /// returned.
@@ -48,6 +48,12 @@ sealed class Option<A> implements Monad<A>, Foldable<A> {
   /// Returns true if this Option is a [None], false if it's a [Some].
   bool get isEmpty => !isDefined;
 
+  bool exists(Function1<A, bool> p) =>
+      foldLeft(false, (acc, elem) => acc || p(elem));
+
+  bool forall(Function1<A, bool> p) =>
+      foldLeft(true, (acc, elem) => acc && p(elem));
+
   /// Returns a [Some] if this Option is non-empty **and** if applying the value
   /// of this [Option] to the given predicate returns true.
   Option<A> filter(Function1<A, bool> p) =>
@@ -63,11 +69,11 @@ sealed class Option<A> implements Monad<A>, Foldable<A> {
   Option<B> flatMap<B>(covariant Function1<A, Option<B>> f) =>
       fold(() => none<B>(), f);
 
-  @override
+  /// Applies the given binary operator to the start value and all values of
+  /// this [Foldable], moving left to right.
   B foldLeft<B>(B init, Function2<B, A, B> op) =>
       fold(() => init, (a) => op(init, a));
 
-  @override
   B foldRight<B>(B init, Function2<A, B, B> op) =>
       fold(() => init, (a) => op(a, init));
 

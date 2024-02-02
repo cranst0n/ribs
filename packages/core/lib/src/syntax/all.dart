@@ -1,5 +1,4 @@
 export 'either.dart';
-export 'foldable.dart';
 export 'ilist.dart';
 export 'io.dart';
 export 'iset.dart';

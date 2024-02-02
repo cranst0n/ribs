@@ -1,6 +1,6 @@
 part of '../iset.dart';
 
-final class _EmptySet<A> with IterableOnce<A>, RibsIterable<A>, ISet<A> {
+final class _EmptySet<A> with RIterableOnce<A>, RIterable<A>, ISet<A> {
   @override
   bool contains(A elem) => false;
 
@@ -29,13 +29,13 @@ final class _EmptySet<A> with IterableOnce<A>, RibsIterable<A>, ISet<A> {
   bool get isEmpty => true;
 
   @override
-  RibsIterator<A> get iterator => RibsIterator.empty();
+  RIterator<A> get iterator => RIterator.empty();
 
   @override
   int get knownSize => 0;
 
   @override
-  ISet<A> removedAll(IterableOnce<A> that) => this;
+  ISet<A> removedAll(RIterableOnce<A> that) => this;
 
   @override
   int get size => 0;

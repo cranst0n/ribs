@@ -1,7 +1,7 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _FilterIterator<A> extends RibsIterator<A> {
-  final RibsIterator<A> self;
+final class _FilterIterator<A> extends RIterator<A> {
+  final RIterator<A> self;
   final Function1<A, bool> p;
   final bool isFlipped;
 

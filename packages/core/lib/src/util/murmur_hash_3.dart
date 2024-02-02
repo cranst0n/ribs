@@ -26,7 +26,7 @@ sealed class MurmurHash3 {
 
   static int setHash(ISet<dynamic> xs) => _impl.unorderedHash(xs, setSeed);
 
-  static int unorderedHash(IterableOnce<dynamic> xs, int seed) =>
+  static int unorderedHash(RIterableOnce<dynamic> xs, int seed) =>
       _impl.unorderedHash(xs, seed);
 }
 
@@ -76,7 +76,7 @@ final class _Murmur3Impl {
     return finalizeHash(h, str.length);
   }
 
-  int unorderedHash(IterableOnce<dynamic> xs, int seed) {
+  int unorderedHash(RIterableOnce<dynamic> xs, int seed) {
     var a = 0;
     var b = 0;
     var n = 0;
@@ -101,7 +101,7 @@ final class _Murmur3Impl {
     return finalizeHash(h, n);
   }
 
-  int orderedHash(IterableOnce<dynamic> xs, int seed) {
+  int orderedHash(RIterableOnce<dynamic> xs, int seed) {
     final it = xs.iterator;
     var h = seed;
 

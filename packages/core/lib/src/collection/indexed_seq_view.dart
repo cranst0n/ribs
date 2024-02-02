@@ -3,8 +3,8 @@ import 'package:ribs_core/src/collection/indexed_seq_views.dart' as iseqview;
 
 mixin IndexedSeqView<A>
     on
-        IterableOnce<A>,
-        RibsIterable<A>,
+        RIterableOnce<A>,
+        RIterable<A>,
         Seq<A>,
         View<A>,
         SeqView<A>,
@@ -15,11 +15,11 @@ mixin IndexedSeqView<A>
   IndexedSeq<A> appended(A elem) => iseqview.Appended(this, elem);
 
   @override
-  IndexedSeq<A> appendedAll(IterableOnce<A> suffix) =>
+  IndexedSeq<A> appendedAll(RIterableOnce<A> suffix) =>
       iseqview.Concat(this, suffix.toIndexedSeq());
 
   @override
-  IndexedSeq<A> concat(IterableOnce<A> suffix) =>
+  IndexedSeq<A> concat(RIterableOnce<A> suffix) =>
       iseqview.Concat(this, suffix.toIndexedSeq());
 
   @override
@@ -29,7 +29,7 @@ mixin IndexedSeqView<A>
   IndexedSeq<A> dropRight(int n) => iseqview.DropRight(this, n);
 
   @override
-  RibsIterator<A> get iterator => iseqview.IndexedSeqViewIterator(this);
+  RIterator<A> get iterator => iseqview.IndexedSeqViewIterator(this);
 
   @override
   IndexedSeqView<B> map<B>(Function1<A, B> f) => iseqview.Map(this, f);
@@ -38,14 +38,14 @@ mixin IndexedSeqView<A>
   IndexedSeq<A> prepended(A elem) => iseqview.Prepended(elem, this);
 
   @override
-  IndexedSeq<A> prependedAll(IterableOnce<A> prefix) =>
+  IndexedSeq<A> prependedAll(RIterableOnce<A> prefix) =>
       iseqview.Concat(prefix.toIndexedSeq(), this);
 
   @override
   IndexedSeq<A> reverse() => iseqview.Reverse(this);
 
   @override
-  RibsIterator<A> reverseIterator() =>
+  RIterator<A> reverseIterator() =>
       iseqview.IndexedSeqViewReverseIterator(this);
 
   @override

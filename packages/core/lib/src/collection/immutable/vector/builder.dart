@@ -469,7 +469,7 @@ final class IVectorBuilder<A> {
     return this;
   }
 
-  IVectorBuilder<A> addAll(IterableOnce<A> xs) {
+  IVectorBuilder<A> addAll(RIterableOnce<A> xs) {
     if (xs is IVector) {
       if (_len1 == 0 && _lenRest == 0 && !_prefixIsRightAligned) {
         return _initFromVector(xs as IVector<A>);

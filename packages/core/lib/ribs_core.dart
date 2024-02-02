@@ -15,7 +15,6 @@ export 'src/effect/std/queue.dart';
 export 'src/effect/sync_io.dart';
 export 'src/either.dart';
 export 'src/fn.dart';
-export 'src/foldable.dart';
 export 'src/function.dart';
 export 'src/functor.dart';
 export 'src/monad.dart';

@@ -1,7 +1,7 @@
 part of '../imap.dart';
 
 final class _Map1<K, V>
-    with IterableOnce<(K, V)>, RibsIterable<(K, V)>, IMap<K, V> {
+    with RIterableOnce<(K, V)>, RIterable<(K, V)>, IMap<K, V> {
   final K key1;
   final V value1;
 
@@ -25,7 +25,7 @@ final class _Map1<K, V>
   Option<V> get(K key) => Option.when(() => key == key1, () => value1);
 
   @override
-  RibsIterator<(K, V)> get iterator => RibsIterator.single((key1, value1));
+  RIterator<(K, V)> get iterator => RIterator.single((key1, value1));
 
   @override
   ISet<K> get keys => ISet.of([key1]);
@@ -44,5 +44,5 @@ final class _Map1<K, V>
       key == key1 ? _Map1(key, value) : _Map2(key1, value1, key, value);
 
   @override
-  RibsIterator<V> get values => RibsIterator.single(value1);
+  RIterator<V> get values => RIterator.single(value1);
 }

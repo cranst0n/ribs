@@ -1,7 +1,7 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _MapIterator<A, B> extends RibsIterator<B> {
-  final RibsIterator<A> self;
+final class _MapIterator<A, B> extends RIterator<B> {
+  final RIterator<A> self;
   final Function1<A, B> f;
 
   const _MapIterator(this.self, this.f);

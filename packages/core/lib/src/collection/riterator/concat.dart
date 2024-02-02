@@ -1,7 +1,7 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _ConcatIterator<A> extends RibsIterator<A> {
-  RibsIterator<A>? current;
+final class _ConcatIterator<A> extends RIterator<A> {
+  RIterator<A>? current;
 
   _ConcatIteratorCell<A>? tailCell;
   _ConcatIteratorCell<A>? lastCell;
@@ -75,7 +75,7 @@ final class _ConcatIterator<A> extends RibsIterator<A> {
   }
 
   @override
-  RibsIterator<A> concat(covariant IterableOnce<A> that) {
+  RIterator<A> concat(covariant RIterableOnce<A> that) {
     final c = _ConcatIteratorCell(that, null);
 
     if (tailCell == null) {
@@ -86,17 +86,17 @@ final class _ConcatIterator<A> extends RibsIterator<A> {
       lastCell = c;
     }
 
-    current ??= RibsIterator.empty();
+    current ??= RIterator.empty();
 
     return this;
   }
 }
 
 final class _ConcatIteratorCell<A> {
-  final IterableOnce<A> head;
+  final RIterableOnce<A> head;
   _ConcatIteratorCell<A>? tailCell;
 
   _ConcatIteratorCell(this.head, this.tailCell);
 
-  RibsIterator<A> get headIterator => head.iterator;
+  RIterator<A> get headIterator => head.iterator;
 }

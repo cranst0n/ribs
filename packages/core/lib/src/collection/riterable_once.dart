@@ -13,8 +13,8 @@ import 'package:ribs_core/ribs_core.dart';
 // @see https://github.com/dart-lang/language/issues/1655
 //
 
-mixin IterableOnce<A> {
-  RibsIterator<A> get iterator;
+mixin RIterableOnce<A> {
+  RIterator<A> get iterator;
 
   /// Returns the number of elements in this collection, if that number is
   /// already known. If not, -1 is returned.
@@ -26,29 +26,29 @@ mixin IterableOnce<A> {
   /// Returns a new collection by applying [f] to each element an only keeping
   /// results of type [Some].
   /// {@endtemplate}
-  IterableOnce<B> collect<B>(Function1<A, Option<B>> f);
+  RIterableOnce<B> collect<B>(Function1<A, Option<B>> f);
 
-  IterableOnce<A> drop(int n);
+  RIterableOnce<A> drop(int n);
 
-  IterableOnce<A> dropWhile(Function1<A, bool> p);
+  RIterableOnce<A> dropWhile(Function1<A, bool> p);
 
-  IterableOnce<A> filter(Function1<A, bool> p);
+  RIterableOnce<A> filter(Function1<A, bool> p);
 
-  IterableOnce<A> filterNot(Function1<A, bool> p);
+  RIterableOnce<A> filterNot(Function1<A, bool> p);
 
-  IterableOnce<B> flatMap<B>(covariant Function1<A, IterableOnce<B>> f);
+  RIterableOnce<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f);
 
-  IterableOnce<B> map<B>(Function1<A, B> f);
+  RIterableOnce<B> map<B>(Function1<A, B> f);
 
-  IterableOnce<B> scanLeft<B>(B z, Function2<B, A, B> op);
+  RIterableOnce<B> scanLeft<B>(B z, Function2<B, A, B> op);
 
-  IterableOnce<A> slice(int from, int until);
+  RIterableOnce<A> slice(int from, int until);
 
-  (IterableOnce<A>, IterableOnce<A>) span(Function1<A, bool> p);
+  (RIterableOnce<A>, RIterableOnce<A>) span(Function1<A, bool> p);
 
-  IterableOnce<A> take(int n);
+  RIterableOnce<A> take(int n);
 
-  IterableOnce<A> takeWhile(Function1<A, bool> p);
+  RIterableOnce<A> takeWhile(Function1<A, bool> p);
 
   // ///////////////////////////////////////////////////////////////////////////
 
@@ -100,7 +100,7 @@ mixin IterableOnce<A> {
   /// corresponding element from this and [that] satisfies the given
   /// predicate [p].
   bool corresponds<B>(
-    covariant RibsIterable<B> that,
+    covariant RIterable<B> that,
     Function2<A, B, bool> p,
   ) {
     final a = iterator;
@@ -316,18 +316,18 @@ mixin IterableOnce<A> {
   /// Returns a new collection of the accumulation of results by applying [f] to
   /// all elements of the collection, including the inital value [z]. Traversal
   /// moves from left to right.
-  IterableOnce<B> scan<B>(B z, Function2<B, A, B> op) => scanLeft(z, op);
+  RIterableOnce<B> scan<B>(B z, Function2<B, A, B> op) => scanLeft(z, op);
 
   /// Returns 2 collectins of all elements before and after index [n]
   /// respectively.
-  (IterableOnce<A>, IterableOnce<A>) splitAt(int n) {
+  (RIterableOnce<A>, RIterableOnce<A>) splitAt(int n) {
     final spanner = _Spanner<A>(n);
     return span(spanner.call);
   }
 
   /// Applies [f] to each element in this collection, discarding any results and
   /// returns this collection.
-  IterableOnce<A> tapEach<U>(Function1<A, U> f) {
+  RIterableOnce<A> tapEach<U>(Function1<A, U> f) {
     foreach(f);
     return this;
   }
@@ -365,7 +365,7 @@ mixin IterableOnce<A> {
   /// Returns a [Seq] with the same elements as this collection.
   Seq<A> toSeq() => Seq.from(this);
 
-  RibsIterable<A> _reversed() {
+  RIterable<A> _reversed() {
     var xs = IList.empty<A>();
     final it = iterator;
 
@@ -405,7 +405,7 @@ mixin IterableOnce<A> {
     return Option(minmax);
   }
 
-  Option<A> _reduceOptionIterator(RibsIterator<A> it, Function2<A, A, A> op) {
+  Option<A> _reduceOptionIterator(RIterator<A> it, Function2<A, A, A> op) {
     if (it.hasNext) {
       var acc = it.next();
 

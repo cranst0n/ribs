@@ -2,17 +2,17 @@ import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
 
-abstract class AbstractView<A> with IterableOnce<A>, RibsIterable<A>, View<A> {
+abstract class AbstractView<A> with RIterableOnce<A>, RIterable<A>, View<A> {
   const AbstractView();
 }
 
 class Id<A> extends AbstractView<A> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
 
   const Id(this.underlying);
 
   @override
-  RibsIterator<A> get iterator => underlying.iterator;
+  RIterator<A> get iterator => underlying.iterator;
 
   @override
   int get knownSize => underlying.knownSize;
@@ -22,13 +22,13 @@ class Id<A> extends AbstractView<A> {
 }
 
 class Appended<A> extends AbstractView<A> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
   final A elem;
 
   const Appended(this.underlying, this.elem);
 
   @override
-  RibsIterator<A> get iterator => Concat(underlying, Single(elem)).iterator;
+  RIterator<A> get iterator => Concat(underlying, Single(elem)).iterator;
 
   @override
   int get knownSize {
@@ -41,23 +41,23 @@ class Appended<A> extends AbstractView<A> {
 }
 
 class Collect<A, B> extends AbstractView<B> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
   final Function1<A, Option<B>> f;
 
   const Collect(this.underlying, this.f);
 
   @override
-  RibsIterator<B> get iterator => underlying.iterator.collect(f);
+  RIterator<B> get iterator => underlying.iterator.collect(f);
 }
 
 class Concat<A> extends AbstractView<A> {
-  final IterableOnce<A> prefix;
-  final IterableOnce<A> suffix;
+  final RIterableOnce<A> prefix;
+  final RIterableOnce<A> suffix;
 
   const Concat(this.prefix, this.suffix);
 
   @override
-  RibsIterator<A> get iterator => prefix.iterator.concat(suffix.iterator);
+  RIterator<A> get iterator => prefix.iterator.concat(suffix.iterator);
 
   @override
   int get knownSize {
@@ -79,13 +79,13 @@ class Concat<A> extends AbstractView<A> {
 }
 
 class DistinctBy<A, B> extends AbstractView<A> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
   final Function1<A, B> f;
 
   const DistinctBy(this.underlying, this.f);
 
   @override
-  RibsIterator<A> get iterator => underlying.iterator.distinctBy(f);
+  RIterator<A> get iterator => underlying.iterator.distinctBy(f);
 
   @override
   int get knownSize => underlying.knownSize == 0 ? 0 : super.knownSize;
@@ -95,13 +95,13 @@ class DistinctBy<A, B> extends AbstractView<A> {
 }
 
 class Drop<A> extends AbstractView<A> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
   final int n;
 
   const Drop(this.underlying, this.n);
 
   @override
-  RibsIterator<A> get iterator => underlying.iterator.drop(n);
+  RIterator<A> get iterator => underlying.iterator.drop(n);
 
   @override
   int get knownSize {
@@ -116,13 +116,13 @@ class Drop<A> extends AbstractView<A> {
 }
 
 class DropRight<A> extends AbstractView<A> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
   final int n;
 
   const DropRight(this.underlying, this.n);
 
   @override
-  RibsIterator<A> get iterator => _dropRightIterator(underlying.iterator, n);
+  RIterator<A> get iterator => _dropRightIterator(underlying.iterator, n);
 
   @override
   int get knownSize {
@@ -141,13 +141,13 @@ class DropRight<A> extends AbstractView<A> {
 }
 
 class DropWhile<A> extends AbstractView<A> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
   final Function1<A, bool> p;
 
   const DropWhile(this.underlying, this.p);
 
   @override
-  RibsIterator<A> get iterator => underlying.iterator.dropWhile(p);
+  RIterator<A> get iterator => underlying.iterator.dropWhile(p);
 
   @override
   int get knownSize => underlying.knownSize == 0 ? 0 : super.knownSize;
@@ -157,14 +157,14 @@ class DropWhile<A> extends AbstractView<A> {
 }
 
 class Filter<A> extends AbstractView<A> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
   final Function1<A, bool> p;
   final bool isFlipped;
 
   const Filter(this.underlying, this.p, this.isFlipped);
 
   @override
-  RibsIterator<A> get iterator => !isFlipped
+  RIterator<A> get iterator => !isFlipped
       ? underlying.iterator.filter(p)
       : underlying.iterator.filterNot(p);
 
@@ -176,13 +176,13 @@ class Filter<A> extends AbstractView<A> {
 }
 
 class FlatMap<A, B> extends AbstractView<B> {
-  final IterableOnce<A> underlying;
-  final Function1<A, IterableOnce<B>> f;
+  final RIterableOnce<A> underlying;
+  final Function1<A, RIterableOnce<B>> f;
 
   const FlatMap(this.underlying, this.f);
 
   @override
-  RibsIterator<B> get iterator => underlying.iterator.flatMap(f);
+  RIterator<B> get iterator => underlying.iterator.flatMap(f);
 
   @override
   int get knownSize => underlying.knownSize == 0 ? 0 : super.knownSize;
@@ -192,13 +192,13 @@ class FlatMap<A, B> extends AbstractView<B> {
 }
 
 class Map<A, B> extends AbstractView<B> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
   final Function1<A, B> f;
 
   const Map(this.underlying, this.f);
 
   @override
-  RibsIterator<B> get iterator => underlying.iterator.map(f);
+  RIterator<B> get iterator => underlying.iterator.map(f);
 
   @override
   int get knownSize => underlying.knownSize;
@@ -208,14 +208,14 @@ class Map<A, B> extends AbstractView<B> {
 }
 
 class PadTo<A> extends AbstractView<A> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
   final int len;
   final A elem;
 
   const PadTo(this.underlying, this.len, this.elem);
 
   @override
-  RibsIterator<A> get iterator => underlying.iterator.padTo(len, elem);
+  RIterator<A> get iterator => underlying.iterator.padTo(len, elem);
 
   @override
   int get knownSize {
@@ -232,15 +232,15 @@ class PadTo<A> extends AbstractView<A> {
 }
 
 class Patched<A> extends AbstractView<A> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
   final int from;
-  final IterableOnce<A> other;
+  final RIterableOnce<A> other;
   final int replaced;
 
   const Patched(this.underlying, this.from, this.other, this.replaced);
 
   @override
-  RibsIterator<A> get iterator =>
+  RIterator<A> get iterator =>
       underlying.iterator.patch(from, other.iterator, replaced);
 
   @override
@@ -257,13 +257,13 @@ class Patched<A> extends AbstractView<A> {
 }
 
 class Prepended<A> extends AbstractView<A> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
   final A elem;
 
   const Prepended(this.elem, this.underlying);
 
   @override
-  RibsIterator<A> get iterator => Concat(Single(elem), underlying).iterator;
+  RIterator<A> get iterator => Concat(Single(elem), underlying).iterator;
 
   @override
   int get knownSize {
@@ -276,14 +276,14 @@ class Prepended<A> extends AbstractView<A> {
 }
 
 class ScanLeft<A, B> extends AbstractView<B> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
   final B z;
   final Function2<B, A, B> op;
 
   const ScanLeft(this.underlying, this.z, this.op);
 
   @override
-  RibsIterator<B> get iterator => underlying.iterator.scanLeft(z, op);
+  RIterator<B> get iterator => underlying.iterator.scanLeft(z, op);
 
   @override
   int get knownSize {
@@ -301,7 +301,7 @@ class Single<A> extends AbstractView<A> {
   const Single(this.a);
 
   @override
-  RibsIterator<A> get iterator => RibsIterator.single(a);
+  RIterator<A> get iterator => RIterator.single(a);
 
   @override
   int get knownSize => 1;
@@ -317,7 +317,7 @@ class Tabulate<A> extends AbstractView<A> {
   const Tabulate(this.n, this.f);
 
   @override
-  RibsIterator<A> get iterator => RibsIterator.tabulate(n, f);
+  RIterator<A> get iterator => RIterator.tabulate(n, f);
 
   @override
   int get knownSize => max(n, 0);
@@ -327,13 +327,13 @@ class Tabulate<A> extends AbstractView<A> {
 }
 
 class Take<A> extends AbstractView<A> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
   final int n;
 
   const Take(this.underlying, this.n);
 
   @override
-  RibsIterator<A> get iterator => underlying.iterator.take(n);
+  RIterator<A> get iterator => underlying.iterator.take(n);
 
   @override
   int get knownSize {
@@ -348,13 +348,13 @@ class Take<A> extends AbstractView<A> {
 }
 
 class TakeRight<A> extends AbstractView<A> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
   final int n;
 
   const TakeRight(this.underlying, this.n);
 
   @override
-  RibsIterator<A> get iterator => _takeRightIterator(underlying.iterator, n);
+  RIterator<A> get iterator => _takeRightIterator(underlying.iterator, n);
 
   @override
   int get knownSize {
@@ -375,13 +375,13 @@ class TakeRight<A> extends AbstractView<A> {
 }
 
 class TakeWhile<A> extends AbstractView<A> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
   final Function1<A, bool> p;
 
   const TakeWhile(this.underlying, this.p);
 
   @override
-  RibsIterator<A> get iterator => underlying.iterator.takeWhile(p);
+  RIterator<A> get iterator => underlying.iterator.takeWhile(p);
 
   @override
   int get knownSize {
@@ -393,14 +393,14 @@ class TakeWhile<A> extends AbstractView<A> {
 }
 
 class Updated<A> extends AbstractView<A> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
   final int index;
   final A elem;
 
   const Updated(this.underlying, this.index, this.elem);
 
   @override
-  RibsIterator<A> get iterator =>
+  RIterator<A> get iterator =>
       _UpdatedIterator(underlying, underlying.iterator, index, elem);
 
   @override
@@ -411,13 +411,13 @@ class Updated<A> extends AbstractView<A> {
 }
 
 class Zip<A, B> extends AbstractView<(A, B)> {
-  final IterableOnce<A> underlying;
-  final IterableOnce<B> other;
+  final RIterableOnce<A> underlying;
+  final RIterableOnce<B> other;
 
   const Zip(this.underlying, this.other);
 
   @override
-  RibsIterator<(A, B)> get iterator => underlying.iterator.zip(other);
+  RIterator<(A, B)> get iterator => underlying.iterator.zip(other);
 
   @override
   int get knownSize {
@@ -439,15 +439,15 @@ class Zip<A, B> extends AbstractView<(A, B)> {
 }
 
 class ZipAll<A, B> extends AbstractView<(A, B)> {
-  final IterableOnce<A> underlying;
-  final IterableOnce<B> other;
+  final RIterableOnce<A> underlying;
+  final RIterableOnce<B> other;
   final A thisElem;
   final B thatElem;
 
   const ZipAll(this.underlying, this.other, this.thisElem, this.thatElem);
 
   @override
-  RibsIterator<(A, B)> get iterator =>
+  RIterator<(A, B)> get iterator =>
       underlying.iterator.zipAll(other, thisElem, thatElem);
 
   @override
@@ -470,12 +470,12 @@ class ZipAll<A, B> extends AbstractView<(A, B)> {
 }
 
 class ZipWithIndex<A> extends AbstractView<(A, int)> {
-  final IterableOnce<A> underlying;
+  final RIterableOnce<A> underlying;
 
   const ZipWithIndex(this.underlying);
 
   @override
-  RibsIterator<(A, int)> get iterator => underlying.iterator.zipWithIndex();
+  RIterator<(A, int)> get iterator => underlying.iterator.zipWithIndex();
 
   @override
   int get knownSize => underlying.knownSize;
@@ -484,7 +484,7 @@ class ZipWithIndex<A> extends AbstractView<(A, int)> {
   bool get isEmpty => underlying.isEmpty;
 }
 
-RibsIterator<A> _dropRightIterator<A>(RibsIterator<A> it, int n) {
+RIterator<A> _dropRightIterator<A>(RIterator<A> it, int n) {
   if (n <= 0) {
     return it;
   } else {
@@ -497,11 +497,11 @@ RibsIterator<A> _dropRightIterator<A>(RibsIterator<A> it, int n) {
   }
 }
 
-RibsIterator<A> _takeRightIterator<A>(RibsIterator<A> it, int n) {
+RIterator<A> _takeRightIterator<A>(RIterator<A> it, int n) {
   final k = it.knownSize;
 
   if (k == 0 || n <= 0) {
-    return RibsIterator.empty<A>();
+    return RIterator.empty<A>();
   } else if (n == Integer.MaxValue) {
     return it;
   } else if (k > 0) {
@@ -511,8 +511,8 @@ RibsIterator<A> _takeRightIterator<A>(RibsIterator<A> it, int n) {
   }
 }
 
-final class _DropRightIterator<A> extends RibsIterator<A> {
-  RibsIterator<A> underlying;
+final class _DropRightIterator<A> extends RIterator<A> {
+  RIterator<A> underlying;
   int maxlen;
   int len = -1;
   int pos = 0;
@@ -565,8 +565,8 @@ final class _DropRightIterator<A> extends RibsIterator<A> {
   }
 }
 
-final class _TakeRightIterator<A> extends RibsIterator<A> {
-  RibsIterator<A> underlying;
+final class _TakeRightIterator<A> extends RIterator<A> {
+  RIterator<A> underlying;
   int maxlen;
 
   var _len = -1;
@@ -576,7 +576,7 @@ final class _TakeRightIterator<A> extends RibsIterator<A> {
   _TakeRightIterator(this.underlying, this.maxlen);
 
   @override
-  RibsIterator<A> drop(int n) {
+  RIterator<A> drop(int n) {
     _init();
     if (n > 0) {
       _len = max(_len - n, 0);
@@ -631,9 +631,9 @@ final class _TakeRightIterator<A> extends RibsIterator<A> {
   }
 }
 
-final class _UpdatedIterator<A> extends RibsIterator<A> {
-  final IterableOnce<A> underlying;
-  final RibsIterator<A> it;
+final class _UpdatedIterator<A> extends RIterator<A> {
+  final RIterableOnce<A> underlying;
+  final RIterator<A> it;
   final int index;
   final A elem;
 

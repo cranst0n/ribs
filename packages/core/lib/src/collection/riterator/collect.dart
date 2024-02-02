@@ -1,7 +1,7 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _CollectIterator<A, B> extends RibsIterator<B> {
-  final RibsIterator<A> self;
+final class _CollectIterator<A, B> extends RIterator<B> {
+  final RIterator<A> self;
   final Function1<A, Option<B>> f;
 
   B? _hd;

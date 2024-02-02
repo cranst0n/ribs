@@ -1,6 +1,6 @@
 part of '../ivector.dart';
 
-final class _NewVectorIterator<A> extends RibsIterator<A> {
+final class _NewVectorIterator<A> extends RIterator<A> {
   final IVector<A> v;
   int totalLength;
   int sliceCount;

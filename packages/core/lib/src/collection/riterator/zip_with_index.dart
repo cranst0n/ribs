@@ -1,7 +1,7 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _ZipWithIndexIterator<A> extends RibsIterator<(A, int)> {
-  final RibsIterator<A> self;
+final class _ZipWithIndexIterator<A> extends RIterator<(A, int)> {
+  final RIterator<A> self;
   int _i = 0;
 
   _ZipWithIndexIterator(this.self);

@@ -5,8 +5,8 @@ import 'package:ribs_core/src/collection/seq_views.dart' as seqviews;
 
 abstract class AbstractIndexedSeqView<A>
     with
-        IterableOnce<A>,
-        RibsIterable<A>,
+        RIterableOnce<A>,
+        RIterable<A>,
         View<A>,
         Seq<A>,
         SeqView<A>,
@@ -91,7 +91,7 @@ class TakeRight<A> extends seqviews.TakeRight<A>
   const TakeRight(IndexedSeq<A> super.seq, super.n);
 }
 
-final class IndexedSeqViewIterator<A> extends RibsIterator<A> {
+final class IndexedSeqViewIterator<A> extends RIterator<A> {
   final IndexedSeqView<A> self;
 
   int _current = 0;
@@ -118,7 +118,7 @@ final class IndexedSeqViewIterator<A> extends RibsIterator<A> {
   }
 
   @override
-  RibsIterator<A> drop(int n) {
+  RIterator<A> drop(int n) {
     if (n > 0) {
       _current += n;
       _remainder = max(0, _remainder - n);
@@ -127,7 +127,7 @@ final class IndexedSeqViewIterator<A> extends RibsIterator<A> {
   }
 
   @override
-  RibsIterator<A> sliceIterator(int from, int until) {
+  RIterator<A> sliceIterator(int from, int until) {
     int formatRange(int value) {
       if (value < 0) {
         return 0;
@@ -147,7 +147,7 @@ final class IndexedSeqViewIterator<A> extends RibsIterator<A> {
   }
 }
 
-final class IndexedSeqViewReverseIterator<A> extends RibsIterator<A> {
+final class IndexedSeqViewReverseIterator<A> extends RIterator<A> {
   final IndexedSeqView<A> self;
 
   int _remainder;
@@ -173,7 +173,7 @@ final class IndexedSeqViewReverseIterator<A> extends RibsIterator<A> {
   }
 
   @override
-  RibsIterator<A> sliceIterator(int from, int until) {
+  RIterator<A> sliceIterator(int from, int until) {
     if (hasNext) {
       if (_remainder <= from) {
         _remainder = 0; // exhausted by big skip

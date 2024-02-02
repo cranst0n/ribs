@@ -13,12 +13,12 @@ part 'map/map4.dart';
 
 IMap<K, V> imap<K, V>(Map<K, V> m) => IMap.fromDart(m);
 
-mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
+mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
   static IMapBuilder<K, V> builder<K, V>() => IMapBuilder();
 
   static IMap<K, V> empty<K, V>() => _EmptyMap();
 
-  static IMap<K, V> from<K, V>(IterableOnce<(K, V)> elems) => switch (elems) {
+  static IMap<K, V> from<K, V>(RIterableOnce<(K, V)> elems) => switch (elems) {
         final _EmptyMap<K, V> m => m,
         final _Map1<K, V> m => m,
         final _Map2<K, V> m => m,
@@ -31,7 +31,7 @@ mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
       fromDartIterable(m.entries.map((e) => (e.key, e.value)));
 
   static IMap<K, V> fromDartIterable<K, V>(Iterable<(K, V)> elems) =>
-      from(RibsIterator.fromDart(elems.iterator));
+      from(RIterator.fromDart(elems.iterator));
 
   /// Returns a new map with the given value for the given key.
   IMap<K, V> operator +((K, V) elem) => updated(elem.$1, elem.$2);
@@ -53,7 +53,7 @@ mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
   Function1<A, Option<V>> compose<A>(Function1<A, K> f) => (a) => get(f(a));
 
   @override
-  IMap<K, V> concat(covariant IterableOnce<(K, V)> suffix) =>
+  IMap<K, V> concat(covariant RIterableOnce<(K, V)> suffix) =>
       IMap.from(super.concat(suffix));
 
   /// Returns true if this map contains the key [key], false otherwise.
@@ -90,14 +90,14 @@ mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
       IMap.from(super.groupBy(f).map((a) => (a.$1, IMap.from(a.$2))));
 
   @override
-  RibsIterator<IMap<K, V>> grouped(int size) =>
+  RIterator<IMap<K, V>> grouped(int size) =>
       iterator.grouped(size).map(IMap.from);
 
   @override
   IMap<K, V> init() => IMap.from(super.init());
 
   @override
-  RibsIterator<IMap<K, V>> inits() => super.inits().map(IMap.from);
+  RIterator<IMap<K, V>> inits() => super.inits().map(IMap.from);
 
   /// Returns a [Set] of all the keys stored in the map.
   ISet<K> get keys;
@@ -117,14 +117,14 @@ mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
   IMap<K, V> removed(K key);
 
   /// Returns a new map with all the given [keys] removed.
-  IMap<K, V> removedAll(IterableOnce<K> keys) =>
+  IMap<K, V> removedAll(RIterableOnce<K> keys) =>
       keys.iterator.foldLeft(this, (acc, k) => acc.removed(k));
 
   @override
   IMap<K, V> slice(int from, int until) => IMap.from(super.slice(from, until));
 
   @override
-  RibsIterator<IMap<K, V>> sliding(int size, [int step = 1]) =>
+  RIterator<IMap<K, V>> sliding(int size, [int step = 1]) =>
       super.sliding(size, step).map(IMap.from);
 
   @override
@@ -143,7 +143,7 @@ mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
   IMap<K, V> tail() => IMap.from(super.tail());
 
   @override
-  RibsIterator<IMap<K, V>> tails() => super.tails().map(IMap.from);
+  RIterator<IMap<K, V>> tails() => super.tails().map(IMap.from);
 
   @override
   IMap<K, V> take(int n) => IMap.from(super.take(n));
@@ -170,9 +170,9 @@ mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
   IMap<K, W> transform<W>(Function2<K, V, W> f) =>
       from(iterator.map((kv) => (kv.$1, f(kv.$1, kv.$2))));
 
-  /// Returns a tuple of 2 [RibsIterable]s where the first item is the keys from
+  /// Returns a tuple of 2 [RIterable]s where the first item is the keys from
   /// this map, and the second is the corresponding values.
-  (RibsIterable<K>, RibsIterable<V>) unzip() {
+  (RIterable<K>, RIterable<V>) unzip() {
     final (bldr1, bldr2) = (IList.builder<K>(), IList.builder<V>());
 
     iterator.foreach((kv) {
@@ -204,7 +204,7 @@ mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
   }
 
   /// Returns a list of all values stored in this map.
-  RibsIterator<V> get values;
+  RIterator<V> get values;
 
   /// Returns a new map where key lookups will return [f] if the map doesn't
   /// contain a value for the corresponding key.
@@ -225,7 +225,7 @@ mixin IMap<K, V> on IterableOnce<(K, V)>, RibsIterable<(K, V)> {
 }
 
 abstract class AbstractIMap<K, V>
-    with IterableOnce<(K, V)>, RibsIterable<(K, V)>, IMap<K, V> {}
+    with RIterableOnce<(K, V)>, RIterable<(K, V)>, IMap<K, V> {}
 
 final class _WithDefault<K, V> extends AbstractIMap<K, V> {
   final IMap<K, V> underlying;
@@ -243,7 +243,7 @@ final class _WithDefault<K, V> extends AbstractIMap<K, V> {
   bool get isEmpty => underlying.isEmpty;
 
   @override
-  RibsIterator<(K, V)> get iterator => underlying.iterator;
+  RIterator<(K, V)> get iterator => underlying.iterator;
 
   @override
   ISet<K> get keys => underlying.keys;
@@ -263,5 +263,5 @@ final class _WithDefault<K, V> extends AbstractIMap<K, V> {
       _WithDefault(underlying.updated(key, value), defaultValueF);
 
   @override
-  RibsIterator<V> get values => underlying.values;
+  RIterator<V> get values => underlying.values;
 }

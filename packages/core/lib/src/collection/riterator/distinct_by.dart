@@ -1,7 +1,7 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _DistinctByIterator<A, B> extends RibsIterator<A> {
-  final RibsIterator<A> self;
+final class _DistinctByIterator<A, B> extends RIterator<A> {
+  final RIterator<A> self;
   final Function1<A, B> f;
 
   final _traversedValues = HashSet<B>();

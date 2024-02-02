@@ -1,6 +1,6 @@
 part of '../iset.dart';
 
-class _SetNIterator<A> extends RibsIterator<A> {
+class _SetNIterator<A> extends RIterator<A> {
   final int n;
   final Function1<int, A> apply;
 
@@ -10,7 +10,7 @@ class _SetNIterator<A> extends RibsIterator<A> {
   _SetNIterator(this.n, this.apply) : _remainder = n;
 
   @override
-  RibsIterator<A> drop(int n) {
+  RIterator<A> drop(int n) {
     if (n > 0) {
       _current += n;
       _remainder = max(0, _remainder - n);

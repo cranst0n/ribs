@@ -1,7 +1,7 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _PadToIterator<A> extends RibsIterator<A> {
-  final RibsIterator<A> self;
+final class _PadToIterator<A> extends RIterator<A> {
+  final RIterator<A> self;
   final int len;
   final A elem;
 
@@ -27,7 +27,7 @@ final class _PadToIterator<A> extends RibsIterator<A> {
     } else if (_i < len) {
       b = elem;
     } else {
-      b = RibsIterator.empty<A>().next();
+      b = RIterator.empty<A>().next();
     }
 
     _i += 1;

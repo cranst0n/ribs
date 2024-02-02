@@ -14,12 +14,12 @@ part 'set/set4.dart';
 
 ISet<A> iset<A>(Iterable<A> as) => ISet.of(as);
 
-mixin ISet<A> on RibsIterable<A> {
+mixin ISet<A> on RIterable<A> {
   static ISetBuilder<A> builder<A>() => ISetBuilder();
 
   static ISet<A> empty<A>() => _EmptySet<A>();
 
-  static ISet<A> from<A>(IterableOnce<A> xs) => switch (xs) {
+  static ISet<A> from<A>(RIterableOnce<A> xs) => switch (xs) {
         final _EmptySet<A> s => s,
         final _Set1<A> s => s,
         final _Set2<A> s => s,
@@ -29,8 +29,7 @@ mixin ISet<A> on RibsIterable<A> {
         _ => ISetBuilder<A>().addAll(xs).result(),
       };
 
-  static ISet<A> of<A>(Iterable<A> xs) =>
-      from(RibsIterator.fromDart(xs.iterator));
+  static ISet<A> of<A>(Iterable<A> xs) => from(RIterator.fromDart(xs.iterator));
 
   /// Creates a new set with an additonal element [a].
   ISet<A> operator +(A a) => incl(a);
@@ -42,7 +41,7 @@ mixin ISet<A> on RibsIterable<A> {
   ISet<B> collect<B>(Function1<A, Option<B>> f) => super.collect(f).toISet();
 
   @override
-  ISet<A> concat(covariant IterableOnce<A> suffix) {
+  ISet<A> concat(covariant RIterableOnce<A> suffix) {
     var result = this;
     final it = suffix.iterator;
 
@@ -76,11 +75,11 @@ mixin ISet<A> on RibsIterable<A> {
   ISet<A> filterNot(Function1<A, bool> p) => super.filterNot(p).toISet();
 
   @override
-  ISet<B> flatMap<B>(covariant Function1<A, IterableOnce<B>> f) =>
+  ISet<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) =>
       views.FlatMap(this, f).toISet();
 
   @override
-  RibsIterator<ISet<A>> grouped(int size) =>
+  RIterator<ISet<A>> grouped(int size) =>
       super.grouped(size).map((a) => a.toISet());
 
   @override
@@ -100,7 +99,7 @@ mixin ISet<A> on RibsIterable<A> {
   ISet<A> init() => this - last;
 
   @override
-  RibsIterator<ISet<A>> inits() => super.inits().map((a) => a.toISet());
+  RIterator<ISet<A>> inits() => super.inits().map((a) => a.toISet());
 
   ISet<A> intersect(ISet<A> that) => filter(that.contains).toISet();
 
@@ -121,7 +120,7 @@ mixin ISet<A> on RibsIterable<A> {
     return (a.toISet(), b.toISet());
   }
 
-  ISet<A> removedAll(IterableOnce<A> that) =>
+  ISet<A> removedAll(RIterableOnce<A> that) =>
       that.iterator.foldLeft(this, (acc, elem) => acc - elem);
 
   @override
@@ -139,7 +138,7 @@ mixin ISet<A> on RibsIterable<A> {
   ISet<A> slice(int from, int until) => super.slice(from, until).toISet();
 
   @override
-  RibsIterator<ISet<A>> sliding(int size, [int step = 1]) =>
+  RIterator<ISet<A>> sliding(int size, [int step = 1]) =>
       super.sliding(size, step).map((a) => a.toISet());
 
   @override
@@ -156,12 +155,12 @@ mixin ISet<A> on RibsIterable<A> {
 
   bool subsetOf(ISet<A> that) => forall(that.contains);
 
-  RibsIterator<ISet<A>> subsets({int? length}) {
+  RIterator<ISet<A>> subsets({int? length}) {
     if (length != null) {
       if (0 <= length && length <= size) {
         return _SubsetsOfNItr(toIndexedSeq(), length);
       } else {
-        return RibsIterator.empty();
+        return RIterator.empty();
       }
     } else {
       return _SubsetsItr(toIndexedSeq());
@@ -172,7 +171,7 @@ mixin ISet<A> on RibsIterable<A> {
   ISet<A> tail() => super.tail().toISet();
 
   @override
-  RibsIterator<ISet<A>> tails() => super.tails().map((a) => a.toISet());
+  RIterator<ISet<A>> tails() => super.tails().map((a) => a.toISet());
 
   @override
   ISet<A> take(int n) => super.take(n).toISet();
@@ -192,10 +191,10 @@ mixin ISet<A> on RibsIterable<A> {
   ISet<A> union(ISet<A> that) => concat(that);
 
   @override
-  ISet<(A, B)> zip<B>(IterableOnce<B> that) => super.zip(that).toISet();
+  ISet<(A, B)> zip<B>(RIterableOnce<B> that) => super.zip(that).toISet();
 
   @override
-  ISet<(A, B)> zipAll<B>(IterableOnce<B> that, A thisElem, B thatElem) =>
+  ISet<(A, B)> zipAll<B>(RIterableOnce<B> that, A thisElem, B thatElem) =>
       super.zipAll(that, thisElem, thatElem).toISet();
 
   @override
@@ -213,10 +212,10 @@ mixin ISet<A> on RibsIterable<A> {
   int get hashCode => MurmurHash3.setHash(this);
 }
 
-class _SubsetsItr<A> extends RibsIterator<ISet<A>> {
+class _SubsetsItr<A> extends RIterator<ISet<A>> {
   final IndexedSeq<A> _elems;
   int _len = 0;
-  RibsIterator<ISet<A>> _itr = RibsIterator.empty();
+  RIterator<ISet<A>> _itr = RIterator.empty();
 
   _SubsetsItr(this._elems);
 
@@ -238,7 +237,7 @@ class _SubsetsItr<A> extends RibsIterator<ISet<A>> {
   }
 }
 
-class _SubsetsOfNItr<A> extends RibsIterator<ISet<A>> {
+class _SubsetsOfNItr<A> extends RIterator<ISet<A>> {
   final IndexedSeq<A> elems;
   final int len;
 

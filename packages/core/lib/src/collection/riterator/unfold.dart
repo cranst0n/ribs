@@ -1,6 +1,6 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _UnfoldIterator<A, S> extends RibsIterator<A> {
+final class _UnfoldIterator<A, S> extends RIterator<A> {
   final Function1<S, Option<(A, S)>> f;
 
   late S _state;

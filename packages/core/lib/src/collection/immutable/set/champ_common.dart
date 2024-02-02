@@ -101,7 +101,7 @@ abstract class Node<T extends Node<T>> {
 }
 
 @internal
-abstract class ChampBaseIterator<A, T extends Node<T>> extends RibsIterator<A> {
+abstract class ChampBaseIterator<A, T extends Node<T>> extends RIterator<A> {
   @protected
   int currentValueCursor = 0;
   @protected
@@ -181,7 +181,7 @@ abstract class ChampBaseIterator<A, T extends Node<T>> extends RibsIterator<A> {
 
 @internal
 abstract class ChampBaseReverseIterator<A, T extends Node<T>>
-    extends RibsIterator<A> {
+    extends RIterator<A> {
   @protected
   int currentValueCursor = 0;
   @protected

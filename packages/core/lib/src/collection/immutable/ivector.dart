@@ -17,7 +17,7 @@ part 'vector/iterator.dart';
 IVector<A> ivec<A>(Iterable<A> as) => IVector.fromDart(as);
 
 sealed class IVector<A>
-    with IterableOnce<A>, RibsIterable<A>, Seq<A>, IndexedSeq<A> {
+    with RIterableOnce<A>, RIterable<A>, Seq<A>, IndexedSeq<A> {
   final _Arr1 _prefix1;
 
   IVector._(this._prefix1);
@@ -26,19 +26,23 @@ sealed class IVector<A>
 
   static IVector<A> empty<A>() => _Vector0();
 
-  static IVector<A> from<A>(IterableOnce<A> elems) {
-    final b = IVectorBuilder<A>();
-    final it = elems.iterator;
+  static IVector<A> from<A>(RIterableOnce<A> elems) {
+    if (elems is IVector<A>) {
+      return elems;
+    } else {
+      final b = IVectorBuilder<A>();
+      final it = elems.iterator;
 
-    while (it.hasNext) {
-      b.addOne(it.next());
+      while (it.hasNext) {
+        b.addOne(it.next());
+      }
+
+      return b.result();
     }
-
-    return b.result();
   }
 
   static IVector<A> fromDart<A>(Iterable<A> elems) =>
-      from(RibsIterator.fromDart(elems.iterator));
+      from(RIterator.fromDart(elems.iterator));
 
   static IVector<A> fill<A>(int n, A elem) {
     final b = IVectorBuilder<A>();
@@ -112,7 +116,7 @@ sealed class IVector<A>
   IVector<A> appended(A elem);
 
   @override
-  IVector<A> appendedAll(IterableOnce<A> suffix) {
+  IVector<A> appendedAll(RIterableOnce<A> suffix) {
     final k = suffix.knownSize;
 
     if (k == 0) {
@@ -125,14 +129,14 @@ sealed class IVector<A>
   }
 
   @override
-  IVector<A> concat(covariant IterableOnce<A> suffix) => appendedAll(suffix);
+  IVector<A> concat(covariant RIterableOnce<A> suffix) => appendedAll(suffix);
 
   @override
   IVector<B> collect<B>(Function1<A, Option<B>> f) =>
       super.collect(f).toIVector();
 
   @override
-  RibsIterator<IVector<A>> combinations(int n) =>
+  RIterator<IVector<A>> combinations(int n) =>
       super.combinations(n).map((a) => a.toIVector());
 
   @override
@@ -175,7 +179,7 @@ sealed class IVector<A>
   }
 
   @override
-  IVector<B> flatMap<B>(covariant Function1<A, IterableOnce<B>> f) =>
+  IVector<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) =>
       super.flatMap(f).toIVector();
 
   @override
@@ -183,7 +187,7 @@ sealed class IVector<A>
       super.groupBy(f).mapValues((a) => a.toIVector());
 
   @override
-  RibsIterator<IVector<A>> grouped(int size) =>
+  RIterator<IVector<A>> grouped(int size) =>
       super.grouped(size).map((a) => a.toIVector());
 
   @override
@@ -194,7 +198,7 @@ sealed class IVector<A>
   IVector<A> init() => slice(0, length - 1);
 
   @override
-  RibsIterator<IVector<A>> inits() => super.inits().map((a) => a.toIVector());
+  RIterator<IVector<A>> inits() => super.inits().map((a) => a.toIVector());
 
   @override
   IVector<A> intersect(Seq<A> that) => super.intersect(that).toIVector();
@@ -203,9 +207,9 @@ sealed class IVector<A>
   IVector<A> intersperse(A x) => super.intersperse(x).toIVector();
 
   @override
-  RibsIterator<A> get iterator {
+  RIterator<A> get iterator {
     if (this is _Vector0<A>) {
-      return RibsIterator.empty();
+      return RIterator.empty();
     } else {
       return _NewVectorIterator(this, length, _vectorSliceCount);
     }
@@ -235,18 +239,18 @@ sealed class IVector<A>
   }
 
   @override
-  IVector<A> patch(int from, IterableOnce<A> other, int replaced) =>
+  IVector<A> patch(int from, RIterableOnce<A> other, int replaced) =>
       super.patch(from, other, replaced).toIVector();
 
   @override
-  RibsIterator<IVector<A>> permutations() =>
+  RIterator<IVector<A>> permutations() =>
       super.permutations().map((a) => a.toIVector());
 
   @override
   IVector<A> prepended(A elem);
 
   @override
-  IVector<A> prependedAll(IterableOnce<A> prefix) {
+  IVector<A> prependedAll(RIterableOnce<A> prefix) {
     final k = prefix.knownSize;
     if (k == 0) {
       return this;
@@ -279,7 +283,7 @@ sealed class IVector<A>
       super.scanRight(z, op).toIVector();
 
   @override
-  RibsIterator<IVector<A>> sliding(int size, [int step = 1]) =>
+  RIterator<IVector<A>> sliding(int size, [int step = 1]) =>
       super.sliding(size, step).map((a) => a.toIVector());
 
   @override
@@ -309,7 +313,7 @@ sealed class IVector<A>
   IVector<A> tail() => slice(1, length);
 
   @override
-  RibsIterator<IVector<A>> tails() => super.tails().map((a) => a.toIVector());
+  RIterator<IVector<A>> tails() => super.tails().map((a) => a.toIVector());
 
   @override
   IVector<A> take(int n) => slice(0, n);
@@ -321,10 +325,18 @@ sealed class IVector<A>
   IVector<A> takeWhile(Function1<A, bool> p) => super.takeWhile(p).toIVector();
 
   @override
-  RibsIterable<A> tapEach<U>(Function1<A, U> f) {
+  RIterable<A> tapEach<U>(Function1<A, U> f) {
     foreach(f);
     return this;
   }
+
+  @override
+  Either<B, IVector<C>> traverseEither<B, C>(Function1<A, Either<B, C>> f) =>
+      super.traverseEither(f).map(IVector.from);
+
+  @override
+  Option<IVector<B>> traverseOption<B>(Function1<A, Option<B>> f) =>
+      super.traverseOption(f).map((a) => a.toIVector());
 
   @override
   String toString() => 'IVector${mkString(start: '(', sep: ', ', end: ')')}';
@@ -338,10 +350,10 @@ sealed class IVector<A>
   IndexedSeqView<A> view() => IndexedSeqView.from(this);
 
   @override
-  IVector<(A, B)> zip<B>(IterableOnce<B> that) => super.zip(that).toIVector();
+  IVector<(A, B)> zip<B>(RIterableOnce<B> that) => super.zip(that).toIVector();
 
   @override
-  IVector<(A, B)> zipAll<B>(IterableOnce<B> that, A thisElem, B thatElem) =>
+  IVector<(A, B)> zipAll<B>(RIterableOnce<B> that, A thisElem, B thatElem) =>
       super.zipAll(that, thisElem, thatElem).toIVector();
 
   @override
@@ -360,14 +372,14 @@ sealed class IVector<A>
 
   // ///////////////////////////////////////////////////////////////////////////
 
-  IVector<A> _appendedAll0(IterableOnce<A> suffix, int k) {
+  IVector<A> _appendedAll0(RIterableOnce<A> suffix, int k) {
     // k >= 0, k = suffix.knownSize
     final tinyAppendLimit = 4 + _vectorSliceCount;
     if (k < tinyAppendLimit) {
       var v = this;
 
-      if (suffix is RibsIterable) {
-        (suffix as RibsIterable<A>).foreach((x) => v = v.appended(x));
+      if (suffix is RIterable) {
+        (suffix as RIterable<A>).foreach((x) => v = v.appended(x));
       } else {
         suffix.iterator.foreach((x) => v = v.appended(x));
       }
@@ -394,7 +406,7 @@ sealed class IVector<A>
     }
   }
 
-  IVector<A> _prependedAll0(IterableOnce<A> prefix, int k) {
+  IVector<A> _prependedAll0(RIterableOnce<A> prefix, int k) {
     // k >= 0, k = prefix.knownSize
     final tinyAppendLimit = 4 + _vectorSliceCount;
     if (k < tinyAppendLimit /*|| k < (this.size >>> Log2ConcatFaster)*/) {

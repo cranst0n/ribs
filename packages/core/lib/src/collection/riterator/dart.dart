@@ -1,6 +1,6 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _DartIterator<A> extends RibsIterator<A> {
+final class _DartIterator<A> extends RIterator<A> {
   final Iterator<A> self;
 
   bool _hasNext = false;

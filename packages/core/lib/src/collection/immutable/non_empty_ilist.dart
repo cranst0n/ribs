@@ -8,7 +8,7 @@ NonEmptyIList<A> nel<A>(A head, [Iterable<A>? tail]) =>
 
 /// An immutable [IList] that contains at least one element.
 @immutable
-final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
+final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
   @override
   final A head;
 
@@ -18,13 +18,13 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   /// Creates a list with the given [head] and [tail].
   const NonEmptyIList(this.head, [this._tail = const Nil()]);
 
-  static Option<NonEmptyIList<A>> from<A>(IterableOnce<A> as) =>
+  static Option<NonEmptyIList<A>> from<A>(RIterableOnce<A> as) =>
       Option.when(() => as.nonEmpty, () {
         final l = as.toIList();
         return NonEmptyIList(l.head, l.tail());
       });
 
-  static NonEmptyIList<A> unsafe<A>(IterableOnce<A> as) =>
+  static NonEmptyIList<A> unsafe<A>(RIterableOnce<A> as) =>
       from(as).getOrElse(() => throw 'NonEmptyList.fromUnsafe: empty');
 
   /// If the given [Iterable] is non-empty, a [NonEmptyIList] wrapped in a
@@ -55,11 +55,11 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   NonEmptyIList<A> appended(A a) => NonEmptyIList(head, _tail.appended(a));
 
   @override
-  NonEmptyIList<A> appendedAll(IterableOnce<A> suffix) =>
+  NonEmptyIList<A> appendedAll(RIterableOnce<A> suffix) =>
       NonEmptyIList(head, _tail.appendedAll(suffix));
 
   @override
-  NonEmptyIList<A> concat(IterableOnce<A> as) =>
+  NonEmptyIList<A> concat(RIterableOnce<A> as) =>
       NonEmptyIList(head, _tail.concat(as));
 
   /// Adds all elements of [nel] to the end of this list.
@@ -75,7 +75,7 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   IList<B> collect<B>(Function1<A, Option<B>> f) => toIList().collect(f);
 
   @override
-  RibsIterator<IList<A>> combinations(int n) => toIList().combinations(n);
+  RIterator<IList<A>> combinations(int n) => toIList().combinations(n);
 
   @override
   IList<A> diff(Seq<A> that) => toIList().diff(that);
@@ -111,7 +111,7 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
       groupMap(f, identity);
 
   @override
-  RibsIterator<IList<A>> grouped(int size) => toIList().grouped(size);
+  RIterator<IList<A>> grouped(int size) => toIList().grouped(size);
 
   @override
   IMap<K, NonEmptyIList<V>> groupMap<K, V>(
@@ -132,7 +132,7 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   IList<A> init() => toIList().init();
 
   @override
-  RibsIterator<IList<A>> inits() => toIList().inits();
+  RIterator<IList<A>> inits() => toIList().inits();
 
   @override
   IList<A> intersect(Seq<A> that) => toIList().intersect(that);
@@ -145,8 +145,7 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   bool get isEmpty => false;
 
   @override
-  RibsIterator<A> get iterator =>
-      RibsIterator.single(head).concat(_tail.iterator);
+  RIterator<A> get iterator => RIterator.single(head).concat(_tail.iterator);
 
   @override
   int get length => 1 + _tail.length;
@@ -168,18 +167,18 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
       toIList().partitionMap(f);
 
   @override
-  IList<A> patch(int from, IterableOnce<A> other, int replaced) =>
+  IList<A> patch(int from, RIterableOnce<A> other, int replaced) =>
       toIList().patch(from, other, replaced);
 
   @override
-  RibsIterator<NonEmptyIList<A>> permutations() =>
+  RIterator<NonEmptyIList<A>> permutations() =>
       toIList().permutations().map(NonEmptyIList.unsafe);
 
   @override
   NonEmptyIList<A> prepended(A elem) => NonEmptyIList(elem, toIList());
 
   @override
-  NonEmptyIList<A> prependedAll(IterableOnce<A> prefix) =>
+  NonEmptyIList<A> prependedAll(RIterableOnce<A> prefix) =>
       NonEmptyIList.unsafe(toIList().prependedAll(prefix));
 
   @override
@@ -212,7 +211,7 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   }
 
   @override
-  RibsIterator<IList<A>> sliding(int size, [int step = 1]) =>
+  RIterator<IList<A>> sliding(int size, [int step = 1]) =>
       toIList().sliding(size, step);
 
   @override
@@ -242,7 +241,7 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   IList<A> tail() => _tail;
 
   @override
-  RibsIterator<IList<A>> tails() => toIList().tails();
+  RIterator<IList<A>> tails() => toIList().tails();
 
   @override
   IList<A> take(int n) => toIList().take(n);
@@ -262,13 +261,14 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   @override
   IList<A> toIList() => _tail.prepended(head);
 
-  /// Applies [f] to each element of this list and collects the results into a
-  /// new list. If [Left] is encountered for any element, that result is
-  /// returned and any additional elements will not be evaluated.
+  @override
   Either<B, NonEmptyIList<C>> traverseEither<B, C>(
           Function1<A, Either<B, C>> f) =>
-      f(head).flatMap(
-          (h) => _tail.traverseEither(f).map((t) => NonEmptyIList(h, t)));
+      super.traverseEither(f).map(NonEmptyIList.unsafe);
+
+  @override
+  Option<NonEmptyIList<B>> traverseOption<B>(Function1<A, Option<B>> f) =>
+      super.traverseOption(f).map(NonEmptyIList.unsafe);
 
   /// Applies [f] to each element of this list and collects the results into a
   /// new list. If an error or cancelation is encountered for any element,
@@ -310,13 +310,6 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   IO<Unit> parTraverseIO_<B>(Function1<A, IO<B>> f) =>
       toIList().parTraverseIO_(f);
 
-  /// Applies [f] to each element of this list and collects the results into a
-  /// new list. If [None] is encountered for any element, that result is
-  /// returned and any additional elements will not be evaluated.
-  Option<NonEmptyIList<B>> traverseOption<B>(Function1<A, Option<B>> f) =>
-      f(head).flatMap(
-          (h) => _tail.traverseOption(f).map((t) => NonEmptyIList(h, t)));
-
   /// Returns a new list with [f] applied to the element at index [index].
   ///
   /// If [index] is outside the range of this list, the original list is
@@ -332,11 +325,11 @@ final class NonEmptyIList<A> with IterableOnce<A>, RibsIterable<A>, Seq<A> {
   }
 
   @override
-  IList<(A, B)> zip<B>(IterableOnce<B> that) => toIList().zip(that);
+  IList<(A, B)> zip<B>(RIterableOnce<B> that) => toIList().zip(that);
 
   @override
   NonEmptyIList<(A, B)> zipAll<B>(
-    IterableOnce<B> that,
+    RIterableOnce<B> that,
     A thisElem,
     B thatElem,
   ) =>

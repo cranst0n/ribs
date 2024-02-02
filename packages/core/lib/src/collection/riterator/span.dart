@@ -1,7 +1,7 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-(RibsIterator<A>, RibsIterator<A>) spanIterator<A>(
-  RibsIterator<A> self,
+(RIterator<A>, RIterator<A>) spanIterator<A>(
+  RIterator<A> self,
   Function1<A, bool> p,
 ) {
   final leading = _SpanLeadingIterator(self, p);
@@ -10,8 +10,8 @@ part of '../iterator.dart';
   return (leading, trailing);
 }
 
-final class _SpanLeadingIterator<A> extends RibsIterator<A> {
-  final RibsIterator<A> self;
+final class _SpanLeadingIterator<A> extends RIterator<A> {
+  final RIterator<A> self;
   final Function1<A, bool> p;
 
   Queue<A>? _lookahead;
@@ -100,8 +100,8 @@ final class _SpanLeadingIterator<A> extends RibsIterator<A> {
   A get trailer => _hd!;
 }
 
-final class _SpanTrailingIterator<A> extends RibsIterator<A> {
-  final RibsIterator<A> self;
+final class _SpanTrailingIterator<A> extends RIterator<A> {
+  final RIterator<A> self;
 
   _SpanLeadingIterator<A>? myLeading;
 

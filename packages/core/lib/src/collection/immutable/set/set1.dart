@@ -1,6 +1,6 @@
 part of '../iset.dart';
 
-class _Set1<A> with IterableOnce<A>, RibsIterable<A>, ISet<A> {
+class _Set1<A> with RIterableOnce<A>, RIterable<A>, ISet<A> {
   final A elem1;
 
   const _Set1(this.elem1);
@@ -43,7 +43,7 @@ class _Set1<A> with IterableOnce<A>, RibsIterable<A>, ISet<A> {
   bool get isEmpty => false;
 
   @override
-  RibsIterator<A> get iterator => RibsIterator.single(elem1);
+  RIterator<A> get iterator => RIterator.single(elem1);
 
   @override
   void foreach<U>(Function1<A, U> f) => f(elem1);

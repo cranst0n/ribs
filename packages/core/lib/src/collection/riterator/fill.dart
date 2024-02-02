@@ -1,6 +1,6 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _FillIterator<A> extends RibsIterator<A> {
+final class _FillIterator<A> extends RIterator<A> {
   final int len;
   final A elem;
   var _i = 0;

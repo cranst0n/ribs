@@ -1,7 +1,7 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _SliceIterator<A> extends RibsIterator<A> {
-  final RibsIterator<A> self;
+final class _SliceIterator<A> extends RIterator<A> {
+  final RIterator<A> self;
   final int start;
   final int limit;
 
@@ -35,7 +35,7 @@ final class _SliceIterator<A> extends RibsIterator<A> {
   }
 
   @override
-  RibsIterator<A> sliceIterator(int from, int until) {
+  RIterator<A> sliceIterator(int from, int until) {
     final lo = max(from, 0);
     final adjustedBound = _unbounded ? -1 : max(0, _remaining - lo);
 
@@ -52,7 +52,7 @@ final class _SliceIterator<A> extends RibsIterator<A> {
     }
 
     if (rest == 0) {
-      return RibsIterator.empty();
+      return RIterator.empty();
     } else {
       final sum = _dropping + lo;
       _dropping = sum < 0 ? Integer.MaxValue : sum;

@@ -4,7 +4,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/views.dart' as views;
 
 abstract class AbstractSeqView<A>
-    with IterableOnce<A>, RibsIterable<A>, View<A>, Seq<A>, SeqView<A> {
+    with RIterableOnce<A>, RIterable<A>, View<A>, Seq<A>, SeqView<A> {
   const AbstractSeqView();
 }
 
@@ -75,7 +75,7 @@ class Id<A> extends AbstractSeqView<A> {
   bool get isEmpty => underlying.isEmpty;
 
   @override
-  RibsIterator<A> get iterator => underlying.iterator;
+  RIterator<A> get iterator => underlying.iterator;
 
   @override
   int get knownSize => underlying.knownSize;
@@ -120,7 +120,7 @@ class Reverse<A> extends AbstractSeqView<A> {
   bool get isEmpty => underlying.isEmpty;
 
   @override
-  RibsIterator<A> get iterator => underlying.reverseIterator();
+  RIterator<A> get iterator => underlying.reverseIterator();
 
   @override
   int get knownSize => underlying.knownSize;
@@ -145,7 +145,7 @@ class Sorted<A> extends AbstractSeqView<A> {
   bool get isEmpty => len == 0;
 
   @override
-  RibsIterator<A> get iterator => _sorted.iterator; // todo: lazy?
+  RIterator<A> get iterator => _sorted.iterator; // todo: lazy?
 
   @override
   int get knownSize => len;
@@ -181,7 +181,7 @@ class Sorted<A> extends AbstractSeqView<A> {
 
       seq = null;
 
-      _sortedImpl = Seq.from(RibsIterator.fromDart(res.iterator));
+      _sortedImpl = Seq.from(RIterator.fromDart(res.iterator));
     }
 
     return _sortedImpl!;
@@ -235,7 +235,7 @@ class _ReverseSorted<A> extends AbstractSeqView<A> {
   bool get isEmpty => outer.len == 0;
 
   @override
-  RibsIterator<A> get iterator => _reversed.iterator;
+  RIterator<A> get iterator => _reversed.iterator;
 
   @override
   int get knownSize => outer.len;

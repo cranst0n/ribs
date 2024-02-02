@@ -1,12 +1,12 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _TakeWhileIterator<A> extends RibsIterator<A> {
-  final RibsIterator<A> self;
+final class _TakeWhileIterator<A> extends RIterator<A> {
+  final RIterator<A> self;
   final Function1<A, bool> p;
 
   late A hd;
   bool hdDefined = false;
-  late RibsIterator<A> tailIt = self;
+  late RIterator<A> tailIt = self;
 
   _TakeWhileIterator(this.self, this.p);
 
@@ -20,7 +20,7 @@ final class _TakeWhileIterator<A> extends RibsIterator<A> {
     if (p(hd)) {
       hdDefined = true;
     } else {
-      tailIt = RibsIterator.empty();
+      tailIt = RIterator.empty();
     }
 
     return hdDefined;

@@ -1424,7 +1424,7 @@ final class HashCollisionMapNode<K, V> extends MapNode<K, V> {
   @override
   V apply(K key, int originalHash, int hash, int shift) =>
       get(key, originalHash, hash, shift)
-          .getOrElse(() => RibsIterator.empty<V>().next());
+          .getOrElse(() => RIterator.empty<V>().next());
 
   @override
   void buildTo(IHashMapBuilder<K, V> builder) {
@@ -1558,7 +1558,7 @@ final class HashCollisionMapNode<K, V> extends MapNode<K, V> {
     if (index >= 0) {
       return content[index];
     } else {
-      return RibsIterator.empty<(K, V)>().next();
+      return RIterator.empty<(K, V)>().next();
     }
   }
 

@@ -1,7 +1,7 @@
 part of '../imap.dart';
 
 final class _EmptyMap<K, V>
-    with IterableOnce<(K, V)>, RibsIterable<(K, V)>, IMap<K, V> {
+    with RIterableOnce<(K, V)>, RIterable<(K, V)>, IMap<K, V> {
   _EmptyMap();
 
   @override
@@ -17,7 +17,7 @@ final class _EmptyMap<K, V>
   bool get isEmpty => true;
 
   @override
-  RibsIterator<(K, V)> get iterator => RibsIterator.empty();
+  RIterator<(K, V)> get iterator => RIterator.empty();
 
   @override
   ISet<K> get keys => ISet.empty();
@@ -35,5 +35,5 @@ final class _EmptyMap<K, V>
   IMap<K, V> updated(K key, V value) => _Map1(key, value);
 
   @override
-  RibsIterator<V> get values => RibsIterator.empty();
+  RIterator<V> get values => RIterator.empty();
 }

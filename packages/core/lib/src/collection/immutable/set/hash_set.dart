@@ -3,7 +3,7 @@ import 'package:ribs_core/src/collection/hashing.dart';
 import 'package:ribs_core/src/collection/immutable/set/champ_common.dart';
 import 'package:ribs_core/src/collection/immutable/set/set_node.dart';
 
-final class IHashSet<A> with IterableOnce<A>, RibsIterable<A>, ISet<A> {
+final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, ISet<A> {
   final BitmapIndexedSetNode<A> _rootNode;
 
   IHashSet._(this._rootNode);
@@ -12,7 +12,7 @@ final class IHashSet<A> with IterableOnce<A>, RibsIterable<A>, ISet<A> {
 
   static IHashSet<A> empty<A>() => IHashSet._(SetNode.empty());
 
-  static IHashSet<A> from<A>(IterableOnce<A> xs) => switch (xs) {
+  static IHashSet<A> from<A>(RIterableOnce<A> xs) => switch (xs) {
         final IHashSet<A> hs => hs,
         _ when xs.knownSize == 0 => IHashSet.empty(),
         _ => builder<A>().addAll(xs).result(),
@@ -25,7 +25,7 @@ final class IHashSet<A> with IterableOnce<A>, RibsIterable<A>, ISet<A> {
   IHashSet<A> operator -(A a) => excl(a);
 
   @override
-  IHashSet<A> concat(covariant IterableOnce<A> that) {
+  IHashSet<A> concat(covariant RIterableOnce<A> that) {
     if (that is IHashSet<A>) {
       if (isEmpty) {
         return that;
@@ -160,14 +160,14 @@ final class IHashSet<A> with IterableOnce<A>, RibsIterable<A>, ISet<A> {
   IHashSet<A> init() => this - last;
 
   @override
-  RibsIterator<IHashSet<A>> inits() => super.inits().map(IHashSet.from);
+  RIterator<IHashSet<A>> inits() => super.inits().map(IHashSet.from);
 
   @override
   bool get isEmpty => _rootNode.size == 0;
 
   @override
-  RibsIterator<A> get iterator =>
-      isEmpty ? RibsIterator.empty() : _SetIterator(_rootNode);
+  RIterator<A> get iterator =>
+      isEmpty ? RIterator.empty() : _SetIterator(_rootNode);
 
   @override
   int get knownSize => _rootNode.size;
@@ -176,12 +176,12 @@ final class IHashSet<A> with IterableOnce<A>, RibsIterable<A>, ISet<A> {
   A get last => reverseIterator.next();
 
   @override
-  IHashSet<A> removedAll(IterableOnce<A> that) => switch (that) {
+  IHashSet<A> removedAll(RIterableOnce<A> that) => switch (that) {
         final ISet<A> that => diff(that),
         _ => _removedAllWithShallowMutations(that),
       };
 
-  RibsIterator<A> get reverseIterator => _SetReverseIterator(_rootNode);
+  RIterator<A> get reverseIterator => _SetReverseIterator(_rootNode);
 
   @override
   int get size => _rootNode.size;
@@ -203,7 +203,7 @@ final class IHashSet<A> with IterableOnce<A>, RibsIterable<A>, ISet<A> {
   IHashSet<A> _newHashSetOrThis(BitmapIndexedSetNode<A> newRootNode) =>
       _rootNode == newRootNode ? this : IHashSet._(newRootNode);
 
-  IHashSet<A> _removedAllWithShallowMutations(IterableOnce<A> that) {
+  IHashSet<A> _removedAllWithShallowMutations(RIterableOnce<A> that) {
     final iter = that.iterator;
     var curr = _rootNode;
 
@@ -296,7 +296,7 @@ final class IHashSetBuilder<A> {
 
   IHashSetBuilder() : _rootNode = _newEmptyRootNode();
 
-  IHashSetBuilder<A> addAll(IterableOnce<A> elems) {
+  IHashSetBuilder<A> addAll(RIterableOnce<A> elems) {
     _ensureUnaliased();
 
     // TODO: ChampBaseIterator if elems is an IHashSet

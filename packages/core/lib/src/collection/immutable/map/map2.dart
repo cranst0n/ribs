@@ -1,7 +1,7 @@
 part of '../imap.dart';
 
 final class _Map2<K, V>
-    with IterableOnce<(K, V)>, RibsIterable<(K, V)>, IMap<K, V> {
+    with RIterableOnce<(K, V)>, RIterable<(K, V)>, IMap<K, V> {
   final K key1;
   final V value1;
   final K key2;
@@ -34,7 +34,7 @@ final class _Map2<K, V>
       };
 
   @override
-  RibsIterator<(K, V)> get iterator =>
+  RIterator<(K, V)> get iterator =>
       ilist([(key1, value1), (key2, value2)]).iterator;
 
   @override
@@ -69,5 +69,5 @@ final class _Map2<K, V>
   }
 
   @override
-  RibsIterator<V> get values => ilist([value1, value2]).iterator;
+  RIterator<V> get values => ilist([value1, value2]).iterator;
 }

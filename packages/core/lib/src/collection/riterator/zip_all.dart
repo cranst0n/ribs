@@ -1,13 +1,13 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _ZipAllIterator<A, B> extends RibsIterator<(A, B)> {
-  final RibsIterator<A> self;
-  final IterableOnce<B> that;
+final class _ZipAllIterator<A, B> extends RIterator<(A, B)> {
+  final RIterator<A> self;
+  final RIterableOnce<B> that;
 
   final A thisElem;
   final B thatElem;
 
-  final RibsIterator<B> thatIterator;
+  final RIterator<B> thatIterator;
 
   _ZipAllIterator(this.self, this.that, this.thisElem, this.thatElem)
       : thatIterator = that.iterator;

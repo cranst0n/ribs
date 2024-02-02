@@ -1,7 +1,7 @@
 part of '../imap.dart';
 
 final class IHashMap<K, V>
-    with IterableOnce<(K, V)>, RibsIterable<(K, V)>, IMap<K, V> {
+    with RIterableOnce<(K, V)>, RIterable<(K, V)>, IMap<K, V> {
   final BitmapIndexedMapNode<K, V> _rootNode;
 
   IHashMap._(this._rootNode);
@@ -19,7 +19,7 @@ final class IHashMap<K, V>
   bool get isEmpty => _rootNode.size == 0;
 
   @override
-  RibsIterator<(K, V)> get iterator => _MapKeyValueTupleIterator(_rootNode);
+  RIterator<(K, V)> get iterator => _MapKeyValueTupleIterator(_rootNode);
 
   @override
   ISet<K> get keys => _MapKeyIterator(_rootNode).toISet();
@@ -55,7 +55,7 @@ final class IHashMap<K, V>
   }
 
   @override
-  RibsIterator<V> get values => _MapValueIterator(_rootNode);
+  RIterator<V> get values => _MapValueIterator(_rootNode);
 
   IHashMap<K, V> _newHashMapOrThis(BitmapIndexedMapNode<K, V> newRootNode) =>
       newRootNode == _rootNode ? this : IHashMap._(newRootNode);
@@ -67,7 +67,7 @@ class IHashMapBuilder<K, V> {
 
   IHashMapBuilder() : _rootNode = _newEmptyRootNode();
 
-  IHashMapBuilder<K, V> addAll(IterableOnce<(K, V)> elems) {
+  IHashMapBuilder<K, V> addAll(RIterableOnce<(K, V)> elems) {
     // TODO: Optimize
     final it = elems.iterator;
     while (it.hasNext) {

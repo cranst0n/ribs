@@ -1,12 +1,12 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _PatchIterator<A> extends RibsIterator<A> {
-  final RibsIterator<A> self;
+final class _PatchIterator<A> extends RIterator<A> {
+  final RIterator<A> self;
   final int from;
-  final RibsIterator<A> patchElems;
+  final RIterator<A> patchElems;
   final int replaced;
 
-  RibsIterator<A> _origElems;
+  RIterator<A> _origElems;
 
   // > 0  => that many more elems from `origElems` before switching to `patchElems`
   //   0  => need to drop elems from `origElems` and start using `patchElems`

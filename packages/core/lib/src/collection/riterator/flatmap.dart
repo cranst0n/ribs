@@ -1,10 +1,10 @@
-part of '../iterator.dart';
+part of '../riterator.dart';
 
-final class _FlatMapIterator<A, B> extends RibsIterator<B> {
-  final RibsIterator<A> self;
-  final Function1<A, IterableOnce<B>> f;
+final class _FlatMapIterator<A, B> extends RIterator<B> {
+  final RIterator<A> self;
+  final Function1<A, RIterableOnce<B>> f;
 
-  RibsIterator<B> cur = RibsIterator.empty();
+  RIterator<B> cur = RIterator.empty();
   int _hasNext = -1;
 
   _FlatMapIterator(this.self, this.f);
@@ -17,7 +17,7 @@ final class _FlatMapIterator<A, B> extends RibsIterator<B> {
           _hasNext = 0;
           // since we know we are exhausted, we can release cur for gc, and as well replace with
           // static Iterator.empty which will support efficient subsequent `hasNext`/`next` calls
-          cur = RibsIterator.empty();
+          cur = RIterator.empty();
           return false;
         }
         nextCur();
@@ -39,7 +39,7 @@ final class _FlatMapIterator<A, B> extends RibsIterator<B> {
   }
 
   void nextCur() {
-    cur = RibsIterator.empty();
+    cur = RIterator.empty();
     cur = f(self.next()).iterator;
     _hasNext = -1;
   }

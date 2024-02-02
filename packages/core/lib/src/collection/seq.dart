@@ -4,11 +4,11 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/seq_views.dart' as seqviews;
 import 'package:ribs_core/src/collection/views.dart' as views;
 
-mixin Seq<A> on RibsIterable<A> {
+mixin Seq<A> on RIterable<A> {
   A operator [](int idx);
   int get length;
 
-  static Seq<A> from<A>(IterableOnce<A> elems) {
+  static Seq<A> from<A>(RIterableOnce<A> elems) {
     if (elems is Seq<A>) {
       return elems;
     } else {
@@ -17,13 +17,13 @@ mixin Seq<A> on RibsIterable<A> {
   }
 
   static Seq<A> fromDart<A>(Iterable<A> elems) =>
-      from(RibsIterator.fromDart(elems.iterator));
+      from(RIterator.fromDart(elems.iterator));
 
   /// Returns a new Seq, with the given [elem] added to the end.
   Seq<A> appended(A elem) => seqviews.Appended(this, elem).toSeq();
 
   /// Returns a new Seq, with [elems] added to the end.
-  Seq<A> appendedAll(IterableOnce<A> suffix) => super.concat(suffix).toSeq();
+  Seq<A> appendedAll(RIterableOnce<A> suffix) => super.concat(suffix).toSeq();
 
   @override
   Seq<B> collect<B>(Function1<A, Option<B>> f) => super.collect(f).toSeq();
@@ -39,16 +39,16 @@ mixin Seq<A> on RibsIterable<A> {
   /// even though there are technically 3 ways to generate a combination of
   /// `[1, 2]`, only one will be included in the result since the other 2 are
   /// duplicates.
-  RibsIterator<Seq<A>> combinations(int n) {
+  RIterator<Seq<A>> combinations(int n) {
     if (n < 0 || n > size) {
-      return RibsIterator.empty();
+      return RIterator.empty();
     } else {
       return _CombinationsItr.from(n, this);
     }
   }
 
   @override
-  Seq<A> concat(IterableOnce<A> suffix) =>
+  Seq<A> concat(RIterableOnce<A> suffix) =>
       seqviews.Concat(this, suffix.toSeq());
 
   /// Returns true, if any element of this collection equals [elem].
@@ -114,7 +114,7 @@ mixin Seq<A> on RibsIterable<A> {
 
   /// Returns true if the end of this collection has the same elements in order
   /// as [that]. Otherwise, false is returned.
-  bool endsWith(RibsIterable<A> that) {
+  bool endsWith(RIterable<A> that) {
     if (that.isEmpty) {
       return true;
     } else {
@@ -145,7 +145,7 @@ mixin Seq<A> on RibsIterable<A> {
   Seq<A> filterNot(Function1<A, bool> p) => super.filterNot(p).toSeq();
 
   @override
-  Seq<B> flatMap<B>(Function1<A, IterableOnce<B>> f) =>
+  Seq<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) =>
       views.FlatMap(this, f).toSeq();
 
   @override
@@ -312,7 +312,7 @@ mixin Seq<A> on RibsIterable<A> {
   /// will be returned.
   Seq<A> padTo(int len, A elem) => views.PadTo(this, len, elem).toSeq();
 
-  Seq<A> patch(int from, IterableOnce<A> other, int replaced) =>
+  Seq<A> patch(int from, RIterableOnce<A> other, int replaced) =>
       views.Patched(this, from, other, replaced).toSeq();
 
   @override
@@ -333,9 +333,9 @@ mixin Seq<A> on RibsIterable<A> {
   /// Note that only distinct permutations are emitted. Given the example
   /// `[1, 2, 2, 2]` the permutations will only include `[1, 2, 2, 2]` once,
   /// even though there are 3 different way to generate that permutation.
-  RibsIterator<Seq<A>> permutations() {
+  RIterator<Seq<A>> permutations() {
     if (isEmpty) {
-      return RibsIterator.empty();
+      return RIterator.empty();
     } else {
       return _PermutationsItr.from(this);
     }
@@ -345,7 +345,7 @@ mixin Seq<A> on RibsIterable<A> {
   Seq<A> prepended(A elem) => seqviews.Prepended(elem, this).toSeq();
 
   /// Returns a new collection with all [elems] added to the beginning.
-  Seq<A> prependedAll(IterableOnce<A> prefix) =>
+  Seq<A> prependedAll(RIterableOnce<A> prefix) =>
       seqviews.Concat(prefix.toSeq(), this);
 
   Seq<A> removeAt(int idx) {
@@ -369,11 +369,11 @@ mixin Seq<A> on RibsIterable<A> {
 
   /// Returns an iterator that will emit all elements in this collection, in
   /// reverse order.
-  RibsIterator<A> reverseIterator() => reverse().iterator;
+  RIterator<A> reverseIterator() => reverse().iterator;
 
   /// Returns true if this collection has the same elements, in the same order,
   /// as [that].
-  bool sameElements(RibsIterable<A> that) {
+  bool sameElements(RIterable<A> that) {
     final thisKnownSize = knownSize;
     final thatKnownSize = that.knownSize;
     final knownDifference = thisKnownSize != -1 &&
@@ -395,7 +395,7 @@ mixin Seq<A> on RibsIterable<A> {
       super.scanRight(z, op).toSeq();
 
   @override
-  RibsIterator<Seq<A>> sliding(int size, [int step = 1]) =>
+  RIterator<Seq<A>> sliding(int size, [int step = 1]) =>
       super.sliding(size, step).map((a) => a.toSeq());
 
   int segmentLength(Function1<A, bool> p, [int from = 0]) {
@@ -433,7 +433,7 @@ mixin Seq<A> on RibsIterable<A> {
       super.splitAt(n)((a, b) => (a.toSeq(), b.toSeq()));
 
   /// Returns true if the beginning of this collection corresponds with [that].
-  bool startsWith(IterableOnce<A> that, [int offset = 0]) {
+  bool startsWith(RIterableOnce<A> that, [int offset = 0]) {
     final i = iterator.drop(offset);
     final j = that.iterator;
     while (j.hasNext && i.hasNext) {
@@ -446,14 +446,53 @@ mixin Seq<A> on RibsIterable<A> {
   @override
   Seq<A> tail() => view().tail().toSeq();
 
+  /// Applies [f] to each element of this [Seq] and collects the results into a
+  /// new collection. If [Left] is encountered for any element, that result is
+  /// returned and any additional elements will not be evaluated.
+  Either<B, Seq<C>> traverseEither<B, C>(Function1<A, Either<B, C>> f) {
+    Either<B, Seq<C>> result = Either.pure(IVector.empty());
+
+    foreach((elem) {
+      // short circuit
+      if (result.isLeft) {
+        return result;
+      }
+
+      // Workaround for contravariant issues in error case
+      result = result.fold(
+        (_) => result,
+        (acc) => f(elem).fold(
+          (err) => err.asLeft(),
+          (a) => acc.appended(a).asRight(),
+        ),
+      );
+    });
+
+    return result;
+  }
+
+  /// Applies [f] to each element of this [Seq] and collects the results into a
+  /// new collection. If [None] is encountered for any element, that result is
+  /// returned and any additional elements will not be evaluated.
+  Option<Seq<B>> traverseOption<B>(Function1<A, Option<B>> f) {
+    Option<Seq<B>> result = Option.pure(IVector.empty());
+
+    foreach((elem) {
+      if (result.isEmpty) return result; // short circuit
+      result = result.flatMap((l) => f(elem).map((b) => l.appended(b)));
+    });
+
+    return result;
+  }
+
   @override
   SeqView<A> view() => SeqView.from(this);
 
   @override
-  Seq<(A, B)> zip<B>(IterableOnce<B> that) => super.zip(that).toSeq();
+  Seq<(A, B)> zip<B>(RIterableOnce<B> that) => super.zip(that).toSeq();
 
   @override
-  Seq<(A, B)> zipAll<B>(IterableOnce<B> that, A thisElem, B thatElem) =>
+  Seq<(A, B)> zipAll<B>(RIterableOnce<B> that, A thisElem, B thatElem) =>
       super.zipAll(that, thisElem, thatElem).toSeq();
 
   @override
@@ -466,7 +505,7 @@ mixin Seq<A> on RibsIterable<A> {
   }
 }
 
-class _PermutationsItr<A> extends RibsIterator<Seq<A>> {
+class _PermutationsItr<A> extends RIterator<Seq<A>> {
   final List<A> _elms;
   final List<int> _idxs;
 
@@ -490,7 +529,7 @@ class _PermutationsItr<A> extends RibsIterator<Seq<A>> {
 
   @override
   Seq<A> next() {
-    if (!hasNext) return RibsIterator.empty<Seq<A>>().next();
+    if (!hasNext) return RIterator.empty<Seq<A>>().next();
 
     final forcedElms = List<A>.empty(growable: true);
     forcedElms.addAll(_elms);
@@ -533,7 +572,7 @@ class _PermutationsItr<A> extends RibsIterator<Seq<A>> {
   }
 }
 
-class _CombinationsItr<A> extends RibsIterator<Seq<A>> {
+class _CombinationsItr<A> extends RIterator<Seq<A>> {
   final int n;
 
   final List<A> _elems;
@@ -563,8 +602,7 @@ class _CombinationsItr<A> extends RibsIterator<Seq<A>> {
       r -= nums[k];
     }
 
-    final offs =
-        RibsIterable.fromDart(cnts).scanLeft(0, (a, b) => a + b).toList();
+    final offs = RIterable.fromDart(cnts).scanLeft(0, (a, b) => a + b).toList();
 
     return _CombinationsItr._(n, elems.toList(), cnts, nums, offs);
   }
@@ -574,7 +612,7 @@ class _CombinationsItr<A> extends RibsIterator<Seq<A>> {
 
   @override
   Seq<A> next() {
-    if (!hasNext) return RibsIterator.empty<Seq<A>>().next();
+    if (!hasNext) return RIterator.empty<Seq<A>>().next();
 
     /* Calculate this result. */
     // calculate next

@@ -3,14 +3,14 @@ import 'dart:math';
 import 'package:ribs_core/ribs_collection.dart';
 import 'package:ribs_core/src/function.dart';
 
-mixin Buffer<A> on IterableOnce<A>, RibsIterable<A>, Seq<A> {
+mixin Buffer<A> on RIterableOnce<A>, RIterable<A>, Seq<A> {
   Buffer<A> addOne(A elem);
 
-  Buffer<A> addAll(IterableOnce<A> elems);
+  Buffer<A> addAll(RIterableOnce<A> elems);
 
   Buffer<A> append(A elem) => addOne(elem);
 
-  Buffer<A> appendAll(IterableOnce<A> elems) => addAll(elems);
+  Buffer<A> appendAll(RIterableOnce<A> elems) => addAll(elems);
 
   void clear();
 
@@ -32,11 +32,11 @@ mixin Buffer<A> on IterableOnce<A>, RibsIterable<A>, Seq<A> {
 
   void insert(int idx, A elem);
 
-  void insertAll(int idx, IterableOnce<A> elems);
+  void insertAll(int idx, RIterableOnce<A> elems);
 
   Buffer<A> prepend(A elem);
 
-  Buffer<A> prependAll(IterableOnce<A> elems) {
+  Buffer<A> prependAll(RIterableOnce<A> elems) {
     insertAll(0, elems);
     return this;
   }
@@ -53,7 +53,7 @@ mixin Buffer<A> on IterableOnce<A>, RibsIterable<A>, Seq<A> {
     return this;
   }
 
-  Buffer<A> patchInPlace(int from, IterableOnce<A> patch, int replaced);
+  Buffer<A> patchInPlace(int from, RIterableOnce<A> patch, int replaced);
 
   Buffer<A> sliceInPlace(int start, int end) =>
       takeInPlace(end).dropInPlace(start);
