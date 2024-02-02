@@ -1,4 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/ribs_effect.dart';
 
 typedef InterruptionOutcome = Outcome<UniqueToken>;
 

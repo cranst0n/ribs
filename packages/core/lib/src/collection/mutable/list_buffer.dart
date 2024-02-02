@@ -1,8 +1,7 @@
 import 'dart:math';
 
-import 'package:ribs_core/ribs_collection.dart';
+import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/mutable/mutation_tracker.dart';
-import 'package:ribs_core/src/option.dart';
 
 class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, Seq<A>, Buffer<A> {
   IList<A> _first = Nil<A>();

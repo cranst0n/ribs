@@ -21,6 +21,7 @@ dependencies:
   fpdart:                     ^1.1.0
   kt_dart:                    ^1.1.0
   ribs_core:                  ^1.0.0-dev.8
+  ribs_effect:                ^1.0.0-dev.1
 
 dev_dependencies:
   lint:      ^2.3.0

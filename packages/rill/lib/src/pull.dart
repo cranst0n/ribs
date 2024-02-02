@@ -1,6 +1,7 @@
 // ignore_for_file: strict_raw_type
 
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
 sealed class Pull<O, R> {

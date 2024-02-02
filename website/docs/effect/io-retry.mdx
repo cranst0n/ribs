@@ -1,0 +1,86 @@
+---
+sidebar_position: 2
+---
+
+import {CodeSnippet} from '../../src/components/CodeSnippet';
+import IORetrySnippet from '!!raw-loader!../../snippets/lib/src/effect/io_retry.dart';
+
+# Retrying IO
+
+It's very common to encounter calculations in the wild that can fail for any
+number or reasons. When making an HTTP call, for example, the operation could
+fail due to:
+
+* Server is down
+* Client timeout exceeded
+* Request gave incorrect data
+* Returned data has missing/unexpected JSON fields
+* A cable being unplugged
+
+This is only a few of the countless ways in which things can go sideways. Any
+time you're interacting with the world outside your program such as a network
+or file system, failure *is* an option. In certains circumstance, like in an
+HTTP request as described above, it may be worthwhile to retry the operation
+and hope that things go better the next time. Because this situation is so
+common, Ribs provides a retry mechanism for `IO` out of the box!
+
+### Flaky Operations
+
+Let's define our flaky operation so that we can see how Ribs allows us to
+easily bake in retry capabilities:
+
+<CodeSnippet language="dart" snippet={IORetrySnippet} section="flaky-op" />
+
+It's not very important that you immediately understand every single bit of
+what this code does, so long as you understand that it makes an HTTP request
+to our fake endpoint and attempts to parse the response as a JSON string,
+using the Ribs JSON library.
+
+### Declarative Retries
+
+Now that our flaky operation is defined let's apply the simplest `RetryPolicy`
+to it that we can:
+
+<CodeSnippet language="dart" snippet={IORetrySnippet} section="retry-simple" />
+
+And just like that, we've enhanced our original `IO` to create a new `IO` that
+will automatically retry the operation if it fails, up to 3 more times.
+Recognize that this capability is available on ***any*** `IO<A>` type so it's
+completely generic in terms of what the underlying operation is doing!
+
+### Retrying Customization
+
+The `IO.retrying` function provides additional ways to customize the retry
+behavior of your operation. Here's an example:
+
+<CodeSnippet language="dart" snippet={IORetrySnippet} section="custom-retry" />
+
+Let's look at each argument to see what's available to you:
+
+* **policy**: In this example, `RetryPolicy.contantDelay` is given, which will
+continually retry a failed operation after a specified delay.
+* **wasSuccessful**: Logic you can provide to inspect a successful compuation
+and force another retry attempt.
+* **isWorthRetrying**: Logic you can provide to inspect the `RuntimeException`
+and determine if the opration should be retried again, overriding the policy.
+* **onError**: A side effect that is run every time the underlying `IO`
+encounters an error. In this case, the cumulative number or retries is
+printed to stdout.
+* **onFailure**: A side effect that is run every time the result from the
+underlying `IO` fails the `wasSuccessful` predicate.
+
+### Retry Policy Customization
+
+You can also customize your retry policy to achieve the exact behavior you
+want by using combinators and/or combining any number of policies in a few
+different ways. To start off look at these examples:
+
+<CodeSnippet language="dart" title="Modifying Retry Policies" snippet={IORetrySnippet} section="custom-policy-1" />
+
+<CodeSnippet language="dart" title="Composing Retry Policies" snippet={IORetrySnippet} section="custom-policy-2" />
+
+
+:::tip
+There's virtually no limit to what you can do with `RetryPolicy` but to get a
+full handle of what's possible, you should check out the API documentation.
+:::

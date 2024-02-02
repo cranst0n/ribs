@@ -43,6 +43,14 @@ updates:
       include: "scope"
 
   - package-ecosystem: "pub"
+      directory: "/packages/effect"
+      schedule:
+        interval: "weekly"
+      commit-message:
+        prefix: "chore"
+        include: "scope"
+
+  - package-ecosystem: "pub"
     directory: "/packages/ip"
     schedule:
       interval: "weekly"

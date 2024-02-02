@@ -130,34 +130,6 @@ void main() {
       expect(none<int>().toString(), 'None');
     });
 
-    test('traverseIO', () {
-      expect(
-        const Some(1).traverseIO((a) => IO.pure(a * 2)),
-        ioSucceeded(const Some(2)),
-      );
-
-      expect(
-        none<int>().traverseIO((a) => IO.pure(a * 2)),
-        ioSucceeded(none<int>()),
-      );
-    });
-
-    test('traverseIO_', () async {
-      var count = 0;
-
-      await expectLater(
-        const Some(1).traverseIO((a) => IO.exec(() => count += 1)),
-        ioSucceeded(),
-      );
-      expect(count, 1);
-
-      await expectLater(
-        none<int>().traverseIO_((a) => IO.exec(() => count += 1)),
-        ioSucceeded(),
-      );
-      expect(count, 1);
-    });
-
     test('hashCode', () {
       expect(Option.pure(1).hashCode, Option.pure(1).hashCode);
       expect(none<int>().hashCode, none<int>().hashCode);

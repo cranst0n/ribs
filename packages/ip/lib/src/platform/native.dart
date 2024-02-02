@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_ip/ribs_ip.dart';
 import 'package:ribs_ip/src/platform/base.dart';
 

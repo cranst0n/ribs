@@ -262,13 +262,6 @@ void main() {
       expect(ilist([1, 2, 3]).flatMap(f), ilist([0, 1, 2, 1, 2, 3, 2, 3, 4]));
     });
 
-    test('flatTraverseIO', () {
-      IO<IList<int>> f(int x) => IO.delay(() => ilist([x - 1, x, x + 1]));
-
-      expect(nil<int>().flatTraverseIO(f), ioSucceeded(nil<int>()));
-      expect(ilist([1]).flatTraverseIO(f), ioSucceeded(ilist([0, 1, 2])));
-    });
-
     test('flatten', () {
       final l = ilist([1, 2, 3]);
       final ll = ilist([l, l, l]);
@@ -787,33 +780,6 @@ void main() {
             (a) => Either.cond(() => a.isEven, () => a, () => 'odd')),
         'odd'.asLeft<int>(),
       );
-    });
-
-    test('traverseIO', () {
-      final io = ilist([1, 2, 3]).traverseIO((a) => IO.pure(a * 2));
-      expect(io, ioSucceeded(ilist([2, 4, 6])));
-    });
-
-    test('traverseIO_', () {
-      final io = ilist([1, 2, 3]).traverseIO_((a) => IO.pure(a * 2));
-      expect(io, ioSucceeded(Unit()));
-    });
-
-    test('parTraverseIO', () {
-      final io = ilist([1, 2, 3]).parTraverseIO((a) => IO.pure(a * 2));
-      expect(io, ioSucceeded(ilist([2, 4, 6])));
-    });
-
-    test('parTraverseIO_', () {
-      final io = ilist([1, 2, 3]).parTraverseIO_((a) => IO.pure(a * 2));
-      expect(io, ioSucceeded(Unit()));
-    });
-
-    test('traverseFilterIO', () {
-      final io = ilist([1, 2, 3]).traverseFilterIO(
-          (a) => IO.pure(Option.when(() => a.isOdd, () => a)));
-
-      expect(io, ioSucceeded(ilist([1, 3])));
     });
 
     test('traverseOption', () {

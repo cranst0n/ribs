@@ -123,15 +123,6 @@ sealed class Option<A> implements Monad<A> {
   @override
   String toString() => fold(() => 'None', (a) => 'Some($a)');
 
-  /// If this is a [Some], returns the result of applying [f] to the value,
-  /// otherwise an [IO] with a [None] is returned.
-  IO<Option<B>> traverseIO<B>(Function1<A, IO<B>> f) =>
-      fold(() => IO.none(), (a) => f(a).map((a) => Some(a)));
-
-  /// Same behavior as [traverseIO] but the resulting value is discarded.
-  IO<Unit> traverseIO_<B>(Function1<A, IO<B>> f) =>
-      fold(() => IO.unit, (a) => f(a).map((_) => Unit()));
-
   @override
   bool operator ==(Object other) => fold(
         () => other is None,
@@ -158,4 +149,10 @@ final class None<A> extends Option<A> {
 
   @override
   B fold<B>(Function0<B> ifEmpty, Function1<A, B> f) => ifEmpty();
+}
+
+/// Additional functions that can be called on a nested [Option].
+extension OptionNestedOps<A> on Option<Option<A>> {
+  /// If this is a [Some], the value is returned, otherwise [None] is returned.
+  Option<A> flatten() => fold(() => none<A>(), identity);
 }

@@ -5,7 +5,7 @@ import 'package:dartz/dartz.dart' as dartz;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart'
     as fic;
 import 'package:kt_dart/collection.dart' as kt;
-import 'package:ribs_core/ribs_collection.dart' as ribs;
+import 'package:ribs_core/ribs_core.dart' as ribs;
 
 void main(List<String> args) async {
   const n = 1000;

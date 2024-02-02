@@ -101,7 +101,7 @@ final class MacAddress extends Ordered<MacAddress> {
 
   @override
   String toString() => _bytes
-      .map((b) => b.toRadixString(16).padLeft(2, '0'))
       .toIList()
+      .map((b) => b.toRadixString(16).padLeft(2, '0'))
       .mkString(sep: ':');
 }

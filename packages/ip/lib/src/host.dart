@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_ip/ribs_ip.dart';
 import 'package:ribs_ip/src/punycode/punycode.dart';
 
@@ -370,8 +371,7 @@ final class Ipv4Address extends IpAddress {
   String toString() =>
       '${_bytes[0] & 0xff}.${_bytes[1] & 0xff}.${_bytes[2] & 0xff}.${_bytes[3] & 0xff}';
 
-  int toInt() =>
-      _bytes.toIList().foldLeft(0, (acc, b) => (acc << 8) | (0x0ff & b));
+  int toInt() => _bytes.fold(0, (acc, b) => (acc << 8) | (0x0ff & b));
 
   /// First IP address in the IPv4 multicast range.
   static final MulticastRangeStart = fromBytes(224, 0, 0, 0);

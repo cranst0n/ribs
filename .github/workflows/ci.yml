@@ -52,5 +52,5 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          files: packages/check/coverage.lcov,packages/core/coverage.lcov,packages/optics/coverage.lcov,packages/binary/coverage.lcov,packages/json/coverage.lcov,packages/units/coverage.lcov,packages/ip/coverage.lcov
+          files: packages/binary/coverage.lcov,packages/check/coverage.lcov,packages/core/coverage.lcov,packages/effect/coverage.lcov,packages/ip/coverage.lcov,packages/json/coverage.lcov,packages/optics/coverage.lcov,packages/units/coverage.lcov
           verbose: true

@@ -12,7 +12,7 @@ mixin Seq<A> on RIterable<A> {
     if (elems is Seq<A>) {
       return elems;
     } else {
-      return IList.from(elems.iterator);
+      return IVector.from(elems.iterator);
     }
   }
 

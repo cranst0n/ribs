@@ -105,15 +105,6 @@ void main() {
           nel(0, [1, 2, 1, 2, 3, 2, 3, 4]));
     });
 
-    test('flatTraverseIO', () {
-      IO<IList<int>> f(int i) => IO.pure(ilist([i - 1, i, i + 1]));
-
-      expect(
-        ilist([1, 2, 3]).flatTraverseIO(f),
-        ioSucceeded(ilist([0, 1, 2, 1, 2, 3, 2, 3, 4])),
-      );
-    });
-
     test('flatten', () {
       final l = nel(1, [2, 3]);
       final ll = nel(l, [l, l]);
@@ -224,11 +215,6 @@ void main() {
       expect(nel(1, [2, 3]).padTo(5, 42), nel(1, [2, 3, 42, 42]));
     });
 
-    test('parTraverseIO_', () {
-      final io = nel(1, [2, 3]).parTraverseIO_((a) => IO.pure(a * 2));
-      expect(io, ioSucceeded(Unit()));
-    });
-
     test('prepend', () {
       expect(nel(1, [2, 3]).prepended(0), nel(0, [1, 2, 3]));
     });
@@ -325,28 +311,6 @@ void main() {
             (a) => Either.cond(() => a.isEven, () => a, () => 'odd')),
         'odd'.asLeft<int>(),
       );
-    });
-
-    test('traverseIO', () {
-      final io = nel(1, [2, 3]).traverseIO((a) => IO.pure(a * 2));
-      expect(io, ioSucceeded(nel(2, [4, 6])));
-    });
-
-    test('traverseIO_', () {
-      final io = nel(1, [2, 3]).traverseIO_((a) => IO.pure(a * 2));
-      expect(io, ioSucceeded(Unit()));
-    });
-
-    test('parTraverseIO', () {
-      final io = nel(1, [2, 3]).parTraverseIO((a) => IO.pure(a * 2));
-      expect(io, ioSucceeded(nel(2, [4, 6])));
-    });
-
-    test('traverseFilterIO', () {
-      final io = nel(1, [2, 3]).traverseFilterIO(
-          (a) => IO.pure(Option.when(() => a.isOdd, () => a)));
-
-      expect(io, ioSucceeded(ilist([1, 3])));
     });
 
     test('traverseOption', () {

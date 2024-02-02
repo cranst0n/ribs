@@ -11,6 +11,9 @@ mixin IndexedSeq<A> on RIterable<A>, Seq<A> {
     }
   }
 
+  static IndexedSeq<A> fromDart<A>(Iterable<A> elems) =>
+      from(RIterator.fromDart(elems.iterator));
+
   @override
   IndexedSeq<A> appended(A elem) => iseqviews.Appended(this, elem);
 

@@ -1,10 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
 
-extension IListNestedOps<A> on IList<IList<A>> {
-  /// Combines all nested lists into one list using concatenation.
-  IList<A> flatten() => foldLeft(nil<A>(), (z, a) => z.concat(a));
-}
-
 extension IListEitherOps<A, B> on IList<Either<A, B>> {
   Either<A, IList<B>> sequence() => traverseEither(identity);
 
@@ -19,21 +14,6 @@ extension IListEitherOps<A, B> on IList<Either<A, B>> {
 
     return (ilist(a1s), ilist(a2s));
   }
-}
-
-/// Operations avaiable when [IList] elements are of type [IO].
-extension IListIOOps<A> on IList<IO<A>> {
-  /// Alias for [traverseIO], using [identity] as the function parameter.
-  IO<IList<A>> sequence() => traverseIO(identity);
-
-  /// Alias for [traverseIO_], using [identity] as the function parameter.
-  IO<Unit> sequence_() => traverseIO_(identity);
-
-  /// Alias for [parTraverseIO], using [identity] as the function parameter.
-  IO<IList<A>> parSequence() => parTraverseIO(identity);
-
-  /// Alias for [parTraverseIO_], using [identity] as the function parameter.
-  IO<Unit> parSequence_() => parTraverseIO_(identity);
 }
 
 /// Operations avaiable when [IList] elements are of type [Option].
@@ -55,50 +35,7 @@ extension IListNullableOps<A> on IList<A?> {
       (acc, elem) => Option(elem).fold(() => acc, (a) => acc.appended(a)));
 }
 
-extension IListComparableOps<A extends Comparable<dynamic>> on IList<A> {
-  /// Returns the maximum item in this list as defined by the behavior of this
-  /// element types [Comparable] implementation. If the list is empty, [None]
-  /// is returned.
-  Option<A> maxOption() => headOption.map((hd) =>
-      tail().foldLeft(hd, (acc, elem) => acc.compareTo(elem) > 0 ? acc : elem));
-
-  /// Returns the minimum item in this list as defined by the behavior of this
-  /// element types [Comparable] implementation. If the list is empty, [None]
-  /// is returned.
-  Option<A> minOption() => headOption.map((hd) =>
-      tail().foldLeft(hd, (acc, elem) => acc.compareTo(elem) < 0 ? acc : elem));
-
-  /// Returns a new list with all elements sorted from least to greatest
-  /// according to the implementation of this [Comparable].
-  IList<A> sorted() => sortWith((a, b) => a.compareTo(b) < 0);
-}
-
-extension IListIntOps on IList<int> {
-  /// Returns the sum of all elements in this list
-  int sum() => foldLeft(0, (a, b) => a + b);
-
-  /// Returns the product of all elements in this list
-  int product() => foldLeft(1, (a, b) => a * b);
-}
-
-extension IListDoubleOps on IList<double> {
-  /// Returns the sum of all elements in this list
-  double sum() => foldLeft(0, (a, b) => a + b);
-
-  /// Returns the product of all elements in this list
-  double product() => foldLeft(1, (a, b) => a * b);
-}
-
 extension IListTuple2Ops<A, B> on IList<(A, B)> {
-  /// Creates a new [IMap] where element tuple element of this list is used to
-  /// create a key and value respectively.
-  IMap<A, B> toIMap() => IMap.from(this);
-
-  /// Creates a new [Map] where element tuple element of this list is used to
-  /// create a key and value respectively.
-  Map<A, B> toMap() =>
-      Map.fromEntries(map((kv) => MapEntry(kv.$1, kv.$2)).toList());
-
   /// Returns 2 new lists as a tuple. The first list is all the first items
   /// from each tuple element of this list. The second list is all the second
   /// items from each tuple element of this list.

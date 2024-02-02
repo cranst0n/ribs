@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:meta/meta.dart';
-import 'package:ribs_core/ribs_core.dart' hide Queue;
+import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/hashing.dart';
 import 'package:ribs_core/src/collection/immutable/set/champ_common.dart';
 

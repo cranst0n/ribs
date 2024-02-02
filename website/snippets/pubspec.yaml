@@ -12,6 +12,8 @@ dependencies:
     path: ../../packages/binary/
   ribs_core:
     path: ../../packages/core/
+  ribs_effect:
+    path: ../../packages/effect/
   ribs_json:
     path: ../../packages/json/
 
