@@ -68,7 +68,7 @@ sealed class Outcome<A> {
       );
 
   @override
-  bool operator ==(dynamic other);
+  bool operator ==(Object other);
 
   @override
   int get hashCode;
@@ -90,7 +90,7 @@ final class Succeeded<A> extends Outcome<A> {
       succeeded(value);
 
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Succeeded && other.value == this.value);
 
@@ -114,7 +114,7 @@ final class Errored<A> extends Outcome<A> {
       errored(error);
 
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) || (other is Errored && other.error == this.error);
 
   @override
@@ -134,7 +134,7 @@ final class Canceled<A> extends Outcome<A> {
       canceled();
 
   @override
-  bool operator ==(dynamic other) => other is Canceled;
+  bool operator ==(Object other) => other is Canceled;
 
   @override
   int get hashCode => 0;

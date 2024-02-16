@@ -170,7 +170,7 @@ class Language {
   String toString() => 'Language($code, $comment)';
 
   @override
-  bool operator ==(Object? other) => other is Language && other.code == code;
+  bool operator ==(Object other) => other is Language && other.code == code;
 
   @override
   int get hashCode => code.hashCode;
