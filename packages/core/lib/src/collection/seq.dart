@@ -485,6 +485,38 @@ mixin Seq<A> on RIterable<A> {
     return result;
   }
 
+  Seq<A> updated(int index, A elem) {
+    if (index < 0) {
+      throw RangeError(
+          '$index is out of bounds (min 0, max ${knownSize >= 0 ? knownSize : 'unknown'})');
+    }
+
+    final b = IVector.builder<A>();
+
+    var i = 0;
+    final it = iterator;
+
+    while (i < index && it.hasNext) {
+      b.addOne(it.next());
+      i += 1;
+    }
+
+    if (!it.hasNext) {
+      if (index < 0) {
+        throw RangeError('$index is out of bounds (min 0, max ${i - 1})');
+      }
+    }
+
+    b.addOne(elem);
+    it.next();
+
+    while (it.hasNext) {
+      b.addOne(it.next());
+    }
+
+    return b.result();
+  }
+
   @override
   SeqView<A> view() => SeqView.from(this);
 

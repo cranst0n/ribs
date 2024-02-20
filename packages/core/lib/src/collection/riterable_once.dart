@@ -346,6 +346,9 @@ mixin RIterableOnce<A> {
     }
   }
 
+  /// Returns an [IChain] with the same elements as this collection.
+  IChain<A> toIChain() => IChain.from(this);
+
   /// Returns an [IList] with the same elements as this collection.
   IList<A> toIList() => IList.from(this);
 

@@ -274,6 +274,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
   ///
   /// If [index] is outside the range of this list, the original list is
   /// returned.
+  @override
   NonEmptyIList<A> updated(int index, A elem) {
     if (index == 0) {
       return NonEmptyIList(elem, _tail);

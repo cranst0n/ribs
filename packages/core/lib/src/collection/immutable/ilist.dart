@@ -694,6 +694,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
     }
   }
 
+  @override
   IList<A> updated(int idx, A elem) {
     var i = 0;
     var current = this;

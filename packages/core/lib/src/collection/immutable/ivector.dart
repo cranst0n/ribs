@@ -344,6 +344,7 @@ sealed class IVector<A>
   @override
   IVector<A> slice(int from, int until);
 
+  @override
   IVector<A> updated(int index, A elem);
 
   @override

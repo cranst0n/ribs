@@ -15,6 +15,9 @@ void main(List<String> args) {
 
   List<int> genDartList(int n) => List.generate(n, tabulateFn);
 
+  ribs.IChain<int> genRibsIChain(int n) =>
+      ribs.IChain.from(ribs.IList.tabulate(n, tabulateFn));
+
   ribs.IList<int> genRibsIList(int n) => ribs.IList.tabulate(n, tabulateFn);
 
   ribs.IVector<int> genRibsIVector(int n) =>
@@ -58,10 +61,28 @@ void main(List<String> args) {
           (l) => tap(l, (l) => l[n ~/ 2]), emitter),
       ComparativeBenchmark('Kt List', 'apply', () => genKtList(n),
           (l) => tap(l, (l) => l[n ~/ 2]), emitter),
+      ComparativeBenchmark('Ribs IChain', 'apply', () => genRibsIChain(n),
+          (l) => tap(l, (l) => l[n ~/ 2]), emitter),
       ComparativeBenchmark('Ribs IList', 'apply', () => genRibsIList(n),
           (l) => tap(l, (l) => l[n ~/ 2]), emitter),
       ComparativeBenchmark('Ribs IVector', 'apply', () => genRibsIVector(n),
           (l) => tap(l, (l) => l[n ~/ 2]), emitter),
+
+      // head
+      ComparativeBenchmark('Dart List', 'head', () => genDartList(n),
+          (l) => tap(l, (l) => l.first), emitter),
+      ComparativeBenchmark('Built List', 'head', () => genBuiltList(n),
+          (l) => tap(l, (l) => l.first), emitter),
+      ComparativeBenchmark('FIC IList', 'head', () => genFicList(n),
+          (l) => tap(l, (l) => l.first), emitter),
+      ComparativeBenchmark('Kt List', 'head', () => genKtList(n),
+          (l) => tap(l, (l) => l[0]), emitter),
+      ComparativeBenchmark('Ribs IChain', 'head', () => genRibsIChain(n),
+          (l) => tap(l, (l) => l.head), emitter),
+      ComparativeBenchmark('Ribs IList', 'head', () => genRibsIList(n),
+          (l) => tap(l, (l) => l.head), emitter),
+      ComparativeBenchmark('Ribs IVector', 'head', () => genRibsIVector(n),
+          (l) => tap(l, (l) => l.head), emitter),
 
       // append
       ComparativeBenchmark('Dart List', 'append', () => genDartList(n),
@@ -74,6 +95,8 @@ void main(List<String> args) {
           'FIC IList', 'append', () => genFicList(n), (l) => l.add(0), emitter),
       ComparativeBenchmark('Kt List', 'append', () => genKtList(n),
           (l) => l.plusElement(0), emitter),
+      ComparativeBenchmark('Ribs IChain', 'append', () => genRibsIChain(n),
+          (l) => l.appended(0), emitter),
       ComparativeBenchmark('Ribs IList', 'append', () => genRibsIList(n),
           (l) => l.appended(0), emitter),
       ComparativeBenchmark('Ribs IVector', 'append', () => genRibsIVector(n),
@@ -88,6 +111,8 @@ void main(List<String> args) {
           (l) => l.prependElement(0), emitter),
       ComparativeBenchmark('FIC IList', 'prepend', () => genFicList(n),
           (l) => l.insert(0, 0), emitter),
+      ComparativeBenchmark('Ribs IChain', 'prepend', () => genRibsIChain(n),
+          (l) => l.prepended(0), emitter),
       ComparativeBenchmark('Ribs IList', 'prepend', () => genRibsIList(n),
           (l) => l.prepended(0), emitter),
       ComparativeBenchmark('Ribs IVector', 'prepend', () => genRibsIVector(n),
@@ -116,6 +141,8 @@ void main(List<String> args) {
           (l) => fic.IList(l.map((x) => x + 1)), emitter),
       ComparativeBenchmark('Kt List', 'map', () => genKtList(n),
           (l) => l.map((x) => x + 1), emitter),
+      ComparativeBenchmark('Ribs IChain', 'map', () => genRibsIChain(n),
+          (l) => l.map((x) => x + 1), emitter),
       ComparativeBenchmark('Ribs IList', 'map', () => genRibsIList(n),
           (l) => l.map((x) => x + 1), emitter),
       ComparativeBenchmark('Ribs IVector', 'map', () => genRibsIVector(n),
@@ -132,6 +159,8 @@ void main(List<String> args) {
           (l) => fic.IList(l.where((x) => x.isOdd)), emitter),
       ComparativeBenchmark('Kt List', 'filter', () => genKtList(n),
           (l) => l.filter((x) => x.isOdd), emitter),
+      ComparativeBenchmark('Ribs IChain', 'filter', () => genRibsIChain(n),
+          (l) => l.filter((x) => x.isOdd), emitter),
       ComparativeBenchmark('Ribs IList', 'filter', () => genRibsIList(n),
           (l) => l.filter((x) => x.isOdd), emitter),
       ComparativeBenchmark('Ribs IVector', 'filter', () => genRibsIVector(n),
@@ -146,6 +175,8 @@ void main(List<String> args) {
           (l) => fic.IList(l.init), emitter),
       ComparativeBenchmark(
           'Kt List', 'init', () => genKtList(n), (l) => l.dropLast(1), emitter),
+      ComparativeBenchmark('Ribs IChain', 'init', () => genRibsIChain(n),
+          (l) => l.init(), emitter),
       ComparativeBenchmark('Ribs IList', 'init', () => genRibsIList(n),
           (l) => l.init(), emitter),
       ComparativeBenchmark('Ribs IVector', 'init', () => genRibsIVector(n),
@@ -162,6 +193,8 @@ void main(List<String> args) {
           (l) => fic.IList(l.tail), emitter),
       ComparativeBenchmark(
           'Kt List', 'tail', () => genKtList(n), (l) => l.drop(1), emitter),
+      ComparativeBenchmark('Ribs IChain', 'tail', () => genRibsIChain(n),
+          (l) => l.tail(), emitter),
       ComparativeBenchmark('Ribs IList', 'tail', () => genRibsIList(n),
           (l) => l.tail(), emitter),
       ComparativeBenchmark('Ribs IVector', 'tail', () => genRibsIVector(n),
@@ -206,6 +239,8 @@ void main(List<String> args) {
           (l) => tap(l, (l) => l.fold(0, (a, b) => a + b)), emitter),
       ComparativeBenchmark('Kt List', 'fold', () => genKtList(n),
           (l) => tap(l, (l) => l.fold(0, (a, b) => a + b)), emitter),
+      ComparativeBenchmark('Ribs IChain', 'fold', () => genRibsIChain(n),
+          (l) => tap(l, (l) => l.fold(0, (a, b) => a + b)), emitter),
       ComparativeBenchmark('Ribs IList', 'fold', () => genRibsIList(n),
           (l) => tap(l, (l) => l.fold(0, (a, b) => a + b)), emitter),
       ComparativeBenchmark('Ribs IVector', 'fold', () => genRibsIVector(n),
@@ -222,6 +257,8 @@ void main(List<String> args) {
           (l) => l.reversed, emitter),
       ComparativeBenchmark('Kt List', 'reverse', () => genKtList(n),
           (l) => l.reversed(), emitter),
+      ComparativeBenchmark('Ribs IChain', 'reverse', () => genRibsIChain(n),
+          (l) => l.reverse(), emitter),
       ComparativeBenchmark('Ribs IList', 'reverse', () => genRibsIList(n),
           (l) => l.reverse(), emitter),
       ComparativeBenchmark('Ribs IVector', 'reverse', () => genRibsIVector(n),
@@ -254,6 +291,8 @@ void main(List<String> args) {
           (l) => l.addAll(l), emitter),
       ComparativeBenchmark(
           'Kt List', 'concat', () => genKtList(n), (l) => l.plus(l), emitter),
+      ComparativeBenchmark('Ribs IChain', 'concat', () => genRibsIChain(n),
+          (l) => l.concat(l), emitter),
       ComparativeBenchmark('Ribs IList', 'concat', () => genRibsIList(n),
           (l) => l.concat(l), emitter),
       ComparativeBenchmark('Ribs IVector', 'concat', () => genRibsIVector(n),

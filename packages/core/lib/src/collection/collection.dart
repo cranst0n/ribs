@@ -1,3 +1,4 @@
+export 'immutable/ichain.dart';
 export 'immutable/ilist.dart';
 export 'immutable/imap.dart';
 export 'immutable/iset.dart';
