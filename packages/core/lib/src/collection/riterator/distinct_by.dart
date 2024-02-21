@@ -4,7 +4,7 @@ final class _DistinctByIterator<A, B> extends RIterator<A> {
   final RIterator<A> self;
   final Function1<A, B> f;
 
-  final _traversedValues = HashSet<B>();
+  final _traversedValues = MSet.empty<B>();
   bool _nextElementDefined = false;
   A? _nextElement;
 

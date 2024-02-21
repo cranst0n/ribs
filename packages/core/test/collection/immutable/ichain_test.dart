@@ -12,7 +12,7 @@ void main() {
     });
 
     test('take', () {
-      expect(ichain([1, 2, 3]).take(2), ichain([1, 2]));
+      expect(ichain([1, 2, 3]).take(2).toList(), [1, 2]);
     });
 
     test('reverse', () {

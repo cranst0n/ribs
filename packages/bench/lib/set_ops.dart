@@ -21,6 +21,12 @@ void main(List<String> args) {
   fic.ISet<int> genFicISet2(int n) =>
       fic.ISet(fic.IList.tabulate(n, (x) => -tabulateFn(x)));
 
+  ribs.MSet<int> genRibsMSet(int n) =>
+      ribs.MSet.from(ribs.IList.tabulate(n, tabulateFn));
+
+  ribs.MSet<int> genRibsMSet2(int n) =>
+      ribs.MSet.from(ribs.IList.tabulate(n, (x) => -tabulateFn(x)));
+
   ribs.ISet<int> genRibsISet(int n) =>
       ribs.IList.tabulate(n, tabulateFn).toISet();
 
@@ -52,6 +58,8 @@ void main(List<String> args) {
           'FIC ISet', 'add', () => genFicISet(n), (s) => s.add(n), emitter),
       ComparativeBenchmark(
           'Ribs ISet', 'add', () => genRibsISet(n), (s) => s.incl(n), emitter),
+      ComparativeBenchmark(
+          'Ribs MSet', 'add', () => genRibsMSet(n), (s) => s..add(n), emitter),
 
       // addAll (same)
       ComparativeBenchmark('Dart Set', 'addAll (same)', () => genDartSet(n),
@@ -60,6 +68,8 @@ void main(List<String> args) {
           (s) => s.addAll(s), emitter),
       ComparativeBenchmark('Ribs ISet', 'addAll (same)', () => genRibsISet(n),
           (s) => s.concat(s), emitter),
+      ComparativeBenchmark('Ribs MSet', 'addAll (same)', () => genRibsMSet(n),
+          (s) => s..concat(s), emitter),
 
       // addAll (different)
       ComparativeBenchmark(
@@ -80,6 +90,12 @@ void main(List<String> args) {
           () => (genRibsISet(n), genRibsISet2(n)),
           (s) => (s.$1.concat(s.$2), s.$1),
           emitter),
+      ComparativeBenchmark(
+          'Ribs MSet',
+          'addAll (different)',
+          () => (genRibsMSet(n), genRibsMSet2(n)),
+          (s) => (s.$1.concat(s.$2), s.$1),
+          emitter),
 
       // remove
       ComparativeBenchmark('Dart Set', 'remove', () => genDartSet(n),
@@ -88,6 +104,8 @@ void main(List<String> args) {
           (s) => s.remove(n ~/ 2), emitter),
       ComparativeBenchmark('Ribs ISet', 'remove', () => genRibsISet(n),
           (s) => s.excl(n ~/ 2), emitter),
+      ComparativeBenchmark('Ribs MSet', 'remove', () => genRibsMSet(n),
+          (s) => s..remove(n ~/ 2), emitter),
 
       // contains
       ComparativeBenchmark('Dart Set', 'contains', () => genDartSet(n),
@@ -95,6 +113,8 @@ void main(List<String> args) {
       ComparativeBenchmark('FIC ISet', 'contains', () => genFicISet(n),
           (s) => tap(s, (s) => s.contains(n ~/ 2)), emitter),
       ComparativeBenchmark('Ribs ISet', 'contains', () => genRibsISet(n),
+          (s) => tap(s, (s) => s.contains(n ~/ 2)), emitter),
+      ComparativeBenchmark('Ribs MSet', 'contains', () => genRibsMSet(n),
           (s) => tap(s, (s) => s.contains(n ~/ 2)), emitter),
     ];
 
@@ -109,3 +129,17 @@ void main(List<String> args) {
     }
   });
 }
+
+// ┌───────────────────────────────────────────────────────────────────────────────┐
+// │                                  N = 1000000                                  │
+// ├───────────┬──────┬────────────────────┬───────────────┬──────────┬────────────┤
+// │           │  add │ addAll (different) │ addAll (same) │ contains │     remove │
+// ├───────────┼──────┼────────────────────┼───────────────┼──────────┼────────────┤
+// │ Dart Set  │ 0.16 │          792868.67 │     322313.86 │     0.25 │       0.16 │
+// ├───────────┼──────┼────────────────────┼───────────────┼──────────┼────────────┤
+// │ FIC ISet  │ 0.41 │         5151535.00 │    1710632.50 │     0.38 │ 1582809.00 │
+// ├───────────┼──────┼────────────────────┼───────────────┼──────────┼────────────┤
+// │ Ribs ISet │ 2.16 │         4162617.00 │          0.56 │     1.83 │       1.71 │
+// ├───────────┼──────┼────────────────────┼───────────────┼──────────┼────────────┤
+// │ Ribs MSet │ 0.16 │         1310069.00 │     945554.00 │     0.33 │       0.20 │
+// └───────────┴──────┴────────────────────┴───────────────┴──────────┴────────────┘

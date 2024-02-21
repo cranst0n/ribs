@@ -10,6 +10,7 @@ export 'indexed_seq_view.dart';
 export 'mutable/array.dart';
 export 'mutable/buffer.dart';
 export 'mutable/list_buffer.dart';
+export 'mutable/mset.dart';
 export 'riterable.dart';
 export 'riterable_once.dart';
 export 'riterator.dart';

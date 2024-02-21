@@ -26,6 +26,8 @@ sealed class MurmurHash3 {
 
   static int setHash(ISet<dynamic> xs) => _impl.unorderedHash(xs, setSeed);
 
+  static int msetHash(MSet<dynamic> xs) => _impl.unorderedHash(xs, setSeed);
+
   static int unorderedHash(RIterableOnce<dynamic> xs, int seed) =>
       _impl.unorderedHash(xs, seed);
 }
