@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:dartz/dartz.dart' as dartz;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart'
     as fic;
 import 'package:ribs_bench/comparative_benchmark.dart';
@@ -14,6 +15,12 @@ void main(List<String> args) {
 
   Set<int> genDartSet2(int n) =>
       List.generate(n, (x) => -tabulateFn(x)).toSet();
+
+  dartz.ISet<int> genDartzSet(int n) =>
+      dartz.ISet.fromIterable(dartz.ComparableOrder<int>(), genDartSet(n));
+
+  dartz.ISet<int> genDartzSet2(int n) =>
+      dartz.ISet.fromIterable(dartz.ComparableOrder<int>(), genDartSet2(n));
 
   fic.ISet<int> genFicISet(int n) =>
       fic.ISet(fic.IList.tabulate(n, tabulateFn));
@@ -54,6 +61,8 @@ void main(List<String> args) {
       // add
       ComparativeBenchmark(
           'Dart Set', 'add', () => genDartSet(n), (s) => s..add(n), emitter),
+      ComparativeBenchmark('Dartz Set', 'add', () => genDartzSet(n),
+          (s) => s.insert(n), emitter),
       ComparativeBenchmark(
           'FIC ISet', 'add', () => genFicISet(n), (s) => s.add(n), emitter),
       ComparativeBenchmark(
@@ -64,6 +73,8 @@ void main(List<String> args) {
       // addAll (same)
       ComparativeBenchmark('Dart Set', 'addAll (same)', () => genDartSet(n),
           (s) => s..addAll(s), emitter),
+      ComparativeBenchmark('Dartz Set', 'addAll (same)', () => genDartzSet(n),
+          (s) => s.union(s), emitter),
       ComparativeBenchmark('FIC ISet', 'addAll (same)', () => genFicISet(n),
           (s) => s.addAll(s), emitter),
       ComparativeBenchmark('Ribs ISet', 'addAll (same)', () => genRibsISet(n),
@@ -77,6 +88,12 @@ void main(List<String> args) {
           'addAll (different)',
           () => (genDartSet(n), genDartSet2(n)),
           (s) => (s.$1..addAll(s.$2), s.$1),
+          emitter),
+      ComparativeBenchmark(
+          'Dartz Set',
+          'addAll (different)',
+          () => (genDartzSet(n), genDartzSet2(n)),
+          (s) => (s.$1.union(s.$2), s.$1),
           emitter),
       ComparativeBenchmark(
           'FIC ISet',
@@ -100,6 +117,8 @@ void main(List<String> args) {
       // remove
       ComparativeBenchmark('Dart Set', 'remove', () => genDartSet(n),
           (s) => s..remove(n ~/ 2), emitter),
+      ComparativeBenchmark('Dartz Set', 'remove', () => genDartzSet(n),
+          (s) => s.remove(n ~/ 2), emitter),
       ComparativeBenchmark('FIC ISet', 'remove', () => genFicISet(n),
           (s) => s.remove(n ~/ 2), emitter),
       ComparativeBenchmark('Ribs ISet', 'remove', () => genRibsISet(n),
@@ -109,6 +128,8 @@ void main(List<String> args) {
 
       // contains
       ComparativeBenchmark('Dart Set', 'contains', () => genDartSet(n),
+          (s) => tap(s, (s) => s.contains(n ~/ 2)), emitter),
+      ComparativeBenchmark('Dartz Set', 'contains', () => genDartzSet(n),
           (s) => tap(s, (s) => s.contains(n ~/ 2)), emitter),
       ComparativeBenchmark('FIC ISet', 'contains', () => genFicISet(n),
           (s) => tap(s, (s) => s.contains(n ~/ 2)), emitter),
