@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
 
-final class MHashSet<A> with RIterableOnce<A>, RIterable<A>, MSet<A> {
+final class MHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, MSet<A> {
   static const DefaultInitialCapacity = 16;
   static const DefaultLoadFactor = 0.75;
 
@@ -39,7 +39,7 @@ final class MHashSet<A> with RIterableOnce<A>, RIterable<A>, MSet<A> {
   @override
   MHashSet<A> concat(covariant RIterableOnce<A> suffix) {
     if (suffix is MHashSet<A>) {
-      final iter = suffix.nodeIterator;
+      final iter = suffix._nodeIterator;
 
       while (iter.hasNext) {
         final next = iter.next();
@@ -156,7 +156,7 @@ final class MHashSet<A> with RIterableOnce<A>, RIterable<A>, MSet<A> {
 
   int _index(int hash) => hash & (_table.length - 1);
 
-  RIterator<_Node<A>> get nodeIterator => _HashSetIterator(_table, (n) => n);
+  RIterator<_Node<A>> get _nodeIterator => _HashSetIterator(_table, (n) => n);
 
   bool _remove(A elem, int hash) {
     final idx = _index(hash);
@@ -203,6 +203,7 @@ final class _Node<K> {
   K? get key => _key;
   int get hash => _hash;
 
+  // TODO: tailrec
   _Node<K>? findNode(K k, int h) {
     if (h == _hash && k == _key) {
       return this;
@@ -213,6 +214,7 @@ final class _Node<K> {
     }
   }
 
+  // TODO: tailrec
   void foreach<U>(Function1<K, U> f) {
     if (_key != null) f(_key);
     next?.foreach(f);

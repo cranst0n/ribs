@@ -22,6 +22,9 @@ void main(List<String> args) {
   ribs.IMap<int, String> genRibsIMap(int n) =>
       ribs.IMap.fromDart(genDartMap(n));
 
+  ribs.MMap<int, String> genRibsMMap(int n) =>
+      ribs.MMap.fromDart(genDartMap(n));
+
   dartz.IMap<int, String> genDartzIMap(int n) => dartz.IMap.fromIterables(
       List.generate(n, (x) => x),
       List.generate(n, (x) => x.toString()),
@@ -52,6 +55,8 @@ void main(List<String> args) {
           (m) => m.putIfAbsent(n, () => n.toString()), emitter),
       ComparativeBenchmark('Ribs IMap', 'put', () => genRibsIMap(n),
           (m) => m.updated(n, n.toString()), emitter),
+      ComparativeBenchmark('Ribs MMap', 'put', () => genRibsMMap(n),
+          (m) => m..update(n, n.toString()), emitter),
       ComparativeBenchmark('Dartz IMap', 'put', () => genDartzIMap(n),
           (m) => m.put(n, n.toString()), emitter),
       ComparativeBenchmark(
@@ -70,6 +75,8 @@ void main(List<String> args) {
           'FIC IMap', 'get', () => genFicIMap(n), (m) => m..[n ~/ 2], emitter),
       ComparativeBenchmark('Ribs IMap', 'get', () => genRibsIMap(n),
           (m) => m..[n ~/ 2], emitter),
+      ComparativeBenchmark('Ribs MMap', 'get', () => genRibsMMap(n),
+          (m) => m..[n ~/ 2], emitter),
       ComparativeBenchmark('Dartz IMap', 'get', () => genDartzIMap(n),
           (m) => m..get(n ~/ 2), emitter),
       ComparativeBenchmark('Built Map', 'get', () => genBuiltMap(n),
@@ -84,6 +91,8 @@ void main(List<String> args) {
           (m) => m.remove(n ~/ 2), emitter),
       ComparativeBenchmark('Ribs IMap', 'remove (present)',
           () => genRibsIMap(n), (m) => m.removed(n ~/ 2), emitter),
+      ComparativeBenchmark('Ribs MMap', 'remove (present)',
+          () => genRibsMMap(n), (m) => m..remove(n ~/ 2), emitter),
       ComparativeBenchmark('Dartz IMap', 'remove (present)',
           () => genDartzIMap(n), (m) => m.remove(n ~/ 2), emitter),
       ComparativeBenchmark(
@@ -102,6 +111,8 @@ void main(List<String> args) {
           (m) => m.remove(n), emitter),
       ComparativeBenchmark('Ribs IMap', 'remove (absent)', () => genRibsIMap(n),
           (m) => m.removed(n), emitter),
+      ComparativeBenchmark('Ribs MMap', 'remove (absent)', () => genRibsMMap(n),
+          (m) => m..remove(n), emitter),
       ComparativeBenchmark('Dartz IMap', 'remove (absent)',
           () => genDartzIMap(n), (m) => m.remove(n), emitter),
       ComparativeBenchmark('Built Map', 'remove (absent)', () => genBuiltMap(n),

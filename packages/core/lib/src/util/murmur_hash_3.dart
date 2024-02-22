@@ -5,13 +5,41 @@ import 'dart:typed_data';
 import 'package:ribs_core/ribs_core.dart';
 
 sealed class MurmurHash3 {
-  // static final _MapSeed = 'Map'.hashCode;
+  static final mapSeed = 'Map'.hashCode;
+  static const productSeed = 0xcafebabe;
   static final seqSeed = 'Seq'.hashCode;
   static final setSeed = 'Set'.hashCode;
 
   static final _Murmur3Impl _impl = _Murmur3Impl();
 
   static int listHash(IList<dynamic> xs) => _impl.listHash(xs, seqSeed);
+
+  static int mapHash(RMap<dynamic, dynamic> xs) {
+    if (xs.isEmpty) {
+      return _emptyMapHash;
+    } else {
+      var a = 0;
+      var b = 0;
+      var n = 0;
+      var c = 1;
+
+      var h = mapSeed;
+
+      xs.foreach((kv) {
+        final h = _tuple2Hash(kv.$1, kv.$2);
+        a += h;
+        b ^= h;
+        c *= h | 1;
+        n += 1;
+      });
+
+      h = _impl.mix(h, a);
+      h = _impl.mix(h, b);
+      h = _impl.mixLast(h, c);
+
+      return _impl.finalizeHash(h, n);
+    }
+  }
 
   static int rangeHash(int start, int step, int last) =>
       _impl.rangeHash(start, step, last, seqSeed);
@@ -24,12 +52,15 @@ sealed class MurmurHash3 {
     };
   }
 
-  static int setHash(ISet<dynamic> xs) => _impl.unorderedHash(xs, setSeed);
-
-  static int msetHash(MSet<dynamic> xs) => _impl.unorderedHash(xs, setSeed);
+  static int setHash(RSet<dynamic> xs) => _impl.unorderedHash(xs, setSeed);
 
   static int unorderedHash(RIterableOnce<dynamic> xs, int seed) =>
       _impl.unorderedHash(xs, seed);
+
+  static final _emptyMapHash = unorderedHash(nil(), mapSeed);
+
+  static int _tuple2Hash(dynamic x, dynamic y) =>
+      _impl.tuple2Hash(x.hashCode, y.hashCode, productSeed);
 }
 
 final class _Murmur3Impl {
@@ -61,6 +92,14 @@ final class _Murmur3Impl {
     h ^= h >>> 16;
 
     return h;
+  }
+
+  int tuple2Hash(int x, int y, int seed) {
+    var h = seed;
+    h = mix(h, 'Tuple2'.hashCode);
+    h = mix(h, x);
+    h = mix(h, y);
+    return finalizeHash(h, 2);
   }
 
   int stringHash(String str, int seed) {

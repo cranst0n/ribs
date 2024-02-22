@@ -14,7 +14,7 @@ part 'set/set4.dart';
 
 ISet<A> iset<A>(Iterable<A> as) => ISet.of(as);
 
-mixin ISet<A> on RIterable<A> {
+mixin ISet<A> on RIterable<A>, RSet<A> {
   static ISetBuilder<A> builder<A>() => ISetBuilder();
 
   static ISet<A> empty<A>() => _EmptySet<A>();

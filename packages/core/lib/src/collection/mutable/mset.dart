@@ -1,9 +1,9 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/src/collection/mutable/set/hash_set.dart';
+import 'package:ribs_core/src/collection/mutable/hash_set.dart';
 
 MSet<A> mset<A>(Iterable<A> as) => MSet.of(as);
 
-mixin MSet<A> on RIterable<A> {
+mixin MSet<A> on RIterable<A>, RSet<A> {
   static MSet<A> empty<A>() => MHashSet();
 
   static MSet<A> from<A>(RIterableOnce<A> xs) => MHashSet.from(xs);
@@ -35,7 +35,7 @@ mixin MSet<A> on RIterable<A> {
   MSet<A> union(MSet<A> that) => concat(that);
 
   @override
-  int get hashCode => MurmurHash3.msetHash(this);
+  int get hashCode => MurmurHash3.setHash(this);
 
   @override
   bool operator ==(Object other) {

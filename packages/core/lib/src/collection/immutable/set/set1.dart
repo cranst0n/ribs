@@ -1,6 +1,6 @@
 part of '../iset.dart';
 
-class _Set1<A> with RIterableOnce<A>, RIterable<A>, ISet<A> {
+class _Set1<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   final A elem1;
 
   const _Set1(this.elem1);

@@ -13,7 +13,7 @@ part 'map/map4.dart';
 
 IMap<K, V> imap<K, V>(Map<K, V> m) => IMap.fromDart(m);
 
-mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
+mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
   static IMapBuilder<K, V> builder<K, V>() => IMapBuilder();
 
   static IMap<K, V> empty<K, V>() => _EmptyMap();
@@ -39,10 +39,6 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
   /// Returns a new map with the value for given [key] removed.
   IMap<K, V> operator -(K key) => removed(key);
 
-  /// Returns the value associated with the given [key], or the [defaultValue]
-  /// of this map (which could potentially throw).
-  V operator [](K key) => get(key).getOrElse(() => defaultValue(key));
-
   /// Returns a new function that will accept a key of type [K] and apply
   /// the value for that key, if it exists as a [Some]. If this map doesn't
   /// contain the key, [None] will be returned.
@@ -56,10 +52,8 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
   IMap<K, V> concat(covariant RIterableOnce<(K, V)> suffix) =>
       IMap.from(super.concat(suffix));
 
-  /// Returns true if this map contains the key [key], false otherwise.
+  @override
   bool contains(K key) => get(key).isDefined;
-
-  V defaultValue(K key) => throw Exception("No such value for key: '$key'");
 
   @override
   IMap<K, V> drop(int n) => IMap.from(super.drop(n));
@@ -77,14 +71,6 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
   @override
   IMap<K, V> filterNot(Function1<(K, V), bool> p) => from(super.filterNot(p));
 
-  /// Returns the value for the given key [key] as a [Some], or [None] if this
-  /// map doesn't contain the key.
-  Option<V> get(K key);
-
-  /// Returns the value for the given key [key], or [orElse] if this map doesn't
-  /// contain the key.
-  V getOrElse(K key, Function0<V> orElse) => get(key).getOrElse(orElse);
-
   @override
   IMap<K2, IMap<K, V>> groupBy<K2>(Function1<(K, V), K2> f) =>
       IMap.from(super.groupBy(f).map((a) => (a.$1, IMap.from(a.$2))));
@@ -98,9 +84,6 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
 
   @override
   RIterator<IMap<K, V>> inits() => super.inits().map(IMap.from);
-
-  /// Returns a [Set] of all the keys stored in the map.
-  ISet<K> get keys;
 
   /// Applies [f] to each value in this map and returns a new map with the same
   /// keys, with the resulting values of the function application.
@@ -203,9 +186,6 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
     );
   }
 
-  /// Returns a list of all values stored in this map.
-  RIterator<V> get values;
-
   /// Returns a new map where key lookups will return [f] if the map doesn't
   /// contain a value for the corresponding key.
   IMap<K, V> withDefault(Function1<K, V> f) => _WithDefault(this, f);
@@ -225,7 +205,7 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
 }
 
 abstract class AbstractIMap<K, V>
-    with RIterableOnce<(K, V)>, RIterable<(K, V)>, IMap<K, V> {}
+    with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V>, IMap<K, V> {}
 
 final class _WithDefault<K, V> extends AbstractIMap<K, V> {
   final IMap<K, V> underlying;

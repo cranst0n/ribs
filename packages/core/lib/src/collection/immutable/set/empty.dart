@@ -1,6 +1,6 @@
 part of '../iset.dart';
 
-final class _EmptySet<A> with RIterableOnce<A>, RIterable<A>, ISet<A> {
+final class _EmptySet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   @override
   bool contains(A elem) => false;
 

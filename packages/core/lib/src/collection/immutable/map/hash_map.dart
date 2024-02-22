@@ -1,7 +1,7 @@
 part of '../imap.dart';
 
 final class IHashMap<K, V>
-    with RIterableOnce<(K, V)>, RIterable<(K, V)>, IMap<K, V> {
+    with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V>, IMap<K, V> {
   final BitmapIndexedMapNode<K, V> _rootNode;
 
   IHashMap._(this._rootNode);

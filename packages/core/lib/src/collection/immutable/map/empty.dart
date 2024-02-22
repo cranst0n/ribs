@@ -1,7 +1,7 @@
 part of '../imap.dart';
 
 final class _EmptyMap<K, V>
-    with RIterableOnce<(K, V)>, RIterable<(K, V)>, IMap<K, V> {
+    with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V>, IMap<K, V> {
   _EmptyMap();
 
   @override

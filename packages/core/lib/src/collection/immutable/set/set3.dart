@@ -1,6 +1,6 @@
 part of '../iset.dart';
 
-class _Set3<A> with RIterableOnce<A>, RIterable<A>, ISet<A> {
+class _Set3<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   final A elem1;
   final A elem2;
   final A elem3;

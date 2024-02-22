@@ -77,8 +77,8 @@ mixin Seq<A> on RIterable<A> {
     final it = iterator.filter((key) {
       var include = false;
 
-      if (occ.containsKey(key)) {
-        final value = occ[key]!;
+      if (occ.contains(key)) {
+        final value = occ[key];
         if (value == 1) {
           occ.remove(key);
         } else {
@@ -214,8 +214,8 @@ mixin Seq<A> on RIterable<A> {
     final it = iterator.filter((key) {
       var include = true;
 
-      if (occ.containsKey(key)) {
-        final value = occ[key]!;
+      if (occ.contains(key)) {
+        final value = occ[key];
         if (value == 1) {
           occ.remove(key);
         } else {
@@ -530,11 +530,8 @@ mixin Seq<A> on RIterable<A> {
   @override
   Seq<(A, int)> zipWithIndex() => super.zipWithIndex().toSeq();
 
-  Map<B, int> _occCounts<B>(Seq<B> sq) {
-    final occ = <B, int>{};
-    sq.foreach((y) => occ.update(y, (value) => value + 1, ifAbsent: () => 1));
-    return occ;
-  }
+  MMap<B, int> _occCounts<B>(Seq<B> sq) =>
+      MMap.from(sq.groupMapReduce((a) => a, (a) => 1, (a, b) => a + b));
 }
 
 class _PermutationsItr<A> extends RIterator<Seq<A>> {

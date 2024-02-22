@@ -3,7 +3,7 @@ import 'package:ribs_core/src/collection/hashing.dart';
 import 'package:ribs_core/src/collection/immutable/set/champ_common.dart';
 import 'package:ribs_core/src/collection/immutable/set/set_node.dart';
 
-final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, ISet<A> {
+final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   final BitmapIndexedSetNode<A> _rootNode;
 
   IHashSet._(this._rootNode);
