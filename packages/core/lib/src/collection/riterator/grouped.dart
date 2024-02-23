@@ -1,6 +1,6 @@
 part of '../riterator.dart';
 
-final class _GroupedIterator<A> extends RIterator<Seq<A>> {
+final class _GroupedIterator<A> extends RIterator<RSeq<A>> {
   final RIterator<A> self;
   final int groupSize;
   final int step;
@@ -20,7 +20,7 @@ final class _GroupedIterator<A> extends RIterator<Seq<A>> {
   bool get hasNext => fill();
 
   @override
-  Seq<A> next() {
+  RSeq<A> next() {
     if (!fill()) {
       noSuchElement();
     } else {
@@ -36,7 +36,7 @@ final class _GroupedIterator<A> extends RIterator<Seq<A>> {
           _prev = null;
         }
       }
-      final res = Seq.fromDart(_buffer!);
+      final res = RSeq.fromDart(_buffer!);
       _buffer = null;
       _first = false;
       return res;

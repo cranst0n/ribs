@@ -156,6 +156,16 @@ class DropWhile<A> extends AbstractView<A> {
   bool get isEmpty => iterator.isEmpty;
 }
 
+class Fill<A> extends AbstractView<A> {
+  final int n;
+  final A elem;
+
+  const Fill(this.n, this.elem);
+
+  @override
+  RIterator<A> get iterator => RIterator.fill(n, elem);
+}
+
 class Filter<A> extends AbstractView<A> {
   final RIterableOnce<A> underlying;
   final Function1<A, bool> p;
@@ -189,6 +199,23 @@ class FlatMap<A, B> extends AbstractView<B> {
 
   @override
   bool get isEmpty => iterator.isEmpty;
+}
+
+class Iterate<A> extends AbstractView<A> {
+  final A start;
+  final int len;
+  final Function1<A, A> f;
+
+  const Iterate(this.start, this.len, this.f);
+
+  @override
+  RIterator<A> get iterator => RIterator.iterate(start, f).take(len);
+
+  @override
+  int get knownSize => max(0, len);
+
+  @override
+  bool get isEmpty => len <= 0;
 }
 
 class Map<A, B> extends AbstractView<B> {
@@ -384,12 +411,20 @@ class TakeWhile<A> extends AbstractView<A> {
   RIterator<A> get iterator => underlying.iterator.takeWhile(p);
 
   @override
-  int get knownSize {
-    return underlying.knownSize == 0 ? 0 : super.knownSize;
-  }
+  int get knownSize => underlying.knownSize == 0 ? 0 : super.knownSize;
 
   @override
   bool get isEmpty => iterator.isEmpty;
+}
+
+class Unfold<A, S> extends AbstractView<A> {
+  final S initial;
+  final Function1<S, Option<(A, S)>> f;
+
+  const Unfold(this.initial, this.f);
+
+  @override
+  RIterator<A> get iterator => RIterator.unfold(initial, f);
 }
 
 class Updated<A> extends AbstractView<A> {
@@ -637,7 +672,7 @@ final class _UpdatedIterator<A> extends RIterator<A> {
   final int index;
   final A elem;
 
-  int _i = 0;
+  int i = 0;
 
   _UpdatedIterator(this.underlying, this.it, this.index, this.elem);
 
@@ -645,7 +680,7 @@ final class _UpdatedIterator<A> extends RIterator<A> {
   bool get hasNext {
     if (it.hasNext) {
       return true;
-    } else if (index >= _i) {
+    } else if (index >= i) {
       throw RangeError.index(index, underlying);
     } else {
       return false;
@@ -656,11 +691,11 @@ final class _UpdatedIterator<A> extends RIterator<A> {
   A next() {
     var value = it.next();
 
-    if (_i == index) {
+    if (i == index) {
       value = elem;
     }
 
-    _i += 1;
+    i += 1;
 
     return value;
   }

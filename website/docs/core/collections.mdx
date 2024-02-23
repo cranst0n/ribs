@@ -35,6 +35,12 @@ that linked lists don't do well with.
 
 <CodeSnippet language="dart" title="IVector Introduction" snippet={CollectionsSnippet} section="ivector" />
 
+## IChain
+
+An ordered collection of 0 or more elements of the same type. IChain provides constant
+time `append`, `prepend` and `concat` operations which make it ideal for certain
+circumstances.
+
 ## NonEmptyIList
 
 An ordered collection of **1 or more** elements of the same type.
@@ -61,3 +67,15 @@ A collection of ***unique*** element of the same type. There are no duplicate
 elements, as defined by each elements `==` method.
 
 <CodeSnippet language="dart" title="ISet Introduction" snippet={CollectionsSnippet} section="iset" />
+
+## ListBuffer
+
+A **mutable** ordered collection, analogous to IList.
+
+## MMap
+
+A **mutable** collection analogous to IMap.
+
+## MSet
+
+A **mutable** collection analogous to ISet.

@@ -17,7 +17,7 @@ part 'vector/iterator.dart';
 IVector<A> ivec<A>(Iterable<A> as) => IVector.fromDart(as);
 
 sealed class IVector<A>
-    with RIterableOnce<A>, RIterable<A>, Seq<A>, IndexedSeq<A> {
+    with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A> {
   final _Arr1 _prefix1;
 
   IVector._(this._prefix1);
@@ -140,7 +140,7 @@ sealed class IVector<A>
       super.combinations(n).map((a) => a.toIVector());
 
   @override
-  IVector<A> diff(Seq<A> that) => super.diff(that).toIVector();
+  IVector<A> diff(RSeq<A> that) => super.diff(that).toIVector();
 
   @override
   IVector<A> distinct() => distinctBy(identity);
@@ -201,7 +201,7 @@ sealed class IVector<A>
   RIterator<IVector<A>> inits() => super.inits().map((a) => a.toIVector());
 
   @override
-  IVector<A> intersect(Seq<A> that) => super.intersect(that).toIVector();
+  IVector<A> intersect(RSeq<A> that) => super.intersect(that).toIVector();
 
   @override
   IVector<A> intersperse(A x) => super.intersperse(x).toIVector();
@@ -367,7 +367,7 @@ sealed class IVector<A>
   bool operator ==(Object other) =>
       identical(this, other) ||
       switch (other) {
-        final Seq<A> that => sameElements(that),
+        final RSeq<A> that => sameElements(that),
         _ => false,
       };
 

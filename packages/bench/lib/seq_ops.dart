@@ -23,6 +23,9 @@ void main(List<String> args) {
   ribs.IVector<int> genRibsIVector(int n) =>
       ribs.IVector.tabulate(n, tabulateFn);
 
+  ribs.ListBuffer<int> genRibsListBuffer(int n) =>
+      ribs.ListBuffer<int>().addAll(ribs.IList.tabulate(n, tabulateFn));
+
   fic.IList<int> genFicList(int n) =>
       fic.IList(fic.IList.tabulate(n, tabulateFn));
 
@@ -67,6 +70,8 @@ void main(List<String> args) {
           (l) => tap(l, (l) => l[n ~/ 2]), emitter),
       ComparativeBenchmark('Ribs IVector', 'apply', () => genRibsIVector(n),
           (l) => tap(l, (l) => l[n ~/ 2]), emitter),
+      ComparativeBenchmark('Ribs ListBuffer', 'apply',
+          () => genRibsListBuffer(n), (l) => tap(l, (l) => l[n ~/ 2]), emitter),
 
       // head
       ComparativeBenchmark('Dart List', 'head', () => genDartList(n),
@@ -83,6 +88,8 @@ void main(List<String> args) {
           (l) => tap(l, (l) => l.head), emitter),
       ComparativeBenchmark('Ribs IVector', 'head', () => genRibsIVector(n),
           (l) => tap(l, (l) => l.head), emitter),
+      ComparativeBenchmark('Ribs ListBuffer', 'head',
+          () => genRibsListBuffer(n), (l) => tap(l, (l) => l.head), emitter),
 
       // append
       ComparativeBenchmark('Dart List', 'append', () => genDartList(n),
@@ -101,6 +108,8 @@ void main(List<String> args) {
           (l) => l.appended(0), emitter),
       ComparativeBenchmark('Ribs IVector', 'append', () => genRibsIVector(n),
           (l) => l.appended(0), emitter),
+      ComparativeBenchmark('Ribs ListBuffer', 'append',
+          () => genRibsListBuffer(n), (l) => l.append(0), emitter),
 
       // prepend
       ComparativeBenchmark('Dart List', 'prepend', () => genDartList(n),
@@ -117,6 +126,8 @@ void main(List<String> args) {
           (l) => l.prepended(0), emitter),
       ComparativeBenchmark('Ribs IVector', 'prepend', () => genRibsIVector(n),
           (l) => l.prepended(0), emitter),
+      ComparativeBenchmark('Ribs ListBuffer', 'prepend',
+          () => genRibsListBuffer(n), (l) => l.prepend(0), emitter),
 
       // updated
       ComparativeBenchmark('Dart List', 'update', () => genDartList(n),
@@ -129,6 +140,8 @@ void main(List<String> args) {
           (l) => l.updated(n ~/ 2, 1), emitter),
       ComparativeBenchmark('Ribs IVector', 'update', () => genRibsIVector(n),
           (l) => l.updated(n ~/ 2, 1), emitter),
+      ComparativeBenchmark('Ribs ListBuffer', 'update',
+          () => genRibsListBuffer(n), (l) => l..update(n ~/ 2, 1), emitter),
 
       // map
       ComparativeBenchmark('Dart List', 'map', () => genDartList(n),
@@ -147,6 +160,8 @@ void main(List<String> args) {
           (l) => l.map((x) => x + 1), emitter),
       ComparativeBenchmark('Ribs IVector', 'map', () => genRibsIVector(n),
           (l) => l.map((x) => x + 1), emitter),
+      ComparativeBenchmark('Ribs ListBuffer', 'map', () => genRibsListBuffer(n),
+          (l) => l.mapInPlace((x) => x + 1), emitter),
 
       // filter
       ComparativeBenchmark('Dart List', 'filter', () => genDartList(n),
@@ -165,6 +180,12 @@ void main(List<String> args) {
           (l) => l.filter((x) => x.isOdd), emitter),
       ComparativeBenchmark('Ribs IVector', 'filter', () => genRibsIVector(n),
           (l) => l.filter((x) => x.isOdd), emitter),
+      ComparativeBenchmark(
+          'Ribs ListBuffer',
+          'filter',
+          () => genRibsListBuffer(n),
+          (l) => l.filterInPlace((x) => x.isOdd),
+          emitter),
 
       // init
       ComparativeBenchmark('Dart List', 'tail', () => genDartList(n),

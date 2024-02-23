@@ -35,5 +35,8 @@ final class _EmptyMap<K, V>
   IMap<K, V> updated(K key, V value) => _Map1(key, value);
 
   @override
-  RIterator<V> get values => RIterator.empty();
+  RIterable<V> get values => nil();
+
+  @override
+  RIterator<V> get valuesIterator => RIterator.empty();
 }

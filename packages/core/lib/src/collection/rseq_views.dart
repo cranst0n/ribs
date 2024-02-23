@@ -4,12 +4,12 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/views.dart' as views;
 
 abstract class AbstractSeqView<A>
-    with RIterableOnce<A>, RIterable<A>, View<A>, Seq<A>, SeqView<A> {
+    with RIterableOnce<A>, RIterable<A>, View<A>, RSeq<A>, SeqView<A> {
   const AbstractSeqView();
 }
 
-class Appended<A> extends views.Appended<A> with Seq<A>, SeqView<A> {
-  final Seq<A> seq;
+class Appended<A> extends views.Appended<A> with RSeq<A>, SeqView<A> {
+  final RSeq<A> seq;
 
   const Appended(this.seq, A elem) : super(seq, elem);
 
@@ -20,9 +20,9 @@ class Appended<A> extends views.Appended<A> with Seq<A>, SeqView<A> {
   int get length => seq.length + 1;
 }
 
-class Concat<A> extends views.Concat<A> with Seq<A>, SeqView<A> {
-  final Seq<A> prefixSeq;
-  final Seq<A> suffixSeq;
+class Concat<A> extends views.Concat<A> with RSeq<A>, SeqView<A> {
+  final RSeq<A> prefixSeq;
+  final RSeq<A> suffixSeq;
 
   const Concat(this.prefixSeq, this.suffixSeq) : super(prefixSeq, suffixSeq);
 
@@ -36,8 +36,8 @@ class Concat<A> extends views.Concat<A> with Seq<A>, SeqView<A> {
   int get length => prefixSeq.length + suffixSeq.length;
 }
 
-class Drop<A> extends views.Drop<A> with Seq<A>, SeqView<A> {
-  final Seq<A> seq;
+class Drop<A> extends views.Drop<A> with RSeq<A>, SeqView<A> {
+  final RSeq<A> seq;
 
   const Drop(this.seq, int n) : super(seq, n);
 
@@ -48,11 +48,11 @@ class Drop<A> extends views.Drop<A> with Seq<A>, SeqView<A> {
   int get length => max(underlying.size - normN, 0);
 
   @override
-  Seq<A> drop(int n) => Drop(seq, this.n + n);
+  RSeq<A> drop(int n) => Drop(seq, this.n + n);
 }
 
-class DropRight<A> extends views.DropRight<A> with Seq<A>, SeqView<A> {
-  final Seq<A> seq;
+class DropRight<A> extends views.DropRight<A> with RSeq<A>, SeqView<A> {
+  final RSeq<A> seq;
 
   const DropRight(this.seq, int n) : super(seq, n);
 
@@ -64,7 +64,7 @@ class DropRight<A> extends views.DropRight<A> with Seq<A>, SeqView<A> {
 }
 
 class Id<A> extends AbstractSeqView<A> {
-  final Seq<A> underlying;
+  final RSeq<A> underlying;
 
   const Id(this.underlying);
 
@@ -84,8 +84,8 @@ class Id<A> extends AbstractSeqView<A> {
   int get length => underlying.length;
 }
 
-class Map<A, B> extends views.Map<A, B> with Seq<B>, SeqView<B> {
-  final Seq<A> seq;
+class Map<A, B> extends views.Map<A, B> with RSeq<B>, SeqView<B> {
+  final RSeq<A> seq;
 
   const Map(this.seq, Function1<A, B> f) : super(seq, f);
 
@@ -96,8 +96,8 @@ class Map<A, B> extends views.Map<A, B> with Seq<B>, SeqView<B> {
   int get length => seq.length;
 }
 
-class Prepended<A> extends views.Prepended<A> with Seq<A>, SeqView<A> {
-  final Seq<A> seq;
+class Prepended<A> extends views.Prepended<A> with RSeq<A>, SeqView<A> {
+  final RSeq<A> seq;
 
   const Prepended(A elem, this.seq) : super(elem, seq);
 
@@ -109,7 +109,7 @@ class Prepended<A> extends views.Prepended<A> with Seq<A>, SeqView<A> {
 }
 
 class Reverse<A> extends AbstractSeqView<A> {
-  final Seq<A> underlying;
+  final RSeq<A> underlying;
 
   const Reverse(this.underlying);
 
@@ -130,11 +130,11 @@ class Reverse<A> extends AbstractSeqView<A> {
 }
 
 class Sorted<A> extends AbstractSeqView<A> {
-  Seq<A>? seq;
+  RSeq<A>? seq;
   final int len;
   final Order<A> order;
 
-  Seq<A>? _sortedImpl;
+  RSeq<A>? _sortedImpl;
 
   Sorted(this.seq, this.order, [this.len = 0]);
 
@@ -154,10 +154,10 @@ class Sorted<A> extends AbstractSeqView<A> {
   int get length => len;
 
   @override
-  Seq<A> reverse() => _ReverseSorted(this);
+  RSeq<A> reverse() => _ReverseSorted(this);
 
   @override
-  Seq<A> sorted(Order<A> order) {
+  RSeq<A> sorted(Order<A> order) {
     if (order == this.order) {
       return this;
     } else if (order.isReverseOf(this.order)) {
@@ -167,7 +167,7 @@ class Sorted<A> extends AbstractSeqView<A> {
     }
   }
 
-  Seq<A> get _sorted {
+  RSeq<A> get _sorted {
     if (_sortedImpl == null) {
       final List<A> res;
 
@@ -181,17 +181,17 @@ class Sorted<A> extends AbstractSeqView<A> {
 
       seq = null;
 
-      _sortedImpl = Seq.from(RIterator.fromDart(res.iterator));
+      _sortedImpl = RSeq.from(RIterator.fromDart(res.iterator));
     }
 
     return _sortedImpl!;
   }
 
-  Seq<A> get elems => seq ?? _sorted;
+  RSeq<A> get elems => seq ?? _sorted;
 }
 
-class Take<A> extends views.Take<A> with Seq<A>, SeqView<A> {
-  final Seq<A> seq;
+class Take<A> extends views.Take<A> with RSeq<A>, SeqView<A> {
+  final RSeq<A> seq;
 
   const Take(this.seq, int n) : super(seq, n);
 
@@ -208,8 +208,8 @@ class Take<A> extends views.Take<A> with Seq<A>, SeqView<A> {
   int get length => min(seq.length, normN);
 }
 
-class TakeRight<A> extends views.TakeRight<A> with Seq<A>, SeqView<A> {
-  final Seq<A> seq;
+class TakeRight<A> extends views.TakeRight<A> with RSeq<A>, SeqView<A> {
+  final RSeq<A> seq;
 
   const TakeRight(this.seq, int n) : super(seq, n);
 
@@ -244,10 +244,10 @@ class _ReverseSorted<A> extends AbstractSeqView<A> {
   int get length => outer.len;
 
   @override
-  Seq<A> reverse() => outer;
+  RSeq<A> reverse() => outer;
 
   @override
-  Seq<A> sorted(Order<A> order) {
+  RSeq<A> sorted(Order<A> order) {
     if (order == outer.order) {
       return outer;
     } else if (order.isReverseOf(outer.order)) {

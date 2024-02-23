@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:ribs_core/ribs_core.dart';
 
 abstract class Range
-    with RIterableOnce<int>, RIterable<int>, Seq<int>, IndexedSeq<int> {
+    with RIterableOnce<int>, RIterable<int>, RSeq<int>, IndexedSeq<int> {
   final int start;
   final int end;
   final int step;

@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/mutable/mutation_tracker.dart';
 
-class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, Seq<A>, Buffer<A> {
+class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
   IList<A> _first = Nil<A>();
   Cons<A>? _last0;
 
@@ -50,6 +50,12 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, Seq<A>, Buffer<A> {
   }
 
   @override
+  ListBuffer<A> append(A elem) {
+    super.append(elem);
+    return this;
+  }
+
+  @override
   ListBuffer<A> appended(A elem) {
     final b = ListBuffer<A>();
     b.addAll(this);
@@ -65,6 +71,30 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, Seq<A>, Buffer<A> {
     _len = 0;
     _last0 = null;
     _aliased = false;
+  }
+
+  ListBuffer<A> filterInPlace(Function1<A, bool> p) {
+    _ensureUnaliased();
+    Cons<A>? prev;
+    IList<A> cur = _first;
+
+    while (!cur.isEmpty) {
+      final follow = cur.tail();
+      if (!p(cur.head)) {
+        if (prev == null) {
+          _first = follow;
+        } else {
+          prev.next = follow;
+        }
+        _len -= 1;
+      } else {
+        prev = cur as Cons<A>;
+      }
+      cur = follow;
+    }
+
+    _last0 = prev;
+    return this;
   }
 
   @override
@@ -135,6 +165,16 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, Seq<A>, Buffer<A> {
 
   @override
   int get length => _len;
+
+  ListBuffer<A> mapInPlace(Function1<A, A> f) {
+    _mutationCount += 1;
+    final buf = ListBuffer<A>();
+    foreach((elem) => buf.addOne(f(elem)));
+    _first = buf._first;
+    _last0 = buf._last0;
+    _aliased = false; // we just assigned from a new instance
+    return this;
+  }
 
   @override
   ListBuffer<A> patchInPlace(int from, RIterableOnce<A> patch, int replaced) {
@@ -257,6 +297,30 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, Seq<A>, Buffer<A> {
   IList<A> toIList() {
     _aliased = nonEmpty;
     return _first;
+  }
+
+  void update(int idx, A elem) {
+    _ensureUnaliased();
+
+    if (idx < 0 || idx >= _len) {
+      throw RangeError('$idx is out of bounds (min 0, max ${_len - 1})');
+    }
+
+    if (idx == 0) {
+      final newElem = Cons(elem, _first.tail());
+      if (_last0 == _first) {
+        _last0 = newElem;
+      }
+      _first = newElem;
+    } else {
+      // `p` can not be `null` because the case where `idx == 0` is handled above
+      final p = _locate(idx)!;
+      final newElem = Cons(elem, p.tail().tail());
+      if (_last0 == p.tail()) {
+        _last0 = newElem;
+      }
+      p.next = newElem;
+    }
   }
 
   void _copyElems() {

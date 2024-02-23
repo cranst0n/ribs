@@ -29,6 +29,12 @@ final class MHashMap<K, V>
   }
 
   @override
+  MHashMap<K, V> concat(covariant RIterableOnce<(K, V)> suffix) {
+    suffix.foreach((elem) => put(elem.$1, elem.$2));
+    return this;
+  }
+
+  @override
   bool contains(K key) => _findNode(key) != null;
 
   @override
@@ -76,7 +82,7 @@ final class MHashMap<K, V>
   int get size => _contentSize;
 
   @override
-  RIterator<V> get values => _HashMapIterator(_table, (n) => n.value);
+  RIterator<V> get valuesIterator => _HashMapIterator(_table, (n) => n.value);
 
   // ///////////////////////////////////////////////////////////////////////////
 
@@ -148,17 +154,6 @@ final class MHashMap<K, V>
 
   static int _newThreshold(int size, double loadFactor) =>
       (size.toDouble() * loadFactor).toInt();
-
-  Some<V>? _put0a(
-    K key,
-    V value,
-    int hash,
-    bool getOld,
-  ) {
-    if (_contentSize + 1 >= _threshold) _growTable(_table.length * 2);
-    final idx = _index(hash);
-    return _put0c(key, value, getOld, hash, idx);
-  }
 
   Some<V>? _put0b(
     K key,

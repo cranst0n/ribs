@@ -3,12 +3,12 @@ import 'package:ribs_core/ribs_core.dart';
 IChain<A> ichain<A>(Iterable<A> as) => IChain.fromDart(as);
 
 /// Sequence collection that provides constant time append, prepend and concat.
-sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
+sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   const IChain._();
 
   static IChain<A> empty<A>() => _Empty<A>();
 
-  static IChain<A> fromSeq<A>(Seq<A> iseq) => switch (iseq) {
+  static IChain<A> fromSeq<A>(RSeq<A> iseq) => switch (iseq) {
         _ when iseq.isEmpty => _Empty<A>(),
         _ when iseq.size == 1 => _Singleton(iseq.head),
         _ => _Wrap(iseq),
@@ -17,7 +17,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
   static IChain<A> from<A>(RIterableOnce<A> elems) {
     if (elems is IChain<A>) {
       return elems;
-    } else if (elems is Seq<A>) {
+    } else if (elems is RSeq<A>) {
       return fromSeq(elems);
     } else {
       return _Wrap(elems.toIVector());
@@ -108,7 +108,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
     final it = iterator;
 
     while (it.hasNext) {
-      result = result.concat(f(it.next()).toIChain());
+      result = result.concat(from(f(it.next())));
     }
 
     return result;
@@ -420,7 +420,7 @@ final class _Append<A> extends _NonEmpty<A> {
 
 // length >= 2
 final class _Wrap<A> extends _NonEmpty<A> {
-  final Seq<A> seq;
+  final RSeq<A> seq;
 
   const _Wrap(this.seq) : super._();
 }

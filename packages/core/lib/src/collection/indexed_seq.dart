@@ -2,7 +2,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/indexed_seq_views.dart' as iseqviews;
 
 /// Seqs with efficient [] and length operators
-mixin IndexedSeq<A> on RIterable<A>, Seq<A> {
+mixin IndexedSeq<A> on RIterable<A>, RSeq<A> {
   static IndexedSeq<A> from<A>(RIterableOnce<A> elems) {
     if (elems is IndexedSeq<A>) {
       return elems;
@@ -34,7 +34,7 @@ mixin IndexedSeq<A> on RIterable<A>, Seq<A> {
       iseqviews.Concat(this, suffix.toIndexedSeq());
 
   @override
-  IndexedSeq<A> diff(Seq<A> that) => super.diff(that).toIndexedSeq();
+  IndexedSeq<A> diff(RSeq<A> that) => super.diff(that).toIndexedSeq();
 
   @override
   IndexedSeq<A> distinctBy<B>(Function1<A, B> f) =>
@@ -71,7 +71,7 @@ mixin IndexedSeq<A> on RIterable<A>, Seq<A> {
       super.groupMap(key, f).mapValues((a) => a.toIndexedSeq());
 
   @override
-  IndexedSeq<A> intersect(Seq<A> that) => super.intersect(that).toIndexedSeq();
+  IndexedSeq<A> intersect(RSeq<A> that) => super.intersect(that).toIndexedSeq();
 
   @override
   IndexedSeq<A> intersperse(A x) => super.intersperse(x).toIndexedSeq();

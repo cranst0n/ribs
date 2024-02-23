@@ -2,9 +2,6 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/views.dart' as views;
 
 mixin View<A> on RIterable<A> {
-  static View<A> fromIterableProvider<A>(Function0<RIterable<A>> iterable) =>
-      views.Id(iterable());
-
   @override
   RIterable<B> collect<B>(Function1<A, Option<B>> f) => views.Collect(this, f);
 

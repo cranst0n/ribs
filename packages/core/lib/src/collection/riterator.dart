@@ -95,7 +95,7 @@ abstract class RIterator<A> with RIterableOnce<A> {
   RIterator<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) =>
       _FlatMapIterator(this, f);
 
-  RIterator<Seq<A>> grouped(int size) => _GroupedIterator(this, size, size);
+  RIterator<RSeq<A>> grouped(int size) => _GroupedIterator(this, size, size);
 
   Option<int> indexOf(A elem, [int from = 0]) => indexWhere((a) => a == elem);
 
@@ -137,7 +137,7 @@ abstract class RIterator<A> with RIterableOnce<A> {
   @override
   RIterator<A> slice(int from, int until) => sliceIterator(from, max(until, 0));
 
-  RIterator<Seq<A>> sliding(int size, [int step = 1]) =>
+  RIterator<RSeq<A>> sliding(int size, [int step = 1]) =>
       _GroupedIterator(this, size, step);
 
   @override

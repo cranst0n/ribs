@@ -14,15 +14,24 @@ mixin RMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
   /// map doesn't contain the key.
   Option<V> get(K key);
 
-  /// Returns a [Set] of all the keys stored in the map.
-  ISet<K> get keys;
+  /// Returns a [RIterable] of all the keys stored in the map.
+  RIterable<K> get keys => keysIterator.toISet();
+
+  RIterator<K> get keysIterator => iterator.map((kv) => kv.$1);
 
   /// Returns the value for the given key [key], or [orElse] if this map doesn't
   /// contain the key.
   V getOrElse(K key, Function0<V> orElse) => get(key).getOrElse(orElse);
 
-  /// Returns a list of all values stored in this map.
-  RIterator<V> get values;
+  /// Returns a new [Map] containing the same key-value pairs.
+  Map<K, V> toMap() =>
+      Map.fromEntries(iterator.map((a) => MapEntry(a.$1, a.$2)).toList());
+
+  /// Returns a [RIterable] of all values stored in this map.
+  RIterable<V> get values => valuesIterator.toSeq();
+
+  /// Returns a [RIterator] of all values stored in this map.
+  RIterator<V> get valuesIterator => iterator.map((kv) => kv.$2);
 
   @override
   int get hashCode => MurmurHash3.mapHash(this);

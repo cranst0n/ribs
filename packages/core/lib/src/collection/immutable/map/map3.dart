@@ -83,5 +83,5 @@ final class _Map3<K, V>
   }
 
   @override
-  RIterator<V> get values => ilist([value1, value2, value3]).iterator;
+  RIterator<V> get valuesIterator => ilist([value1, value2, value3]).iterator;
 }

@@ -8,7 +8,7 @@ NonEmptyIList<A> nel<A>(A head, [Iterable<A>? tail]) =>
 
 /// An immutable [IList] that contains at least one element.
 @immutable
-final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
+final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   @override
   final A head;
 
@@ -24,8 +24,8 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
         return NonEmptyIList(l.head, l.tail());
       });
 
-  static NonEmptyIList<A> unsafe<A>(RIterableOnce<A> as) =>
-      from(as).getOrElse(() => throw 'NonEmptyList.fromUnsafe: empty');
+  static NonEmptyIList<A> unsafe<A>(RIterableOnce<A> as) => from(as)
+      .getOrElse(() => throw ArgumentError('NonEmptyList.fromUnsafe: empty'));
 
   /// If the given [Iterable] is non-empty, a [NonEmptyIList] wrapped in a
   /// [Some] is returned. If the [Iterable] is empty, [None] is returned.
@@ -40,10 +40,11 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
       );
 
   /// Returns a [NonEmptyIList] with all elements from the given [Iterable] if
-  /// the [Iterable] is non-empty. If the [Iterable] is empty, a [StateError]
-  /// will be thrown.
+  /// the [Iterable] is non-empty. If the [Iterable] is empty, an
+  /// [ArgumentError] will be thrown.
   static NonEmptyIList<A> fromDartUnsafe<A>(Iterable<A> as) =>
-      NonEmptyIList(as.first, as.toIList().tail());
+      fromDart(as).getOrElse(
+          () => throw ArgumentError('NonEmptyList.fromDartUnsafe: empty'));
 
   /// Creates a [NonEmptyIList] with a single element.
   static NonEmptyIList<A> one<A>(A head) => nel(head);
@@ -69,7 +70,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
   /// assert(l.concatNel(l) == nel(1, [2, 3, 4, 5, 1, 2, 3, 4, 5]));
   /// ```
   NonEmptyIList<A> concatNel(NonEmptyIList<A> nel) =>
-      NonEmptyIList(head, _tail.appended(nel.head).concat(nel._tail));
+      NonEmptyIList(head, _tail.concat(nel));
 
   @override
   IList<B> collect<B>(Function1<A, Option<B>> f) => toIList().collect(f);
@@ -78,7 +79,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
   RIterator<IList<A>> combinations(int n) => toIList().combinations(n);
 
   @override
-  IList<A> diff(Seq<A> that) => toIList().diff(that);
+  IList<A> diff(RSeq<A> that) => toIList().diff(that);
 
   @override
   NonEmptyIList<A> distinct() => NonEmptyIList.unsafe(toIList().distinct());
@@ -135,7 +136,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
   RIterator<IList<A>> inits() => toIList().inits();
 
   @override
-  IList<A> intersect(Seq<A> that) => toIList().intersect(that);
+  IList<A> intersect(RSeq<A> that) => toIList().intersect(that);
 
   @override
   NonEmptyIList<A> intersperse(A x) =>

@@ -55,7 +55,7 @@ final class IHashMap<K, V>
   }
 
   @override
-  RIterator<V> get values => _MapValueIterator(_rootNode);
+  RIterator<V> get valuesIterator => _MapValueIterator(_rootNode);
 
   IHashMap<K, V> _newHashMapOrThis(BitmapIndexedMapNode<K, V> newRootNode) =>
       newRootNode == _rootNode ? this : IHashMap._(newRootNode);

@@ -1,14 +1,14 @@
 import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/src/collection/seq_views.dart' as seqviews;
+import 'package:ribs_core/src/collection/rseq_views.dart' as seqviews;
 
 abstract class AbstractIndexedSeqView<A>
     with
         RIterableOnce<A>,
         RIterable<A>,
         View<A>,
-        Seq<A>,
+        RSeq<A>,
         SeqView<A>,
         IndexedSeq<A>,
         IndexedSeqView<A> {
@@ -60,7 +60,7 @@ class Reverse<A> extends seqviews.Reverse<A>
 }
 
 class Slice<A> extends AbstractIndexedSeqView<A> {
-  final Seq<A> underlying;
+  final RSeq<A> underlying;
   final int from;
   final int until;
 

@@ -6,7 +6,7 @@ import 'package:ribs_core/ribs_core.dart';
 IList<A> ilist<A>(Iterable<A> as) => IList.fromDart(as);
 IList<A> nil<A>() => IList.empty();
 
-sealed class IList<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
+sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   const IList();
 
   static ListBuffer<A> builder<A>() => ListBuffer();
@@ -181,7 +181,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
   IList<A> distinctBy<B>(Function1<A, B> f) => super.distinctBy(f).toIList();
 
   @override
-  IList<A> diff(Seq<A> that) => super.diff(that).toIList();
+  IList<A> diff(RSeq<A> that) => super.diff(that).toIList();
 
   @override
   IList<A> drop(int n) {
@@ -352,7 +352,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
   RIterator<IList<A>> inits() => super.inits().map((i) => i.toIList());
 
   @override
-  IList<A> intersect(Seq<A> that) {
+  IList<A> intersect(RSeq<A> that) {
     if (isEmpty || that.isEmpty) {
       return Nil<A>();
     } else {
@@ -673,7 +673,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
   Option<NonEmptyIList<A>> toNel() => NonEmptyIList.from(this);
 
   @override
-  Seq<A> toSeq() => this;
+  RSeq<A> toSeq() => this;
 
   @override
   String toString() => 'IList${mkString(start: '(', sep: ', ', end: ')')}';
@@ -862,7 +862,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, Seq<A> {
     return noneIn(this);
   }
 
-  Map<B, int> _occCounts<B>(Seq<B> sq) {
+  Map<B, int> _occCounts<B>(RSeq<B> sq) {
     final occ = <B, int>{};
     sq.foreach((y) => occ.update(y, (value) => value + 1, ifAbsent: () => 1));
     return occ;

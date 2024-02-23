@@ -13,7 +13,7 @@ void main() {
     test('fromIterableUnsafe', () {
       expect(NonEmptyIList.fromDartUnsafe([1]), nel(1));
       expect(NonEmptyIList.fromDartUnsafe([1, 2, 3]), nel(1, [2, 3]));
-      expect(() => NonEmptyIList.fromDartUnsafe(<int>[]), throwsStateError);
+      expect(() => NonEmptyIList.fromDartUnsafe(<int>[]), throwsArgumentError);
     });
 
     test('NonEmptyIList[]', () {

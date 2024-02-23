@@ -346,9 +346,6 @@ mixin RIterableOnce<A> {
     }
   }
 
-  /// Returns an [IChain] with the same elements as this collection.
-  IChain<A> toIChain() => IChain.from(this);
-
   /// Returns an [IList] with the same elements as this collection.
   IList<A> toIList() => IList.from(this);
 
@@ -362,8 +359,8 @@ mixin RIterableOnce<A> {
   /// Returns an [IVector] with the same elements as this collection.
   IVector<A> toIVector() => IVector.from(this);
 
-  /// Returns a [Seq] with the same elements as this collection.
-  Seq<A> toSeq() => Seq.from(this);
+  /// Returns a [RSeq] with the same elements as this collection.
+  RSeq<A> toSeq() => RSeq.from(this);
 
   RIterable<A> _reversed() {
     var xs = IList.empty<A>();

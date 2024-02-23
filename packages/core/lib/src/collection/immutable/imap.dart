@@ -144,10 +144,6 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
     return this;
   }
 
-  /// Returns a new [Map] containing the same key-value pairs.
-  Map<K, V> toMap() =>
-      Map.fromEntries(iterator.map((a) => MapEntry(a.$1, a.$2)).toList());
-
   /// Return a new map where the keys and values are creating by applying [f]
   /// to every key-value pair in this map.
   IMap<K, W> transform<W>(Function2<K, V, W> f) =>
@@ -226,7 +222,7 @@ final class _WithDefault<K, V> extends AbstractIMap<K, V> {
   RIterator<(K, V)> get iterator => underlying.iterator;
 
   @override
-  ISet<K> get keys => underlying.keys;
+  RIterable<K> get keys => underlying.keys;
 
   @override
   int get knownSize => underlying.knownSize;
@@ -243,5 +239,5 @@ final class _WithDefault<K, V> extends AbstractIMap<K, V> {
       _WithDefault(underlying.updated(key, value), defaultValueF);
 
   @override
-  RIterator<V> get values => underlying.values;
+  RIterable<V> get values => underlying.values;
 }

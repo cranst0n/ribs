@@ -44,5 +44,5 @@ final class _Map1<K, V>
       key == key1 ? _Map1(key, value) : _Map2(key1, value1, key, value);
 
   @override
-  RIterator<V> get values => RIterator.single(value1);
+  RIterator<V> get valuesIterator => RIterator.single(value1);
 }

@@ -10,6 +10,6 @@ extension IterableOps<A> on Iterable<A> {
   /// Converts this [Iterable] to an [IVector].
   IVector<A> toIVector() => IVector.fromDart(this);
 
-  /// Converts this [Iterable] to a [Seq].
-  Seq<A> toSeq() => Seq.fromDart(this);
+  /// Converts this [Iterable] to a [RSeq].
+  RSeq<A> toSeq() => RSeq.fromDart(this);
 }

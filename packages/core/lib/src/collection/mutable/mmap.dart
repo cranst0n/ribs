@@ -1,5 +1,4 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/src/collection/mutable/hash_map.dart';
 
 MMap<K, V> mmap<K, V>(Map<K, V> m) => MMap.fromDart(m);
 
@@ -22,7 +21,57 @@ mixin MMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
 
   void clear();
 
+  @override
+  MMap<K, V> concat(covariant RIterableOnce<(K, V)> suffix) =>
+      MMap.from(super.concat(suffix));
+
+  @override
+  MMap<K, V> drop(int n) => MMap.from(super.drop(n));
+
+  @override
+  MMap<K, V> dropRight(int n) => MMap.from(super.dropRight(n));
+
+  @override
+  MMap<K, V> dropWhile(Function1<(K, V), bool> p) =>
+      MMap.from(super.dropWhile(p));
+
+  @override
+  MMap<K, V> filter(Function1<(K, V), bool> p) => from(super.filter(p));
+
+  MMap<K, V> filterInPlace(Function1<(K, V), bool> p) {
+    if (!isEmpty) {
+      foreach((kv) {
+        if (p(kv)) remove(kv.$1);
+      });
+    }
+
+    return this;
+  }
+
+  @override
+  MMap<K, V> filterNot(Function1<(K, V), bool> p) => from(super.filterNot(p));
+
+  @override
+  IMap<K2, MMap<K, V>> groupBy<K2>(Function1<(K, V), K2> f) =>
+      IMap.from(super.groupBy(f).map((a) => (a.$1, MMap.from(a.$2))));
+
   V getOrElseUpdate(K key, Function0<V> defaultValue);
+
+  @override
+  RIterator<MMap<K, V>> grouped(int size) =>
+      iterator.grouped(size).map(MMap.from);
+
+  @override
+  MMap<K, V> init() => MMap.from(super.init());
+
+  @override
+  RIterator<MMap<K, V>> inits() => super.inits().map(MMap.from);
+
+  @override
+  (MMap<K, V>, MMap<K, V>) partition(Function1<(K, V), bool> p) {
+    final (first, second) = super.partition(p);
+    return (MMap.from(first), MMap.from(second));
+  }
 
   Option<V> put(K key, V value);
 
@@ -35,6 +84,47 @@ mixin MMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
       keys.foreach(remove);
     }
 
+    return this;
+  }
+
+  @override
+  MMap<K, V> slice(int from, int until) => MMap.from(super.slice(from, until));
+
+  @override
+  RIterator<MMap<K, V>> sliding(int size, [int step = 1]) =>
+      super.sliding(size, step).map(MMap.from);
+
+  @override
+  (MMap<K, V>, MMap<K, V>) span(Function1<(K, V), bool> p) {
+    final (first, second) = super.span(p);
+    return (MMap.from(first), MMap.from(second));
+  }
+
+  @override
+  (MMap<K, V>, MMap<K, V>) splitAt(int n) {
+    final (first, second) = super.splitAt(n);
+    return (MMap.from(first), MMap.from(second));
+  }
+
+  @override
+  MMap<K, V> tail() => MMap.from(super.tail());
+
+  @override
+  RIterator<MMap<K, V>> tails() => super.tails().map(MMap.from);
+
+  @override
+  MMap<K, V> take(int n) => MMap.from(super.take(n));
+
+  @override
+  MMap<K, V> takeRight(int n) => MMap.from(super.takeRight(n));
+
+  @override
+  MMap<K, V> takeWhile(Function1<(K, V), bool> p) =>
+      MMap.from(super.takeWhile(p));
+
+  @override
+  MMap<K, V> tapEach<U>(Function1<(K, V), U> f) {
+    foreach(f);
     return this;
   }
 
@@ -89,7 +179,7 @@ final class _WithDefault<K, V> extends AbstractMMap<K, V> {
   RIterator<(K, V)> get iterator => underlying.iterator;
 
   @override
-  ISet<K> get keys => underlying.keys;
+  RIterable<K> get keys => underlying.keys;
 
   @override
   Option<V> put(K key, V value) => underlying.put(key, value);
@@ -98,5 +188,5 @@ final class _WithDefault<K, V> extends AbstractMMap<K, V> {
   Option<V> remove(K key) => underlying.remove(key);
 
   @override
-  RIterator<V> get values => underlying.values;
+  RIterable<V> get values => underlying.values;
 }

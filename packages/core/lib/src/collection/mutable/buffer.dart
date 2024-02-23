@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
 
-mixin Buffer<A> on RIterableOnce<A>, RIterable<A>, Seq<A> {
+mixin Buffer<A> on RIterableOnce<A>, RIterable<A>, RSeq<A> {
   Buffer<A> addOne(A elem);
 
   Buffer<A> addAll(RIterableOnce<A> elems);

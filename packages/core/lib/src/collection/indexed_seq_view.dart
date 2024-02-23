@@ -5,7 +5,7 @@ mixin IndexedSeqView<A>
     on
         RIterableOnce<A>,
         RIterable<A>,
-        Seq<A>,
+        RSeq<A>,
         View<A>,
         SeqView<A>,
         IndexedSeq<A> {
