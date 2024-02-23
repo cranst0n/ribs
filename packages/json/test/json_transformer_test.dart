@@ -69,7 +69,7 @@ void main() {
     ilist(Directory('test_resources').listSync())
         .sortWith((a, b) => basename(a.path).compareTo(basename(b.path)) < 0)
         .map((f) => File(f.path))
-        .forEach((fileEntity) {
+        .foreach((fileEntity) {
       final fileName = basename(fileEntity.path);
 
       final desc = fileName.replaceAll('.json', '');
@@ -104,7 +104,7 @@ void main() {
     ilist(Directory('test_resources').listSync())
         .sortWith((a, b) => basename(a.path).compareTo(basename(b.path)) < 0)
         .map((f) => File(f.path))
-        .forEach((fileEntity) {
+        .foreach((fileEntity) {
       final fileName = basename(fileEntity.path);
 
       final desc = fileName.replaceAll('.json', '');

@@ -132,13 +132,13 @@ void main() {
 
       expect(c.size, bvs.foldLeft(0, (acc, bv) => acc + bv.size));
 
-      bvs.headOption.forEach((h) => expect(c.startsWith(h), isTrue));
-      bvs.lastOption.forEach((l) => expect(c.endsWith(l), isTrue));
+      bvs.headOption.foreach((h) => expect(c.startsWith(h), isTrue));
+      bvs.lastOption.foreach((l) => expect(c.endsWith(l), isTrue));
     });
 
     forAll('containsSlice', byteVector, (bv) {
       if (bv.nonEmpty) {
-        IList.range(0, bv.size).forEach((n) {
+        IList.range(0, bv.size).foreach((n) {
           expect(bv.containsSlice(bv.drop(n)), isTrue);
         });
       } else {
@@ -160,7 +160,7 @@ void main() {
     });
 
     forAll('endsWith', byteVector, (bv) {
-      IList.range(0, bv.size).forEach((n) {
+      IList.range(0, bv.size).foreach((n) {
         expect(bv.endsWith(bv.drop(n)), isTrue);
       });
     });
@@ -178,7 +178,7 @@ void main() {
 
       expect(
         bv.grouped(1),
-        IList.of([
+        IList.fromDart([
           ByteVector.fromList([0]),
           ByteVector.fromList([1]),
           ByteVector.fromList([2]),
@@ -191,7 +191,7 @@ void main() {
 
       expect(
         bv.grouped(2),
-        IList.of([
+        IList.fromDart([
           ByteVector.fromList([0, 1]),
           ByteVector.fromList([2, 3]),
           ByteVector.fromList([4, 5]),
@@ -299,7 +299,7 @@ void main() {
       expect(bv.splitAt(0), (ByteVector.empty(), bv));
       expect(bv.splitAt(bv.size), (bv, ByteVector.empty()));
 
-      IList.range(0, bv.size).forEach((n) {
+      IList.range(0, bv.size).foreach((n) {
         expect(bv.splitAt(n)((a, b) => a.concat(b)), bv);
       });
     });
@@ -351,7 +351,7 @@ void main() {
       dartBytes
           .toIList()
           .zip(ribsBytes.toIList())
-          .forEachN((dart, ribs) => expect(dart, ribs));
+          .foreach((t) => expect(t.$1, t.$2));
 
       final dartString = base64Encode(dartBytes);
       final ribsString = bv.toBase64();
@@ -371,7 +371,7 @@ void main() {
       dartBytes
           .toIList()
           .zip(ribsBytes.toIList())
-          .forEachN((dart, ribs) => expect(dart, ribs));
+          .foreach((t) => expect(t.$1, t.$2));
 
       final dartString = dartCodec.encode(dartBytes);
       final ribsString = bv.toBase64Url();

@@ -9,22 +9,19 @@ final class SocketAddress<A extends Host> {
 
   static Option<SocketAddress<Host>> fromString(String value) =>
       fromStringIp(value)
-          // ignore: unnecessary_cast
-          .map((a) => a as SocketAddress<Host>)
+          .map((a) => a as SocketAddress<Host>) // ignore: unnecessary_cast
           .orElse(
-            () =>
-                // ignore: unnecessary_cast
-                fromStringHostname(value).map((a) => a as SocketAddress<Host>),
+            () => fromStringHostname(value).map(
+                (a) => a as SocketAddress<Host>), // ignore: unnecessary_cast
           )
           .orElse(
-            // ignore: unnecessary_cast
-            () => fromStringIDN(value).map((a) => a as SocketAddress<Host>),
+            () => fromStringIDN(value).map(
+                (a) => a as SocketAddress<Host>), // ignore: unnecessary_cast
           );
 
   static Option<SocketAddress<IpAddress>> fromStringIp(String value) =>
       fromStringIp4(value)
-          // ignore: unnecessary_cast
-          .map((a) => a as SocketAddress<IpAddress>)
+          .map((a) => a as SocketAddress<IpAddress>) // ignore: unnecessary_cast
           .orElse(() => fromStringIp6(value));
 
   static Option<SocketAddress<Ipv4Address>> fromStringIp4(String value) =>

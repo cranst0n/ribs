@@ -1,7 +1,4 @@
-import 'package:ribs_core/src/function.dart';
-import 'package:ribs_core/src/non_empty_ilist.dart';
-import 'package:ribs_core/src/syntax/tuple.dart';
-import 'package:ribs_core/src/validated.dart';
+import 'package:ribs_core/ribs_core.dart';
 
 extension ValidatedSyntaxOps<A> on A {
   /// Lifts this value into a [Validated], specifically an [Invalid].

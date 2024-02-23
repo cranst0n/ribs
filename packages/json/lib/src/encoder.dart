@@ -31,7 +31,7 @@ abstract mixin class Encoder<A> {
 
   static Encoder<Duration> duration = number.contramap((a) => a.inMicroseconds);
 
-  static Encoder<double> dubble = number.contramap(id);
+  static Encoder<double> dubble = number.contramap(identity);
 
   static Encoder<T> enumerationByIndex<T extends Enum>() =>
       integer.contramap((e) => e.index);
@@ -39,15 +39,15 @@ abstract mixin class Encoder<A> {
   static Encoder<T> enumerationByName<T extends Enum>() =>
       string.contramap((e) => e.name);
 
-  static Encoder<int> integer = number.contramap(id);
+  static Encoder<int> integer = number.contramap(identity);
 
-  static Encoder<Json> json = Encoder.instance(id);
+  static Encoder<Json> json = Encoder.instance(identity);
 
   static Encoder<num> number =
       Encoder.instance((a) => a.isFinite ? Json.number(a) : Json.Null);
 
   static Encoder<List<A>> list<A>(Encoder<A> encodeA) =>
-      Encoder.instance((a) => JArray(IList.of(a).map(encodeA.encode)));
+      Encoder.instance((a) => JArray(IList.fromDart(a).map(encodeA.encode)));
 
   static Encoder<IList<A>> ilist<A>(Encoder<A> encodeA) =>
       list(encodeA).contramap((a) => a.toList());
@@ -74,7 +74,7 @@ abstract mixin class Encoder<A> {
     Encoder<B> encodeB,
   ) =>
       EncoderF((t) =>
-          JArray(IList.of([encodeA.encode(t.$1), encodeB.encode(t.$2)])));
+          JArray(IList.fromDart([encodeA.encode(t.$1), encodeB.encode(t.$2)])));
 
   static Encoder<(A, B, C)> tuple3<A, B, C>(
     Encoder<A> encodeA,
@@ -83,7 +83,7 @@ abstract mixin class Encoder<A> {
   ) =>
       EncoderF((t) => tuple2(encodeA, encodeB)
           .encode(t.init())
-          .mapArray((a) => a.append(encodeC.encode(t.last))));
+          .mapArray((a) => a.appended(encodeC.encode(t.last))));
 
   static Encoder<(A, B, C, D)> tuple4<A, B, C, D>(
     Encoder<A> encodeA,
@@ -93,7 +93,7 @@ abstract mixin class Encoder<A> {
   ) =>
       EncoderF((t) => tuple3(encodeA, encodeB, encodeC)
           .encode(t.init())
-          .mapArray((a) => a.append(encodeD.encode(t.last))));
+          .mapArray((a) => a.appended(encodeD.encode(t.last))));
 
   static Encoder<(A, B, C, D, E)> tuple5<A, B, C, D, E>(
     Encoder<A> encodeA,
@@ -104,7 +104,7 @@ abstract mixin class Encoder<A> {
   ) =>
       EncoderF((t) => tuple4(encodeA, encodeB, encodeC, encodeD)
           .encode(t.init())
-          .mapArray((a) => a.append(encodeE.encode(t.last))));
+          .mapArray((a) => a.appended(encodeE.encode(t.last))));
 
   static Encoder<(A, B, C, D, E, F)> tuple6<A, B, C, D, E, F>(
     Encoder<A> encodeA,
@@ -116,7 +116,7 @@ abstract mixin class Encoder<A> {
   ) =>
       EncoderF((t) => tuple5(encodeA, encodeB, encodeC, encodeD, encodeE)
           .encode(t.init())
-          .mapArray((a) => a.append(encodeF.encode(t.last))));
+          .mapArray((a) => a.appended(encodeF.encode(t.last))));
 
   static Encoder<(A, B, C, D, E, F, G)> tuple7<A, B, C, D, E, F, G>(
     Encoder<A> encodeA,
@@ -130,7 +130,7 @@ abstract mixin class Encoder<A> {
       EncoderF((t) =>
           tuple6(encodeA, encodeB, encodeC, encodeD, encodeE, encodeF)
               .encode(t.init())
-              .mapArray((a) => a.append(encodeG.encode(t.last))));
+              .mapArray((a) => a.appended(encodeG.encode(t.last))));
 
   static Encoder<(A, B, C, D, E, F, G, H)> tuple8<A, B, C, D, E, F, G, H>(
     Encoder<A> encodeA,
@@ -145,7 +145,7 @@ abstract mixin class Encoder<A> {
       EncoderF((t) =>
           tuple7(encodeA, encodeB, encodeC, encodeD, encodeE, encodeF, encodeG)
               .encode(t.init())
-              .mapArray((a) => a.append(encodeH.encode(t.last))));
+              .mapArray((a) => a.appended(encodeH.encode(t.last))));
 
   static Encoder<(A, B, C, D, E, F, G, H, I)> tuple9<A, B, C, D, E, F, G, H, I>(
     Encoder<A> encodeA,
@@ -161,7 +161,7 @@ abstract mixin class Encoder<A> {
       EncoderF((t) => tuple8(encodeA, encodeB, encodeC, encodeD, encodeE,
               encodeF, encodeG, encodeH)
           .encode(t.init())
-          .mapArray((a) => a.append(encodeI.encode(t.last))));
+          .mapArray((a) => a.appended(encodeI.encode(t.last))));
 
   static Encoder<(A, B, C, D, E, F, G, H, I, J)>
       tuple10<A, B, C, D, E, F, G, H, I, J>(
@@ -179,7 +179,7 @@ abstract mixin class Encoder<A> {
           EncoderF((t) => tuple9(encodeA, encodeB, encodeC, encodeD, encodeE,
                   encodeF, encodeG, encodeH, encodeI)
               .encode(t.init())
-              .mapArray((a) => a.append(encodeJ.encode(t.last))));
+              .mapArray((a) => a.appended(encodeJ.encode(t.last))));
 
   static Encoder<(A, B, C, D, E, F, G, H, I, J, K)>
       tuple11<A, B, C, D, E, F, G, H, I, J, K>(
@@ -198,7 +198,7 @@ abstract mixin class Encoder<A> {
           EncoderF((t) => tuple10(encodeA, encodeB, encodeC, encodeD, encodeE,
                   encodeF, encodeG, encodeH, encodeI, encodeJ)
               .encode(t.init())
-              .mapArray((a) => a.append(encodeK.encode(t.last))));
+              .mapArray((a) => a.appended(encodeK.encode(t.last))));
 
   static Encoder<(A, B, C, D, E, F, G, H, I, J, K, L)>
       tuple12<A, B, C, D, E, F, G, H, I, J, K, L>(
@@ -218,7 +218,7 @@ abstract mixin class Encoder<A> {
           EncoderF((t) => tuple11(encodeA, encodeB, encodeC, encodeD, encodeE,
                   encodeF, encodeG, encodeH, encodeI, encodeJ, encodeK)
               .encode(t.init())
-              .mapArray((a) => a.append(encodeL.encode(t.last))));
+              .mapArray((a) => a.appended(encodeL.encode(t.last))));
 
   static Encoder<(A, B, C, D, E, F, G, H, I, J, K, L, M)>
       tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>(
@@ -239,7 +239,7 @@ abstract mixin class Encoder<A> {
           EncoderF((t) => tuple12(encodeA, encodeB, encodeC, encodeD, encodeE,
                   encodeF, encodeG, encodeH, encodeI, encodeJ, encodeK, encodeL)
               .encode(t.init())
-              .mapArray((a) => a.append(encodeM.encode(t.last))));
+              .mapArray((a) => a.appended(encodeM.encode(t.last))));
 
   static Encoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N)>
       tuple14<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
@@ -273,7 +273,7 @@ abstract mixin class Encoder<A> {
                   encodeL,
                   encodeM)
               .encode(t.init())
-              .mapArray((a) => a.append(encodeN.encode(t.last))));
+              .mapArray((a) => a.appended(encodeN.encode(t.last))));
 
   static Encoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)>
       tuple15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
@@ -309,5 +309,5 @@ abstract mixin class Encoder<A> {
                   encodeM,
                   encodeN)
               .encode(t.init())
-              .mapArray((a) => a.append(encodeO.encode(t.last))));
+              .mapArray((a) => a.appended(encodeO.encode(t.last))));
 }

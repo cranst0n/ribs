@@ -17,7 +17,7 @@ abstract class ACursor {
   IList<CursorOp> history() {
     IList<CursorOp> loop(ACursor? c) => Option(c?.lastOp).fold(
           () => IList.empty(),
-          (op) => loop(c?.lastCursor).prepend(op),
+          (op) => loop(c?.lastCursor).prepended(op),
         );
 
     return loop(this);

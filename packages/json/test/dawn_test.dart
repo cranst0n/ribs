@@ -24,7 +24,7 @@ void _testGroup(
         .filter((f) => basename(f.path).startsWith(prefix))
         .sortWith((a, b) => basename(a.path).compareTo(basename(b.path)) < 0)
         .map((f) => File(f.path))
-        .forEach((fileEntity) {
+        .foreach((fileEntity) {
       final desc = basename(fileEntity.path).replaceAll('.json', '');
       final bytes = File(fileEntity.path).readAsBytesSync();
 

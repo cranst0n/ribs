@@ -5,21 +5,21 @@ final class MediaRange {
   final IMap<String, String> extensions;
 
   const MediaRange(
-    this.mainType, {
-    this.extensions = const IMap.empty(),
-  });
+    this.mainType,
+    this.extensions,
+  );
 
   MediaRange withExtensions(IMap<String, String> ext) =>
-      MediaRange(mainType, extensions: ext);
+      MediaRange(mainType, ext);
 
-  static const all = MediaRange('*');
-  static const application = MediaRange('application');
-  static const audio = MediaRange('audio');
-  static const image = MediaRange('image');
-  static const message = MediaRange('message');
-  static const multipart = MediaRange('multipart');
-  static const text = MediaRange('text');
-  static const video = MediaRange('video');
+  static final all = MediaRange('*', IMap.empty());
+  static final application = MediaRange('application', IMap.empty());
+  static final audio = MediaRange('audio', IMap.empty());
+  static final image = MediaRange('image', IMap.empty());
+  static final message = MediaRange('message', IMap.empty());
+  static final multipart = MediaRange('multipart', IMap.empty());
+  static final text = MediaRange('text', IMap.empty());
+  static final video = MediaRange('video', IMap.empty());
 }
 
 final class MediaType extends MediaRange {
@@ -30,22 +30,24 @@ final class MediaType extends MediaRange {
 
   const MediaType(
     super.mainType,
+    super.extensions,
     this.subType, {
     this.compressible = false,
     this.binary = false,
-    this.fileExtensions = const IList.nil(),
-    super.extensions,
+    this.fileExtensions = const Nil(),
   });
 
   const MediaType._basic(
     super.mainType,
+    super.extensions,
     this.subType,
     this.compressible,
     this.binary,
-  ) : fileExtensions = const IList.nil();
+  ) : fileExtensions = const Nil();
 
   const MediaType._full(
     super.mainType,
+    super.extensions,
     this.subType,
     this.compressible,
     this.binary,
@@ -53,19 +55,21 @@ final class MediaType extends MediaRange {
   );
 
   @override
-  MediaType withExtensions(IMap<String, String> ext) =>
-      MediaType(mainType, subType,
-          compressible: compressible,
-          binary: binary,
-          fileExtensions: fileExtensions,
-          extensions: ext);
+  MediaType withExtensions(IMap<String, String> ext) => MediaType(
+        mainType,
+        ext,
+        subType,
+        compressible: compressible,
+        binary: binary,
+        fileExtensions: fileExtensions,
+      );
 
   @override
   String toString() => '$mainType/$subType${_renderExtensions()}';
 
   String _renderExtensions() {
     if (extensions.nonEmpty) {
-      return extensions.map((k, v) => '; $k=${_quote(v)}').mkString();
+      return extensions.map((kv) => '; ${kv.$1}=${_quote(kv.$2)}').mkString();
     } else {
       return '';
     }
@@ -104,14 +108,15 @@ final class _Application {
 
   static const type = 'application';
 
-  final javascript = MediaType._full(
-      type, 'javascript', _Compressible, _NotBinary, ilist(['js', 'mjs']));
+  final javascript = MediaType._full(type, IMap.empty(), 'javascript',
+      _Compressible, _NotBinary, ilist(['js', 'mjs']));
 
-  final json = MediaType._full(
-      type, 'json', _Compressible, _Binary, ilist(['json', 'map']));
+  final json = MediaType._full(type, IMap.empty(), 'json', _Compressible,
+      _Binary, ilist(['json', 'map']));
 
   final octet_stream = MediaType._full(
       type,
+      IMap.empty(),
       'octet-stream',
       _Uncompressible,
       _Binary,
@@ -140,17 +145,17 @@ final class _Application {
         'buffer'
       ]));
 
-  final pdf =
-      MediaType._full(type, 'pdf', _Uncompressible, _Binary, ilist(['pdf']));
+  final pdf = MediaType._full(
+      type, IMap.empty(), 'pdf', _Uncompressible, _Binary, ilist(['pdf']));
 
-  final xWwwFormUrlEncoded = const MediaType._basic(
-      type, 'x-www-form-urlencoded', _Compressible, _NotBinary);
+  final xWwwFormUrlEncoded = MediaType._basic(
+      type, IMap.empty(), 'x-www-form-urlencoded', _Compressible, _NotBinary);
 
-  final xml = MediaType._full(type, 'xml', _Compressible, _NotBinary,
-      ilist(['xml', 'xsl', 'xsd', 'rng']));
+  final xml = MediaType._full(type, IMap.empty(), 'xml', _Compressible,
+      _NotBinary, ilist(['xml', 'xsl', 'xsd', 'rng']));
 
-  final zip =
-      MediaType._full(type, 'zip', _Uncompressible, _Binary, ilist(['zip']));
+  final zip = MediaType._full(
+      type, IMap.empty(), 'zip', _Uncompressible, _Binary, ilist(['zip']));
 }
 
 final class _Audio {
@@ -162,10 +167,11 @@ final class _Audio {
 
   static const type = 'audio';
 
-  final aac = const MediaType._basic(type, 'aac', _Compressible, _Binary);
+  final aac =
+      MediaType._basic(type, IMap.empty(), 'aac', _Compressible, _Binary);
 
-  final plain = MediaType._full(type, 'mpeg', _Uncompressible, _Binary,
-      ilist(['mpga', 'mp2', 'mp2a', 'mp3', 'm2a', 'm3a']));
+  final plain = MediaType._full(type, IMap.empty(), 'mpeg', _Uncompressible,
+      _Binary, ilist(['mpga', 'mp2', 'mp2a', 'mp3', 'm2a', 'm3a']));
 }
 
 final class _Image {
@@ -177,20 +183,20 @@ final class _Image {
 
   static const type = 'image';
 
-  final gif =
-      MediaType._full(type, 'gif', _Uncompressible, _Binary, ilist(['gif']));
+  final gif = MediaType._full(
+      type, IMap.empty(), 'gif', _Uncompressible, _Binary, ilist(['gif']));
 
-  final jpeg = MediaType._full(
-      type, 'jpeg', _Uncompressible, _Binary, ilist(['jpeg', 'jpg', 'jpe']));
+  final jpeg = MediaType._full(type, IMap.empty(), 'jpeg', _Uncompressible,
+      _Binary, ilist(['jpeg', 'jpg', 'jpe']));
 
-  final png =
-      MediaType._full(type, 'png', _Uncompressible, _Binary, ilist(['png']));
+  final png = MediaType._full(
+      type, IMap.empty(), 'png', _Uncompressible, _Binary, ilist(['png']));
 
-  final svg_xml = MediaType._full(
-      type, 'svg_xml', _Compressible, _Binary, ilist(['svg', 'svgz']));
+  final svg_xml = MediaType._full(type, IMap.empty(), 'svg_xml', _Compressible,
+      _Binary, ilist(['svg', 'svgz']));
 
-  final tiff = MediaType._full(
-      type, 'tiff', _Uncompressible, _Binary, ilist(['tif', 'tiff']));
+  final tiff = MediaType._full(type, IMap.empty(), 'tiff', _Uncompressible,
+      _Binary, ilist(['tif', 'tiff']));
 }
 
 final class _Multipart {
@@ -202,8 +208,8 @@ final class _Multipart {
 
   static const type = 'multipart';
 
-  final form_data =
-      const MediaType._basic(type, 'form-data', _Uncompressible, _NotBinary);
+  final form_data = MediaType._basic(
+      type, IMap.empty(), 'form-data', _Uncompressible, _NotBinary);
 }
 
 final class _Text {
@@ -215,16 +221,21 @@ final class _Text {
 
   static const type = 'text';
 
-  final css =
-      MediaType._full(type, 'css', _Compressible, _NotBinary, ilist(['css']));
+  final css = MediaType._full(
+      type, IMap.empty(), 'css', _Compressible, _NotBinary, ilist(['css']));
 
-  final csv =
-      MediaType._full(type, 'csv', _Compressible, _NotBinary, ilist(['csv']));
+  final csv = MediaType._full(
+      type, IMap.empty(), 'csv', _Compressible, _NotBinary, ilist(['csv']));
 
-  final html = MediaType._full(
-      type, 'html', _Compressible, _NotBinary, ilist(['html', 'htm', 'shtml']));
+  final html = MediaType._full(type, IMap.empty(), 'html', _Compressible,
+      _NotBinary, ilist(['html', 'htm', 'shtml']));
 
-  final plain = MediaType._full(type, 'plain', _Compressible, _NotBinary,
+  final plain = MediaType._full(
+      type,
+      IMap.empty(),
+      'plain',
+      _Compressible,
+      _NotBinary,
       ilist(['txt', 'text', 'conf', 'def', 'list', 'log', 'in', 'ini']));
 }
 
@@ -237,11 +248,11 @@ final class _Video {
 
   static const type = 'video';
 
-  final mp4 = MediaType._full(
-      type, 'mp4', _Uncompressible, _Binary, ilist(['mp4', 'mp4v', 'mpg4']));
+  final mp4 = MediaType._full(type, IMap.empty(), 'mp4', _Uncompressible,
+      _Binary, ilist(['mp4', 'mp4v', 'mpg4']));
 
-  final mpeg = MediaType._full(type, 'mpeg', _Uncompressible, _Binary,
-      ilist(['mpeg', 'mpg', 'mpe', 'm1v', 'm2v']));
+  final mpeg = MediaType._full(type, IMap.empty(), 'mpeg', _Uncompressible,
+      _Binary, ilist(['mpeg', 'mpg', 'mpe', 'm1v', 'm2v']));
 }
 
 const _Compressible = true;

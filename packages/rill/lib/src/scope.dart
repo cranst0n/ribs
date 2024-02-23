@@ -1,4 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
 class Scope {
@@ -29,7 +30,7 @@ class Scope {
   }
 
   IO<bool> _register(ScopedResource resource) => state.modify((s) => s.fold(
-        (s) => (s.copy(resources: s.resources.prepend(resource)), true),
+        (s) => (s.copy(resources: s.resources.prepended(resource)), true),
         () => (s, false),
       ));
 
@@ -55,7 +56,7 @@ class Scope {
     return createScope().flatMap((scope) {
       return state.modify<Option<Scope>>((s) {
         return s.fold(
-          (s) => (s.copy(children: s.children.prepend(scope)), Some(scope)),
+          (s) => (s.copy(children: s.children.prepended(scope)), Some(scope)),
           () => (s, none<Scope>()),
         );
       }).flatMap((s) {
@@ -135,7 +136,7 @@ class Scope {
               results.foldLeft(
                   IList.empty<RuntimeException>(),
                   (acc, elem) =>
-                      elem.fold((err) => acc.append(err), (_) => acc)))
+                      elem.fold((err) => acc.appended(err), (_) => acc)))
           .toLeft(() => Unit()));
 
   IO<Either<RuntimeException, Unit>> close(ExitCase ec) =>
@@ -165,7 +166,7 @@ class Scope {
   IList<Scope> get _ancestors {
     IList<Scope> go(Scope curr, IList<Scope> acc) => curr.parent.fold(
           () => acc,
-          (parent) => go(parent, acc.append(parent)),
+          (parent) => go(parent, acc.appended(parent)),
         );
 
     return go(this, IList.empty());
@@ -294,7 +295,7 @@ class Scope {
 
       return children.flatMap((children) {
         return children
-            .append(this)
+            .appended(this)
             .concat(_ancestors)
             .flatTraverseIO((scope) => scope._resources())
             .flatMap((res) => res.traverseFilterIO((a) => a.lease()))

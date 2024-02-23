@@ -5,10 +5,10 @@ final class UrlForm {
 
   const UrlForm(this.values);
 
-  const UrlForm.empty() : values = const IMap.empty();
+  UrlForm.empty() : values = IMap.empty();
 
   UrlForm.single(String key, String value)
-      : values = IMap.fromIterable([
+      : values = IMap.fromDartIterable([
           (key, ilist([value])),
         ]);
 
@@ -19,7 +19,7 @@ final class UrlForm {
           key,
           (values) => Some(values.fold(
             () => ilist([value]),
-            (existing) => existing.append(value),
+            (existing) => existing.appended(value),
           )),
         ),
       );
@@ -29,7 +29,9 @@ final class UrlForm {
 
     final sb = StringBuffer();
 
-    urlForm.values.forEach((k, vs) {
+    urlForm.values.foreach((kv) {
+      final (k, vs) = kv;
+
       if (sb.isNotEmpty) sb.write('&');
 
       final encodedKey = encode(k);
@@ -38,7 +40,7 @@ final class UrlForm {
         sb.write(encodedKey);
       } else {
         var first = true;
-        vs.forEach((v) {
+        vs.foreach((v) {
           if (!first) {
             sb.write('&');
           } else {

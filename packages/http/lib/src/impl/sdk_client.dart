@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_http/ribs_http.dart';
 
 class SdkClient {
@@ -42,9 +42,9 @@ class SdkClient {
           .flatTap((r) => IO.exec(() => req.headers
               .concat(req.body.headers)
               .headers
-              .forEach((hdr) => r.headers.add(hdr.name.value, hdr.value))))
+              .foreach((hdr) => r.headers.add(hdr.name.value, hdr.value))))
           .flatTap((a) => IO.exec(() => req.body.bodyLength
-              .forEach((len) => a.headers.add('Content-Length', len))))
+              .foreach((len) => a.headers.add('Content-Length', len))))
           .flatTap((a) => IO.fromFutureF(() => a.addStream(req.body)))
           .flatMap((ref) => IO.pure(ref).onCancel(IO.exec(ref.abort)));
 

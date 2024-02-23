@@ -25,7 +25,7 @@ final class HexDumpFormat {
   );
 
   static final Default = HexDumpFormat._(
-      true, 2, 8, true, Alphabets.hexLower, true, 0, 2147483647);
+      true, 2, 8, true, Alphabets.hexLower, true, 0, Integer.MaxValue);
 
   static final NoAnsi = Default.withAnsi(false);
 
@@ -40,7 +40,6 @@ final class HexDumpFormat {
     return bldr.toString();
   }
 
-  // ignore: avoid_print
   void printBytes(ByteVector bytes) => printBits(bytes.bits);
 
   // ignore: avoid_print
@@ -90,7 +89,7 @@ final class HexDumpFormat {
       bldr.write('  ');
     }
 
-    bytes.grouped(dataColumnWidthInBytes).forEach((columnBytes) {
+    bytes.grouped(dataColumnWidthInBytes).foreach((columnBytes) {
       _renderHex(bldr, columnBytes);
       bldr.write(' ');
     });
@@ -118,7 +117,7 @@ final class HexDumpFormat {
   }
 
   void _renderHex(StringBuffer bldr, ByteVector bytes) {
-    bytes.forEach((b) {
+    bytes.foreach((b) {
       if (ansiEnabled) {
         _Ansi.foregroundColor(bldr, _rgbForByte(b));
       }

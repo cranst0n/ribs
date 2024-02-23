@@ -69,7 +69,7 @@ sealed class Validated<E, A> implements Functor<A> {
 
   /// Returns the value of this instance if it is a [Valid], otherwise returns
   /// the result of evaluating [orElse].
-  A getOrElse(Function0<A> orElse) => fold((_) => orElse(), id);
+  A getOrElse(Function0<A> orElse) => fold((_) => orElse(), identity);
 
   /// Returns true if this instance is a [Valid], otherwise false is returned.
   bool get isValid => fold((_) => false, (_) => true);
@@ -102,7 +102,7 @@ sealed class Validated<E, A> implements Functor<A> {
 
   /// Returns a new [IList] with the valid value of this instance, if any.
   /// If this instance is [Invalid], an empty [IList] is returned.
-  IList<A> toIList() => fold((_) => nil(), (a) => IList.of([a]));
+  IList<A> toIList() => fold((_) => nil(), (a) => IList.fromDart([a]));
 
   /// Returns [None] if this instance is an [Invalid], otherwise a [Some] with
   /// the valid value.
@@ -113,7 +113,7 @@ sealed class Validated<E, A> implements Functor<A> {
       fold(Validated.invalidNel, Validated.validNel);
 
   /// Alias for [fold].
-  A valueOr(Function1<E, A> f) => fold(f, id);
+  A valueOr(Function1<E, A> f) => fold(f, identity);
 
   @override
   String toString() => fold((a) => 'Invalid($a)', (b) => 'Valid($b)');

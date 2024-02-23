@@ -24,7 +24,7 @@ final class DiscriminatorCodec<A, B> extends Codec<B> {
 
   @override
   Either<Err, BitVector> encode(B b) {
-    return cases.find((k, v) => v.tag == b.runtimeType).fold(
+    return cases.find((kv) => kv.$2.tag == b.runtimeType).fold(
         () => Either.left<Err, BitVector>(
             Err.general('Missing typecase for: ${b.runtimeType}')),
         (t) => (by.encode(t.$1), t.$2.encode(b)).mapN((a, b) => a.concat(b)));

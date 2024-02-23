@@ -44,7 +44,7 @@ final class ArrayCursor extends HCursor {
 
   @override
   HCursor replace(Json newValue, HCursor cursor, CursorOp? op) => ArrayCursor(
-      arrayValues.replace(indexValue, newValue),
+      arrayValues.updated(indexValue, newValue),
       indexValue,
       parent,
       true,

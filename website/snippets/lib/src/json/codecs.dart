@@ -194,7 +194,7 @@ void snippet6() {
 
   // Codecs can decode and encode
   final user = Json.decode(jsonStr, userCodec);
-  final str = userCodec.encode(const User('name', 20, IList.nil()));
+  final str = userCodec.encode(const User('name', 20, Nil()));
 
   // codecs-6
 }

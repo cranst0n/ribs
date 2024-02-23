@@ -392,12 +392,12 @@ abstract class Parser {
         if (c == '[') {
           iState = _ARRBEG;
           iJ = i + 1;
-          iStack = iStack.prepend(iContext);
+          iStack = iStack.prepended(iContext);
           iContext = FContext.array(i);
         } else if (c == '{') {
           iState = _OBJBEG;
           iJ = i + 1;
-          iStack = iStack.prepend(iContext);
+          iStack = iStack.prepended(iContext);
           iContext = FContext.object(i);
         } else if ((c >= '0' && c <= '9') || c == '-') {
           iJ = _parseNum(i, iContext);

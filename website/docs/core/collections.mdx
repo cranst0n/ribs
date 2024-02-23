@@ -7,18 +7,12 @@ import CollectionsSnippet from '!!raw-loader!../../snippets/lib/src/core/collect
 
 # Collections
 
-:::info
-Ribs had it's own `IList` collection implementation but it was eventually
-replaced with a version that uses <a href="https://pub.dev/packages/fast_immutable_collections">Fast Immutable Collections</a>
-under the hood for performance reasons. Ribs only has an `IList`, `IMap`,
-and `ISet` to maintain control over the public API which did not originally
-match the FIC API. Additionally, the API was designed to follow the Scala
-`List`, `Map`, and `Set` APIs as much as possible, to ease development of
-other Ribs libraries that were originally implemented in Scala.
+Ribs provides it's own collection framework, **heavily** inspired by the Scala
+standard collections library. It's primary aims are:
 
-**If you're interested in designing a fast and immutable collection in Dart,
-Ribs is *not* the place to look! Check out the FIC library!**
-:::
+* Provide **immutable** variants of standard collection types
+* Provide an **expressive and powerful** API
+* Provide comparable performance to the standart Dart library collections
 
 :::tip
 This page will only give a very short and incomplete example of each collection
@@ -28,17 +22,37 @@ get a better sense of what capabilities each provides.
 
 ## IList
 
-An ordered collection of 0 or more elements of the same type.
+An linked-list, ordered collection of 0 or more elements of the same type.
 
 <CodeSnippet language="dart" title="IList Introduction" snippet={CollectionsSnippet} section="ilist" />
 
+## IVector
+
+An ordered collection of 0 or more elements of the same type. IVector uses
+finger trees to achieve generally good, balanced performance across all
+operations. This can make it a better option than `IList` for many operations
+that linked lists don't do well with.
+
+<CodeSnippet language="dart" title="IVector Introduction" snippet={CollectionsSnippet} section="ivector" />
+
+## IChain
+
+An ordered collection of 0 or more elements of the same type. IChain provides constant
+time `append`, `prepend` and `concat` operations which make it ideal for certain
+circumstances.
+
 ## NonEmptyIList
 
-An ordered collection of **1 or more** elements of the same type. The API
-generally follows that of `IList` with a few modifications since it's known
-at compile time that it has at least one element.
+An ordered collection of **1 or more** elements of the same type.
 
 <CodeSnippet language="dart" title="NonEmptyIList Introduction" snippet={CollectionsSnippet} section="nel" />
+
+## Range
+
+Represents values in a range (inclusive or exclusive) between a start and end value, with a positive `step`
+value used to calculate successive elements.
+
+<CodeSnippet language="dart" title="Range Introduction" snippet={CollectionsSnippet} section="range" />
 
 ## IMap
 
@@ -53,3 +67,15 @@ A collection of ***unique*** element of the same type. There are no duplicate
 elements, as defined by each elements `==` method.
 
 <CodeSnippet language="dart" title="ISet Introduction" snippet={CollectionsSnippet} section="iset" />
+
+## ListBuffer
+
+A **mutable** ordered collection, analogous to IList.
+
+## MMap
+
+A **mutable** collection analogous to IMap.
+
+## MSet
+
+A **mutable** collection analogous to ISet.

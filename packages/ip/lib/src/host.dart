@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_ip/ribs_ip.dart';
 import 'package:ribs_ip/src/punycode/punycode.dart';
 
@@ -155,10 +156,10 @@ sealed class IpAddress extends Host {
       asSourceSpecificMulticastLenient() =>
           SourceSpecificMulticast.fromIpAddressLenient(this);
 
-  IpAddress collapseMappedV4() => fold(id, (v6) {
+  IpAddress collapseMappedV4() => fold(identity, (v6) {
         if (v6.isMappedV4) {
           return IpAddress.fromBytes(
-                  v6.toBytes().toIList().takeRight(4).toIterable())
+                  v6.toBytes().toIList().takeRight(4).toList())
               .getOrElse(() =>
                   throw Exception('IpAddress.collapseMappedV4 failure: $v6'));
         } else {
@@ -216,7 +217,7 @@ sealed class IpAddress extends Host {
   @override
   bool operator ==(Object that) => switch (that) {
         final IpAddress that => version == that.version &&
-            ilist(_bytes).zip(ilist(that._bytes)).forallN((a, b) => a == b),
+            ilist(_bytes).zip(ilist(that._bytes)).forall((t) => t.$1 == t.$2),
         _ => false,
       };
 
@@ -285,7 +286,7 @@ final class Ipv4Address extends IpAddress {
 
     var rem = value;
 
-    IList.rangeTo(3, 0, -1).forEach((i) {
+    Range.inclusive(3, 0, -1).foreach((i) {
       bytes[i] = rem & 0x0ff;
       rem = rem >> 8;
     });
@@ -370,8 +371,7 @@ final class Ipv4Address extends IpAddress {
   String toString() =>
       '${_bytes[0] & 0xff}.${_bytes[1] & 0xff}.${_bytes[2] & 0xff}.${_bytes[3] & 0xff}';
 
-  int toInt() =>
-      _bytes.toIList().foldLeft(0, (acc, b) => (acc << 8) | (0x0ff & b));
+  int toInt() => _bytes.fold(0, (acc, b) => (acc << 8) | (0x0ff & b));
 
   /// First IP address in the IPv4 multicast range.
   static final MulticastRangeStart = fromBytes(224, 0, 0, 0);
@@ -436,9 +436,9 @@ final class Ipv6Address extends IpAddress {
           final fieldValue = int.tryParse(field, radix: 16);
           if (fieldValue != null) {
             if (beforeCondenser) {
-              prefix = prefix.prepend(fieldValue);
+              prefix = prefix.prepended(fieldValue);
             } else {
-              suffix = suffix.prepend(fieldValue);
+              suffix = suffix.prepended(fieldValue);
             }
           } else {
             result = none();
@@ -552,7 +552,7 @@ final class Ipv6Address extends IpAddress {
     final bytes = Uint8List(16);
 
     var rem = value;
-    IList.rangeTo(15, 0, -1).forEach((i) {
+    Range.inclusive(15, 0, -1).foreach((i) {
       bytes[i] = (rem & BigInt.from(0x0ff)).toInt();
       rem = rem >> 8;
     });
@@ -775,21 +775,6 @@ final class IDN extends Host {
   static Option<String> toAscii(String s) =>
       Either.catching(() => Punycode.domainEncode(s), (err, _) => err)
           .toOption();
-
-  static String toAscii2(String s) {
-    String mapDomain(String domain, Function1<String, String> f) {
-      throw UnimplementedError();
-    }
-
-    String encode(String str) {
-      throw UnimplementedError();
-    }
-
-    final nonAsciiRegex = RegExp(r'/[^\0-\x7F]/');
-
-    return mapDomain(s,
-        (char) => nonAsciiRegex.hasMatch(char) ? 'xn--${encode(char)}' : char);
-  }
 
   @override
   String toString() => _toStringF;

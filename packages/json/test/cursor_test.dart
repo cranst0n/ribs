@@ -84,14 +84,14 @@ void main() {
 
     forAll('withFocus should have no effect when given the identity function',
         genJson, (json) {
-      expect(HCursor.fromJson(json).withFocus(id).focus(), isSome(json));
+      expect(HCursor.fromJson(json).withFocus(identity).focus(), isSome(json));
     });
 
     test('withFocus should support adding an element to an array', () {
       final result = cursor.downField('a').success().map((a) => a.withFocus(
           (j) => j
               .asArray()
-              .fold(() => j, (a) => Json.arrI(a.prepend(Json.number(0))))));
+              .fold(() => j, (a) => Json.arrI(a.prepended(Json.number(0))))));
 
       expect(result.flatMap((a) => a.top()), isSome(j2));
     });
@@ -107,7 +107,7 @@ void main() {
         (genJson, Gen.ilistOf(Gen.chooseInt(0, 5), genJson)).tupled, (tup) {
       final (h, t) = tup;
 
-      final result = HCursor.fromJson(Json.arrI(t.prepend(h)))
+      final result = HCursor.fromJson(Json.arrI(t.prepended(h)))
           .downArray()
           .success()
           .flatMap((f) => f.delete().success());

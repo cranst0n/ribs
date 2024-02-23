@@ -32,7 +32,7 @@ final class ByteVector {
     BinaryAlphabet alphabet = Alphabets.binary,
   ]) =>
       fromBinDescriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), id);
+          .fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromBinDescriptive(
     String str, [
@@ -51,7 +51,7 @@ final class ByteVector {
     HexAlphabet alphabet = Alphabets.hexLower,
   ]) =>
       fromHexDescriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), id);
+          .fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromHexDescriptive(
     String str, [
@@ -70,7 +70,7 @@ final class ByteVector {
     Base32Alphabet alphabet = Alphabets.base32,
   ]) =>
       fromBase32Descriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), id);
+          .fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromBase32Descriptive(
     String str, [
@@ -89,7 +89,7 @@ final class ByteVector {
     Base64Alphabet alphabet = Alphabets.base64,
   ]) =>
       fromBase64Descriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), id);
+          .fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromBase64Descriptive(
     String str, [
@@ -154,9 +154,9 @@ final class ByteVector {
     if (isEmpty) {
       return nil();
     } else if (size <= chunkSize) {
-      return IList.of([this]);
+      return IList.fromDart([this]);
     } else {
-      return IList.of([take(chunkSize)])
+      return IList.fromDart([take(chunkSize)])
           .concat(drop(chunkSize).grouped(chunkSize));
     }
   }
@@ -174,7 +174,7 @@ final class ByteVector {
   A foldRight<A>(A init, Function2<Byte, A, A> f) =>
       reverse().foldLeft(init, (a, b) => f(b, a));
 
-  void forEach(Function1<int, void> f) => _underlying.forEach(f);
+  void foreach(Function1<int, void> f) => _underlying.forEach(f);
 
   Byte get head => _underlying[0];
 
@@ -278,7 +278,7 @@ final class ByteVector {
   String toBin([BinaryAlphabet alphabet = Alphabets.binary]) {
     final bldr = StringBuffer();
 
-    forEach((b) {
+    foreach((b) {
       var n = 7;
 
       while (n >= 0) {
@@ -295,7 +295,7 @@ final class ByteVector {
     final out = List.filled(size * 2, '');
     var i = 0;
 
-    forEach((b) {
+    foreach((b) {
       out[i] = alphabet.toChar(b >> 4 & 0x0f);
       out[i + 1] = alphabet.toChar(b & 0x0f);
       i += 2;

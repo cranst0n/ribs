@@ -1,4 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 import 'package:test/test.dart';
 
@@ -43,7 +44,7 @@ void main() {
     final r = Rill.empty<int>();
     final result = await r.compile().toIList().unsafeRunFuture();
 
-    expect(result, const IList<int>.nil());
+    expect(result, const Nil<int>());
   });
 
   test('eval', () async {

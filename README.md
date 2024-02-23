@@ -41,14 +41,12 @@ that you won't find here.
 * [fpdart](https://github.com/SandroMaglione/fpdart)
 * [FIC](https://pub.dev/packages/fast_immutable_collections)
 
-There are also provided `compat` libraries to make it easier converting between
-similar types in those libraries if you want to use both.
-
 ### Credits
 
 Much of the design and functionality in this repository is closely derived from
 the following libraries.
 
+* [scala](https://github.com/scala/scala)
 * [cats-effect](https://github.com/typelevel/cats-effect)
 * [fs2](https://github.com/typelevel/fs2)
 * [scodec](https://github.com/scodec/scodec)

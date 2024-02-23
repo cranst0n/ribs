@@ -5,20 +5,6 @@ extension OptionSyntaxOps<A> on A {
   Option<A> get some => Some(this);
 }
 
-/// Additional functions that can be called on a nested [Option].
-extension OptionNestedOps<A> on Option<Option<A>> {
-  /// If this is a [Some], the value is returned, otherwise [None] is returned.
-  Option<A> flatten() => fold(() => none<A>(), id);
-}
-
-extension OptionIOOps<A> on Option<IO<A>> {
-  /// Returns an [IO] that will return [None] if this is a [None], or the
-  /// evaluation of the [IO] lifted into an [Option], specifically a [Some].
-  /// /// {@macro option_tupled}
-  IO<Option<A>> sequence() =>
-      fold(() => IO.pure(none()), (io) => io.map((a) => Some(a)));
-}
-
 /// Until lambda destructuring arrives, this will provide a little bit
 /// of convenience: https://github.com/dart-lang/language/issues/3001
 extension OptionTuple2Ops<A, B> on Option<(A, B)> {
@@ -31,38 +17,9 @@ extension OptionTuple2Ops<A, B> on Option<(A, B)> {
   C foldN<C>(Function0<C> ifEmpty, Function2<A, B, C> f) =>
       fold(ifEmpty, f.tupled);
 
-  void forEachN(Function2<A, B, void> ifSome) => forEach(ifSome.tupled);
+  void foreachN(Function2<A, B, void> ifSome) => foreach(ifSome.tupled);
 
   Option<C> mapN<C>(Function2<A, B, C> f) => map(f.tupled);
-
-  IO<Option<C>> traverseION<C>(Function2<A, B, IO<C>> f) =>
-      traverseIO(f.tupled);
-
-  IO<Unit> traverseION_<C>(Function2<A, B, IO<C>> f) => traverseIO_(f.tupled);
-}
-
-/// Until lambda destructuring arrives, this will provide a little bit
-/// of convenience: https://github.com/dart-lang/language/issues/3001
-extension OptionTuple3Ops<A, B, C> on Option<(A, B, C)> {
-  Option<(A, B, C)> filterN(Function3<A, B, C, bool> p) => filter(p.tupled);
-
-  Option<(A, B, C)> filterNotN(Function3<A, B, C, bool> p) =>
-      filterNot(p.tupled);
-
-  Option<D> flatMapN<D>(Function3<A, B, C, Option<D>> f) => flatMap(f.tupled);
-
-  D foldN<D>(Function0<D> ifEmpty, Function3<A, B, C, D> f) =>
-      fold(ifEmpty, f.tupled);
-
-  void forEachN(Function3<A, B, C, void> ifSome) => forEach(ifSome.tupled);
-
-  Option<D> mapN<D>(Function3<A, B, C, D> f) => map(f.tupled);
-
-  IO<Option<D>> traverseION<D>(Function3<A, B, C, IO<D>> f) =>
-      traverseIO(f.tupled);
-
-  IO<Unit> traverseION_<D>(Function3<A, B, C, IO<D>> f) =>
-      traverseIO_(f.tupled);
 }
 
 /// {@template option_tuple_ops}

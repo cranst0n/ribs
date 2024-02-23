@@ -1,4 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/ribs_effect.dart';
 
 class CompositeError extends RuntimeException {
   final RuntimeException head;
@@ -16,15 +17,15 @@ class CompositeError extends RuntimeException {
   static CompositeError from(
     RuntimeException first,
     RuntimeException second, [
-    IList<RuntimeException> rest = const IList.nil(),
+    IList<RuntimeException> rest = const Nil(),
   ]) =>
-      CompositeError(first, NonEmptyIList.of(second, rest.toList()));
+      CompositeError(first, nel(second, rest.toList()));
 
   static RuntimeException fromNel(NonEmptyIList<RuntimeException> errors) =>
-      errors.tail.headOption.fold(
-        () => errors.head,
-        (second) => from(errors.head, second, errors.tail.tail()),
-      );
+      errors.tail().headOption.fold(
+            () => errors.head,
+            (second) => from(errors.head, second, errors.tail().tail()),
+          );
 
   static Option<RuntimeException> fromIList(IList<RuntimeException> errors) =>
       errors.uncons((x) => x.map((a) => fromNel(NonEmptyIList(a.$1, a.$2))));

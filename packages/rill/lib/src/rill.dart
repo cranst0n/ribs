@@ -1,4 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
 final class Rill<O> {
@@ -94,7 +95,7 @@ final class Rill<O> {
                     final (acc, last) = accLast;
 
                     if (f(last, o)) {
-                      return (acc.append(o), o);
+                      return (acc.appended(o), o);
                     } else {
                       return (acc, last);
                     }
@@ -143,7 +144,7 @@ final class Rill<O> {
 }
 
 extension RillNestedOps<O> on Rill<Rill<O>> {
-  Rill<O> flatten() => flatMap(id);
+  Rill<O> flatten() => flatMap(identity);
 }
 
 final class StepLeg<O> {

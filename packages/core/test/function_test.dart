@@ -16,7 +16,7 @@ void main() {
     (int, int, int) n3(int a) => n2(a).append(a + 2);
 
     forAll('identity', Gen.positiveInt, (a) {
-      expect(id(a), a);
+      expect(identity(a), a);
     });
 
     test('andThen', () {

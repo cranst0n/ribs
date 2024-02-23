@@ -77,7 +77,7 @@ final class _LinkedHashMapJsonObject extends JsonObject {
   bool get isEmpty => fields.isEmpty;
 
   @override
-  IList<String> get keys => IList.of(fields.keys);
+  IList<String> get keys => IList.fromDart(fields.keys);
 
   @override
   JsonObject mapValues(Function1<Json, Json> f) => _LinkedHashMapJsonObject(
@@ -92,10 +92,10 @@ final class _LinkedHashMapJsonObject extends JsonObject {
 
   @override
   IList<(String, Json)> toIList() =>
-      IList.of(fields.entries).map((e) => (e.key, e.value));
+      IList.fromDart(fields.entries).map((e) => (e.key, e.value));
 
   @override
-  IList<Json> get values => IList.of(fields.values);
+  IList<Json> get values => IList.fromDart(fields.values);
 
   @override
   String toString() {

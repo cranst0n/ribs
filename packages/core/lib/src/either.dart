@@ -13,7 +13,7 @@ import 'package:ribs_core/ribs_core.dart';
 /// the Right value, if present. If the Either has a Left value, the original
 /// Either is returned.
 @immutable
-sealed class Either<A, B> implements Monad<B>, Foldable<B> {
+sealed class Either<A, B> implements Monad<B> {
   const Either();
 
   /// Lifts the given value into a [Left].
@@ -74,6 +74,9 @@ sealed class Either<A, B> implements Monad<B>, Foldable<B> {
   Either<A, B> ensure(Function1<B, bool> p, Function0<A> onFailure) =>
       fold((_) => this, (b) => p(b) ? this : left(onFailure()));
 
+  bool exists(Function1<B, bool> p) =>
+      foldLeft(false, (acc, elem) => acc || p(elem));
+
   /// Checks if the value of this [Right] satisfies the given predicate [p].
   /// If this is a [Left] or if the [Right] value does not satisfy [p], then
   /// the value is replaced by the result of evaluating [zero].
@@ -88,19 +91,20 @@ sealed class Either<A, B> implements Monad<B>, Foldable<B> {
 
   /// Applies [op] to [init] and this value if this is a [Right]. If this is
   /// a [Left], [init] is returned.
-  @override
   R2 foldLeft<R2>(R2 init, Function2<R2, B, R2> op) =>
       fold((_) => init, (r) => op(init, r));
 
   /// Applies [op] to this value and [init] if this is a [Right]. If this is
   /// a [Left], [init] is returned.
-  @override
   R2 foldRight<R2>(R2 init, Function2<B, R2, R2> op) =>
       fold((_) => init, (r) => op(r, init));
 
+  bool forall(Function1<B, bool> p) =>
+      foldLeft(true, (acc, elem) => acc && p(elem));
+
   /// Returns thes value if this is a [Right], otherwise, the result of
   /// evaluating [orElse] is returned.
-  B getOrElse(Function0<B> orElse) => fold((_) => orElse(), id);
+  B getOrElse(Function0<B> orElse) => fold((_) => orElse(), identity);
 
   /// Returns true if this is a [Left], otherwise false is returned.
   bool get isLeft => fold((_) => true, (_) => false);
@@ -134,7 +138,7 @@ sealed class Either<A, B> implements Monad<B>, Foldable<B> {
 
   /// Converts this Either to an [IList] with one element if this instance is
   /// a [Right] or an empty [IList] if this is a [Left].
-  IList<B> toIList() => fold((_) => nil<B>(), (b) => IList.pure(b));
+  IList<B> toIList() => fold((_) => nil<B>(), (b) => IList.fromDart([b]));
 
   /// Converts this Either to an [Option]. If this instance is a [Right], the
   /// value will be returned as a [Some]. If this instance is a [Left], [None]
@@ -180,5 +184,5 @@ final class Right<A, B> extends Either<A, B> {
 
 extension EitherNestedOps<A, B> on Either<A, Either<A, B>> {
   /// Extracts the nested [Either] via [fold].
-  Either<A, B> flatten() => fold((a) => Either.left<A, B>(a), id);
+  Either<A, B> flatten() => fold((a) => Either.left<A, B>(a), identity);
 }

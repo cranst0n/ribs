@@ -18,6 +18,18 @@ abstract class Order<A> {
   /// Creates a new [Order] that compares 2 elements using [f].
   factory Order.from(Function2<A, A, int> f) => _OrderF(f);
 
+  factory Order.fromLessThan(Function2<A, A, bool> cmp) {
+    return Order.from((x, y) {
+      if (cmp(x, y)) {
+        return -1;
+      } else if (cmp(y, x)) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+  }
+
   /// Creates a new [Order] for type `A` by applying [f] to and instances and
   /// comparing the resulting [Comparable].
   static Order<A> by<A, B extends Comparable<dynamic>>(Function1<A, B> f) =>
@@ -71,6 +83,14 @@ abstract class Order<A> {
 
   /// Returns a new [Order] that reverses the evaluation of this [Order].
   Order<A> reverse() => _OrderF((a, b) => compare(b, a));
+
+  Order<B> contramap<B>(Function1<B, A> f) =>
+      _OrderF((x, y) => this.compare(f(x), f(y)));
+
+  bool isReverseOf(Order<A> other) => switch (other) {
+        _ReverseOrder(:final outer) => outer == this,
+        _ => false,
+      };
 }
 
 final class _OrderF<A> extends Order<A> {
@@ -80,4 +100,19 @@ final class _OrderF<A> extends Order<A> {
 
   @override
   int compare(A x, A y) => compareTo(x, y);
+}
+
+final class _ReverseOrder<A> extends Order<A> {
+  final Order<A> outer;
+
+  const _ReverseOrder(this.outer);
+
+  @override
+  int compare(A x, A y) => outer.compare(y, x);
+
+  @override
+  bool isReverseOf(Order<A> other) => outer == other;
+
+  @override
+  Order<A> reverse() => outer;
 }

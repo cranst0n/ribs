@@ -31,7 +31,7 @@ class AppConfig {
     '/tmp',
     '1.0.2',
     DBConfig(Credentials('user', 'pass'), 1234, 'dbhost'.some),
-    Languages(NonEmptyIList.of(Language('en', 'English'), [
+    Languages(nel(Language('en', 'English'), [
       Language('es', 'Spanish'),
       Language('fr', 'French'),
       Language('de', 'German'),
@@ -170,7 +170,7 @@ class Language {
   String toString() => 'Language($code, $comment)';
 
   @override
-  bool operator ==(Object? other) => other is Language && other.code == code;
+  bool operator ==(Object other) => other is Language && other.code == code;
 
   @override
   int get hashCode => code.hashCode;

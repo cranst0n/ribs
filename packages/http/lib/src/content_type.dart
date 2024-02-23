@@ -17,7 +17,8 @@ final class ContentType {
       Either.catching(() => io.ContentType.parse(s), (_, __) => '')
           .toOption()
           .map((ct) => ContentType(
-              MediaType(ct.primaryType, ct.subType), Option(ct.charset)));
+              MediaType(ct.primaryType, IMap.empty(), ct.subType),
+              Option(ct.charset)));
 
   ContentType copy({
     MediaType? mediaType,

@@ -603,14 +603,14 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
   ) =>
-      product2(codecA, codecB, (a, b) => (a, b), id);
+      product2(codecA, codecB, (a, b) => (a, b), identity);
 
   static Codec<(A, B, C)> tuple3<A, B, C>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
     KeyValueCodec<C> codecC,
   ) =>
-      product3(codecA, codecB, codecC, (a, b, c) => (a, b, c), id);
+      product3(codecA, codecB, codecC, (a, b, c) => (a, b, c), identity);
 
   static Codec<(A, B, C, D)> tuple4<A, B, C, D>(
     KeyValueCodec<A> codecA,
@@ -618,8 +618,8 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<C> codecC,
     KeyValueCodec<D> codecD,
   ) =>
-      product4(
-          codecA, codecB, codecC, codecD, (a, b, c, d) => (a, b, c, d), id);
+      product4(codecA, codecB, codecC, codecD, (a, b, c, d) => (a, b, c, d),
+          identity);
 
   static Codec<(A, B, C, D, E)> tuple5<A, B, C, D, E>(
     KeyValueCodec<A> codecA,
@@ -629,7 +629,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<E> codecE,
   ) =>
       product5(codecA, codecB, codecC, codecD, codecE,
-          (a, b, c, d, e) => (a, b, c, d, e), id);
+          (a, b, c, d, e) => (a, b, c, d, e), identity);
 
   static Codec<(A, B, C, D, E, F)> tuple6<A, B, C, D, E, F>(
     KeyValueCodec<A> codecA,
@@ -640,7 +640,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<F> codecF,
   ) =>
       product6(codecA, codecB, codecC, codecD, codecE, codecF,
-          (a, b, c, d, e, f) => (a, b, c, d, e, f), id);
+          (a, b, c, d, e, f) => (a, b, c, d, e, f), identity);
 
   static Codec<(A, B, C, D, E, F, G)> tuple7<A, B, C, D, E, F, G>(
     KeyValueCodec<A> codecA,
@@ -652,7 +652,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<G> codecG,
   ) =>
       product7(codecA, codecB, codecC, codecD, codecE, codecF, codecG,
-          (a, b, c, d, e, f, g) => (a, b, c, d, e, f, g), id);
+          (a, b, c, d, e, f, g) => (a, b, c, d, e, f, g), identity);
 
   static Codec<(A, B, C, D, E, F, G, H)> tuple8<A, B, C, D, E, F, G, H>(
     KeyValueCodec<A> codecA,
@@ -665,7 +665,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<H> codecH,
   ) =>
       product8(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-          (a, b, c, d, e, f, g, h) => (a, b, c, d, e, f, g, h), id);
+          (a, b, c, d, e, f, g, h) => (a, b, c, d, e, f, g, h), identity);
 
   static Codec<(A, B, C, D, E, F, G, H, I)> tuple9<A, B, C, D, E, F, G, H, I>(
     KeyValueCodec<A> codecA,
@@ -689,7 +689,7 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecH,
           codecI,
           (a, b, c, d, e, f, g, h, i) => (a, b, c, d, e, f, g, h, i),
-          id);
+          identity);
 
   static Codec<(A, B, C, D, E, F, G, H, I, J)>
       tuple10<A, B, C, D, E, F, G, H, I, J>(
@@ -716,7 +716,7 @@ final class KeyValueCodec<A> extends Codec<A> {
               codecI,
               codecJ,
               (a, b, c, d, e, f, g, h, i, j) => (a, b, c, d, e, f, g, h, i, j),
-              id);
+              identity);
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K)>
       tuple11<A, B, C, D, E, F, G, H, I, J, K>(
@@ -746,7 +746,7 @@ final class KeyValueCodec<A> extends Codec<A> {
               codecK,
               (a, b, c, d, e, f, g, h, i, j, k) =>
                   (a, b, c, d, e, f, g, h, i, j, k),
-              id);
+              identity);
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L)>
       tuple12<A, B, C, D, E, F, G, H, I, J, K, L>(
@@ -778,7 +778,7 @@ final class KeyValueCodec<A> extends Codec<A> {
               codecL,
               (a, b, c, d, e, f, g, h, i, j, k, l) =>
                   (a, b, c, d, e, f, g, h, i, j, k, l),
-              id);
+              identity);
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M)>
       tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>(
@@ -812,7 +812,7 @@ final class KeyValueCodec<A> extends Codec<A> {
               codecM,
               (a, b, c, d, e, f, g, h, i, j, k, l, m) =>
                   (a, b, c, d, e, f, g, h, i, j, k, l, m),
-              id);
+              identity);
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M, N)>
       tuple14<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
@@ -848,7 +848,7 @@ final class KeyValueCodec<A> extends Codec<A> {
               codecN,
               (a, b, c, d, e, f, g, h, i, j, k, l, m, n) =>
                   (a, b, c, d, e, f, g, h, i, j, k, l, m, n),
-              id);
+              identity);
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)>
       tuple15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
@@ -886,5 +886,5 @@ final class KeyValueCodec<A> extends Codec<A> {
               codecO,
               (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) =>
                   (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o),
-              id);
+              identity);
 }

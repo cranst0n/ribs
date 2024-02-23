@@ -26,7 +26,7 @@ class _IsLeft<A, B> extends Matcher {
   @override
   Description describe(Description description) {
     if (_expected != null) {
-      return description.add(Either.left<A, B>(_expected as A).toString());
+      return description.add(Either.left<A, B>(_expected).toString());
     } else {
       return description.add('Left<$A, $B>()');
     }
@@ -54,7 +54,7 @@ class _IsRight<A, B> extends Matcher {
   @override
   Description describe(Description description) {
     if (_expected != null) {
-      return description.add(Either.right<A, B>(_expected as B).toString());
+      return description.add(Either.right<A, B>(_expected).toString());
     } else {
       return description.add('Right<$A, $B>()');
     }

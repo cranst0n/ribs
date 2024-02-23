@@ -1,8 +1,6 @@
 include: package:lint/strict.yaml
 
 analyzer:
-  plugins:
-    - daco
   language:
     strict-inference: true
     strict-raw-types: true

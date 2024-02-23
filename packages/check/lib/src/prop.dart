@@ -69,7 +69,7 @@ final class Prop<T> {
         final shrunkenFailure = await firstFailure.fold(
             () => Future.value(firstFailure), (a) => _shrink(a, testBody));
 
-        shrunkenFailure.forEach((a) {
+        shrunkenFailure.foreach((a) {
           throw TestFailure(
               '${a.underlying.message} Failed after $count iterations using value <${a.value}> and initial seed of [$seedNN].');
         });

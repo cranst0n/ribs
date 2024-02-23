@@ -12,7 +12,7 @@ final class Headers {
 
   const Headers.ilist(this.headers);
 
-  Headers add(Header header) => Headers.ilist(headers.append(header));
+  Headers add(Header header) => Headers.ilist(headers.appended(header));
 
   Headers concat(Headers those) {
     if (those.headers.isEmpty) {
@@ -46,7 +46,7 @@ final class Headers {
   @override
   String toString() => headers.mkString(start: '[', sep: ', ', end: ']');
 
-  static const empty = Headers.ilist(IList.nil());
+  static const empty = Headers.ilist(Nil());
 
   static ISet<CIString> sensitiveHeaders =
       iset({Authorization.name, Cookie.name, SetCookie.name});

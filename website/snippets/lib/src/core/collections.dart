@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:ribs_core/ribs_core.dart';
 
 // ilist
@@ -18,6 +20,19 @@ final maybe4 = l.find((a) => a == 4);
 
 // ilist
 
+// ivector
+
+final v = ivec([1, 2, 3]);
+
+final perms = v.permutations();
+final sliding = v.sliding(2, 2);
+final evensMinus1 = v.collect((x) => Option.when(() => x.isEven, () => x - 1));
+
+final scanVec = v.scan(0, (a, b) => a + b);
+final sortedVec = v.sorted(Order.ints.reverse());
+
+// ivector
+
 // nel
 
 final nonEmptyList = nel(1, [2, 3, 4, 5]);
@@ -27,17 +42,25 @@ final nelOdds = nonEmptyList.filter((a) => a.isOdd);
 
 // nel
 
+// range
+
+final rInc = Range.inclusive(0, 5).tapEach(print); // 0, 1, 2, 3, 4, 5
+final rExc0 = Range.exclusive(0, 5).by(2).tapEach(print); // 0, 2, 4
+final rExc1 = Range.exclusive(0, 5, 2).tapEach(print); // 0, 2, 4
+
+// range
+
 // imap
 
-final map = IMap.fromIterable([
-  ('red', 1),
-  ('orange', 2),
-  ('yellow', 3),
-  ('green', 4),
-  ('blue', 5),
-  ('indigo', 6),
-  ('violet', 7),
-]);
+final map = imap({
+  'red': 1,
+  'orange': 2,
+  'yellow': 3,
+  'green': 4,
+  'blue': 5,
+  'indigo': 6,
+  'violet': 7,
+});
 
 final updatedMap = map.updated('green', 90);
 final defaultValue = map.withDefaultValue(-1);
@@ -47,10 +70,10 @@ final defaultValue2 = map.withDefault((key) => key.length);
 
 // iset
 
-final iset = ISet.of([1, 3, 5, 7, 9]);
+final aSet = iset([1, 3, 5, 7, 9]);
 
-final remove5 = iset.excl(5);
-final remove1and9 = iset.removedAll([1, 9]);
-final add11 = iset + 11;
+final remove5 = aSet.excl(5);
+final remove1and9 = aSet.removedAll(iset([1, 9]));
+final add11 = aSet + 11;
 
 // iset

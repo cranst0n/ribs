@@ -6,8 +6,6 @@ void main() {
   const testSome = Some(1);
   const testNone = None<int>();
 
-  int incInt(int i) => i + 1;
-
   group('Option', () {
     test('constructor', () {
       expect(Option(1), isSome(1));
@@ -22,15 +20,6 @@ void main() {
     test('when', () {
       expect(Option.when(() => true, () => 1), isSome(1));
       expect(Option.when(() => false, () => 1), isNone());
-    });
-
-    test('ap', () {
-      final noneF = none<Function1<int, int>>();
-
-      expect(testSome.ap(incInt.some), isSome(2));
-      expect(testSome.ap(noneF), isNone());
-      expect(testNone.ap(incInt.some), isNone());
-      expect(testNone.ap(noneF), isNone());
     });
 
     test('isDefined', () {
@@ -79,13 +68,13 @@ void main() {
       expect(testNone.getOrElse(() => 42), 42);
     });
 
-    test('forEach', () {
+    test('foreach', () {
       var count = 0;
 
-      testNone.forEach((a) => count += a);
+      testNone.foreach((a) => count += a);
       expect(count, 0);
 
-      testSome.forEach((a) => count += a);
+      testSome.foreach((a) => count += a);
       expect(count, 1);
     });
 
@@ -106,7 +95,7 @@ void main() {
     });
 
     test('toIList', () {
-      expect(testSome.toIList(), IList.of([1]));
+      expect(testSome.toIList(), IList.fromDart([1]));
       expect(testNone.toIList(), isEmpty);
     });
 
@@ -128,34 +117,6 @@ void main() {
     test('toString', () {
       expect(Option.pure(1).toString(), 'Some(1)');
       expect(none<int>().toString(), 'None');
-    });
-
-    test('traverseIO', () {
-      expect(
-        const Some(1).traverseIO((a) => IO.pure(a * 2)),
-        ioSucceeded(const Some(2)),
-      );
-
-      expect(
-        none<int>().traverseIO((a) => IO.pure(a * 2)),
-        ioSucceeded(none<int>()),
-      );
-    });
-
-    test('traverseIO_', () async {
-      var count = 0;
-
-      await expectLater(
-        const Some(1).traverseIO((a) => IO.exec(() => count += 1)),
-        ioSucceeded(),
-      );
-      expect(count, 1);
-
-      await expectLater(
-        none<int>().traverseIO_((a) => IO.exec(() => count += 1)),
-        ioSucceeded(),
-      );
-      expect(count, 1);
     });
 
     test('hashCode', () {

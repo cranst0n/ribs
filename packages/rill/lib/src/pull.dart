@@ -1,6 +1,7 @@
 // ignore_for_file: strict_raw_type
 
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
 sealed class Pull<O, R> {
@@ -31,7 +32,7 @@ sealed class Pull<O, R> {
     return acquire.flatMap((a) {
       final used = Either.catching(
               () => use(a), (e, s) => _Fail<O>(RuntimeException(e, s)))
-          .fold(id, id);
+          .fold(identity, identity);
 
       return _transformWith(used, (result) {
         final exitCase = result.fold(
@@ -183,12 +184,12 @@ sealed class Pull<O, R> {
             case final _Terminal<X, dynamic> r:
               return viewL(b(r));
             default:
-              throw UnimplementedError('Pull.compile.viewL.bind: ${b.step}');
+              throw StateError('Pull.compile.viewL.bind: ${b.step}');
           }
         case final _Terminal<X, Unit> r:
           return r;
         default:
-          throw UnimplementedError('Pull.compile.viewL: $free');
+          throw StateError('Pull.compile.viewL: $free');
       }
     }
 
@@ -209,10 +210,10 @@ sealed class Pull<O, R> {
         case final _Succeeded _:
           return interruption;
         case final _Fail f:
-          final errs = interruption.deferredError.toIList().append(f.error);
+          final errs = interruption.deferredError.toIList().appended(f.error);
           return _Fail(CompositeError.fromIList(errs).getOrElse(() => f.error));
         default:
-          throw UnimplementedError('Pull.compile.interruptBoundary: $v');
+          throw StateError('Pull.compile.interruptBoundary: $v');
       }
     }
 
@@ -398,7 +399,8 @@ sealed class Pull<O, R> {
         return scope.findInLineage(close.scopeId).flatMap((s) {
           return s.fold(
             () {
-              final result = close.interruption.fold(() => _unit<X>(), id);
+              final result =
+                  close.interruption.fold(() => _unit<X>(), identity);
               return go(scope, extendedTopLevelScope, runner, viewCont(result));
             },
             (toClose) {
@@ -473,7 +475,7 @@ sealed class Pull<O, R> {
                         return interruptBoundary(tail, i)
                             .flatMapOutput(fun.call);
                       default:
-                        throw UnimplementedError(
+                        throw StateError(
                             'Pull.compile.go.flatMapR.unconsed: $t');
                     }
                   });
@@ -625,7 +627,7 @@ sealed class Pull<O, R> {
         case final _Interrupted<X> inter:
           return runner.interrupted(inter);
         default:
-          throw UnimplementedError('Pull.compile.go: $vl');
+          throw StateError('Pull.compile.go: $vl');
       }
     }
 
@@ -722,7 +724,7 @@ sealed class _Terminal<O, R> extends Pull<O, R> with _ViewL<O> {
       case final _Interrupted<O> i:
         return interrupted(i);
       default:
-        throw UnimplementedError('_Terminal.fold');
+        throw StateError('_Terminal.fold');
     }
   }
 }
@@ -1066,7 +1068,7 @@ class _OuterRun<O, B> extends _Run<O, IO<B>> {
             () => RuntimeException(e, s),
             (err2) => CompositeError.from(err2, err)));
       } else {
-        throw UnimplementedError('OuterRun.catch: $viewTail');
+        throw StateError('OuterRun.catch: $viewTail');
       }
     }
   }

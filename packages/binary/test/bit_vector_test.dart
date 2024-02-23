@@ -80,7 +80,7 @@ void main() {
 
   forAll('getByte', bitVector, (x) {
     final bytes = x.bytes();
-    IList.range(0, (x.size + 7) ~/ 8).forEach((i) {
+    Range.exclusive(0, (x.size + 7) ~/ 8).foreach((i) {
       expect(bytes(i), x.getByte(i));
     });
   });
@@ -143,7 +143,7 @@ void main() {
 
   forAll('containsSlice', bitVector, (bv) {
     if (bv.nonEmpty) {
-      IList.range(0, bv.size).forEach((n) {
+      Range.exclusive(0, bv.size).foreach((n) {
         expect(bv.containsSlice(bv.drop(n)), isTrue);
       });
     } else {
@@ -165,7 +165,7 @@ void main() {
   });
 
   forAll('endsWith', bitVector, (bv) {
-    IList.range(0, bv.size).forEach((n) {
+    Range.exclusive(0, bv.size).foreach((n) {
       expect(bv.endsWith(bv.drop(n)), isTrue);
     });
   });

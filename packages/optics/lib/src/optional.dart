@@ -7,7 +7,7 @@ class POptional<S, T, A, B> extends PSetter<S, T, A, B> with Fold<S, A> {
   final Function1<S, Either<T, A>> getOrModify;
 
   POptional(this.getOrModify, Function2C<B, S, T> set)
-      : super((f) => (s) => getOrModify(s).fold(id, (a) => set(f(a))(s)));
+      : super((f) => (s) => getOrModify(s).fold(identity, (a) => set(f(a))(s)));
 
   Option<A> getOption(S s) => getOrModify(s).toOption();
 

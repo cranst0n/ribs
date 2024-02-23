@@ -21,6 +21,7 @@ const sidebars = {
       collapsed: false,
       items: [
         { type: 'link', label: 'Core', href: 'https://pub.dev/documentation/ribs_core/latest/ribs_core/ribs_core-library.html' },
+        { type: 'link', label: 'Effect', href: 'https://pub.dev/documentation/ribs_core/latest/ribs_effect/ribs_effect-library.html' },
         { type: 'link', label: 'JSON', href: 'https://pub.dev/documentation/ribs_json/latest/ribs_json/ribs_json-library.html' },
         { type: 'link', label: 'Binary', href: 'https://pub.dev/documentation/ribs_binary/latest/ribs_binary/ribs_binary-library.html' },
         { type: 'link', label: 'Optics', href: 'https://pub.dev/documentation/ribs_optics/latest/ribs_optics/ribs_optics-library.html' },

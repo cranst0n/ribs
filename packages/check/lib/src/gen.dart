@@ -4,7 +4,7 @@ import 'dart:collection';
 import 'package:ribs_check/src/stateful_random.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-final class Gen<A> extends Monad<A> {
+final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
   final State<StatefulRandom, A> sample;
   final Shrinker<A>? shrinker;
 
@@ -122,7 +122,7 @@ final class Gen<A> extends Monad<A> {
   static Gen<double> chooseDouble(
     double min,
     double max, {
-    IList<double> specials = const IList.nil(),
+    IList<double> specials = const Nil(),
   }) =>
       chooseNum(min, max, ilist([min, max, 0.0, 1.0, -1.0]).concat(specials),
           Choose.dubble);
@@ -133,7 +133,7 @@ final class Gen<A> extends Monad<A> {
   static Gen<int> chooseInt(
     int min,
     int max, {
-    IList<int> specials = const IList.nil(),
+    IList<int> specials = const Nil(),
   }) =>
       chooseNum(min, max, ilist([min, max, 0, 1, -1]).concat(specials),
           Choose.integer);
@@ -149,7 +149,7 @@ final class Gen<A> extends Monad<A> {
         .map((t) => (1, constant(t)));
     final others = (basicsAndSpecials.size, choose.choose(min, max));
 
-    return frequency(basicsAndSpecials.append(others).toList());
+    return frequency(basicsAndSpecials.appended(others).toList());
   }
 
   static Gen<A> constant<A>(A a) => Gen(State.pure(a));
@@ -217,7 +217,7 @@ final class Gen<A> extends Monad<A> {
 
   static Gen<IMap<A, B>> imapOfN<A, B>(
           int size, Gen<A> keyGen, Gen<B> valueGen) =>
-      mapOfN(size, keyGen, valueGen).map(IMap.fromMap);
+      mapOfN(size, keyGen, valueGen).map(IMap.fromDart);
 
   static Gen<IList<A>> ilistOf<A>(Gen<int> sizeGen, Gen<A> gen) =>
       sizeGen.flatMap((size) => ilistOfN(size, gen));
@@ -249,10 +249,11 @@ final class Gen<A> extends Monad<A> {
       nonEmptyStringOf(hexChar, size);
 
   static Gen<NonEmptyIList<A>> nonEmptyIList<A>(Gen<A> gen, [int? limit]) =>
-      Choose.integer.choose(1, limit ?? 1000).flatMap((size) =>
-          Gen.listOfN(size, gen).map(NonEmptyIList.fromIterableUnsafe));
+      Choose.integer
+          .choose(1, limit ?? 1000)
+          .flatMap((size) => Gen.ilistOfN(size, gen).map(NonEmptyIList.unsafe));
 
-  static Gen<int> nonNegativeInt = chooseInt(0, _intMaxValue);
+  static Gen<int> nonNegativeInt = chooseInt(0, Integer.MaxValue);
 
   static Gen<String> numChar = charSample('01234567890');
 
@@ -269,13 +270,13 @@ final class Gen<A> extends Monad<A> {
   static Gen<Option<A>> option<A>(Gen<A> a) =>
       frequency([(1, constant(none<A>())), (9, some(a))]);
 
-  static Gen<int> positiveInt = chooseInt(1, _intMaxValue);
+  static Gen<int> positiveInt = chooseInt(1, Integer.MaxValue);
 
   static Gen<Option<A>> some<A>(Gen<A> a) => a.map((a) => Some(a));
 
   static Gen<IList<A>> sequence<A>(IList<Gen<A>> gs) => gs.foldLeft(
       constant(nil<A>()),
-      (acc, elem) => acc.flatMap((x) => elem.map((a) => x.append(a))));
+      (acc, elem) => acc.flatMap((x) => elem.map((a) => x.appended(a))));
 
   static Gen<String> stringOf(Gen<String> char, [int? limit]) =>
       listOf(Gen.chooseInt(0, limit ?? 100), char).map((a) => a.join());
@@ -284,30 +285,18 @@ final class Gen<A> extends Monad<A> {
       listOf(Gen.chooseInt(1, limit ?? 100), char).map((a) => a.join());
 
   static Gen<String> charSample(String chars) => oneOf(chars.split(''));
-
-  static const int _intMaxValue = 2147483647;
 }
 
 final class Streams {
-  static Stream<A> unfold<A>(A initial, Function1<A, Option<A>> f) {
-    final controller = StreamController<A>();
+  static Stream<A> unfold<A>(A initial, Function1<A, Option<A>> f) async* {
+    Option<A> state = Some(initial);
 
-    var closeController = false;
-    controller.onCancel = () => closeController = true;
+    while (state.isDefined) {
+      final next = f(state.getOrElse(() => throw ''));
+      state = next;
 
-    void step(A a) {
-      f(a).filter((_) => !closeController).fold(
-          () => controller.close(),
-          (a) => controller
-              .addStream(Stream.value(a))
-              .whenComplete(() => step(a)));
+      if (state.isDefined) yield state.getOrElse(() => throw '');
     }
-
-    controller
-        .addStream(Stream.value(initial))
-        .whenComplete(() => step(initial));
-
-    return controller.stream;
   }
 }
 
@@ -342,11 +331,13 @@ final class Choose<A> {
         shrinker: Shrinker.dubble,
       ));
 
-  static Choose<int> integer = Choose((int min, int max) => Gen(
-        State((r) =>
-            r.nextInt(max - min).call((rand, value) => (rand, value + min))),
-        shrinker: Shrinker.integer,
-      ));
+  static Choose<int> integer = Choose((int min, int max) {
+    return Gen(
+      State((r) =>
+          r.nextInt(max - min).call((rand, value) => (rand, value + min))),
+      shrinker: Shrinker.integer,
+    );
+  });
 }
 
 extension GenTuple2Ops<A, B> on (Gen<A>, Gen<B>) {

@@ -1,4 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_http/ribs_http.dart';
 import 'package:ribs_http/src/impl/sdk_client.dart';
 import 'package:ribs_json/ribs_json.dart';

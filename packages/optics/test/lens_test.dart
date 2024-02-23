@@ -47,9 +47,9 @@ void main() {
         isTrue,
       );
 
-      final noFrench = AppConfig.supportedLanguages.modify((langs) =>
-          NonEmptyIList.of(langs.head,
-              langs.tail.filter((a) => a.code != 'fr').toList()))(config);
+      final noFrench = AppConfig.supportedLanguages.modify((langs) => nel(
+          langs.head,
+          langs.tail().filter((a) => a.code != 'fr').toList()))(config);
 
       expect(
         AppConfig.supportedLanguages

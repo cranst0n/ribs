@@ -7,6 +7,7 @@ import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:fpdart/fpdart.dart' as fpdart;
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/ribs_effect.dart';
 
 // If you're reading this, beware because these comparisons may not be fair.
 // I made an effort to get as close to similar functionality as possible.

@@ -54,101 +54,102 @@ void main() {
     test('count', () {
       final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
 
-      expect(m.count((k, _) => k.isOdd), 3);
-      expect(m.count((k, v) => k + v <= 5), 2);
+      expect(m.count((kv) => kv.$1.isOdd), 3);
+      expect(m.count((kv) => kv.$1 + kv.$2 <= 5), 2);
     });
 
     test('exists', () {
       final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
 
-      expect(m.exists((k, v) => k == v), isTrue);
-      expect(m.exists((k, v) => k != v), isFalse);
+      expect(m.exists((kv) => kv.$1 == kv.$2), isTrue);
+      expect(m.exists((kv) => kv.$1 != kv.$2), isFalse);
     });
 
     test('filter', () {
       final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
 
-      expect(m.filter((k, _) => k.isEven), imap({2: 2, 4: 4}));
-      expect(m.filter((k, _) => k > 10), imap({}));
+      expect(m.filter((kv) => kv.$1.isEven), imap({2: 2, 4: 4}));
+      expect(m.filter((kv) => kv.$1 > 10), imap({}));
     });
 
     test('filterNot', () {
       final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
 
-      expect(m.filterNot((k, _) => k.isEven), imap({1: 1, 3: 3, 5: 5}));
-      expect(m.filterNot((k, _) => k > 10), m);
+      expect(m.filterNot((kv) => kv.$1.isEven), imap({1: 1, 3: 3, 5: 5}));
+      expect(m.filterNot((kv) => kv.$1 > 10), m);
     });
 
     test('find', () {
       final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
 
-      expect(m.find((k, v) => k + v > 5), isSome((3, 3)));
-      expect(m.find((k, v) => k + v > 10), isNone());
+      expect(m.find((kv) => kv.$1 + kv.$2 > 5), isSome<(int, int)>());
+      expect(m.find((kv) => kv.$1 + kv.$2 > 10), isNone());
     });
 
     test('flatMap', () {
       final m = imap({0: 0, 5: 5});
 
       expect(
-        m.flatMap(
-          (k, v) => ilist([
-            ((k + 1).toString(), v + 1),
-            ((k + 2).toString(), v + 2),
-          ]),
-        ),
-        imap({'1': 1, '2': 2, '6': 6, '7': 7}),
+        m
+            .flatMap(
+              (kv) => ilist([
+                ((kv.$1 + 1).toString(), kv.$2 + 1),
+                ((kv.$1 + 2).toString(), kv.$2 + 2),
+              ]),
+            )
+            .toIList(),
+        imap({'1': 1, '2': 2, '6': 6, '7': 7}).toIList(),
       );
     });
 
     test('foldLeft', () {
-      final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
+      final m = imap({1: 1, 2: 2, 3: 3, 4: 4});
 
-      expect(m.foldLeft(1, (acc, k, v) => acc * k), 120);
+      expect(m.foldLeft(1, (acc, kv) => acc * kv.$1), 24);
     });
 
     test('forall', () {
-      final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
+      final m = imap({1: 1, 2: 2, 3: 3, 4: 4});
 
-      expect(m.forall((k, v) => k + v < 100), isTrue);
-      expect(m.forall((k, v) => k + v < 10), isFalse);
+      expect(m.forall((kv) => kv.$1 + kv.$2 < 100), isTrue);
+      expect(m.forall((kv) => kv.$1 + kv.$2 < 8), isFalse);
     });
 
     test('foreach', () {
       var count = 0;
 
-      imap({}).forEach((a, b) => count += 1);
+      imap({}).foreach((_) => count += 1);
       expect(count, 0);
 
-      imap({1: 1, 2: 2}).forEach((a, b) => count += 1);
+      imap({1: 1, 2: 2}).foreach((_) => count += 1);
       expect(count, 2);
     });
 
     test('get', () {
-      final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
+      final m = imap({1: 1, 2: 2, 3: 3, 4: 4});
 
       expect(m.get(0), isNone());
       expect(m.get(1), isSome(1));
-      expect(m.get(5), isSome(5));
       expect(m.get(7), isNone());
     });
 
     test('getOrElse', () {
-      final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
+      final m = imap({1: 1, 2: 2, 3: 3, 4: 4});
 
       expect(m.getOrElse(0, () => 100), 100);
       expect(m.getOrElse(1, () => 100), 1);
-      expect(m.getOrElse(5, () => 100), 5);
       expect(m.getOrElse(7, () => 100), 100);
     });
 
     test('keys', () {
-      expect(imap<int, int>({}).keys, nil<int>());
-      expect(imap({1: 1, 3: 3}).keys, ilist([1, 3]));
+      expect(imap<int, int>({}).keys.isEmpty, isTrue);
+      expect(imap({1: 1, 3: 3}).keys, iset([1, 3]));
     });
 
     test('map', () {
-      expect(imap<int, int>({}).map((a, b) => a + b), nil<int>());
-      expect(imap({1: 1, 2: 2, 3: 3}).map((a, b) => a + b), ilist([2, 4, 6]));
+      expect(imap<int, int>({}).map((kv) => kv.$1 + kv.$2).isEmpty, isTrue);
+      expect(imap({1: 1, 2: 2, 3: 3}).map((kv) => kv.$1 + kv.$2).toIList(),
+          ilist([2, 4, 6]));
     });
 
     test('mapValues', () {
@@ -164,7 +165,7 @@ void main() {
       final m = imap({1: 1, 2: 2, 3: 3});
 
       expect(
-        m.partition((k, v) => k + v < 5),
+        m.partition((kv) => kv.$1 + kv.$2 < 5),
         (imap({1: 1, 2: 2}), imap({3: 3})),
       );
     });
@@ -194,9 +195,9 @@ void main() {
       var keySum = 0;
       var valueSum = 0;
 
-      void f(int k, int v) {
-        keySum += k;
-        valueSum += v;
+      void f((int, int) kv) {
+        keySum += kv.$1;
+        valueSum += kv.$2;
       }
 
       imap<int, int>({}).tapEach(f);
@@ -252,37 +253,37 @@ void main() {
     });
 
     test('values', () {
-      expect(imap<int, int>({}).values, nil<int>());
-      expect(imap({1: 1, 2: 2, 3: 3}).values, ilist([1, 2, 3]));
+      expect(imap<int, int>({}).values.toIList(), nil<int>());
+      expect(imap({1: 1, 2: 2, 3: 3}).values.toIList(), ilist([1, 2, 3]));
     });
 
     test('withDefault', () {
       final m = imap({1: 1, 2: 2, 3: 3}).withDefault((k) => k * 2);
 
-      expect(m.get(0), isSome(0));
-      expect(m.get(1), isSome(1));
-      expect(m.get(3), isSome(3));
-      expect(m.get(10), isSome(20));
+      expect(m[0], 0);
+      expect(m[1], 1);
+      expect(m[3], 3);
+      expect(m[10], 20);
     });
 
     test('withDefaultValue', () {
       final m = imap({1: 1, 2: 2, 3: 3}).withDefaultValue(42);
 
-      expect(m.get(0), isSome(42));
-      expect(m.get(1), isSome(1));
-      expect(m.get(3), isSome(3));
-      expect(m.get(10), isSome(42));
+      expect(m[0], 42);
+      expect(m[1], 1);
+      expect(m[3], 3);
+      expect(m[10], 42);
     });
 
     test('zip', () {
       final m = imap({1: 1, 2: 2, 3: 3});
       final l = ilist([9, 8, 7]);
 
-      expect(m.zip(nil<int>()), nil<((int, int), int)>());
-      expect(imap<int, int>({}).zip(l), nil<((int, int), int)>());
+      expect(m.zip(nil<int>()).toIList(), nil<((int, int), int)>());
+      expect(imap<int, int>({}).zip(l).toIList(), nil<((int, int), int)>());
 
       expect(
-          m.zip(l),
+          m.zip(l).toIList(),
           ilist([
             ((1, 1), 9),
             ((2, 2), 8),

@@ -1,4 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_ip/src/host.dart';
 import 'package:ribs_ip/src/platform/stub.dart'
     if (dart.library.html) 'platform/web.dart'

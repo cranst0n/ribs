@@ -31,7 +31,7 @@ final class MacAddress extends Ordered<MacAddress> {
 
     var rem = value;
 
-    IList.rangeTo(-5, 0, -1).forEach((i) {
+    Range.inclusive(-5, 0, -1).foreach((i) {
       bytes[i] = rem & 0x0ff;
       rem = rem >> 8;
     });
@@ -92,7 +92,7 @@ final class MacAddress extends Ordered<MacAddress> {
   @override
   bool operator ==(Object that) => switch (that) {
         final MacAddress that =>
-          ilist(_bytes).zip(ilist(that._bytes)).forallN((a, b) => a == b),
+          ilist(_bytes).zip(ilist(that._bytes)).forall((t) => t.$1 == t.$2),
         _ => false,
       };
 
@@ -101,7 +101,7 @@ final class MacAddress extends Ordered<MacAddress> {
 
   @override
   String toString() => _bytes
-      .map((b) => b.toRadixString(16).padLeft(2, '0'))
       .toIList()
+      .map((b) => b.toRadixString(16).padLeft(2, '0'))
       .mkString(sep: ':');
 }
