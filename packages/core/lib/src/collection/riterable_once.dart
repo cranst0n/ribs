@@ -1,17 +1,17 @@
-import 'package:ribs_core/ribs_core.dart';
+// This file is derived in part from the Scala collection library.
+// https://github.com/scala/scala/blob/v2.13.x/src/library/scala/collection/
+//
+// Scala (https://www.scala-lang.org)
+//
+// Copyright EPFL and Lightbend, Inc.
+//
+// Licensed under Apache License 2.0
+// (http://www.apache.org/licenses/LICENSE-2.0).
+//
+// See the NOTICE file distributed with this work for
+// additional information regarding copyright ownership.
 
-// Developer Note
-//
-// When mixing in [IterableOnce], you'll likely want to override any functions
-// that return a new collection so they return the appropriate collection type.
-// Until Dart supports Higher Kinded Types (which could be never), this is what
-// we're left to do.
-//
-// Could possibly employ some 'dynamic' shenanigans to get around this in
-// the near term, but would rather avoid that. Will look into it further.
-//
-// @see https://github.com/dart-lang/language/issues/1655
-//
+import 'package:ribs_core/ribs_core.dart';
 
 mixin RIterableOnce<A> {
   RIterator<A> get iterator;
