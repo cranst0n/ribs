@@ -9,6 +9,7 @@
 [![codecov](https://codecov.io/gh/cranst0n/ribs/branch/main/graph/badge.svg?token=12627T0AO0)](https://codecov.io/gh/cranst0n/ribs)
 
 [![core](https://img.shields.io/pub/v/ribs_core?label=ribs_core&color=00c000)](https://pub.dev/packages/ribs_core)
+[![effect](https://img.shields.io/pub/v/ribs_effect?label=ribs_effect&color=00c000)](https://pub.dev/packages/ribs_effect)
 [![json](https://img.shields.io/pub/v/ribs_json?label=ribs_json&color=00c000)](https://pub.dev/packages/ribs_json)
 [![binary](https://img.shields.io/pub/v/ribs_binary?label=ribs_binary&color=00c000)](https://pub.dev/packages/ribs_binary)
 [![optics](https://img.shields.io/pub/v/ribs_optics?label=ribs_optics&color=00c000)](https://pub.dev/packages/ribs_optics)

@@ -1,5 +1,5 @@
 name: ribs_json
-version: 1.0.0-dev.8
+version: 1.0.0-dev.9
 homepage: https://cranst0n.github.io/ribs/
 repository: https://github.com/cranst0n/ribs
 description: >
@@ -11,10 +11,10 @@ environment:
 
 dependencies:
   meta:       ^1.9.1
-  ribs_core:  ^1.0.0-dev.8
+  ribs_core:  ^1.0.0-dev.9
 
 dev_dependencies:
   lint:       ^2.3.0
   path:       ^1.8.3
-  ribs_check: ^1.0.0-dev.6
+  ribs_check: ^1.0.0-dev.7
   test:       ^1.24.8

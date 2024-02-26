@@ -1,3 +1,8 @@
+## 1.0.0-dev.9
+
+- Introduce custom collection framework
+- Effect related types have moved to `ribs_effect`
+
 ## 1.0.0-dev.8
 
 - Bug fixes
