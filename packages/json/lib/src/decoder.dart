@@ -553,6 +553,358 @@ abstract mixin class Decoder<A> {
             }
           });
 
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P)>
+      tuple16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>(
+    Decoder<A> decodeA,
+    Decoder<B> decodeB,
+    Decoder<C> decodeC,
+    Decoder<D> decodeD,
+    Decoder<E> decodeE,
+    Decoder<F> decodeF,
+    Decoder<G> decodeG,
+    Decoder<H> decodeH,
+    Decoder<I> decodeI,
+    Decoder<J> decodeJ,
+    Decoder<K> decodeK,
+    Decoder<L> decodeL,
+    Decoder<M> decodeM,
+    Decoder<N> decodeN,
+    Decoder<O> decodeO,
+    Decoder<P> decodeP,
+  ) =>
+          DecoderF((c) {
+            if (c.value.isArray && (c.value as JArray).value.size == 16) {
+              return (
+                decodeA.tryDecodeC(c.downN(0)),
+                decodeB.tryDecodeC(c.downN(1)),
+                decodeC.tryDecodeC(c.downN(2)),
+                decodeD.tryDecodeC(c.downN(3)),
+                decodeE.tryDecodeC(c.downN(4)),
+                decodeF.tryDecodeC(c.downN(5)),
+                decodeG.tryDecodeC(c.downN(6)),
+                decodeH.tryDecodeC(c.downN(7)),
+                decodeI.tryDecodeC(c.downN(8)),
+                decodeJ.tryDecodeC(c.downN(9)),
+                decodeK.tryDecodeC(c.downN(10)),
+                decodeL.tryDecodeC(c.downN(11)),
+                decodeM.tryDecodeC(c.downN(12)),
+                decodeN.tryDecodeC(c.downN(13)),
+                decodeO.tryDecodeC(c.downN(14)),
+                decodeP.tryDecodeC(c.downN(15)),
+              ).tupled();
+            } else {
+              return _wrongTypeFail('array[16]', c).asLeft();
+            }
+          });
+
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q)>
+      tuple17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>(
+    Decoder<A> decodeA,
+    Decoder<B> decodeB,
+    Decoder<C> decodeC,
+    Decoder<D> decodeD,
+    Decoder<E> decodeE,
+    Decoder<F> decodeF,
+    Decoder<G> decodeG,
+    Decoder<H> decodeH,
+    Decoder<I> decodeI,
+    Decoder<J> decodeJ,
+    Decoder<K> decodeK,
+    Decoder<L> decodeL,
+    Decoder<M> decodeM,
+    Decoder<N> decodeN,
+    Decoder<O> decodeO,
+    Decoder<P> decodeP,
+    Decoder<Q> decodeQ,
+  ) =>
+          DecoderF((c) {
+            if (c.value.isArray && (c.value as JArray).value.size == 17) {
+              return (
+                decodeA.tryDecodeC(c.downN(0)),
+                decodeB.tryDecodeC(c.downN(1)),
+                decodeC.tryDecodeC(c.downN(2)),
+                decodeD.tryDecodeC(c.downN(3)),
+                decodeE.tryDecodeC(c.downN(4)),
+                decodeF.tryDecodeC(c.downN(5)),
+                decodeG.tryDecodeC(c.downN(6)),
+                decodeH.tryDecodeC(c.downN(7)),
+                decodeI.tryDecodeC(c.downN(8)),
+                decodeJ.tryDecodeC(c.downN(9)),
+                decodeK.tryDecodeC(c.downN(10)),
+                decodeL.tryDecodeC(c.downN(11)),
+                decodeM.tryDecodeC(c.downN(12)),
+                decodeN.tryDecodeC(c.downN(13)),
+                decodeO.tryDecodeC(c.downN(14)),
+                decodeP.tryDecodeC(c.downN(15)),
+                decodeQ.tryDecodeC(c.downN(16)),
+              ).tupled();
+            } else {
+              return _wrongTypeFail('array[17]', c).asLeft();
+            }
+          });
+
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R)>
+      tuple18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>(
+    Decoder<A> decodeA,
+    Decoder<B> decodeB,
+    Decoder<C> decodeC,
+    Decoder<D> decodeD,
+    Decoder<E> decodeE,
+    Decoder<F> decodeF,
+    Decoder<G> decodeG,
+    Decoder<H> decodeH,
+    Decoder<I> decodeI,
+    Decoder<J> decodeJ,
+    Decoder<K> decodeK,
+    Decoder<L> decodeL,
+    Decoder<M> decodeM,
+    Decoder<N> decodeN,
+    Decoder<O> decodeO,
+    Decoder<P> decodeP,
+    Decoder<Q> decodeQ,
+    Decoder<R> decodeR,
+  ) =>
+          DecoderF((c) {
+            if (c.value.isArray && (c.value as JArray).value.size == 18) {
+              return (
+                decodeA.tryDecodeC(c.downN(0)),
+                decodeB.tryDecodeC(c.downN(1)),
+                decodeC.tryDecodeC(c.downN(2)),
+                decodeD.tryDecodeC(c.downN(3)),
+                decodeE.tryDecodeC(c.downN(4)),
+                decodeF.tryDecodeC(c.downN(5)),
+                decodeG.tryDecodeC(c.downN(6)),
+                decodeH.tryDecodeC(c.downN(7)),
+                decodeI.tryDecodeC(c.downN(8)),
+                decodeJ.tryDecodeC(c.downN(9)),
+                decodeK.tryDecodeC(c.downN(10)),
+                decodeL.tryDecodeC(c.downN(11)),
+                decodeM.tryDecodeC(c.downN(12)),
+                decodeN.tryDecodeC(c.downN(13)),
+                decodeO.tryDecodeC(c.downN(14)),
+                decodeP.tryDecodeC(c.downN(15)),
+                decodeQ.tryDecodeC(c.downN(16)),
+                decodeR.tryDecodeC(c.downN(17)),
+              ).tupled();
+            } else {
+              return _wrongTypeFail('array[18]', c).asLeft();
+            }
+          });
+
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)>
+      tuple19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>(
+    Decoder<A> decodeA,
+    Decoder<B> decodeB,
+    Decoder<C> decodeC,
+    Decoder<D> decodeD,
+    Decoder<E> decodeE,
+    Decoder<F> decodeF,
+    Decoder<G> decodeG,
+    Decoder<H> decodeH,
+    Decoder<I> decodeI,
+    Decoder<J> decodeJ,
+    Decoder<K> decodeK,
+    Decoder<L> decodeL,
+    Decoder<M> decodeM,
+    Decoder<N> decodeN,
+    Decoder<O> decodeO,
+    Decoder<P> decodeP,
+    Decoder<Q> decodeQ,
+    Decoder<R> decodeR,
+    Decoder<S> decodeS,
+  ) =>
+          DecoderF((c) {
+            if (c.value.isArray && (c.value as JArray).value.size == 19) {
+              return (
+                decodeA.tryDecodeC(c.downN(0)),
+                decodeB.tryDecodeC(c.downN(1)),
+                decodeC.tryDecodeC(c.downN(2)),
+                decodeD.tryDecodeC(c.downN(3)),
+                decodeE.tryDecodeC(c.downN(4)),
+                decodeF.tryDecodeC(c.downN(5)),
+                decodeG.tryDecodeC(c.downN(6)),
+                decodeH.tryDecodeC(c.downN(7)),
+                decodeI.tryDecodeC(c.downN(8)),
+                decodeJ.tryDecodeC(c.downN(9)),
+                decodeK.tryDecodeC(c.downN(10)),
+                decodeL.tryDecodeC(c.downN(11)),
+                decodeM.tryDecodeC(c.downN(12)),
+                decodeN.tryDecodeC(c.downN(13)),
+                decodeO.tryDecodeC(c.downN(14)),
+                decodeP.tryDecodeC(c.downN(15)),
+                decodeQ.tryDecodeC(c.downN(16)),
+                decodeR.tryDecodeC(c.downN(17)),
+                decodeS.tryDecodeC(c.downN(18)),
+              ).tupled();
+            } else {
+              return _wrongTypeFail('array[19]', c).asLeft();
+            }
+          });
+
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)>
+      tuple20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>(
+    Decoder<A> decodeA,
+    Decoder<B> decodeB,
+    Decoder<C> decodeC,
+    Decoder<D> decodeD,
+    Decoder<E> decodeE,
+    Decoder<F> decodeF,
+    Decoder<G> decodeG,
+    Decoder<H> decodeH,
+    Decoder<I> decodeI,
+    Decoder<J> decodeJ,
+    Decoder<K> decodeK,
+    Decoder<L> decodeL,
+    Decoder<M> decodeM,
+    Decoder<N> decodeN,
+    Decoder<O> decodeO,
+    Decoder<P> decodeP,
+    Decoder<Q> decodeQ,
+    Decoder<R> decodeR,
+    Decoder<S> decodeS,
+    Decoder<T> decodeT,
+  ) =>
+          DecoderF((c) {
+            if (c.value.isArray && (c.value as JArray).value.size == 20) {
+              return (
+                decodeA.tryDecodeC(c.downN(0)),
+                decodeB.tryDecodeC(c.downN(1)),
+                decodeC.tryDecodeC(c.downN(2)),
+                decodeD.tryDecodeC(c.downN(3)),
+                decodeE.tryDecodeC(c.downN(4)),
+                decodeF.tryDecodeC(c.downN(5)),
+                decodeG.tryDecodeC(c.downN(6)),
+                decodeH.tryDecodeC(c.downN(7)),
+                decodeI.tryDecodeC(c.downN(8)),
+                decodeJ.tryDecodeC(c.downN(9)),
+                decodeK.tryDecodeC(c.downN(10)),
+                decodeL.tryDecodeC(c.downN(11)),
+                decodeM.tryDecodeC(c.downN(12)),
+                decodeN.tryDecodeC(c.downN(13)),
+                decodeO.tryDecodeC(c.downN(14)),
+                decodeP.tryDecodeC(c.downN(15)),
+                decodeQ.tryDecodeC(c.downN(16)),
+                decodeR.tryDecodeC(c.downN(17)),
+                decodeS.tryDecodeC(c.downN(18)),
+                decodeT.tryDecodeC(c.downN(19)),
+              ).tupled();
+            } else {
+              return _wrongTypeFail('array[20]', c).asLeft();
+            }
+          });
+
+  static Decoder<
+          (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
+      tuple21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>(
+    Decoder<A> decodeA,
+    Decoder<B> decodeB,
+    Decoder<C> decodeC,
+    Decoder<D> decodeD,
+    Decoder<E> decodeE,
+    Decoder<F> decodeF,
+    Decoder<G> decodeG,
+    Decoder<H> decodeH,
+    Decoder<I> decodeI,
+    Decoder<J> decodeJ,
+    Decoder<K> decodeK,
+    Decoder<L> decodeL,
+    Decoder<M> decodeM,
+    Decoder<N> decodeN,
+    Decoder<O> decodeO,
+    Decoder<P> decodeP,
+    Decoder<Q> decodeQ,
+    Decoder<R> decodeR,
+    Decoder<S> decodeS,
+    Decoder<T> decodeT,
+    Decoder<U> decodeU,
+  ) =>
+          DecoderF((c) {
+            if (c.value.isArray && (c.value as JArray).value.size == 21) {
+              return (
+                decodeA.tryDecodeC(c.downN(0)),
+                decodeB.tryDecodeC(c.downN(1)),
+                decodeC.tryDecodeC(c.downN(2)),
+                decodeD.tryDecodeC(c.downN(3)),
+                decodeE.tryDecodeC(c.downN(4)),
+                decodeF.tryDecodeC(c.downN(5)),
+                decodeG.tryDecodeC(c.downN(6)),
+                decodeH.tryDecodeC(c.downN(7)),
+                decodeI.tryDecodeC(c.downN(8)),
+                decodeJ.tryDecodeC(c.downN(9)),
+                decodeK.tryDecodeC(c.downN(10)),
+                decodeL.tryDecodeC(c.downN(11)),
+                decodeM.tryDecodeC(c.downN(12)),
+                decodeN.tryDecodeC(c.downN(13)),
+                decodeO.tryDecodeC(c.downN(14)),
+                decodeP.tryDecodeC(c.downN(15)),
+                decodeQ.tryDecodeC(c.downN(16)),
+                decodeR.tryDecodeC(c.downN(17)),
+                decodeS.tryDecodeC(c.downN(18)),
+                decodeT.tryDecodeC(c.downN(19)),
+                decodeU.tryDecodeC(c.downN(20)),
+              ).tupled();
+            } else {
+              return _wrongTypeFail('array[21]', c).asLeft();
+            }
+          });
+
+  static Decoder<
+          (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
+      tuple22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>(
+    Decoder<A> decodeA,
+    Decoder<B> decodeB,
+    Decoder<C> decodeC,
+    Decoder<D> decodeD,
+    Decoder<E> decodeE,
+    Decoder<F> decodeF,
+    Decoder<G> decodeG,
+    Decoder<H> decodeH,
+    Decoder<I> decodeI,
+    Decoder<J> decodeJ,
+    Decoder<K> decodeK,
+    Decoder<L> decodeL,
+    Decoder<M> decodeM,
+    Decoder<N> decodeN,
+    Decoder<O> decodeO,
+    Decoder<P> decodeP,
+    Decoder<Q> decodeQ,
+    Decoder<R> decodeR,
+    Decoder<S> decodeS,
+    Decoder<T> decodeT,
+    Decoder<U> decodeU,
+    Decoder<V> decodeV,
+  ) =>
+          DecoderF((c) {
+            if (c.value.isArray && (c.value as JArray).value.size == 22) {
+              return (
+                decodeA.tryDecodeC(c.downN(0)),
+                decodeB.tryDecodeC(c.downN(1)),
+                decodeC.tryDecodeC(c.downN(2)),
+                decodeD.tryDecodeC(c.downN(3)),
+                decodeE.tryDecodeC(c.downN(4)),
+                decodeF.tryDecodeC(c.downN(5)),
+                decodeG.tryDecodeC(c.downN(6)),
+                decodeH.tryDecodeC(c.downN(7)),
+                decodeI.tryDecodeC(c.downN(8)),
+                decodeJ.tryDecodeC(c.downN(9)),
+                decodeK.tryDecodeC(c.downN(10)),
+                decodeL.tryDecodeC(c.downN(11)),
+                decodeM.tryDecodeC(c.downN(12)),
+                decodeN.tryDecodeC(c.downN(13)),
+                decodeO.tryDecodeC(c.downN(14)),
+                decodeP.tryDecodeC(c.downN(15)),
+                decodeQ.tryDecodeC(c.downN(16)),
+                decodeR.tryDecodeC(c.downN(17)),
+                decodeS.tryDecodeC(c.downN(18)),
+                decodeT.tryDecodeC(c.downN(19)),
+                decodeU.tryDecodeC(c.downN(20)),
+                decodeV.tryDecodeC(c.downN(21)),
+              ).tupled();
+            } else {
+              return _wrongTypeFail('array[22]', c).asLeft();
+            }
+          });
+
   static Decoder<C> product2<A, B, C>(
     Decoder<A> decoderA,
     Decoder<B> decoderB,
@@ -871,5 +1223,325 @@ abstract mixin class Decoder<A> {
             decoderM.decodeC(cursor),
             decoderN.decodeC(cursor),
             decoderO.decodeC(cursor),
+          ).mapN(apply));
+
+  static Decoder<Q>
+      product16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>(
+    Decoder<A> decoderA,
+    Decoder<B> decoderB,
+    Decoder<C> decoderC,
+    Decoder<D> decoderD,
+    Decoder<E> decoderE,
+    Decoder<F> decoderF,
+    Decoder<G> decoderG,
+    Decoder<H> decoderH,
+    Decoder<I> decoderI,
+    Decoder<J> decoderJ,
+    Decoder<K> decoderK,
+    Decoder<L> decoderL,
+    Decoder<M> decoderM,
+    Decoder<N> decoderN,
+    Decoder<O> decoderO,
+    Decoder<P> decoderP,
+    Function16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> apply,
+  ) =>
+          Decoder.instance((cursor) => (
+                decoderA.decodeC(cursor),
+                decoderB.decodeC(cursor),
+                decoderC.decodeC(cursor),
+                decoderD.decodeC(cursor),
+                decoderE.decodeC(cursor),
+                decoderF.decodeC(cursor),
+                decoderG.decodeC(cursor),
+                decoderH.decodeC(cursor),
+                decoderI.decodeC(cursor),
+                decoderJ.decodeC(cursor),
+                decoderK.decodeC(cursor),
+                decoderL.decodeC(cursor),
+                decoderM.decodeC(cursor),
+                decoderN.decodeC(cursor),
+                decoderO.decodeC(cursor),
+                decoderP.decodeC(cursor),
+              ).mapN(apply));
+
+  static Decoder<R>
+      product17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>(
+    Decoder<A> decoderA,
+    Decoder<B> decoderB,
+    Decoder<C> decoderC,
+    Decoder<D> decoderD,
+    Decoder<E> decoderE,
+    Decoder<F> decoderF,
+    Decoder<G> decoderG,
+    Decoder<H> decoderH,
+    Decoder<I> decoderI,
+    Decoder<J> decoderJ,
+    Decoder<K> decoderK,
+    Decoder<L> decoderL,
+    Decoder<M> decoderM,
+    Decoder<N> decoderN,
+    Decoder<O> decoderO,
+    Decoder<P> decoderP,
+    Decoder<Q> decoderQ,
+    Function17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> apply,
+  ) =>
+          Decoder.instance((cursor) => (
+                decoderA.decodeC(cursor),
+                decoderB.decodeC(cursor),
+                decoderC.decodeC(cursor),
+                decoderD.decodeC(cursor),
+                decoderE.decodeC(cursor),
+                decoderF.decodeC(cursor),
+                decoderG.decodeC(cursor),
+                decoderH.decodeC(cursor),
+                decoderI.decodeC(cursor),
+                decoderJ.decodeC(cursor),
+                decoderK.decodeC(cursor),
+                decoderL.decodeC(cursor),
+                decoderM.decodeC(cursor),
+                decoderN.decodeC(cursor),
+                decoderO.decodeC(cursor),
+                decoderP.decodeC(cursor),
+                decoderQ.decodeC(cursor),
+              ).mapN(apply));
+
+  static Decoder<S>
+      product18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>(
+    Decoder<A> decoderA,
+    Decoder<B> decoderB,
+    Decoder<C> decoderC,
+    Decoder<D> decoderD,
+    Decoder<E> decoderE,
+    Decoder<F> decoderF,
+    Decoder<G> decoderG,
+    Decoder<H> decoderH,
+    Decoder<I> decoderI,
+    Decoder<J> decoderJ,
+    Decoder<K> decoderK,
+    Decoder<L> decoderL,
+    Decoder<M> decoderM,
+    Decoder<N> decoderN,
+    Decoder<O> decoderO,
+    Decoder<P> decoderP,
+    Decoder<Q> decoderQ,
+    Decoder<R> decoderR,
+    Function18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> apply,
+  ) =>
+          Decoder.instance((cursor) => (
+                decoderA.decodeC(cursor),
+                decoderB.decodeC(cursor),
+                decoderC.decodeC(cursor),
+                decoderD.decodeC(cursor),
+                decoderE.decodeC(cursor),
+                decoderF.decodeC(cursor),
+                decoderG.decodeC(cursor),
+                decoderH.decodeC(cursor),
+                decoderI.decodeC(cursor),
+                decoderJ.decodeC(cursor),
+                decoderK.decodeC(cursor),
+                decoderL.decodeC(cursor),
+                decoderM.decodeC(cursor),
+                decoderN.decodeC(cursor),
+                decoderO.decodeC(cursor),
+                decoderP.decodeC(cursor),
+                decoderQ.decodeC(cursor),
+                decoderR.decodeC(cursor),
+              ).mapN(apply));
+
+  static Decoder<T>
+      product19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>(
+    Decoder<A> decoderA,
+    Decoder<B> decoderB,
+    Decoder<C> decoderC,
+    Decoder<D> decoderD,
+    Decoder<E> decoderE,
+    Decoder<F> decoderF,
+    Decoder<G> decoderG,
+    Decoder<H> decoderH,
+    Decoder<I> decoderI,
+    Decoder<J> decoderJ,
+    Decoder<K> decoderK,
+    Decoder<L> decoderL,
+    Decoder<M> decoderM,
+    Decoder<N> decoderN,
+    Decoder<O> decoderO,
+    Decoder<P> decoderP,
+    Decoder<Q> decoderQ,
+    Decoder<R> decoderR,
+    Decoder<S> decoderS,
+    Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
+        apply,
+  ) =>
+          Decoder.instance((cursor) => (
+                decoderA.decodeC(cursor),
+                decoderB.decodeC(cursor),
+                decoderC.decodeC(cursor),
+                decoderD.decodeC(cursor),
+                decoderE.decodeC(cursor),
+                decoderF.decodeC(cursor),
+                decoderG.decodeC(cursor),
+                decoderH.decodeC(cursor),
+                decoderI.decodeC(cursor),
+                decoderJ.decodeC(cursor),
+                decoderK.decodeC(cursor),
+                decoderL.decodeC(cursor),
+                decoderM.decodeC(cursor),
+                decoderN.decodeC(cursor),
+                decoderO.decodeC(cursor),
+                decoderP.decodeC(cursor),
+                decoderQ.decodeC(cursor),
+                decoderR.decodeC(cursor),
+                decoderS.decodeC(cursor),
+              ).mapN(apply));
+
+  static Decoder<U>
+      product20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>(
+    Decoder<A> decoderA,
+    Decoder<B> decoderB,
+    Decoder<C> decoderC,
+    Decoder<D> decoderD,
+    Decoder<E> decoderE,
+    Decoder<F> decoderF,
+    Decoder<G> decoderG,
+    Decoder<H> decoderH,
+    Decoder<I> decoderI,
+    Decoder<J> decoderJ,
+    Decoder<K> decoderK,
+    Decoder<L> decoderL,
+    Decoder<M> decoderM,
+    Decoder<N> decoderN,
+    Decoder<O> decoderO,
+    Decoder<P> decoderP,
+    Decoder<Q> decoderQ,
+    Decoder<R> decoderR,
+    Decoder<S> decoderS,
+    Decoder<T> decoderT,
+    Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>
+        apply,
+  ) =>
+          Decoder.instance((cursor) => (
+                decoderA.decodeC(cursor),
+                decoderB.decodeC(cursor),
+                decoderC.decodeC(cursor),
+                decoderD.decodeC(cursor),
+                decoderE.decodeC(cursor),
+                decoderF.decodeC(cursor),
+                decoderG.decodeC(cursor),
+                decoderH.decodeC(cursor),
+                decoderI.decodeC(cursor),
+                decoderJ.decodeC(cursor),
+                decoderK.decodeC(cursor),
+                decoderL.decodeC(cursor),
+                decoderM.decodeC(cursor),
+                decoderN.decodeC(cursor),
+                decoderO.decodeC(cursor),
+                decoderP.decodeC(cursor),
+                decoderQ.decodeC(cursor),
+                decoderR.decodeC(cursor),
+                decoderS.decodeC(cursor),
+                decoderT.decodeC(cursor),
+              ).mapN(apply));
+
+  static Decoder<V> product21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q,
+          R, S, T, U, V>(
+    Decoder<A> decoderA,
+    Decoder<B> decoderB,
+    Decoder<C> decoderC,
+    Decoder<D> decoderD,
+    Decoder<E> decoderE,
+    Decoder<F> decoderF,
+    Decoder<G> decoderG,
+    Decoder<H> decoderH,
+    Decoder<I> decoderI,
+    Decoder<J> decoderJ,
+    Decoder<K> decoderK,
+    Decoder<L> decoderL,
+    Decoder<M> decoderM,
+    Decoder<N> decoderN,
+    Decoder<O> decoderO,
+    Decoder<P> decoderP,
+    Decoder<Q> decoderQ,
+    Decoder<R> decoderR,
+    Decoder<S> decoderS,
+    Decoder<T> decoderT,
+    Decoder<U> decoderU,
+    Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>
+        apply,
+  ) =>
+      Decoder.instance((cursor) => (
+            decoderA.decodeC(cursor),
+            decoderB.decodeC(cursor),
+            decoderC.decodeC(cursor),
+            decoderD.decodeC(cursor),
+            decoderE.decodeC(cursor),
+            decoderF.decodeC(cursor),
+            decoderG.decodeC(cursor),
+            decoderH.decodeC(cursor),
+            decoderI.decodeC(cursor),
+            decoderJ.decodeC(cursor),
+            decoderK.decodeC(cursor),
+            decoderL.decodeC(cursor),
+            decoderM.decodeC(cursor),
+            decoderN.decodeC(cursor),
+            decoderO.decodeC(cursor),
+            decoderP.decodeC(cursor),
+            decoderQ.decodeC(cursor),
+            decoderR.decodeC(cursor),
+            decoderS.decodeC(cursor),
+            decoderT.decodeC(cursor),
+            decoderU.decodeC(cursor),
+          ).mapN(apply));
+
+  static Decoder<W> product22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q,
+          R, S, T, U, V, W>(
+    Decoder<A> decoderA,
+    Decoder<B> decoderB,
+    Decoder<C> decoderC,
+    Decoder<D> decoderD,
+    Decoder<E> decoderE,
+    Decoder<F> decoderF,
+    Decoder<G> decoderG,
+    Decoder<H> decoderH,
+    Decoder<I> decoderI,
+    Decoder<J> decoderJ,
+    Decoder<K> decoderK,
+    Decoder<L> decoderL,
+    Decoder<M> decoderM,
+    Decoder<N> decoderN,
+    Decoder<O> decoderO,
+    Decoder<P> decoderP,
+    Decoder<Q> decoderQ,
+    Decoder<R> decoderR,
+    Decoder<S> decoderS,
+    Decoder<T> decoderT,
+    Decoder<U> decoderU,
+    Decoder<V> decoderV,
+    Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V,
+            W>
+        apply,
+  ) =>
+      Decoder.instance((cursor) => (
+            decoderA.decodeC(cursor),
+            decoderB.decodeC(cursor),
+            decoderC.decodeC(cursor),
+            decoderD.decodeC(cursor),
+            decoderE.decodeC(cursor),
+            decoderF.decodeC(cursor),
+            decoderG.decodeC(cursor),
+            decoderH.decodeC(cursor),
+            decoderI.decodeC(cursor),
+            decoderJ.decodeC(cursor),
+            decoderK.decodeC(cursor),
+            decoderL.decodeC(cursor),
+            decoderM.decodeC(cursor),
+            decoderN.decodeC(cursor),
+            decoderO.decodeC(cursor),
+            decoderP.decodeC(cursor),
+            decoderQ.decodeC(cursor),
+            decoderR.decodeC(cursor),
+            decoderS.decodeC(cursor),
+            decoderT.decodeC(cursor),
+            decoderU.decodeC(cursor),
+            decoderV.decodeC(cursor),
           ).mapN(apply));
 }
