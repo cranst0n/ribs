@@ -1,3 +1,7 @@
+## 1.0.0-dev.10
+
+- Add codec arities
+
 ## 1.0.0-dev.9
 
 - Update dependencies
