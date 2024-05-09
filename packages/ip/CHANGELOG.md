@@ -1,3 +1,7 @@
+## 1.0.0-dev.3
+
+- Fix Host.fromString runtime type error
+
 ## 1.0.0-dev.2
 
 - Update dependencies
