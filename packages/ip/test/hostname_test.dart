@@ -7,7 +7,7 @@ import 'package:test/test.dart';
 import 'arbitraries.dart';
 
 void main() {
-  group('IDN', () {
+  group('Hostname', () {
     forAll('roundtrip through string', genHostname, (hostname) {
       expect(Hostname.fromString(hostname.toString()), isSome(hostname));
     });

@@ -8,10 +8,12 @@ import 'package:ribs_ip/src/punycode/punycode.dart';
 sealed class Host extends Ordered<Host> {
   const Host();
 
-  static Option<Host> fromString(String value) => IpAddress.fromString(value)
-      .map((a) => a.asHost)
-      .orElse(() => Hostname.fromString(value))
-      .orElse(() => IDN.fromString(value));
+  static Option<Host> fromString(String value) {
+    return IpAddress.fromString(value)
+        .map((a) => a.asHost)
+        .orElse(() => Hostname.fromString(value).map((a) => a.asHost))
+        .orElse(() => IDN.fromString(value).map((a) => a.asHost));
+  }
 
   IO<IList<IpAddress>> resolve() => switch (this) {
         final IpAddress ip => IO.pure(ilist([ip])),
