@@ -1,3 +1,11 @@
+## 1.0.0-dev.11
+
+- Revert previous change.
+
+## 1.0.0-dev.10
+
+- Fix `Option.orElse` type signature.
+
 ## 1.0.0-dev.9
 
 - Introduce custom collection framework
