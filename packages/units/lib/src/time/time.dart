@@ -38,37 +38,41 @@ final class Time extends Quantity<Time> {
 }
 
 abstract class TimeUnit extends BaseUnit<Time> {
-  const TimeUnit(super.symbol, super.conversionFactor);
+  const TimeUnit(super.unit, super.symbol, super.conversionFactor);
 
   @override
   Time call(num value) => Time(value.toDouble(), this);
 }
 
 final class Nanoseconds extends TimeUnit {
-  const Nanoseconds._() : super('ns', 1 / Duration.microsecondsPerSecond);
+  const Nanoseconds._()
+      : super('nanosecond', 'ns', 1 / Duration.microsecondsPerSecond);
 }
 
 final class Microseconds extends TimeUnit {
-  const Microseconds._() : super('µs', 1 / Duration.millisecondsPerSecond);
+  const Microseconds._()
+      : super('microsecond', 'µs', 1 / Duration.millisecondsPerSecond);
 }
 
 final class Milliseconds extends TimeUnit {
-  const Milliseconds._() : super('ms', 1);
+  const Milliseconds._() : super('millisecond', 'ms', 1);
 }
 
 final class Seconds extends TimeUnit {
-  const Seconds._() : super('s', 1.0 * Duration.millisecondsPerSecond);
+  const Seconds._()
+      : super('second', 's', 1.0 * Duration.millisecondsPerSecond);
 }
 
 final class Minutes extends TimeUnit {
   const Minutes._()
-      : super('min',
+      : super('minute', 'min',
             1.0 * Duration.millisecondsPerSecond * Duration.secondsPerMinute);
 }
 
 final class Hours extends TimeUnit {
   const Hours._()
       : super(
+            'hour',
             'h',
             1.0 *
                 Duration.millisecondsPerSecond *
@@ -79,6 +83,7 @@ final class Hours extends TimeUnit {
 final class Days extends TimeUnit {
   const Days._()
       : super(
+            'day',
             'd',
             1.0 *
                 Duration.millisecondsPerSecond *

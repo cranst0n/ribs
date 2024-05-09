@@ -31,14 +31,19 @@ abstract class Quantity<A extends Quantity<A>> {
         (match) => (
           Option(match.group(1)).flatMap((str) => Option(num.tryParse(str))),
           Option(match.group(2)).flatMap((str) => IList.fromDart(units.toList())
-              .find((a) => a.symbol == str.trim())),
+              .find((a) =>
+                  a.unit == str.trim() ||
+                  '${a.unit}s' == str.trim() ||
+                  a.symbol == str.trim())),
         ).mapN((value, unit) => unit(value)),
       );
 
   static RegExp _unitsRegex<A extends Quantity<A>>(
     Set<UnitOfMeasure<A>> units,
   ) {
-    final unitsStr = units.map((u) => u.symbol).reduce((a, b) => '$a|$b');
+    final unitsStr = units
+        .expand((u) => [u.unit, '${u.unit}s', u.symbol])
+        .reduce((a, b) => '$a|$b');
     final regStr =
         '^([-+]?[0-9]*\\.?[0-9]+(?:[eE][-+]?[0-9]+)?) *($unitsStr)\$';
 

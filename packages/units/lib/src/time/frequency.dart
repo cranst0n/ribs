@@ -32,34 +32,35 @@ final class Frequency extends Quantity<Frequency> {
 }
 
 abstract class FrequencyUnit extends BaseUnit<Frequency> {
-  const FrequencyUnit(super.symbol, super.conversionFactor);
+  const FrequencyUnit(super.unit, super.symbol, super.conversionFactor);
 
   @override
   Frequency call(num value) => Frequency(value.toDouble(), this);
 }
 
 final class Hertz extends FrequencyUnit {
-  const Hertz._() : super('Hz', 1);
+  const Hertz._() : super('hertz', 'Hz', 1);
 }
 
 final class Kilohertz extends FrequencyUnit {
-  const Kilohertz._() : super('kHz', MetricSystem.Kilo);
+  const Kilohertz._() : super('kilohertz', 'kHz', MetricSystem.Kilo);
 }
 
 final class Megahertz extends FrequencyUnit {
-  const Megahertz._() : super('MHz', MetricSystem.Mega);
+  const Megahertz._() : super('megahertz', 'MHz', MetricSystem.Mega);
 }
 
 final class Gigahertz extends FrequencyUnit {
-  const Gigahertz._() : super('GHz', MetricSystem.Giga);
+  const Gigahertz._() : super('gigahertz', 'GHz', MetricSystem.Giga);
 }
 
 final class Terahertz extends FrequencyUnit {
-  const Terahertz._() : super('THz', MetricSystem.Tera);
+  const Terahertz._() : super('terrahertz', 'THz', MetricSystem.Tera);
 }
 
 final class RevolutionsPerMinute extends FrequencyUnit {
-  const RevolutionsPerMinute._() : super('rpm', 1.0 / 60.0);
+  const RevolutionsPerMinute._()
+      : super('revolutions/minute', 'rpm', 1.0 / 60.0);
 }
 
 extension FrequencyOps on num {

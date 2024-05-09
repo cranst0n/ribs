@@ -13,7 +13,7 @@ final class ElectricPotential extends Quantity<ElectricPotential> {
   static const ElectricPotentialUnit microvolts = Microvolts._();
   static const ElectricPotentialUnit millivolts = Millivolts._();
   static const ElectricPotentialUnit volts = Volts._();
-  static const ElectricPotentialUnit milovolts = Milovolts._();
+  static const ElectricPotentialUnit milovolts = Kilovolts._();
   static const ElectricPotentialUnit megavolts = Megavolts._();
 
   static const units = {
@@ -28,7 +28,7 @@ final class ElectricPotential extends Quantity<ElectricPotential> {
 }
 
 abstract class ElectricPotentialUnit extends BaseUnit<ElectricPotential> {
-  const ElectricPotentialUnit(super.symbol, super.conversionFactor);
+  const ElectricPotentialUnit(super.unit, super.symbol, super.conversionFactor);
 
   @override
   ElectricPotential call(num value) =>
@@ -36,23 +36,23 @@ abstract class ElectricPotentialUnit extends BaseUnit<ElectricPotential> {
 }
 
 final class Microvolts extends ElectricPotentialUnit {
-  const Microvolts._() : super('μV', MetricSystem.Micro);
+  const Microvolts._() : super('microvolt', 'μV', MetricSystem.Micro);
 }
 
 final class Millivolts extends ElectricPotentialUnit {
-  const Millivolts._() : super('mV', MetricSystem.Milli);
+  const Millivolts._() : super('millivolt', 'mV', MetricSystem.Milli);
 }
 
 final class Volts extends ElectricPotentialUnit {
-  const Volts._() : super('V', 1.0);
+  const Volts._() : super('volt', 'V', 1.0);
 }
 
-final class Milovolts extends ElectricPotentialUnit {
-  const Milovolts._() : super('kV', MetricSystem.Kilo);
+final class Kilovolts extends ElectricPotentialUnit {
+  const Kilovolts._() : super('kilovolt', 'kV', MetricSystem.Kilo);
 }
 
 final class Megavolts extends ElectricPotentialUnit {
-  const Megavolts._() : super('MV', MetricSystem.Mega);
+  const Megavolts._() : super('megavolt', 'MV', MetricSystem.Mega);
 }
 
 extension ElectricPotentialOps on num {

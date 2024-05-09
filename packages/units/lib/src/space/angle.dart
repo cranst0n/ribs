@@ -39,35 +39,36 @@ final class Angle extends Quantity<Angle> {
 }
 
 abstract class AngleUnit extends BaseUnit<Angle> {
-  const AngleUnit(super.symbol, super.conversionFactor);
+  const AngleUnit(super.unit, super.symbol, super.conversionFactor);
 
   @override
   Angle call(num value) => Angle(value.toDouble(), this);
 }
 
 final class Radians extends AngleUnit {
-  const Radians._() : super('rad', 1);
+  const Radians._() : super('radian', 'rad', 1);
 }
 
 final class Degrees extends AngleUnit {
-  const Degrees._() : super('°', math.pi / 180);
+  const Degrees._() : super('degree', '°', math.pi / 180);
 }
 
 final class Gradians extends AngleUnit {
-  const Gradians._() : super('grad', 2 * math.pi / 400);
+  const Gradians._() : super('gradian', 'grad', 2 * math.pi / 400);
 }
 
 final class Turns extends AngleUnit {
-  const Turns._() : super('turns', 2 * math.pi);
+  const Turns._() : super('turn', 'turns', 2 * math.pi);
 }
 
 final class Arcminutes extends AngleUnit {
-  const Arcminutes._() : super('amin', math.pi / 10800);
+  const Arcminutes._() : super('arc minute', 'amin', math.pi / 10800);
 }
 
 final class Arcseconds extends AngleUnit {
   const Arcseconds._()
-      : super('asec', 1 / Duration.secondsPerMinute * math.pi / 10800);
+      : super('arc second', 'asec',
+            1 / Duration.secondsPerMinute * math.pi / 10800);
 }
 
 extension AngleOps on num {

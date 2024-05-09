@@ -77,66 +77,66 @@ final class Length extends Quantity<Length> {
 }
 
 abstract class LengthUnit extends BaseUnit<Length> {
-  const LengthUnit(super.symbol, super.conversionFactor);
+  const LengthUnit(super.unit, super.symbol, super.conversionFactor);
 
   @override
   Length call(num value) => Length(value.toDouble(), this);
 }
 
 final class Nanometers extends LengthUnit {
-  const Nanometers._() : super('nm', MetricSystem.Nano);
+  const Nanometers._() : super('nanometer', 'nm', MetricSystem.Nano);
 }
 
 final class Microns extends LengthUnit {
-  const Microns._() : super('µm', MetricSystem.Micro);
+  const Microns._() : super('micron', 'µm', MetricSystem.Micro);
 }
 
 final class Millimeters extends LengthUnit {
-  const Millimeters._() : super('mm', MetricSystem.Milli);
+  const Millimeters._() : super('millimeter', 'mm', MetricSystem.Milli);
 }
 
 final class Centimeters extends LengthUnit {
-  const Centimeters._() : super('cm', MetricSystem.Centi);
+  const Centimeters._() : super('centimeter', 'cm', MetricSystem.Centi);
 }
 
 final class Decimeters extends LengthUnit {
-  const Decimeters._() : super('dm', MetricSystem.Deci);
+  const Decimeters._() : super('decimeter', 'dm', MetricSystem.Deci);
 }
 
 final class Meters extends LengthUnit {
-  const Meters._() : super('m', 1.0);
+  const Meters._() : super('meter', 'm', 1.0);
 }
 
 final class Decameters extends LengthUnit {
-  const Decameters._() : super('dam', MetricSystem.Deca);
+  const Decameters._() : super('decameter', 'dam', MetricSystem.Deca);
 }
 
 final class Hectometers extends LengthUnit {
-  const Hectometers._() : super('hm', MetricSystem.Hecto);
+  const Hectometers._() : super('hectometer', 'hm', MetricSystem.Hecto);
 }
 
 final class Kilometers extends LengthUnit {
-  const Kilometers._() : super('hm', MetricSystem.Kilo);
+  const Kilometers._() : super('kilometer', 'hm', MetricSystem.Kilo);
 }
 
 final class Inches extends LengthUnit {
-  const Inches._() : super('in', Length.FeetConversionFactor / 12);
+  const Inches._() : super('inch', 'in', Length.FeetConversionFactor / 12);
 }
 
 final class Feet extends LengthUnit {
-  const Feet._() : super('ft', Length.FeetConversionFactor);
+  const Feet._() : super('feet', 'ft', Length.FeetConversionFactor);
 }
 
 final class Yards extends LengthUnit {
-  const Yards._() : super('yd', Length.FeetConversionFactor * 3);
+  const Yards._() : super('yard', 'yd', Length.FeetConversionFactor * 3);
 }
 
 final class UsMiles extends LengthUnit {
-  const UsMiles._() : super('mi', Length.FeetConversionFactor * 5.28e3);
+  const UsMiles._() : super('mile', 'mi', Length.FeetConversionFactor * 5.28e3);
 }
 
 final class NauticalMiles extends LengthUnit {
-  const NauticalMiles._() : super('nmi', 1.852e3);
+  const NauticalMiles._() : super('nautical mile', 'nmi', 1.852e3);
 }
 
 extension LengthOps on num {

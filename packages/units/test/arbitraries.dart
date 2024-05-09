@@ -64,6 +64,9 @@ final time = (_doubleValue, timeUnit).tupled.map(Time.new.tupled);
 Gen<String> quantityString<A extends Quantity<A>>(
   Iterable<UnitOfMeasure<A>> units,
 ) =>
-    (Gen.positiveInt, Gen.oneOf(['', ' ']), Gen.oneOf(units))
-        .tupled
-        .map((tuple) => '${tuple.$1}${tuple.$2}${tuple.$3.symbol}');
+    (
+      Gen.positiveInt,
+      Gen.oneOf(['', ' ']),
+      Gen.oneOf(units.expand(
+          (element) => [element.symbol, element.unit, '${element.unit}s']))
+    ).tupled.map((tuple) => '${tuple.$1}${tuple.$2}${tuple.$3}');

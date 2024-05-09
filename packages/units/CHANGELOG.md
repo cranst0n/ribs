@@ -1,3 +1,7 @@
+## 1.0.0-dev.9
+
+- Add ability to parse proper unit names in addition to symbol
+
 ## 1.0.0-dev.8
 
 - Update dependencies

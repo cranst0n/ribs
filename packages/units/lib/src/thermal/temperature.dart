@@ -113,16 +113,19 @@ final class Temperature extends Quantity<Temperature> {
 
 abstract class TemperatureScale extends UnitOfMeasure<Temperature> {
   @override
+  final String unit;
+
+  @override
   final String symbol;
 
-  const TemperatureScale(this.symbol);
+  const TemperatureScale(this.unit, this.symbol);
 
   @override
   Temperature call(num value) => Temperature(value.toDouble(), this);
 }
 
 final class Celcius extends TemperatureScale {
-  const Celcius._() : super('°C');
+  const Celcius._() : super('celcius', '°C');
 
   @override
   double converterFrom(double value) =>
@@ -134,7 +137,7 @@ final class Celcius extends TemperatureScale {
 }
 
 final class Fahrenheit extends TemperatureScale {
-  const Fahrenheit._() : super('°F');
+  const Fahrenheit._() : super('fahrenheit', '°F');
 
   @override
   double converterFrom(double value) =>
@@ -146,7 +149,7 @@ final class Fahrenheit extends TemperatureScale {
 }
 
 final class Kelvin extends TemperatureScale {
-  const Kelvin._() : super('K');
+  const Kelvin._() : super('kelvin', 'K');
 
   @override
   double converterFrom(double value) => 1;
@@ -156,7 +159,7 @@ final class Kelvin extends TemperatureScale {
 }
 
 final class Rankine extends TemperatureScale {
-  const Rankine._() : super('°R');
+  const Rankine._() : super('rankine', '°R');
 
   @override
   double converterFrom(double value) =>
