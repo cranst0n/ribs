@@ -6,7 +6,7 @@ description: >
   Property based testing.
 
 environment:
-  sdk: ">=3.2.0 <4.0.0"
+  sdk: ">=3.4.0 <4.0.0"
 
 dependencies:
   meta:      ^1.9.1
