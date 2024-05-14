@@ -1,6 +1,7 @@
 export 'immutable/ichain.dart';
 export 'immutable/ilist.dart';
 export 'immutable/imap.dart';
+export 'immutable/iqueue.dart';
 export 'immutable/iset.dart';
 export 'immutable/ivector.dart';
 export 'immutable/non_empty_ilist.dart';
