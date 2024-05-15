@@ -1,3 +1,4 @@
+export 'duration.dart';
 export 'either.dart';
 export 'ilist.dart';
 export 'iterable.dart';

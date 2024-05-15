@@ -149,7 +149,7 @@ Future<void> cancelationSnippet() async {
   // Our IO program
   final io = IO
       .pure(42)
-      .delayBy(const Duration(seconds: 10))
+      .delayBy(10.seconds)
       .onCancel(IO.exec(() => count += 1))
       .onCancel(IO.exec(() => count += 2))
       .onCancel(IO.exec(() => count += 3));

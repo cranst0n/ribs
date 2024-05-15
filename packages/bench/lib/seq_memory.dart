@@ -19,7 +19,7 @@ void main(List<String> args) async {
       BuiltIList(built_list.BuiltList(Iterable<int>.generate(n, (x) => x)));
   final g = KtIList(kt.KtList.from(Iterable<int>.generate(n, (x) => x)));
 
-  await Future.delayed(const Duration(days: 1), () => 0);
+  await Future.delayed(1.day, () => 0);
 }
 
 final class SdkList {

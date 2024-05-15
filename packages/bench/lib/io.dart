@@ -231,8 +231,8 @@ class DartzBothBenchmark extends AsyncBenchmarkBase {
 
   @override
   Future<void> run() => dartz.Task.value(0)
-      .delayBy(const Duration(milliseconds: 15))
-      .both(dartz.Task.value(1).delayBy(const Duration(milliseconds: 30)))
+      .delayBy(15.milliseconds)
+      .both(dartz.Task.value(1).delayBy(30.milliseconds))
       .run();
 }
 
@@ -242,8 +242,8 @@ class FpdartBothBenchmark extends AsyncBenchmarkBase {
   @override
   Future<void> run() => fpdart.Task.traverseListWithIndex(
         [
-          const Duration(milliseconds: 15),
-          const Duration(milliseconds: 30),
+          15.milliseconds,
+          30.milliseconds,
         ],
         (delay, ix) => fpdart.Task.of(ix).delay(delay),
       ).run();
@@ -254,8 +254,8 @@ class FutureBothBenchmark extends AsyncBenchmarkBase {
 
   @override
   Future<void> run() => Future.wait([
-        Future.delayed(const Duration(milliseconds: 15), () => 0),
-        Future.delayed(const Duration(milliseconds: 30), () => 1),
+        Future.delayed(15.milliseconds, () => 0),
+        Future.delayed(30.milliseconds, () => 1),
       ]);
 }
 
@@ -265,8 +265,8 @@ class RibsBothBenchmark extends AsyncBenchmarkBase {
   @override
   Future<void> run() => IO
       .both(
-        IO.pure(0).delayBy(const Duration(milliseconds: 15)),
-        IO.pure(1).delayBy(const Duration(milliseconds: 30)),
+        IO.pure(0).delayBy(15.milliseconds),
+        IO.pure(1).delayBy(30.milliseconds),
       )
       .unsafeRunFuture();
 }

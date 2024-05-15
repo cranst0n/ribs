@@ -191,7 +191,7 @@ void main() {
       final test = Queue.synchronous<int>().flatMap((q) {
         return q
             .offer(offerValue)
-            .delayBy(const Duration(milliseconds: 100))
+            .delayBy(100.milliseconds)
             .start()
             .flatMap((of) {
           return q.take().start().flatMap((tf) {
@@ -215,7 +215,7 @@ void main() {
 
           return f.start();
         }).flatMap((_) {
-          return IO.sleep(const Duration(seconds: 2)).flatMap((_) {
+          return IO.sleep(2.seconds).flatMap((_) {
             return q.take().replicate(5);
           });
         });
@@ -519,7 +519,7 @@ class QueueTests {
         return offer(q, 1).flatMap((_) {
           return offer(q, 1).flatMap((_) {
             return offer(q, 2).start().flatMap((f) {
-              return IO.sleep(const Duration(milliseconds: 10)).flatMap((_) {
+              return IO.sleep(10.milliseconds).flatMap((_) {
                 return f.cancel().flatMap((_) {
                   return take(q).flatMap((v1) {
                     return take(q).flatMap((_) {
@@ -553,7 +553,7 @@ class QueueTests {
 
             return offerer1.start().flatMap((offer1) {
               return offer(q, 24).start().flatMap((offer2) {
-                return IO.sleep(const Duration(milliseconds: 250)).flatMap((_) {
+                return IO.sleep(250.milliseconds).flatMap((_) {
                   return IO.both(take(q), offer1.cancel()).flatMap((_) {
                     return offeredR.value().flatMap((offered) {
                       final next = offered ? offer2.cancel() : offer2.join();
@@ -591,12 +591,10 @@ class QueueTests {
             return IO.cede.flatMap((_) {
               return offerers[1].cancel().flatMap((_) {
                 return offer(q, 20)
-                    .delayBy(const Duration(milliseconds: 50))
+                    .delayBy(50.milliseconds)
                     .start()
                     .flatMap((_) {
-                  return IO
-                      .sleep(const Duration(milliseconds: 100))
-                      .flatMap((_) {
+                  return IO.sleep(100.milliseconds).flatMap((_) {
                     return tryTakeN(q, none()).flatMap((taken1) {
                       return IList.range(0, 4)
                           .traverseIO((_) => take(q))
@@ -685,7 +683,7 @@ class QueueTests {
 
           return taker1.start().flatMap((take1) {
             return take(q).start().flatMap((take2) {
-              return IO.sleep(const Duration(milliseconds: 250)).flatMap((_) {
+              return IO.sleep(250.milliseconds).flatMap((_) {
                 return IO.both(offer(q, 42), take1.cancel()).flatMap((_) {
                   return takenR.value().flatMap((taken) {
                     return taken.fold(
@@ -803,7 +801,7 @@ class QueueTests {
     test('demonstrate cancelable take', () {
       final test = constructor(2).flatMap((q) {
         return take(q).start().flatMap((f) {
-          return IO.sleep(const Duration(milliseconds: 10)).flatMap((_) {
+          return IO.sleep(10.milliseconds).flatMap((_) {
             return f.cancel().flatMap((_) {
               return tryOffer(q, 1).flatMap((v) {
                 return expectIO(v, isTrue);

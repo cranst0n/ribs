@@ -6,13 +6,12 @@ import 'package:test/test.dart';
 void main() {
   test('makes acquires non interruptible', () {
     final test = IO.ref(false).flatMap((interrupted) {
-      final fa = IO.uncancelable((poll) => poll(IO
-          .sleep(const Duration(seconds: 5))
-          .onCancel(interrupted.setValue(true))));
+      final fa = IO.uncancelable((poll) =>
+          poll(IO.sleep(5.seconds).onCancel(interrupted.setValue(true))));
 
       return Resource.make(fa, (_) => IO.unit)
           .use_()
-          .timeout(const Duration(seconds: 1))
+          .timeout(1.second)
           .attempt()
           .productR(() => interrupted.value());
     });
@@ -22,13 +21,12 @@ void main() {
 
   test('makes acquires non interruptible, overriding uncancelable', () {
     final test = IO.ref(false).flatMap((interrupted) {
-      final fa = IO.uncancelable((poll) => poll(IO
-          .sleep(const Duration(seconds: 5))
-          .onCancel(interrupted.setValue(true))));
+      final fa = IO.uncancelable((poll) =>
+          poll(IO.sleep(5.seconds).onCancel(interrupted.setValue(true))));
 
       return Resource.make(fa, (_) => IO.unit)
           .use_()
-          .timeout(const Duration(seconds: 1))
+          .timeout(1.second)
           .attempt()
           .productR(() => interrupted.value());
     });
@@ -40,17 +38,15 @@ void main() {
     final flag = IO.ref(false);
 
     final test = (flag, flag).tupled().flatMapN((acquireFin, resourceFin) {
-      final action = IO
-          .sleep(const Duration(seconds: 1))
-          .onCancel(acquireFin.setValue(true));
+      final action = IO.sleep(1.second).onCancel(acquireFin.setValue(true));
 
       final fin = resourceFin.setValue(true);
 
       final res = Resource.makeFull((poll) => poll(action), (_) => fin);
 
       return res
-          .surround(IO.sleep(const Duration(seconds: 4)))
-          .timeout(const Duration(seconds: 2))
+          .surround(IO.sleep(4.seconds))
+          .timeout(2.seconds)
           .attempt()
           .productR(() => (acquireFin.value(), resourceFin.value()).tupled());
     });
@@ -62,9 +58,7 @@ void main() {
     final flag = IO.ref(false);
 
     final test = (flag, flag).tupled().flatMapN((acquireFin, resourceFin) {
-      final action = IO
-          .sleep(const Duration(seconds: 5))
-          .onCancel(acquireFin.setValue(true));
+      final action = IO.sleep(5.seconds).onCancel(acquireFin.setValue(true));
 
       final fin = resourceFin.setValue(true);
 
@@ -72,7 +66,7 @@ void main() {
 
       return res
           .use_()
-          .timeout(const Duration(seconds: 1))
+          .timeout(1.second)
           .attempt()
           .productR(() => (acquireFin.value(), resourceFin.value()).tupled());
     });
@@ -82,7 +76,7 @@ void main() {
 
   test('supports interruptible acquires, respecting uncancelable', () {
     final flag = IO.ref(false);
-    final sleep = IO.sleep(const Duration(seconds: 1));
+    final sleep = IO.sleep(1.second);
     const timeout = Duration(milliseconds: 500);
 
     final test = (flag, flag, flag, flag).tupled().flatMap((ft) {
@@ -109,7 +103,7 @@ void main() {
 
   test('release is always uninterruptible', () {
     final flag = IO.ref(false);
-    final sleep = IO.sleep(const Duration(seconds: 1));
+    final sleep = IO.sleep(1.second);
     const timeout = Duration(milliseconds: 500);
 
     final test = flag.flatMap((releaseComplete) {

@@ -27,23 +27,23 @@ void main() {
 
     expect(
       RetryPolicy.alwaysGiveUp()
-          .meet(RetryPolicy.constantDelay(const Duration(seconds: 1)))
+          .meet(RetryPolicy.constantDelay(1.second))
           .decideOn(RetryStatus.initial()),
-      RetryDecision.delayAndRetry(const Duration(seconds: 1)),
+      RetryDecision.delayAndRetry(1.second),
     );
 
     expect(
       RetryPolicy.alwaysGiveUp()
-          .meet(RetryPolicy.exponentialBackoff(const Duration(seconds: 1)))
+          .meet(RetryPolicy.exponentialBackoff(1.second))
           .decideOn(RetryStatus.initial()),
-      RetryDecision.delayAndRetry(const Duration(seconds: 1)),
+      RetryDecision.delayAndRetry(1.second),
     );
 
     expect(
       RetryPolicy.alwaysGiveUp()
-          .meet(RetryPolicy.exponentialBackoff(const Duration(seconds: 1)))
+          .meet(RetryPolicy.exponentialBackoff(1.second))
           .decideOn(const RetryStatus(1, Duration.zero, Some(Duration.zero))),
-      RetryDecision.delayAndRetry(const Duration(seconds: 2)),
+      RetryDecision.delayAndRetry(2.seconds),
     );
   });
 
@@ -127,8 +127,7 @@ void main() {
         : IO.raiseError<int>(RuntimeException('attempts: $x')));
 
     final retryable = io.retrying(
-        RetryPolicy.exponentialBackoff(const Duration(seconds: 1))
-            .giveUpAfterDelay(const Duration(seconds: 5)));
+        RetryPolicy.exponentialBackoff(1.second).giveUpAfterDelay(5.seconds));
 
     final result = await retryable.unsafeRunFutureOutcome();
 
@@ -149,10 +148,9 @@ void main() {
         ? IO.pure(x)
         : IO.raiseError<int>(RuntimeException('attempts: $x')));
 
-    final retryable = io.retrying(
-        RetryPolicy.exponentialBackoff(const Duration(seconds: 1))
-            .giveUpAfterDelay(const Duration(seconds: 2))
-            .capDelay(const Duration(seconds: 3)));
+    final retryable = io.retrying(RetryPolicy.exponentialBackoff(1.second)
+        .giveUpAfterDelay(2.seconds)
+        .capDelay(3.seconds));
 
     final result = await retryable.unsafeRunFutureOutcome();
 

@@ -12,7 +12,7 @@ void main() {
       test('succeed with faster side', () {
         expect(
           IO.race(
-            IO.sleep(const Duration(minutes: 10)).productR(() => IO.pure(1)),
+            IO.sleep(10.minutes).productR(() => IO.pure(1)),
             IO.pure(2),
           ),
           ioSucceeded(const Right<int, int>(2)),
@@ -25,9 +25,7 @@ void main() {
           IO
               .race(
                 IO.raiseError<int>(err),
-                IO
-                    .sleep(const Duration(milliseconds: 10))
-                    .productR(() => IO.pure(1)),
+                IO.sleep(10.milliseconds).productR(() => IO.pure(1)),
               )
               .voided(),
           ioErrored(err),
@@ -39,9 +37,7 @@ void main() {
         expect(
           IO
               .race(
-                IO
-                    .sleep(const Duration(milliseconds: 10))
-                    .productR(() => IO.pure(1)),
+                IO.sleep(10.milliseconds).productR(() => IO.pure(1)),
                 IO.raiseError<int>(err),
               )
               .voided(),
@@ -95,9 +91,7 @@ void main() {
           IO
               .race(
                 IO.canceled,
-                IO
-                    .sleep(const Duration(milliseconds: 1))
-                    .productR(() => IO.pure(1)),
+                IO.sleep(1.millisecond).productR(() => IO.pure(1)),
               )
               .voided(),
           ioCanceled(),
@@ -108,9 +102,7 @@ void main() {
         expect(
           IO
               .race(
-                IO
-                    .sleep(const Duration(milliseconds: 1))
-                    .productR(() => IO.pure(1)),
+                IO.sleep(1.millisecond).productR(() => IO.pure(1)),
                 IO.canceled,
               )
               .voided(),
@@ -125,7 +117,7 @@ void main() {
               .race(
                 IO.canceled,
                 IO
-                    .sleep(const Duration(milliseconds: 1))
+                    .sleep(1.millisecond)
                     .productR(() => IO.raiseError<Unit>(err)),
               )
               .voided(),
@@ -139,7 +131,7 @@ void main() {
           IO
               .race(
                 IO
-                    .sleep(const Duration(milliseconds: 1))
+                    .sleep(1.millisecond)
                     .productR(() => IO.raiseError<Unit>(err)),
                 IO.canceled,
               )
@@ -150,16 +142,14 @@ void main() {
 
       test('evaluate a timeout using sleep and race', () {
         expect(
-          IO.race(IO.never<Unit>(), IO.sleep(const Duration(seconds: 2))),
+          IO.race(IO.never<Unit>(), IO.sleep(2.seconds)),
           ioSucceeded(Right<Unit, Unit>(Unit())),
         );
       });
 
       test('immediately cancel when timing out canceled', () {
-        final test = IO.canceled
-            .timeout(const Duration(seconds: 2))
-            .start()
-            .flatMap((f) => f.join());
+        final test =
+            IO.canceled.timeout(2.seconds).start().flatMap((f) => f.join());
 
         expect(test, ioSucceeded(Outcome.canceled<Unit>()));
       });
@@ -167,8 +157,8 @@ void main() {
       test('immediately cancel when timing out and forgetting canceled', () {
         final test = IO
             .never<Unit>()
-            .timeoutAndForget(const Duration(seconds: 2))
-            .timeout(const Duration(seconds: 1))
+            .timeoutAndForget(2.seconds)
+            .timeout(1.second)
             .start()
             .flatMap((f) => f.join());
 
@@ -186,7 +176,7 @@ void main() {
         final test = IO.now.flatMap((start) => IO
             .race(
               IO.unit,
-              IO.race(IO.never<Unit>(), IO.sleep(const Duration(seconds: 10))),
+              IO.race(IO.never<Unit>(), IO.sleep(10.seconds)),
             )
             .flatMap((_) => IO.now.map((end) => end.difference(start))));
 
@@ -197,7 +187,7 @@ void main() {
     group('cancelation', () {
       test('implement never with non-terminating semantics', () {
         expect(
-          IO.never<int>().timeout(const Duration(seconds: 2)),
+          IO.never<int>().timeout(2.seconds),
           ioErrored(),
         );
       });
@@ -397,7 +387,7 @@ void main() {
           });
         }).voided();
 
-        expect(test.timeout(const Duration(seconds: 5)), ioErrored());
+        expect(test.timeout(5.seconds), ioErrored());
       }, skip: 'Expected to be non-terminating');
 
       test('first canceller backpressures subsequent cancellers', () async {
@@ -431,17 +421,15 @@ void main() {
       }, skip: 'Expected to be non-terminating');
 
       test('reliably cancel infinite IO.unit(s)', () {
-        final test = IO.unit.foreverM().start().flatMap((f) => IO
-            .sleep(const Duration(milliseconds: 50))
-            .productR(() => f.cancel()));
+        final test = IO.unit.foreverM().start().flatMap(
+            (f) => IO.sleep(50.milliseconds).productR(() => f.cancel()));
 
         expect(test, ioSucceeded());
       });
 
       test('reliably cancel infinite IO.cede(s)', () {
-        final test = IO.cede.foreverM().start().flatMap((f) => IO
-            .sleep(const Duration(milliseconds: 50))
-            .productR(() => f.cancel()));
+        final test = IO.cede.foreverM().start().flatMap(
+            (f) => IO.sleep(50.milliseconds).productR(() => f.cancel()));
 
         expect(test, ioSucceeded());
       });
@@ -449,8 +437,8 @@ void main() {
       test('cancel a long sleep with a short one', () {
         expect(
           IO.race(
-            IO.sleep(const Duration(seconds: 10)),
-            IO.sleep(const Duration(milliseconds: 50)),
+            IO.sleep(10.seconds),
+            IO.sleep(50.milliseconds),
           ),
           ioSucceeded(Right<Unit, Unit>(Unit())),
         );
@@ -582,7 +570,7 @@ void main() {
       test('invoke onCase finalizer when cancelable async returns', () async {
         var passed = false;
 
-        final test = IO.sleep(const Duration(seconds: 2)).guaranteeCase((oc) {
+        final test = IO.sleep(2.seconds).guaranteeCase((oc) {
           return switch (oc) {
             final Succeeded<Unit> _ => IO.exec(() => passed = true),
             _ => IO.unit,
@@ -603,11 +591,8 @@ void main() {
       });
 
       test('cede unit in a finalizer', () {
-        final body = IO
-            .sleep(const Duration(seconds: 1))
-            .start()
-            .flatMap((f) => f.join())
-            .map((_) => 42);
+        final body =
+            IO.sleep(1.second).start().flatMap((f) => f.join()).map((_) => 42);
 
         expect(body.guarantee(IO.cede.as(Unit())), ioSucceeded(42));
       });
@@ -751,15 +736,15 @@ void main() {
   });
 
   test('fromFuture success', () {
-    final io = IO.fromFuture(IO.delay(
-        () => Future.delayed(const Duration(milliseconds: 250), () => 42)));
+    final io = IO
+        .fromFuture(IO.delay(() => Future.delayed(250.milliseconds, () => 42)));
 
     expect(io, ioSucceeded(42));
   });
 
   test('fromFuture error', () {
-    final io = IO.fromFuture(IO.delay(() => Future<int>.delayed(
-        const Duration(milliseconds: 250), () => Future.error('boom'))));
+    final io = IO.fromFuture(IO.delay(() =>
+        Future<int>.delayed(250.milliseconds, () => Future.error('boom'))));
 
     expect(io, ioErrored((RuntimeException ex) => ex.message == 'boom'));
   });
@@ -769,7 +754,7 @@ void main() {
 
     final io = IO
         .fromCancelableOperation(IO.delay(() => CancelableOperation.fromFuture(
-              Future.delayed(const Duration(milliseconds: 200), () => 42),
+              Future.delayed(200.milliseconds, () => 42),
               onCancel: () => opWasCanceled = true,
             )));
 
@@ -782,16 +767,13 @@ void main() {
 
     final io = IO
         .fromCancelableOperation(IO.delay(() => CancelableOperation.fromFuture(
-              Future.delayed(const Duration(milliseconds: 500), () => 42),
+              Future.delayed(500.milliseconds, () => 42),
               onCancel: () => opWasCanceled = true,
             )));
 
     final fiber = await io.start().unsafeRunFuture();
 
-    fiber
-        .cancel()
-        .delayBy(const Duration(milliseconds: 100))
-        .unsafeRunAndForget();
+    fiber.cancel().delayBy(100.milliseconds).unsafeRunAndForget();
 
     final oc = await fiber.join().unsafeRunFuture();
 
@@ -824,8 +806,8 @@ void main() {
 
     expect(
       IO.bothOutcome(
-        IO.unit.delayBy(const Duration(milliseconds: 100)),
-        IO.unit.delayBy(const Duration(milliseconds: 200)),
+        IO.unit.delayBy(100.milliseconds),
+        IO.unit.delayBy(200.milliseconds),
       ),
       ioSucceeded(
         (Outcome.succeeded<Unit>(Unit()), Outcome.succeeded<Unit>(Unit())),
@@ -834,8 +816,8 @@ void main() {
 
     expect(
       IO.bothOutcome(
-        IO.unit.delayBy(const Duration(milliseconds: 200)),
-        IO.unit.delayBy(const Duration(milliseconds: 100)),
+        IO.unit.delayBy(200.milliseconds),
+        IO.unit.delayBy(100.milliseconds),
       ),
       ioSucceeded(
         (Outcome.succeeded<Unit>(Unit()), Outcome.succeeded<Unit>(Unit())),
@@ -856,16 +838,16 @@ void main() {
 
     expect(
       IO.raceOutcome(
-        IO.pure(0).delayBy(const Duration(milliseconds: 200)),
-        IO.pure(42).delayBy(const Duration(milliseconds: 100)),
+        IO.pure(0).delayBy(200.milliseconds),
+        IO.pure(42).delayBy(100.milliseconds),
       ),
       ioSucceeded(Outcome.succeeded(42).asRight<Outcome<int>>()),
     );
 
     expect(
       IO.raceOutcome(
-        IO.pure(0).delayBy(const Duration(milliseconds: 100)),
-        IO.pure(42).delayBy(const Duration(milliseconds: 200)),
+        IO.pure(0).delayBy(100.milliseconds),
+        IO.pure(42).delayBy(200.milliseconds),
       ),
       ioSucceeded(Outcome.succeeded(0).asLeft<Outcome<int>>()),
     );
@@ -937,7 +919,7 @@ void main() {
   });
 
   test('sleep', () async {
-    final io = IO.sleep(const Duration(milliseconds: 250));
+    final io = IO.sleep(250.milliseconds);
     expect(io, ioSucceeded(Unit()));
   });
 
@@ -955,7 +937,7 @@ void main() {
     bool finalized = false;
 
     final io = IO.async<int>((cb) => IO.delay(() {
-          Future.delayed(const Duration(seconds: 2), () => 42)
+          Future.delayed(2.seconds, () => 42)
               .then((value) => cb(value.asRight()));
 
           return IO.exec(() => finalized = true).some;
@@ -973,7 +955,7 @@ void main() {
 
   test('async_ simple', () async {
     final io = IO.async_<int>((cb) {
-      Future.delayed(const Duration(milliseconds: 100), () => 42)
+      Future.delayed(100.milliseconds, () => 42)
           .then((value) => cb(value.asRight()));
     });
 
@@ -987,10 +969,7 @@ void main() {
   });
 
   test('start simple', () async {
-    final io = IO
-        .pure(0)
-        .flatTap((_) => IO.sleep(const Duration(milliseconds: 200)))
-        .as(42);
+    final io = IO.pure(0).flatTap((_) => IO.sleep(200.milliseconds)).as(42);
 
     final fiber = await io.start().unsafeRunFuture();
     final outcome = await fiber.join().unsafeRunFuture();
@@ -1027,7 +1006,7 @@ void main() {
     final io = IO
         .pure(0)
         .onCancel(IO.exec(() => count += 100))
-        .flatTap((_) => IO.sleep(const Duration(seconds: 1)))
+        .flatTap((_) => IO.sleep(1.second))
         .as(42)
         .onCancel(IO.exec(() => count += 1))
         .onCancel(IO.exec(() => count += 2))
@@ -1046,7 +1025,7 @@ void main() {
     final io = IO
         .delay(() => 1 ~/ 0)
         .onCancel(IO.exec(() => count += 100))
-        .flatTap((_) => IO.sleep(const Duration(seconds: 1)))
+        .flatTap((_) => IO.sleep(1.second))
         .as(42)
         .onCancel(IO.exec(() => count += 1))
         .onCancel(IO.exec(() => count += 2))
@@ -1065,7 +1044,7 @@ void main() {
     final io = IO
         .pure(0)
         .onCancel(IO.exec(() => count += 100))
-        .flatTap((_) => IO.sleep(const Duration(seconds: 1)))
+        .flatTap((_) => IO.sleep(1.second))
         .as(42)
         .onCancel(IO.exec(() => count += 1))
         .onCancel(IO.exec(() => count += 2))
@@ -1145,7 +1124,7 @@ void main() {
   });
 
   test('timed', () async {
-    final ioa = IO.pure(42).delayBy(const Duration(milliseconds: 250)).timed();
+    final ioa = IO.pure(42).delayBy(250.milliseconds).timed();
 
     final (elapsed, value) = await ioa.unsafeRunFuture();
 
@@ -1154,9 +1133,9 @@ void main() {
   });
 
   test('map3', () async {
-    final ioa = IO.pure(1).delayBy(const Duration(milliseconds: 200));
-    final iob = IO.pure(2).delayBy(const Duration(milliseconds: 200));
-    final ioc = IO.pure(3).delayBy(const Duration(milliseconds: 200));
+    final ioa = IO.pure(1).delayBy(200.milliseconds);
+    final iob = IO.pure(2).delayBy(200.milliseconds);
+    final ioc = IO.pure(3).delayBy(200.milliseconds);
 
     final (elapsed, value) = await (ioa, iob, ioc)
         .mapN((a, b, c) => a + b + c)
@@ -1168,9 +1147,9 @@ void main() {
   });
 
   test('asyncMapN', () async {
-    final ioa = IO.pure(1).delayBy(const Duration(milliseconds: 500));
-    final iob = IO.pure(2).delayBy(const Duration(milliseconds: 500));
-    final ioc = IO.pure(3).delayBy(const Duration(milliseconds: 500));
+    final ioa = IO.pure(1).delayBy(500.milliseconds);
+    final iob = IO.pure(2).delayBy(500.milliseconds);
+    final ioc = IO.pure(3).delayBy(500.milliseconds);
 
     final (elapsed, value) = await (ioa, iob, ioc)
         .parMapN((a, b, c) => a + b + c)
@@ -1327,8 +1306,8 @@ void main() {
   test('timeoutTo initial', () {
     final io = IO
         .pure(42)
-        .delayBy(const Duration(milliseconds: 200))
-        .timeoutTo(const Duration(milliseconds: 100), IO.pure(0));
+        .delayBy(200.milliseconds)
+        .timeoutTo(100.milliseconds, IO.pure(0));
 
     expect(io, ioSucceeded(0));
   });
@@ -1336,26 +1315,20 @@ void main() {
   test('timeoutTo fallback', () {
     final io = IO
         .pure(42)
-        .delayBy(const Duration(milliseconds: 100))
-        .timeoutTo(const Duration(milliseconds: 200), IO.pure(0));
+        .delayBy(100.milliseconds)
+        .timeoutTo(200.milliseconds, IO.pure(0));
 
     expect(io, ioSucceeded(42));
   });
 
   test('timeout success', () {
-    final io = IO
-        .pure(42)
-        .delayBy(const Duration(milliseconds: 100))
-        .timeout(const Duration(milliseconds: 200));
+    final io = IO.pure(42).delayBy(100.milliseconds).timeout(200.milliseconds);
 
     expect(io, ioSucceeded(42));
   });
 
   test('timeout failure', () {
-    final io = IO
-        .pure(42)
-        .delayBy(const Duration(milliseconds: 200))
-        .timeout(const Duration(milliseconds: 100));
+    final io = IO.pure(42).delayBy(200.milliseconds).timeout(100.milliseconds);
 
     expect(
       io,
@@ -1467,7 +1440,7 @@ void main() {
 
     final (elapsed, _) = await IO
         .exec(() => count += 1)
-        .delayBy(const Duration(milliseconds: 200))
+        .delayBy(200.milliseconds)
         .parReplicate_(n)
         .timed()
         .unsafeRunFuture();
@@ -1477,8 +1450,8 @@ void main() {
   });
 
   test('racePair A wins', () async {
-    final ioa = IO.pure(123).delayBy(const Duration(milliseconds: 150));
-    final iob = IO.pure('abc').delayBy(const Duration(milliseconds: 210));
+    final ioa = IO.pure(123).delayBy(150.milliseconds);
+    final iob = IO.pure('abc').delayBy(210.milliseconds);
 
     final race = IO.racePair(ioa, iob);
 
@@ -1495,12 +1468,12 @@ void main() {
 
     // Not sure why this is necessary but previous bugs would only appear
     // when this was added
-    await Future.delayed(const Duration(seconds: 1), () {});
+    await Future.delayed(1.second, () {});
   });
 
   test('racePair B wins', () async {
-    final ioa = IO.pure(123).delayBy(const Duration(milliseconds: 150));
-    final iob = IO.pure('abc').delayBy(const Duration(milliseconds: 50));
+    final ioa = IO.pure(123).delayBy(150.milliseconds);
+    final iob = IO.pure('abc').delayBy(50.milliseconds);
 
     final race = IO.racePair(ioa, iob);
 
@@ -1517,7 +1490,7 @@ void main() {
 
     // Not sure why this is necessary but previous bugs would only appear
     // when this was added
-    await Future.delayed(const Duration(seconds: 1), () {});
+    await Future.delayed(1.second, () {});
   });
 
   test('race', () async {
@@ -1526,12 +1499,12 @@ void main() {
 
     final ioa = IO
         .pure(42)
-        .delayBy(const Duration(milliseconds: 100))
+        .delayBy(100.milliseconds)
         .onCancel(IO.exec(() => aCanceled = true));
 
     final iob = IO
         .pure('B')
-        .delayBy(const Duration(milliseconds: 200))
+        .delayBy(200.milliseconds)
         .onCancel(IO.exec(() => bCanceled = true));
 
     await expectLater(IO.race(ioa, iob), ioSucceeded(42.asLeft<String>()));
@@ -1540,8 +1513,8 @@ void main() {
   });
 
   test('both success', () {
-    final ioa = IO.pure(0).delayBy(const Duration(milliseconds: 200));
-    final iob = IO.pure(1).delayBy(const Duration(milliseconds: 100));
+    final ioa = IO.pure(0).delayBy(200.milliseconds);
+    final iob = IO.pure(1).delayBy(100.milliseconds);
 
     expect(IO.both(ioa, iob), ioSucceeded((0, 1)));
   });
@@ -1549,32 +1522,28 @@ void main() {
   test('both error', () {
     final ioa = IO
         .pure(0)
-        .delayBy(const Duration(milliseconds: 200))
+        .delayBy(200.milliseconds)
         .productR(() => IO.raiseError<int>(RuntimeException('boom')));
 
-    final iob = IO.pure(1).delayBy(const Duration(milliseconds: 100));
+    final iob = IO.pure(1).delayBy(100.milliseconds);
 
     expect(IO.both(ioa, iob), ioErrored());
   });
 
   test('both (A canceled)', () {
-    final ioa = IO
-        .pure(0)
-        .productR(() => IO.canceled)
-        .delayBy(const Duration(milliseconds: 100));
+    final ioa =
+        IO.pure(0).productR(() => IO.canceled).delayBy(100.milliseconds);
 
-    final iob = IO.pure(1).delayBy(const Duration(milliseconds: 200));
+    final iob = IO.pure(1).delayBy(200.milliseconds);
 
     expect(IO.both(ioa, iob), ioCanceled());
   });
 
   test('both (B canceled)', () {
-    final ioa = IO.pure(0).delayBy(const Duration(milliseconds: 200));
+    final ioa = IO.pure(0).delayBy(200.milliseconds);
 
-    final iob = IO
-        .pure(1)
-        .productR(() => IO.canceled)
-        .delayBy(const Duration(milliseconds: 100));
+    final iob =
+        IO.pure(1).productR(() => IO.canceled).delayBy(100.milliseconds);
 
     expect(IO.both(ioa, iob), ioCanceled());
   });
@@ -1585,12 +1554,11 @@ void main() {
 
     final tinyTask = IO
         .exec(() => count += 1)
-        .delayBy(const Duration(milliseconds: 50))
+        .delayBy(50.milliseconds)
         .iterateWhile((_) => count < 5)
         .onCancel(IO.exec(() => canceled = true));
 
-    final test =
-        tinyTask.background().surround(IO.sleep(const Duration(seconds: 1)));
+    final test = tinyTask.background().surround(IO.sleep(1.second));
 
     await expectLater(test, ioSucceeded());
     expect(count, 5);
@@ -1603,13 +1571,11 @@ void main() {
 
     final foreverTask = IO
         .exec(() => count += 1)
-        .delayBy(const Duration(milliseconds: 50))
+        .delayBy(50.milliseconds)
         .foreverM()
         .onCancel(IO.exec(() => canceled = true));
 
-    final test = foreverTask
-        .background()
-        .use((_) => IO.sleep(const Duration(seconds: 1)));
+    final test = foreverTask.background().use((_) => IO.sleep(1.second));
 
     await expectLater(test, ioSucceeded());
     expect(count, 19);
@@ -1619,8 +1585,7 @@ void main() {
   test('whileM', () {
     final start = DateTime.now();
     final cond = IO.delay(() => DateTime.now().difference(start).inSeconds < 1);
-    final test =
-        IO.pure(1).delayBy(const Duration(milliseconds: 200)).whilelM(cond);
+    final test = IO.pure(1).delayBy(200.milliseconds).whilelM(cond);
 
     expect(test, ioSucceeded(IList.fill(5, 1)));
   });

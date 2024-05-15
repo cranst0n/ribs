@@ -8,8 +8,8 @@ void main() {
   test('additional writes ignored', () {
     final d = Deferred.unsafe<int>();
 
-    final writeA = d.complete(42).delayBy(const Duration(milliseconds: 100));
-    final writeB = d.complete(43).delayBy(const Duration(milliseconds: 150));
+    final writeA = d.complete(42).delayBy(100.milliseconds);
+    final writeB = d.complete(43).delayBy(150.milliseconds);
 
     expect(
       (writeA, writeB, d.value()).parTupled(),
@@ -25,9 +25,7 @@ void main() {
     final reader =
         d.value().flatTap((a) => IO.exec(() => readerNotified = true)).start();
 
-    final writer = IO
-        .defer(() => d.complete(42))
-        .delayBy(const Duration(milliseconds: 200));
+    final writer = IO.defer(() => d.complete(42)).delayBy(200.milliseconds);
 
     final (_, writerSuccessful) =
         await IO.both(reader, writer).unsafeRunFuture();
@@ -45,11 +43,9 @@ void main() {
         .value()
         .flatTap((a) => IO.exec(() => readerNotified = true))
         .start()
-        .flatMap((f) => f.cancel().delayBy(const Duration(milliseconds: 100)));
+        .flatMap((f) => f.cancel().delayBy(100.milliseconds));
 
-    final writer = IO
-        .defer(() => d.complete(42))
-        .delayBy(const Duration(milliseconds: 200));
+    final writer = IO.defer(() => d.complete(42)).delayBy(200.milliseconds);
 
     final (_, writerSuccessful) =
         await IO.both(reader, writer).unsafeRunFuture();
