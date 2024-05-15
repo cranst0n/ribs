@@ -104,7 +104,6 @@ void main() {
   test('release is always uninterruptible', () {
     final flag = IO.ref(false);
     final sleep = IO.sleep(1.second);
-    const timeout = Duration(milliseconds: 500);
 
     final test = flag.flatMap((releaseComplete) {
       final release = sleep.productR(() => releaseComplete.setValue(true));
@@ -113,7 +112,7 @@ void main() {
 
       return resource
           .use_()
-          .timeout(timeout)
+          .timeout(500.milliseconds)
           .attempt()
           .productR(() => releaseComplete.value());
     });

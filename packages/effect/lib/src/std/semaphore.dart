@@ -3,6 +3,10 @@ import 'package:ribs_effect/ribs_effect.dart';
 
 abstract class Semaphore {
   static IO<Semaphore> permits(int n) {
+    if (n < 0) {
+      throw ArgumentError('n must be nonnegative, was: $n');
+    }
+
     return IO.ref(_State(n, IQueue.empty())).map(_SemaphoreImpl.new);
   }
 
@@ -28,13 +32,13 @@ abstract class Semaphore {
       tryAcquire(), (acquired) => IO.whenA(acquired, () => release()));
 }
 
-final class Request {
+final class _Request {
   final int n;
   final Deferred<Unit> gate;
 
-  const Request(this.n, this.gate);
+  const _Request(this.n, this.gate);
 
-  Request of(int newN) => Request(newN, gate);
+  _Request of(int newN) => _Request(newN, gate);
 
   IO<Unit> wait() => gate.value();
 
@@ -43,7 +47,7 @@ final class Request {
 
 final class _State {
   final int permits;
-  final IQueue<Request> waiting;
+  final IQueue<_Request> waiting;
 
   const _State(this.permits, this.waiting);
 }
@@ -55,7 +59,7 @@ final class _SemaphoreImpl extends Semaphore {
 
   _SemaphoreImpl(this.state);
 
-  IO<Request> newRequest() => IO.deferred<Unit>().map((a) => Request(0, a));
+  IO<_Request> _newRequest() => IO.deferred<Unit>().map((a) => _Request(0, a));
 
   @override
   IO<Unit> acquireN(int n) {
@@ -63,7 +67,7 @@ final class _SemaphoreImpl extends Semaphore {
       return IO.unit;
     } else {
       return IO.uncancelable((poll) {
-        return newRequest().flatMap((req) {
+        return _newRequest().flatMap((req) {
           return state.modify((currentState) {
             late _State newState;
             late _Action decision;
@@ -133,10 +137,10 @@ final class _SemaphoreImpl extends Semaphore {
   @override
   IO<Unit> releaseN(int n) {
     // TODO: tailrec
-    (int, IQueue<Request>, IQueue<Request>) fulfil(
+    (int, IQueue<_Request>, IQueue<_Request>) fulfil(
       int n,
-      IQueue<Request> requests,
-      IQueue<Request> wakeup,
+      IQueue<_Request> requests,
+      IQueue<_Request> wakeup,
     ) {
       final (req, tail) = requests.dequeue();
 
