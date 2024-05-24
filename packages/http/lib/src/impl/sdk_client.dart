@@ -46,7 +46,7 @@ class SdkClient {
           .flatTap((a) => IO.exec(() => req.body.bodyLength
               .foreach((len) => a.headers.add('Content-Length', len))))
           .flatTap((a) => IO.fromFutureF(() => a.addStream(req.body)))
-          .flatMap((ref) => IO.pure(ref).onCancel(IO.exec(ref.abort)));
+          .flatMap((req) => IO.pure(req).onCancel(IO.exec(req.abort)));
 
   static IO<Response> _convertResponse(HttpClientResponse resp) =>
       IO.fromEither(Status.fromInt(resp.statusCode)).map((status) => Response(
