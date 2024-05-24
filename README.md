@@ -19,6 +19,7 @@
 
 ![http](https://img.shields.io/badge/ribs__http-unpublished-f00000)
 ![rill](https://img.shields.io/badge/ribs__rill-unpublished-f00000)
+![sqlite](https://img.shields.io/badge/ribs__sqlite-unpublished-f00000)
 
 **🧪 Experimental FP packages for Dart 🧪**
 
@@ -26,6 +27,33 @@
 
 
 [Documentation](https://cranst0n.github.io/ribs/)
+
+### Unpublished Libraries
+
+**rill**
+
+While the existing library is somewhat useful for tinkering around there are at least 2 major
+roadblocks that should be addressed before rill is reliably useful in the wild:
+
+* [Lower Type Bounds][https://github.com/dart-lang/language/issues/1674]
+* [Variance][https://github.com/dart-lang/language/issues/213]
+
+Both of these features exist in Scala, which in part, is what makes fs2 work so
+well. Lack of these features severly limits the general usefulness.
+
+**http**
+
+Building a production ready http library is a massive undertaking, and one that isn't within
+the scope of my efforts today, or maybe ever. ribs_http is a proof of concept that works for
+small limited use-cases. I use if for small toy project because it fits in well with the rest
+of the ribs ecosystem. If you want to do anything mildly out of the ordinary, chances are you'll
+have to build something yourself. ribs_http should also be dependent on rill, so until a good
+streaming library exists, the utility is limited here.
+
+**sqlite**
+
+This is still a fairly immature library but has proven useful in my toy projects so could be
+published at some point.
 
 </div>
 
@@ -56,6 +84,7 @@ the following libraries.
 * [monocle](https://www.optics.dev/Monocle/)
 * [sqaunts](https://github.com/typelevel/squants)
 * [cats-retry](https://github.com/cb372/cats-retry)
+* [doobie](https://github.com/tpolecat/doobie)
 * [dart-check](https://github.com/wigahluk/dart-check)
 * [ip4s](https://github.com/Comcast/ip4s)
 * [punycode_converter](https://github.com/darkxanter/punycode_converter)
