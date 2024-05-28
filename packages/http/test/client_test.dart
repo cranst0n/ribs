@@ -88,7 +88,7 @@ void main() {
         );
 
     final test = Client.sdk().use((client) {
-      return Backpressured.create(client, 3).flatMap((client) {
+      return Backpressured.create(client, 1).flatMap((client) {
         return IList.tabulate(5, (_) => req()).parTraverseIO((req) => client
             .request(req)
             .flatTap((resp) => IO.println('Response: $resp')));
