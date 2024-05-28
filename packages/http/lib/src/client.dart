@@ -64,52 +64,70 @@ abstract class Client {
   // ///////////////////////////////////////////////////////////////////////////
 
   IO<Response> delete(
+    String uri, {
+    Headers headers = Headers.empty,
+    EntityBody body = EntityBody.Empty,
+  }) =>
+      IO
+          .fromEither(_uri(uri))
+          .flatMap((uri) => deleteUri(uri, headers: headers, body: body));
+
+  IO<Response> deleteUri(
     Uri uri, {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
   }) =>
       request(Request.delete(uri).withHeaders(headers).withBody(body));
 
-  IO<Response> deleteString(
+  IO<Response> get(
     String uri, {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
   }) =>
       IO
           .fromEither(_uri(uri))
-          .flatMap((uri) => delete(uri, headers: headers, body: body));
+          .flatMap((uri) => getUri(uri, headers: headers, body: body));
 
-  IO<Response> get(
+  IO<Json> getJson(
+    String uri, {
+    Headers headers = Headers.empty,
+    EntityBody body = EntityBody.Empty,
+  }) =>
+      IO.fromEither(_uri(uri)).flatMap((uri) => fetch(
+          Request(uri: uri, headers: headers, body: body), EntityDecoder.json));
+
+  IO<A> getJsonAs<A>(
+    String uri,
+    Decoder<A> decoder, {
+    Headers headers = Headers.empty,
+    EntityBody body = EntityBody.Empty,
+  }) =>
+      IO.fromEither(_uri(uri)).flatMap((uri) => fetch(
+          Request(uri: uri, headers: headers, body: body),
+          EntityDecoder.jsonAs(decoder)));
+
+  IO<Response> getUri(
     Uri uri, {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
   }) =>
       request(Request.get(uri).withHeaders(headers).withBody(body));
 
-  IO<Response> getString(
+  IO<Response> post(
     String uri, {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
   }) =>
       IO
           .fromEither(_uri(uri))
-          .flatMap((uri) => get(uri, headers: headers, body: body));
+          .flatMap((uri) => postUri(uri, headers: headers, body: body));
 
-  IO<Response> post(
+  IO<Response> postUri(
     Uri uri, {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
   }) =>
       request(Request.post(uri).withHeaders(headers).withBody(body));
-
-  IO<Response> postString(
-    String uri, {
-    Headers headers = Headers.empty,
-    EntityBody body = EntityBody.Empty,
-  }) =>
-      IO
-          .fromEither(_uri(uri))
-          .flatMap((uri) => post(uri, headers: headers, body: body));
 
   Either<FormatException, Uri> _uri(String s) {
     try {
