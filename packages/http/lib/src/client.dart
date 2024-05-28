@@ -63,6 +63,54 @@ abstract class Client {
 
   // ///////////////////////////////////////////////////////////////////////////
 
+  IO<Response> delete(
+    Uri uri, {
+    Headers headers = Headers.empty,
+    EntityBody body = EntityBody.Empty,
+  }) =>
+      request(Request.delete(uri).withHeaders(headers).withBody(body));
+
+  IO<Response> deleteString(
+    String uri, {
+    Headers headers = Headers.empty,
+    EntityBody body = EntityBody.Empty,
+  }) =>
+      IO
+          .fromEither(_uri(uri))
+          .flatMap((uri) => delete(uri, headers: headers, body: body));
+
+  IO<Response> get(
+    Uri uri, {
+    Headers headers = Headers.empty,
+    EntityBody body = EntityBody.Empty,
+  }) =>
+      request(Request.get(uri).withHeaders(headers).withBody(body));
+
+  IO<Response> getString(
+    String uri, {
+    Headers headers = Headers.empty,
+    EntityBody body = EntityBody.Empty,
+  }) =>
+      IO
+          .fromEither(_uri(uri))
+          .flatMap((uri) => get(uri, headers: headers, body: body));
+
+  IO<Response> post(
+    Uri uri, {
+    Headers headers = Headers.empty,
+    EntityBody body = EntityBody.Empty,
+  }) =>
+      request(Request.post(uri).withHeaders(headers).withBody(body));
+
+  IO<Response> postString(
+    String uri, {
+    Headers headers = Headers.empty,
+    EntityBody body = EntityBody.Empty,
+  }) =>
+      IO
+          .fromEither(_uri(uri))
+          .flatMap((uri) => post(uri, headers: headers, body: body));
+
   Either<FormatException, Uri> _uri(String s) {
     try {
       return Uri.parse(s).asRight();

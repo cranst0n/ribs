@@ -13,6 +13,11 @@ final class Request extends Message {
     super.body,
   });
 
+  factory Request.delete(Uri uri) => Request(method: Method.DELETE, uri: uri);
+  factory Request.get(Uri uri) => Request(uri: uri);
+  factory Request.post(Uri uri) => Request(method: Method.POST, uri: uri);
+  factory Request.put(Uri uri) => Request(method: Method.PUT, uri: uri);
+
   Request copy({
     Method? method,
     Uri? uri,
