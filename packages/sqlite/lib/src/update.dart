@@ -9,7 +9,7 @@ final class Update<A> {
 
   const Update(this.raw, this.write);
 
-  UpdateStatment update(A a) => UpdateStatment((db) => IO.exec(() {
+  UpdateStatement update(A a) => UpdateStatement((db) => IO.exec(() {
         db.execute(
           raw,
           write
@@ -19,8 +19,8 @@ final class Update<A> {
         );
       }));
 
-  UpdateStatment updateMany(RIterable<A> as) {
-    return UpdateStatment((db) {
+  UpdateStatement updateMany(RIterable<A> as) {
+    return UpdateStatement((db) {
       return IO.delay(() => db.prepare(raw)).bracket(
             (ps) => IO.exec(
               () => as.foreach((a) {
@@ -37,19 +37,19 @@ final class Update<A> {
   }
 }
 
-final class UpdateStatment {
+final class UpdateStatement {
   final Function1<Database, IO<Unit>> _runIt;
 
-  const UpdateStatment(this._runIt);
+  const UpdateStatement(this._runIt);
 
   IO<Unit> run(Database db) => _runIt(db);
 }
 
 extension UpdateOps on String {
   Update<A> update<A>(Write<A> write) => Update(this, write);
-  UpdateStatment get update0 => Update(this, Write.unit).run;
+  UpdateStatement get update0 => Update(this, Write.unit).run;
 }
 
 extension Update0UnitOps on Update<Unit> {
-  UpdateStatment get run => update(Unit());
+  UpdateStatement get run => update(Unit());
 }
