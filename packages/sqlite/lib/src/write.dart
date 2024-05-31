@@ -34,7 +34,7 @@ extension WriteOptionOps<A> on Write<A> {
   Write<Option<A>> optional() => Write.instance(
         puts,
         (params, n, a) => a.fold(
-          () => params.setParameter(n, null),
+          () => params.setParameter(n + length - 1, null),
           (some) => setParameter(params, n, some),
         ),
       );
@@ -57,8 +57,8 @@ extension Tuple2WriteOps<A, B> on (Write<A>, Write<B>) {
   Write<(A, B)> get tupled => Write.instance(
         ilist([$1.puts, $2.puts]).flatten(),
         (params, n, tuple) {
-          final p0 = $1.setParameter(params, 0, tuple.$1);
-          return $2.setParameter(p0, $1.length, tuple.$2);
+          final p0 = $1.setParameter(params, n, tuple.$1);
+          return $2.setParameter(p0, n + $1.length, tuple.$2);
         },
       );
 }

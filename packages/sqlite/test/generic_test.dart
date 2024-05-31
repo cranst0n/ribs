@@ -166,4 +166,33 @@ void main() {
         .unsafeRunFuture();
     expect(resSome, Unit());
   });
+
+  test('optional xmap', () async {
+    final db = sqlite3.openInMemory();
+
+    await ilist(['create table foo (a integer, b string, c integer, d string)'])
+        .traverseIO_((sql) => sql.update0.run(db))
+        .unsafeRunFuture();
+
+    final tupRW = (
+      ReadWrite.integer,
+      ReadWrite.string,
+    ).tupled.optional();
+
+    final rw = (tupRW, tupRW).tupled;
+
+    final stmt = 'insert into foo values (?,?,?,?)'.update(rw);
+
+    Future<void> testInsert(
+        Option<(int, String)> a, Option<(int, String)> b) async {
+      final res = await stmt.update((a, b)).run(db).unsafeRunFuture();
+
+      expect(res, Unit());
+    }
+
+    await testInsert((1, '1').some, (2, '2').some);
+    await testInsert((1, '1').some, none());
+    await testInsert(none(), (2, '2').some);
+    await testInsert(none(), none());
+  });
 }
