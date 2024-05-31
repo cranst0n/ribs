@@ -33,7 +33,10 @@ abstract mixin class Write<A> {
 extension WriteOptionOps<A> on Write<A> {
   Write<Option<A>> optional() => Write.instance(
         puts,
-        (params, n, a) => params.setParameter(n, a.toNullable()),
+        (params, n, a) => a.fold(
+          () => params.setParameter(n, null),
+          (some) => setParameter(params, n, some),
+        ),
       );
 }
 

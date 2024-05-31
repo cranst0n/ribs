@@ -6,8 +6,25 @@ import 'package:ribs_sqlite/ribs_sqlite.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:test/test.dart';
 
+class TodoId {
+  final int value;
+
+  const TodoId(this.value);
+
+  @override
+  String toString() => 'TodoId($value)';
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) || other is TodoId && other.value == value;
+  }
+
+  @override
+  int get hashCode => value;
+}
+
 class Todo {
-  final int id;
+  final TodoId id;
   final String title;
   final Option<String> description;
   final Json raw;
@@ -23,7 +40,7 @@ class Todo {
   String toString() => 'Todo($id, $title, $description, $raw)';
 
   static final rw = (
-    ReadWrite.integer,
+    ReadWrite.integer.xmap(TodoId.new, (id) => id.value),
     ReadWrite.string,
     ReadWrite.string.optional(),
     ReadWrite.json,
@@ -47,18 +64,19 @@ void main() {
     await 'insert into todo values(?, ?, ?, ?)'
         .update(Todo.rw)
         .updateMany(ilist([
-          Todo(1, 'Shop', Option('for groceries'),
+          Todo(const TodoId(1), 'Shop', Option('for groceries'),
               Json.arr([Json.True, Json.Null])),
           Todo(
-              2,
+              const TodoId(2),
               'Play',
               Option('baseball'),
               Json.obj([
                 ("club", Json.str("Crestwood")),
                 ("players", Json.number(4))
               ])),
-          Todo(3, 'Study', none(), Json.arr([])),
-          Todo(10, 'Test', Option('123'), Json.obj([("one", Json.True)])),
+          Todo(const TodoId(3), 'Study', none(), Json.arr([])),
+          Todo(const TodoId(10), 'Test', Option('123'),
+              Json.obj([("one", Json.True)])),
         ]))
         .run(db)
         .unsafeRunFuture();
@@ -82,7 +100,7 @@ void main() {
         .run(db)
         .unsafeRunFuture();
 
-    expect(res1.id, 2);
+    expect(res1.id, const TodoId(2));
     // expect(res1.$1.$1, 2);
 
     final res2 =
@@ -105,5 +123,47 @@ void main() {
         .unsafeRunFuture();
 
     expect(res3, ivec([(5000, 'Foo'), (5001, 'Bar')]));
+
+    final res4 = await '''select max(id) from todo'''
+        .query(Read.integer)
+        .option()
+        .run(db)
+        .unsafeRunFuture();
+
+    expect(res4, isSome(5001));
+  });
+
+  test('optional', () async {
+    final db = sqlite3.openInMemory();
+
+    await ilist(['create table foo (id integer, raw json, title string)'])
+        .traverseIO_((sql) => sql.update0.run(db))
+        .unsafeRunFuture();
+
+    final maxId = await 'select max(id) from foo'
+        .query(Read.integer.optional())
+        .unique()
+        .run(db)
+        .unsafeRunFuture();
+
+    expect(maxId, isNone());
+
+    final rw = (
+      ReadWrite.integer,
+      ReadWrite.json.optional(),
+      ReadWrite.string.optional(),
+    ).tupled;
+
+    final stmt = 'insert into foo values (?,?,?)'.update(rw);
+
+    final resNone =
+        await stmt.update((1, none(), 'A'.some)).run(db).unsafeRunFuture();
+    expect(resNone, Unit());
+
+    final resSome = await stmt
+        .update((2, Some(Json.True), none()))
+        .run(db)
+        .unsafeRunFuture();
+    expect(resSome, Unit());
   });
 }
