@@ -154,6 +154,12 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   static Gen<A> constant<A>(A a) => Gen(State.pure(a));
 
+  static Gen<DateTime> date = (
+    chooseInt(1970, DateTime.now().year + 100),
+    chooseInt(DateTime.january, DateTime.december),
+    chooseInt(0, 30),
+  ).tupled.map((t) => DateTime(t.$1, t.$2, t.$3));
+
   static Gen<DateTime> dateTime = (
     chooseInt(1970, DateTime.now().year + 100),
     chooseInt(DateTime.january, DateTime.december),
