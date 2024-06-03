@@ -357,9 +357,13 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
         });
       });
 
-  /// Prints the value of this IO (value, error or canceled) to stdout
+  /// Prints the result of this IO (value, error or canceled) to stdout
   IO<A> debug({String prefix = 'DEBUG'}) =>
-      flatTap((a) => IO.println('$prefix: $a'));
+      guaranteeCase((outcome) => outcome.fold(
+            () => IO.println('$prefix: Canceled'),
+            (err) => IO.println('$prefix: Errored: $err'),
+            (a) => IO.println('$prefix: Succeeded: $a'),
+          ));
 
   /// Return an IO that will wait the specified [duration] **before** evaluating
   /// and then return the result.
