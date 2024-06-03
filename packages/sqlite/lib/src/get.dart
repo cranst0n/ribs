@@ -12,6 +12,8 @@ abstract mixin class Get<A> {
   Get<B> map<B>(Function1<A, B> f) => _MapGet(this, f);
 
   static final Get<BigInt> bigInt = _genericGet();
+  static final Get<IList<int>> blob =
+      _genericGet<List<int>>().map(IList.fromDart);
   static final Get<DateTime> dateTime = string.emap((str) =>
       Either.catching(() => DateTime.parse(str), (err, _) => err.toString()));
   static final Get<double> dubble = _genericGet();

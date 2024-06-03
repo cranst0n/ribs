@@ -13,6 +13,8 @@ abstract mixin class Put<A> {
   Put<B> contramap<B>(Function1<B, A> f) => _PutFContramap(this, f);
 
   static final Put<BigInt> bigInt = _genericPut();
+  static final Put<IList<int>> blob =
+      _genericPut<List<int>>().contramap<IList<int>>((ilist) => ilist.toList());
   static final Put<DateTime> dateTime =
       string.contramap((dt) => dt.toIso8601String());
   static final Put<double> dubble = _genericPut();

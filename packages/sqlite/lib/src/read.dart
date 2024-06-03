@@ -33,6 +33,7 @@ abstract mixin class Read<A> {
       Read.instance(gets, (row, n) => f(unsafeGet(row, n)));
 
   static Read<BigInt> bigInt = Read.fromGet(Get.bigInt);
+  static Read<IList<int>> blob = Read.fromGet(Get.blob);
   static Read<DateTime> dateTime = Read.fromGet(Get.dateTime);
   static Read<double> dubble = Read.fromGet(Get.dubble);
   static Read<int> integer = Read.fromGet(Get.integer);

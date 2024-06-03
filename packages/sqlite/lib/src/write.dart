@@ -23,6 +23,7 @@ abstract mixin class Write<A> {
   static final unit = Write.instance<Unit>(nil(), (params, _, __) => params);
 
   static final bigInt = Write.fromPut(Put.bigInt);
+  static final blob = Write.fromPut(Put.blob);
   static final dateTime = Write.fromPut(Put.dateTime);
   static final dubble = Write.fromPut(Put.dubble);
   static final integer = Write.fromPut(Put.integer);

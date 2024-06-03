@@ -31,6 +31,7 @@ class ReadWrite<A> extends Read<A> with Write<A> {
       ReadWrite(read.emap(f), write.contramap(g));
 
   static final bigInt = ReadWrite(Read.bigInt, Write.bigInt);
+  static final blob = ReadWrite(Read.blob, Write.blob);
   static final dateTime = ReadWrite(Read.dateTime, Write.dateTime);
   static final dubble = ReadWrite(Read.dubble, Write.dubble);
   static final integer = ReadWrite(Read.integer, Write.integer);

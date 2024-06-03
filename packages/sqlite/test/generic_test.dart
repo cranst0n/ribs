@@ -195,4 +195,31 @@ void main() {
     await testInsert(none(), (2, '2').some);
     await testInsert(none(), none());
   });
+
+  test('blob', () async {
+    final db = sqlite3.openInMemory();
+
+    await ilist(['create table foo (a integer, b blob)'])
+        .traverseIO_((sql) => sql.update0.run(db))
+        .unsafeRunFuture();
+
+    final rw = (ReadWrite.integer, ReadWrite.blob).tupled;
+
+    final insert = 'insert into foo values (?, ?)'.update(rw);
+    final select = 'select a, b from foo'.query(rw);
+
+    final item1 = (1, ilist([1, 2, 3]));
+    final item2 = (2, ilist([4, 5, 6]));
+
+    final res0 = await insert
+        .updateMany(ilist([item1, item2]))
+        .run(db)
+        .unsafeRunFuture();
+
+    expect(res0, Unit());
+
+    final res1 = await select.ilist().run(db).unsafeRunFuture();
+
+    expect(res1, ilist([item1, item2]));
+  });
 }
