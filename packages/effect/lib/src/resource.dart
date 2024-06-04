@@ -1,8 +1,8 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
-typedef Finalizer = Function1<ExitCase, IO<Unit>>;
-typedef Update = Function1<Function1<Finalizer, Finalizer>, IO<Unit>>;
+typedef _Finalizer = Function1<ExitCase, IO<Unit>>;
+typedef _Update = Function1<Function1<_Finalizer, _Finalizer>, IO<Unit>>;
 
 /// Resource is a type that encodes the idea of performing some kind of action
 /// or allocation which in turn, requires a finalizer of some kind that must
@@ -41,7 +41,7 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// Allocated both resources asynchronously, and combines the result from
   /// each into a tuple.
   static Resource<(A, B)> both<A, B>(Resource<A> ra, Resource<B> rb) {
-    IO<C> allocate<C>(Resource<C> r, Update storeFinalizer) {
+    IO<C> allocate<C>(Resource<C> r, _Update storeFinalizer) {
       return r._fold(
         IO.pure,
         (release, _) => storeFinalizer(
@@ -51,7 +51,7 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
       );
     }
 
-    Finalizer noop() => (_) => IO.unit;
+    _Finalizer noop() => (_) => IO.unit;
     final bothFinalizers = Ref.of((noop(), noop()));
 
     return Resource.makeCase(bothFinalizers, (finalizers, ec) {
