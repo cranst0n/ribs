@@ -5,4 +5,5 @@ export 'src/query.dart';
 export 'src/read.dart';
 export 'src/read_write.dart';
 export 'src/update.dart';
+export 'src/update_query.dart';
 export 'src/write.dart';
