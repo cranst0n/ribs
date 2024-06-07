@@ -13,6 +13,8 @@ final class Query<A> {
 
   QueryStatement<A, IVector<A>> ivector() => QueryStatement.ivector(this);
 
+  QueryStatement<A, NonEmptyIList<A>> nel() => QueryStatement.nel(this);
+
   QueryStatement<A, Option<A>> option() => QueryStatement.option(this);
 
   QueryStatement<A, A> unique() => QueryStatement.unique(this);
@@ -39,6 +41,23 @@ class QueryStatement<A, B> {
       }
 
       return bldr.toIList();
+    });
+  }
+
+  static QueryStatement<A, NonEmptyIList<A>> nel<A>(Query<A> query) {
+    return QueryStatement._(query, (resultSet) {
+      if (resultSet.isNotEmpty) {
+        final bldr = IList.builder<A>();
+        final it = RIterator.fromDart(resultSet.iterator);
+
+        while (it.hasNext) {
+          bldr.addOne(query.read.unsafeGet(it.next(), 0));
+        }
+
+        return NonEmptyIList.unsafe(bldr);
+      } else {
+        throw Exception('Exepected 1 or more rows. Found ${resultSet.length}');
+      }
     });
   }
 
