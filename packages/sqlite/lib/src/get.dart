@@ -14,6 +14,7 @@ abstract mixin class Get<A> {
   static final Get<BigInt> bigInt = _genericGet();
   static final Get<IList<int>> blob =
       _genericGet<List<int>>().map(IList.fromDart);
+  static final Get<bool> boolean = integer.map((i) => i != 0);
   static final Get<DateTime> dateTime = string.emap((str) =>
       Either.catching(() => DateTime.parse(str), (err, _) => err.toString()));
   static final Get<double> dubble = _genericGet();

@@ -237,11 +237,10 @@ void main() {
   test('updateQuery', () async {
     final db = sqlite3.openInMemory();
 
-    final insertAll = ilist([
-      'create table todo (id integer primary key, title text not null, description text, raw json)',
-    ]).traverseIO_((sql) => sql.update0.run(db));
-
-    await insertAll.unsafeRunFuture();
+    await 'create table todo (id integer primary key, title text not null, description text, raw json)'
+        .update0
+        .run(db)
+        .unsafeRunFuture();
 
     final tupleW =
         (Write.string, Write.string.optional(), Write.json.optional()).tupled;
@@ -294,5 +293,26 @@ void main() {
           (9, 'yyy'),
           (10, 'zzz'),
         ]));
+  });
+
+  test('boolean', () async {
+    final db = sqlite3.openInMemory();
+    await 'create table todo (id integer primary key, title text not null, done integer)'
+        .update0
+        .run(db)
+        .unsafeRunFuture();
+
+    final rw = (ReadWrite.integer, ReadWrite.string, ReadWrite.boolean).tupled;
+
+    final ins = 'insert into todo values (?,?,?)'.update(rw);
+    final qur = 'select id, title, done from todo'.query(rw);
+
+    const item = (1, 'Shop', false);
+
+    final res0 = await ins.update(item).run(db).unsafeRunFuture();
+    final res1 = await qur.unique().run(db).unsafeRunFuture();
+
+    expect(res0, Unit());
+    expect(res1, item);
   });
 }

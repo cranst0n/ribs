@@ -15,6 +15,7 @@ abstract mixin class Put<A> {
   static final Put<BigInt> bigInt = _genericPut();
   static final Put<IList<int>> blob =
       _genericPut<List<int>>().contramap<IList<int>>((ilist) => ilist.toList());
+  static final Put<bool> boolean = integer.contramap((b) => b ? 1 : 0);
   static final Put<DateTime> dateTime =
       string.contramap((dt) => dt.toIso8601String());
   static final Put<double> dubble = _genericPut();

@@ -34,6 +34,7 @@ abstract mixin class Read<A> {
 
   static Read<BigInt> bigInt = Read.fromGet(Get.bigInt);
   static Read<IList<int>> blob = Read.fromGet(Get.blob);
+  static Read<bool> boolean = Read.fromGet(Get.boolean);
   static Read<DateTime> dateTime = Read.fromGet(Get.dateTime);
   static Read<double> dubble = Read.fromGet(Get.dubble);
   static Read<int> integer = Read.fromGet(Get.integer);

@@ -24,6 +24,7 @@ abstract mixin class Write<A> {
 
   static final bigInt = Write.fromPut(Put.bigInt);
   static final blob = Write.fromPut(Put.blob);
+  static final boolean = Write.fromPut(Put.boolean);
   static final dateTime = Write.fromPut(Put.dateTime);
   static final dubble = Write.fromPut(Put.dubble);
   static final integer = Write.fromPut(Put.integer);
