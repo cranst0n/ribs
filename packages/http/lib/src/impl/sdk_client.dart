@@ -15,7 +15,7 @@ class SdkClient {
         ),
       );
 
-  static Client createUnsafe() {
+  static Client unsafeCreate() {
     final client = HttpClient();
     return Client.create(
       (req) => Resource.eval(_convertRequest(client, req)

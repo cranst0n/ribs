@@ -6,6 +6,7 @@ import 'package:ribs_json/ribs_json.dart';
 
 abstract class Client {
   static Resource<Client> sdk() => SdkClient.create();
+  static Client unsafeSdk() => SdkClient.unsafeCreate();
 
   static Client create(Function1<Request, Resource<Response>> run) =>
       _ClientF(run);
