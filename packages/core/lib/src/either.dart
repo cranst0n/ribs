@@ -102,6 +102,9 @@ sealed class Either<A, B> implements Monad<B> {
   bool forall(Function1<B, bool> p) =>
       foldLeft(true, (acc, elem) => acc && p(elem));
 
+  /// Applies side effect [f] if this is a [Right].
+  void foreach<U>(Function1<B, U> f) => fold((_) {}, f);
+
   /// Returns thes value if this is a [Right], otherwise, the result of
   /// evaluating [orElse] is returned.
   B getOrElse(Function0<B> orElse) => fold((_) => orElse(), identity);

@@ -105,6 +105,16 @@ void main() {
       expect(testLeft.foldRight<int>(0, sum), 0);
     });
 
+    test('foreach', () {
+      var count = 0;
+
+      testLeft.foreach((_) => count += 1);
+      expect(count, 0);
+
+      testRight.foreach((_) => count += 1);
+      expect(count, 1);
+    });
+
     test('getOrElse', () {
       expect(testRight.getOrElse(() => fail('boom')), 1);
       expect(testLeft.getOrElse(() => -1), -1);
