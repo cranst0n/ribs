@@ -85,7 +85,8 @@ mixin RSeq<A> on RIterable<A> {
   /// Returns a new collection with the difference of this and [that], i.e.
   /// all elements that appear in **only** this collection.
   RSeq<A> diff(RSeq<A> that) {
-    final occ = _occCounts(that);
+    final occ = <A, int>{};
+    that.foreach((y) => occ.update(y, (value) => value + 1, ifAbsent: () => 1));
 
     final it = iterator.filter((key) {
       var include = false;
@@ -169,6 +170,11 @@ mixin RSeq<A> on RIterable<A> {
   IMap<K, RSeq<B>> groupMap<K, B>(Function1<A, K> key, Function1<A, B> f) =>
       super.groupMap(key, f).mapValues((a) => a.toSeq());
 
+  /// Returns a range of all indices of this sequence
+  ///
+  /// Will force evaluation.
+  Range indices() => Range.exclusive(0, length);
+
   /// Returns the first index, if any, where the element at that index equals
   /// [elem]. If no index contains [elem], [None] is returned.
   Option<int> indexOf(A elem, [int from = 0]) =>
@@ -222,7 +228,8 @@ mixin RSeq<A> on RIterable<A> {
   /// Returns a new collection with the intersection of this and [that], i.e.
   /// all elements that appear in both collections.
   RSeq<A> intersect(RSeq<A> that) {
-    final occ = _occCounts(that);
+    final occ = <A, int>{};
+    that.foreach((y) => occ.update(y, (value) => value + 1, ifAbsent: () => 1));
 
     final it = iterator.filter((key) {
       var include = true;
@@ -542,12 +549,6 @@ mixin RSeq<A> on RIterable<A> {
 
   @override
   RSeq<(A, int)> zipWithIndex() => super.zipWithIndex().toSeq();
-
-  Map<B, int> _occCounts<B>(RSeq<B> sq) {
-    final occ = <B, int>{};
-    sq.foreach((y) => occ.update(y, (value) => value + 1, ifAbsent: () => 1));
-    return occ;
-  }
 }
 
 class _PermutationsItr<A> extends RIterator<RSeq<A>> {
