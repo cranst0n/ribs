@@ -348,6 +348,20 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
     if (_aliased) _copyElems();
   }
 
+  @override
+  int get hashCode => MurmurHash3.seqHash(this);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    } else if (other is RSeq<A>) {
+      return sameElements(other);
+    } else {
+      return super == other;
+    }
+  }
+
   ListBuffer<A> _freshFrom(RIterableOnce<A> xs) {
     final it = xs.iterator;
 
