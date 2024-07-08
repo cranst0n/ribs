@@ -59,7 +59,7 @@ abstract class RIterator<A> with RIterableOnce<A> {
   @override
   RIterator<A> get iterator => this;
 
-  static RIterator<A> empty<A>() => const _EmptyIterator();
+  static RIterator<A> empty<A>() => _EmptyIterator<A>();
 
   static RIterator<A> fill<A>(int len, A elem) => _FillIterator(len, elem);
 
