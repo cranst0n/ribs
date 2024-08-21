@@ -31,6 +31,7 @@ part 'riterator/iterate.dart';
 part 'riterator/map.dart';
 part 'riterator/pad_to.dart';
 part 'riterator/patch.dart';
+part 'riterator/ribs.dart';
 part 'riterator/scan_left.dart';
 part 'riterator/single.dart';
 part 'riterator/span.dart';
@@ -162,6 +163,8 @@ abstract class RIterator<A> with RIterableOnce<A> {
 
   @override
   RIterator<A> takeWhile(Function1<A, bool> p) => _TakeWhileIterator(this, p);
+
+  Iterator<A> get toDart => _RibsIterator(this);
 
   RIterator<(A, B)> zip<B>(RIterableOnce<B> that) => _ZipIterator(this, that);
 
