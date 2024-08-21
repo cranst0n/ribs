@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_sqlite/ribs_sqlite.dart';
@@ -17,6 +19,8 @@ final class Query<A> {
 
   QueryStatement<A, Option<A>> option() => QueryStatement.option(this);
 
+  QueryStatement<A, Stream<A>> stream() => QueryStatement.stream(this);
+
   QueryStatement<A, A> unique() => QueryStatement.unique(this);
 }
 
@@ -26,18 +30,22 @@ extension QueryOps on String {
 
 class QueryStatement<A, B> {
   final Query<A> query;
-  final Function1<ResultSet, B> _runIt;
 
-  const QueryStatement._(this.query, this._runIt);
+  final Function1<RIterator<Row>, B> _runIt;
+  final bool _streaming;
+
+  const QueryStatement._(
+    this.query,
+    this._runIt, [
+    this._streaming = false,
+  ]);
 
   static QueryStatement<A, IList<A>> ilist<A>(Query<A> query) {
-    return QueryStatement._(query, (resultSet) {
+    return QueryStatement._(query, (rows) {
       final bldr = IList.builder<A>();
 
-      final it = RIterator.fromDart(resultSet.iterator);
-
-      while (it.hasNext) {
-        bldr.addOne(query.read.unsafeGet(it.next(), 0));
+      while (rows.hasNext) {
+        bldr.addOne(query.read.unsafeGet(rows.next(), 0));
       }
 
       return bldr.toIList();
@@ -45,30 +53,27 @@ class QueryStatement<A, B> {
   }
 
   static QueryStatement<A, NonEmptyIList<A>> nel<A>(Query<A> query) {
-    return QueryStatement._(query, (resultSet) {
-      if (resultSet.isNotEmpty) {
+    return QueryStatement._(query, (rows) {
+      if (rows.hasNext) {
         final bldr = IList.builder<A>();
-        final it = RIterator.fromDart(resultSet.iterator);
 
-        while (it.hasNext) {
-          bldr.addOne(query.read.unsafeGet(it.next(), 0));
+        while (rows.hasNext) {
+          bldr.addOne(query.read.unsafeGet(rows.next(), 0));
         }
 
         return NonEmptyIList.unsafe(bldr);
       } else {
-        throw Exception('Exepected 1 or more rows. Found ${resultSet.length}');
+        throw Exception('Expected 1 or more rows.');
       }
     });
   }
 
   static QueryStatement<A, IVector<A>> ivector<A>(Query<A> query) {
-    return QueryStatement._(query, (resultSet) {
+    return QueryStatement._(query, (rows) {
       final bldr = IVector.builder<A>();
 
-      final it = RIterator.fromDart(resultSet.iterator);
-
-      while (it.hasNext) {
-        bldr.addOne(query.read.unsafeGet(it.next(), 0));
+      while (rows.hasNext) {
+        bldr.addOne(query.read.unsafeGet(rows.next(), 0));
       }
 
       return bldr.result();
@@ -76,32 +81,97 @@ class QueryStatement<A, B> {
   }
 
   static QueryStatement<A, Option<A>> option<A>(Query<A> query) {
-    return QueryStatement._(query, (resultSet) {
-      if (resultSet.length <= 1) {
-        return Option.when(
-          () => resultSet.length == 1,
-          () => query.read.unsafeGet(resultSet.first, 0),
-        );
+    return QueryStatement._(query, (rows) {
+      if (rows.hasNext) {
+        final res = query.read.unsafeGet(rows.next(), 0);
+        if (rows.hasNext) throw Exception('Expected exactly 0 or 1 row.');
+        return Option(res);
       } else {
-        throw Exception(
-            'Exepected exactly 0 or 1 row. Found ${resultSet.length}');
+        return none();
       }
     });
   }
 
+  static QueryStatement<A, Stream<A>> stream<A>(Query<A> query) {
+    return QueryStatement._(query, (rows) {
+      return Stream<A>.multi((controller) {
+        Iterator<A> iterator;
+        try {
+          iterator = rows.map((row) => query.read.unsafeGet(row, 0)).toDart;
+        } catch (e, s) {
+          controller.addError(e, s);
+          controller.close();
+          return;
+        }
+        final zone = Zone.current;
+        var isScheduled = true;
+
+        void next() {
+          if (!controller.hasListener || controller.isPaused) {
+            // Cancelled or paused since scheduled.
+            isScheduled = false;
+            return;
+          }
+          bool hasNext;
+          try {
+            hasNext = iterator.moveNext();
+          } catch (e, s) {
+            controller.addErrorSync(e, s);
+            controller.closeSync();
+            return;
+          }
+          if (hasNext) {
+            try {
+              controller.addSync(iterator.current);
+            } catch (e, s) {
+              controller.addErrorSync(e, s);
+            }
+            if (controller.hasListener && !controller.isPaused) {
+              zone.scheduleMicrotask(next);
+            } else {
+              isScheduled = false;
+            }
+          } else {
+            controller.closeSync();
+          }
+        }
+
+        controller.onResume = () {
+          if (!isScheduled) {
+            isScheduled = true;
+            zone.scheduleMicrotask(next);
+          }
+        };
+
+        zone.scheduleMicrotask(next);
+      });
+    }, true);
+  }
+
   static QueryStatement<A, A> unique<A>(Query<A> query) {
-    return QueryStatement._(query, (resultSet) {
-      if (resultSet.length == 1) {
-        return query.read.unsafeGet(resultSet.first, 0);
+    return QueryStatement._(query, (rows) {
+      if (rows.hasNext) {
+        final res = query.read.unsafeGet(rows.next(), 0);
+
+        if (rows.hasNext) throw Exception('Expected exactly 1 row.');
+
+        return res;
       } else {
-        throw Exception('Exepected exactly 1 row. Found ${resultSet.length}');
+        throw Exception('Expected exactly 1 row.');
       }
     });
   }
 
   IO<B> run(Database db) {
-    return IO.delay(() {
-      return _runIt(db.select(query.raw));
-    });
+    if (_streaming) {
+      // TODO: dispose ps when stream is finished ?
+      return IO
+          .delay(() => db.prepare(query.raw))
+          .map((x) => _runIt(RIterator.fromDart(x.selectCursor())));
+    } else {
+      return IO.delay(() {
+        return _runIt(RIterator.fromDart(db.select(query.raw).iterator));
+      });
+    }
   }
 }

@@ -13,34 +13,35 @@ final class UpdateQuery<A, B> {
 
   UpdateQueryStatement<A, B, B> update(A a) {
     return UpdateQueryStatement(this, (db) {
-      final resultSet = db.select(
-          raw,
-          write
-              .setParameter(IStatementParameters.empty(), 0, a)
-              .params
-              .toList());
+      return IO.delay(() {
+        final resultSet = db.select(
+            raw,
+            write
+                .setParameter(IStatementParameters.empty(), 0, a)
+                .params
+                .toList());
 
-      return IO.delay(() => read.unsafeGet(resultSet.first, 0));
+        return read.unsafeGet(resultSet.first, 0);
+      });
     });
   }
 
   UpdateQueryStatement<A, B, RIterable<B>> updateMany(RIterable<A> as) {
     return UpdateQueryStatement(this, (db) {
-      return IO.delay(() => db.prepare(raw)).bracket(
-        (ps) {
-          return IO.delay(() {
-            return as.map((a) {
-              final rs = ps.selectWith(
-                write
-                    .setParameter(IStatementParameters.empty(), 0, a)
-                    .toStatementParameters(),
-              );
+      return IO.bracketFull(
+        (_) => IO.delay(() => db.prepare(raw)),
+        (ps) => IO.delay(() {
+          return as.map((a) {
+            final rs = ps.selectWith(
+              write
+                  .setParameter(IStatementParameters.empty(), 0, a)
+                  .toStatementParameters(),
+            );
 
-              return read.unsafeGet(rs.first, 0);
-            });
+            return read.unsafeGet(rs.first, 0);
           });
-        },
-        (ps) => IO.exec(() => ps.dispose()),
+        }),
+        (ps, _) => IO.exec(() => ps.dispose()),
       );
     });
   }

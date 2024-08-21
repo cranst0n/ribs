@@ -315,4 +315,29 @@ void main() {
     expect(res0, Unit());
     expect(res1, item);
   });
+
+  test('stream', () async {
+    final db = sqlite3.openInMemory();
+    await 'create table todo (id integer primary key, title text not null, done integer)'
+        .update0
+        .run(db)
+        .unsafeRunFuture();
+
+    final rw = (ReadWrite.integer, ReadWrite.string, ReadWrite.boolean).tupled;
+
+    final ins = 'insert into todo values (?,?,?)'.update(rw);
+    final qur = 'select id, title, done from todo'.query(rw);
+
+    final items = ilist([
+      (1, 'Shop', true),
+      (2, 'Eat', false),
+      (3, 'Sleep', false),
+    ]);
+
+    final res0 = await ins.updateMany(items).run(db).unsafeRunFuture();
+    final res1 = await qur.stream().run(db).unsafeRunFuture();
+
+    expect(res0, Unit());
+    expect(res1, emitsInOrder(items.toList()));
+  });
 }

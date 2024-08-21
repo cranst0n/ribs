@@ -21,18 +21,19 @@ final class Update<A> {
 
   UpdateStatement updateMany(RIterable<A> as) {
     return UpdateStatement((db) {
-      return IO.delay(() => db.prepare(raw)).bracket(
-            (ps) => IO.exec(
-              () => as.foreach((a) {
-                ps.executeWith(
-                  write
-                      .setParameter(IStatementParameters.empty(), 0, a)
-                      .toStatementParameters(),
-                );
-              }),
-            ),
-            (ps) => IO.exec(() => ps.dispose()),
-          );
+      return IO.bracketFull(
+        (_) => IO.delay(() => db.prepare(raw)),
+        (ps) => IO.exec(
+          () => as.foreach((a) {
+            ps.executeWith(
+              write
+                  .setParameter(IStatementParameters.empty(), 0, a)
+                  .toStatementParameters(),
+            );
+          }),
+        ),
+        (ps, _) => IO.exec(() => ps.dispose()),
+      );
     });
   }
 }
