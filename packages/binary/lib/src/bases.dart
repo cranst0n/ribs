@@ -278,11 +278,8 @@ IList<String> _charRange(String start, String end) =>
   return (indicesMin, indices);
 }
 
-extension StringCharOps on String {
-  bool operator <(String that) => compareTo(that) < 0;
+extension on String {
   bool operator <=(String that) => compareTo(that) <= 0;
-  bool operator >(String that) => compareTo(that) > 0;
-  bool operator >=(String that) => compareTo(that) >= 0;
 
   int operator -(String that) => codeUnitAt(0) - that.codeUnitAt(0);
 }
