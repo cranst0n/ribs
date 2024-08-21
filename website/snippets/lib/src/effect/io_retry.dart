@@ -8,7 +8,7 @@ import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_json/ribs_json.dart';
 
 // flaky-op
-IO<Json> flakyOp() => IO.pure(HttpClient()).bracket(
+IO<Json> flakyOp() => IO.delay(() => HttpClient()).bracket(
       (client) => IO
           .fromFutureF(() =>
               client.getUrl(Uri.parse('http://api.flaky.org/account/123')))
