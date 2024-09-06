@@ -1,11 +1,11 @@
 name: ribs_core
-version: 1.0.0-dev.11
+version: 1.0.0-dev.12
 homepage: https://cranst0n.github.io/ribs/
 repository: https://github.com/cranst0n/ribs
 description: >
   Functional programming (FP) kernel. Provides common FP datatypes like
-  Option, Either, State, Validated, as well as an immutable collection
-  hierarchy.
+  Option, Either, State, Validated, as well as collection hierarchy
+  inspired by the Scala programming language.
 
 environment:
   sdk: ">=3.4.0 <4.0.0"

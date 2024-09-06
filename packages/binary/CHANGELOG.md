@@ -1,3 +1,7 @@
+## 1.0.0-dev.9
+
+- Increase Codec/Encoder/Decoder arity to 22
+
 ## 1.0.0-dev.8
 
 - Update dependencies

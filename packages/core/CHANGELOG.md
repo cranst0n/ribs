@@ -1,3 +1,9 @@
+## 1.0.0-dev.12
+
+- Add Either.foreach
+- Add conversion from RIterator to Iterator
+- New collections: IQueue, ILazyList
+
 ## 1.0.0-dev.11
 
 - Revert previous change.
