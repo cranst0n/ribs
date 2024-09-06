@@ -15,7 +15,7 @@ dependencies:
   ribs_core:   ^1.0.0-dev.7
   ribs_effect: ^1.0.0-dev.1
   ribs_json:   ^1.0.0-dev.7
-  sqlite3:     ^2.4.3
+  sqlite3:     ^2.4.6
 
 dev_dependencies:
   lint:       ^2.3.0
