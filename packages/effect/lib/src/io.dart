@@ -351,9 +351,9 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   IO<A> cancelable(IO<Unit> fin) => IO.uncancelable((poll) {
         return start().flatMap((fiber) {
           return poll(fiber.join())
-              .onCancel(fin.productR(() => fiber.cancel()))
-              .flatMap((oc) =>
-                  oc.embed(poll(IO.canceled.productR(() => IO.never()))));
+              .onCancel(fin.guarantee(fiber.cancel()))
+              .flatMap(
+                  (oc) => oc.embed(poll(canceled.productR(() => IO.never()))));
         });
       });
 
