@@ -841,5 +841,29 @@ class QueueTests {
 
       expect(test, ioSucceeded());
     });
+
+    test('should return the queue size when take precedes offer', () {
+      final test = constructor(10).flatMap((q) {
+        return take(q).background().use((took) => IO
+            .sleep(1.second)
+            .productR(() => offer(q, 1))
+            .productR(() => took)
+            .productR(() => size(q)));
+      });
+
+      expect(test, ioSucceeded(0));
+    });
+
+    test('should return the queue size when take precedes tryOffer', () {
+      final test = constructor(10).flatMap((q) {
+        return take(q).background().use((took) => IO
+            .sleep(1.second)
+            .productR(() => tryOffer(q, 1))
+            .productR(() => took)
+            .productR(() => size(q)));
+      });
+
+      expect(test, ioSucceeded(0));
+    });
   }
 }

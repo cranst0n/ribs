@@ -104,7 +104,7 @@ class _BoundedDequeue<A> extends Dequeue<A> {
           if (s.takers.nonEmpty) {
             final (taker, rest) = s.takers.dequeue();
             return (
-              _State(update(s.queue), s.size, rest, s.offerers),
+              _State(update(s.queue), s.size + 1, rest, s.offerers),
               taker.complete(Unit()).voided(),
             );
           } else if (s.size < capacity) {
@@ -147,7 +147,7 @@ class _BoundedDequeue<A> extends Dequeue<A> {
       if (s.takers.nonEmpty) {
         final (taker, rest) = s.takers.dequeue();
         return (
-          _State(update(s.queue), s.size, rest, s.offerers),
+          _State(update(s.queue), s.size + 1, rest, s.offerers),
           taker.complete(Unit()).as(true),
         );
       } else if (s.size < capacity) {
