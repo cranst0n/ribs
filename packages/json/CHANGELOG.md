@@ -1,3 +1,7 @@
+## 1.0.0-dev.11
+
+- Add `Decoder.or`
+
 ## 1.0.0-dev.10
 
 - Add codec arities

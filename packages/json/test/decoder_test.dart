@@ -38,6 +38,28 @@ void main() {
       );
     });
 
+    test('or', () {
+      final one = Json.str('one');
+      final two = Json.str('two');
+      final three = Json.str('three');
+
+      final a = Decoder.string.ensure((s) => s == 'one', () => 'Not one');
+      final b = Decoder.string.ensure((s) => s == 'two', () => 'Not two');
+      final c = a.or(b);
+
+      expect(a.decode(one), 'one'.asRight<DecodingFailure>());
+      expect(b.decode(one), isLeft<DecodingFailure, String>());
+      expect(c.decode(one), 'one'.asRight<DecodingFailure>());
+
+      expect(a.decode(two), isLeft<DecodingFailure, String>());
+      expect(b.decode(two), 'two'.asRight<DecodingFailure>());
+      expect(c.decode(two), 'two'.asRight<DecodingFailure>());
+
+      expect(a.decode(three), isLeft<DecodingFailure, String>());
+      expect(b.decode(three), isLeft<DecodingFailure, String>());
+      expect(c.decode(three), isLeft<DecodingFailure, String>());
+    });
+
     test('prepared', () {
       final d = Decoder.integer.prepare((a) => a.downField('key'));
       final json = Json.obj([('key', Json.number(42))]);
