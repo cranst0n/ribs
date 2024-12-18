@@ -80,10 +80,10 @@ class _BoundedPQueue<A> extends PQueue<A> {
 
             return (
               _State(heap, size, takers, offerers.enqueue(offerer)),
-              (poll(offerer
+              poll(offerer
                   .value()
                   .productR(() => poll(offer(a)))
-                  .onCancel(cleanup.flatten())))
+                  .onCancel(cleanup.flatten()))
             );
           }
         }).flatten();
