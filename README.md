@@ -28,6 +28,8 @@
 
 [Documentation](https://cranst0n.github.io/ribs/)
 
+</div>
+
 ### Unpublished Libraries
 
 **rill**
@@ -54,8 +56,6 @@ streaming library exists, the utility is limited here.
 
 This is still a fairly immature library but has proven useful in my toy projects so could be
 published at some point.
-
-</div>
 
 ---
 
