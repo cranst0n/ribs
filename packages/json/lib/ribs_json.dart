@@ -15,4 +15,5 @@ export 'src/key_decoder.dart';
 export 'src/key_encoder.dart';
 export 'src/path_to_root.dart';
 export 'src/printer.dart';
+export 'src/syntax.dart';
 export 'src/transformer.dart';
