@@ -1,3 +1,7 @@
+## 1.0.0-dev.12
+
+- Expose `Codec` syntax
+
 ## 1.0.0-dev.11
 
 - Add `Decoder.or`
