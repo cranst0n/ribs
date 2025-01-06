@@ -1,3 +1,5 @@
+// ignore_for_file: unreachable_from_main
+
 import 'package:meta/meta.dart';
 import 'package:ribs_check/ribs_check.dart';
 import 'package:ribs_core/ribs_core.dart';
@@ -80,6 +82,12 @@ void main() {
         },
       );
     });
+
+    testCodec(
+      'oneOf',
+      Gen.oneOfGen([Dog.gen, Cat.gen, HermitCrab.gen]),
+      Animal.codec,
+    );
 
     testCodec('nonEmptyIList', Gen.nonEmptyIList(Gen.positiveInt, 500),
         Codec.nonEmptyIList(Codec.integer));
@@ -289,3 +297,108 @@ void testCodec<A>(String description, Gen<A> gen, Codec<A> codec) {
 }
 
 enum Vehicles { Car, Bike, Motorcycle, Bus, Airplane }
+
+sealed class Animal {
+  const Animal();
+
+  static final Codec<Animal> codec =
+      Codec.oneOf(Dog.codec, Cat.codec, HermitCrab.codec);
+}
+
+final class Dog extends Animal {
+  final String name;
+  final int age;
+  final int tailWags;
+
+  const Dog(this.name, this.age, this.tailWags);
+
+  static final codec = (
+    'name'.as(Codec.string),
+    'age'.as(Codec.integer),
+    'tailWags'.as(Codec.integer)
+  ).product(Dog.new, (d) => (d.name, d.age, d.tailWags));
+
+  static final gen = (Gen.alphaNumString(10), Gen.integer, Gen.integer)
+      .tupled
+      .map(Dog.new.tupled);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! Dog) {
+      return false;
+    } else if (other.name != name || other.age != age) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  @override
+  int get hashCode => Object.hash(name, age);
+}
+
+final class Cat extends Animal {
+  final String name;
+  final int age;
+  final int lives;
+
+  const Cat(this.name, this.age, this.lives);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! Cat) {
+      return false;
+    } else if (other.name != name || other.age != age || other.lives != lives) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  @override
+  int get hashCode => Object.hash(name, age, lives);
+
+  static final codec = (
+    'name'.as(Codec.string),
+    'age'.as(Codec.integer),
+    'lives'.as(Codec.integer)
+  ).product(Cat.new, (c) => (c.name, c.age, c.lives));
+
+  static final gen = (Gen.alphaNumString(10), Gen.integer, Gen.integer)
+      .tupled
+      .map(Cat.new.tupled);
+}
+
+final class HermitCrab extends Animal {
+  final String name;
+  final int age;
+  final int shells;
+
+  const HermitCrab(this.name, this.age, this.shells);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! HermitCrab) {
+      return false;
+    } else if (other.name != name ||
+        other.age != age ||
+        other.shells != shells) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  @override
+  int get hashCode => Object.hash(name, age, shells);
+
+  static final codec = (
+    'name'.as(Codec.string),
+    'age'.as(Codec.integer),
+    'shells'.as(Codec.integer)
+  ).product(HermitCrab.new, (hc) => (hc.name, hc.age, hc.shells));
+
+  static final gen = (Gen.alphaNumString(10), Gen.integer, Gen.integer)
+      .tupled
+      .map(HermitCrab.new.tupled);
+}

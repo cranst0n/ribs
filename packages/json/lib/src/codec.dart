@@ -31,6 +31,124 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
   ) =>
       from(Decoder.instance(decodeF), Encoder.instance(encodeF));
 
+  static Codec<A> oneOf<
+      A,
+      B extends A,
+      C extends A,
+      D extends A,
+      E extends A,
+      F extends A,
+      G extends A,
+      H extends A,
+      I extends A,
+      J extends A,
+      K extends A,
+      L extends A,
+      M extends A,
+      N extends A,
+      O extends A,
+      P extends A,
+      Q extends A,
+      R extends A,
+      S extends A,
+      T extends A,
+      U extends A,
+      V extends A,
+      W extends A>(
+    Codec<B> b, [
+    Codec<C>? c,
+    Codec<D>? d,
+    Codec<E>? e,
+    Codec<F>? f,
+    Codec<G>? g,
+    Codec<H>? h,
+    Codec<I>? i,
+    Codec<J>? j,
+    Codec<K>? k,
+    Codec<L>? l,
+    Codec<M>? m,
+    Codec<N>? n,
+    Codec<O>? o,
+    Codec<P>? p,
+    Codec<Q>? q,
+    Codec<R>? r,
+    Codec<S>? s,
+    Codec<T>? t,
+    Codec<U>? u,
+    Codec<V>? v,
+    Codec<W>? w,
+  ]) {
+    final encoder = Encoder.instance<A>((a) {
+      Json tryEncode<Z>(Z value, Codec<Z>? codec) => codec != null
+          ? codec.encode(value)
+          : throw StateError('No codec provided for ${value.runtimeType}');
+
+      return switch (a) {
+        final B x => b.encode(x),
+        final C x => tryEncode(x, c),
+        final D x => tryEncode(x, d),
+        final E x => tryEncode(x, e),
+        final F x => tryEncode(x, f),
+        final G x => tryEncode(x, g),
+        final H x => tryEncode(x, h),
+        final I x => tryEncode(x, i),
+        final J x => tryEncode(x, j),
+        final K x => tryEncode(x, k),
+        final L x => tryEncode(x, l),
+        final M x => tryEncode(x, m),
+        final N x => tryEncode(x, n),
+        final O x => tryEncode(x, o),
+        final P x => tryEncode(x, p),
+        final Q x => tryEncode(x, q),
+        final R x => tryEncode(x, r),
+        final S x => tryEncode(x, s),
+        final T x => tryEncode(x, t),
+        final U x => tryEncode(x, u),
+        final V x => tryEncode(x, v),
+        final W x => tryEncode(x, w),
+        final Object o =>
+          throw StateError('No codec provided for ${o.runtimeType}'),
+      };
+    });
+
+    final decoder = Decoder.instance((cursor) {
+      var decoders = [
+        c,
+        d,
+        e,
+        f,
+        g,
+        h,
+        i,
+        j,
+        k,
+        l,
+        m,
+        n,
+        o,
+        p,
+        q,
+        r,
+        s,
+        t,
+        u,
+        v,
+        w
+      ].nonNulls;
+
+      var result = b.decodeC(cursor).map((b) => b as A);
+
+      while (result.isLeft && decoders.isNotEmpty) {
+        result = decoders.first.decodeC(cursor);
+        decoders = decoders.skip(1);
+      }
+
+      return result;
+    });
+
+    return Codec.from(decoder, encoder);
+  }
+
   //////////////////////////////////////////////////////////////////////////////
   /// Primitive Instances
   //////////////////////////////////////////////////////////////////////////////
