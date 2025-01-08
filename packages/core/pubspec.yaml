@@ -7,6 +7,7 @@ description: >
   Option, Either, State, Validated, as well as collection hierarchy
   inspired by the Scala programming language.
 
+resolution: workspace
 environment:
   sdk: ">=3.6.0 <4.0.0"
 

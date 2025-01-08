@@ -24,7 +24,7 @@ jobs:
           sdk: ${{ matrix.sdk }}
 
       - name: Install melos
-        run: dart pub global activate melos
+        run: dart pub global activate melos 7.0.0-dev.2
 
       - name: Install coverage
         run: dart pub global activate coverage

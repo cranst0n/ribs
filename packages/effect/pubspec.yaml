@@ -5,6 +5,7 @@ repository: https://github.com/cranst0n/ribs
 description: >
   Provides effect types like IO, Ref and Resource.
 
+resolution: workspace
 environment:
   sdk: ">=3.6.0 <4.0.0"
 

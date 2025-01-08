@@ -6,6 +6,7 @@ description: >
   Library provides fully typed binary parsing, encoding and decoding. Also
   supports streaming parsing.
 
+resolution: workspace
 environment:
   sdk: ">=3.6.0 <4.0.0"
 

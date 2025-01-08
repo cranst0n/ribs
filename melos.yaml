@@ -5,7 +5,6 @@ packages:
   - website/snippets
 
 scripts:
-
   test:
     run: melos exec -c 1 --fail-fast -- dart test
     description: Run all dart tests in this project.
@@ -13,7 +12,7 @@ scripts:
       dirExists: test
 
   coverage:
-    run: melos exec -c 1 --fail-fast -- dart test --coverage="coverage" && melos exec --dir-exists="test" format_coverage --lcov --in=coverage --out=coverage.lcov --packages=.dart_tool/package_config.json --report-on=lib
+    run: melos exec -c 1 --fail-fast -- dart test --coverage="coverage" && melos exec --dir-exists="test" format_coverage --lcov --in=coverage --out=coverage.lcov --report-on=lib
     description: Run all dart tests in this project with code coverage data.
     packageFilters:
       dirExists: test
@@ -21,7 +20,7 @@ scripts:
         - "snippets"
 
   coverage-report:
-    run: melos exec -c 1 --fail-fast -- dart test --coverage="coverage" && melos exec --dir-exists="test" format_coverage --lcov --in=coverage --out=coverage.lcov --packages=.dart_tool/package_config.json --report-on=lib && find . -name coverage.lcov | xargs genhtml -o coverage-report
+    run: melos exec -c 1 --fail-fast -- dart test --coverage="coverage" && melos exec --dir-exists="test" format_coverage --lcov --in=coverage --out=coverage.lcov --report-on=lib && find . -name coverage.lcov | xargs genhtml -o coverage-report
     description: Run all dart tests in this project and generate code coverage report.
     packageFilters:
       dirExists: test
@@ -39,4 +38,3 @@ scripts:
   format: melos exec dart format --show=changed .
 
   outdated: melos exec dart pub outdated
-  
