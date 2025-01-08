@@ -6,10 +6,10 @@ description: >
   API for dimensional analysis.
 
 environment:
-  sdk: ">=3.4.0 <4.0.0"
+  sdk: ">=3.6.0 <4.0.0"
 
 dependencies:
-  ribs_core:      ^1.0.0-dev.9
+  ribs_core:      ^1.0.0-dev.12
 
 dev_dependencies:
   lint:       ^2.3.0

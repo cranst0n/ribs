@@ -7,11 +7,11 @@ description: >
   supports streaming parsing.
 
 environment:
-  sdk: ">=3.4.0 <4.0.0"
+  sdk: ">=3.6.0 <4.0.0"
 
 dependencies:
   meta:      ^1.9.1
-  ribs_core: ^1.0.0-dev.9
+  ribs_core: ^1.0.0-dev.12
 
 dev_dependencies:
   lint:       ^2.3.0
