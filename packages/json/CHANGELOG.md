@@ -1,3 +1,7 @@
+## 1.0.0-dev.14
+
+- Add `Codec.bytes`
+
 ## 1.0.0-dev.13
 
 - Add `Codec.oneOf`
