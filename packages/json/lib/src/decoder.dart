@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
@@ -90,6 +93,8 @@ abstract mixin class Decoder<A> {
       () => c.value is JBoolean,
       () => (c.value as JBoolean).value,
       () => _wrongTypeFail('bool', c)));
+
+  static Decoder<Uint8List> bytes = string.map(base64Decode);
 
   static Decoder<DateTime> dateTime = string.emap((a) =>
       Either.catching(() => DateTime.parse(a), (err, _) => err.toString()));

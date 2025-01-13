@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
@@ -25,6 +28,8 @@ abstract mixin class Encoder<A> {
       Encoder.instance((a) => Json.str(a.toString()));
 
   static Encoder<bool> boolean = Encoder.instance((a) => Json.boolean(a));
+
+  static Encoder<Uint8List> bytes = string.contramap(base64Encode);
 
   static Encoder<DateTime> dateTime =
       Encoder.instance((a) => Json.str(a.toIso8601String()));

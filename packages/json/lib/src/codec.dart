@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
@@ -156,6 +158,8 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
   static Codec<BigInt> bigInt = from(Decoder.bigInt, Encoder.bigInt);
 
   static Codec<bool> boolean = from(Decoder.boolean, Encoder.boolean);
+
+  static Codec<Uint8List> bytes = from(Decoder.bytes, Encoder.bytes);
 
   static Codec<DateTime> dateTime = from(Decoder.dateTime, Encoder.dateTime);
 
