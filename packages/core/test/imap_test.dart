@@ -1,9 +1,47 @@
+import 'package:ribs_check/ribs_check.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/test_matchers.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('IMap', () {
+    test('basic equality', () {
+      final m0 = imap(<String, int>{});
+      final m1 = imap({'A': 1, 'B': 2});
+      final m2 = imap({'A': 1, 'B': 2});
+      final m3 = imap({'A': 1, 'B': 2, 'C': 3});
+
+      expect(m0 == m0, isTrue);
+      expect(m0 == m1, isFalse);
+      expect(m0 == m2, isFalse);
+      expect(m0 == m3, isFalse);
+
+      expect(m1 == m0, isFalse);
+      expect(m1 == m1, isTrue);
+      expect(m1 == m2, isTrue);
+      expect(m1 == m3, isFalse);
+
+      expect(m2 == m0, isFalse);
+      expect(m2 == m1, isTrue);
+      expect(m2 == m2, isTrue);
+      expect(m2 == m3, isFalse);
+
+      expect(m3 == m0, isFalse);
+      expect(m3 == m1, isFalse);
+      expect(m3 == m2, isFalse);
+      expect(m3 == m3, isTrue);
+    });
+
+    forAll(
+      'equality (property)',
+      Gen.imapOf(
+        Gen.chooseInt(0, 10),
+        Gen.alphaLowerChar,
+        Gen.chooseInt(-10, 10),
+      ),
+      (map) => expect(map == map, isTrue),
+    );
+
     test('empty', () {
       expect(imap({}).size, 0);
       expect(imap({}), imap({}));

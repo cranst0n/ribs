@@ -208,7 +208,7 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
       identical(this, other) ||
       switch (other) {
         final IMap<K, dynamic> that =>
-          forall((kv) => that.get(kv.$1) == Some(kv.$2)),
+          size == that.size && forall((kv) => that.get(kv.$1) == Some(kv.$2)),
         _ => false,
       };
 }
