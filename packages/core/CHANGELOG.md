@@ -1,3 +1,7 @@
+## 1.0.0-dev.13
+
+- Fix IMap equality
+
 ## 1.0.0-dev.12
 
 - Add Either.foreach
