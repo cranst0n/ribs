@@ -32,6 +32,8 @@ mixin RMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
 
   RIterator<K> get keysIterator => iterator.map((kv) => kv.$1);
 
+  RSet<K> get keySet => keysIterator.toISet();
+
   /// Returns the value for the given key [key], or [orElse] if this map doesn't
   /// contain the key.
   V getOrElse(K key, Function0<V> orElse) => get(key).getOrElse(orElse);

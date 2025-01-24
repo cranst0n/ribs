@@ -37,6 +37,7 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
         final _Map2<K, V> m => m,
         final _Map3<K, V> m => m,
         final _Map4<K, V> m => m,
+        final IHashMap<K, V> hs => hs,
         _ => IMapBuilder<K, V>().addAll(elems).result(),
       };
 

@@ -65,8 +65,6 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
     return result;
   }
 
-  bool contains(A elem);
-
   ISet<A> diff(ISet<A> that) => foldLeft(ISet.empty<A>(),
       (result, elem) => that.contains(elem) ? result : result + elem);
 

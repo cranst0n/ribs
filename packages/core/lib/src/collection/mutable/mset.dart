@@ -34,8 +34,6 @@ mixin MSet<A> on RIterable<A>, RSet<A> {
   @override
   MSet<A> concat(covariant RIterableOnce<A> suffix);
 
-  bool contains(A elem);
-
   MSet<A> diff(MSet<A> that) => foldLeft(
       MSet.empty<A>(),
       (result, elem) => that.contains(elem) ? result : result

@@ -13,4 +13,13 @@
 
 import 'package:ribs_core/ribs_core.dart';
 
-mixin RSet<A> on RIterable<A> {}
+mixin RSet<A> on RIterable<A> {
+  static RSet<A> empty<A>() => ISet.empty<A>();
+
+  static RSet<A> from<A>(RIterableOnce<A> xs) => ISet.from(xs);
+
+  static RSet<A> of<A>(Iterable<A> xs) =>
+      RSet.from(RIterator.fromDart(xs.iterator));
+
+  bool contains(A elem);
+}

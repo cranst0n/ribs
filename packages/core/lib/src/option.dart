@@ -36,6 +36,8 @@ sealed class Option<A> with RIterableOnce<A> {
   @override
   Option<B> collect<B>(Function1<A, Option<B>> f) => flatMap(f);
 
+  bool contains(A elem) => fold(() => false, (value) => value == elem);
+
   @override
   Option<A> drop(int n) => filter((_) => n <= 0);
 

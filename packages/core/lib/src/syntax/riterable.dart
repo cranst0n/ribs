@@ -21,3 +21,7 @@ extension RIterableTuple2Ops<A, B> on RIterable<(A, B)> {
   /// create a key and value respectively.
   IMap<A, B> toIMap() => IMap.from(this);
 }
+
+extension RIterableNested2Ops<A> on RIterable<RIterable<A>> {
+  RIterable<A> flatten() => fold(nil(), (acc, elem) => acc.concat(elem));
+}

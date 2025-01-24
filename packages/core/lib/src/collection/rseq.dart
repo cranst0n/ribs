@@ -21,6 +21,8 @@ mixin RSeq<A> on RIterable<A> {
   A operator [](int idx);
   int get length;
 
+  static RSeq<A> empty<A>() => IList.empty();
+
   static RSeq<A> from<A>(RIterableOnce<A> elems) {
     if (elems is RSeq<A>) {
       return elems;
