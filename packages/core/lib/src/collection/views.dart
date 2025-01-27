@@ -169,6 +169,19 @@ class DropWhile<A> extends AbstractView<A> {
   bool get isEmpty => iterator.isEmpty;
 }
 
+class Empty<A> extends AbstractView<A> {
+  const Empty();
+
+  @override
+  RIterator<A> get iterator => RIterator.empty();
+
+  @override
+  int get knownSize => 0;
+
+  @override
+  bool get isEmpty => true;
+}
+
 class Fill<A> extends AbstractView<A> {
   final int n;
   final A elem;

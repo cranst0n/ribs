@@ -9,7 +9,7 @@ mixin RMultiDict<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
   static RMultiDict<K, V> from<K, V>(RIterableOnce<(K, V)> elems) =>
       switch (elems) {
         final RMultiDict<K, V> md => md,
-        _ => RMultiDict.from(elems),
+        _ => IMultiDict.from(elems),
       };
 
   static RMultiDict<K, V> fromDart<K, V>(Map<K, V> m) =>
