@@ -48,6 +48,7 @@ sealed class Option<A> with RIterableOnce<A> {
   RIterator<A> get iterator => fold(() => RIterator.empty(), RIterator.single);
 
   /// Returns the result of applying `f` to this [Option] value if non-empty.
+  // Otherwise, returns the result of `ifEmpty`.
   B fold<B>(Function0<B> ifEmpty, Function1<A, B> f);
 
   /// Returns true if this Option is a [Some], false if it's a [None].
