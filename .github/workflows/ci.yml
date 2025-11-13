@@ -17,14 +17,14 @@ jobs:
         sdk: [stable, beta]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: ${{ matrix.sdk }}
 
       - name: Install melos
-        run: dart pub global activate melos 7.0.0-dev.5
+        run: dart pub global activate melos 7.3.0
 
       - name: Install coverage
         run: dart pub global activate coverage

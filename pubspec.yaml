@@ -19,7 +19,7 @@ workspace:
   - website/snippets
 
 dev_dependencies:
-  melos: ^7.0.0-dev.5
+  melos: ^7.3.0
 
 melos:
   scripts:
