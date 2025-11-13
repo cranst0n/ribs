@@ -172,6 +172,12 @@ abstract class Codec<A> extends Encoder<A> with Decoder<A> {
 
   static Codec<A> byteAligned<A>(Codec<A> codec) => ByteAlignedCodec(codec);
 
+  static Codec<A> variableSized<A>(
+    Codec<int> sizeCodec,
+    Codec<A> valueCodec,
+  ) =>
+      VariableSizedCodec(sizeCodec, valueCodec);
+
   static Codec<B> xmapped<A, B>(Codec<A> by, IMap<A, B> cases) =>
       XMappedCodec(by, cases);
 
