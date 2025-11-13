@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_binary/src/codecs/codecs.dart';
 import 'package:ribs_binary/src/codecs/either_codec.dart';
+import 'package:ribs_binary/src/codecs/xmapped_codec.dart';
 import 'package:ribs_core/ribs_core.dart';
 
 abstract class Codec<A> extends Encoder<A> with Decoder<A> {
@@ -170,6 +171,9 @@ abstract class Codec<A> extends Encoder<A> with Decoder<A> {
       EitherCodec(indicator, leftCodec, rightCodec);
 
   static Codec<A> byteAligned<A>(Codec<A> codec) => ByteAlignedCodec(codec);
+
+  static Codec<B> xmapped<A, B>(Codec<A> by, IMap<A, B> cases) =>
+      XMappedCodec(by, cases);
 
   //////////////////////////////////////////////////////////////////////////////
   /// Tuple Instances
