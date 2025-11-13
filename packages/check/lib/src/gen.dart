@@ -40,44 +40,42 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   Gen<(A, A)> get tuple2 => (this, this).tupled;
 
-  Gen<(A, A, A)> get tuple3 => tuple2.flatMap((t) => this.map(t.append));
+  Gen<(A, A, A)> get tuple3 => tuple2.flatMap((t) => map(t.append));
 
-  Gen<(A, A, A, A)> get tuple4 => tuple3.flatMap((t) => this.map(t.append));
+  Gen<(A, A, A, A)> get tuple4 => tuple3.flatMap((t) => map(t.append));
 
-  Gen<(A, A, A, A, A)> get tuple5 => tuple4.flatMap((t) => this.map(t.append));
+  Gen<(A, A, A, A, A)> get tuple5 => tuple4.flatMap((t) => map(t.append));
 
-  Gen<(A, A, A, A, A, A)> get tuple6 =>
-      tuple5.flatMap((t) => this.map(t.append));
+  Gen<(A, A, A, A, A, A)> get tuple6 => tuple5.flatMap((t) => map(t.append));
 
-  Gen<(A, A, A, A, A, A, A)> get tuple7 =>
-      tuple6.flatMap((t) => this.map(t.append));
+  Gen<(A, A, A, A, A, A, A)> get tuple7 => tuple6.flatMap((t) => map(t.append));
 
   Gen<(A, A, A, A, A, A, A, A)> get tuple8 =>
-      tuple7.flatMap((t) => this.map(t.append));
+      tuple7.flatMap((t) => map(t.append));
 
   Gen<(A, A, A, A, A, A, A, A, A)> get tuple9 =>
-      tuple8.flatMap((t) => this.map(t.append));
+      tuple8.flatMap((t) => map(t.append));
 
   Gen<(A, A, A, A, A, A, A, A, A, A)> get tuple10 =>
-      tuple9.flatMap((t) => this.map(t.append));
+      tuple9.flatMap((t) => map(t.append));
 
   Gen<(A, A, A, A, A, A, A, A, A, A, A)> get tuple11 =>
-      tuple10.flatMap((t) => this.map(t.append));
+      tuple10.flatMap((t) => map(t.append));
 
   Gen<(A, A, A, A, A, A, A, A, A, A, A, A)> get tuple12 =>
-      tuple11.flatMap((t) => this.map(t.append));
+      tuple11.flatMap((t) => map(t.append));
 
   Gen<(A, A, A, A, A, A, A, A, A, A, A, A, A)> get tuple13 =>
-      tuple12.flatMap((t) => this.map(t.append));
+      tuple12.flatMap((t) => map(t.append));
 
   Gen<(A, A, A, A, A, A, A, A, A, A, A, A, A, A)> get tuple14 =>
-      tuple13.flatMap((t) => this.map(t.append));
+      tuple13.flatMap((t) => map(t.append));
 
   Gen<(A, A, A, A, A, A, A, A, A, A, A, A, A, A, A)> get tuple15 =>
-      tuple14.flatMap((t) => this.map(t.append));
+      tuple14.flatMap((t) => map(t.append));
 
   Gen<(A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A)> get tuple16 =>
-      tuple15.flatMap((t) => this.map(t.append));
+      tuple15.flatMap((t) => map(t.append));
 
   ///////////////
   // Instances //

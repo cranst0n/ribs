@@ -434,7 +434,7 @@ sealed class IVector<A>
       return v;
     } else if (size < (k >>> _Log2ConcatFaster) && prefix is IVector) {
       var v = prefix as IVector<A>;
-      final it = this.iterator;
+      final it = iterator;
 
       while (it.hasNext) {
         v = v.prepended(it.next());

@@ -318,7 +318,7 @@ void main() {
       }, skip: 'Expected to be non-terminating');
 
       test('run three finalizers when an async is canceled while suspended',
-          () async {
+          () {
         final results = List<int>.empty(growable: true);
 
         final body =
@@ -369,7 +369,7 @@ void main() {
         expect(passed, isTrue);
       });
 
-      test('never terminate when racing infinite cancels', () async {
+      test('never terminate when racing infinite cancels', () {
         var started = false;
 
         final markStarted = IO.exec(() => started = true);
@@ -390,7 +390,7 @@ void main() {
         expect(test.timeout(5.seconds), ioErrored());
       }, skip: 'Expected to be non-terminating');
 
-      test('first canceller backpressures subsequent cancellers', () async {
+      test('first canceller backpressures subsequent cancellers', () {
         var started = false;
         var started2 = false;
 
@@ -444,7 +444,7 @@ void main() {
         );
       });
 
-      test('await uncancelable blocks in cancelation', () async {
+      test('await uncancelable blocks in cancelation', () {
         var started = false;
 
         final markStarted = IO.exec(() => started = true);
@@ -460,7 +460,7 @@ void main() {
         expect(test, ioErrored());
       }, skip: 'Expected to be non-terminating');
 
-      test('await cancelation of cancelation of uncancelable never', () async {
+      test('await cancelation of cancelation of uncancelable never', () {
         var started = false;
         var started2 = false;
 
@@ -918,7 +918,7 @@ void main() {
     expect(io, ioSucceeded(0));
   });
 
-  test('sleep', () async {
+  test('sleep', () {
     final io = IO.sleep(250.milliseconds);
     expect(io, ioSucceeded(Unit()));
   });
@@ -953,7 +953,7 @@ void main() {
     expect(finalized, isTrue);
   });
 
-  test('async_ simple', () async {
+  test('async_ simple', () {
     final io = IO.async_<int>((cb) {
       Future.delayed(100.milliseconds, () => 42)
           .then((value) => cb(value.asRight()));
@@ -977,7 +977,7 @@ void main() {
     expect(outcome, const Succeeded(42));
   });
 
-  test('onError success', () async {
+  test('onError success', () {
     int count = 0;
 
     final io = IO.pure(0).onError((_) => IO.exec(() => count += 1)).as(42);

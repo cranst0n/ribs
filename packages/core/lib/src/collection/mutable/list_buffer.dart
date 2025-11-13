@@ -378,8 +378,8 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
       }
 
       // copy local vars into instance
-      this._len = len;
-      this._last0 = last0;
+      _len = len;
+      _last0 = last0;
     }
     return this;
   }

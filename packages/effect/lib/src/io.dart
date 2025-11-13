@@ -4,7 +4,7 @@ import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/src/platform/stub.dart'
-    if (dart.library.html) 'platform/web.dart'
+    if (dart.library.js_interop) 'platform/web.dart'
     if (dart.library.io) 'platform/native.dart';
 import 'package:ribs_effect/src/std/internal/stack.dart';
 
@@ -416,7 +416,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// given predicate [p]. The first computed value that does not satisfy [p]
   /// will be the final result.
   IO<A> iterateWhile(Function1<A, bool> p) =>
-      flatMap((a) => p(a) ? this.iterateWhile(p) : IO.pure(a));
+      flatMap((a) => p(a) ? iterateWhile(p) : IO.pure(a));
 
   /// Applies [f] to the value of this IO, returning the result.
   @override

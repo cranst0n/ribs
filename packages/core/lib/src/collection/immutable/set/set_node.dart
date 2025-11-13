@@ -84,7 +84,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
         return this;
       } else if (bm.size == 1) {
         final originalHash = bm.getHash(0);
-        return this.updated(bm.getPayload(0), originalHash,
+        return updated(bm.getPayload(0), originalHash,
             Hashing.improve(originalHash), shift);
       }
 
@@ -779,10 +779,10 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
 
     if ((dataMap & bitpos) != 0) {
       final index = Node.indexFromMask(dataMap, mask, bitpos);
-      final element0 = this.getPayload(index);
+      final element0 = getPayload(index);
 
       if (element0 == element) {
-        if (this.payloadArity == 2 && this.nodeArity == 0) {
+        if (payloadArity == 2 && nodeArity == 0) {
           // Create new node with remaining pair. The new node will a) either become the new root
           // returned, or b) unwrapped and inlined during returning.
           final newDataMap = shift == 0
@@ -815,7 +815,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
 
     if ((nodeMap & bitpos) != 0) {
       final index = Node.indexFromMask(nodeMap, mask, bitpos);
-      final subNode = this.getNode(index);
+      final subNode = getNode(index);
 
       final subNodeNew = subNode.removed(
           element, originalHash, elementHash, shift + Node.BitPartitionSize);
@@ -827,7 +827,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       final subNodeNewSize = subNodeNew.size;
 
       if (subNodeNewSize == 1) {
-        if (this.size == subNode.size) {
+        if (size == subNode.size) {
           // subNode is the only child (no other data or node children of `this` exist)
           // escalate (singleton or empty) result
           return subNodeNew as BitmapIndexedSetNode<A>;
@@ -853,7 +853,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       if (that is BitmapIndexedSetNode<A>) {
         final node = that;
 
-        final thisBitmap = this.dataMap | this.nodeMap;
+        final thisBitmap = dataMap | nodeMap;
         final nodeBitmap = node.dataMap | node.nodeMap;
 
         if ((thisBitmap | nodeBitmap) != nodeBitmap) return false;
@@ -866,18 +866,17 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
         while (isValidSubset && bitsToSkip < Node.HashCodeLength) {
           final bitpos = Node.bitposFrom(bitsToSkip);
 
-          if ((this.dataMap & bitpos) != 0) {
+          if ((dataMap & bitpos) != 0) {
             if ((node.dataMap & bitpos) != 0) {
               // Data x Data
-              final payload0 =
-                  this.getPayload(Node.indexFrom(this.dataMap, bitpos));
+              final payload0 = getPayload(Node.indexFrom(dataMap, bitpos));
               final payload1 =
                   node.getPayload(Node.indexFrom(node.dataMap, bitpos));
               isValidSubset = payload0 == payload1;
             } else {
               // Data x Node
-              final thisDataIndex = Node.indexFrom(this.dataMap, bitpos);
-              final payload = this.getPayload(thisDataIndex);
+              final thisDataIndex = Node.indexFrom(dataMap, bitpos);
+              final payload = getPayload(thisDataIndex);
               final subNode =
                   that.getNode(Node.indexFrom(node.nodeMap, bitpos));
               final elementUnimprovedHash = getHash(thisDataIndex);
@@ -887,7 +886,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
             }
           } else {
             // Node x Node
-            final subNode0 = this.getNode(Node.indexFrom(this.nodeMap, bitpos));
+            final subNode0 = getNode(Node.indexFrom(nodeMap, bitpos));
             final subNode1 = node.getNode(Node.indexFrom(node.nodeMap, bitpos));
             isValidSubset =
                 subNode0.subsetOf(subNode1, shift + Node.BitPartitionSize);
@@ -913,7 +912,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
 
     if (dataMap & bitpos != 0) {
       final index = Node.indexFromMask(dataMap, mask, bitpos);
-      final element0 = this.getPayload(index);
+      final element0 = getPayload(index);
 
       if (element0 == element) {
         return this;
@@ -939,7 +938,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
 
     if ((nodeMap & bitpos) != 0) {
       final index = Node.indexFromMask(nodeMap, mask, bitpos);
-      final subNode = this.getNode(index);
+      final subNode = getNode(index);
 
       final subNodeNew = subNode.updated(
           element, originalHash, elementHash, shift + Node.BitPartitionSize);
@@ -956,13 +955,12 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
   @override
   bool operator ==(Object that) => switch (that) {
         final BitmapIndexedSetNode<A> node => identical(this, node) ||
-            ((this.cachedDartKeySetHashCode == node.cachedDartKeySetHashCode) &&
-                (this.nodeMap == node.nodeMap) &&
-                (this.dataMap == node.dataMap) &&
-                (this.size == node.size) &&
-                Array.equals(this.originalHashes, node.originalHashes) &&
-                _deepContentEquality(
-                    this.content, node.content, content.length)),
+            ((cachedDartKeySetHashCode == node.cachedDartKeySetHashCode) &&
+                (nodeMap == node.nodeMap) &&
+                (dataMap == node.dataMap) &&
+                (size == node.size) &&
+                Array.equals(originalHashes, node.originalHashes) &&
+                _deepContentEquality(content, node.content, content.length)),
         _ => false,
       };
 
@@ -1025,9 +1023,9 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
 
   BitmapIndexedSetNode<A> copyAndSetNode(
       int bitpos, SetNode<A> oldNode, SetNode<A> newNode) {
-    final idx = this.content.length - 1 - this.nodeIndex(bitpos);
+    final idx = content.length - 1 - nodeIndex(bitpos);
 
-    final src = this.content;
+    final src = content;
     final dst = Array.ofDim<dynamic>(src.length);
 
     // copy 'src' and set 1 element(s) at position 'idx'
@@ -1050,7 +1048,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
     final dataIx = dataIndex(bitpos);
     final idx = SetNode.TupleLength * dataIx;
 
-    final src = this.content;
+    final src = content;
     final dst = Array.ofDim<dynamic>(src.length + 1);
 
     // copy 'src' and insert 1 element(s) at position 'idx'
@@ -1068,7 +1066,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
     final dataIx = dataIndex(bitpos);
     final idx = SetNode.TupleLength * dataIx;
 
-    final src = this.content;
+    final src = content;
     final dst = Array.ofDim<dynamic>(src.length);
 
     // copy 'src' and set 1 element(s) at position 'idx'
@@ -1083,7 +1081,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
     final dataIx = dataIndex(bitpos);
     final idx = SetNode.TupleLength * dataIx;
 
-    final src = this.content;
+    final src = content;
     final dst = Array.ofDim<dynamic>(src.length - 1);
 
     // copy 'src' and remove 1 element(s) at position 'idx'
@@ -1102,7 +1100,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
     final idxOld = SetNode.TupleLength * dataIx;
     final idxNew = content.length - SetNode.TupleLength - nodeIndex(bitpos);
 
-    final src = this.content;
+    final src = content;
     final dst = Array.ofDim<dynamic>(src.length - 1 + 1);
 
     // copy 'src' and remove 1 element(s) at position 'idxOld' and
@@ -1134,23 +1132,23 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
         idxNew - idxOld);
     content[idxNew] = node;
 
-    this.dataMap = this.dataMap ^ bitpos;
-    this.nodeMap = this.nodeMap | bitpos;
-    this.originalHashes = removeElement(originalHashes, dataIx);
-    this.size = this.size - 1 + node.size;
-    this.cachedDartKeySetHashCode =
-        this.cachedDartKeySetHashCode - keyHash + node.cachedDartKeySetHashCode;
+    dataMap = dataMap ^ bitpos;
+    nodeMap = nodeMap | bitpos;
+    originalHashes = removeElement(originalHashes, dataIx);
+    size = size - 1 + node.size;
+    cachedDartKeySetHashCode =
+        cachedDartKeySetHashCode - keyHash + node.cachedDartKeySetHashCode;
 
     return this;
   }
 
   BitmapIndexedSetNode<A> copyAndMigrateFromNodeToInline(
       int bitpos, int elementHash, SetNode<A> oldNode, SetNode<A> node) {
-    final idxOld = this.content.length - 1 - nodeIndex(bitpos);
+    final idxOld = content.length - 1 - nodeIndex(bitpos);
     final dataIxNew = dataIndex(bitpos);
     final idxNew = SetNode.TupleLength * dataIxNew;
 
-    final src = this.content;
+    final src = content;
     final dst = Array.ofDim<dynamic>(src.length - 1 + 1);
 
     // copy 'src' and remove 1 element(s) at position 'idxOld' and
@@ -1177,7 +1175,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
 
   void migrateFromNodeToInlineInPlace(int bitpos, int originalHash,
       int elementHash, SetNode<A> oldNode, SetNode<A> node) {
-    final idxOld = this.content.length - 1 - nodeIndex(bitpos);
+    final idxOld = content.length - 1 - nodeIndex(bitpos);
     final dataIxNew = dataIndex(bitpos);
     final element = node.getPayload(0);
     Array.arraycopy(
@@ -1186,11 +1184,11 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
     final hash = node.getHash(0);
     final dstHashes = insertElement(originalHashes, dataIxNew, hash);
 
-    this.dataMap = this.dataMap | bitpos;
-    this.nodeMap = this.nodeMap ^ bitpos;
-    this.originalHashes = dstHashes;
-    this.size = this.size - oldNode.size + 1;
-    this.cachedDartKeySetHashCode = this.cachedDartKeySetHashCode -
+    dataMap = dataMap | bitpos;
+    nodeMap = nodeMap ^ bitpos;
+    originalHashes = dstHashes;
+    size = size - oldNode.size + 1;
+    cachedDartKeySetHashCode = cachedDartKeySetHashCode -
         oldNode.cachedDartKeySetHashCode +
         node.cachedDartKeySetHashCode;
   }
@@ -1202,37 +1200,37 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
 
     if ((dataMap & bitpos) != 0) {
       final index = Node.indexFromMask(dataMap, mask, bitpos);
-      final element0 = this.getPayload(index);
+      final element0 = getPayload(index);
 
       if (element0 == element) {
-        if (this.payloadArity == 2 && this.nodeArity == 0) {
+        if (payloadArity == 2 && nodeArity == 0) {
           final newDataMap = dataMap ^ bitpos;
 
           if (index == 0) {
             final newContent = arr([getPayload(1)]);
             final newOriginalHashes = arr([originalHashes[1]]);
             final newCachedDartKeySetHashCode = Hashing.improve(getHash(1));
-            this.content = newContent;
-            this.originalHashes = newOriginalHashes;
-            this.cachedDartKeySetHashCode = newCachedDartKeySetHashCode;
+            content = newContent;
+            originalHashes = newOriginalHashes;
+            cachedDartKeySetHashCode = newCachedDartKeySetHashCode;
           } else {
             final newContent = arr([getPayload(0)]);
             final newOriginalHashes = arr([originalHashes[0]]);
             final newCachedDartKeySetHashCode = Hashing.improve(getHash(0));
-            this.content = newContent;
-            this.originalHashes = newOriginalHashes;
-            this.cachedDartKeySetHashCode = newCachedDartKeySetHashCode;
+            content = newContent;
+            originalHashes = newOriginalHashes;
+            cachedDartKeySetHashCode = newCachedDartKeySetHashCode;
           }
-          this.dataMap = newDataMap;
-          this.nodeMap = 0;
-          this.size = 1;
+          dataMap = newDataMap;
+          nodeMap = 0;
+          size = 1;
 
           return this;
         } else {
           final dataIx = dataIndex(bitpos);
           final idx = SetNode.TupleLength * dataIx;
 
-          final src = this.content;
+          final src = content;
           final dst = Array.ofDim<dynamic>(src.length - SetNode.TupleLength);
 
           Array.arraycopy(src, 0, dst, 0, idx);
@@ -1241,11 +1239,11 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
 
           final dstHashes = removeElement(originalHashes, dataIx);
 
-          this.dataMap = this.dataMap ^ bitpos;
-          this.content = dst;
-          this.originalHashes = dstHashes;
-          this.size -= 1;
-          this.cachedDartKeySetHashCode -= elementHash;
+          dataMap = dataMap ^ bitpos;
+          content = dst;
+          originalHashes = dstHashes;
+          size -= 1;
+          cachedDartKeySetHashCode -= elementHash;
 
           return this;
         }
@@ -1254,7 +1252,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       }
     } else if ((nodeMap & bitpos) != 0) {
       final index = Node.indexFromMask(nodeMap, mask, bitpos);
-      final subNode = this.getNode(index);
+      final subNode = getNode(index);
 
       final subNodeNew = subNode.removed(
               element, originalHash, elementHash, Node.BitPartitionSize)
@@ -1263,13 +1261,13 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       if (subNodeNew == subNode) return this;
 
       if (subNodeNew.size == 1) {
-        if (this.payloadArity == 0 && this.nodeArity == 1) {
-          this.dataMap = subNodeNew.dataMap;
-          this.nodeMap = subNodeNew.nodeMap;
-          this.content = subNodeNew.content;
-          this.originalHashes = subNodeNew.originalHashes;
-          this.size = subNodeNew.size;
-          this.cachedDartKeySetHashCode = subNodeNew.cachedDartKeySetHashCode;
+        if (payloadArity == 0 && nodeArity == 1) {
+          dataMap = subNodeNew.dataMap;
+          nodeMap = subNodeNew.nodeMap;
+          content = subNodeNew.content;
+          originalHashes = subNodeNew.originalHashes;
+          size = subNodeNew.size;
+          cachedDartKeySetHashCode = subNodeNew.cachedDartKeySetHashCode;
 
           return this;
         } else {
@@ -1279,10 +1277,9 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
         }
       } else {
         // size must be > 1
-        this.content[this.content.length - 1 - this.nodeIndex(bitpos)] =
-            subNodeNew;
-        this.size -= 1;
-        this.cachedDartKeySetHashCode = this.cachedDartKeySetHashCode -
+        content[content.length - 1 - nodeIndex(bitpos)] = subNodeNew;
+        size -= 1;
+        cachedDartKeySetHashCode = cachedDartKeySetHashCode -
             subNode.cachedDartKeySetHashCode +
             subNodeNew.cachedDartKeySetHashCode;
         return this;
@@ -1318,7 +1315,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       }
     } else if ((nodeMap & bitpos) != 0) {
       final index = Node.indexFromMask(nodeMap, mask, bitpos);
-      final subNode = this.getNode(index);
+      final subNode = getNode(index);
       final subNodeSize = subNode.size;
       final subNodeCachedDartKeySetHashCode = subNode.cachedDartKeySetHashCode;
 
@@ -1340,10 +1337,9 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
         subNodeNew = newNode;
       }
 
-      this.content[this.content.length - 1 - this.nodeIndex(bitpos)] =
-          subNodeNew;
-      this.size = this.size - subNodeSize + subNodeNew.size;
-      this.cachedDartKeySetHashCode = this.cachedDartKeySetHashCode -
+      content[content.length - 1 - nodeIndex(bitpos)] = subNodeNew;
+      size = size - subNodeSize + subNodeNew.size;
+      cachedDartKeySetHashCode = cachedDartKeySetHashCode -
           subNodeCachedDartKeySetHashCode +
           subNodeNew.cachedDartKeySetHashCode;
       return returnNodeMap;
@@ -1351,7 +1347,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       final dataIx = dataIndex(bitpos);
       final idx = dataIx;
 
-      final src = this.content;
+      final src = content;
       final dst = Array.ofDim<dynamic>(src.length + SetNode.TupleLength);
 
       // copy 'src' and insert 2 element(s) at position 'idx'
@@ -1362,11 +1358,11 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
 
       final dstHashes = insertElement(originalHashes, dataIx, originalHash);
 
-      this.dataMap |= bitpos;
-      this.content = dst;
-      this.originalHashes = dstHashes;
-      this.size += 1;
-      this.cachedDartKeySetHashCode += elementHash;
+      dataMap |= bitpos;
+      content = dst;
+      originalHashes = dstHashes;
+      size += 1;
+      cachedDartKeySetHashCode += elementHash;
 
       return shallowlyMutableNodeMap;
     }
@@ -1472,7 +1468,7 @@ final class HashCollisionSetNode<A> extends SetNode<A> {
           if (!content.contains(nextPayload)) {
             if (newContent == null) {
               newContent = IVectorBuilder();
-              newContent.addAll(this.content);
+              newContent.addAll(content);
             }
 
             newContent.addOne(nextPayload);

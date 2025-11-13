@@ -185,7 +185,7 @@ void boundedDequeueTests<Q extends Dequeue<int>>(
   Function2<Q, Option<int>, IO<IList<int>>> tryTakeN,
   Function1<Q, IO<int>> size,
 ) {
-  test('demonstrate offer and take with zero capacity', () async {
+  test('demonstrate offer and take with zero capacity', () {
     final test = constructor(0).flatMap((q) {
       return offer(q, 1).start().flatMap((_) {
         return take(q).flatMap((v1) {
@@ -203,7 +203,7 @@ void boundedDequeueTests<Q extends Dequeue<int>>(
     expect(test, ioSucceeded());
   });
 
-  test('async take with zero capacity', () async {
+  test('async take with zero capacity', () {
     final test = constructor(0).flatMap((q) {
       return offer(q, 1).start().flatMap((_) {
         return take(q).flatMap((v1) {
@@ -226,7 +226,7 @@ void boundedDequeueTests<Q extends Dequeue<int>>(
     expect(test, ioSucceeded());
   });
 
-  test('offer/take with zero capacity', () async {
+  test('offer/take with zero capacity', () {
     const count = 1000;
 
     IO<Unit> producer(Q q, int n) => n > 0

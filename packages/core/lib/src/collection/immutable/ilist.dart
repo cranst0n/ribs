@@ -211,7 +211,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   @override
   IList<A> dropRight(int n) {
-    if (this.isEmpty) {
+    if (isEmpty) {
       return this;
     } else {
       final lead = iterator.drop(n);

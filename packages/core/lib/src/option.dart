@@ -7,7 +7,7 @@ Option<A> none<A>() => None<A>();
 /// Represents optional values.
 ///
 /// Instances of `Option` are either a [Some] or [None]. At first glance,
-/// [Option] may seem just like a nullabled type (e.g. Option<int> <-> int?),
+/// [Option] may seem just like a nullabled type (e.g. `Option<int>` <-> int?),
 /// but [Option] provide far more combinators to give greater power and
 /// flexibility. There are also conversions to move between optional and
 /// nullable types.

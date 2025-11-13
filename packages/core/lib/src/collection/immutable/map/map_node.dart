@@ -153,7 +153,7 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
         return this;
       } else if (bm.size == 1) {
         final originalHash = bm.getHash(0);
-        return this.updated(bm.getKey(0), bm.getValue(0), originalHash,
+        return updated(bm.getKey(0), bm.getValue(0), originalHash,
             Hashing.improve(originalHash), shift, true);
       }
 
@@ -979,10 +979,10 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
 
     if ((dataMap & bitpos) != 0) {
       final index = Node.indexFromMask(dataMap, mask, bitpos);
-      final key0 = this.getKey(index);
+      final key0 = getKey(index);
 
       if (key0 == key) {
-        if (this.payloadArity == 2 && this.nodeArity == 0) {
+        if (payloadArity == 2 && nodeArity == 0) {
           // Create new node with remaining pair. The new node will a) either become the new root
           // returned, or b) unwrapped and inlined during returning.
           final newDataMap = shift == 0
@@ -1016,7 +1016,7 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
       }
     } else if ((nodeMap & bitpos) != 0) {
       final index = Node.indexFromMask(nodeMap, mask, bitpos);
-      final subNode = this.getNode(index);
+      final subNode = getNode(index);
 
       final subNodeNew = subNode.removed(
           key, originalHash, keyHash, shift + Node.BitPartitionSize);
@@ -1029,7 +1029,7 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
       final subNodeNewSize = subNodeNew.size;
 
       if (subNodeNewSize == 1) {
-        if (this.size == subNode.size) {
+        if (size == subNode.size) {
           // subNode is the only child (no other data or node children of `this` exist)
           // escalate (singleton or empty) result
           return subNodeNew as BitmapIndexedMapNode<K, V>;
@@ -1108,7 +1108,7 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
 
       if (key0UnimprovedHash == originalHash && key0 == key) {
         if (replaceValue) {
-          final value0 = this.getValue(index);
+          final value0 = getValue(index);
           if ((key0 == key) && (value0 == value)) {
             return this;
           } else {
@@ -1118,7 +1118,7 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
           return this;
         }
       } else {
-        final value0 = this.getValue(index);
+        final value0 = getValue(index);
         final key0Hash = Hashing.improve(key0UnimprovedHash);
         final subNodeNew = mergeTwoKeyValPairs(
             key0,
@@ -1152,13 +1152,12 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
   @override
   bool operator ==(Object that) => switch (that) {
         final BitmapIndexedMapNode<K, V> node => identical(this, node) ||
-            ((this.cachedDartKeySetHashCode == node.cachedDartKeySetHashCode) &&
-                (this.nodeMap == node.nodeMap) &&
-                (this.dataMap == node.dataMap) &&
-                (this.size == node.size) &&
-                Array.equals(this.originalHashes, node.originalHashes) &&
-                _deepContentEquality(
-                    this.content, node.content, content.length)),
+            ((cachedDartKeySetHashCode == node.cachedDartKeySetHashCode) &&
+                (nodeMap == node.nodeMap) &&
+                (dataMap == node.dataMap) &&
+                (size == node.size) &&
+                Array.equals(originalHashes, node.originalHashes) &&
+                _deepContentEquality(content, node.content, content.length)),
         _ => false,
       };
 
@@ -1273,9 +1272,9 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
       int bitpos, int keyHash, MapNode<K, V> node) {
     final dataIx = dataIndex(bitpos);
     final idxOld = TupleLength * dataIx;
-    final idxNew = this.content.length - TupleLength - nodeIndex(bitpos);
+    final idxNew = content.length - TupleLength - nodeIndex(bitpos);
 
-    final src = this.content;
+    final src = content;
     final dst = Array.ofDim<dynamic>(src.length - TupleLength + 1);
 
     // copy 'src' and remove 2 element(s) at position 'idxOld' and
@@ -1289,12 +1288,12 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
 
     final dstHashes = removeElement(originalHashes, dataIx);
 
-    this.dataMap = dataMap ^ bitpos;
-    this.nodeMap = nodeMap | bitpos;
-    this.content = dst;
-    this.originalHashes = dstHashes;
-    this.size = size - 1 + node.size;
-    this.cachedDartKeySetHashCode =
+    dataMap = dataMap ^ bitpos;
+    nodeMap = nodeMap | bitpos;
+    content = dst;
+    originalHashes = dstHashes;
+    size = size - 1 + node.size;
+    cachedDartKeySetHashCode =
         cachedDartKeySetHashCode - keyHash + node.cachedDartKeySetHashCode;
 
     return this;
@@ -1338,7 +1337,7 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
 
     final key = node.getKey(0);
     final value = node.getValue(0);
-    final src = this.content;
+    final src = content;
     final dst = Array.ofDim<dynamic>(src.length - 1 + TupleLength);
 
     // copy 'src' and remove 1 element(s) at position 'idxOld' and
@@ -1641,7 +1640,7 @@ final class HashCollisionMapNode<K, V> extends MapNode<K, V> {
 
   @override
   MapNode<K, V> removed(K key, int originalHash, int hash, int shift) {
-    if (!this.containsKey(key, originalHash, hash, shift)) {
+    if (!containsKey(key, originalHash, hash, shift)) {
       return this;
     } else {
       final updatedContent =
@@ -1714,8 +1713,8 @@ final class HashCollisionMapNode<K, V> extends MapNode<K, V> {
   @override
   bool operator ==(Object that) => switch (that) {
         final HashCollisionMapNode<K, V> node => identical(this, node) ||
-            (this.hash == node.hash) &&
-                (this.content.length == node.content.length) &&
+            (hash == node.hash) &&
+                (content.length == node.content.length) &&
                 _contentEqual(node),
         _ => false,
       };

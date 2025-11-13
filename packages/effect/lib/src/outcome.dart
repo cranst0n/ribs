@@ -91,8 +91,7 @@ final class Succeeded<A> extends Outcome<A> {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is Succeeded && other.value == this.value);
+      identical(this, other) || (other is Succeeded && other.value == value);
 
   @override
   int get hashCode => value.hashCode;
@@ -115,7 +114,7 @@ final class Errored<A> extends Outcome<A> {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || (other is Errored && other.error == this.error);
+      identical(this, other) || (other is Errored && other.error == error);
 
   @override
   int get hashCode => error.hashCode;

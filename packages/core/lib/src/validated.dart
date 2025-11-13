@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 
 /// Type alias for [Validated] where the error case is fixed to
-/// [NonEmptyIList]<E>.
+/// `NonEmptyIList<E>`.
 typedef ValidatedNel<E, A> = Validated<NonEmptyIList<E>, A>;
 
 /// Represents one of 2 possible values: [Valid] or [Invalid].
@@ -26,7 +26,7 @@ sealed class Validated<E, A> implements Functor<A> {
   static Validated<E, A> valid<E, A>(A a) => Valid(a);
 
   /// Lifts the given value [a] into a [Valid] where the error type is fixed
-  /// to [NonEmptyIList]<E>.
+  /// to `NonEmptyIList<E>`.
   static ValidatedNel<E, A> validNel<E, A>(A a) => Valid(a);
 
   /// Returns the result of applying [fe] if this is an instance of [Invalid],
@@ -159,7 +159,7 @@ extension ValidatedNestedOps<E, A> on Validated<E, Validated<E, A>> {
       );
 }
 
-/// Functions that are unique to a [Validated] that has a [NonEmptyIList]<E>
+/// Functions that are unique to a [Validated] that has a `NonEmptyIList<E>`
 /// for the invalid type.
 extension ValidatedNelOps<E, A> on ValidatedNel<E, A> {
   /// Applies [f] to this value if both instance are [Valid]. Otherwise returns

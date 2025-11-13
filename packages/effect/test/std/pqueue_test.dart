@@ -8,7 +8,7 @@ import 'package:test/test.dart';
 import 'queue_test.dart';
 
 void main() {
-  test('demonstrate offer and take with zero capacity', () async {
+  test('demonstrate offer and take with zero capacity', () {
     final test = PQueue.bounded(Order.ints, 0).flatMap((q) {
       return q.offer(1).start().flatMap((_) {
         return q.take().flatMap((v1) {
@@ -26,7 +26,7 @@ void main() {
     expect(test, ioSucceeded());
   });
 
-  test('async take with zero capacity', () async {
+  test('async take with zero capacity', () {
     Option<int> futureValue = none();
 
     final test = PQueue.bounded(Order.ints, 0).flatMap((q) {
@@ -57,7 +57,7 @@ void main() {
     expect(test, ioSucceeded());
   });
 
-  test('offer/take with zero capacity', () async {
+  test('offer/take with zero capacity', () {
     const count = 1000;
 
     IO<Unit> producer(PQueue<int> q, int n) =>
