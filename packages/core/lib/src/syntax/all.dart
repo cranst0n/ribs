@@ -4,5 +4,6 @@ export 'ilist.dart';
 export 'iterable.dart';
 export 'option.dart';
 export 'riterable.dart';
+export 'string.dart';
 export 'tuple.dart';
 export 'validated.dart';
