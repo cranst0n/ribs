@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 void main() {
   final first = Optional<IList<int>, int>(
     (a) => a.headOption.toRight(() => a),
-    (a) => (s) => s.isEmpty ? s : s.tail().prepended(a),
+    (a) => (s) => s.isEmpty ? s : s.tail.prepended(a),
   );
 
   final second = Optional<IList<int>, int>(
@@ -44,8 +44,9 @@ void main() {
     });
 
     test('andThenO', () {
-      final doubleSecond =
-          second.andThenO(Optional<int, int>((a) => a.asRight(), (a) => (b) => a * b));
+      final doubleSecond = second.andThenO(
+        Optional<int, int>((a) => a.asRight(), (a) => (b) => a * b),
+      );
 
       expect(doubleSecond.modify((x) => x)(a), ilist([1, 4, 3]));
     });

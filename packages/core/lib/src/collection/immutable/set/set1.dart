@@ -67,5 +67,5 @@ class _Set1<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   int get size => 1;
 
   @override
-  ISet<A> tail() => ISet.empty();
+  ISet<A> get tail => ISet.empty();
 }

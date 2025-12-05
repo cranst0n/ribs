@@ -100,11 +100,11 @@ class _Set2<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   int get size => 2;
 
   @override
-  ISet<A> tail() => _Set1(elem2);
+  ISet<A> get tail => _Set1(elem2);
 
   A _getElem(int n) => switch (n) {
-        0 => elem1,
-        1 => elem2,
-        _ => throw IndexError.withLength(n, size),
-      };
+    0 => elem1,
+    1 => elem2,
+    _ => throw IndexError.withLength(n, size),
+  };
 }

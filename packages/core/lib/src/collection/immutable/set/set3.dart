@@ -119,12 +119,12 @@ class _Set3<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   int get size => 3;
 
   @override
-  ISet<A> tail() => _Set2(elem2, elem3);
+  ISet<A> get tail => _Set2(elem2, elem3);
 
   A _getElem(int n) => switch (n) {
-        0 => elem1,
-        1 => elem2,
-        2 => elem3,
-        _ => throw IndexError.withLength(n, size),
-      };
+    0 => elem1,
+    1 => elem2,
+    2 => elem3,
+    _ => throw IndexError.withLength(n, size),
+  };
 }

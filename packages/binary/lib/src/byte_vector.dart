@@ -40,62 +40,52 @@ sealed class ByteVector {
   static ByteVector fromValidBin(
     String s, [
     BinaryAlphabet alphabet = Alphabets.binary,
-  ]) =>
-      fromBinDescriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
+  ]) => fromBinDescriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromBinDescriptive(
     String str, [
     BinaryAlphabet alphabet = Alphabets.binary,
-  ]) =>
-      fromBinInternal(str, alphabet).map((a) => a.$1);
+  ]) => fromBinInternal(str, alphabet).map((a) => a.$1);
 
   static Option<ByteVector> fromHex(
     String s, [
     HexAlphabet alphabet = Alphabets.hexLower,
-  ]) =>
-      fromHexDescriptive(s, alphabet).toOption();
+  ]) => fromHexDescriptive(s, alphabet).toOption();
 
   static ByteVector fromValidHex(
     String s, [
     HexAlphabet alphabet = Alphabets.hexLower,
-  ]) =>
-      fromHexDescriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
+  ]) => fromHexDescriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromHexDescriptive(
     String str, [
     HexAlphabet alphabet = Alphabets.hexLower,
-  ]) =>
-      fromHexInternal(str, alphabet).map((a) => a.$1);
+  ]) => fromHexInternal(str, alphabet).map((a) => a.$1);
 
   static Option<ByteVector> fromBase32(
     String s, [
     Base32Alphabet alphabet = Alphabets.base32,
-  ]) =>
-      fromBase32Descriptive(s, alphabet).toOption();
+  ]) => fromBase32Descriptive(s, alphabet).toOption();
 
   static ByteVector fromValidBase32(
     String s, [
     Base32Alphabet alphabet = Alphabets.base32,
-  ]) =>
-      fromBase32Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
+  ]) => fromBase32Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromBase32Descriptive(
     String str, [
     Base32Alphabet alphabet = Alphabets.base32,
-  ]) =>
-      fromBase32Internal(str, alphabet).map((a) => a.$1);
+  ]) => fromBase32Internal(str, alphabet).map((a) => a.$1);
 
   static Option<ByteVector> fromBase58(
     String s, [
     Base58Alphabet alphabet = Alphabets.base58,
-  ]) =>
-      fromBase58Descriptive(s, alphabet).toOption();
+  ]) => fromBase58Descriptive(s, alphabet).toOption();
 
   static ByteVector fromValidBase58(
     String s, [
     Base58Alphabet alphabet = Alphabets.base58,
-  ]) =>
-      fromBase58Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
+  ]) => fromBase58Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromBase58Descriptive(
     String str, [
@@ -132,34 +122,29 @@ sealed class ByteVector {
   static Option<ByteVector> fromBase64(
     String s, [
     Base64Alphabet alphabet = Alphabets.base64,
-  ]) =>
-      fromBase64Descriptive(s, alphabet).toOption();
+  ]) => fromBase64Descriptive(s, alphabet).toOption();
 
   static ByteVector fromValidBase64(
     String s, [
     Base64Alphabet alphabet = Alphabets.base64,
-  ]) =>
-      fromBase64Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
+  ]) => fromBase64Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromBase64Descriptive(
     String str, [
     Base64Alphabet alphabet = Alphabets.base64,
-  ]) =>
-      fromBase64Internal(str, alphabet).map((a) => a.$1);
+  ]) => fromBase64Internal(str, alphabet).map((a) => a.$1);
 
   factory ByteVector.fromInt(
     int i, {
     int size = 4,
     Endian ordering = Endian.big,
-  }) =>
-      BitVector.fromInt(i, size: size * 8, ordering: ordering).bytes;
+  }) => BitVector.fromInt(i, size: size * 8, ordering: ordering).bytes;
 
   factory ByteVector.fromBigInt(
     BigInt value, {
     Option<int> size = const None<int>(),
     Endian ordering = Endian.big,
-  }) =>
-      BitVector.fromBigInt(value, size: size.map((s) => s * 8), ordering: ordering).bytes;
+  }) => BitVector.fromBigInt(value, size: size.map((s) => s * 8), ordering: ordering).bytes;
 
   ByteVector operator &(ByteVector other) => and(other);
 
@@ -176,16 +161,15 @@ sealed class ByteVector {
   ByteVector operator >>>(int n) => shiftRight(n, false);
 
   Either<String, ByteVector> acquire(int bytes) => Either.cond(
-        () => size >= bytes,
-        () => take(bytes),
-        () => 'Cannot acquire $bytes bytes from ByteVector of size $size',
-      );
+    () => size >= bytes,
+    () => take(bytes),
+    () => 'Cannot acquire $bytes bytes from ByteVector of size $size',
+  );
 
   Either<String, (ByteVector, A)> consume<A>(
     int n,
     Function1<ByteVector, Either<String, A>> decode,
-  ) =>
-      acquire(n).flatMap((toDecode) => decode(toDecode).map((decoded) => (drop(n), decoded)));
+  ) => acquire(n).flatMap((toDecode) => decode(toDecode).map((decoded) => (drop(n), decoded)));
 
   A foldLeft<A>(A z, Function2<A, int, A> f) {
     var acc = z;
@@ -522,8 +506,8 @@ sealed class ByteVector {
     if (alphabet.pad != '0') {
       final padLen =
           (((bytes.length + bitsPerChar - 1) ~/ bitsPerChar * bitsPerChar) - bytes.length) *
-              8 ~/
-              bitsPerChar;
+          8 ~/
+          bitsPerChar;
 
       var i = 0;
 
@@ -703,11 +687,13 @@ sealed class ByteVector {
   ByteVector _mapS(Function1<int, int> f) => ByteVector._viewAt(At((i) => f(get(i))), size);
 
   ByteVector _zipWithS(ByteVector other, Function2<int, int, int> f) {
-    return _Chunk(_View(
-      At((i) => f(get(i), other.get(i))),
-      0,
-      min(size, other.size),
-    ));
+    return _Chunk(
+      _View(
+        At((i) => f(get(i), other.get(i))),
+        0,
+        min(size, other.size),
+      ),
+    );
   }
 
   void _foreachS(Function1<int, void> f) => _foreachV((v) => v.foreach(f));
@@ -720,13 +706,13 @@ sealed class ByteVector {
         switch (rem.head) {
           case _Chunk(bytes: final bs):
             f(bs);
-            go(rem.tail());
+            go(rem.tail);
           case _Append(left: final l, right: final r):
-            go(rem.tail().prepended(r).prepended(l));
+            go(rem.tail.prepended(r).prepended(l));
           case final _Buffer b:
-            go(rem.tail().prepended(b.unbuffer()));
+            go(rem.tail.prepended(b.unbuffer()));
           case final _Chunks c:
-            go(rem.tail().prepended(c.chunks.right).prepended(c.chunks.left));
+            go(rem.tail.prepended(c.chunks.right).prepended(c.chunks.left));
         }
       }
     }
@@ -739,14 +725,14 @@ sealed class ByteVector {
       if (!rem.isEmpty) {
         switch (rem.head) {
           case _Chunk(bytes: final bs):
-            return f(bs) && go(rem.tail());
+            return f(bs) && go(rem.tail);
           case _Append(left: final l, right: final r):
-            return go(rem.tail().prepended(r).prepended(l));
+            return go(rem.tail.prepended(r).prepended(l));
           case final _Buffer b:
-            return go(rem.tail().prepended(b.unbuffer()));
+            return go(rem.tail.prepended(b.unbuffer()));
           case final _Chunks c:
             return go(
-              rem.tail().prepended(c.chunks.right).prepended(c.chunks.left),
+              rem.tail.prepended(c.chunks.right).prepended(c.chunks.left),
             );
         }
       } else {
@@ -852,9 +838,10 @@ final class _Buffer extends ByteVector {
   ByteVector take(int n) => n <= hd.size ? hd.take(n) : hd.concat(lastBytes.take(n - hd.size));
 
   @override
-  ByteVector drop(int n) => n <= hd.size
-      ? _Buffer(hd.drop(n), lastChunk, lastSize)
-      : unbuffer().drop(n).bufferBy(lastChunk.length);
+  ByteVector drop(int n) =>
+      n <= hd.size
+          ? _Buffer(hd.drop(n), lastChunk, lastSize)
+          : unbuffer().drop(n).bufferBy(lastChunk.length);
 
   @override
   ByteVector append(int byte) {

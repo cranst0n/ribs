@@ -161,9 +161,12 @@ class DartzAttemptSadBenchmark extends AsyncBenchmarkBase {
   DartzAttemptSadBenchmark() : super('') {
     dartz.Task<int> x = dartz.Task.value(0);
     for (int i = 0; i < n; i++) {
-      x = x.flatMap((a) => (i == n ~/ 2)
-          ? dartz.Task.delay(() => throw Exception('boom'))
-          : dartz.Task.value(a + 1));
+      x = x.flatMap(
+        (a) =>
+            (i == n ~/ 2)
+                ? dartz.Task.delay(() => throw Exception('boom'))
+                : dartz.Task.value(a + 1),
+      );
     }
 
     task = x.attempt();
@@ -180,7 +183,8 @@ class FpdartAttemptSadBenchmark extends AsyncBenchmarkBase {
     fpdart.TaskEither<Object, int> x = fpdart.TaskEither.of(0);
     for (int i = 0; i < n; i++) {
       x = x.flatMap(
-          (a) => (i == n ~/ 2) ? fpdart.TaskEither.left('boom') : fpdart.TaskEither.of(a + 1));
+        (a) => (i == n ~/ 2) ? fpdart.TaskEither.left('boom') : fpdart.TaskEither.of(a + 1),
+      );
     }
 
     task = x;
@@ -210,8 +214,9 @@ class RibsAttemptSadBenchmark extends AsyncBenchmarkBase {
   RibsAttemptSadBenchmark() : super('') {
     IO<int> x = IO.pure(0);
     for (int i = 0; i < n; i++) {
-      x = x
-          .flatMap((a) => (i == n ~/ 2) ? IO.raiseError(RuntimeException('boom')) : IO.pure(a + 1));
+      x = x.flatMap(
+        (a) => (i == n ~/ 2) ? IO.raiseError(RuntimeException('boom')) : IO.pure(a + 1),
+      );
     }
 
     io = x.attempt();
@@ -225,17 +230,18 @@ class DartzBothBenchmark extends AsyncBenchmarkBase {
   DartzBothBenchmark() : super('');
 
   @override
-  Future<void> run() => dartz.Task.value(0)
-      .delayBy(15.milliseconds)
-      .both(dartz.Task.value(1).delayBy(30.milliseconds))
-      .run();
+  Future<void> run() =>
+      dartz.Task.value(
+        0,
+      ).delayBy(15.milliseconds).both(dartz.Task.value(1).delayBy(30.milliseconds)).run();
 }
 
 class FpdartBothBenchmark extends AsyncBenchmarkBase {
   FpdartBothBenchmark() : super('');
 
   @override
-  Future<void> run() => fpdart.Task.traverseListWithIndex(
+  Future<void> run() =>
+      fpdart.Task.traverseListWithIndex(
         [
           15.milliseconds,
           30.milliseconds,
@@ -249,36 +255,39 @@ class FutureBothBenchmark extends AsyncBenchmarkBase {
 
   @override
   Future<void> run() => Future.wait([
-        Future.delayed(15.milliseconds, () => 0),
-        Future.delayed(30.milliseconds, () => 1),
-      ]);
+    Future.delayed(15.milliseconds, () => 0),
+    Future.delayed(30.milliseconds, () => 1),
+  ]);
 }
 
 class RibsBothBenchmark extends AsyncBenchmarkBase {
   RibsBothBenchmark() : super('');
 
   @override
-  Future<void> run() => IO
-      .both(
-        IO.pure(0).delayBy(15.milliseconds),
-        IO.pure(1).delayBy(30.milliseconds),
-      )
-      .unsafeRunFuture();
+  Future<void> run() =>
+      IO
+          .both(
+            IO.pure(0).delayBy(15.milliseconds),
+            IO.pure(1).delayBy(30.milliseconds),
+          )
+          .unsafeRunFuture();
 }
 
 const sep = '  |  ';
 
 void main(List<String> args) async {
-  print((' ' * 17) +
-      sep +
-      'dartz'.padLeft(10) +
-      sep +
-      'fpdart'.padLeft(10) +
-      sep +
-      'future'.padLeft(10) +
-      sep +
-      'ribs'.padLeft(10) +
-      sep);
+  print(
+    (' ' * 17) +
+        sep +
+        'dartz'.padLeft(10) +
+        sep +
+        'fpdart'.padLeft(10) +
+        sep +
+        'future'.padLeft(10) +
+        sep +
+        'ribs'.padLeft(10) +
+        sep,
+  );
 
   print('-' * 80);
 
@@ -305,7 +314,12 @@ void main(List<String> args) async {
   final futureAttemptSad = await attemptBenchmark(FutureAttemptSadBenchmark());
   final ribsAttemptSad = await attemptBenchmark(RibsAttemptSadBenchmark());
   reportMeasurements(
-      'attempt (sad)', dartzAttemptSad, fpdartAttemptSad, futureAttemptSad, ribsAttemptSad);
+    'attempt (sad)',
+    dartzAttemptSad,
+    fpdartAttemptSad,
+    futureAttemptSad,
+    ribsAttemptSad,
+  );
 
   final dartzBoth = await attemptBenchmark(DartzBothBenchmark());
   final fpdartBoth = await attemptBenchmark(FpdartBothBenchmark());
@@ -367,9 +381,10 @@ extension FpdartTaskOps<A> on fpdart.Task<A> {
 }
 
 extension FpdartTaskEitherOps<A, B> on fpdart.TaskEither<A, B> {
-  fpdart.TaskEither<A, Unit> replicate_(int n) => n <= 0
-      ? fpdart.TaskEither(() async => fpdart.Either.right(Unit()))
-      : flatMap((_) => replicate_(n - 1));
+  fpdart.TaskEither<A, Unit> replicate_(int n) =>
+      n <= 0
+          ? fpdart.TaskEither(() async => fpdart.Either.right(Unit()))
+          : flatMap((_) => replicate_(n - 1));
 }
 
 extension FutureOps<A> on Future<A> {

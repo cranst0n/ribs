@@ -68,9 +68,9 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       newLL(() => sCons(start, ints(start + step, step)));
 
   static ILazyList<A> iterate<A>(Function0<A> start, Function1<A, A> f) => newLL(() {
-        final head = start();
-        return sCons(head, iterate(() => f(head), f));
-      });
+    final head = start();
+    return sCons(head, iterate(() => f(head), f));
+  });
 
   static ILazyList<A> tabulate<A>(int n, Function1<int, A> f) {
     ILazyList<A> at(int index) {
@@ -87,11 +87,12 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   static ILazyList<A> unfold<A, S>(
     S initial,
     Function1<S, Option<(A, S)>> f,
-  ) =>
-      newLL(() => f(initial).fold(
-            () => _Empty<A>(),
-            (t) => sCons(t.$1, unfold(t.$2, f)),
-          ));
+  ) => newLL(
+    () => f(initial).fold(
+      () => _Empty<A>(),
+      (t) => sCons(t.$1, unfold(t.$2, f)),
+    ),
+  );
 
   @override
   A operator [](int idx) {
@@ -134,7 +135,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
       while (res.isEmpty && !rest.isEmpty) {
         res = f(rest.head);
-        rest = rest.tail();
+        rest = rest.tail;
       }
 
       return res.fold(() => _Empty(), (b) => sCons(b, _collectImpl(rest, f)));
@@ -147,11 +148,11 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       return none();
     } else {
       var res = f(head);
-      var rest = tail();
+      var rest = tail;
 
       while (res.isEmpty && !rest.isEmpty) {
         res = f(rest.head);
-        rest = rest.tail();
+        rest = rest.tail;
       }
 
       return res;
@@ -217,7 +218,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       var i = n;
 
       while (i > 0 && !rest.isEmpty) {
-        rest = rest.tail();
+        rest = rest.tail;
         i -= 1;
       }
 
@@ -239,7 +240,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
         // advance scout n elements ahead (or until empty)
         while (remaining > 0 && !scout.isEmpty) {
           remaining -= 1;
-          scout = scout.tail();
+          scout = scout.tail;
         }
 
         return _dropRightState(scout);
@@ -251,7 +252,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     if (scout.isEmpty) {
       return _Empty();
     } else {
-      return sCons(head, newLL(() => tail()._dropRightState(scout.tail())));
+      return sCons(head, newLL(() => tail._dropRightState(scout.tail)));
     }
   }
 
@@ -268,7 +269,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     return newLL(() {
       var rest = ll;
       while (!rest.isEmpty && p(rest.head)) {
-        rest = rest.tail();
+        rest = rest.tail;
       }
 
       return rest._state;
@@ -295,7 +296,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       while (!found && !rest.isEmpty) {
         elem = rest.head;
         found = p(elem) != isFlipped;
-        rest = rest.tail();
+        rest = rest.tail;
       }
 
       return found ? sCons(elem, _filterImpl(rest, p, isFlipped)) : _Empty();
@@ -311,7 +312,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
       while (!rest.isEmpty) {
         if (p(rest.head)) return Some(rest.head);
-        rest = rest.tail();
+        rest = rest.tail;
       }
 
       return none();
@@ -335,13 +336,13 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
         it = f(rest.head).iterator;
         itHasNext = it.hasNext;
         if (!itHasNext) {
-          rest = rest.tail();
+          rest = rest.tail;
         }
       }
 
       if (itHasNext) {
         final head = it!.next();
-        rest = rest.tail();
+        rest = rest.tail;
         return sCons(
           head,
           newLL(() => stateFromIteratorConcatSuffix(it!, () => _flatMapImpl(rest, f)._state)),
@@ -357,7 +358,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     if (isEmpty) {
       return z;
     } else {
-      return tail().foldLeft(op(z, head), op);
+      return tail.foldLeft(op(z, head), op);
     }
   }
 
@@ -366,16 +367,16 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     ILazyList<A> those = this;
 
     if (!these.isEmpty) {
-      these = these.tail();
+      these = these.tail;
     }
 
     while (those != these) {
       if (these.isEmpty) return this;
-      these = these.tail();
+      these = these.tail;
       if (these.isEmpty) return this;
-      these = these.tail();
+      these = these.tail;
       if (these == those) return this;
-      those = those.tail();
+      those = those.tail;
     }
 
     return this;
@@ -385,7 +386,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   void foreach<U>(Function1<A, U> f) {
     if (!isEmpty) {
       f(head);
-      tail().foreach(f);
+      tail.foreach(f);
     }
   }
 
@@ -406,11 +407,11 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   /// Will force evaluation
   @override
-  ILazyList<A> init() => ILazyList.from(super.init());
+  ILazyList<A> get init => ILazyList.from(super.init);
 
   /// Will force evaluation
   @override
-  RIterator<ILazyList<A>> inits() => super.inits().map(ILazyList.from);
+  RIterator<ILazyList<A>> get inits => super.inits.map(ILazyList.from);
 
   @override
   ILazyList<A> intersect(RSeq<A> that) {
@@ -451,7 +452,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
         final hd = addIt ? x : head;
 
         final tl =
-            (isEmpty || addIt) ? _intersperseImpl(x, !addIt) : tail()._intersperseImpl(x, !addIt);
+            (isEmpty || addIt) ? _intersperseImpl(x, !addIt) : tail._intersperseImpl(x, !addIt);
 
         return sCons(hd, tl);
       });
@@ -480,7 +481,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
           return stateFromIterator(foo.iterator);
         }
       } else {
-        return sCons(head, tail().lazyAppendedAll(suffix));
+        return sCons(head, tail.lazyAppendedAll(suffix));
       }
     });
   }
@@ -492,7 +493,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
     while (these.nonEmpty) {
       len += 1;
-      these = these.tail();
+      these = these.tail;
     }
 
     return len;
@@ -508,7 +509,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   ILazyList<B> _mapImpl<B>(covariant Function1<A, B> f) =>
-      newLL(() => isEmpty ? _Empty() : sCons(f(head), tail()._mapImpl(f)));
+      newLL(() => isEmpty ? _Empty() : sCons(f(head), tail._mapImpl(f)));
 
   @override
   ILazyList<A> padTo(int len, A elem) {
@@ -519,7 +520,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
         if (isEmpty) {
           return ILazyList.fill(len, elem)._state;
         } else {
-          return sCons(head, tail().padTo(len - 1, elem));
+          return sCons(head, tail.padTo(len - 1, elem));
         }
       });
     }
@@ -553,11 +554,13 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     return newLL(() {
       if (from <= 0) {
         return stateFromIteratorConcatSuffix(
-            other.iterator, () => _dropImpl(this, replaced)._state);
+          other.iterator,
+          () => _dropImpl(this, replaced)._state,
+        );
       } else if (isEmpty) {
         return stateFromIterator(other.iterator);
       } else {
-        return sCons(head, tail()._patchImpl(from - 1, other, replaced));
+        return sCons(head, tail._patchImpl(from - 1, other, replaced));
       }
     });
   }
@@ -588,11 +591,11 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       throw UnsupportedError('empty.reduceLeft');
     } else {
       var reducedRes = head;
-      var left = tail();
+      var left = tail;
 
       while (!left.isEmpty) {
         reducedRes = op(reducedRes, left.head);
-        left = left.tail();
+        left = left.tail;
       }
 
       return reducedRes;
@@ -604,9 +607,9 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     if (0 <= idx && !knownIsEmpty) {
       return newLL(() {
         if (idx == 0) {
-          return tail()._state;
+          return tail._state;
         } else {
-          return sCons(head, tail().removeAt(idx - 1));
+          return sCons(head, tail.removeAt(idx - 1));
         }
       });
     } else {
@@ -620,9 +623,9 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       return this;
     } else {
       if (p(head)) {
-        return tail();
+        return tail;
       } else {
-        return newLL(() => sCons(head, tail().removeFirst(p)));
+        return newLL(() => sCons(head, tail.removeFirst(p)));
       }
     }
   }
@@ -635,7 +638,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     if (isEmpty) {
       return tl;
     } else {
-      return tail()._reverseOnto(newLL(() => sCons(head, tl)));
+      return tail._reverseOnto(newLL(() => sCons(head, tl)));
     }
   }
 
@@ -648,8 +651,8 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       if (a == b) return true;
       if (a.head != b.head) return false;
 
-      a = a.tail();
-      b = b.tail();
+      a = a.tail;
+      b = b.tail;
     }
 
     return a.isEmpty && b.isEmpty;
@@ -667,13 +670,16 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     }
   }
 
-  _State<B> _scanLeftState<B>(B z, Function2<B, A, B> op) => sCons(z, newLL(() {
-        if (isEmpty) {
-          return _Empty();
-        } else {
-          return tail()._scanLeftState(op(z, head), op);
-        }
-      }));
+  _State<B> _scanLeftState<B>(B z, Function2<B, A, B> op) => sCons(
+    z,
+    newLL(() {
+      if (isEmpty) {
+        return _Empty();
+      } else {
+        return tail._scanLeftState(op(z, head), op);
+      }
+    }),
+  );
 
   /// Will force evaluation
   @override
@@ -712,14 +718,13 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   (ILazyList<A>, ILazyList<A>) splitAt(int n) => (take(n), drop(n));
 
   @override
-  ILazyList<A> tail() => _state.tail;
+  ILazyList<A> get tail => _state.tail;
 
   @override
-  RIterator<ILazyList<A>> tails() =>
-      ILazyList.iterate(() => this, (ll) => ll.nonEmpty ? ll.tail() : ll)
-          .iterator
-          .takeWhile((ll) => ll.nonEmpty)
-          .concat(RIterator.single(ILazyList.empty()));
+  RIterator<ILazyList<A>> get tails => ILazyList.iterate(
+    () => this,
+    (ll) => ll.nonEmpty ? ll.tail : ll,
+  ).iterator.takeWhile((ll) => ll.nonEmpty).concat(RIterator.single(ILazyList.empty()));
 
   @override
   ILazyList<A> take(int n) {
@@ -738,7 +743,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
         if (isEmpty) {
           return _Empty();
         } else {
-          return sCons(head, tail()._takeImpl(n - 1));
+          return sCons(head, tail._takeImpl(n - 1));
         }
       });
     }
@@ -760,13 +765,13 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       var remaining = n;
 
       while (remaining > 0 && !scout.isEmpty) {
-        scout = scout.tail();
+        scout = scout.tail;
         remaining -= 1;
       }
 
       while (!scout.isEmpty) {
-        scout = scout.tail();
-        rest = rest.tail();
+        scout = scout.tail;
+        rest = rest.tail;
       }
 
       return rest._state;
@@ -783,18 +788,18 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   ILazyList<A> _takeWhileImpl(Function1<A, bool> p) => newLL(() {
-        if (isEmpty || !p(head)) {
-          return _Empty();
-        } else {
-          return sCons(head, tail()._takeWhileImpl(p));
-        }
-      });
+    if (isEmpty || !p(head)) {
+      return _Empty();
+    } else {
+      return sCons(head, tail._takeWhileImpl(p));
+    }
+  });
 
   @override
   ILazyList<A> tapEach<U>(Function1<A, U> f) => map((a) {
-        f(a);
-        return a;
-      });
+    f(a);
+    return a;
+  });
 
   /// Will force evaluation
   @override
@@ -814,11 +819,11 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
     return newLL(() {
       if (index <= 0) {
-        return sCons(elem, tail());
-      } else if (tail().isEmpty) {
+        return sCons(elem, tail);
+      } else if (tail.isEmpty) {
         throw RangeError('invalid index: $startIndex');
       } else {
-        return sCons(head, tail()._updatedImpl(index - 1, elem, startIndex));
+        return sCons(head, tail._updatedImpl(index - 1, elem, startIndex));
       }
     });
   }
@@ -836,7 +841,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     if (isEmpty || !it.hasNext) {
       return _Empty();
     } else {
-      return sCons((head, it.next()), newLL(() => tail()._zipState(it)));
+      return sCons((head, it.next()), newLL(() => tail._zipState(it)));
     }
   }
 
@@ -862,13 +867,13 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       if (isEmpty) {
         return sCons((head, it.next()), newLL(() => ILazyList.continually(thisElem)._zipState(it)));
       } else {
-        return sCons((head, it.next()), newLL(() => tail()._zipAllState(it, thisElem, thatElem)));
+        return sCons((head, it.next()), newLL(() => tail._zipAllState(it, thisElem, thatElem)));
       }
     } else {
       if (isEmpty) {
         return _Empty();
       } else {
-        return sCons((head, thatElem), tail().zip(ILazyList.continually(thatElem)));
+        return sCons((head, thatElem), tail.zip(ILazyList.continually(thatElem)));
       }
     }
   }
@@ -923,7 +928,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     var rest = this;
 
     while (i > 0 && !rest.isEmpty) {
-      rest = rest.tail();
+      rest = rest.tail;
       i -= 1;
     }
 
@@ -944,24 +949,25 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       b.write(head);
 
       var cursor = this;
-      var scout = tail();
+      var scout = tail;
 
-      void appendCursorElement() => b
-        ..write(sep)
-        ..write(cursor.head);
+      void appendCursorElement() =>
+          b
+            ..write(sep)
+            ..write(cursor.head);
 
       bool scoutNonEmpty() => scout._stateEvaluated && !scout.isEmpty;
 
       if ((cursor != scout) && (!scout._stateEvaluated || (cursor._state != scout._state))) {
         cursor = scout;
         if (scoutNonEmpty()) {
-          scout = scout.tail();
+          scout = scout.tail;
           // Use 2x 1x iterator trick for cycle detection; slow iterator can add strings
           while ((cursor != scout) && scoutNonEmpty() && (cursor._state != scout._state)) {
             appendCursorElement();
-            cursor = cursor.tail();
-            scout = scout.tail();
-            if (scoutNonEmpty()) scout = scout.tail();
+            cursor = cursor.tail;
+            scout = scout.tail;
+            if (scoutNonEmpty()) scout = scout.tail;
           }
         }
       }
@@ -969,7 +975,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
         // Not a cycle, scout hit an end
         while (cursor != scout) {
           appendCursorElement();
-          cursor = cursor.tail();
+          cursor = cursor.tail;
         }
         // if cursor (eq scout) has state defined, it is empty; else unknown state
         if (!cursor._stateEvaluated) {
@@ -993,8 +999,8 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
         var runner = this;
         var k = 0;
         while (!same(runner, scout)) {
-          runner = runner.tail();
-          scout = scout.tail();
+          runner = runner.tail;
+          scout = scout.tail;
           k += 1;
         }
 
@@ -1006,11 +1012,11 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
         if (same(cursor, scout) && (k > 0)) {
           appendCursorElement();
-          cursor = cursor.tail();
+          cursor = cursor.tail;
         }
         while (!same(cursor, scout)) {
           appendCursorElement();
-          cursor = cursor.tail();
+          cursor = cursor.tail;
         }
 
         b
@@ -1038,7 +1044,7 @@ final class _LazyIterator<A> extends RIterator<A> {
       noSuchElement();
     } else {
       final res = lazyList.head;
-      lazyList = lazyList.tail();
+      lazyList = lazyList.tail;
       return res;
     }
   }
@@ -1112,7 +1118,8 @@ final class ILazyListBuilder<A> {
     if (elems.knownSize != 0) {
       final deferred = _DeferredState<A>();
       _next.init(
-          () => ILazyList.stateFromIteratorConcatSuffix(elems.iterator, () => deferred.eval()));
+        () => ILazyList.stateFromIteratorConcatSuffix(elems.iterator, () => deferred.eval()),
+      );
       _next = deferred;
     }
 

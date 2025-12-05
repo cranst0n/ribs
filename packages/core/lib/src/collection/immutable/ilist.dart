@@ -96,9 +96,9 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   @override
   IList<A> appendedAll(RIterableOnce<A> suffix) => switch (suffix) {
-        final IList<A> xs => xs.prependedAll(this),
-        _ => builder<A>().addAll(this).addAll(suffix).toIList(),
-      };
+    final IList<A> xs => xs.prependedAll(this),
+    _ => builder<A>().addAll(this).addAll(suffix).toIList(),
+  };
 
   @override
   IList<B> collect<B>(Function1<A, Option<B>> f) {
@@ -113,7 +113,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       // Special case for first element
       while (h == null) {
         f(rest.head).foreach((x) => h = Cons(x, nilB));
-        rest = rest.tail();
+        rest = rest.tail;
 
         if (rest.isEmpty) return h ?? nilB;
       }
@@ -128,7 +128,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
           t = nx;
         });
 
-        rest = rest.tail();
+        rest = rest.tail;
       }
 
       return h ?? nilB;
@@ -147,7 +147,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
     while (!these.isEmpty) {
       if (these.head == elem) return true;
-      these = these.tail();
+      these = these.tail;
     }
 
     return false;
@@ -169,12 +169,12 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
         if (p(hd)) {
           found = hd;
-          b.addAll(these.tail());
+          b.addAll(these.tail);
         } else {
           b.addOne(hd);
         }
 
-        these = these.tail();
+        these = these.tail;
       }
 
       if (found != null) {
@@ -200,7 +200,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     var i = n;
 
     while (l.nonEmpty && i > 0) {
-      l = l.tail();
+      l = l.tail;
       i -= 1;
     }
 
@@ -231,7 +231,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     var s = this;
 
     while (s.nonEmpty && p(s.head)) {
-      s = s.tail();
+      s = s.tail;
     }
 
     return s;
@@ -243,7 +243,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
     while (!these.isEmpty) {
       if (p(these.head)) return true;
-      these = these.tail();
+      these = these.tail;
     }
 
     return false;
@@ -261,7 +261,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
     while (!these.isEmpty) {
       if (p(these.head)) return Some(these.head);
-      these = these.tail();
+      these = these.tail;
     }
 
     return none();
@@ -285,7 +285,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
         }
         t = nx;
       }
-      rest = rest.tail();
+      rest = rest.tail;
     }
 
     return h ?? nilB;
@@ -311,7 +311,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
     while (these.nonEmpty) {
       acc = op(these.head, acc);
-      these = these.tail();
+      these = these.tail;
     }
 
     return acc;
@@ -323,7 +323,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
     while (!these.isEmpty) {
       if (!p(these.head)) return false;
-      these = these.tail();
+      these = these.tail;
     }
 
     return true;
@@ -354,10 +354,10 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   RIterator<A> get iterator => _IListIterator(this);
 
   @override
-  IList<A> init() => super.init().toIList();
+  IList<A> get init => super.init.toIList();
 
   @override
-  RIterator<IList<A>> inits() => super.inits().map((i) => i.toIList());
+  RIterator<IList<A>> get inits => super.inits.map((i) => i.toIList());
 
   @override
   IList<A> intersect(RSeq<A> that) {
@@ -394,7 +394,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     var len = 0;
     while (!these.isEmpty) {
       len += 1;
-      these = these.tail();
+      these = these.tail;
     }
     return len;
   }
@@ -408,13 +408,13 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     } else {
       final h = Cons(f(head), nilB);
       var t = h;
-      var rest = tail();
+      var rest = tail;
 
       while (rest is! Nil) {
         final nx = Cons(f(rest.head), nilB);
         t.next = nx;
         t = nx;
-        rest = rest.tail();
+        rest = rest.tail;
       }
 
       return h;
@@ -494,12 +494,12 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       } else {
         final result = Cons(prefix.head, this);
         var curr = result;
-        var that = prefix.tail();
+        var that = prefix.tail;
         while (!that.isEmpty) {
           final temp = Cons(that.head, this);
           curr.next = temp;
           curr = temp;
-          that = that.tail();
+          that = that.tail;
         }
 
         return result;
@@ -538,7 +538,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
     while (!these.isEmpty) {
       result = Cons(these.head, result);
-      these = these.tail();
+      these = these.tail;
     }
 
     return result;
@@ -585,7 +585,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
     while (!these.isEmpty && p(these.head)) {
       b.addOne(these.head);
-      these = these.tail();
+      these = these.tail;
     }
 
     return (b.toIList(), these);
@@ -600,19 +600,20 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     while (!these.isEmpty && i < n) {
       i += 1;
       b.addOne(these.head);
-      these = these.tail();
+      these = these.tail;
     }
 
     return (b.toIList(), these);
   }
 
   @override
-  IList<A> tail();
+  IList<A> get tail;
 
   @override
-  RIterator<IList<A>> tails() => RIterator.iterate(this, (c) => c.tail())
-      .takeWhile((a) => a.nonEmpty)
-      .concat(RIterator.single(Nil<A>()));
+  RIterator<IList<A>> get tails => RIterator.iterate(
+    this,
+    (c) => c.tail,
+  ).takeWhile((a) => a.nonEmpty).concat(RIterator.single(Nil<A>()));
 
   @override
   IList<A> take(int n) {
@@ -622,7 +623,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
     final h = Cons(head, nilA);
     var t = h;
-    var rest = tail();
+    var rest = tail;
     var i = 1;
 
     if (rest.isEmpty) return this;
@@ -634,7 +635,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       final nx = Cons(rest.head, nilA);
       t.next = nx;
       t = nx;
-      rest = rest.tail();
+      rest = rest.tail;
     }
 
     return h;
@@ -648,8 +649,8 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     var lag = this;
 
     while (lead.nonEmpty) {
-      lead = lead.tail();
-      lag = lag.tail();
+      lead = lead.tail;
+      lag = lag.tail;
     }
 
     return lag;
@@ -662,7 +663,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
     while (!these.isEmpty && p(these.head)) {
       b.addOne(these.head);
-      these = these.tail();
+      these = these.tail;
     }
 
     return b.toIList();
@@ -694,7 +695,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     if (isEmpty) {
       return f(none());
     } else {
-      return f(Some((head, tail())));
+      return f(Some((head, tail)));
     }
   }
 
@@ -707,11 +708,11 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     while (i < idx && current.nonEmpty) {
       i += 1;
       prefix.addOne(current.head);
-      current = current.tail();
+      current = current.tail;
     }
 
     if (i == idx && current.nonEmpty) {
-      return prefix.prependToList(Cons(elem, current.tail()));
+      return prefix.prependToList(Cons(elem, current.tail));
     } else {
       throw RangeError('$idx is out of bounds (min 0, max ${length - 1})');
     }
@@ -735,8 +736,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     RIterableOnce<B> that,
     A thisElem,
     B thatElem,
-  ) =>
-      super.zipAll(that, thisElem, thatElem).toIList();
+  ) => super.zipAll(that, thisElem, thatElem).toIList();
 
   @override
   IList<(A, int)> zipWithIndex() {
@@ -764,8 +764,8 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       var b = other;
 
       while (a.nonEmpty && b.nonEmpty && a.head == b.head) {
-        a = a.tail();
-        b = b.tail();
+        a = a.tail;
+        b = b.tail;
       }
 
       return a.isEmpty && b.isEmpty;
@@ -780,7 +780,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     // we have seen elements that should be included then one that should be excluded, start building
     IList<A> partialFill(IList<A> origStart, IList<A> firstMiss) {
       final newHead = Cons(origStart.head, nilA);
-      var toProcess = origStart.tail();
+      var toProcess = origStart.tail;
       var currentLast = newHead;
 
       // we know that all elements are :: until at least firstMiss.tail
@@ -788,14 +788,14 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
         final newElem = Cons(toProcess.head, nilA);
         currentLast.next = newElem;
         currentLast = newElem;
-        toProcess = toProcess.tail();
+        toProcess = toProcess.tail;
       }
 
       // at this point newHead points to a list which is a duplicate of all the 'in' elements up to the first miss.
       // currentLast is the last element in that list.
 
       // now we are going to try and share as much of the tail as we can, only moving elements across when we have to.
-      var next = firstMiss.tail();
+      var next = firstMiss.tail;
       // the next element we would need to copy to our list if we cant share.
       var nextToCopy = next;
 
@@ -803,17 +803,17 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
         // generally recommended is next.isNonEmpty but this incurs an extra method call.
         final head = next.head;
         if (p(head) != isFlipped) {
-          next = next.tail();
+          next = next.tail;
         } else {
           // its not a match - do we have outstanding elements?
           while (nextToCopy != next) {
             final newElem = Cons(nextToCopy.head, nilA);
             currentLast.next = newElem;
             currentLast = newElem;
-            nextToCopy = nextToCopy.tail();
+            nextToCopy = nextToCopy.tail;
           }
-          nextToCopy = next.tail();
-          next = next.tail();
+          nextToCopy = next.tail;
+          next = next.tail;
         }
       }
 
@@ -835,7 +835,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
           final x = t.head;
 
           if (p(x) != isFlipped) {
-            t = t.tail();
+            t = t.tail;
           } else {
             return partialFill(start, t);
           }
@@ -852,7 +852,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
           return nilA;
         } else {
           final h = xs.head;
-          final t = xs.tail();
+          final t = xs.tail;
 
           if (p(h) != isFlipped) {
             return allIn(xs, t);
@@ -886,7 +886,7 @@ final class Cons<A> extends IList<A> {
   Option<A> get headOption => Some(head);
 
   @override
-  IList<A> tail() => next;
+  IList<A> get tail => next;
 }
 
 final class Nil<A> extends IList<A> {
@@ -896,7 +896,7 @@ final class Nil<A> extends IList<A> {
   int get knownSize => 0;
 
   @override
-  IList<A> tail() => throw UnsupportedError('tail on empty');
+  IList<A> get tail => throw UnsupportedError('tail on empty');
 }
 
 final class _IListIterator<A> extends RIterator<A> {
@@ -910,7 +910,7 @@ final class _IListIterator<A> extends RIterator<A> {
   @override
   A next() {
     final r = current.head;
-    current = current.tail();
+    current = current.tail;
     return r;
   }
 }

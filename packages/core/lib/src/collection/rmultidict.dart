@@ -7,9 +7,9 @@ mixin RMultiDict<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
       IMultiDict.from(it.flatMap((kv) => kv.$2.map((v) => (kv.$1, v))));
 
   static RMultiDict<K, V> from<K, V>(RIterableOnce<(K, V)> elems) => switch (elems) {
-        final RMultiDict<K, V> md => md,
-        _ => IMultiDict.from(elems),
-      };
+    final RMultiDict<K, V> md => md,
+    _ => IMultiDict.from(elems),
+  };
 
   static RMultiDict<K, V> fromDart<K, V>(Map<K, V> m) =>
       IMultiDict.fromDartIterable(m.entries.map((e) => (e.key, e.value)));
@@ -48,8 +48,7 @@ mixin RMultiDict<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
 
   RMultiDict<K, V> flatMapSets(
     Function1<(K, RSet<V>), RIterableOnce<(K, RSet<V>)>> f,
-  ) =>
-      RMultiDict.fromSets(sets.flatMap(f));
+  ) => RMultiDict.fromSets(sets.flatMap(f));
 
   RSet<V> get(K key) => sets.get(key).getOrElse(() => RSet.empty());
 
@@ -61,16 +60,16 @@ mixin RMultiDict<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
   RIterator<RMultiDict<K, V>> grouped(int size) => super.grouped(size).map(RMultiDict.from);
 
   @override
-  RMultiDict<K, V> init() => RMultiDict.from(super.init());
+  RMultiDict<K, V> get init => RMultiDict.from(super.init);
 
   @override
-  RIterator<RMultiDict<K, V>> inits() => super.inits().map(RMultiDict.from);
+  RIterator<RMultiDict<K, V>> get inits => super.inits.map(RMultiDict.from);
 
   @override
   RIterator<(K, V)> get iterator => sets.iterator.flatMap((t) {
-        final (k, vs) = t;
-        return vs.view().map((v) => (t.$1, v));
-      });
+    final (k, vs) = t;
+    return vs.view.map((v) => (t.$1, v));
+  });
 
   RSet<K> keySet() => sets.keySet;
 
@@ -103,10 +102,10 @@ mixin RMultiDict<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
   }
 
   @override
-  RMultiDict<K, V> tail() => RMultiDict.from(super.tail());
+  RMultiDict<K, V> get tail => RMultiDict.from(super.tail);
 
   @override
-  RIterator<RMultiDict<K, V>> tails() => super.tails().map(RMultiDict.from);
+  RIterator<RMultiDict<K, V>> get tails => super.tails.map(RMultiDict.from);
 
   @override
   RMultiDict<K, V> take(int n) => RMultiDict.from(super.take(n));

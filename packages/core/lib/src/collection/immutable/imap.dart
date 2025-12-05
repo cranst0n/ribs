@@ -32,14 +32,14 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
   static IMap<K, V> empty<K, V>() => _EmptyMap();
 
   static IMap<K, V> from<K, V>(RIterableOnce<(K, V)> elems) => switch (elems) {
-        final _EmptyMap<K, V> m => m,
-        final _Map1<K, V> m => m,
-        final _Map2<K, V> m => m,
-        final _Map3<K, V> m => m,
-        final _Map4<K, V> m => m,
-        final IHashMap<K, V> hs => hs,
-        _ => IMapBuilder<K, V>().addAll(elems).result(),
-      };
+    final _EmptyMap<K, V> m => m,
+    final _Map1<K, V> m => m,
+    final _Map2<K, V> m => m,
+    final _Map3<K, V> m => m,
+    final _Map4<K, V> m => m,
+    final IHashMap<K, V> hs => hs,
+    _ => IMapBuilder<K, V>().addAll(elems).result(),
+  };
 
   static IMap<K, V> fromDart<K, V>(Map<K, V> m) =>
       fromDartIterable(m.entries.map((e) => (e.key, e.value)));
@@ -90,10 +90,10 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
   RIterator<IMap<K, V>> grouped(int size) => iterator.grouped(size).map(IMap.from);
 
   @override
-  IMap<K, V> init() => IMap.from(super.init());
+  IMap<K, V> get init => IMap.from(super.init);
 
   @override
-  RIterator<IMap<K, V>> inits() => super.inits().map(IMap.from);
+  RIterator<IMap<K, V>> get inits => super.inits.map(IMap.from);
 
   /// Applies [f] to each value in this map and returns a new map with the same
   /// keys, with the resulting values of the function application.
@@ -132,10 +132,10 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
   }
 
   @override
-  IMap<K, V> tail() => IMap.from(super.tail());
+  IMap<K, V> get tail => IMap.from(super.tail);
 
   @override
-  RIterator<IMap<K, V>> tails() => super.tails().map(IMap.from);
+  RIterator<IMap<K, V>> get tails => super.tails.map(IMap.from);
 
   @override
   IMap<K, V> take(int n) => IMap.from(super.take(n));

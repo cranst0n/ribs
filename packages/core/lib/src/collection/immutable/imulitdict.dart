@@ -12,10 +12,11 @@ final class IMultiDict<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMul
   static IMultiDict<K, V> empty<K, V>() => IMultiDict._(IMap.empty());
 
   static IMultiDict<K, V> from<K, V>(RIterableOnce<(K, V)> elems) => switch (elems) {
-        final IMultiDict<K, V> md => md,
-        _ => IMultiDict._(
-            elems.toIList().groupMap((kv) => kv.$1, (kv) => kv.$2).mapValues((l) => l.toISet())),
-      };
+    final IMultiDict<K, V> md => md,
+    _ => IMultiDict._(
+      elems.toIList().groupMap((kv) => kv.$1, (kv) => kv.$2).mapValues((l) => l.toISet()),
+    ),
+  };
 
   static IMultiDict<K, V> fromDart<K, V>(Map<K, V> m) =>
       IMultiDict.fromDartIterable(m.entries.map((e) => (e.key, e.value)));
@@ -26,14 +27,14 @@ final class IMultiDict<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMul
   IMultiDict<K, V> operator +((K, V) elem) => add(elem.$1, elem.$2);
 
   IMultiDict<K, V> add(K key, V value) => IMultiDict._(
-        _elems.updatedWith(
-          key,
-          (updated) => updated.fold(
-            () => Some(iset([value])),
-            (vs) => Some(vs.incl(value)),
-          ),
-        ),
-      );
+    _elems.updatedWith(
+      key,
+      (updated) => updated.fold(
+        () => Some(iset([value])),
+        (vs) => Some(vs.incl(value)),
+      ),
+    ),
+  );
 
   @override
   IMultiDict<K, V> concat(covariant RIterableOnce<(K, V)> suffix) =>
@@ -69,16 +70,15 @@ final class IMultiDict<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMul
   RIterator<IMultiDict<K, V>> grouped(int size) => super.grouped(size).map(IMultiDict.from);
 
   @override
-  IMultiDict<K, V> init() => IMultiDict.from(super.init());
+  IMultiDict<K, V> get init => IMultiDict.from(super.init);
 
   @override
-  RIterator<IMultiDict<K, V>> inits() => super.inits().map(IMultiDict.from);
+  RIterator<IMultiDict<K, V>> get inits => super.inits.map(IMultiDict.from);
 
   @override
   IMultiDict<K2, V2> mapSets<K2, V2>(
     Function1<(K, RSet<V>), (K2, RSet<V2>)> f,
-  ) =>
-      IMultiDict.from(super.mapSets(f));
+  ) => IMultiDict.from(super.mapSets(f));
 
   @override
   (IMultiDict<K, V>, IMultiDict<K, V>) partition(Function1<(K, V), bool> p) {
@@ -109,10 +109,10 @@ final class IMultiDict<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMul
   }
 
   @override
-  IMultiDict<K, V> tail() => IMultiDict.from(super.tail());
+  IMultiDict<K, V> get tail => IMultiDict.from(super.tail);
 
   @override
-  RIterator<IMultiDict<K, V>> tails() => super.tails().map(IMultiDict.from);
+  RIterator<IMultiDict<K, V>> get tails => super.tails.map(IMultiDict.from);
 
   @override
   IMultiDict<K, V> take(int n) => IMultiDict.from(super.take(n));

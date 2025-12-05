@@ -22,10 +22,10 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   static IChain<A> empty<A>() => _Empty<A>();
 
   static IChain<A> fromSeq<A>(RSeq<A> iseq) => switch (iseq) {
-        _ when iseq.isEmpty => _Empty<A>(),
-        _ when iseq.size == 1 => _Singleton(iseq.head),
-        _ => _Wrap(iseq),
-      };
+    _ when iseq.isEmpty => _Empty<A>(),
+    _ when iseq.size == 1 => _Singleton(iseq.head),
+    _ => _Wrap(iseq),
+  };
 
   static IChain<A> from<A>(RIterableOnce<A> elems) {
     if (elems is IChain<A>) {
@@ -78,9 +78,9 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
     return switch (this) {
       final _NonEmpty<A> non1 => switch (thatChain) {
-          final _NonEmpty<A> non2 => _Append(non1, non2),
-          _ => non1,
-        },
+        final _NonEmpty<A> non2 => _Append(non1, non2),
+        _ => non1,
+      },
       _ => thatChain,
     };
   }
@@ -153,7 +153,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   Option<A> get headOption => uncons().map((a) => a.$1);
 
   @override
-  IChain<A> init() => initLast().map((a) => a.$1).getOrElse(() => empty());
+  IChain<A> get init => initLast().map((a) => a.$1).getOrElse(() => empty());
 
   Option<(IChain<A>, A)> initLast() {
     if (this is _NonEmpty<A>) {
@@ -168,7 +168,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
           lefts = lefts == null ? c.leftNE : _Append(lefts, c.leftNE);
           c = c.rightNE;
         } else if (c is _Wrap<A>) {
-          final init = from(c.seq.init());
+          final init = from(c.seq.init);
           final IChain<A> pre;
 
           if (lefts == null) {
@@ -195,19 +195,19 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   @override
   RIterator<A> get iterator => switch (this) {
-        _Wrap(:final seq) => seq.iterator,
-        _Singleton(:final a) => RIterator.single(a),
-        final _Append<A> app => _ChainRIterator(app),
-        _ => RIterator.empty(),
-      };
+    _Wrap(:final seq) => seq.iterator,
+    _Singleton(:final a) => RIterator.single(a),
+    final _Append<A> app => _ChainRIterator(app),
+    _ => RIterator.empty(),
+  };
 
   @override
   int get knownSize => switch (this) {
-        final _Empty<A> _ => 0,
-        final _Singleton<A> _ => 1,
-        _Wrap(:final seq) => seq.knownSize,
-        _ => -1,
-      };
+    final _Empty<A> _ => 0,
+    final _Singleton<A> _ => 1,
+    _Wrap(:final seq) => seq.knownSize,
+    _ => -1,
+  };
 
   @override
   Option<A> get lastOption => initLast().map((t) => t.$2);
@@ -217,9 +217,9 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     int loop(_NonEmpty<A> head, IList<_NonEmpty<A>> tail, int acc) {
       return switch (head) {
         _Append(:final leftNE, :final rightNE) => loop(leftNE, tail.prepended(rightNE), acc),
-        final _Singleton<A> _ => tail.nonEmpty ? loop(tail.head, tail.tail(), acc + 1) : acc + 1,
+        final _Singleton<A> _ => tail.nonEmpty ? loop(tail.head, tail.tail, acc + 1) : acc + 1,
         _Wrap<A>(:final seq) =>
-          tail.nonEmpty ? loop(tail.head, tail.tail(), acc + seq.length) : acc + seq.length,
+          tail.nonEmpty ? loop(tail.head, tail.tail, acc + seq.length) : acc + seq.length,
       };
     }
 
@@ -257,7 +257,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
           if (tl.nonEmpty) {
             hd = tl.head;
-            tl = tl.tail();
+            tl = tl.tail;
             acc = nextAcc;
           } else {
             return nextAcc;
@@ -267,7 +267,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
           if (tl.nonEmpty) {
             hd = tl.head;
-            tl = tl.tail();
+            tl = tl.tail;
             acc = nextAcc;
           } else {
             return nextAcc;
@@ -285,17 +285,17 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   @override
   RIterator<A> reverseIterator() => switch (this) {
-        _Wrap(:final seq) => seq.reverseIterator(),
-        _Singleton(:final a) => RIterator.single(a),
-        final _Append<A> app => _ChainReverseRIterator(app),
-        _ => RIterator.empty(),
-      };
+    _Wrap(:final seq) => seq.reverseIterator(),
+    _Singleton(:final a) => RIterator.single(a),
+    final _Append<A> app => _ChainReverseRIterator(app),
+    _ => RIterator.empty(),
+  };
 
   @override
   int get size => length;
 
   @override
-  IChain<A> tail() => uncons().map((a) => a.$2).getOrElse(() => empty());
+  IChain<A> get tail => uncons().map((a) => a.$2).getOrElse(() => empty());
 
   @override
   IChain<A> takeWhile(Function1<A, bool> p) {
@@ -323,7 +323,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
           rights = rights == null ? c.rightNE : _Append(c.rightNE, rights);
           c = c.leftNE;
         } else if (c is _Wrap<A>) {
-          final tail = from(c.seq.tail());
+          final tail = from(c.seq.tail);
           final IChain<A> next;
 
           if (rights == null) {
@@ -380,7 +380,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
             c = null;
           } else {
             c = rights.head;
-            rights = rights.tail();
+            rights = rights.tail;
           }
         } else if (c is _Append<A>) {
           rights = rights.prepended(c.rightNE);
@@ -396,7 +396,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
             c = null;
           } else {
             c = rights.head;
-            rights = rights.tail();
+            rights = rights.tail;
           }
         }
       }
@@ -459,7 +459,7 @@ final class _ChainRIterator<A> extends RIterator<A> {
             c = null;
           } else {
             final head = rights.head;
-            rights = rights.tail();
+            rights = rights.tail;
             c = head;
           }
 
@@ -474,7 +474,7 @@ final class _ChainRIterator<A> extends RIterator<A> {
             c = null;
           } else {
             final head = rights.head;
-            rights = rights.tail();
+            rights = rights.tail;
             c = head;
           }
 
@@ -513,7 +513,7 @@ final class _ChainReverseRIterator<A> extends RIterator<A> {
             c = null;
           } else {
             final head = lefts.head;
-            lefts = lefts.tail();
+            lefts = lefts.tail;
             c = head;
           }
 
@@ -528,7 +528,7 @@ final class _ChainReverseRIterator<A> extends RIterator<A> {
             c = null;
           } else {
             final head = lefts.head;
-            lefts = lefts.tail();
+            lefts = lefts.tail;
             c = head;
           }
 

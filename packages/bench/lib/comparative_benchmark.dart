@@ -54,7 +54,7 @@ class ComparativeEmitter implements ScoreEmitter {
           'content': title,
           'colSpan': ops.size + 1,
           'hAlign': HorizontalAlign.center,
-        }
+        },
       ],
       columnAlignment: [
         HorizontalAlign.left,
@@ -65,18 +65,20 @@ class ComparativeEmitter implements ScoreEmitter {
     table.add({'': ops.toList()});
 
     libs.foreach((lib) {
-      final opValues = ops.map((op) {
-        final bestValue =
-            imap(values).filter((kv) => kv.$1.$2 == op).values.minOption(Order.doubles);
+      final opValues =
+          ops.map((op) {
+            final bestValue = imap(
+              values,
+            ).filter((kv) => kv.$1.$2 == op).values.minOption(Order.doubles);
 
-        return Option(values[(lib, op)]).fold(
-          () => chalk.dim.grey('n/a'),
-          (value) => bestValue.fold(
-            () => _formatValue(value),
-            (best) => value == best ? chalk.green(_formatValue(value)) : _formatValue(value),
-          ),
-        );
-      }).toList();
+            return Option(values[(lib, op)]).fold(
+              () => chalk.dim.grey('n/a'),
+              (value) => bestValue.fold(
+                () => _formatValue(value),
+                (best) => value == best ? chalk.green(_formatValue(value)) : _formatValue(value),
+              ),
+            );
+          }).toList();
 
       table.add([lib, ...opValues]);
     });
@@ -95,23 +97,28 @@ class ComparativeEmitter implements ScoreEmitter {
     );
 
     buf.writeln(
-      IList.tabulate(ops.size + 1, (ix) => ix == 0 ? ':---' : '---:')
-          .mkString(start: '| ', sep: ' | ', end: ' |'),
+      IList.tabulate(
+        ops.size + 1,
+        (ix) => ix == 0 ? ':---' : '---:',
+      ).mkString(start: '| ', sep: ' | ', end: ' |'),
     );
 
     libs.foreach((lib) {
-      final cells = ops.map((op) {
-        final bestValue =
-            imap(values).filter((kv) => kv.$1.$2 == op).values.minOption(Order.doubles);
+      final cells = ops
+          .map((op) {
+            final bestValue = imap(
+              values,
+            ).filter((kv) => kv.$1.$2 == op).values.minOption(Order.doubles);
 
-        return Option(values[(lib, op)]).fold(
-          () => ' ',
-          (value) => bestValue.fold(
-            () => _formatValue(value),
-            (best) => value == best ? '**${_formatValue(value)}**' : _formatValue(value),
-          ),
-        );
-      }).prepended(lib);
+            return Option(values[(lib, op)]).fold(
+              () => ' ',
+              (value) => bestValue.fold(
+                () => _formatValue(value),
+                (best) => value == best ? '**${_formatValue(value)}**' : _formatValue(value),
+              ),
+            );
+          })
+          .prepended(lib);
 
       buf.writeln(
         cells.mkString(start: '| ', sep: ' | ', end: ' |'),

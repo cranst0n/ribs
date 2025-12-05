@@ -72,10 +72,10 @@ mixin MMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
   RIterator<MMap<K, V>> grouped(int size) => iterator.grouped(size).map(MMap.from);
 
   @override
-  MMap<K, V> init() => MMap.from(super.init());
+  MMap<K, V> get init => MMap.from(super.init);
 
   @override
-  RIterator<MMap<K, V>> inits() => super.inits().map(MMap.from);
+  RIterator<MMap<K, V>> get inits => super.inits.map(MMap.from);
 
   @override
   (MMap<K, V>, MMap<K, V>) partition(Function1<(K, V), bool> p) {
@@ -117,10 +117,10 @@ mixin MMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
   }
 
   @override
-  MMap<K, V> tail() => MMap.from(super.tail());
+  MMap<K, V> get tail => MMap.from(super.tail);
 
   @override
-  RIterator<MMap<K, V>> tails() => super.tails().map(MMap.from);
+  RIterator<MMap<K, V>> get tails => super.tails.map(MMap.from);
 
   @override
   MMap<K, V> take(int n) => MMap.from(super.take(n));

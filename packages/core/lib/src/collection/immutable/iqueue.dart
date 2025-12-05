@@ -28,7 +28,7 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
     while (index < n && curr.nonEmpty) {
       index += 1;
-      curr = curr.tail();
+      curr = curr.tail;
     }
 
     if (index == n) {
@@ -93,9 +93,9 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   (A, IQueue<A>) dequeue() {
     if (_out.isEmpty && _in.nonEmpty) {
       final rev = _in.reverse();
-      return (rev.head, IQueue._(nil(), rev.tail()));
+      return (rev.head, IQueue._(nil(), rev.tail));
     } else if (_out.nonEmpty) {
-      return (_out.head, IQueue._(_in, _out.tail()));
+      return (_out.head, IQueue._(_in, _out.tail));
     } else {
       throw RangeError('dequeue on empty queue');
     }
@@ -145,10 +145,10 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  IQueue<A> init() => dropRight(1);
+  IQueue<A> get init => dropRight(1);
 
   @override
-  RIterator<IQueue<A>> inits() => super.inits().map(from);
+  RIterator<IQueue<A>> get inits => super.inits.map(from);
 
   @override
   IQueue<A> intersect(RSeq<A> that) => from(super.intersect(that));
@@ -244,11 +244,11 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  IQueue<A> tail() {
+  IQueue<A> get tail {
     if (_out.nonEmpty) {
-      return IQueue._(_in, _out.tail());
+      return IQueue._(_in, _out.tail);
     } else if (_in.nonEmpty) {
-      return IQueue._(nil<A>(), _in.reverse().tail());
+      return IQueue._(nil<A>(), _in.reverse().tail);
     } else {
       throw RangeError("tail on empty queue");
     }

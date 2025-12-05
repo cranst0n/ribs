@@ -36,7 +36,7 @@ final class _Vector1<A> extends _VectorImpl<A> {
   }
 
   @override
-  IVector<A> init() => _prefix1.length == 1 ? _Vector0() : _Vector1(_copyInit(_prefix1));
+  IVector<A> get init => _prefix1.length == 1 ? _Vector0() : _Vector1(_copyInit(_prefix1));
 
   @override
   IVector<B> map<B>(Function1<A, B> f) => _Vector1(_mapElems1(_prefix1, f));
@@ -52,7 +52,7 @@ final class _Vector1<A> extends _VectorImpl<A> {
   }
 
   @override
-  IVector<A> tail() => _prefix1.length == 1 ? _Vector0() : _Vector1(_copyTail(_prefix1));
+  IVector<A> get tail => _prefix1.length == 1 ? _Vector0() : _Vector1(_copyTail(_prefix1));
 
   @override
   IVector<A> updated(int index, A elem) {

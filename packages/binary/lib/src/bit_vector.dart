@@ -20,9 +20,9 @@ sealed class BitVector implements Comparable<BitVector> {
 
   factory BitVector.bit(bool high) => high ? one : zero;
 
-  factory BitVector.bits(Iterable<bool> b) => IList.fromDart(b)
-      .zipWithIndex()
-      .foldLeft(BitVector.low(b.length), (acc, b) => acc.update(b.$2, b.$1));
+  factory BitVector.bits(Iterable<bool> b) => IList.fromDart(
+    b,
+  ).zipWithIndex().foldLeft(BitVector.low(b.length), (acc, b) => acc.update(b.$2, b.$1));
 
   factory BitVector.byte(int byte) => _toBytes(ByteVector([byte]), 8);
 
@@ -54,24 +54,24 @@ sealed class BitVector implements Comparable<BitVector> {
 
   static BitVector unfold<S>(S s, Function1<S, Option<(BitVector, S)>> f) {
     return _Suspend(() {
-      return f(s).map<BitVector>((tuple) {
-        final (h, t) = tuple;
-        return _Append(h, unfold(t, f));
-      }).getOrElse(() => BitVector.empty);
+      return f(s)
+          .map<BitVector>((tuple) {
+            final (h, t) = tuple;
+            return _Append(h, unfold(t, f));
+          })
+          .getOrElse(() => BitVector.empty);
     });
   }
 
   static Option<BitVector> fromBin(
     String s, [
     BinaryAlphabet alphabet = Alphabets.binary,
-  ]) =>
-      fromBinDescriptive(s, alphabet).toOption();
+  ]) => fromBinDescriptive(s, alphabet).toOption();
 
   static BitVector fromValidBin(
     String s, [
     BinaryAlphabet alphabet = Alphabets.binary,
-  ]) =>
-      fromBinDescriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
+  ]) => fromBinDescriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, BitVector> fromBinDescriptive(
     String s, [
@@ -91,56 +91,47 @@ sealed class BitVector implements Comparable<BitVector> {
   static Option<BitVector> fromHex(
     String s, [
     HexAlphabet alphabet = Alphabets.hexLower,
-  ]) =>
-      fromHexDescriptive(s, alphabet).toOption();
+  ]) => fromHexDescriptive(s, alphabet).toOption();
 
   static BitVector fromValidHex(
     String s, [
     HexAlphabet alphabet = Alphabets.hexLower,
-  ]) =>
-      fromHexDescriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
+  ]) => fromHexDescriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, BitVector> fromHexDescriptive(
     String s, [
     HexAlphabet alphabet = Alphabets.hexLower,
-  ]) =>
-      fromHexInternal(s, alphabet).mapN((bytes, count) => bytes.bits.drop(count.isEven ? 0 : 4));
+  ]) => fromHexInternal(s, alphabet).mapN((bytes, count) => bytes.bits.drop(count.isEven ? 0 : 4));
 
   static Option<BitVector> fromBase32(
     String s, [
     Base32Alphabet alphabet = Alphabets.base32,
-  ]) =>
-      fromBase32Descriptive(s, alphabet).toOption();
+  ]) => fromBase32Descriptive(s, alphabet).toOption();
 
   static BitVector fromValidBase32(
     String s, [
     Base32Alphabet alphabet = Alphabets.base32,
-  ]) =>
-      fromBase32Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
+  ]) => fromBase32Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, BitVector> fromBase32Descriptive(
     String str, [
     Base32Alphabet alphabet = Alphabets.base32,
-  ]) =>
-      fromBase32Internal(str, alphabet).map((a) => a.$1.bits);
+  ]) => fromBase32Internal(str, alphabet).map((a) => a.$1.bits);
 
   static Option<BitVector> fromBase64(
     String s, [
     Base64Alphabet alphabet = Alphabets.base64,
-  ]) =>
-      fromBase64Descriptive(s, alphabet).toOption();
+  ]) => fromBase64Descriptive(s, alphabet).toOption();
 
   static BitVector fromValidBase64(
     String s, [
     Base64Alphabet alphabet = Alphabets.base64,
-  ]) =>
-      fromBase64Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
+  ]) => fromBase64Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, BitVector> fromBase64Descriptive(
     String str, [
     Base64Alphabet alphabet = Alphabets.base64,
-  ]) =>
-      fromBase64Internal(str, alphabet).map((a) => a.$1.bits);
+  ]) => fromBase64Internal(str, alphabet).map((a) => a.$1.bits);
 
   factory BitVector.fromInt(
     int i, {
@@ -327,10 +318,10 @@ sealed class BitVector implements Comparable<BitVector> {
   ///
   /// If this vector does not contain at least `n` bits, an error message is returned.
   Either<String, BitVector> acquire(int n) => Either.cond(
-        () => sizeGreaterThanOrEqual(n),
-        () => take(n),
-        () => 'cannot acquire $n bits from a vector that contains $size bits',
-      );
+    () => sizeGreaterThanOrEqual(n),
+    () => take(n),
+    () => 'cannot acquire $n bits from a vector that contains $size bits',
+  );
 
   /// Like `aquire`, but immediately consumes the `Either` via the pair of functions `err` and `f`.
   R acquireThen<R>(
@@ -348,8 +339,7 @@ sealed class BitVector implements Comparable<BitVector> {
   Either<String, (BitVector, A)> consume<A>(
     int n,
     Function1<BitVector, Either<String, A>> decode,
-  ) =>
-      acquire(n).flatMap((toDecode) => decode(toDecode).map((decoded) => (drop(n), decoded)));
+  ) => acquire(n).flatMap((toDecode) => decode(toDecode).map((decoded) => (drop(n), decoded)));
 
   /// If this vector has at least `n` bits, returns `f(take(n),drop(n))`, otherwise calls `err` with
   /// a meaningful error message. This function can be used to avoid intermediate allocations of
@@ -425,9 +415,9 @@ sealed class BitVector implements Comparable<BitVector> {
   /// contents.
   BitVector padLeft(int n) => size < n ? BitVector.low(n - size).concat(this) : this;
 
-  BitVector get reverse =>
-      BitVector.fromByteVector(compact().underlying.reverse.map(_reverseBitsInByte))
-          .drop(8 - _validBitsInLastByte(size));
+  BitVector get reverse => BitVector.fromByteVector(
+    compact().underlying.reverse.map(_reverseBitsInByte),
+  ).drop(8 - _validBitsInLastByte(size));
 
   /// Returns a new vector of the same size with the byte order reversed.
   ///
@@ -552,7 +542,7 @@ sealed class BitVector implements Comparable<BitVector> {
     // TODO: tailrec
     IVector<_Bytes> go(IList<BitVector> b, IVector<_Bytes> acc) {
       if (b.nonEmpty) {
-        final rem = b.tail();
+        final rem = b.tail;
 
         return switch (b.head) {
           final _Suspend s => go(rem.prepended(s.underlying), acc),
@@ -594,9 +584,9 @@ sealed class BitVector implements Comparable<BitVector> {
   /// `compact`, which may no-op if this `BitVector` already consists of a single `ByteVector`
   /// chunk.
   _Bytes copy() => switch (this) {
-        final _Bytes b => _Bytes(b.underlying.copy(), b.size),
-        _ => compact(),
-      };
+    final _Bytes b => _Bytes(b.underlying.copy(), b.size),
+    _ => compact(),
+  };
 
   /// Forces any `Suspend` nodes in this `BitVector` and ensures the tree is balanced.
   BitVector force() {
@@ -604,7 +594,7 @@ sealed class BitVector implements Comparable<BitVector> {
     BitVector go(IVector<BitVector> cont) {
       if (cont.nonEmpty) {
         final cur = cont.head;
-        final tail = cont.tail();
+        final tail = cont.tail;
 
         return switch (cur) {
           final _Bytes b => tail.foldLeft(b, (a, b) => a.concat(b)),
@@ -665,23 +655,29 @@ sealed class BitVector implements Comparable<BitVector> {
   int toInt({bool signed = true, Endian ordering = Endian.big}) {
     return switch (this) {
       final _Bytes bytes => switch (size) {
-          32 when signed =>
-            ByteData.sublistView(bytes.underlying.toByteArray()).getInt32(0, ordering),
-          32 when !signed =>
-            ByteData.sublistView(bytes.underlying.toByteArray()).getUint32(0, ordering),
-          16 when signed =>
-            ByteData.sublistView(bytes.underlying.toByteArray()).getInt16(0, ordering),
-          16 when !signed =>
-            ByteData.sublistView(bytes.underlying.toByteArray()).getUint16(0, ordering),
-          8 when signed => ByteData.sublistView(bytes.underlying.toByteArray()).getInt8(0),
-          8 when !signed => ByteData.sublistView(bytes.underlying.toByteArray()).getUint8(0),
-          _ => ordering == Endian.little
+        32 when signed => ByteData.sublistView(
+          bytes.underlying.toByteArray(),
+        ).getInt32(0, ordering),
+        32 when !signed => ByteData.sublistView(
+          bytes.underlying.toByteArray(),
+        ).getUint32(0, ordering),
+        16 when signed => ByteData.sublistView(
+          bytes.underlying.toByteArray(),
+        ).getInt16(0, ordering),
+        16 when !signed => ByteData.sublistView(
+          bytes.underlying.toByteArray(),
+        ).getUint16(0, ordering),
+        8 when signed => ByteData.sublistView(bytes.underlying.toByteArray()).getInt8(0),
+        8 when !signed => ByteData.sublistView(bytes.underlying.toByteArray()).getUint8(0),
+        _ =>
+          ordering == Endian.little
               ? invertReverseByteOrder().toInt(signed: signed)
               : _getBigEndianInt(0, size, signed),
-        },
-      _ => ordering == Endian.little
-          ? invertReverseByteOrder().toInt(signed: signed)
-          : _getBigEndianInt(0, size, signed),
+      },
+      _ =>
+        ordering == Endian.little
+            ? invertReverseByteOrder().toInt(signed: signed)
+            : _getBigEndianInt(0, size, signed),
     };
   }
 
@@ -705,9 +701,10 @@ sealed class BitVector implements Comparable<BitVector> {
     return signed ? result.toSigned(bits) : result;
   }
 
-  BigInt toBigInt({bool signed = true, Endian ordering = Endian.big}) => ordering == Endian.little
-      ? invertReverseByteOrder().toBigInt(signed: signed)
-      : _getBigEndianBigInt(0, size, signed);
+  BigInt toBigInt({bool signed = true, Endian ordering = Endian.big}) =>
+      ordering == Endian.little
+          ? invertReverseByteOrder().toBigInt(signed: signed)
+          : _getBigEndianBigInt(0, size, signed);
 
   BigInt _getBigEndianBigInt(int start, int bits, bool signed) {
     if (bits == 0) {
@@ -806,9 +803,10 @@ sealed class BitVector implements Comparable<BitVector> {
       while (i < commonLength) {
         final thisI = get(i);
 
-        final cmp = thisI == that.get(i)
-            ? 0
-            : thisI
+        final cmp =
+            thisI == that.get(i)
+                ? 0
+                : thisI
                 ? 1
                 : -1;
 
@@ -838,9 +836,9 @@ sealed class BitVector implements Comparable<BitVector> {
   }
 
   BitVector _zipBytesWith(BitVector other, Function2<int, int, int> op) => _toBytes(
-        compact().underlying.zipWithI(other.compact().underlying, op),
-        min(size, other.size),
-      );
+    compact().underlying.zipWithI(other.compact().underlying, op),
+    min(size, other.size),
+  );
 }
 
 final class _Append extends BitVector {
@@ -851,11 +849,11 @@ final class _Append extends BitVector {
   late int _sizeLowerBound;
 
   _Append(this.left, this.right)
-      : _knownSize = switch (right) {
-          _Suspend _ => -1,
-          _ => left.size + right.size,
-        },
-        _sizeLowerBound = left.size;
+    : _knownSize = switch (right) {
+        _Suspend _ => -1,
+        _ => left.size + right.size,
+      },
+      _sizeLowerBound = left.size;
 
   @override
   bool get(int n) => n < left.size ? left.get(n) : right.get(n - left.size);
@@ -872,9 +870,10 @@ final class _Append extends BitVector {
   }
 
   @override
-  BitVector update(int n, bool high) => n < left.size
-      ? _Append(left.update(n, high), right)
-      : _Append(left, right.update(n - left.size, high));
+  BitVector update(int n, bool high) =>
+      n < left.size
+          ? _Append(left.update(n, high), right)
+          : _Append(left, right.update(n - left.size, high));
 
   @override
   _Bytes align() => left.align().combine(right.align());
@@ -887,13 +886,17 @@ final class _Append extends BitVector {
       // TODO: tailrec
       int go(IList<BitVector> rem, int acc) {
         if (rem.nonEmpty) {
-          final tl = rem.tail();
+          final tl = rem.tail;
 
           return switch (rem.head) {
-            _Append(left: final left, right: final right) =>
-              go(tl.prepended(right).prepended(left), acc),
-            _Chunks(chunks: final chunks) =>
-              go(tl.prepended(chunks.right).prepended(chunks.left), acc),
+            _Append(left: final left, right: final right) => go(
+              tl.prepended(right).prepended(left),
+              acc,
+            ),
+            _Chunks(chunks: final chunks) => go(
+              tl.prepended(chunks.right).prepended(chunks.left),
+              acc,
+            ),
             final _Suspend s => go(tl.prepended(s.underlying), acc),
             final h => go(tl, acc + h.size),
           };
@@ -921,9 +924,10 @@ final class _Append extends BitVector {
       // TODO: tailrec
       BitVector go(BitVector accL, BitVector cur, int n) {
         return switch (cur) {
-          _Append(left: final left, right: final right) => n <= left.size
-              ? accL.concat(left.take(n))
-              : go(accL.concat(left), right, n - left.size),
+          _Append(left: final left, right: final right) =>
+            n <= left.size
+                ? accL.concat(left.take(n))
+                : go(accL.concat(left), right, n - left.size),
           final _Suspend s => go(accL, s.underlying, n),
           _ => accL.concat(cur.take(n)),
         };
@@ -1012,7 +1016,8 @@ final class _Bytes extends BitVector {
       final bytesCleared = _clearUnneededBits(size, underlying);
 
       final hi = bytesCleared.get(bytesCleared.size - 1);
-      final lo = (((other.underlying.head & _topNBits(nInvalidBits)) & 0x000000ff) >>>
+      final lo =
+          (((other.underlying.head & _topNBits(nInvalidBits)) & 0x000000ff) >>>
               _validBitsInLastByte(size)) &
           0xff;
 
@@ -1068,11 +1073,9 @@ final class _Bytes extends BitVector {
     checkBounds(n);
 
     final b2 = underlying.update(
-        n ~/ 8,
-        underlying
-            .lift(n ~/ 8)
-            .map((a) => _setBit(a, n % 8, high))
-            .getOrElse(() => outOfBounds(n)));
+      n ~/ 8,
+      underlying.lift(n ~/ 8).map((a) => _setBit(a, n % 8, high)).getOrElse(() => outOfBounds(n)),
+    );
 
     return _Bytes(b2, size);
   }
@@ -1209,8 +1212,10 @@ final class _Drop extends BitVector {
       return BitVector.empty.align();
     } else {
       final lowByte = low ~/ 8;
-      final shiftedWholeBytes =
-          underlying.underlying.slice(lowByte, lowByte + _bytesNeededForBits(newSize) + 1);
+      final shiftedWholeBytes = underlying.underlying.slice(
+        lowByte,
+        lowByte + _bytesNeededForBits(newSize) + 1,
+      );
 
       final bitsToShiftEachByte = low % 8;
 

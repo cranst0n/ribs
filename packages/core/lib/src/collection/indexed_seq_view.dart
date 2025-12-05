@@ -64,10 +64,10 @@ mixin IndexedSeqView<A>
 
   @override
   IndexedSeq<A> tapEach<U>(Function1<A, U> f) => iseqview.Map(this, (a) {
-        f(a);
-        return a;
-      });
+    f(a);
+    return a;
+  });
 
   @override
-  IndexedSeqView<A> view() => this;
+  IndexedSeqView<A> get view => this;
 }

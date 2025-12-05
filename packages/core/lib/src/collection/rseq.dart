@@ -205,7 +205,7 @@ mixin RSeq<A> on RIterable<A> {
           if (s.startsWith(that)) return Some(i);
 
           i += 1;
-          s = s.tail();
+          s = s.tail;
         }
         return none();
       }
@@ -219,7 +219,7 @@ mixin RSeq<A> on RIterable<A> {
   Option<int> indexWhere(Function1<A, bool> p, [int from = 0]) => iterator.indexWhere(p, from);
 
   @override
-  RSeq<A> init() => dropRight(1);
+  RSeq<A> get init => dropRight(1);
 
   /// Returns a new collection with the intersection of this and [that], i.e.
   /// all elements that appear in both collections.
@@ -365,10 +365,10 @@ mixin RSeq<A> on RIterable<A> {
   RSeq<A> removeAt(int idx) {
     if (0 <= idx && idx < length) {
       if (idx == 0) {
-        return tail();
+        return tail;
       } else {
         final (a, b) = splitAt(idx);
-        return a.concat(b.tail());
+        return a.concat(b.tail);
       }
     } else {
       throw RangeError('$idx is out of bounds (min 0, max ${length - 1})');
@@ -451,7 +451,7 @@ mixin RSeq<A> on RIterable<A> {
   }
 
   @override
-  RSeq<A> tail() => view().tail().toSeq();
+  RSeq<A> get tail => view.tail.toSeq();
 
   /// Applies [f] to each element of this [RSeq] and collects the results into a
   /// new collection. If [Left] is encountered for any element, that result is
@@ -495,7 +495,8 @@ mixin RSeq<A> on RIterable<A> {
   RSeq<A> updated(int index, A elem) {
     if (index < 0) {
       throw RangeError(
-          '$index is out of bounds (min 0, max ${knownSize >= 0 ? knownSize : 'unknown'})');
+        '$index is out of bounds (min 0, max ${knownSize >= 0 ? knownSize : 'unknown'})',
+      );
     }
 
     final b = IVector.builder<A>();
@@ -525,7 +526,7 @@ mixin RSeq<A> on RIterable<A> {
   }
 
   @override
-  SeqView<A> view() => SeqView.from(this);
+  SeqView<A> get view => SeqView.from(this);
 
   @override
   RSeq<(A, B)> zip<B>(RIterableOnce<B> that) => super.zip(that).toSeq();

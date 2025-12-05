@@ -29,8 +29,8 @@ final class MHashMap<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K
   MHashMap({
     this.initialCapacity = DefaultInitialCapacity,
     this.loadFactor = DefaultLoadFactor,
-  })  : _table = Array.ofDim(_tableSizeFor(initialCapacity)),
-        _threshold = _newThreshold(_tableSizeFor(initialCapacity), loadFactor);
+  }) : _table = Array.ofDim(_tableSizeFor(initialCapacity)),
+       _threshold = _newThreshold(_tableSizeFor(initialCapacity), loadFactor);
 
   static MHashMap<K, V> empty<K, V>() => MHashMap();
 
@@ -54,13 +54,13 @@ final class MHashMap<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K
 
   @override
   V getOrElseUpdate(K key, Function0<V> defaultValue) => get(key).fold(
-        () {
-          final d = defaultValue();
-          this[key] = d;
-          return d;
-        },
-        identity,
-      );
+    () {
+      final d = defaultValue();
+      this[key] = d;
+      return d;
+    },
+    identity,
+  );
 
   @override
   bool get isEmpty => size == 0;
@@ -256,7 +256,7 @@ final class _Node<K, V> {
   V? get value => _value;
   int get hash => _hash;
 
-// TODO: tailrec
+  // TODO: tailrec
   _Node<K, V>? findNode(K k, int h) {
     if (h == _hash && k == _key) {
       return this;
@@ -273,7 +273,7 @@ final class _Node<K, V> {
     next?.foreach(f);
   }
 
-// TODO: tailrec
+  // TODO: tailrec
   void foreachEntry<U>(Function2<K, V, U> f) {
     if (_key != null && _value != null) f(_key, _value as V);
     next?.foreachEntry(f);

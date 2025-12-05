@@ -166,8 +166,8 @@ void main() {
     });
 
     test('init', () {
-      expect(nel(1).init(), nil<int>());
-      expect(nel(1, [2, 3]).init(), ilist([1, 2]));
+      expect(nel(1).init, nil<int>());
+      expect(nel(1, [2, 3]).init, ilist([1, 2]));
     });
 
     test('last', () {

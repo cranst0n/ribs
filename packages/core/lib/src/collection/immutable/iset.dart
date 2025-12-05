@@ -33,14 +33,14 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
   static ISet<A> empty<A>() => _EmptySet<A>();
 
   static ISet<A> from<A>(RIterableOnce<A> xs) => switch (xs) {
-        final _EmptySet<A> s => s,
-        final _Set1<A> s => s,
-        final _Set2<A> s => s,
-        final _Set3<A> s => s,
-        final _Set4<A> s => s,
-        final IHashSet<A> s => s,
-        _ => ISetBuilder<A>().addAll(xs).result(),
-      };
+    final _EmptySet<A> s => s,
+    final _Set1<A> s => s,
+    final _Set2<A> s => s,
+    final _Set3<A> s => s,
+    final _Set4<A> s => s,
+    final IHashSet<A> s => s,
+    _ => ISetBuilder<A>().addAll(xs).result(),
+  };
 
   static ISet<A> of<A>(Iterable<A> xs) => from(RIterator.fromDart(xs.iterator));
 
@@ -98,16 +98,15 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
   IMap<K, ISet<B>> groupMap<K, B>(
     Function1<A, K> key,
     Function1<A, B> f,
-  ) =>
-      super.groupMap(key, f).mapValues((a) => a.toISet());
+  ) => super.groupMap(key, f).mapValues((a) => a.toISet());
 
   ISet<A> incl(A elem);
 
   @override
-  ISet<A> init() => this - last;
+  ISet<A> get init => this - last;
 
   @override
-  RIterator<ISet<A>> inits() => super.inits().map((a) => a.toISet());
+  RIterator<ISet<A>> get inits => super.inits.map((a) => a.toISet());
 
   ISet<A> intersect(ISet<A> that) => filter(that.contains).toISet();
 
@@ -174,10 +173,10 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
   }
 
   @override
-  ISet<A> tail() => super.tail().toISet();
+  ISet<A> get tail => super.tail.toISet();
 
   @override
-  RIterator<ISet<A>> tails() => super.tails().map((a) => a.toISet());
+  RIterator<ISet<A>> get tails => super.tails.map((a) => a.toISet());
 
   @override
   ISet<A> take(int n) => super.take(n).toISet();

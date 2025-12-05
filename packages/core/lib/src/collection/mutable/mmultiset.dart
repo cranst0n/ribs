@@ -13,16 +13,16 @@ final class MMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
   static MMultiSet<A> empty<A>() => MMultiSet._(MMap.empty());
 
   static MMultiSet<A> from<A>(RIterableOnce<A> elems) => switch (elems) {
-        final MMultiSet<A> ms => ms,
-        _ => MMultiSet._(
-            MMap.from(elems.toIList().groupMapReduce(identity, (_) => 1, (a, b) => a + b)),
-          ),
-      };
+    final MMultiSet<A> ms => ms,
+    _ => MMultiSet._(
+      MMap.from(elems.toIList().groupMapReduce(identity, (_) => 1, (a, b) => a + b)),
+    ),
+  };
 
   static MMultiSet<A> fromOccurences<A>(RIterableOnce<(A, int)> elems) => switch (elems) {
-        final MMultiSet<A> ms => ms,
-        _ => from(elems.flatMap((occ) => views.Fill(occ.$2, occ.$1))),
-      };
+    final MMultiSet<A> ms => ms,
+    _ => from(elems.flatMap((occ) => views.Fill(occ.$2, occ.$1))),
+  };
 
   static MMultiSet<A> fromDartIterable<A>(Iterable<A> elems) =>
       MMultiSet.from(RIterator.fromDart(elems.iterator));
@@ -73,8 +73,7 @@ final class MMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
   @override
   MMultiSet<B> flatMapOccurences<B>(
     Function1<(A, int), RIterableOnce<(B, int)>> f,
-  ) =>
-      MMultiSet.fromOccurences(views.FlatMap(occurrences, f));
+  ) => MMultiSet.fromOccurences(views.FlatMap(occurrences, f));
 
   @override
   IMap<K, MMultiSet<A>> groupBy<K>(Function1<A, K> f) => super.groupBy(f).mapValues(MMultiSet.from);
@@ -83,8 +82,7 @@ final class MMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
   IMap<K, MMultiSet<B>> groupMap<K, B>(
     Function1<A, K> key,
     Function1<A, B> f,
-  ) =>
-      super.groupMap(key, f).mapValues(MMultiSet.from);
+  ) => super.groupMap(key, f).mapValues(MMultiSet.from);
 
   @override
   RIterator<MMultiSet<A>> grouped(int size) => super.grouped(size).map(MMultiSet.from);
@@ -95,10 +93,10 @@ final class MMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
   }
 
   @override
-  MMultiSet<A> init() => MMultiSet.from(super.init());
+  MMultiSet<A> get init => MMultiSet.from(super.init);
 
   @override
-  RIterator<MMultiSet<A>> inits() => super.inits().map(MMultiSet.from);
+  RIterator<MMultiSet<A>> get inits => super.inits.map(MMultiSet.from);
 
   @override
   MMultiSet<B> map<B>(covariant Function1<A, B> f) => MMultiSet.from(iterator.map(f));
@@ -144,10 +142,10 @@ final class MMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
   }
 
   @override
-  MMultiSet<A> tail() => MMultiSet.from(super.tail());
+  MMultiSet<A> get tail => MMultiSet.from(super.tail);
 
   @override
-  RIterator<MMultiSet<A>> tails() => super.tails().map(MMultiSet.from);
+  RIterator<MMultiSet<A>> get tails => super.tails.map(MMultiSet.from);
 
   @override
   MMultiSet<A> take(int n) => MMultiSet.from(super.take(n));
