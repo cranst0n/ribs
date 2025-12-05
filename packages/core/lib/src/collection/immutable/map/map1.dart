@@ -13,8 +13,7 @@
 
 part of '../imap.dart';
 
-final class _Map1<K, V>
-    with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V>, IMap<K, V> {
+final class _Map1<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V>, IMap<K, V> {
   final K key1;
   final V value1;
 

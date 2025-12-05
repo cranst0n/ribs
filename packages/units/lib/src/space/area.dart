@@ -71,8 +71,7 @@ final class SquareMeters extends AreaUnit {
 
 final class SquareCentimeters extends AreaUnit {
   const SquareCentimeters._()
-      : super('square centimeter', 'cm²',
-            MetricSystem.Centi * MetricSystem.Centi);
+      : super('square centimeter', 'cm²', MetricSystem.Centi * MetricSystem.Centi);
 }
 
 final class SquareKilometers extends AreaUnit {

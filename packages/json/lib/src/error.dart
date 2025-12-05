@@ -61,8 +61,7 @@ final class WrongTypeExpectation extends Reason {
   WrongTypeExpectation(this.expectedJsonFieldType, this.jsonValue);
 
   @override
-  String toString() =>
-      'WrongTypeExpectation: Expected $expectedJsonFieldType but found $jsonValue';
+  String toString() => 'WrongTypeExpectation: Expected $expectedJsonFieldType but found $jsonValue';
 
   @override
   bool operator ==(Object other) =>

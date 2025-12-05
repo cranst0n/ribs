@@ -30,8 +30,7 @@ final class ArrayCursor extends HCursor {
       ArrayCursor(arrayValues, indexValue, parent, changed, cursor, op);
 
   @override
-  ACursor delete() =>
-      parent.replace(Json.arrI(_valuesExcept), this, CursorOp.deleteGoParent);
+  ACursor delete() => parent.replace(Json.arrI(_valuesExcept), this, CursorOp.deleteGoParent);
 
   @override
   ACursor field(String key) => fail(CursorOp.field(key));
@@ -39,23 +38,16 @@ final class ArrayCursor extends HCursor {
   @override
   ACursor left() => indexValue == 0
       ? fail(CursorOp.moveLeft)
-      : ArrayCursor(arrayValues, indexValue - 1, parent, changed, this,
-          CursorOp.moveLeft);
+      : ArrayCursor(arrayValues, indexValue - 1, parent, changed, this, CursorOp.moveLeft);
 
   @override
-  HCursor replace(Json newValue, HCursor cursor, CursorOp? op) => ArrayCursor(
-      arrayValues.updated(indexValue, newValue),
-      indexValue,
-      parent,
-      true,
-      cursor,
-      op);
+  HCursor replace(Json newValue, HCursor cursor, CursorOp? op) =>
+      ArrayCursor(arrayValues.updated(indexValue, newValue), indexValue, parent, true, cursor, op);
 
   @override
   ACursor right() => indexValue == arrayValues.size - 1
       ? fail(CursorOp.moveRight)
-      : ArrayCursor(arrayValues, indexValue + 1, parent, changed, this,
-          CursorOp.moveRight);
+      : ArrayCursor(arrayValues, indexValue + 1, parent, changed, this, CursorOp.moveRight);
 
   @override
   ACursor up() => changed

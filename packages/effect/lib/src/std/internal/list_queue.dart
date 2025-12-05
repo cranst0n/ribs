@@ -7,8 +7,7 @@ class ListQueue<A> {
 
   static ListQueue<A> empty<A>() => ListQueue._(nil());
 
-  ListQueue<A> concat(ListQueue<A> suffix) =>
-      ListQueue._(_list.concat(suffix._list));
+  ListQueue<A> concat(ListQueue<A> suffix) => ListQueue._(_list.concat(suffix._list));
 
   (A, ListQueue<A>) dequeue() => _list.uncons(
         (hdtl) => hdtl.foldN(
@@ -17,13 +16,11 @@ class ListQueue<A> {
         ),
       );
 
-  Option<(A, ListQueue<A>)> dequeueOption() =>
-      Option.when(() => nonEmpty, () => dequeue());
+  Option<(A, ListQueue<A>)> dequeueOption() => Option.when(() => nonEmpty, () => dequeue());
 
   ListQueue<A> enqueue(A elem) => ListQueue._(_list.appended(elem));
 
-  ListQueue<A> enqueueAll(RIterableOnce<A> elems) =>
-      ListQueue._(_list.concat(elems));
+  ListQueue<A> enqueueAll(RIterableOnce<A> elems) => ListQueue._(_list.concat(elems));
 
   ListQueue<A> filter(Function1<A, bool> p) => ListQueue._(_list.filter(p));
 
@@ -36,9 +33,7 @@ class ListQueue<A> {
   IList<A> toList() => _list;
 
   @override
-  String toString() => isEmpty
-      ? 'Empty'
-      : _list.mkString(start: 'ListQueue(', sep: ',', end: ')');
+  String toString() => isEmpty ? 'Empty' : _list.mkString(start: 'ListQueue(', sep: ',', end: ')');
 
   @override
   bool operator ==(Object other) =>

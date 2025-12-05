@@ -8,11 +8,9 @@ class CompositeError extends RuntimeException {
   CompositeError(this.head, this.tail) : super(head.message, head.stackTrace);
 
   @override
-  Object get message =>
-      'Multiple errors were thrown (${tail.size + 1}), first ${head.message}';
+  Object get message => 'Multiple errors were thrown (${tail.size + 1}), first ${head.message}';
 
-  NonEmptyIList<RuntimeException> get all =>
-      NonEmptyIList(head, tail.toIList());
+  NonEmptyIList<RuntimeException> get all => NonEmptyIList(head, tail.toIList());
 
   static CompositeError from(
     RuntimeException first,

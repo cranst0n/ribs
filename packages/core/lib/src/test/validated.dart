@@ -4,8 +4,7 @@ import 'package:test/test.dart';
 
 Matcher isValid<E, A>([A? expected]) => _IsValid<E, A>(expected);
 
-Matcher isValidNel<E, A>([A? expected]) =>
-    _IsValid<NonEmptyIList<E>, A>(expected);
+Matcher isValidNel<E, A>([A? expected]) => _IsValid<NonEmptyIList<E>, A>(expected);
 
 Matcher isInvalid<E, A>([E? expected]) => _IsInvalid<E, A>(expected);
 
@@ -28,8 +27,7 @@ class _IsValid<E, A> extends Matcher {
   }
 
   @override
-  Description describe(Description description) =>
-      description.add('<Instance of Validated<$A>>');
+  Description describe(Description description) => description.add('<Instance of Validated<$A>>');
 }
 
 class _IsInvalid<E, A> extends Matcher {
@@ -51,6 +49,5 @@ class _IsInvalid<E, A> extends Matcher {
   }
 
   @override
-  Description describe(Description description) =>
-      description.add('<Instance of Validated<$A>>');
+  Description describe(Description description) => description.add('<Instance of Validated<$A>>');
 }

@@ -8,8 +8,7 @@ abstract class Client {
   static Resource<Client> sdk() => SdkClient.create();
   static Client unsafeSdk() => SdkClient.unsafeCreate();
 
-  static Client create(Function1<Request, Resource<Response>> run) =>
-      _ClientF(run);
+  static Client create(Function1<Request, Resource<Response>> run) => _ClientF(run);
 
   Resource<Response> run(Request req);
 
@@ -19,16 +18,14 @@ abstract class Client {
 
   IO<Response> requestUri(Uri uri) => request(Request(uri: uri));
 
-  IO<Response> requestString(String uri) =>
-      IO.fromEither(_uri(uri)).flatMap(requestUri);
+  IO<Response> requestString(String uri) => IO.fromEither(_uri(uri)).flatMap(requestUri);
 
   // ///////////////////////////////////////////////////////////////////////////
 
   IO<A> fetch<A>(Request req, EntityDecoder<A> decoder) =>
       run(req).use((r) => decoder.decode(r, false).rethrowError());
 
-  IO<A> fetchUri<A>(Uri uri, EntityDecoder<A> decoder) =>
-      fetch(Request(uri: uri), decoder);
+  IO<A> fetchUri<A>(Uri uri, EntityDecoder<A> decoder) => fetch(Request(uri: uri), decoder);
 
   IO<A> fetchString<A>(String uri, EntityDecoder<A> decoder) =>
       IO.fromEither(_uri(uri)).flatMap((uri) => fetchUri(uri, decoder));
@@ -39,8 +36,7 @@ abstract class Client {
 
   IO<Json> fetchJsonUri(Uri uri) => fetchJson(Request(uri: uri));
 
-  IO<Json> fetchJsonString(String uri) =>
-      IO.fromEither(_uri(uri)).flatMap(fetchJsonUri);
+  IO<Json> fetchJsonString(String uri) => IO.fromEither(_uri(uri)).flatMap(fetchJsonUri);
 
   // ///////////////////////////////////////////////////////////////////////////
 
@@ -59,8 +55,7 @@ abstract class Client {
 
   IO<Status> statusFromUri(Uri uri) => status(Request(uri: uri));
 
-  IO<Status> statusFromString(String uri) =>
-      IO.fromEither(_uri(uri)).flatMap(statusFromUri);
+  IO<Status> statusFromString(String uri) => IO.fromEither(_uri(uri)).flatMap(statusFromUri);
 
   // ///////////////////////////////////////////////////////////////////////////
 
@@ -69,9 +64,7 @@ abstract class Client {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
   }) =>
-      IO
-          .fromEither(_uri(uri))
-          .flatMap((uri) => deleteUri(uri, headers: headers, body: body));
+      IO.fromEither(_uri(uri)).flatMap((uri) => deleteUri(uri, headers: headers, body: body));
 
   IO<Response> deleteUri(
     Uri uri, {
@@ -85,17 +78,15 @@ abstract class Client {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
   }) =>
-      IO
-          .fromEither(_uri(uri))
-          .flatMap((uri) => getUri(uri, headers: headers, body: body));
+      IO.fromEither(_uri(uri)).flatMap((uri) => getUri(uri, headers: headers, body: body));
 
   IO<Json> getJson(
     String uri, {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
   }) =>
-      IO.fromEither(_uri(uri)).flatMap((uri) => fetch(
-          Request(uri: uri, headers: headers, body: body), EntityDecoder.json));
+      IO.fromEither(_uri(uri)).flatMap(
+          (uri) => fetch(Request(uri: uri, headers: headers, body: body), EntityDecoder.json));
 
   IO<A> getJsonAs<A>(
     String uri,
@@ -103,9 +94,8 @@ abstract class Client {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
   }) =>
-      IO.fromEither(_uri(uri)).flatMap((uri) => fetch(
-          Request(uri: uri, headers: headers, body: body),
-          EntityDecoder.jsonAs(decoder)));
+      IO.fromEither(_uri(uri)).flatMap((uri) =>
+          fetch(Request(uri: uri, headers: headers, body: body), EntityDecoder.jsonAs(decoder)));
 
   IO<Response> getUri(
     Uri uri, {
@@ -119,9 +109,7 @@ abstract class Client {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
   }) =>
-      IO
-          .fromEither(_uri(uri))
-          .flatMap((uri) => postUri(uri, headers: headers, body: body));
+      IO.fromEither(_uri(uri)).flatMap((uri) => postUri(uri, headers: headers, body: body));
 
   IO<Response> postUri(
     Uri uri, {

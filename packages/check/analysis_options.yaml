@@ -5,6 +5,10 @@ analyzer:
     strict-inference: true
     strict-raw-types: true
 
+formatter:
+  page_width: 100
+  trailing_commas: preserve
+
 linter:
   rules:
     avoid_classes_with_only_static_members: false

@@ -90,8 +90,7 @@ void main() {
       expect(test, ioSucceeded(Unit()));
     });
 
-    test('not release permit if tryPermit completes without acquiring a permit',
-        () {
+    test('not release permit if tryPermit completes without acquiring a permit', () {
       final test = sc(0).flatMap((sem) {
         return sem.tryPermit().surround(IO.unit).flatMap((_) {
           return sem.permit().surround(IO.unit);
@@ -117,11 +116,7 @@ void main() {
 
     test('release tryPermit if action gets canceled', () {
       final test = sc(1).flatMap((sem) {
-        return sem
-            .tryPermit()
-            .surround(IO.never<Unit>())
-            .start()
-            .flatMap((fiber) {
+        return sem.tryPermit().surround(IO.never<Unit>()).start().flatMap((fiber) {
           return IO.sleep(1.second).flatMap((_) {
             return fiber.cancel().flatMap((_) {
               return sem.permit().surround(IO.unit);
@@ -136,12 +131,7 @@ void main() {
     test('allow cancelation if blocked waiting for permit', () {
       final test = sc(0).flatMap((sem) {
         return IO.ref(false).flatMap((ref) {
-          return sem
-              .permit()
-              .surround(IO.unit)
-              .onCancel(ref.setValue(true))
-              .start()
-              .flatMap((f) {
+          return sem.permit().surround(IO.unit).onCancel(ref.setValue(true)).start().flatMap((f) {
             return IO.sleep(1.second).flatMap((_) {
               return f.cancel().flatMap((_) {
                 return ref.value();
@@ -156,12 +146,7 @@ void main() {
 
     test('not release permit when an acquire gets canceled', () {
       final test = sc(0).flatMap((sem) {
-        return sem
-            .permit()
-            .surround(IO.unit)
-            .timeout(1.second)
-            .attempt()
-            .flatMap((_) {
+        return sem.permit().surround(IO.unit).timeout(1.second).attempt().flatMap((_) {
           return sem.permit().surround(IO.unit);
         });
       });
@@ -172,9 +157,7 @@ void main() {
     test('acquire n synchronosly', () {
       const n = 20;
       final op = sc(n).flatMap((sem) {
-        return IList.range(0, n)
-            .traverseIO_((_) => sem.acquire())
-            .productR(() => sem.available());
+        return IList.range(0, n).traverseIO_((_) => sem.acquire()).productR(() => sem.available());
       });
 
       expect(op, ioSucceeded(0));
@@ -182,22 +165,17 @@ void main() {
 
     test('acquireN does not leak permits upon cancelation', () {
       final op = sc(1).flatMap((sem) {
-        return sem
-            .acquireN(2)
-            .timeout(1.second)
-            .attempt()
-            .productR(() => sem.acquire());
+        return sem.acquireN(2).timeout(1.second).attempt().productR(() => sem.acquire());
       });
 
       expect(op, ioSucceeded(Unit()));
     });
 
     test('available with no available permits', () {
-      IO<(int, T)> withLock<T>(int n, Semaphore s, IO<T> check) =>
-          s.acquireN(n).background().surround(s
-              .count()
-              .iterateUntil((i) => i < 0)
-              .flatMap((t) => check.tupleLeft(t)));
+      IO<(int, T)> withLock<T>(int n, Semaphore s, IO<T> check) => s
+          .acquireN(n)
+          .background()
+          .surround(s.count().iterateUntil((i) => i < 0).flatMap((t) => check.tupleLeft(t)));
 
       const n = 20;
 
@@ -248,18 +226,15 @@ void main() {
       final permits = ilist([1, 0, 20, 4, 0, 5, 2, 1, 1, 3]);
 
       final test = sc(0).flatMap((sem) {
-        return (
-          permits.traverseIO_(sem.acquireN),
-          permits.reverse().traverseIO_(sem.releaseN)
-        ).parTupled().productR(() => sem.count());
+        return (permits.traverseIO_(sem.acquireN), permits.reverse().traverseIO_(sem.releaseN))
+            .parTupled()
+            .productR(() => sem.count());
       });
 
       expect(test, ioSucceeded(0));
     });
 
-    test(
-        'offsetting acquires/releases - individual acquires/increment in parallel',
-        () {
+    test('offsetting acquires/releases - individual acquires/increment in parallel', () {
       final permits = ilist([1, 0, 20, 4, 0, 5, 2, 1, 1, 3]);
 
       final test = sc(0).flatMap((sem) {
@@ -273,16 +248,14 @@ void main() {
     });
 
     test('available with available permits', () {
-      final test = sc(20)
-          .flatMap((sem) => sem.acquireN(19).flatMap((_) => sem.available()));
+      final test = sc(20).flatMap((sem) => sem.acquireN(19).flatMap((_) => sem.available()));
 
       expect(test, ioSucceeded(1));
     });
 
     test('available with 0 available permits', () {
-      final test = sc(20).flatMap((sem) => sem
-          .acquireN(20)
-          .flatMap((_) => IO.cede.productR(() => sem.available())));
+      final test = sc(20).flatMap(
+          (sem) => sem.acquireN(20).flatMap((_) => IO.cede.productR(() => sem.available())));
 
       expect(test, ioSucceeded(0));
     });
@@ -307,18 +280,15 @@ void main() {
       const n = 8;
 
       final test = sc(n).flatMap((sem) {
-        return sem.acquireN(n).productR(() => sem
-            .acquireN(n)
-            .background()
-            .use((_) => sem.count().iterateUntil((x) => x < 0)));
+        return sem.acquireN(n).productR(
+            () => sem.acquireN(n).background().use((_) => sem.count().iterateUntil((x) => x < 0)));
       });
 
       expect(test, ioSucceeded(-n));
     });
 
     test('count with 0 available permits', () {
-      final test =
-          sc(20).flatMap((sem) => sem.acquireN(20).productR(() => sem.count()));
+      final test = sc(20).flatMap((sem) => sem.acquireN(20).productR(() => sem.count()));
 
       expect(test, ioSucceeded(0));
     });

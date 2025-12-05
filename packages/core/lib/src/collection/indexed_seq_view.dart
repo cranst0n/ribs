@@ -15,13 +15,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/indexed_seq_views.dart' as iseqview;
 
 mixin IndexedSeqView<A>
-    on
-        RIterableOnce<A>,
-        RIterable<A>,
-        RSeq<A>,
-        View<A>,
-        SeqView<A>,
-        IndexedSeq<A> {
+    on RIterableOnce<A>, RIterable<A>, RSeq<A>, View<A>, SeqView<A>, IndexedSeq<A> {
   static IndexedSeqView<A> from<A>(IndexedSeq<A> v) => iseqview.Id(v);
 
   @override
@@ -32,8 +26,7 @@ mixin IndexedSeqView<A>
       iseqview.Concat(this, suffix.toIndexedSeq());
 
   @override
-  IndexedSeq<A> concat(RIterableOnce<A> suffix) =>
-      iseqview.Concat(this, suffix.toIndexedSeq());
+  IndexedSeq<A> concat(RIterableOnce<A> suffix) => iseqview.Concat(this, suffix.toIndexedSeq());
 
   @override
   IndexedSeq<A> drop(int n) => iseqview.Drop(this, n);
@@ -58,8 +51,7 @@ mixin IndexedSeqView<A>
   IndexedSeq<A> reverse() => iseqview.Reverse(this);
 
   @override
-  RIterator<A> reverseIterator() =>
-      iseqview.IndexedSeqViewReverseIterator(this);
+  RIterator<A> reverseIterator() => iseqview.IndexedSeqViewReverseIterator(this);
 
   @override
   IndexedSeq<A> slice(int from, int until) => iseqview.Slice(this, from, until);

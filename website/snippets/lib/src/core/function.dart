@@ -45,8 +45,7 @@ Function1<A, Function1<B, C>> curryFn<A, B, C>(Function2<A, B, C> f) =>
 
 // curryFn-impl
 
-Function1<A, Function1<B, C>> curryFnImpl<A, B, C>(Function2<A, B, C> f) =>
-    (a) => (b) => f(a, b);
+Function1<A, Function1<B, C>> curryFnImpl<A, B, C>(Function2<A, B, C> f) => (a) => (b) => f(a, b);
 
 // curryFn-impl
 

@@ -59,10 +59,7 @@ Either<String, (ByteVector, int)> fromBinInternal(
   if (err == null) {
     if (bits > 0) {
       bldr.add(byte << (8 - bits));
-      return (
-        ByteVector(Uint8List.fromList(bldr)).shiftRight(8 - bits, false),
-        count
-      ).asRight();
+      return (ByteVector(Uint8List.fromList(bldr)).shiftRight(8 - bits, false), count).asRight();
     } else {
       return (ByteVector(Uint8List.fromList(bldr)), count).asRight();
     }
@@ -75,8 +72,7 @@ Either<String, (ByteVector, int)> fromHexInternal(
   String str,
   HexAlphabet alphabet,
 ) {
-  final prefixed =
-      str.length >= 2 && str[0] == '0' && (str[1] == 'x' || str[1] == 'X');
+  final prefixed = str.length >= 2 && str[0] == '0' && (str[1] == 'x' || str[1] == 'X');
 
   final withoutPrefix = prefixed ? str.substring(2) : str;
 
@@ -130,8 +126,7 @@ Either<String, (ByteVector, int)> fromHexInternal(
   } catch (e) {
     final c = withoutPrefix[idx];
 
-    err =
-        "Invalid hexadecimal character '$c' at index ${idx + (prefixed ? 2 : 0)}";
+    err = "Invalid hexadecimal character '$c' at index ${idx + (prefixed ? 2 : 0)}";
   }
 
   final ByteVector result;
@@ -210,8 +205,7 @@ Either<String, (ByteVector, int)> fromBase32Internal(
     final bytes = ByteVector(acc);
 
     final expectedPadding =
-        (((bytes.size + bitsPerChar - 1) ~/ bitsPerChar * bitsPerChar) -
-                bytes.size) *
+        (((bytes.size + bitsPerChar - 1) ~/ bitsPerChar * bitsPerChar) - bytes.size) *
             8 ~/
             bitsPerChar;
 
@@ -306,8 +300,7 @@ Either<String, (ByteVector, int)> fromBase64Internal(
     if (mod == 0) {
       return (ByteVector(acc).take(bidx - padding), bidx).asRight();
     } else if (mod == 1) {
-      return 'Final base 64 quantum had only 1 digit - must have at least 2 digits'
-          .asLeft();
+      return 'Final base 64 quantum had only 1 digit - must have at least 2 digits'.asLeft();
     } else if (mod == 2) {
       acc[bidx] = (buffer >> 4) & 0x0ff;
       bidx += 1;

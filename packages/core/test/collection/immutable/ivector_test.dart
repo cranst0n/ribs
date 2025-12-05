@@ -6,8 +6,7 @@ import 'package:test/test.dart';
 void main() {
   group('IVector', () {
     // 0, 2^5, 2^10, 2^15, 2^20, 2^25
-    final vectorNBounds =
-        [0, 32, 1024, 32768, 1048576, 33554432].expand((n) => [n, n + 1]);
+    final vectorNBounds = [0, 32, 1024, 32768, 1048576, 33554432].expand((n) => [n, n + 1]);
 
     test('sandbox', () {
       vectorNBounds.forEach((n) {
@@ -49,24 +48,14 @@ void main() {
     test('appendedAll', () {
       for (final n in vectorNBounds) {
         final addN = max(n ~/ 2, 1);
-        expect(
-            IVector.fill(n, 0)
-                .appendedAll(IVector.fill(addN, 0))
-                .toList()
-                .length,
-            n + addN);
+        expect(IVector.fill(n, 0).appendedAll(IVector.fill(addN, 0)).toList().length, n + addN);
       }
     });
 
     test('appendedAll (random)', () {
       for (final n in vectorNBounds) {
         final addN = Random.secure().nextInt(max(n, 1));
-        expect(
-            IVector.fill(n, 0)
-                .appendedAll(IVector.fill(addN, 0))
-                .toList()
-                .length,
-            n + addN);
+        expect(IVector.fill(n, 0).appendedAll(IVector.fill(addN, 0)).toList().length, n + addN);
       }
     });
 
@@ -83,8 +72,7 @@ void main() {
     test('dropRight', () {
       for (final n in vectorNBounds) {
         if (n > 2) {
-          expect(
-              IVector.tabulate(n, identity).dropRight(2).toList().last, n - 3);
+          expect(IVector.tabulate(n, identity).dropRight(2).toList().last, n - 3);
         } else {
           expect(IVector.tabulate(n, identity).dropRight(2).toList(), isEmpty);
         }

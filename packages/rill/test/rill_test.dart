@@ -65,8 +65,7 @@ void main() {
   test('evalTap', () async {
     int sum = 0;
 
-    final r =
-        Rill.emits(ilist([1, 2, 3])).evalTap((a) => IO.exec(() => sum += a));
+    final r = Rill.emits(ilist([1, 2, 3])).evalTap((a) => IO.exec(() => sum += a));
 
     final result = await r.compile().toIList().unsafeRunFuture();
 
@@ -102,8 +101,7 @@ void main() {
   });
 
   test('flatMap', () async {
-    final r = Rill.emits(ilist([1, 2, 3]))
-        .flatMap((a) => Rill.emits(ilist([a - 1, a, a + 1])));
+    final r = Rill.emits(ilist([1, 2, 3])).flatMap((a) => Rill.emits(ilist([a - 1, a, a + 1])));
     final result = await r.compile().toIList().unsafeRunFuture();
 
     expect(result, ilist([0, 1, 2, 1, 2, 3, 2, 3, 4]));
@@ -122,9 +120,8 @@ void main() {
 
   test('handleErrorWith', () async {
     final r = Rill.emits(ilist([1, 2, 3]))
-        .flatMap((x) => x.isEven
-            ? Rill.raiseError<int>(RuntimeException('boom'))
-            : Rill.emit(x * 2))
+        .flatMap(
+            (x) => x.isEven ? Rill.raiseError<int>(RuntimeException('boom')) : Rill.emit(x * 2))
         .handleErrorWith((e) => Rill.emits(ilist([3, 2, 1])));
 
     final result = await r.compile().toIList().unsafeRunFuture();

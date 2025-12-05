@@ -154,8 +154,7 @@ final class _VectorSliceBuilder {
           final suffix2 = suffixOr2(2, _empty2);
           final len12 = len1 + (prefix2.length * _WIDTH);
 
-          return _Vector3(
-              prefix1, len1, prefix2, len12, data3, suffix2, suffix1, len);
+          return _Vector3(prefix1, len1, prefix2, len12, data3, suffix2, suffix1, len);
 
         case 4:
           final prefix2 = prefixOr2(2, _empty2);
@@ -166,8 +165,8 @@ final class _VectorSliceBuilder {
           final len12 = len1 + (prefix2.length * _WIDTH);
           final len123 = len12 + (prefix3.length * _WIDTH2);
 
-          return _Vector4(prefix1, len1, prefix2, len12, prefix3, len123, data4,
-              suffix3, suffix2, suffix1, len);
+          return _Vector4(prefix1, len1, prefix2, len12, prefix3, len123, data4, suffix3, suffix2,
+              suffix1, len);
 
         case 5:
           final prefix2 = prefixOr2(2, _empty2);
@@ -181,8 +180,8 @@ final class _VectorSliceBuilder {
           final len123 = len12 + (prefix3.length * _WIDTH2);
           final len1234 = len123 + (prefix4.length * _WIDTH3);
 
-          return _Vector5(prefix1, len1, prefix2, len12, prefix3, len123,
-              prefix4, len1234, data5, suffix4, suffix3, suffix2, suffix1, len);
+          return _Vector5(prefix1, len1, prefix2, len12, prefix3, len123, prefix4, len1234, data5,
+              suffix4, suffix3, suffix2, suffix1, len);
 
         case 6:
           final prefix2 = prefixOr2(2, _empty2);
@@ -198,24 +197,8 @@ final class _VectorSliceBuilder {
           final len123 = len12 + (prefix3.length * _WIDTH2);
           final len1234 = len123 + (prefix4.length * _WIDTH3);
           final len12345 = len1234 + (prefix5.length * _WIDTH4);
-          return _Vector6(
-              prefix1,
-              len1,
-              prefix2,
-              len12,
-              prefix3,
-              len123,
-              prefix4,
-              len1234,
-              prefix5,
-              len12345,
-              data6,
-              suffix5,
-              suffix4,
-              suffix3,
-              suffix2,
-              suffix1,
-              len);
+          return _Vector6(prefix1, len1, prefix2, len12, prefix3, len123, prefix4, len1234, prefix5,
+              len12345, data6, suffix5, suffix4, suffix3, suffix2, suffix1, len);
 
         default:
           throw ArgumentError.value(resultDim, 'resultDim');
@@ -233,20 +216,15 @@ final class _VectorSliceBuilder {
   _Arr4 suffixOr4(int n, _Arr4 a) => _arrCast4(_slices[suffixIdx(n)] ?? a);
   _Arr5 suffixOr5(int n, _Arr5 a) => _arrCast5(_slices[suffixIdx(n)] ?? a);
 
-  _Arr2 dataOr2(int n, _Arr2 a) =>
-      _arrCast2(_slices[prefixIdx(n)] ?? _slices[suffixIdx(n)] ?? a);
+  _Arr2 dataOr2(int n, _Arr2 a) => _arrCast2(_slices[prefixIdx(n)] ?? _slices[suffixIdx(n)] ?? a);
 
-  _Arr3 dataOr3(int n, _Arr3 a) =>
-      _arrCast3(_slices[prefixIdx(n)] ?? _slices[suffixIdx(n)] ?? a);
+  _Arr3 dataOr3(int n, _Arr3 a) => _arrCast3(_slices[prefixIdx(n)] ?? _slices[suffixIdx(n)] ?? a);
 
-  _Arr4 dataOr4(int n, _Arr4 a) =>
-      _arrCast4(_slices[prefixIdx(n)] ?? _slices[suffixIdx(n)] ?? a);
+  _Arr4 dataOr4(int n, _Arr4 a) => _arrCast4(_slices[prefixIdx(n)] ?? _slices[suffixIdx(n)] ?? a);
 
-  _Arr5 dataOr5(int n, _Arr5 a) =>
-      _arrCast5(_slices[prefixIdx(n)] ?? _slices[suffixIdx(n)] ?? a);
+  _Arr5 dataOr5(int n, _Arr5 a) => _arrCast5(_slices[prefixIdx(n)] ?? _slices[suffixIdx(n)] ?? a);
 
-  _Arr6 dataOr6(int n, _Arr6 a) =>
-      _arrCast6(_slices[prefixIdx(n)] ?? _slices[suffixIdx(n)] ?? a);
+  _Arr6 dataOr6(int n, _Arr6 a) => _arrCast6(_slices[prefixIdx(n)] ?? _slices[suffixIdx(n)] ?? a);
 
   void balancePrefix(int n) {
     if (_slices[prefixIdx(n)] == null) {
@@ -284,8 +262,7 @@ final class _VectorSliceBuilder {
             maxDim = n;
           }
         } else {
-          _slices[suffixIdx(n + 1)] =
-              Array.copyOfRange(sufN1, 0, sufN1.length - 1);
+          _slices[suffixIdx(n + 1)] = Array.copyOfRange(sufN1, 0, sufN1.length - 1);
         }
       }
     }

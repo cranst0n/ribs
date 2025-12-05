@@ -6,17 +6,17 @@ import 'package:test/test.dart';
 void main() {
   group('Decoder', () {
     test('flatMap', () {
-      final evenDecoder = Decoder.integer.flatMap(
-          (i) => i.isEven ? Decoder.constant(i) : Decoder.constant(i * 2));
+      final evenDecoder =
+          Decoder.integer.flatMap((i) => i.isEven ? Decoder.constant(i) : Decoder.constant(i * 2));
 
       expect(evenDecoder.decode(Json.number(2)), 2.asRight<DecodingFailure>());
       expect(evenDecoder.decode(Json.number(3)), 6.asRight<DecodingFailure>());
     });
 
     test('handleError', () {
-      final d = Decoder.instance<int>((c) =>
-              DecodingFailure(CustomReason('boom'), c.history()).asLeft())
-          .handleErrorWith((_) => Decoder.constant(42));
+      final d =
+          Decoder.instance<int>((c) => DecodingFailure(CustomReason('boom'), c.history()).asLeft())
+              .handleErrorWith((_) => Decoder.constant(42));
 
       expect(d.decode(Json.False), 42.asRight<DecodingFailure>());
       expect(d.decode(Json.Null), 42.asRight<DecodingFailure>());
@@ -89,8 +89,7 @@ void main() {
         (a, b, c) => (a, b, c),
       );
 
-      expect(
-          decoder.decode(json), (true, false, true).asRight<DecodingFailure>());
+      expect(decoder.decode(json), (true, false, true).asRight<DecodingFailure>());
     });
 
     test('product4', () {
@@ -104,8 +103,7 @@ void main() {
         (a, b, c, d) => (a, b, c, d),
       );
 
-      expect(decoder.decode(json),
-          (true, false, true, false).asRight<DecodingFailure>());
+      expect(decoder.decode(json), (true, false, true, false).asRight<DecodingFailure>());
     });
 
     test('product5', () {
@@ -120,8 +118,7 @@ void main() {
         (a, b, c, d, e) => (a, b, c, d, e),
       );
 
-      expect(decoder.decode(json),
-          (true, false, true, false, true).asRight<DecodingFailure>());
+      expect(decoder.decode(json), (true, false, true, false, true).asRight<DecodingFailure>());
     });
 
     test('product6', () {
@@ -137,8 +134,8 @@ void main() {
         (a, b, c, d, e, f) => (a, b, c, d, e, f),
       );
 
-      expect(decoder.decode(json),
-          (true, false, true, false, true, false).asRight<DecodingFailure>());
+      expect(
+          decoder.decode(json), (true, false, true, false, true, false).asRight<DecodingFailure>());
     });
 
     test('product7', () {
@@ -155,10 +152,8 @@ void main() {
         (a, b, c, d, e, f, g) => (a, b, c, d, e, f, g),
       );
 
-      expect(
-          decoder.decode(json),
-          (true, false, true, false, true, false, true)
-              .asRight<DecodingFailure>());
+      expect(decoder.decode(json),
+          (true, false, true, false, true, false, true).asRight<DecodingFailure>());
     });
 
     test('product8', () {
@@ -176,10 +171,8 @@ void main() {
         (a, b, c, d, e, f, g, h) => (a, b, c, d, e, f, g, h),
       );
 
-      expect(
-          decoder.decode(json),
-          (true, false, true, false, true, false, true, false)
-              .asRight<DecodingFailure>());
+      expect(decoder.decode(json),
+          (true, false, true, false, true, false, true, false).asRight<DecodingFailure>());
     });
 
     test('product9', () {
@@ -198,10 +191,8 @@ void main() {
         (a, b, c, d, e, f, g, h, i) => (a, b, c, d, e, f, g, h, i),
       );
 
-      expect(
-          decoder.decode(json),
-          (true, false, true, false, true, false, true, false, true)
-              .asRight<DecodingFailure>());
+      expect(decoder.decode(json),
+          (true, false, true, false, true, false, true, false, true).asRight<DecodingFailure>());
     });
 
     test('product10', () {
@@ -247,19 +238,8 @@ void main() {
 
       expect(
           decoder.decode(json),
-          (
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true
-          ).asRight<DecodingFailure>());
+          (true, false, true, false, true, false, true, false, true, false, true)
+              .asRight<DecodingFailure>());
     });
 
     test('product12', () {
@@ -278,26 +258,13 @@ void main() {
         Decoder.boolean.at('key10'),
         Decoder.boolean.at('key11'),
         Decoder.boolean.at('key12'),
-        (a, b, c, d, e, f, g, h, i, j, k, l) =>
-            (a, b, c, d, e, f, g, h, i, j, k, l),
+        (a, b, c, d, e, f, g, h, i, j, k, l) => (a, b, c, d, e, f, g, h, i, j, k, l),
       );
 
       expect(
           decoder.decode(json),
-          (
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false
-          ).asRight<DecodingFailure>());
+          (true, false, true, false, true, false, true, false, true, false, true, false)
+              .asRight<DecodingFailure>());
     });
 
     test('product13', () {
@@ -317,27 +284,13 @@ void main() {
         Decoder.boolean.at('key11'),
         Decoder.boolean.at('key12'),
         Decoder.boolean.at('key13'),
-        (a, b, c, d, e, f, g, h, i, j, k, l, m) =>
-            (a, b, c, d, e, f, g, h, i, j, k, l, m),
+        (a, b, c, d, e, f, g, h, i, j, k, l, m) => (a, b, c, d, e, f, g, h, i, j, k, l, m),
       );
 
       expect(
           decoder.decode(json),
-          (
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true
-          ).asRight<DecodingFailure>());
+          (true, false, true, false, true, false, true, false, true, false, true, false, true)
+              .asRight<DecodingFailure>());
     });
 
     test('product14', () {
@@ -358,8 +311,7 @@ void main() {
         Decoder.boolean.at('key12'),
         Decoder.boolean.at('key13'),
         Decoder.boolean.at('key14'),
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n) =>
-            (a, b, c, d, e, f, g, h, i, j, k, l, m, n),
+        (a, b, c, d, e, f, g, h, i, j, k, l, m, n) => (a, b, c, d, e, f, g, h, i, j, k, l, m, n),
       );
 
       expect(
@@ -428,5 +380,5 @@ void main() {
   });
 }
 
-Json boolObj(int n) => Json.obj(
-    IList.rangeTo(1, n).map((i) => ('key$i', Json.boolean(i.isOdd))).toList());
+Json boolObj(int n) =>
+    Json.obj(IList.rangeTo(1, n).map((i) => ('key$i', Json.boolean(i.isOdd))).toList());

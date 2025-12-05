@@ -58,8 +58,7 @@ void main() {
 
   test('map', () {
     final md1 = mmultidict([('a', 1), ('b', 2)]);
-    final md1Mapped =
-        MMultiDict.from(md1.map((t) => (t.$1.toUpperCase(), t.$2)));
+    final md1Mapped = MMultiDict.from(md1.map((t) => (t.$1.toUpperCase(), t.$2)));
     final md1Expected = mmultidict([('A', 1), ('B', 2)]);
 
     final md2 = mmultidict([('a', true), ('b', true)]);
@@ -67,8 +66,7 @@ void main() {
     final md2Expected = mmultidict([(1, true), (1, true)]);
 
     final md3 = mmultidict([('a', 1), ('b', 2), ('b', 3)]);
-    final md3Mapped =
-        MMultiDict.from(md3.mapSets((_) => ('c', iset({1, 2, 3, 4}))));
+    final md3Mapped = MMultiDict.from(md3.mapSets((_) => ('c', iset({1, 2, 3, 4}))));
     final md3Expected = mmultidict([('c', 1), ('c', 2), ('c', 3), ('c', 4)]);
 
     expect(md1Mapped, md1Expected);
@@ -77,8 +75,7 @@ void main() {
   });
 
   test('filter', () {
-    final filtered = mmultidict([('a', 1), ('b', 2)])
-        .filter((kv) => kv.$1 == 'a' && kv.$2.isEven);
+    final filtered = mmultidict([('a', 1), ('b', 2)]).filter((kv) => kv.$1 == 'a' && kv.$2.isEven);
 
     expect(filtered.toSeq().isEmpty, isTrue);
   });

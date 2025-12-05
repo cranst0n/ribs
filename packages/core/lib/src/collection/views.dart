@@ -200,9 +200,8 @@ class Filter<A> extends AbstractView<A> {
   const Filter(this.underlying, this.p, this.isFlipped);
 
   @override
-  RIterator<A> get iterator => !isFlipped
-      ? underlying.iterator.filter(p)
-      : underlying.iterator.filterNot(p);
+  RIterator<A> get iterator =>
+      !isFlipped ? underlying.iterator.filter(p) : underlying.iterator.filterNot(p);
 
   @override
   int get knownSize => underlying.knownSize == 0 ? 0 : super.knownSize;
@@ -293,8 +292,7 @@ class Patched<A> extends AbstractView<A> {
   const Patched(this.underlying, this.from, this.other, this.replaced);
 
   @override
-  RIterator<A> get iterator =>
-      underlying.iterator.patch(from, other.iterator, replaced);
+  RIterator<A> get iterator => underlying.iterator.patch(from, other.iterator, replaced);
 
   @override
   int get knownSize {
@@ -461,8 +459,7 @@ class Updated<A> extends AbstractView<A> {
   const Updated(this.underlying, this.index, this.elem);
 
   @override
-  RIterator<A> get iterator =>
-      _UpdatedIterator(underlying, underlying.iterator, index, elem);
+  RIterator<A> get iterator => _UpdatedIterator(underlying, underlying.iterator, index, elem);
 
   @override
   int get knownSize => underlying.knownSize;
@@ -508,8 +505,7 @@ class ZipAll<A, B> extends AbstractView<(A, B)> {
   const ZipAll(this.underlying, this.other, this.thisElem, this.thatElem);
 
   @override
-  RIterator<(A, B)> get iterator =>
-      underlying.iterator.zipAll(other, thisElem, thatElem);
+  RIterator<(A, B)> get iterator => underlying.iterator.zipAll(other, thisElem, thatElem);
 
   @override
   int get knownSize {

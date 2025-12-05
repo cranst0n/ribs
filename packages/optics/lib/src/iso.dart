@@ -7,8 +7,7 @@ typedef Iso<S, A> = PIso<S, S, A, A>;
 class PIso<S, T, A, B> extends PLens<S, T, A, B> {
   final Function1<B, T> reverseGet;
 
-  PIso(Function1<S, A> get, this.reverseGet)
-      : super(get, (b) => (_) => reverseGet(b));
+  PIso(Function1<S, A> get, this.reverseGet) : super(get, (b) => (_) => reverseGet(b));
 
   // @override
   // A get(S s) => _get(s);

@@ -14,14 +14,12 @@ void main() {
 
     forAll('allow access to labels', genHostname, (hostname) {
       expect(
-        Hostname.fromString(hostname.labels.mkString(sep: '.'))
-            .map((h) => h.labels),
+        Hostname.fromString(hostname.labels.mkString(sep: '.')).map((h) => h.labels),
         isSome(hostname.labels),
       );
     });
 
-    forAll('require overall length be less than 254 chars', genHostname,
-        (hostname) {
+    forAll('require overall length be less than 254 chars', genHostname, (hostname) {
       final hstr = hostname.toString();
       final h2 = '$hstr.$hstr';
 

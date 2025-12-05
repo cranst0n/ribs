@@ -7,10 +7,8 @@ final class KeyValueCodec<A> extends Codec<A> {
   final Codec<A> codecKV;
 
   KeyValueCodec(this.key, this.value)
-      : codecKV = Codec.from(
-            value.at(key),
-            value.mapJson((a) =>
-                Json.fromJsonObject(JsonObject.fromIterable([(key, a)]))));
+      : codecKV = Codec.from(value.at(key),
+            value.mapJson((a) => Json.fromJsonObject(JsonObject.fromIterable([(key, a)]))));
 
   @override
   DecodeResult<A> decodeC(HCursor cursor) => codecKV.decodeC(cursor);
@@ -50,14 +48,13 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function2<A, B, C> apply,
     Function1<C, (A, B)> tupled,
   ) {
-    final decoder = Decoder.instance((cursor) =>
-        (codecA.decodeC(cursor), codecB.decodeC(cursor)).mapN(apply));
+    final decoder =
+        Decoder.instance((cursor) => (codecA.decodeC(cursor), codecB.decodeC(cursor)).mapN(apply));
 
-    final encoder =
-        Encoder.instance<C>((a) => tupled(a)((a, b) => Json.deepMergeAll([
-              codecA.encode(a),
-              codecB.encode(b),
-            ])));
+    final encoder = Encoder.instance<C>((a) => tupled(a)((a, b) => Json.deepMergeAll([
+          codecA.encode(a),
+          codecB.encode(b),
+        ])));
 
     return Codec.from(decoder, encoder);
   }
@@ -75,12 +72,11 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecC.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder =
-        Encoder.instance<D>((a) => tupled(a)((a, b, c) => Json.deepMergeAll([
-              codecA.encode(a),
-              codecB.encode(b),
-              codecC.encode(c),
-            ])));
+    final encoder = Encoder.instance<D>((a) => tupled(a)((a, b, c) => Json.deepMergeAll([
+          codecA.encode(a),
+          codecB.encode(b),
+          codecC.encode(c),
+        ])));
 
     return Codec.from(decoder, encoder);
   }
@@ -100,13 +96,12 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecD.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder =
-        Encoder.instance<E>((a) => tupled(a)((a, b, c, d) => Json.deepMergeAll([
-              codecA.encode(a),
-              codecB.encode(b),
-              codecC.encode(c),
-              codecD.encode(d),
-            ])));
+    final encoder = Encoder.instance<E>((a) => tupled(a)((a, b, c, d) => Json.deepMergeAll([
+          codecA.encode(a),
+          codecB.encode(b),
+          codecC.encode(c),
+          codecD.encode(d),
+        ])));
 
     return Codec.from(decoder, encoder);
   }
@@ -128,14 +123,13 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecE.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder = Encoder.instance<F>(
-        (a) => tupled(a)((a, b, c, d, e) => Json.deepMergeAll([
-              codecA.encode(a),
-              codecB.encode(b),
-              codecC.encode(c),
-              codecD.encode(d),
-              codecE.encode(e),
-            ])));
+    final encoder = Encoder.instance<F>((a) => tupled(a)((a, b, c, d, e) => Json.deepMergeAll([
+          codecA.encode(a),
+          codecB.encode(b),
+          codecC.encode(c),
+          codecD.encode(d),
+          codecE.encode(e),
+        ])));
 
     return Codec.from(decoder, encoder);
   }
@@ -159,15 +153,14 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecF.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder = Encoder.instance<G>(
-        (a) => tupled(a)((a, b, c, d, e, f) => Json.deepMergeAll([
-              codecA.encode(a),
-              codecB.encode(b),
-              codecC.encode(c),
-              codecD.encode(d),
-              codecE.encode(e),
-              codecF.encode(f),
-            ])));
+    final encoder = Encoder.instance<G>((a) => tupled(a)((a, b, c, d, e, f) => Json.deepMergeAll([
+          codecA.encode(a),
+          codecB.encode(b),
+          codecC.encode(c),
+          codecD.encode(d),
+          codecE.encode(e),
+          codecF.encode(f),
+        ])));
 
     return Codec.from(decoder, encoder);
   }
@@ -193,8 +186,8 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecG.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder = Encoder.instance<H>(
-        (a) => tupled(a)((a, b, c, d, e, f, g) => Json.deepMergeAll([
+    final encoder =
+        Encoder.instance<H>((a) => tupled(a)((a, b, c, d, e, f, g) => Json.deepMergeAll([
               codecA.encode(a),
               codecB.encode(b),
               codecC.encode(c),
@@ -230,8 +223,8 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecH.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder = Encoder.instance<I>(
-        (a) => tupled(a)((a, b, c, d, e, f, g, h) => Json.deepMergeAll([
+    final encoder =
+        Encoder.instance<I>((a) => tupled(a)((a, b, c, d, e, f, g, h) => Json.deepMergeAll([
               codecA.encode(a),
               codecB.encode(b),
               codecC.encode(c),
@@ -270,8 +263,8 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecI.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder = Encoder.instance<J>(
-        (a) => tupled(a)((a, b, c, d, e, f, g, h, i) => Json.deepMergeAll([
+    final encoder =
+        Encoder.instance<J>((a) => tupled(a)((a, b, c, d, e, f, g, h, i) => Json.deepMergeAll([
               codecA.encode(a),
               codecB.encode(b),
               codecC.encode(c),
@@ -313,8 +306,8 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecJ.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder = Encoder.instance<K>(
-        (a) => tupled(a)((a, b, c, d, e, f, g, h, i, j) => Json.deepMergeAll([
+    final encoder =
+        Encoder.instance<K>((a) => tupled(a)((a, b, c, d, e, f, g, h, i, j) => Json.deepMergeAll([
               codecA.encode(a),
               codecB.encode(b),
               codecC.encode(c),
@@ -359,8 +352,8 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecK.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder = Encoder.instance<L>((a) =>
-        tupled(a)((a, b, c, d, e, f, g, h, i, j, k) => Json.deepMergeAll([
+    final encoder = Encoder.instance<L>(
+        (a) => tupled(a)((a, b, c, d, e, f, g, h, i, j, k) => Json.deepMergeAll([
               codecA.encode(a),
               codecB.encode(b),
               codecC.encode(c),
@@ -408,8 +401,8 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecL.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder = Encoder.instance<M>((a) =>
-        tupled(a)((a, b, c, d, e, f, g, h, i, j, k, l) => Json.deepMergeAll([
+    final encoder = Encoder.instance<M>(
+        (a) => tupled(a)((a, b, c, d, e, f, g, h, i, j, k, l) => Json.deepMergeAll([
               codecA.encode(a),
               codecB.encode(b),
               codecC.encode(c),
@@ -460,8 +453,8 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecM.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder = Encoder.instance<N>((a) =>
-        tupled(a)((a, b, c, d, e, f, g, h, i, j, k, l, m) => Json.deepMergeAll([
+    final encoder = Encoder.instance<N>(
+        (a) => tupled(a)((a, b, c, d, e, f, g, h, i, j, k, l, m) => Json.deepMergeAll([
               codecA.encode(a),
               codecB.encode(b),
               codecC.encode(c),
@@ -515,8 +508,8 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecN.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder = Encoder.instance<O>((a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n) => Json.deepMergeAll([
+    final encoder = Encoder.instance<O>(
+        (a) => tupled(a)((a, b, c, d, e, f, g, h, i, j, k, l, m, n) => Json.deepMergeAll([
               codecA.encode(a),
               codecB.encode(b),
               codecC.encode(c),
@@ -573,8 +566,8 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecO.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder = Encoder.instance<P>((a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) => Json.deepMergeAll([
+    final encoder = Encoder.instance<P>(
+        (a) => tupled(a)((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) => Json.deepMergeAll([
               codecA.encode(a),
               codecB.encode(b),
               codecC.encode(c),
@@ -634,8 +627,8 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecP.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder = Encoder.instance<Q>((a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) => Json.deepMergeAll([
+    final encoder = Encoder.instance<Q>(
+        (a) => tupled(a)((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) => Json.deepMergeAll([
               codecA.encode(a),
               codecB.encode(b),
               codecC.encode(c),
@@ -657,8 +650,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
-  static Codec<R>
-      product17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>(
+  static Codec<R> product17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
     KeyValueCodec<C> codecC,
@@ -699,9 +691,8 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecQ.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder = Encoder.instance<R>((a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q) =>
-            Json.deepMergeAll([
+    final encoder = Encoder.instance<R>(
+        (a) => tupled(a)((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q) => Json.deepMergeAll([
               codecA.encode(a),
               codecB.encode(b),
               codecC.encode(c),
@@ -724,8 +715,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
-  static Codec<S>
-      product18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>(
+  static Codec<S> product18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
     KeyValueCodec<C> codecC,
@@ -768,9 +758,8 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecR.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder = Encoder.instance<S>((a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r) =>
-            Json.deepMergeAll([
+    final encoder = Encoder.instance<S>((a) =>
+        tupled(a)((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r) => Json.deepMergeAll([
               codecA.encode(a),
               codecB.encode(b),
               codecC.encode(c),
@@ -794,8 +783,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
-  static Codec<T>
-      product19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>(
+  static Codec<T> product19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
     KeyValueCodec<C> codecC,
@@ -815,10 +803,8 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<Q> codecQ,
     KeyValueCodec<R> codecR,
     KeyValueCodec<S> codecS,
-    Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
-        apply,
-    Function1<T, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)>
-        tupled,
+    Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> apply,
+    Function1<T, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)> tupled,
   ) {
     final decoder = Decoder.instance((cursor) => (
           codecA.decodeC(cursor),
@@ -842,9 +828,8 @@ final class KeyValueCodec<A> extends Codec<A> {
           codecS.decodeC(cursor),
         ).mapN(apply));
 
-    final encoder = Encoder.instance<T>((a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s) =>
-            Json.deepMergeAll([
+    final encoder = Encoder.instance<T>((a) =>
+        tupled(a)((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s) => Json.deepMergeAll([
               codecA.encode(a),
               codecB.encode(b),
               codecC.encode(c),
@@ -869,8 +854,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
-  static Codec<U>
-      product20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>(
+  static Codec<U> product20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
     KeyValueCodec<C> codecC,
@@ -891,10 +875,8 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<R> codecR,
     KeyValueCodec<S> codecS,
     KeyValueCodec<T> codecT,
-    Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>
-        apply,
-    Function1<U, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)>
-        tupled,
+    Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> apply,
+    Function1<U, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)> tupled,
   ) {
     final decoder = Decoder.instance((cursor) => (
           codecA.decodeC(cursor),
@@ -920,8 +902,7 @@ final class KeyValueCodec<A> extends Codec<A> {
         ).mapN(apply));
 
     final encoder = Encoder.instance<U>((a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t) =>
-            Json.deepMergeAll([
+        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t) => Json.deepMergeAll([
               codecA.encode(a),
               codecB.encode(b),
               codecC.encode(c),
@@ -947,8 +928,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
-  static Codec<V> product21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q,
-      R, S, T, U, V>(
+  static Codec<V> product21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
     KeyValueCodec<C> codecC,
@@ -970,11 +950,8 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<S> codecS,
     KeyValueCodec<T> codecT,
     KeyValueCodec<U> codecU,
-    Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>
-        apply,
-    Function1<V,
-            (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
-        tupled,
+    Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> apply,
+    Function1<V, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)> tupled,
   ) {
     final decoder = Decoder.instance((cursor) => (
           codecA.decodeC(cursor),
@@ -1001,8 +978,7 @@ final class KeyValueCodec<A> extends Codec<A> {
         ).mapN(apply));
 
     final encoder = Encoder.instance<V>((a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u) =>
-            Json.deepMergeAll([
+        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u) => Json.deepMergeAll([
               codecA.encode(a),
               codecB.encode(b),
               codecC.encode(c),
@@ -1029,8 +1005,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
-  static Codec<W> product22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q,
-      R, S, T, U, V, W>(
+  static Codec<W> product22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
     KeyValueCodec<C> codecC,
@@ -1053,12 +1028,8 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<T> codecT,
     KeyValueCodec<U> codecU,
     KeyValueCodec<V> codecV,
-    Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V,
-            W>
-        apply,
-    Function1<W,
-            (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
-        tupled,
+    Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W> apply,
+    Function1<W, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)> tupled,
   ) {
     final decoder = Decoder.instance((cursor) => (
           codecA.decodeC(cursor),
@@ -1086,8 +1057,7 @@ final class KeyValueCodec<A> extends Codec<A> {
         ).mapN(apply));
 
     final encoder = Encoder.instance<W>((a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v) =>
-            Json.deepMergeAll([
+        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v) => Json.deepMergeAll([
               codecA.encode(a),
               codecB.encode(b),
               codecC.encode(c),
@@ -1138,8 +1108,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<C> codecC,
     KeyValueCodec<D> codecD,
   ) =>
-      product4(codecA, codecB, codecC, codecD, (a, b, c, d) => (a, b, c, d),
-          identity);
+      product4(codecA, codecB, codecC, codecD, (a, b, c, d) => (a, b, c, d), identity);
 
   static Codec<(A, B, C, D, E)> tuple5<A, B, C, D, E>(
     KeyValueCodec<A> codecA,
@@ -1148,8 +1117,8 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<D> codecD,
     KeyValueCodec<E> codecE,
   ) =>
-      product5(codecA, codecB, codecC, codecD, codecE,
-          (a, b, c, d, e) => (a, b, c, d, e), identity);
+      product5(
+          codecA, codecB, codecC, codecD, codecE, (a, b, c, d, e) => (a, b, c, d, e), identity);
 
   static Codec<(A, B, C, D, E, F)> tuple6<A, B, C, D, E, F>(
     KeyValueCodec<A> codecA,
@@ -1198,21 +1167,10 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<H> codecH,
     KeyValueCodec<I> codecI,
   ) =>
-      product9(
-          codecA,
-          codecB,
-          codecC,
-          codecD,
-          codecE,
-          codecF,
-          codecG,
-          codecH,
-          codecI,
-          (a, b, c, d, e, f, g, h, i) => (a, b, c, d, e, f, g, h, i),
-          identity);
+      product9(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, codecI,
+          (a, b, c, d, e, f, g, h, i) => (a, b, c, d, e, f, g, h, i), identity);
 
-  static Codec<(A, B, C, D, E, F, G, H, I, J)>
-      tuple10<A, B, C, D, E, F, G, H, I, J>(
+  static Codec<(A, B, C, D, E, F, G, H, I, J)> tuple10<A, B, C, D, E, F, G, H, I, J>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
     KeyValueCodec<C> codecC,
@@ -1224,22 +1182,10 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<I> codecI,
     KeyValueCodec<J> codecJ,
   ) =>
-          product10(
-              codecA,
-              codecB,
-              codecC,
-              codecD,
-              codecE,
-              codecF,
-              codecG,
-              codecH,
-              codecI,
-              codecJ,
-              (a, b, c, d, e, f, g, h, i, j) => (a, b, c, d, e, f, g, h, i, j),
-              identity);
+      product10(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, codecI, codecJ,
+          (a, b, c, d, e, f, g, h, i, j) => (a, b, c, d, e, f, g, h, i, j), identity);
 
-  static Codec<(A, B, C, D, E, F, G, H, I, J, K)>
-      tuple11<A, B, C, D, E, F, G, H, I, J, K>(
+  static Codec<(A, B, C, D, E, F, G, H, I, J, K)> tuple11<A, B, C, D, E, F, G, H, I, J, K>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
     KeyValueCodec<C> codecC,
@@ -1252,24 +1198,10 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<J> codecJ,
     KeyValueCodec<K> codecK,
   ) =>
-          product11(
-              codecA,
-              codecB,
-              codecC,
-              codecD,
-              codecE,
-              codecF,
-              codecG,
-              codecH,
-              codecI,
-              codecJ,
-              codecK,
-              (a, b, c, d, e, f, g, h, i, j, k) =>
-                  (a, b, c, d, e, f, g, h, i, j, k),
-              identity);
+      product11(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, codecI, codecJ,
+          codecK, (a, b, c, d, e, f, g, h, i, j, k) => (a, b, c, d, e, f, g, h, i, j, k), identity);
 
-  static Codec<(A, B, C, D, E, F, G, H, I, J, K, L)>
-      tuple12<A, B, C, D, E, F, G, H, I, J, K, L>(
+  static Codec<(A, B, C, D, E, F, G, H, I, J, K, L)> tuple12<A, B, C, D, E, F, G, H, I, J, K, L>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
     KeyValueCodec<C> codecC,
@@ -1283,22 +1215,21 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<K> codecK,
     KeyValueCodec<L> codecL,
   ) =>
-          product12(
-              codecA,
-              codecB,
-              codecC,
-              codecD,
-              codecE,
-              codecF,
-              codecG,
-              codecH,
-              codecI,
-              codecJ,
-              codecK,
-              codecL,
-              (a, b, c, d, e, f, g, h, i, j, k, l) =>
-                  (a, b, c, d, e, f, g, h, i, j, k, l),
-              identity);
+      product12(
+          codecA,
+          codecB,
+          codecC,
+          codecD,
+          codecE,
+          codecF,
+          codecG,
+          codecH,
+          codecI,
+          codecJ,
+          codecK,
+          codecL,
+          (a, b, c, d, e, f, g, h, i, j, k, l) => (a, b, c, d, e, f, g, h, i, j, k, l),
+          identity);
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M)>
       tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>(
@@ -1330,8 +1261,7 @@ final class KeyValueCodec<A> extends Codec<A> {
               codecK,
               codecL,
               codecM,
-              (a, b, c, d, e, f, g, h, i, j, k, l, m) =>
-                  (a, b, c, d, e, f, g, h, i, j, k, l, m),
+              (a, b, c, d, e, f, g, h, i, j, k, l, m) => (a, b, c, d, e, f, g, h, i, j, k, l, m),
               identity);
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M, N)>
@@ -1675,33 +1605,10 @@ final class KeyValueCodec<A> extends Codec<A> {
               codecT,
               codecU,
               (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u) =>
-                  (
-                    a,
-                    b,
-                    c,
-                    d,
-                    e,
-                    f,
-                    g,
-                    h,
-                    i,
-                    j,
-                    k,
-                    l,
-                    m,
-                    n,
-                    o,
-                    p,
-                    q,
-                    r,
-                    s,
-                    t,
-                    u
-                  ),
+                  (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u),
               identity);
 
-  static Codec<
-          (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
+  static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
       tuple22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -1749,31 +1656,7 @@ final class KeyValueCodec<A> extends Codec<A> {
               codecT,
               codecU,
               codecV,
-              (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u,
-                      v) =>
-                  (
-                    a,
-                    b,
-                    c,
-                    d,
-                    e,
-                    f,
-                    g,
-                    h,
-                    i,
-                    j,
-                    k,
-                    l,
-                    m,
-                    n,
-                    o,
-                    p,
-                    q,
-                    r,
-                    s,
-                    t,
-                    u,
-                    v
-                  ),
+              (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v) =>
+                  (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v),
               identity);
 }

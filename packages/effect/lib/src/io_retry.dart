@@ -60,8 +60,7 @@ sealed class RetryDecision {
   factory RetryDecision.giveUp() => _GiveUp();
 
   /// Create a decision to retry the task after the provided delay.
-  factory RetryDecision.delayAndRetry(Duration delay) =>
-      _DelayAndRetry._(delay);
+  factory RetryDecision.delayAndRetry(Duration delay) => _DelayAndRetry._(delay);
 
   /// Builds [RetryDetails] from the given status.
   RetryDetails _detailsFromStatus(RetryStatus status) {
@@ -73,8 +72,7 @@ sealed class RetryDecision {
     );
   }
 
-  RetryStatus _updateStatus(RetryStatus status) =>
-      isGivingUp ? status : status.retryAfter(delay);
+  RetryStatus _updateStatus(RetryStatus status) => isGivingUp ? status : status.retryAfter(delay);
 }
 
 final class _GiveUp extends RetryDecision {
@@ -114,8 +112,7 @@ final class _DelayAndRetry extends RetryDecision {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is _DelayAndRetry && other.delay == delay);
+      identical(this, other) || (other is _DelayAndRetry && other.delay == delay);
 
   @override
   int get hashCode => delay.hashCode;
@@ -130,18 +127,17 @@ class RetryPolicy {
   RetryPolicy(this.decideOn);
 
   /// Creates a new policy that will alway decide to give up.
-  factory RetryPolicy.alwaysGiveUp() =>
-      RetryPolicy((_) => RetryDecision.giveUp());
+  factory RetryPolicy.alwaysGiveUp() => RetryPolicy((_) => RetryDecision.giveUp());
 
   /// Creates a new policy that will decide to retry an operation until
   /// [maxRetries] attempts have already been made, then deciding to give up.
   factory RetryPolicy.limitRetries(int maxRetries) => RetryPolicy((status) {
-        if (status.retriesSoFar >= maxRetries) {
-          return RetryDecision.giveUp();
-        } else {
-          return RetryDecision.delayAndRetry(Duration.zero);
-        }
-      });
+    if (status.retriesSoFar >= maxRetries) {
+      return RetryDecision.giveUp();
+    } else {
+      return RetryDecision.delayAndRetry(Duration.zero);
+    }
+  });
 
   /// Creates a new policy that will always decide to retry an operation after
   /// waiting for the given [Duration].
@@ -151,18 +147,19 @@ class RetryPolicy {
   /// Creates a new policy that will always decide to retry an operation,
   /// while increasing the delay between attempts exponentially, starting with
   /// a delay of [baseDelay].
-  factory RetryPolicy.exponentialBackoff(Duration baseDelay) =>
-      RetryPolicy((status) => RetryDecision.delayAndRetry(
-          _safeMultiply(baseDelay, BigInt.from(2).pow(status.retriesSoFar))));
+  factory RetryPolicy.exponentialBackoff(Duration baseDelay) => RetryPolicy(
+    (status) => RetryDecision.delayAndRetry(
+      _safeMultiply(baseDelay, BigInt.from(2).pow(status.retriesSoFar)),
+    ),
+  );
 
   /// Creates a new policy that will always decide to retry an operation using
   /// the [algorithm described here](https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/)
   /// to determine the delay between each retry.
   factory RetryPolicy.fullJitter(Duration baseDelay) => RetryPolicy((status) {
-        final maxDelay =
-            _safeMultiply(baseDelay, BigInt.from(2).pow(status.retriesSoFar));
-        return RetryDecision.delayAndRetry(maxDelay * Random().nextDouble());
-      });
+    final maxDelay = _safeMultiply(baseDelay, BigInt.from(2).pow(status.retriesSoFar));
+    return RetryDecision.delayAndRetry(maxDelay * Random().nextDouble());
+  });
 
   static Duration _safeMultiply(Duration duration, BigInt factor) {
     final micros = BigInt.from(duration.inMicroseconds) * factor;
@@ -173,93 +170,93 @@ class RetryPolicy {
   }
 
   /// Limit the delay between any 2 retry attempts to [maxDelay].
-  RetryPolicy capDelay(Duration maxDelay) =>
-      mapDelay((d) => d > maxDelay ? maxDelay : d);
+  RetryPolicy capDelay(Duration maxDelay) => mapDelay((d) => d > maxDelay ? maxDelay : d);
 
   /// Limits the amount of delay between any 2 retry attempts to [previousDelay]
   /// before deciding to give up.
-  RetryPolicy giveUpAfterDelay(Duration previousDelay) =>
-      RetryPolicy((status) =>
-          status.previousDelay.getOrElse(() => Duration.zero) >= previousDelay
-              ? RetryDecision.giveUp()
-              : decideOn(status));
+  RetryPolicy giveUpAfterDelay(Duration previousDelay) => RetryPolicy(
+    (status) =>
+        status.previousDelay.getOrElse(() => Duration.zero) >= previousDelay
+            ? RetryDecision.giveUp()
+            : decideOn(status),
+  );
 
   /// Limits the total amount of delay during retry(s) that this policy will
   /// allow before deciding to give up.
-  RetryPolicy giveUpAfterCumulativeDelay(Duration cumulativeDelay) =>
-      RetryPolicy((status) => status.cumulativeDelay >= cumulativeDelay
-          ? RetryDecision.giveUp()
-          : decideOn(status));
+  RetryPolicy giveUpAfterCumulativeDelay(Duration cumulativeDelay) => RetryPolicy(
+    (status) =>
+        status.cumulativeDelay >= cumulativeDelay ? RetryDecision.giveUp() : decideOn(status),
+  );
 
   /// Combine this policy with another policy, giving up if this policy wants
   /// to, and if not, following the decision of the other policy.
   RetryPolicy followedBy(RetryPolicy policy) => RetryPolicy((status) {
-        final thisDecision = decideOn(status);
+    final thisDecision = decideOn(status);
 
-        return thisDecision.isGivingUp ? thisDecision : policy.decideOn(status);
-      });
+    return thisDecision.isGivingUp ? thisDecision : policy.decideOn(status);
+  });
 
   /// Combine this policy with another policy, giving up when either of the
   /// policies want to give up and choosing the maximum of the two delays when
   /// both of the schedules want to delay the next retry. The opposite of the
   /// `meet` operation.
   RetryPolicy join(RetryPolicy policy) => RetryPolicy((status) {
-        final thisDecision = decideOn(status);
-        final thatDecision = policy.decideOn(status);
+    final thisDecision = decideOn(status);
+    final thatDecision = policy.decideOn(status);
 
-        if (thisDecision.isGivingUp || thatDecision.isGivingUp) {
-          return RetryDecision.giveUp();
-        } else {
-          return RetryDecision.delayAndRetry(
-            Duration(
-              microseconds: max(
-                thisDecision.delay.inMicroseconds,
-                thatDecision.delay.inMicroseconds,
-              ),
-            ),
-          );
-        }
-      });
+    if (thisDecision.isGivingUp || thatDecision.isGivingUp) {
+      return RetryDecision.giveUp();
+    } else {
+      return RetryDecision.delayAndRetry(
+        Duration(
+          microseconds: max(
+            thisDecision.delay.inMicroseconds,
+            thatDecision.delay.inMicroseconds,
+          ),
+        ),
+      );
+    }
+  });
 
   /// Combine this policy with another policy, giving up when both of the
   /// policies want to give up and choosing the minimum of the two delays when
   /// both of the schedules want to delay the next retry. The opposite of the
   /// `join` operation.
   RetryPolicy meet(RetryPolicy policy) => RetryPolicy((status) {
-        final thisDecision = decideOn(status);
-        final thatDecision = policy.decideOn(status);
+    final thisDecision = decideOn(status);
+    final thatDecision = policy.decideOn(status);
 
-        if (!thisDecision.isGivingUp && !thatDecision.isGivingUp) {
-          return RetryDecision.delayAndRetry(
-            Duration(
-              microseconds: min(
-                thisDecision.delay.inMicroseconds,
-                thatDecision.delay.inMicroseconds,
-              ),
-            ),
-          );
-        } else if (thisDecision.isGivingUp) {
-          return thatDecision;
-        } else if (thatDecision.isGivingUp) {
-          return thisDecision;
-        } else {
-          return RetryDecision.giveUp();
-        }
-      });
+    if (!thisDecision.isGivingUp && !thatDecision.isGivingUp) {
+      return RetryDecision.delayAndRetry(
+        Duration(
+          microseconds: min(
+            thisDecision.delay.inMicroseconds,
+            thatDecision.delay.inMicroseconds,
+          ),
+        ),
+      );
+    } else if (thisDecision.isGivingUp) {
+      return thatDecision;
+    } else if (thatDecision.isGivingUp) {
+      return thisDecision;
+    } else {
+      return RetryDecision.giveUp();
+    }
+  });
 
   /// Applies [f] to the delay of any decision to eventually retry an
   /// operation.
   RetryPolicy mapDelay(Function1<Duration, Duration> f) => RetryPolicy(
-        (status) {
-          final decision = decideOn(status);
+    (status) {
+      final decision = decideOn(status);
 
-          if (decision.isGivingUp) {
-            return RetryDecision.giveUp();
-          } else {
-            return RetryDecision.delayAndRetry(f(decision.delay));
-          }
-        },
-      );
+      if (decision.isGivingUp) {
+        return RetryDecision.giveUp();
+      } else {
+        return RetryDecision.delayAndRetry(f(decision.delay));
+      }
+    },
+  );
 }
 
 /// Current and cumulative retry information provided in the event of a failure.
@@ -284,7 +281,8 @@ final class RetryDetails {
   );
 
   @override
-  String toString() => 'RetryDetails('
+  String toString() =>
+      'RetryDetails('
       'retriesSoFar = $retriesSoFar, '
       'cumulativeDelay = $cumulativeDelay, '
       'givingUp = $givingUp, '
@@ -314,16 +312,15 @@ extension RetryOps<A> on IO<A> {
     Function1<RuntimeException, bool>? isWorthRetrying,
     Function2<RuntimeException, RetryDetails, IO<Unit>>? onError,
     Function2<A, RetryDetails, IO<Unit>>? onFailure,
-  }) =>
-      _retryingImpl(
-        policy,
-        wasSuccessful ?? (_) => true,
-        isWorthRetrying ?? (_) => true,
-        onError ?? (_, __) => IO.unit,
-        onFailure ?? (_, __) => IO.unit,
-        RetryStatus.initial(),
-        this,
-      );
+  }) => _retryingImpl(
+    policy,
+    wasSuccessful ?? (_) => true,
+    isWorthRetrying ?? (_) => true,
+    onError ?? (_, _) => IO.unit,
+    onFailure ?? (_, _) => IO.unit,
+    RetryStatus.initial(),
+    this,
+  );
 
   IO<A> _retryingImpl(
     RetryPolicy policy,
@@ -336,14 +333,32 @@ extension RetryOps<A> on IO<A> {
   ) {
     return action.attempt().flatMap((result) {
       return result.fold(
-        (err) => isWorthRetrying(err)
-            ? _onFailureOrError(policy, wasSuccessful, isWorthRetrying, onError,
-                onFailure, status, action, (details) => onError(err, details))
-            : IO.raiseError(RuntimeException(err.toString())),
-        (a) => wasSuccessful(a)
-            ? IO.pure(a)
-            : _onFailureOrError(policy, wasSuccessful, isWorthRetrying, onError,
-                onFailure, status, action, (details) => onFailure(a, details)),
+        (err) =>
+            isWorthRetrying(err)
+                ? _onFailureOrError(
+                  policy,
+                  wasSuccessful,
+                  isWorthRetrying,
+                  onError,
+                  onFailure,
+                  status,
+                  action,
+                  (details) => onError(err, details),
+                )
+                : IO.raiseError(RuntimeException(err.toString())),
+        (a) =>
+            wasSuccessful(a)
+                ? IO.pure(a)
+                : _onFailureOrError(
+                  policy,
+                  wasSuccessful,
+                  isWorthRetrying,
+                  onError,
+                  onFailure,
+                  status,
+                  action,
+                  (details) => onFailure(a, details),
+                ),
       );
     });
   }
@@ -362,12 +377,23 @@ extension RetryOps<A> on IO<A> {
     final newStatus = decision._updateStatus(status);
     final details = decision._detailsFromStatus(newStatus);
 
-    return IO.pure(decision.isGivingUp).ifM(
+    return IO
+        .pure(decision.isGivingUp)
+        .ifM(
           () => IO.raiseError(RuntimeException('Retry giving up.')),
           () => beforeRecurse(details)
               .productR(() => IO.sleep(decision.delay))
-              .productR(() => _retryingImpl(policy, wasSuccessful,
-                  isWorthRetrying, onError, onFailure, newStatus, action)),
+              .productR(
+                () => _retryingImpl(
+                  policy,
+                  wasSuccessful,
+                  isWorthRetrying,
+                  onError,
+                  onFailure,
+                  newStatus,
+                  action,
+                ),
+              ),
         );
   }
 }

@@ -20,8 +20,7 @@ sealed class ByteVector {
 
   factory ByteVector.high(int size) => ByteVector.fill(size, 0xff);
 
-  factory ByteVector.fill(int size, int byte) =>
-      _Chunk(_View(At((i) => byte), 0, size));
+  factory ByteVector.fill(int size, int byte) => _Chunk(_View(At((i) => byte), 0, size));
 
   factory ByteVector.from(RIterableOnce<int> bs) => ByteVector(bs.toList());
 
@@ -36,15 +35,13 @@ sealed class ByteVector {
   factory ByteVector.concatAll(IList<ByteVector> bvs) =>
       bvs.foldLeft(ByteVector.empty, (acc, bv) => acc.concat(bv));
 
-  static Option<ByteVector> fromBin(String s) =>
-      fromBinDescriptive(s).toOption();
+  static Option<ByteVector> fromBin(String s) => fromBinDescriptive(s).toOption();
 
   static ByteVector fromValidBin(
     String s, [
     BinaryAlphabet alphabet = Alphabets.binary,
   ]) =>
-      fromBinDescriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), identity);
+      fromBinDescriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromBinDescriptive(
     String str, [
@@ -62,8 +59,7 @@ sealed class ByteVector {
     String s, [
     HexAlphabet alphabet = Alphabets.hexLower,
   ]) =>
-      fromHexDescriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), identity);
+      fromHexDescriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromHexDescriptive(
     String str, [
@@ -81,8 +77,7 @@ sealed class ByteVector {
     String s, [
     Base32Alphabet alphabet = Alphabets.base32,
   ]) =>
-      fromBase32Descriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), identity);
+      fromBase32Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromBase32Descriptive(
     String str, [
@@ -100,8 +95,7 @@ sealed class ByteVector {
     String s, [
     Base58Alphabet alphabet = Alphabets.base58,
   ]) =>
-      fromBase58Descriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), identity);
+      fromBase58Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromBase58Descriptive(
     String str, [
@@ -127,8 +121,7 @@ sealed class ByteVector {
         return zeroes.asRight();
       } else {
         return zeroes
-            .concat(ByteVector.fromValidBin(
-                decoded.toRadixString(2).dropWhile((c) => c == '0')))
+            .concat(ByteVector.fromValidBin(decoded.toRadixString(2).dropWhile((c) => c == '0')))
             .asRight();
       }
     } catch (e) {
@@ -146,8 +139,7 @@ sealed class ByteVector {
     String s, [
     Base64Alphabet alphabet = Alphabets.base64,
   ]) =>
-      fromBase64Descriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), identity);
+      fromBase64Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, ByteVector> fromBase64Descriptive(
     String str, [
@@ -167,9 +159,7 @@ sealed class ByteVector {
     Option<int> size = const None<int>(),
     Endian ordering = Endian.big,
   }) =>
-      BitVector.fromBigInt(value,
-              size: size.map((s) => s * 8), ordering: ordering)
-          .bytes;
+      BitVector.fromBigInt(value, size: size.map((s) => s * 8), ordering: ordering).bytes;
 
   ByteVector operator &(ByteVector other) => and(other);
 
@@ -195,8 +185,7 @@ sealed class ByteVector {
     int n,
     Function1<ByteVector, Either<String, A>> decode,
   ) =>
-      acquire(n).flatMap(
-          (toDecode) => decode(toDecode).map((decoded) => (drop(n), decoded)));
+      acquire(n).flatMap((toDecode) => decode(toDecode).map((decoded) => (drop(n), decoded)));
 
   A foldLeft<A>(A z, Function2<A, int, A> f) {
     var acc = z;
@@ -204,8 +193,7 @@ sealed class ByteVector {
     return acc;
   }
 
-  A foldRight<A>(A init, Function2<int, A, A> f) =>
-      reverse.foldLeft(init, (a, b) => f(b, a));
+  A foldRight<A>(A init, Function2<int, A, A> f) => reverse.foldLeft(init, (a, b) => f(b, a));
 
   int get size;
 
@@ -223,11 +211,9 @@ sealed class ByteVector {
 
   ByteVector prepend(int byte) => ByteVector([byte]).concat(this);
 
-  ByteVector patch(int ix, ByteVector b) =>
-      take(ix).concat(b).concat(drop(ix + b.size));
+  ByteVector patch(int ix, ByteVector b) => take(ix).concat(b).concat(drop(ix + b.size));
 
-  ByteVector splice(int ix, ByteVector b) =>
-      take(ix).concat(b).concat(drop(ix));
+  ByteVector splice(int ix, ByteVector b) => take(ix).concat(b).concat(drop(ix));
 
   ByteVector update(int idx, int b) {
     _checkIndex(idx);
@@ -236,8 +222,7 @@ sealed class ByteVector {
 
   ByteVector insert(int idx, int b) => take(idx).append(b).concat(drop(idx));
 
-  Option<int> lift(int ix) =>
-      Option.when(() => 0 <= ix && ix < size, () => get(ix));
+  Option<int> lift(int ix) => Option.when(() => 0 <= ix && ix < size, () => get(ix));
 
   int get head => get(0);
 
@@ -265,12 +250,9 @@ sealed class ByteVector {
       ByteVector go(ByteVector cur, int n1, IList<ByteVector> accR) {
         switch (cur) {
           case _Chunk(bytes: final bs):
-            return accR.foldLeft(
-                _Chunk(bs.drop(n1)), (a, b) => a.concat(b).unbuffer());
+            return accR.foldLeft(_Chunk(bs.drop(n1)), (a, b) => a.concat(b).unbuffer());
           case _Append(left: final l, right: final r):
-            return n1 > l.size
-                ? go(r, n1 - l.size, accR)
-                : go(l, n1, accR.prepended(r));
+            return n1 > l.size ? go(r, n1 - l.size, accR) : go(l, n1, accR.prepended(r));
           case final _Buffer b:
             return n1 > b.hd.size
                 ? go(b.lastBytes, n1 - b.hd.size, accR)
@@ -342,8 +324,7 @@ sealed class ByteVector {
 
   (ByteVector, ByteVector) splitAt(int ix) => (take(ix), drop(ix));
 
-  ByteVector slice(int from, int until) =>
-      drop(from).take(until - max(0, from));
+  ByteVector slice(int from, int until) => drop(from).take(until - max(0, from));
 
   RIterator<ByteVector> sliding(int n, [int step = 1]) {
     assert(n > 0 && step > 0, "both n and step must be positive");
@@ -351,8 +332,7 @@ sealed class ByteVector {
     RIterator<int> limit(RIterator<int> itr) =>
         step < n ? itr.take((size - n) + 1) : itr.takeWhile((i) => i < size);
 
-    return limit(RIterator.iterate(0, (x) => x + step))
-        .map((idx) => slice(idx, idx + n));
+    return limit(RIterator.iterate(0, (x) => x + step)).map((idx) => slice(idx, idx + n));
   }
 
   ByteVector concat(ByteVector other) {
@@ -381,8 +361,7 @@ sealed class ByteVector {
     return _Chunk(_View(At.array(arr), 0, sz));
   }
 
-  ByteVector get reverse =>
-      ByteVector._viewAt(At((i) => get(size - i - 1)), size);
+  ByteVector get reverse => ByteVector._viewAt(At((i) => get(size - i - 1)), size);
 
   ByteVector get not => _mapS((b) => ~b);
 
@@ -394,15 +373,13 @@ sealed class ByteVector {
 
   ByteVector shiftLeft(int n) => bits.shiftLeft(n).bytes;
 
-  ByteVector shiftRight(int n, bool signExtension) =>
-      bits.shiftRight(n, signExtension).bytes;
+  ByteVector shiftRight(int n, bool signExtension) => bits.shiftRight(n, signExtension).bytes;
 
   ByteVector rotateLeft(int n) => bits.rotateLeft(n).bytes;
 
   ByteVector rotateRight(int n) => bits.rotateRight(n).bytes;
 
-  ByteVector map(Function1<int, int> f) =>
-      ByteVector._viewAt(At((i) => f(get(i))), size);
+  ByteVector map(Function1<int, int> f) => ByteVector._viewAt(At((i) => f(get(i))), size);
 
   bool startsWith(ByteVector b) => take(b.size) == b;
 
@@ -432,8 +409,7 @@ sealed class ByteVector {
     } else if (size <= chunkSize) {
       return RIterator.single(this);
     } else {
-      return RIterator.single(take(chunkSize))
-          .concat(drop(chunkSize).grouped(chunkSize));
+      return RIterator.single(take(chunkSize)).concat(drop(chunkSize).grouped(chunkSize));
     }
   }
 
@@ -455,8 +431,7 @@ sealed class ByteVector {
 
   ByteVector padTo(int n) => padRight(n);
 
-  ByteVector zipWith(ByteVector other, Function2<int, int, int> f) =>
-      _zipWithS(other, f);
+  ByteVector zipWith(ByteVector other, Function2<int, int, int> f) => _zipWithS(other, f);
 
   ByteVector bufferBy([int chunkSize = 1024]) {
     switch (this) {
@@ -520,8 +495,7 @@ sealed class ByteVector {
 
   void printHexDump() => HexDumpFormat.Default.printBytes(this);
 
-  String toBase16([HexAlphabet alphabet = Alphabets.hexLower]) =>
-      toHex(alphabet);
+  String toBase16([HexAlphabet alphabet = Alphabets.hexLower]) => toHex(alphabet);
 
   void copyToArray(Uint8List xs, int start) {
     var i = start;
@@ -547,8 +521,7 @@ sealed class ByteVector {
 
     if (alphabet.pad != '0') {
       final padLen =
-          (((bytes.length + bitsPerChar - 1) ~/ bitsPerChar * bitsPerChar) -
-                  bytes.length) *
+          (((bytes.length + bitsPerChar - 1) ~/ bitsPerChar * bitsPerChar) - bytes.length) *
               8 ~/
               bitsPerChar;
 
@@ -595,9 +568,8 @@ sealed class ByteVector {
     final mod = bytes.length % 3;
 
     while (idx < bytes.length - mod) {
-      var buffer = ((bytes[idx] & 0x0ff) << 16) |
-          ((bytes[idx + 1] & 0x0ff) << 8) |
-          (bytes[idx + 2] & 0x0ff);
+      var buffer =
+          ((bytes[idx] & 0x0ff) << 16) | ((bytes[idx + 1] & 0x0ff) << 8) | (bytes[idx + 2] & 0x0ff);
 
       final fourth = buffer & 0x3f;
       buffer = buffer >> 6;
@@ -635,8 +607,7 @@ sealed class ByteVector {
           ..write(alphabet.pad);
       }
     } else if (mod == 2) {
-      var buffer =
-          ((bytes[idx] & 0x0ff) << 10) | ((bytes[idx + 1] & 0x0ff) << 2);
+      var buffer = ((bytes[idx] & 0x0ff) << 10) | ((bytes[idx + 1] & 0x0ff) << 2);
       final third = buffer & 0x3f;
       buffer = buffer >> 6;
       final second = buffer & 0x3f;
@@ -729,8 +700,7 @@ sealed class ByteVector {
     }
   }
 
-  ByteVector _mapS(Function1<int, int> f) =>
-      ByteVector._viewAt(At((i) => f(get(i))), size);
+  ByteVector _mapS(Function1<int, int> f) => ByteVector._viewAt(At((i) => f(get(i))), size);
 
   ByteVector _zipWithS(ByteVector other, Function2<int, int, int> f) {
     return _Chunk(_View(
@@ -742,8 +712,7 @@ sealed class ByteVector {
 
   void _foreachS(Function1<int, void> f) => _foreachV((v) => v.foreach(f));
 
-  void _foreachSPartial(Function1<int, bool> f) =>
-      _foreachVPartial((v) => v.foreachPartial(f));
+  void _foreachSPartial(Function1<int, bool> f) => _foreachVPartial((v) => v.foreachPartial(f));
 
   void _foreachV(Function1<_View, void> f) {
     void go(IList<ByteVector> rem) {
@@ -880,8 +849,7 @@ final class _Buffer extends ByteVector {
   int get size => hd.size + lastSize;
 
   @override
-  ByteVector take(int n) =>
-      n <= hd.size ? hd.take(n) : hd.concat(lastBytes.take(n - hd.size));
+  ByteVector take(int n) => n <= hd.size ? hd.take(n) : hd.concat(lastBytes.take(n - hd.size));
 
   @override
   ByteVector drop(int n) => n <= hd.size
@@ -911,8 +879,7 @@ final class _Buffer extends ByteVector {
       } else if (lastSize == 0) {
         return _Buffer(hd.concat(other).unbuffer(), lastChunk, lastSize);
       } else {
-        return _Buffer(unbuffer(), Uint8List(lastChunk.length), 0)
-            .concat(other);
+        return _Buffer(unbuffer(), Uint8List(lastChunk.length), 0).concat(other);
       }
     }
   }
@@ -954,8 +921,7 @@ int _bitsAtOffset(Uint8List bytes, int bitIndex, int length) {
     if (off + length <= 8 || i + 1 >= bytes.length) {
       full = half;
     } else {
-      full =
-          half | ((bytes[i + 1] & ((mask << (8 - off)) & 0xff)) >>> (8 - off));
+      full = half | ((bytes[i + 1] & ((mask << (8 - off)) & 0xff)) >>> (8 - off));
     }
 
     return full >>> (8 - length);

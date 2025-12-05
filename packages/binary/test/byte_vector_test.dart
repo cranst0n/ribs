@@ -104,9 +104,7 @@ void main() {
           ''',
           CustomBinAlphabet(),
         ),
-        BitVector.fromValidBin('001100111100110011110000')
-            .bytes
-            .asRight<String>(),
+        BitVector.fromValidBin('001100111100110011110000').bytes.asRight<String>(),
       );
     });
 
@@ -346,10 +344,7 @@ void main() {
 
       expect(dartBytes.length, ribsBytes.length);
 
-      dartBytes
-          .toIList()
-          .zip(ribsBytes.toIList())
-          .foreach((t) => expect(t.$1, t.$2));
+      dartBytes.toIList().zip(ribsBytes.toIList()).foreach((t) => expect(t.$1, t.$2));
 
       final dartString = dartCodec.encode(dartBytes);
       final ribsString = bv.toBase64Url();
@@ -375,14 +370,6 @@ void main() {
     });
 
     forAll('base58 roundtrip', byteVector, (bv) {
-      final to58 =
-          ByteVector.fromBase58(bv.toBase58()).getOrElse(() => throw '');
-
-      if (to58 != bv) {
-        print('original:  ${bv.toHex()}');
-        print('roundtrip: ${to58.toHex()}');
-      }
-
       expect(ByteVector.fromBase58(bv.toBase58()), isSome(bv));
     });
 
@@ -397,8 +384,7 @@ void main() {
     test('fromBase64 - digit count non-divisble by 4', () {
       expect(
         ByteVector.fromBase64Descriptive("A"),
-        'Final base 64 quantum had only 1 digit - must have at least 2 digits'
-            .asLeft<ByteVector>(),
+        'Final base 64 quantum had only 1 digit - must have at least 2 digits'.asLeft<ByteVector>(),
       );
 
       expect(
@@ -418,8 +404,7 @@ void main() {
 
       expect(
         ByteVector.fromBase64Descriptive("ABCDA"),
-        "Final base 64 quantum had only 1 digit - must have at least 2 digits"
-            .asLeft<ByteVector>(),
+        "Final base 64 quantum had only 1 digit - must have at least 2 digits".asLeft<ByteVector>(),
       );
 
       expect(
@@ -537,18 +522,14 @@ void main() {
 
     forAll(
       'buffer append',
-      (
-        byteVector,
-        Gen.ilistOf(Gen.chooseInt(0, 10), byteVector),
-        Gen.nonNegativeInt
-      ).tupled,
+      (byteVector, Gen.ilistOf(Gen.chooseInt(0, 10), byteVector), Gen.nonNegativeInt).tupled,
       (tuple) {
         final (b, bs, n) = tuple;
 
         final unbuf = bs.foldLeft(b, (a, b) => a.concat(b));
 
-        final buf = bs.foldLeft(b.bufferBy(max(n % 50, 0) + 1),
-            (acc, a) => a.foldLeft(acc, (x, y) => x.append(y)));
+        final buf = bs.foldLeft(
+            b.bufferBy(max(n % 50, 0) + 1), (acc, a) => a.foldLeft(acc, (x, y) => x.append(y)));
 
         expect(unbuf, buf);
       },
@@ -556,17 +537,12 @@ void main() {
 
     forAll(
       'buffer concat/take/drop',
-      (
-        byteVector,
-        Gen.ilistOf(Gen.chooseInt(0, 10), byteVector),
-        Gen.nonNegativeInt
-      ).tupled,
+      (byteVector, Gen.ilistOf(Gen.chooseInt(0, 10), byteVector), Gen.nonNegativeInt).tupled,
       (tuple) {
         final (b, bs, n) = tuple;
 
         final unbuf = bs.foldLeft(b, (a, b) => a.concat(b));
-        final buf =
-            bs.foldLeft(b.bufferBy(max(n % 50, 0) + 1), (a, b) => a.concat(b));
+        final buf = bs.foldLeft(b.bufferBy(max(n % 50, 0) + 1), (a, b) => a.concat(b));
 
         expect(unbuf, buf);
 
@@ -659,10 +635,7 @@ void main() {
         expect(bv.grouped(bv.size).toIList(), ilist([bv]));
       } else {
         expect(
-          bv
-              .grouped(bv.size ~/ 3)
-              .toIList()
-              .foldLeft(ByteVector.empty, (acc, b) => acc.concat(b)),
+          bv.grouped(bv.size ~/ 3).toIList().foldLeft(ByteVector.empty, (acc, b) => acc.concat(b)),
           bv,
         );
       }
@@ -849,8 +822,7 @@ void main() {
       expect(ByteVector.fromInt(n).toInt(), n);
 
       expect(
-        ByteVector.fromInt(n, ordering: Endian.little)
-            .toInt(ordering: Endian.little),
+        ByteVector.fromInt(n, ordering: Endian.little).toInt(ordering: Endian.little),
         n,
       );
     });
@@ -896,24 +868,8 @@ final class CustomBinAlphabet extends BinaryAlphabet {
 }
 
 final class CustomHexAlphabet extends LenientHex {
-  static final chars = ilist([
-    '0',
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    'a',
-    'b',
-    'c',
-    'd',
-    'e',
-    'f'
-  ]);
+  static final chars =
+      ilist(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']);
 
   @override
   String toChar(int index) => chars[index];

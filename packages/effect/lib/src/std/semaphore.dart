@@ -28,8 +28,8 @@ abstract class Semaphore {
 
   Resource<Unit> permit();
 
-  Resource<bool> tryPermit() => Resource.make(
-      tryAcquire(), (acquired) => IO.whenA(acquired, () => release()));
+  Resource<bool> tryPermit() =>
+      Resource.make(tryAcquire(), (acquired) => IO.whenA(acquired, () => release()));
 }
 
 final class _Request {
@@ -91,19 +91,12 @@ final class _SemaphoreImpl extends Semaphore {
               // both hold correctly even if the Request gets canceled
               // after having been fulfilled
               final permitsAcquiredSoFar = n -
-                  currentState.waiting
-                      .find((x) => x == req)
-                      .map((req) => req.n)
-                      .getOrElse(() => 0);
+                  currentState.waiting.find((x) => x == req).map((req) => req.n).getOrElse(() => 0);
 
-              final waitingNow =
-                  currentState.waiting.filterNot((x) => x == req);
+              final waitingNow = currentState.waiting.filterNot((x) => x == req);
 
               // releaseN is commutative, the separate Ref access is ok
-              return (
-                _State(currentState.permits, waitingNow),
-                releaseN(permitsAcquiredSoFar)
-              );
+              return (_State(currentState.permits, waitingNow), releaseN(permitsAcquiredSoFar));
             }).flatten();
 
             final action = switch (decision) {
@@ -131,8 +124,7 @@ final class _SemaphoreImpl extends Semaphore {
       });
 
   @override
-  Resource<Unit> permit() =>
-      Resource.makeFull((poll) => poll(acquire()), (_) => release());
+  Resource<Unit> permit() => Resource.makeFull((poll) => poll(acquire()), (_) => release());
 
   @override
   IO<Unit> releaseN(int n) {
@@ -166,18 +158,11 @@ final class _SemaphoreImpl extends Semaphore {
     } else {
       return state.flatModify((currentState) {
         if (currentState.waiting.isEmpty) {
-          return (
-            _State(currentState.permits + n, currentState.waiting),
-            IO.unit
-          );
+          return (_State(currentState.permits + n, currentState.waiting), IO.unit);
         } else {
-          final (newN, waitingNow, wakeup) =
-              fulfil(n, currentState.waiting, IQueue.empty());
+          final (newN, waitingNow, wakeup) = fulfil(n, currentState.waiting, IQueue.empty());
 
-          return (
-            _State(newN, waitingNow),
-            wakeup.toIList().traverseIO_((req) => req.complete())
-          );
+          return (_State(newN, waitingNow), wakeup.toIList().traverseIO_((req) => req.complete()));
         }
       });
     }

@@ -10,6 +10,5 @@ final class DownFieldDecoder<A> extends Decoder<A> {
   DecodeResult<A> decodeC(HCursor cursor) => tryDecodeC(cursor);
 
   @override
-  DecodeResult<A> tryDecodeC(ACursor cursor) =>
-      valueDecoder.tryDecodeC(cursor.downField(key));
+  DecodeResult<A> tryDecodeC(ACursor cursor) => valueDecoder.tryDecodeC(cursor.downField(key));
 }

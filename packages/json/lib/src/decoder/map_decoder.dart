@@ -13,8 +13,7 @@ final class MapDecoder<K, V> extends Decoder<Map<K, V>> {
     if (cursor.value is JObject) {
       return _decodeJsonObject(cursor, (cursor.value as JObject).value);
     } else {
-      return DecodingFailure(
-              WrongTypeExpectation('object', cursor.value), cursor.history())
+      return DecodingFailure(WrongTypeExpectation('object', cursor.value), cursor.history())
           .asLeft();
     }
   }
@@ -27,8 +26,7 @@ final class MapDecoder<K, V> extends Decoder<Map<K, V>> {
 
     while (failure == null && keyIt.moveNext()) {
       final key = keyIt.current;
-      final valueCursor = ObjectCursor(
-          obj, key, cursor, false, cursor, CursorOp.downField(key));
+      final valueCursor = ObjectCursor(obj, key, cursor, false, cursor, CursorOp.downField(key));
 
       failure = decodeK.decode(key).fold(
         () => _invalidKey(key, cursor),

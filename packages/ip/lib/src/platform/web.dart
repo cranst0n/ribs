@@ -13,6 +13,6 @@ final class PlatformImpl extends PlatformBase {
       throw UnimplementedError('DNS lookup not implemented for web platform');
 
   @override
-  IO<Hostname> reverse(IpAddress address) => throw UnimplementedError(
-      'DNS reverse lookup not implemented for web platform');
+  IO<Hostname> reverse(IpAddress address) =>
+      throw UnimplementedError('DNS reverse lookup not implemented for web platform');
 }

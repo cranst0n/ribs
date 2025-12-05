@@ -57,15 +57,13 @@ sealed class Option<A> with RIterableOnce<A> {
   bool get isEmpty => this is None;
 
   @override
-  Option<A> filter(Function1<A, bool> p) =>
-      fold(() => this, (a) => p(a) ? this : none<A>());
+  Option<A> filter(Function1<A, bool> p) => fold(() => this, (a) => p(a) ? this : none<A>());
 
   @override
   Option<A> filterNot(Function1<A, bool> p) => filter((a) => !p(a));
 
   @override
-  Option<B> flatMap<B>(covariant Function1<A, Option<B>> f) =>
-      fold(() => none<B>(), f);
+  Option<B> flatMap<B>(covariant Function1<A, Option<B>> f) => fold(() => none<B>(), f);
 
   /// Returns the value if this is a [Some] or the value returned from
   /// evaluating [ifEmpty].
@@ -79,19 +77,16 @@ sealed class Option<A> with RIterableOnce<A> {
 
   /// If this is a [Some], this is returned, otherwise the result of evaluating
   /// [orElse] is returned.
-  Option<A> orElse(Function0<Option<A>> orElse) =>
-      fold(() => orElse(), (_) => this);
+  Option<A> orElse(Function0<Option<A>> orElse) => fold(() => orElse(), (_) => this);
 
   @override
-  RIterableOnce<B> scanLeft<B>(B z, Function2<B, A, B> op) =>
-      toIList().scanLeft(z, op);
+  RIterableOnce<B> scanLeft<B>(B z, Function2<B, A, B> op) => toIList().scanLeft(z, op);
 
   @override
   RIterableOnce<A> slice(int from, int until) => toIList().slice(from, until);
 
   @override
-  (RIterableOnce<A>, RIterableOnce<A>) span(Function1<A, bool> p) =>
-      toIList().span(p);
+  (RIterableOnce<A>, RIterableOnce<A>) span(Function1<A, bool> p) => toIList().span(p);
 
   @override
   RIterableOnce<A> take(int n) => toIList().take(n);

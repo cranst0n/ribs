@@ -88,8 +88,7 @@ Array<dynamic> _copyOrUse(Array<dynamic> a, int start, int end) {
 Array<A> _copyTail<A>(Array<A> a) => Array.copyOfRange(a, 1, a.length);
 Array<A> _copyInit<A>(Array<A> a) => Array.copyOfRange(a, 0, a.length - 1);
 
-Array<A> _copyIfDifferentSize<A>(Array<A> a, int len) =>
-    a.length == len ? a : Array.copyOf(a, len);
+Array<A> _copyIfDifferentSize<A>(Array<A> a, int len) => a.length == len ? a : Array.copyOf(a, len);
 
 _Arr1 _wrap1(dynamic x) => Array.fill(1, x);
 _Arr2 _wrap2(_Arr1 x) => Array.fill(1, x);
@@ -99,18 +98,14 @@ _Arr5 _wrap5(_Arr4 x) => Array.fill(1, x);
 
 _Arr2 _arrCast2(Array<dynamic> a) =>
     a is _Arr2 ? a : Array.tabulate(a.length, (i) => a[i] as Array<dynamic>);
-_Arr3 _arrCast3(Array<dynamic> a) => a is _Arr3
-    ? a
-    : Array.tabulate(a.length, (i) => _arrCast2(a[i] as Array<dynamic>));
-_Arr4 _arrCast4(Array<dynamic> a) => a is _Arr4
-    ? a
-    : Array.tabulate(a.length, (i) => _arrCast3(a[i] as Array<dynamic>));
-_Arr5 _arrCast5(Array<dynamic> a) => a is _Arr5
-    ? a
-    : Array.tabulate(a.length, (i) => _arrCast4(a[i] as Array<dynamic>));
-_Arr6 _arrCast6(Array<dynamic> a) => a is _Arr6
-    ? a
-    : Array.tabulate(a.length, (i) => _arrCast5(a[i] as Array<dynamic>));
+_Arr3 _arrCast3(Array<dynamic> a) =>
+    a is _Arr3 ? a : Array.tabulate(a.length, (i) => _arrCast2(a[i] as Array<dynamic>));
+_Arr4 _arrCast4(Array<dynamic> a) =>
+    a is _Arr4 ? a : Array.tabulate(a.length, (i) => _arrCast3(a[i] as Array<dynamic>));
+_Arr5 _arrCast5(Array<dynamic> a) =>
+    a is _Arr5 ? a : Array.tabulate(a.length, (i) => _arrCast4(a[i] as Array<dynamic>));
+_Arr6 _arrCast6(Array<dynamic> a) =>
+    a is _Arr6 ? a : Array.tabulate(a.length, (i) => _arrCast5(a[i] as Array<dynamic>));
 
 _Arr1 _copyAppend1(_Arr1 a, dynamic elem) {
   final ac = Array.copyOf(a, a.length + 1);
@@ -209,22 +204,20 @@ _Arr3 _copyUpdate3(_Arr3 a3, int idx3, int idx2, int idx1, dynamic elem) {
   return a3c;
 }
 
-_Arr4 _copyUpdate4(
-    _Arr4 a4, int idx4, int idx3, int idx2, int idx1, dynamic elem) {
+_Arr4 _copyUpdate4(_Arr4 a4, int idx4, int idx3, int idx2, int idx1, dynamic elem) {
   final a4c = _clone4(a4);
   a4c[idx4] = _copyUpdate3(a4c[idx4]!, idx3, idx2, idx1, elem);
   return a4c;
 }
 
-_Arr5 _copyUpdate5(
-    _Arr5 a5, int idx5, int idx4, int idx3, int idx2, int idx1, dynamic elem) {
+_Arr5 _copyUpdate5(_Arr5 a5, int idx5, int idx4, int idx3, int idx2, int idx1, dynamic elem) {
   final a5c = _clone5(a5);
   a5c[idx5] = _copyUpdate4(a5c[idx5]!, idx4, idx3, idx2, idx1, elem);
   return a5c;
 }
 
-_Arr6 _copyUpdate6(_Arr6 a6, int idx6, int idx5, int idx4, int idx3, int idx2,
-    int idx1, dynamic elem) {
+_Arr6 _copyUpdate6(
+    _Arr6 a6, int idx6, int idx5, int idx4, int idx3, int idx2, int idx1, dynamic elem) {
   final a6c = _clone6(a6);
   a6c[idx6] = _copyUpdate5(a6c[idx6]!, idx5, idx4, idx3, idx2, idx1, elem);
   return a6c;

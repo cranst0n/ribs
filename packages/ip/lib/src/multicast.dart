@@ -32,32 +32,26 @@ sealed class Multicast<A extends IpAddress> {
 sealed class SourceSpecificMulticast<A extends IpAddress> extends Multicast<A> {
   const SourceSpecificMulticast._(super.address) : super._();
 
-  Option<SourceSpecificMulticastStrict> strict() => Option.when(
-      () => address.isSourceSpecificMulticast,
-      () => _unsafeCreateStrict(address));
+  Option<SourceSpecificMulticastStrict> strict() =>
+      Option.when(() => address.isSourceSpecificMulticast, () => _unsafeCreateStrict(address));
 
-  static Option<SourceSpecificMulticastStrict<A>>
-      fromIpAddress<A extends IpAddress>(
+  static Option<SourceSpecificMulticastStrict<A>> fromIpAddress<A extends IpAddress>(
     A address,
   ) =>
-          Option.when(() => address.isSourceSpecificMulticast,
-              () => _DefaultSourceSpecificMulticastStrict._(address));
+      Option.when(() => address.isSourceSpecificMulticast,
+          () => _DefaultSourceSpecificMulticastStrict._(address));
 
-  static Option<SourceSpecificMulticast<A>>
-      fromIpAddressLenient<A extends IpAddress>(A address) =>
-          Option.when(() => address.isMulticast, () => _unsafeCreate(address));
+  static Option<SourceSpecificMulticast<A>> fromIpAddressLenient<A extends IpAddress>(A address) =>
+      Option.when(() => address.isMulticast, () => _unsafeCreate(address));
 
-  static SourceSpecificMulticast<A> _unsafeCreate<A extends IpAddress>(
-          A address) =>
+  static SourceSpecificMulticast<A> _unsafeCreate<A extends IpAddress>(A address) =>
       _DefaultSourceSpecificMulticast._(address);
 
-  static SourceSpecificMulticastStrict<A>
-      _unsafeCreateStrict<A extends IpAddress>(A address) =>
-          _DefaultSourceSpecificMulticastStrict._(address);
+  static SourceSpecificMulticastStrict<A> _unsafeCreateStrict<A extends IpAddress>(A address) =>
+      _DefaultSourceSpecificMulticastStrict._(address);
 }
 
-sealed class SourceSpecificMulticastStrict<A extends IpAddress>
-    extends Multicast<A> {
+sealed class SourceSpecificMulticastStrict<A extends IpAddress> extends Multicast<A> {
   const SourceSpecificMulticastStrict._(super.address) : super._();
 }
 
@@ -77,8 +71,7 @@ class _DefaultMulticast<A extends IpAddress> extends Multicast<A> {
   int get hashCode => address.hashCode;
 }
 
-class _DefaultSourceSpecificMulticast<A extends IpAddress>
-    extends SourceSpecificMulticast<A> {
+class _DefaultSourceSpecificMulticast<A extends IpAddress> extends SourceSpecificMulticast<A> {
   const _DefaultSourceSpecificMulticast._(super.address) : super._();
 
   @override

@@ -27,8 +27,8 @@ class SdkClient {
   static Headers _convertHeaders(HttpHeaders headers) {
     final raw = List<Header>.empty(growable: true);
 
-    headers.forEach((name, values) =>
-        values.forEach((value) => raw.add(Header(CIString(name), value))));
+    headers.forEach(
+        (name, values) => values.forEach((value) => raw.add(Header(CIString(name), value))));
 
     return Headers(raw);
   }
@@ -43,8 +43,8 @@ class SdkClient {
               .concat(req.body.headers)
               .headers
               .foreach((hdr) => r.headers.add(hdr.name.value, hdr.value))))
-          .flatTap((a) => IO.exec(() => req.body.bodyLength
-              .foreach((len) => a.headers.add('Content-Length', len))))
+          .flatTap((a) => IO.exec(
+              () => req.body.bodyLength.foreach((len) => a.headers.add('Content-Length', len))))
           .flatTap((a) => IO.fromFutureF(() => a.addStream(req.body)))
           .flatMap((req) => IO.pure(req).onCancel(IO.exec(req.abort)));
 

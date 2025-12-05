@@ -20,10 +20,7 @@ final class BankersQueue<A> {
 
   (BankersQueue<A>, Option<A>) tryPopFront() {
     if (frontLen > 0) {
-      return (
-        BankersQueue(front.tail(), frontLen - 1, back, backLen).rebalance(),
-        Some(front[0])
-      );
+      return (BankersQueue(front.tail(), frontLen - 1, back, backLen).rebalance(), Some(front[0]));
     } else if (backLen > 0) {
       return (BankersQueue(front, frontLen, nil(), 0), Some(back[0]));
     } else {

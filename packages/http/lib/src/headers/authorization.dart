@@ -9,8 +9,8 @@ class Authorization {
 
   Authorization._();
 
-  Header basic(BasicCredentials credentials) => Header(name,
-      Credentials.token(AuthScheme.basic, credentials.token()).toString());
+  Header basic(BasicCredentials credentials) =>
+      Header(name, Credentials.token(AuthScheme.basic, credentials.token()).toString());
 
   Header bearer(String token) =>
       Header(name, Credentials.token(AuthScheme.bearer, token).toString());

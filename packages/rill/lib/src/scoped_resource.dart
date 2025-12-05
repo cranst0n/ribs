@@ -4,15 +4,13 @@ import 'package:ribs_rill/ribs_rill.dart';
 
 abstract class ScopedResource {
   static IO<ScopedResource> create() =>
-      Ref.of(_ScopedResourceState(true, none(), 0))
-          .map((s) => _ScopedResource(s, UniqueToken()));
+      Ref.of(_ScopedResourceState(true, none(), 0)).map((s) => _ScopedResource(s, UniqueToken()));
 
   UniqueToken get id;
 
   IO<Either<RuntimeException, Unit>> release(ExitCase ec);
 
-  IO<Either<RuntimeException, bool>> acquired(
-      Function1<ExitCase, IO<Unit>> finalizer);
+  IO<Either<RuntimeException, bool>> acquired(Function1<ExitCase, IO<Unit>> finalizer);
 
   IO<Option<Lease>> lease();
 }
@@ -28,8 +26,7 @@ class _ScopedResource extends ScopedResource {
   _ScopedResource(this.state, this.token);
 
   @override
-  IO<Either<RuntimeException, bool>> acquired(
-          Function1<ExitCase, IO<Unit>> finalizer) =>
+  IO<Either<RuntimeException, bool>> acquired(Function1<ExitCase, IO<Unit>> finalizer) =>
       state.flatModify((s) {
         if (s.isFinished) {
           return (s, finalizer(ExitCase.succeeded()).as(false).attempt());

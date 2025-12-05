@@ -91,8 +91,7 @@ class _BoundedDequeue<A> extends Dequeue<A> {
   IO<Option<A>> tryTakeFront() => _tryTake((a) => a.tryPopFront());
 
   @override
-  IO<IList<A>> tryTakeFrontN(Option<int> maxN) =>
-      _tryTakeN(tryTakeFront(), maxN);
+  IO<IList<A>> tryTakeFrontN(Option<int> maxN) => _tryTakeN(tryTakeFront(), maxN);
 
   @override
   IO<int> size() => state.value().map((s) => s.size);
@@ -185,21 +184,18 @@ class _BoundedDequeue<A> extends Dequeue<A> {
     return loop(0, maxN.getOrElse(() => 9007199254740991), nil());
   }
 
-  IO<A> _take(
-      Function1<BankersQueue<A>, (BankersQueue<A>, Option<A>)> dequeue) {
+  IO<A> _take(Function1<BankersQueue<A>, (BankersQueue<A>, Option<A>)> dequeue) {
     return IO.uncancelable((poll) {
       return Deferred.of<Unit>().flatMap((taker) {
         final modificationF = state.modify((s) {
           if (s.queue.nonEmpty && s.offerers.isEmpty) {
             final (rest, ma) = dequeue(s.queue);
-            final a = ma.getOrElse(
-                () => throw Exception('Dequeue.take.get on empty Option'));
+            final a = ma.getOrElse(() => throw Exception('Dequeue.take.get on empty Option'));
 
             return (_State(rest, s.size - 1, s.takers, s.offerers), IO.pure(a));
           } else if (s.queue.nonEmpty) {
             final (rest, ma) = dequeue(s.queue);
-            final a = ma.getOrElse(
-                () => throw Exception('Dequeue.take.get on empty Option'));
+            final a = ma.getOrElse(() => throw Exception('Dequeue.take.get on empty Option'));
             final (release, tail) = s.offerers.dequeue();
 
             return (
@@ -220,18 +216,14 @@ class _BoundedDequeue<A> extends Dequeue<A> {
 
             final awaiter = poll(taker.value())
                 .onCancel(cleanup.flatten())
-                .productR(() => poll(_take(dequeue))
-                    .onCancel(_notifyNextTaker().flatten()));
+                .productR(() => poll(_take(dequeue)).onCancel(_notifyNextTaker().flatten()));
 
             final (fulfill, offerer2) = s.offerers.isEmpty
                 ? (awaiter, s.offerers)
-                : s.offerers.dequeue()((release, rest) =>
-                    (release.complete(Unit()).productR(() => awaiter), rest));
+                : s.offerers.dequeue()(
+                    (release, rest) => (release.complete(Unit()).productR(() => awaiter), rest));
 
-            return (
-              _State(s.queue, s.size, s.takers.enqueue(taker), offerer2),
-              fulfill
-            );
+            return (_State(s.queue, s.size, s.takers.enqueue(taker), offerer2), fulfill);
           }
         });
 
@@ -251,8 +243,7 @@ class _BoundedDequeue<A> extends Dequeue<A> {
     });
   }
 
-  IO<Option<A>> _tryTake(
-      Function1<BankersQueue<A>, (BankersQueue<A>, Option<A>)> dequeue) {
+  IO<Option<A>> _tryTake(Function1<BankersQueue<A>, (BankersQueue<A>, Option<A>)> dequeue) {
     return state.flatModify((s) {
       if (s.queue.nonEmpty && s.offerers.isEmpty) {
         final (rest, ma) = dequeue(s.queue);

@@ -5,16 +5,12 @@ import 'package:test/test.dart';
 void main() {
   test('RetryPolicy.meet', () {
     expect(
-      RetryPolicy.alwaysGiveUp()
-          .meet(RetryPolicy.alwaysGiveUp())
-          .decideOn(RetryStatus.initial()),
+      RetryPolicy.alwaysGiveUp().meet(RetryPolicy.alwaysGiveUp()).decideOn(RetryStatus.initial()),
       RetryDecision.giveUp(),
     );
 
     expect(
-      RetryPolicy.limitRetries(5)
-          .meet(RetryPolicy.alwaysGiveUp())
-          .decideOn(RetryStatus.initial()),
+      RetryPolicy.limitRetries(5).meet(RetryPolicy.alwaysGiveUp()).decideOn(RetryStatus.initial()),
       RetryDecision.delayAndRetry(Duration.zero),
     );
 
@@ -49,16 +45,12 @@ void main() {
 
   test('RetryPolicy.join', () {
     expect(
-      RetryPolicy.alwaysGiveUp()
-          .join(RetryPolicy.alwaysGiveUp())
-          .decideOn(RetryStatus.initial()),
+      RetryPolicy.alwaysGiveUp().join(RetryPolicy.alwaysGiveUp()).decideOn(RetryStatus.initial()),
       RetryDecision.giveUp(),
     );
 
     expect(
-      RetryPolicy.limitRetries(5)
-          .join(RetryPolicy.alwaysGiveUp())
-          .decideOn(RetryStatus.initial()),
+      RetryPolicy.limitRetries(5).join(RetryPolicy.alwaysGiveUp()).decideOn(RetryStatus.initial()),
       RetryDecision.giveUp(),
     );
 
@@ -85,12 +77,12 @@ void main() {
   test('limitRetries (succeed)', () async {
     int attempts = 0;
 
-    final io = IO.delay(() => attempts += 1).flatMap((x) => x > 3
-        ? IO.pure(x)
-        : IO.raiseError<int>(RuntimeException('attempts: $x')));
+    final io = IO
+        .delay(() => attempts += 1)
+        .flatMap((x) => x > 3 ? IO.pure(x) : IO.raiseError<int>(RuntimeException('attempts: $x')));
 
-    final retryable = io.retrying(RetryPolicy.constantDelay(Duration.zero)
-        .join(RetryPolicy.limitRetries(3)));
+    final retryable =
+        io.retrying(RetryPolicy.constantDelay(Duration.zero).join(RetryPolicy.limitRetries(3)));
 
     final result = await retryable.unsafeRunFutureOutcome();
 
@@ -107,8 +99,8 @@ void main() {
   test('limitRetries (fail)', () async {
     final io = IO.raiseError<int>(RuntimeException('fail'));
 
-    final retryable = io.retrying(RetryPolicy.constantDelay(Duration.zero)
-        .join(RetryPolicy.limitRetries(2)));
+    final retryable =
+        io.retrying(RetryPolicy.constantDelay(Duration.zero).join(RetryPolicy.limitRetries(2)));
 
     final result = await retryable.unsafeRunFutureOutcome();
 
@@ -122,12 +114,12 @@ void main() {
   test('giveUpAfterDelay (succeed)', () async {
     int attempts = 0;
 
-    final io = IO.delay(() => attempts += 1).flatMap((x) => x > 2
-        ? IO.pure(x)
-        : IO.raiseError<int>(RuntimeException('attempts: $x')));
+    final io = IO
+        .delay(() => attempts += 1)
+        .flatMap((x) => x > 2 ? IO.pure(x) : IO.raiseError<int>(RuntimeException('attempts: $x')));
 
-    final retryable = io.retrying(
-        RetryPolicy.exponentialBackoff(1.second).giveUpAfterDelay(5.seconds));
+    final retryable =
+        io.retrying(RetryPolicy.exponentialBackoff(1.second).giveUpAfterDelay(5.seconds));
 
     final result = await retryable.unsafeRunFutureOutcome();
 
@@ -144,13 +136,12 @@ void main() {
   test('giveUpAfterDelay (fail)', () async {
     int attempts = 0;
 
-    final io = IO.delay(() => attempts += 1).flatMap((x) => x > 4
-        ? IO.pure(x)
-        : IO.raiseError<int>(RuntimeException('attempts: $x')));
+    final io = IO
+        .delay(() => attempts += 1)
+        .flatMap((x) => x > 4 ? IO.pure(x) : IO.raiseError<int>(RuntimeException('attempts: $x')));
 
-    final retryable = io.retrying(RetryPolicy.exponentialBackoff(1.second)
-        .giveUpAfterDelay(2.seconds)
-        .capDelay(3.seconds));
+    final retryable = io.retrying(
+        RetryPolicy.exponentialBackoff(1.second).giveUpAfterDelay(2.seconds).capDelay(3.seconds));
 
     final result = await retryable.unsafeRunFutureOutcome();
 

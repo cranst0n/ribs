@@ -77,8 +77,7 @@ final class Cidr<A extends IpAddress> {
 
   @override
   bool operator ==(Object that) => switch (that) {
-        final Cidr that =>
-          address == that.address && prefixBits == that.prefixBits,
+        final Cidr that => address == that.address && prefixBits == that.prefixBits,
         _ => false,
       };
 

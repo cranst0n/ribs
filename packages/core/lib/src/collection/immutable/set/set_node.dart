@@ -84,8 +84,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
         return this;
       } else if (bm.size == 1) {
         final originalHash = bm.getHash(0);
-        return updated(bm.getPayload(0), originalHash,
-            Hashing.improve(originalHash), shift);
+        return updated(bm.getPayload(0), originalHash, Hashing.improve(originalHash), shift);
       }
 
       // if we go through the merge and the result does not differ from `this`, we can just return `this`, to improve sharing
@@ -97,13 +96,12 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       final allMap = dataMap | bm.dataMap | nodeMap | bm.nodeMap;
 
       // minimumIndex is inclusive -- it is the first index for which there is data or nodes
-      final minimumBitPos =
-          Node.bitposFrom(Integer.numberOfTrailingZeros(allMap));
+      final minimumBitPos = Node.bitposFrom(Integer.numberOfTrailingZeros(allMap));
       // maximumIndex is inclusive -- it is the last index for which there is data or nodes
       // it could not be exclusive, because then upper bound in worst case (Node.BranchingFactor) would be out-of-bound
       // of int bitposition representation
-      final maximumBitPos = Node.bitposFrom(
-          Node.BranchingFactor - Integer.numberOfLeadingZeros(allMap) - 1);
+      final maximumBitPos =
+          Node.bitposFrom(Node.BranchingFactor - Integer.numberOfLeadingZeros(allMap) - 1);
 
       var leftNodeRightNode = 0;
       var leftDataRightNode = 0;
@@ -131,8 +129,8 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
                 leftDataRightDataLeftOverwrites |= bitpos;
               } else {
                 leftDataRightDataMigrateToNode |= bitpos;
-                dataToNodeMigrationTargets |= Node.bitposFrom(
-                    Node.maskFrom(Hashing.improve(getHash(leftIdx)), shift));
+                dataToNodeMigrationTargets |=
+                    Node.bitposFrom(Node.maskFrom(Hashing.improve(getHash(leftIdx)), shift));
               }
               rightIdx += 1;
             } else if ((bitpos & bm.nodeMap) != 0) {
@@ -165,8 +163,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
         }
       }
 
-      final newDataMap =
-          leftDataOnly | rightDataOnly | leftDataRightDataLeftOverwrites;
+      final newDataMap = leftDataOnly | rightDataOnly | leftDataRightDataLeftOverwrites;
 
       final newNodeMap = leftNodeRightNode |
           leftDataRightNode |
@@ -206,8 +203,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
         while (!finished) {
           if ((bitpos & leftNodeRightNode) != 0) {
             final leftNode = getNode(leftNodeIdx);
-            final newNode =
-                leftNode.concat(bm.getNode(rightNodeIdx), nextShift);
+            final newNode = leftNode.concat(bm.getNode(rightNodeIdx), nextShift);
             if (leftNode != newNode) {
               anyChangesMadeSoFar = true;
             }
@@ -224,8 +220,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
             final leftPayload = getPayload(leftDataIdx);
             final leftOriginalHash = getHash(leftDataIdx);
             final leftImproved = Hashing.improve(leftOriginalHash);
-            final newNode = n.updated(
-                leftPayload, leftOriginalHash, leftImproved, nextShift);
+            final newNode = n.updated(leftPayload, leftOriginalHash, leftImproved, nextShift);
 
             newContent[newContentSize - compressedNodeIdx - 1] = newNode;
             compressedNodeIdx += 1;
@@ -236,11 +231,8 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
           } else if ((bitpos & leftNodeRightData) != 0) {
             final rightOriginalHash = bm.getHash(rightDataIdx);
             final leftNode = getNode(leftNodeIdx);
-            final updated = leftNode.updated(
-                bm.getPayload(rightDataIdx),
-                bm.getHash(rightDataIdx),
-                Hashing.improve(rightOriginalHash),
-                nextShift);
+            final updated = leftNode.updated(bm.getPayload(rightDataIdx), bm.getHash(rightDataIdx),
+                Hashing.improve(rightOriginalHash), nextShift);
             if (updated != leftNode) {
               anyChangesMadeSoFar = true;
             }
@@ -352,14 +344,13 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
 
     if ((dataMap & bitpos) != 0) {
       final index = Node.indexFromMask(dataMap, mask, bitpos);
-      return originalHashes[index] == originalHash &&
-          element == getPayload(index);
+      return originalHashes[index] == originalHash && element == getPayload(index);
     }
 
     if ((nodeMap & bitpos) != 0) {
       final index = Node.indexFromMask(nodeMap, mask, bitpos);
-      return getNode(index).contains(
-          element, originalHash, elementHash, shift + Node.BitPartitionSize);
+      return getNode(index)
+          .contains(element, originalHash, elementHash, shift + Node.BitPartitionSize);
     }
 
     return false;
@@ -376,8 +367,8 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       i += 1;
     }
 
-    return BitmapIndexedSetNode(dataMap, nodeMap, contentClone,
-        originalHashes.clone(), size, cachedDartKeySetHashCode);
+    return BitmapIndexedSetNode(
+        dataMap, nodeMap, contentClone, originalHashes.clone(), size, cachedDartKeySetHashCode);
   }
 
   @override
@@ -397,8 +388,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       } else {
         final allMap = dataMap | nodeMap;
         final minimumIndex = Integer.numberOfTrailingZeros(allMap);
-        final maximumIndex =
-            Node.BranchingFactor - Integer.numberOfLeadingZeros(allMap);
+        final maximumIndex = Node.BranchingFactor - Integer.numberOfLeadingZeros(allMap);
 
         var oldDataPassThrough = 0;
 
@@ -454,12 +444,11 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
               final thatPayload = bm.getPayload(thatDataIndex);
               final thatOriginalHash = bm.getHash(thatDataIndex);
               final thatHash = Hashing.improve(thatOriginalHash);
-              newSubNode = oldSubNode.removed(thatPayload, thatOriginalHash,
-                  thatHash, shift + Node.BitPartitionSize);
+              newSubNode = oldSubNode.removed(
+                  thatPayload, thatOriginalHash, thatHash, shift + Node.BitPartitionSize);
             } else if ((bitpos & bm.nodeMap) != 0) {
               newSubNode = oldSubNode.diff(
-                  bm.getNode(Node.indexFrom(bm.nodeMap, bitpos)),
-                  shift + Node.BitPartitionSize);
+                  bm.getNode(Node.indexFrom(bm.nodeMap, bitpos)), shift + Node.BitPartitionSize);
             } else {
               newSubNode = oldSubNode;
             }
@@ -534,8 +523,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       //     descendants
       //
       final minimumIndex = Integer.numberOfTrailingZeros(dataMap);
-      final maximumIndex =
-          Node.BranchingFactor - Integer.numberOfLeadingZeros(dataMap);
+      final maximumIndex = Node.BranchingFactor - Integer.numberOfLeadingZeros(dataMap);
 
       var newDataMap = 0;
       var newCachedHashCode = 0;
@@ -569,8 +557,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
         final newSize = Integer.bitCount(newDataMap);
         final newContent = Array.ofDim<dynamic>(newSize);
         final newOriginalHashCodes = Array.ofDim<int>(newSize);
-        final newMaximumIndex =
-            Node.BranchingFactor - Integer.numberOfLeadingZeros(newDataMap);
+        final newMaximumIndex = Node.BranchingFactor - Integer.numberOfLeadingZeros(newDataMap);
 
         var j = Integer.numberOfTrailingZeros(newDataMap);
 
@@ -587,14 +574,13 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
           j += 1;
         }
 
-        return BitmapIndexedSetNode(newDataMap, 0, newContent,
-            newOriginalHashCodes, newSize, newCachedHashCode);
+        return BitmapIndexedSetNode(
+            newDataMap, 0, newContent, newOriginalHashCodes, newSize, newCachedHashCode);
       }
     } else {
       final allMap = dataMap | nodeMap;
       final minimumIndex = Integer.numberOfTrailingZeros(allMap);
-      final maximumIndex =
-          Node.BranchingFactor - Integer.numberOfLeadingZeros(allMap);
+      final maximumIndex = Node.BranchingFactor - Integer.numberOfLeadingZeros(allMap);
 
       var oldDataPassThrough = 0;
 
@@ -753,8 +739,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
   int getHash(int index) => originalHashes[index]!;
 
   @override
-  SetNode<A> getNode(int index) =>
-      content[content.length - 1 - index]! as SetNode<A>;
+  SetNode<A> getNode(int index) => content[content.length - 1 - index]! as SetNode<A>;
 
   @override
   A getPayload(int index) => content[index] as A;
@@ -772,8 +757,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
   int get payloadArity => Integer.bitCount(dataMap);
 
   @override
-  BitmapIndexedSetNode<A> removed(
-      A element, int originalHash, int elementHash, int shift) {
+  BitmapIndexedSetNode<A> removed(A element, int originalHash, int elementHash, int shift) {
     final mask = Node.maskFrom(elementHash, shift);
     final bitpos = Node.bitposFrom(mask);
 
@@ -785,25 +769,14 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
         if (payloadArity == 2 && nodeArity == 0) {
           // Create new node with remaining pair. The new node will a) either become the new root
           // returned, or b) unwrapped and inlined during returning.
-          final newDataMap = shift == 0
-              ? (dataMap ^ bitpos)
-              : Node.bitposFrom(Node.maskFrom(elementHash, 0));
+          final newDataMap =
+              shift == 0 ? (dataMap ^ bitpos) : Node.bitposFrom(Node.maskFrom(elementHash, 0));
           if (index == 0) {
-            return BitmapIndexedSetNode(
-                newDataMap,
-                0,
-                arr([getPayload(1)]),
-                arr([originalHashes[1]]),
-                size - 1,
-                Hashing.improve(originalHashes[1]!));
+            return BitmapIndexedSetNode(newDataMap, 0, arr([getPayload(1)]),
+                arr([originalHashes[1]]), size - 1, Hashing.improve(originalHashes[1]!));
           } else {
-            return BitmapIndexedSetNode(
-                newDataMap,
-                0,
-                arr([getPayload(0)]),
-                arr([originalHashes[0]]),
-                size - 1,
-                Hashing.improve(originalHashes[0]!));
+            return BitmapIndexedSetNode(newDataMap, 0, arr([getPayload(0)]),
+                arr([originalHashes[0]]), size - 1, Hashing.improve(originalHashes[0]!));
           }
         } else {
           return copyAndRemoveValue(bitpos, elementHash);
@@ -817,8 +790,8 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       final index = Node.indexFromMask(nodeMap, mask, bitpos);
       final subNode = getNode(index);
 
-      final subNodeNew = subNode.removed(
-          element, originalHash, elementHash, shift + Node.BitPartitionSize);
+      final subNodeNew =
+          subNode.removed(element, originalHash, elementHash, shift + Node.BitPartitionSize);
 
       if (subNodeNew == subNode) return this;
 
@@ -833,8 +806,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
           return subNodeNew as BitmapIndexedSetNode<A>;
         } else {
           // inline value (move to front)
-          return copyAndMigrateFromNodeToInline(
-              bitpos, elementHash, subNode, subNodeNew);
+          return copyAndMigrateFromNodeToInline(bitpos, elementHash, subNode, subNodeNew);
         }
       } else if (subNodeNewSize > 1) {
         // modify current node (set replacement node)
@@ -870,26 +842,23 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
             if ((node.dataMap & bitpos) != 0) {
               // Data x Data
               final payload0 = getPayload(Node.indexFrom(dataMap, bitpos));
-              final payload1 =
-                  node.getPayload(Node.indexFrom(node.dataMap, bitpos));
+              final payload1 = node.getPayload(Node.indexFrom(node.dataMap, bitpos));
               isValidSubset = payload0 == payload1;
             } else {
               // Data x Node
               final thisDataIndex = Node.indexFrom(dataMap, bitpos);
               final payload = getPayload(thisDataIndex);
-              final subNode =
-                  that.getNode(Node.indexFrom(node.nodeMap, bitpos));
+              final subNode = that.getNode(Node.indexFrom(node.nodeMap, bitpos));
               final elementUnimprovedHash = getHash(thisDataIndex);
               final elementHash = Hashing.improve(elementUnimprovedHash);
-              isValidSubset = subNode.contains(payload, elementUnimprovedHash,
-                  elementHash, shift + Node.BitPartitionSize);
+              isValidSubset = subNode.contains(
+                  payload, elementUnimprovedHash, elementHash, shift + Node.BitPartitionSize);
             }
           } else {
             // Node x Node
             final subNode0 = getNode(Node.indexFrom(nodeMap, bitpos));
             final subNode1 = node.getNode(Node.indexFrom(node.nodeMap, bitpos));
-            isValidSubset =
-                subNode0.subsetOf(subNode1, shift + Node.BitPartitionSize);
+            isValidSubset = subNode0.subsetOf(subNode1, shift + Node.BitPartitionSize);
           }
 
           final newBitmap = bitmap ^ bitpos;
@@ -905,8 +874,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
   }
 
   @override
-  BitmapIndexedSetNode<A> updated(
-      A element, int originalHash, int elementHash, int shift) {
+  BitmapIndexedSetNode<A> updated(A element, int originalHash, int elementHash, int shift) {
     final mask = Node.maskFrom(elementHash, shift);
     final bitpos = Node.bitposFrom(mask);
 
@@ -922,16 +890,9 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
         if (originalHash == element0UnimprovedHash && element0 == element) {
           return this;
         } else {
-          final subNodeNew = mergeTwoKeyValPairs(
-              element0,
-              element0UnimprovedHash,
-              element0Hash,
-              element,
-              originalHash,
-              elementHash,
-              shift + Node.BitPartitionSize);
-          return copyAndMigrateFromInlineToNode(
-              bitpos, element0Hash, subNodeNew);
+          final subNodeNew = mergeTwoKeyValPairs(element0, element0UnimprovedHash, element0Hash,
+              element, originalHash, elementHash, shift + Node.BitPartitionSize);
+          return copyAndMigrateFromInlineToNode(bitpos, element0Hash, subNodeNew);
         }
       }
     }
@@ -940,8 +901,8 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       final index = Node.indexFromMask(nodeMap, mask, bitpos);
       final subNode = getNode(index);
 
-      final subNodeNew = subNode.updated(
-          element, originalHash, elementHash, shift + Node.BitPartitionSize);
+      final subNodeNew =
+          subNode.updated(element, originalHash, elementHash, shift + Node.BitPartitionSize);
       if (subNode == subNodeNew) {
         return this;
       } else {
@@ -981,18 +942,16 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
   }
 
   @override
-  int get hashCode =>
-      throw UnimplementedError('Trie nodes do not support hashing');
+  int get hashCode => throw UnimplementedError('Trie nodes do not support hashing');
 
   int dataIndex(int bitpos) => Integer.bitCount(dataMap & (bitpos - 1));
 
   int nodeIndex(int bitpos) => Integer.bitCount(nodeMap & (bitpos - 1));
 
-  SetNode<A> mergeTwoKeyValPairs(A key0, int originalKeyHash0, int keyHash0,
-      A key1, int originalKeyHash1, int keyHash1, int shift) {
+  SetNode<A> mergeTwoKeyValPairs(A key0, int originalKeyHash0, int keyHash0, A key1,
+      int originalKeyHash1, int keyHash1, int shift) {
     if (shift >= Node.HashCodeLength) {
-      return HashCollisionSetNode(
-          originalKeyHash0, keyHash0, ivec([key0, key1]));
+      return HashCollisionSetNode(originalKeyHash0, keyHash0, ivec([key0, key1]));
     } else {
       final mask0 = Node.maskFrom(keyHash0, shift);
       final mask1 = Node.maskFrom(keyHash1, shift);
@@ -1012,17 +971,16 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       } else {
         // identical prefixes, payload must be disambiguated deeper in the trie
         final nodeMap = Node.bitposFrom(mask0);
-        final node = mergeTwoKeyValPairs(key0, originalKeyHash0, keyHash0, key1,
-            originalKeyHash1, keyHash1, shift + Node.BitPartitionSize);
+        final node = mergeTwoKeyValPairs(key0, originalKeyHash0, keyHash0, key1, originalKeyHash1,
+            keyHash1, shift + Node.BitPartitionSize);
 
-        return BitmapIndexedSetNode(0, nodeMap, arr([node]), Array.empty<int>(),
-            node.size, node.cachedDartKeySetHashCode);
+        return BitmapIndexedSetNode(
+            0, nodeMap, arr([node]), Array.empty<int>(), node.size, node.cachedDartKeySetHashCode);
       }
     }
   }
 
-  BitmapIndexedSetNode<A> copyAndSetNode(
-      int bitpos, SetNode<A> oldNode, SetNode<A> newNode) {
+  BitmapIndexedSetNode<A> copyAndSetNode(int bitpos, SetNode<A> oldNode, SetNode<A> newNode) {
     final idx = content.length - 1 - nodeIndex(bitpos);
 
     final src = content;
@@ -1043,8 +1001,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
             newNode.cachedDartKeySetHashCode);
   }
 
-  BitmapIndexedSetNode<A> copyAndInsertValue(
-      int bitpos, A key, int originalHash, int elementHash) {
+  BitmapIndexedSetNode<A> copyAndInsertValue(int bitpos, A key, int originalHash, int elementHash) {
     final dataIx = dataIndex(bitpos);
     final idx = SetNode.TupleLength * dataIx;
 
@@ -1057,12 +1014,11 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
     Array.arraycopy(src, idx, dst, idx + 1, src.length - idx);
     final dstHashes = insertElement(originalHashes, dataIx, originalHash);
 
-    return BitmapIndexedSetNode<A>(dataMap | bitpos, nodeMap, dst, dstHashes,
-        size + 1, cachedDartKeySetHashCode + elementHash);
+    return BitmapIndexedSetNode<A>(dataMap | bitpos, nodeMap, dst, dstHashes, size + 1,
+        cachedDartKeySetHashCode + elementHash);
   }
 
-  BitmapIndexedSetNode<A> copyAndSetValue(
-      int bitpos, A key, int originalHash, int elementHash) {
+  BitmapIndexedSetNode<A> copyAndSetValue(int bitpos, A key, int originalHash, int elementHash) {
     final dataIx = dataIndex(bitpos);
     final idx = SetNode.TupleLength * dataIx;
 
@@ -1073,8 +1029,8 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
     Array.arraycopy(src, 0, dst, 0, src.length);
     dst[idx] = key;
 
-    return BitmapIndexedSetNode(dataMap | bitpos, nodeMap, dst, originalHashes,
-        size, cachedDartKeySetHashCode);
+    return BitmapIndexedSetNode(
+        dataMap | bitpos, nodeMap, dst, originalHashes, size, cachedDartKeySetHashCode);
   }
 
   BitmapIndexedSetNode<A> copyAndRemoveValue(int bitpos, int elementHash) {
@@ -1090,8 +1046,8 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
 
     final dstHashes = removeElement(originalHashes, dataIx);
 
-    return BitmapIndexedSetNode(dataMap ^ bitpos, nodeMap, dst, dstHashes,
-        size - 1, cachedDartKeySetHashCode - elementHash);
+    return BitmapIndexedSetNode(dataMap ^ bitpos, nodeMap, dst, dstHashes, size - 1,
+        cachedDartKeySetHashCode - elementHash);
   }
 
   BitmapIndexedSetNode<A> copyAndMigrateFromInlineToNode(
@@ -1122,22 +1078,19 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
     );
   }
 
-  BitmapIndexedSetNode<A> migrateFromInlineToNodeInPlace(
-      int bitpos, int keyHash, SetNode<A> node) {
+  BitmapIndexedSetNode<A> migrateFromInlineToNodeInPlace(int bitpos, int keyHash, SetNode<A> node) {
     final dataIx = dataIndex(bitpos);
     final idxOld = SetNode.TupleLength * dataIx;
     final idxNew = content.length - SetNode.TupleLength - nodeIndex(bitpos);
 
-    Array.arraycopy(content, idxOld + SetNode.TupleLength, content, idxOld,
-        idxNew - idxOld);
+    Array.arraycopy(content, idxOld + SetNode.TupleLength, content, idxOld, idxNew - idxOld);
     content[idxNew] = node;
 
     dataMap = dataMap ^ bitpos;
     nodeMap = nodeMap | bitpos;
     originalHashes = removeElement(originalHashes, dataIx);
     size = size - 1 + node.size;
-    cachedDartKeySetHashCode =
-        cachedDartKeySetHashCode - keyHash + node.cachedDartKeySetHashCode;
+    cachedDartKeySetHashCode = cachedDartKeySetHashCode - keyHash + node.cachedDartKeySetHashCode;
 
     return this;
   }
@@ -1173,13 +1126,12 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
             node.cachedDartKeySetHashCode);
   }
 
-  void migrateFromNodeToInlineInPlace(int bitpos, int originalHash,
-      int elementHash, SetNode<A> oldNode, SetNode<A> node) {
+  void migrateFromNodeToInlineInPlace(
+      int bitpos, int originalHash, int elementHash, SetNode<A> oldNode, SetNode<A> node) {
     final idxOld = content.length - 1 - nodeIndex(bitpos);
     final dataIxNew = dataIndex(bitpos);
     final element = node.getPayload(0);
-    Array.arraycopy(
-        content, dataIxNew, content, dataIxNew + 1, idxOld - dataIxNew);
+    Array.arraycopy(content, dataIxNew, content, dataIxNew + 1, idxOld - dataIxNew);
     content[dataIxNew] = element;
     final hash = node.getHash(0);
     final dstHashes = insertElement(originalHashes, dataIxNew, hash);
@@ -1188,13 +1140,11 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
     nodeMap = nodeMap ^ bitpos;
     originalHashes = dstHashes;
     size = size - oldNode.size + 1;
-    cachedDartKeySetHashCode = cachedDartKeySetHashCode -
-        oldNode.cachedDartKeySetHashCode +
-        node.cachedDartKeySetHashCode;
+    cachedDartKeySetHashCode =
+        cachedDartKeySetHashCode - oldNode.cachedDartKeySetHashCode + node.cachedDartKeySetHashCode;
   }
 
-  BitmapIndexedSetNode<A> removeWithShallowMutations(
-      A element, int originalHash, int elementHash) {
+  BitmapIndexedSetNode<A> removeWithShallowMutations(A element, int originalHash, int elementHash) {
     final mask = Node.maskFrom(elementHash, 0);
     final bitpos = Node.bitposFrom(mask);
 
@@ -1234,8 +1184,8 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
           final dst = Array.ofDim<dynamic>(src.length - SetNode.TupleLength);
 
           Array.arraycopy(src, 0, dst, 0, idx);
-          Array.arraycopy(src, idx + SetNode.TupleLength, dst, idx,
-              src.length - idx - SetNode.TupleLength);
+          Array.arraycopy(
+              src, idx + SetNode.TupleLength, dst, idx, src.length - idx - SetNode.TupleLength);
 
           final dstHashes = removeElement(originalHashes, dataIx);
 
@@ -1254,8 +1204,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       final index = Node.indexFromMask(nodeMap, mask, bitpos);
       final subNode = getNode(index);
 
-      final subNodeNew = subNode.removed(
-              element, originalHash, elementHash, Node.BitPartitionSize)
+      final subNodeNew = subNode.removed(element, originalHash, elementHash, Node.BitPartitionSize)
           as BitmapIndexedSetNode<A>;
 
       if (subNodeNew == subNode) return this;
@@ -1271,8 +1220,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
 
           return this;
         } else {
-          migrateFromNodeToInlineInPlace(
-              bitpos, originalHash, elementHash, subNode, subNodeNew);
+          migrateFromNodeToInlineInPlace(bitpos, originalHash, elementHash, subNode, subNodeNew);
           return this;
         }
       } else {
@@ -1289,8 +1237,8 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
     }
   }
 
-  int updateWithShallowMutations(A element, int originalHash, int elementHash,
-      int shift, int shallowlyMutableNodeMap) {
+  int updateWithShallowMutations(
+      A element, int originalHash, int elementHash, int shift, int shallowlyMutableNodeMap) {
     final mask = Node.maskFrom(elementHash, shift);
     final bitpos = Node.bitposFrom(mask);
 
@@ -1302,14 +1250,8 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
         return shallowlyMutableNodeMap;
       } else {
         final element0Hash = Hashing.improve(element0UnimprovedHash);
-        final subNodeNew = mergeTwoKeyValPairs(
-            element0,
-            element0UnimprovedHash,
-            element0Hash,
-            element,
-            originalHash,
-            elementHash,
-            shift + Node.BitPartitionSize);
+        final subNodeNew = mergeTwoKeyValPairs(element0, element0UnimprovedHash, element0Hash,
+            element, originalHash, elementHash, shift + Node.BitPartitionSize);
         migrateFromInlineToNodeInPlace(bitpos, element0Hash, subNodeNew);
         return shallowlyMutableNodeMap | bitpos;
       }
@@ -1323,14 +1265,13 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
 
       final SetNode<A> subNodeNew;
 
-      if (subNode is BitmapIndexedSetNode<A> &&
-          (bitpos & shallowlyMutableNodeMap) != 0) {
-        subNode.updateWithShallowMutations(element, originalHash, elementHash,
-            shift + Node.BitPartitionSize, 0);
+      if (subNode is BitmapIndexedSetNode<A> && (bitpos & shallowlyMutableNodeMap) != 0) {
+        subNode.updateWithShallowMutations(
+            element, originalHash, elementHash, shift + Node.BitPartitionSize, 0);
         subNodeNew = subNode;
       } else {
-        final newNode = subNode.updated(
-            element, originalHash, elementHash, shift + Node.BitPartitionSize);
+        final newNode =
+            subNode.updated(element, originalHash, elementHash, shift + Node.BitPartitionSize);
         if (newNode != subNode) {
           returnNodeMap |= bitpos;
         }
@@ -1353,8 +1294,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       // copy 'src' and insert 2 element(s) at position 'idx'
       Array.arraycopy(src, 0, dst, 0, idx);
       dst[idx] = element;
-      Array.arraycopy(
-          src, idx, dst, idx + SetNode.TupleLength, src.length - idx);
+      Array.arraycopy(src, idx, dst, idx + SetNode.TupleLength, src.length - idx);
 
       final dstHashes = insertElement(originalHashes, dataIx, originalHash);
 
@@ -1392,8 +1332,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       final newOriginalHashes = Array.ofDim<int>(newDataSize);
 
       final newAllMap = newDataMap | newNodeMap;
-      final maxIndex =
-          Node.BranchingFactor - Integer.numberOfLeadingZeros(newAllMap);
+      final maxIndex = Node.BranchingFactor - Integer.numberOfLeadingZeros(newAllMap);
 
       // note: We MUST start from the minimum index in the old (`this`) node, otherwise `old{Node,Data}Index` will
       // not be incremented properly. Otherwise we could have started at Integer.numberOfTrailingZeroes(newAllMap)
@@ -1438,8 +1377,8 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
         i += 1;
       }
 
-      return BitmapIndexedSetNode(newDataMap, newNodeMap, newContent,
-          newOriginalHashes, newSize, newCachedHashCode);
+      return BitmapIndexedSetNode(
+          newDataMap, newNodeMap, newContent, newOriginalHashes, newSize, newCachedHashCode);
     }
   }
 }
@@ -1492,8 +1431,7 @@ final class HashCollisionSetNode<A> extends SetNode<A> {
       this.hash == hash && content.contains(element);
 
   @override
-  HashCollisionSetNode<A> copy() =>
-      HashCollisionSetNode(originalHash, hash, content);
+  HashCollisionSetNode<A> copy() => HashCollisionSetNode(originalHash, hash, content);
 
   @override
   SetNode<A> diff(SetNode<A> that, int shift) =>
@@ -1573,8 +1511,7 @@ final class HashCollisionSetNode<A> extends SetNode<A> {
     if (!contains(element, originalHash, hash, shift)) {
       return this;
     } else {
-      final updatedContent =
-          content.filterNot((element0) => element0 == element);
+      final updatedContent = content.filterNot((element0) => element0 == element);
 
       return switch (updatedContent.size) {
         1 => BitmapIndexedSetNode<A>(Node.bitposFrom(Node.maskFrom(hash, 0)), 0,
@@ -1594,8 +1531,7 @@ final class HashCollisionSetNode<A> extends SetNode<A> {
     } else {
       return switch (that) {
         final HashCollisionSetNode<A> node =>
-          payloadArity <= node.payloadArity &&
-              content.forall(node.content.contains),
+          payloadArity <= node.payloadArity && content.forall(node.content.contains),
         _ => false,
       };
     }
@@ -1606,8 +1542,7 @@ final class HashCollisionSetNode<A> extends SetNode<A> {
     if (contains(element, originalHash, hash, shift)) {
       return this;
     } else {
-      return HashCollisionSetNode(
-          originalHash, hash, content.appended(element));
+      return HashCollisionSetNode(originalHash, hash, content.appended(element));
     }
   }
 }

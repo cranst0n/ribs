@@ -24,23 +24,22 @@ extension IListOptionOps<A> on IList<Option<A>> {
   Option<IList<A>> sequence() => traverseOption(identity);
 
   /// Returns a new list with all [None] elements removed.
-  IList<A> unNone() => foldLeft(
-      nil(), (acc, elem) => elem.fold(() => acc, (a) => acc.appended(a)));
+  IList<A> unNone() => foldLeft(nil(), (acc, elem) => elem.fold(() => acc, (a) => acc.appended(a)));
 }
 
 /// Operations avaiable when [IList] elements are nullable.
 extension IListNullableOps<A> on IList<A?> {
   /// Returns a new list with all null elements removed.
-  IList<A> noNulls() => foldLeft(nil(),
-      (acc, elem) => Option(elem).fold(() => acc, (a) => acc.appended(a)));
+  IList<A> noNulls() =>
+      foldLeft(nil(), (acc, elem) => Option(elem).fold(() => acc, (a) => acc.appended(a)));
 }
 
 extension IListTuple2Ops<A, B> on IList<(A, B)> {
   /// Returns 2 new lists as a tuple. The first list is all the first items
   /// from each tuple element of this list. The second list is all the second
   /// items from each tuple element of this list.
-  (IList<A>, IList<B>) unzip() => foldLeft((nil<A>(), nil<B>()),
-      (acc, ab) => (acc.$1.appended(ab.$1), acc.$2.appended(ab.$2)));
+  (IList<A>, IList<B>) unzip() =>
+      foldLeft((nil<A>(), nil<B>()), (acc, ab) => (acc.$1.appended(ab.$1), acc.$2.appended(ab.$2)));
 }
 
 extension IListTuple3Ops<A, B, C> on IList<(A, B, C)> {
@@ -50,10 +49,6 @@ extension IListTuple3Ops<A, B, C> on IList<(A, B, C)> {
   /// third items from each tuple element of this list.
   (IList<A>, IList<B>, IList<C>) unzip() => foldLeft(
         (nil<A>(), nil<B>(), nil<C>()),
-        (acc, abc) => (
-          acc.$1.appended(abc.$1),
-          acc.$2.appended(abc.$2),
-          acc.$3.appended(abc.$3)
-        ),
+        (acc, abc) => (acc.$1.appended(abc.$1), acc.$2.appended(abc.$2), acc.$3.appended(abc.$3)),
       );
 }

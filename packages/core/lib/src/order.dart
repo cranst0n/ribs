@@ -84,8 +84,7 @@ abstract class Order<A> {
   /// Returns a new [Order] that reverses the evaluation of this [Order].
   Order<A> reverse() => _OrderF((a, b) => compare(b, a));
 
-  Order<B> contramap<B>(Function1<B, A> f) =>
-      _OrderF((x, y) => compare(f(x), f(y)));
+  Order<B> contramap<B>(Function1<B, A> f) => _OrderF((x, y) => compare(f(x), f(y)));
 
   bool isReverseOf(Order<A> other) => switch (other) {
         _ReverseOrder(:final outer) => outer == this,

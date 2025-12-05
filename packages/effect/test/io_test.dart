@@ -77,11 +77,7 @@ void main() {
 
       test('cancel if both sides cancel', () {
         expect(
-          IO
-              .both(IO.canceled, IO.canceled)
-              .voided()
-              .start()
-              .flatMap((f) => f.join()),
+          IO.both(IO.canceled, IO.canceled).voided().start().flatMap((f) => f.join()),
           ioSucceeded(Outcome.canceled<Unit>()),
         );
       });
@@ -116,9 +112,7 @@ void main() {
           IO
               .race(
                 IO.canceled,
-                IO
-                    .sleep(1.millisecond)
-                    .productR(() => IO.raiseError<Unit>(err)),
+                IO.sleep(1.millisecond).productR(() => IO.raiseError<Unit>(err)),
               )
               .voided(),
           ioCanceled(),
@@ -130,9 +124,7 @@ void main() {
         expect(
           IO
               .race(
-                IO
-                    .sleep(1.millisecond)
-                    .productR(() => IO.raiseError<Unit>(err)),
+                IO.sleep(1.millisecond).productR(() => IO.raiseError<Unit>(err)),
                 IO.canceled,
               )
               .voided(),
@@ -148,8 +140,7 @@ void main() {
       });
 
       test('immediately cancel when timing out canceled', () {
-        final test =
-            IO.canceled.timeout(2.seconds).start().flatMap((f) => f.join());
+        final test = IO.canceled.timeout(2.seconds).start().flatMap((f) => f.join());
 
         expect(test, ioSucceeded(Outcome.canceled<Unit>()));
       });
@@ -166,19 +157,22 @@ void main() {
       });
 
       test('return the left when racing against never', () {
-        final test = IO.racePair(IO.pure(42), IO.never<Unit>()).map(
-            (a) => a.swap().map((a) => a.$1).getOrElse(() => fail('boom!')));
+        final test = IO
+            .racePair(IO.pure(42), IO.never<Unit>())
+            .map((a) => a.swap().map((a) => a.$1).getOrElse(() => fail('boom!')));
 
         expect(test, ioSucceeded(Outcome.succeeded(42)));
       });
 
       test('immediately cancel inner race when outer unit', () {
-        final test = IO.now.flatMap((start) => IO
-            .race(
-              IO.unit,
-              IO.race(IO.never<Unit>(), IO.sleep(10.seconds)),
-            )
-            .flatMap((_) => IO.now.map((end) => end.difference(start))));
+        final test = IO.now.flatMap(
+          (start) => IO
+              .race(
+                IO.unit,
+                IO.race(IO.never<Unit>(), IO.sleep(10.seconds)),
+              )
+              .flatMap((_) => IO.now.map((end) => end.difference(start))),
+        );
 
         expect(test, ioSucceeded((Duration d) => d.inSeconds < 2));
       });
@@ -195,26 +189,19 @@ void main() {
       test('cancel an infinite chain of right-binds', () {
         IO<Unit> infinite() => IO.unit.flatMap((_) => infinite());
         expect(
-          infinite()
-              .start()
-              .flatMap((f) => f.cancel().productR(() => f.join())),
+          infinite().start().flatMap((f) => f.cancel().productR(() => f.join())),
           ioSucceeded(Outcome.canceled<Unit>()),
         );
       });
 
       test('cancel never', () {
         expect(
-          IO
-              .never<Unit>()
-              .start()
-              .flatMap((f) => f.cancel().productR(() => f.join())),
+          IO.never<Unit>().start().flatMap((f) => f.cancel().productR(() => f.join())),
           ioSucceeded(Outcome.canceled<Unit>()),
         );
       });
 
-      test(
-          'cancel flatMap continuations following a canceled uncancelable block',
-          () {
+      test('cancel flatMap continuations following a canceled uncancelable block', () {
         expect(
           IO.uncancelable((_) => IO.canceled).flatMap((_) => IO.unit),
           ioCanceled(),
@@ -224,8 +211,10 @@ void main() {
       test('sequence onCancel when canceled before registration', () async {
         var passed = false;
 
-        final test = IO.uncancelable((poll) => IO.canceled.productR(
-            () => poll(IO.unit).onCancel(IO.exec(() => passed = true))));
+        final test = IO.uncancelable(
+          (poll) =>
+              IO.canceled.productR(() => poll(IO.unit).onCancel(IO.exec(() => passed = true))),
+        );
 
         await expectLater(test, ioCanceled());
         expect(passed, isTrue);
@@ -235,21 +224,20 @@ void main() {
         var passed = true;
 
         final test = IO.uncancelable((poll) {
-          return IO.canceled.productR(() =>
-              poll(IO.unit).productR(() => IO.exec(() => passed = false)));
+          return IO.canceled.productR(
+            () => poll(IO.unit).productR(() => IO.exec(() => passed = false)),
+          );
         });
 
         await expectLater(test, ioCanceled());
         expect(passed, isTrue);
       });
 
-      test('not invoke onCancel when previously canceled within uncancelable',
-          () async {
+      test('not invoke onCancel when previously canceled within uncancelable', () async {
         var failed = false;
 
         final test = IO.uncancelable((_) {
-          return IO.canceled
-              .productR(() => IO.unit.onCancel(IO.exec(() => failed = true)));
+          return IO.canceled.productR(() => IO.unit.onCancel(IO.exec(() => failed = true)));
         });
 
         await expectLater(test, ioSucceeded());
@@ -258,14 +246,13 @@ void main() {
 
       test('support re-enablement via cancelable', () {
         final io = IO.deferred<Unit>().flatMap((gate) {
-          final test = IO.deferred<Unit>().flatMap((latch) => IO
-              .uncancelable(
-                  (_) => gate.complete(Unit()).productR(() => latch.value()))
-              .cancelable(latch.complete(Unit()).voided()));
+          final test = IO.deferred<Unit>().flatMap(
+            (latch) => IO
+                .uncancelable((_) => gate.complete(Unit()).productR(() => latch.value()))
+                .cancelable(latch.complete(Unit()).voided()),
+          );
 
-          return test
-              .start()
-              .flatMap((f) => gate.value().productR(() => f.cancel()));
+          return test.start().flatMap((f) => gate.value().productR(() => f.cancel()));
         });
 
         expect(io, ioSucceeded(Unit()));
@@ -277,8 +264,7 @@ void main() {
         final test = IO.uncancelable((poll) {
           return IO
               .uncancelable((_) {
-                return poll(IO.canceled)
-                    .productR(() => IO.exec(() => passed = true));
+                return poll(IO.canceled).productR(() => IO.exec(() => passed = true));
               })
               .start()
               .flatMap((f) => f.join())
@@ -294,15 +280,14 @@ void main() {
 
         final test = IO.deferred<Poll>().flatMap((deferred) {
           return IO.deferred<Unit>().flatMap((started) {
-            return IO
-                .uncancelable(deferred.complete)
-                .voided()
-                .start()
-                .flatMap((_) {
-              final action = started.complete(Unit()).productR(() => deferred
-                  .value()
-                  .flatMap((poll) => poll(IO.never<Unit>())
-                      .onCancel(IO.exec(() => canceled = true))));
+            return IO.uncancelable(deferred.complete).voided().start().flatMap((_) {
+              final action = started
+                  .complete(Unit())
+                  .productR(
+                    () => deferred.value().flatMap(
+                      (poll) => poll(IO.never<Unit>()).onCancel(IO.exec(() => canceled = true)),
+                    ),
+                  );
 
               return IO.uncancelable((_) => action).start().flatMap((f) {
                 return started.value().flatMap((_) {
@@ -317,27 +302,23 @@ void main() {
         expect(canceled, isFalse);
       }, skip: 'Expected to be non-terminating');
 
-      test('run three finalizers when an async is canceled while suspended',
-          () {
+      test('run three finalizers when an async is canceled while suspended', () {
         final results = List<int>.empty(growable: true);
 
-        final body =
-            IO.async((_) => IO.pure(Some(IO.exec(() => results.insert(0, 3)))));
+        final body = IO.async((_) => IO.pure(Some(IO.exec(() => results.insert(0, 3)))));
 
         final test = body
             .onCancel(IO.exec(() => results.insert(0, 2)))
             .onCancel(IO.exec(() => results.insert(0, 1)))
             .start()
             .flatMap((f) {
-          return IO.cede
-              .flatMap((_) => f.cancel().flatMap((_) => IO.pure(results)));
-        });
+              return IO.cede.flatMap((_) => f.cancel().flatMap((_) => IO.pure(results)));
+            });
 
         expect(test, ioSucceeded([1, 2, 3]));
       });
 
-      test('uncancelable canceled with finalizer within fiber should not block',
-          () {
+      test('uncancelable canceled with finalizer within fiber should not block', () {
         final fab = IO
             .uncancelable((_) => IO.canceled.onCancel(IO.unit))
             .start()
@@ -346,9 +327,7 @@ void main() {
         expect(fab, ioSucceeded(Outcome.succeeded(Unit())));
       });
 
-      test(
-          'uncancelable canceled with finalizer within fiber should flatMap another day',
-          () {
+      test('uncancelable canceled with finalizer within fiber should flatMap another day', () {
         final fa = IO.pure(42);
         final fab = IO
             .uncancelable((_) => IO.canceled.onCancel(IO.unit))
@@ -361,9 +340,11 @@ void main() {
       test('ignore repeated polls', () async {
         var passed = true;
 
-        final test = IO.uncancelable((poll) =>
-            poll(poll(IO.unit).productR(() => IO.canceled))
-                .productR(() => IO.exec(() => passed = false)));
+        final test = IO.uncancelable(
+          (poll) => poll(
+            poll(IO.unit).productR(() => IO.canceled),
+          ).productR(() => IO.exec(() => passed = false)),
+        );
 
         await expectLater(test, ioCanceled());
         expect(passed, isTrue);
@@ -374,18 +355,16 @@ void main() {
 
         final markStarted = IO.exec(() => started = true);
 
-        IO<Unit> cedeUntilStarted() => IO.delay(() => started).ifM(
-            () => IO.unit, () => IO.cede.productR(() => cedeUntilStarted()));
+        IO<Unit> cedeUntilStarted() => IO
+            .delay(() => started)
+            .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted()));
 
-        final test = markStarted
-            .productR(() => IO.never<Unit>())
-            .onCancel(IO.never())
-            .start()
-            .flatMap((f) {
-          return cedeUntilStarted().flatMap((_) {
-            return IO.race(f.cancel(), f.cancel());
-          });
-        }).voided();
+        final test =
+            markStarted.productR(() => IO.never<Unit>()).onCancel(IO.never()).start().flatMap((f) {
+              return cedeUntilStarted().flatMap((_) {
+                return IO.race(f.cancel(), f.cancel());
+              });
+            }).voided();
 
         expect(test.timeout(5.seconds), ioErrored());
       }, skip: 'Expected to be non-terminating');
@@ -397,39 +376,43 @@ void main() {
         final markStarted = IO.exec(() => started = true);
         final markStarted2 = IO.exec(() => started2 = true);
 
-        IO<Unit> cedeUntilStarted() => IO.delay(() => started).ifM(
-            () => IO.unit, () => IO.cede.productR(() => cedeUntilStarted()));
+        IO<Unit> cedeUntilStarted() => IO
+            .delay(() => started)
+            .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted()));
 
-        IO<Unit> cedeUntilStarted2() => IO.delay(() => started2).ifM(
-            () => IO.unit, () => IO.cede.productR(() => cedeUntilStarted2()));
+        IO<Unit> cedeUntilStarted2() => IO
+            .delay(() => started2)
+            .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted2()));
 
         final test = markStarted
             .productR(() => IO.never<Unit>())
             .onCancel(IO.never())
             .start()
             .flatMap((first) {
-          return cedeUntilStarted()
-              .productR(() => markStarted2)
-              .productR(() => first.cancel())
-              .start()
-              .flatMap((_) {
-            return cedeUntilStarted2().productR(() => first.cancel());
-          });
-        });
+              return cedeUntilStarted()
+                  .productR(() => markStarted2)
+                  .productR(() => first.cancel())
+                  .start()
+                  .flatMap((_) {
+                    return cedeUntilStarted2().productR(() => first.cancel());
+                  });
+            });
 
         expect(test, ioErrored());
       }, skip: 'Expected to be non-terminating');
 
       test('reliably cancel infinite IO.unit(s)', () {
         final test = IO.unit.foreverM().start().flatMap(
-            (f) => IO.sleep(50.milliseconds).productR(() => f.cancel()));
+          (f) => IO.sleep(50.milliseconds).productR(() => f.cancel()),
+        );
 
         expect(test, ioSucceeded());
       });
 
       test('reliably cancel infinite IO.cede(s)', () {
         final test = IO.cede.foreverM().start().flatMap(
-            (f) => IO.sleep(50.milliseconds).productR(() => f.cancel()));
+          (f) => IO.sleep(50.milliseconds).productR(() => f.cancel()),
+        );
 
         expect(test, ioSucceeded());
       });
@@ -449,8 +432,9 @@ void main() {
 
         final markStarted = IO.exec(() => started = true);
 
-        IO<Unit> cedeUntilStarted() => IO.delay(() => started).ifM(
-            () => IO.unit, () => IO.cede.productR(() => cedeUntilStarted()));
+        IO<Unit> cedeUntilStarted() => IO
+            .delay(() => started)
+            .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted()));
 
         final test = IO
             .uncancelable((_) => markStarted.productR(() => IO.never<Unit>()))
@@ -460,43 +444,49 @@ void main() {
         expect(test, ioErrored());
       }, skip: 'Expected to be non-terminating');
 
-      test('await cancelation of cancelation of uncancelable never', () {
-        var started = false;
-        var started2 = false;
+      test(
+        'await cancelation of cancelation of uncancelable never',
+        () {
+          var started = false;
+          var started2 = false;
 
-        final markStarted = IO.exec(() => started = true);
-        final markStarted2 = IO.exec(() => started2 = true);
+          final markStarted = IO.exec(() => started = true);
+          final markStarted2 = IO.exec(() => started2 = true);
 
-        IO<Unit> cedeUntilStarted() => IO.delay(() => started).ifM(
-            () => IO.unit, () => IO.cede.productR(() => cedeUntilStarted()));
+          IO<Unit> cedeUntilStarted() => IO
+              .delay(() => started)
+              .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted()));
 
-        IO<Unit> cedeUntilStarted2() => IO.delay(() => started2).ifM(
-            () => IO.unit, () => IO.cede.productR(() => cedeUntilStarted2()));
+          IO<Unit> cedeUntilStarted2() => IO
+              .delay(() => started2)
+              .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted2()));
 
-        final test = IO
-            .uncancelable((_) => markStarted.productR(() => IO.never<Unit>()))
-            .start()
-            .flatMap((first) {
-          return IO
-              .uncancelable((poll) => cedeUntilStarted()
-                  .productR(() => markStarted2)
-                  .productR(() => poll(first.cancel())))
+          final test = IO
+              .uncancelable((_) => markStarted.productR(() => IO.never<Unit>()))
               .start()
-              .flatMap((second) {
-            return cedeUntilStarted2().flatMap((_) {
-              return second.cancel();
-            });
-          });
-        });
+              .flatMap((first) {
+                return IO
+                    .uncancelable(
+                      (poll) => cedeUntilStarted()
+                          .productR(() => markStarted2)
+                          .productR(() => poll(first.cancel())),
+                    )
+                    .start()
+                    .flatMap((second) {
+                      return cedeUntilStarted2().flatMap((_) {
+                        return second.cancel();
+                      });
+                    });
+              });
 
-        expect(test, ioErrored());
-      }, skip: 'Expected to be non-terminating');
+          expect(test, ioErrored());
+        },
+        skip: 'Expected to be non-terminating',
+      );
 
       test('catch stray exceptions in uncancelable', () {
         expect(
-          IO
-              .uncancelable<Unit>((_) => throw RuntimeException('boom'))
-              .voidError(),
+          IO.uncancelable<Unit>((_) => throw RuntimeException('boom')).voidError(),
           ioSucceeded(Unit()),
         );
       });
@@ -530,8 +520,7 @@ void main() {
       test('run an identity finalizer and continue', () async {
         var affected = false;
 
-        final seed =
-            IO.unit.guaranteeCase((_) => IO.exec(() => affected = true));
+        final seed = IO.unit.guaranteeCase((_) => IO.exec(() => affected = true));
 
         await expectLater(seed.as(42), ioSucceeded(42));
 
@@ -552,8 +541,7 @@ void main() {
         expect(outer, isTrue);
       });
 
-      test('run multiple nested finalizers on completion exactly once',
-          () async {
+      test('run multiple nested finalizers on completion exactly once', () async {
         var inner = 0;
         var outer = 0;
 
@@ -591,15 +579,12 @@ void main() {
       });
 
       test('cede unit in a finalizer', () {
-        final body =
-            IO.sleep(1.second).start().flatMap((f) => f.join()).map((_) => 42);
+        final body = IO.sleep(1.second).start().flatMap((f) => f.join()).map((_) => 42);
 
         expect(body.guarantee(IO.cede.as(Unit())), ioSucceeded(42));
       });
 
-      test(
-          'ensure async callback is suppressed during suspension of async finalizers',
-          () {
+      test('ensure async callback is suppressed during suspension of async finalizers', () {
         Function1<Either<RuntimeException, Unit>, void>? cb;
 
         final subject = IO.async<Unit>((cb0) {
@@ -618,32 +603,29 @@ void main() {
         expect(test, ioSucceeded(Unit()));
       });
 
-      test(
-          'not finalize after uncancelable with suppressed cancelation (succeeded)',
-          () async {
+      test('not finalize after uncancelable with suppressed cancelation (succeeded)', () async {
         var finalized = false;
 
-        final test = IO
-            .uncancelable((_) => IO.canceled.productR(() => IO.pure(42)))
-            .onCancel(IO.exec(() => finalized = true))
-            .voided();
+        final test =
+            IO
+                .uncancelable((_) => IO.canceled.productR(() => IO.pure(42)))
+                .onCancel(IO.exec(() => finalized = true))
+                .voided();
 
         await expectLater(test, ioSucceeded(Unit()));
         expect(finalized, isFalse);
       });
 
-      test(
-          'not finalize after uncancelable with suppressed cancelation (errored)',
-          () async {
+      test('not finalize after uncancelable with suppressed cancelation (errored)', () async {
         final err = RuntimeException('boom');
 
         var finalized = false;
 
-        final test = IO
-            .uncancelable(
-                (_) => IO.canceled.productR(() => IO.raiseError<int>(err)))
-            .onCancel(IO.exec(() => finalized = true))
-            .voided();
+        final test =
+            IO
+                .uncancelable((_) => IO.canceled.productR(() => IO.raiseError<int>(err)))
+                .onCancel(IO.exec(() => finalized = true))
+                .voided();
 
         await expectLater(test, ioErrored(err));
         expect(finalized, isFalse);
@@ -655,12 +637,12 @@ void main() {
               .bracketFull<Unit, Unit>(
                 (_) => IO.unit,
                 (_) => throw Exception('borked!'),
-                (_, __) => ref.setValue(true),
+                (_, _) => ref.setValue(true),
               )
               .attempt()
               .flatMap((_) {
-            return ref.value();
-          });
+                return ref.value();
+              });
         });
 
         expect(test, ioSucceeded(true));
@@ -708,14 +690,10 @@ void main() {
       test('run multiple IOs in parallel', () {
         const n = 10;
 
-        final test = IList.range(0, n)
-            .traverseIO((_) => IO.deferred<Unit>())
-            .flatMap((latches) {
+        final test = IList.range(0, n).traverseIO((_) => IO.deferred<Unit>()).flatMap((latches) {
           final awaitAll = latches.parTraverseIO_((a) => a.value());
-          final subjects =
-              latches.map((l) => l.complete(Unit()).productR(() => awaitAll));
-          return subjects.parTraverseIO_(
-              (act) => IO.delay(() => act.unsafeRunAndForget()));
+          final subjects = latches.map((l) => l.complete(Unit()).productR(() => awaitAll));
+          return subjects.parTraverseIO_((act) => IO.delay(() => act.unsafeRunAndForget()));
         });
 
         expect(test, ioSucceeded(Unit()));
@@ -736,15 +714,15 @@ void main() {
   });
 
   test('fromFuture success', () {
-    final io = IO
-        .fromFuture(IO.delay(() => Future.delayed(250.milliseconds, () => 42)));
+    final io = IO.fromFuture(IO.delay(() => Future.delayed(250.milliseconds, () => 42)));
 
     expect(io, ioSucceeded(42));
   });
 
   test('fromFuture error', () {
-    final io = IO.fromFuture(IO.delay(() =>
-        Future<int>.delayed(250.milliseconds, () => Future.error('boom'))));
+    final io = IO.fromFuture(
+      IO.delay(() => Future<int>.delayed(250.milliseconds, () => Future.error('boom'))),
+    );
 
     expect(io, ioErrored((RuntimeException ex) => ex.message == 'boom'));
   });
@@ -752,11 +730,14 @@ void main() {
   test('fromCancelableOperation success', () {
     bool opWasCanceled = false;
 
-    final io = IO
-        .fromCancelableOperation(IO.delay(() => CancelableOperation.fromFuture(
-              Future.delayed(200.milliseconds, () => 42),
-              onCancel: () => opWasCanceled = true,
-            )));
+    final io = IO.fromCancelableOperation(
+      IO.delay(
+        () => CancelableOperation.fromFuture(
+          Future.delayed(200.milliseconds, () => 42),
+          onCancel: () => opWasCanceled = true,
+        ),
+      ),
+    );
 
     expect(io, ioSucceeded(42));
     expect(opWasCanceled, isFalse);
@@ -765,11 +746,14 @@ void main() {
   test('fromCancelableOperation canceled', () async {
     bool opWasCanceled = false;
 
-    final io = IO
-        .fromCancelableOperation(IO.delay(() => CancelableOperation.fromFuture(
-              Future.delayed(500.milliseconds, () => 42),
-              onCancel: () => opWasCanceled = true,
-            )));
+    final io = IO.fromCancelableOperation(
+      IO.delay(
+        () => CancelableOperation.fromFuture(
+          Future.delayed(500.milliseconds, () => 42),
+          onCancel: () => opWasCanceled = true,
+        ),
+      ),
+    );
 
     final fiber = await io.start().unsafeRunFuture();
 
@@ -856,8 +840,7 @@ void main() {
   test('map pure', () {
     const n = 200;
 
-    IO<int> build(IO<int> io, int loop) =>
-        loop <= 0 ? io : build(io.map((x) => x + 1), loop - 1);
+    IO<int> build(IO<int> io, int loop) => loop <= 0 ? io : build(io.map((x) => x + 1), loop - 1);
 
     final io = build(IO.pure(0), n);
 
@@ -877,9 +860,7 @@ void main() {
   });
 
   test('flatMap error', () {
-    final io = IO
-        .pure(42)
-        .flatMap((i) => IO.raiseError<String>(RuntimeException('boom')));
+    final io = IO.pure(42).flatMap((i) => IO.raiseError<String>(RuntimeException('boom')));
 
     expect(io, ioErrored((RuntimeException ex) => ex.message == 'boom'));
   });
@@ -936,12 +917,13 @@ void main() {
   test('async simple', () async {
     bool finalized = false;
 
-    final io = IO.async<int>((cb) => IO.delay(() {
-          Future.delayed(2.seconds, () => 42)
-              .then((value) => cb(value.asRight()));
+    final io = IO.async<int>(
+      (cb) => IO.delay(() {
+        Future.delayed(2.seconds, () => 42).then((value) => cb(value.asRight()));
 
-          return IO.exec(() => finalized = true).some;
-        }));
+        return IO.exec(() => finalized = true).some;
+      }),
+    );
 
     final fiber = await io.start().unsafeRunFuture();
 
@@ -955,8 +937,7 @@ void main() {
 
   test('async_ simple', () {
     final io = IO.async_<int>((cb) {
-      Future.delayed(100.milliseconds, () => 42)
-          .then((value) => cb(value.asRight()));
+      Future.delayed(100.milliseconds, () => 42).then((value) => cb(value.asRight()));
     });
 
     expect(io, ioSucceeded(42));
@@ -964,8 +945,7 @@ void main() {
 
   test('unsafeRunFuture success', () async {
     expect(await IO.pure(42).unsafeRunFuture(), 42);
-    expect(IO.raiseError<int>(RuntimeException('boom')).unsafeRunFuture(),
-        throwsA('boom'));
+    expect(IO.raiseError<int>(RuntimeException('boom')).unsafeRunFuture(), throwsA('boom'));
   });
 
   test('start simple', () async {
@@ -1078,9 +1058,9 @@ void main() {
         .guarantee(IO.cede)
         .as(42);
 
-    final generous = appendOutput('hello')
-        .guarantee(IO.cede)
-        .flatTap((a) => appendOutput('world!'));
+    final generous = appendOutput(
+      'hello',
+    ).guarantee(IO.cede).flatTap((a) => appendOutput('world!'));
 
     final fiber = expensive.start().unsafeRunFuture();
     generous.start().unsafeRunAndForget();
@@ -1095,10 +1075,10 @@ void main() {
     var count = 0;
 
     IO<Unit> fin(Outcome<Unit> oc) => oc.fold(
-          () => IO.exec(() => count += 1),
-          (_) => IO.exec(() => count += 2),
-          (_) => IO.exec(() => count += 3),
-        );
+      () => IO.exec(() => count += 1),
+      (_) => IO.exec(() => count += 2),
+      (_) => IO.exec(() => count += 3),
+    );
 
     await expectLater(
       IO.unit.guaranteeCase(fin),
@@ -1137,10 +1117,8 @@ void main() {
     final iob = IO.pure(2).delayBy(200.milliseconds);
     final ioc = IO.pure(3).delayBy(200.milliseconds);
 
-    final (elapsed, value) = await (ioa, iob, ioc)
-        .mapN((a, b, c) => a + b + c)
-        .timed()
-        .unsafeRunFuture();
+    final (elapsed, value) =
+        await (ioa, iob, ioc).mapN((a, b, c) => a + b + c).timed().unsafeRunFuture();
 
     expect(value, 6);
     expect(elapsed.inMilliseconds, closeTo(600, 50));
@@ -1151,10 +1129,8 @@ void main() {
     final iob = IO.pure(2).delayBy(500.milliseconds);
     final ioc = IO.pure(3).delayBy(500.milliseconds);
 
-    final (elapsed, value) = await (ioa, iob, ioc)
-        .parMapN((a, b, c) => a + b + c)
-        .timed()
-        .unsafeRunFuture();
+    final (elapsed, value) =
+        await (ioa, iob, ioc).parMapN((a, b, c) => a + b + c).timed().unsafeRunFuture();
 
     expect(value, 6);
     expect(elapsed.inMilliseconds, closeTo(500, 150));
@@ -1164,28 +1140,32 @@ void main() {
     var count = 0;
 
     await expectLater(
-      IO.pure(41).bracket(
-          (a) => IO.delay(() => a + 1), (_) => IO.exec(() => count += 1)),
+      IO.pure(41).bracket((a) => IO.delay(() => a + 1), (_) => IO.exec(() => count += 1)),
       ioSucceeded(42),
     );
 
     expect(count, 1);
 
     await expectLater(
-      IO.pure(41).bracket(
-          (a) => IO
-              .delay(() => a + 1)
-              .productR(() => IO.raiseError<int>(RuntimeException('boom'))),
-          (_) => IO.exec(() => count += 1)),
+      IO
+          .pure(41)
+          .bracket(
+            (a) =>
+                IO.delay(() => a + 1).productR(() => IO.raiseError<int>(RuntimeException('boom'))),
+            (_) => IO.exec(() => count += 1),
+          ),
       ioErrored(),
     );
 
     expect(count, 2);
 
     await expectLater(
-      IO.pure(41).bracket(
-          (a) => IO.delay(() => a + 1).productR(() => IO.canceled),
-          (_) => IO.exec(() => count += 1)),
+      IO
+          .pure(41)
+          .bracket(
+            (a) => IO.delay(() => a + 1).productR(() => IO.canceled),
+            (_) => IO.exec(() => count += 1),
+          ),
       ioCanceled(),
     );
 
@@ -1196,26 +1176,20 @@ void main() {
     var count = 0;
 
     expect(
-      IO
-          .exec(() => count += 1)
-          .flatMap((a) => IO.pure(count))
-          .iterateUntil((a) => a == 42),
+      IO.exec(() => count += 1).flatMap((a) => IO.pure(count)).iterateUntil((a) => a == 42),
       ioSucceeded(42),
     );
   });
 
   test('option', () {
     expect(IO.pure(42).option(), ioSucceeded(const Some(42)));
-    expect(IO.raiseError<int>(RuntimeException('boom')).option(),
-        ioSucceeded(none<int>()));
+    expect(IO.raiseError<int>(RuntimeException('boom')).option(), ioSucceeded(none<int>()));
     expect(IO.canceled.option(), ioCanceled());
   });
 
   test('orElse', () {
     expect(IO.pure(42).orElse(() => IO.pure(0)), ioSucceeded(42));
-    expect(
-        IO.raiseError<int>(RuntimeException('boom')).orElse(() => IO.pure(0)),
-        ioSucceeded(0));
+    expect(IO.raiseError<int>(RuntimeException('boom')).orElse(() => IO.pure(0)), ioSucceeded(0));
     expect(IO.canceled.orElse(() => IO.pure(Unit())), ioCanceled());
   });
 
@@ -1236,18 +1210,14 @@ void main() {
     );
 
     expect(
-      IO
-          .raiseError<int>(RuntimeException('boom'))
-          .redeem((err) => 'a', (a) => a.toString()),
+      IO.raiseError<int>(RuntimeException('boom')).redeem((err) => 'a', (a) => a.toString()),
       ioSucceeded('a'),
     );
   });
 
   test('redeemWith', () {
     expect(
-      IO
-          .pure(42)
-          .redeemWith((err) => IO.pure('a'), (a) => IO.pure(a.toString())),
+      IO.pure(42).redeemWith((err) => IO.pure('a'), (a) => IO.pure(a.toString())),
       ioSucceeded('42'),
     );
 
@@ -1270,13 +1240,11 @@ void main() {
   test('unlessA', () async {
     var count = 0;
 
-    await expectLater(
-        IO.unlessA(true, () => IO.exec(() => count += 1)), ioSucceeded());
+    await expectLater(IO.unlessA(true, () => IO.exec(() => count += 1)), ioSucceeded());
 
     expect(count, 0);
 
-    await expectLater(
-        IO.unlessA(false, () => IO.exec(() => count += 1)), ioSucceeded());
+    await expectLater(IO.unlessA(false, () => IO.exec(() => count += 1)), ioSucceeded());
 
     expect(count, 1);
   });
@@ -1284,13 +1252,11 @@ void main() {
   test('whenA', () async {
     var count = 0;
 
-    await expectLater(
-        IO.whenA(true, () => IO.exec(() => count += 1)), ioSucceeded());
+    await expectLater(IO.whenA(true, () => IO.exec(() => count += 1)), ioSucceeded());
 
     expect(count, 1);
 
-    await expectLater(
-        IO.whenA(false, () => IO.exec(() => count += 1)), ioSucceeded());
+    await expectLater(IO.whenA(false, () => IO.exec(() => count += 1)), ioSucceeded());
 
     expect(count, 1);
   });
@@ -1304,19 +1270,13 @@ void main() {
   });
 
   test('timeoutTo initial', () {
-    final io = IO
-        .pure(42)
-        .delayBy(200.milliseconds)
-        .timeoutTo(100.milliseconds, IO.pure(0));
+    final io = IO.pure(42).delayBy(200.milliseconds).timeoutTo(100.milliseconds, IO.pure(0));
 
     expect(io, ioSucceeded(0));
   });
 
   test('timeoutTo fallback', () {
-    final io = IO
-        .pure(42)
-        .delayBy(100.milliseconds)
-        .timeoutTo(200.milliseconds, IO.pure(0));
+    final io = IO.pure(42).delayBy(100.milliseconds).timeoutTo(200.milliseconds, IO.pure(0));
 
     expect(io, ioSucceeded(42));
   });
@@ -1359,10 +1319,12 @@ void main() {
 
     IO<Unit> appendOutput(String s) => IO.exec(() => output.add(s));
 
-    final io = IO.uncancelable((_) => appendOutput('A')
-        .flatTap((_) => appendOutput('B'))
-        .flatMap((a) => IO.canceled)
-        .flatTap((_) => appendOutput('C')));
+    final io = IO.uncancelable(
+      (_) => appendOutput('A')
+          .flatTap((_) => appendOutput('B'))
+          .flatMap((a) => IO.canceled)
+          .flatTap((_) => appendOutput('C')),
+    );
 
     await expectLater(io, ioSucceeded());
     expect(output, ['A', 'B', 'C']);
@@ -1438,12 +1400,13 @@ void main() {
     var count = 0;
     const n = 10;
 
-    final (elapsed, _) = await IO
-        .exec(() => count += 1)
-        .delayBy(200.milliseconds)
-        .parReplicate_(n)
-        .timed()
-        .unsafeRunFuture();
+    final (elapsed, _) =
+        await IO
+            .exec(() => count += 1)
+            .delayBy(200.milliseconds)
+            .parReplicate_(n)
+            .timed()
+            .unsafeRunFuture();
 
     expect(elapsed.inMilliseconds, closeTo(225, 150));
     expect(count, n);
@@ -1497,15 +1460,9 @@ void main() {
     bool aCanceled = false;
     bool bCanceled = false;
 
-    final ioa = IO
-        .pure(42)
-        .delayBy(100.milliseconds)
-        .onCancel(IO.exec(() => aCanceled = true));
+    final ioa = IO.pure(42).delayBy(100.milliseconds).onCancel(IO.exec(() => aCanceled = true));
 
-    final iob = IO
-        .pure('B')
-        .delayBy(200.milliseconds)
-        .onCancel(IO.exec(() => bCanceled = true));
+    final iob = IO.pure('B').delayBy(200.milliseconds).onCancel(IO.exec(() => bCanceled = true));
 
     await expectLater(IO.race(ioa, iob), ioSucceeded(42.asLeft<String>()));
     expect(aCanceled, isFalse);
@@ -1531,8 +1488,7 @@ void main() {
   });
 
   test('both (A canceled)', () {
-    final ioa =
-        IO.pure(0).productR(() => IO.canceled).delayBy(100.milliseconds);
+    final ioa = IO.pure(0).productR(() => IO.canceled).delayBy(100.milliseconds);
 
     final iob = IO.pure(1).delayBy(200.milliseconds);
 
@@ -1542,8 +1498,7 @@ void main() {
   test('both (B canceled)', () {
     final ioa = IO.pure(0).delayBy(200.milliseconds);
 
-    final iob =
-        IO.pure(1).productR(() => IO.canceled).delayBy(100.milliseconds);
+    final iob = IO.pure(1).productR(() => IO.canceled).delayBy(100.milliseconds);
 
     expect(IO.both(ioa, iob), ioCanceled());
   });
@@ -1617,11 +1572,7 @@ void main() {
   });
 
   test('toSyncIO', () {
-    final syncIO = IO
-        .pure(21)
-        .flatMap((x) => IO.pure(x * 2))
-        .toSyncIO(100)
-        .unsafeRunSync();
+    final syncIO = IO.pure(21).flatMap((x) => IO.pure(x * 2)).toSyncIO(100).unsafeRunSync();
 
     syncIO.fold(
       (io) => fail('IO -> SyncIO failed!'),

@@ -32,8 +32,7 @@ final class ListDecoder<A> extends Decoder<List<A>> {
     } else if (cursor.value.isArray) {
       return List<A>.empty().asRight();
     } else {
-      return DecodingFailure(
-              WrongTypeExpectation('array', cursor.value), cursor.history())
+      return DecodingFailure(WrongTypeExpectation('array', cursor.value), cursor.history())
           .asLeft();
     }
   }

@@ -39,8 +39,10 @@ final class Debug extends Message {
 
 // codecs-2
 
-final infoCodec =
-    Codec.utf16_32.xmap((str) => Info(str), (info) => info.message);
+final infoCodec = Codec.utf16_32.xmap(
+  (str) => Info(str),
+  (info) => info.message,
+);
 
 final debugCodec = Codec.product2(
   Codec.int32L, // 32-bit little endian int
@@ -86,12 +88,13 @@ final headerCodec = Codec.product3(
 void snippet5() {
   // codecs-5
   final doc = Document(
-      const Header(1.1, 'Top Secret', 3),
-      IList.fromDart([
-        Info('Hello!'),
-        Debug(123, 'breakpoint-1'),
-        Info('Goodbye!'),
-      ]));
+    const Header(1.1, 'Top Secret', 3),
+    IList.fromDart([
+      Info('Hello!'),
+      Debug(123, 'breakpoint-1'),
+      Info('Goodbye!'),
+    ]),
+  );
 
   // Encoding will give us an error or the successfully encoded BitVector
   final Either<Err, BitVector> bits = documentCodec.encode(doc);
@@ -102,8 +105,9 @@ void snippet5() {
   // Decoding will give us either an error if it failed or the DecodeResult
   // A DecodeResult gives us the successfully decoded value and any remaining bits from the input
   // ** Note the throw is included only for edification purposes. This is not a good idea in production code
-  final Either<Err, DecodeResult<Document>> decoded = documentCodec
-      .decode(bits.getOrElse(() => throw Exception('encode failed!')));
+  final Either<Err, DecodeResult<Document>> decoded = documentCodec.decode(
+    bits.getOrElse(() => throw Exception('encode failed!')),
+  );
 
   print(decoded);
   // Right(DecodeResult(Instance of 'Document', ByteVector.empty))

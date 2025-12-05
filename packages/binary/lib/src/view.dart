@@ -32,8 +32,7 @@ final class _View {
     return cont;
   }
 
-  void copyToArray(Uint8List xs, int start) =>
-      at.copyToArray(xs, start, offset, size);
+  void copyToArray(Uint8List xs, int start) => at.copyToArray(xs, start, offset, size);
 
   _View take(int n) {
     if (n <= 0) {

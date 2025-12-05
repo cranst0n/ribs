@@ -12,9 +12,7 @@ void main() {
 
   group('Either', () {
     test('catching (value)', () {
-      expect(
-          Either.catching(() => 1,
-              (a, b) => fail('Either.catching value should not throw')),
+      expect(Either.catching(() => 1, (a, b) => fail('Either.catching value should not throw')),
           isRight<Never, int>(1));
     });
 
@@ -73,26 +71,21 @@ void main() {
     test('filterOrElse', () {
       final zero = Either.left<String, int>('zero');
 
-      expect(
-          testRight.filterOrElse((a) => a > 0, () => fail('boom')), testRight);
+      expect(testRight.filterOrElse((a) => a > 0, () => fail('boom')), testRight);
       expect(testRight.filterOrElse((a) => a < 0, () => 'zero'), zero);
       expect(testLeft.filterOrElse((a) => fail('boom'), () => 'zero'), zero);
     });
 
     test('flatMap', () {
-      expect(testRight.flatMap((a) => Either.right(a + 1)),
-          isRight<String, int>(2));
+      expect(testRight.flatMap((a) => Either.right(a + 1)), isRight<String, int>(2));
       expect(testLeft.flatMap((a) => Either.right(a + 1)), testLeft);
       expect(testRight.flatMap((_) => testLeft), testLeft);
     });
 
     test('flatten', () {
-      expect(Either.right<String, Either<String, int>>(testRight).flatten(),
-          testRight);
-      expect(Either.right<String, Either<String, int>>(testLeft).flatten(),
-          testLeft);
-      expect(
-          Either.left<String, Either<String, int>>('left').flatten(), testLeft);
+      expect(Either.right<String, Either<String, int>>(testRight).flatten(), testRight);
+      expect(Either.right<String, Either<String, int>>(testLeft).flatten(), testLeft);
+      expect(Either.left<String, Either<String, int>>('left').flatten(), testLeft);
     });
 
     test('foldLeft', () {
@@ -195,10 +188,8 @@ void main() {
     });
 
     test('hashCode', () {
-      expect(Either.right<int, int>(42).hashCode,
-          Either.right<int, int>(42).hashCode);
-      expect(Either.left<int, int>(42).hashCode,
-          Either.left<int, int>(42).hashCode);
+      expect(Either.right<int, int>(42).hashCode, Either.right<int, int>(42).hashCode);
+      expect(Either.left<int, int>(42).hashCode, Either.left<int, int>(42).hashCode);
     });
 
     test('mapN', () {

@@ -15,11 +15,9 @@ final class Rill<O> {
 
   static Rill<O> empty<O>() => Pull.done().rillNoScope();
 
-  static Rill<O> eval<O>(IO<O> io) =>
-      Pull.eval(io).flatMap((a) => Pull.output1(a)).rillNoScope();
+  static Rill<O> eval<O>(IO<O> io) => Pull.eval(io).flatMap((a) => Pull.output1(a)).rillNoScope();
 
-  static Rill<O> raiseError<O>(RuntimeException err) =>
-      Pull.raiseError(err).rillNoScope();
+  static Rill<O> raiseError<O>(RuntimeException err) => Pull.raiseError(err).rillNoScope();
 
   static Rill<int> range(int start, int stopExclusive, {int step = 1}) {
     Rill<int> go(int o) {
@@ -39,39 +37,31 @@ final class Rill<O> {
 
   RillCompiled<O> compile() => RillCompiled(_underlying);
 
-  Rill<O> cons(IList<O> l) =>
-      l.isEmpty ? this : Rill.chunk(l).append(() => this);
+  Rill<O> cons(IList<O> l) => l.isEmpty ? this : Rill.chunk(l).append(() => this);
 
   Rill<Never> drain() => _underlying.unconsFlatMap((_) => Pull.done()).rill();
 
-  Rill<O> drop(int n) => pull()
-      .drop(n)
-      .flatMap((tl) => tl.fold(() => Pull.done(), (tl) => tl.pull().echo()))
-      .rill();
+  Rill<O> drop(int n) =>
+      pull().drop(n).flatMap((tl) => tl.fold(() => Pull.done(), (tl) => tl.pull().echo())).rill();
 
   Rill<O> dropThrough(Function1<O, bool> p) => pull()
       .dropThrough(p)
       .flatMap((a) => a.fold(() => Pull.done(), (a) => a.pull().echo()))
       .rill();
 
-  Rill<O> dropWhile(Function1<O, bool> p) => pull()
-      .dropWhile(p)
-      .flatMap((a) => a.fold(() => Pull.done(), (a) => a.pull().echo()))
-      .rill();
+  Rill<O> dropWhile(Function1<O, bool> p) =>
+      pull().dropWhile(p).flatMap((a) => a.fold(() => Pull.done(), (a) => a.pull().echo())).rill();
 
-  Rill<O2> evalMap<O2>(Function1<O, IO<O2>> f) => _underlying
-      .flatMapOutput((o) => Pull.eval(f(o)).flatMap(Pull.output1))
-      .rillNoScope();
+  Rill<O2> evalMap<O2>(Function1<O, IO<O2>> f) =>
+      _underlying.flatMapOutput((o) => Pull.eval(f(o)).flatMap(Pull.output1)).rillNoScope();
 
   Rill<O> evalTap<O2>(Function1<O, IO<O2>> f) => evalMap((o) => f(o).as(o));
 
   Rill<bool> exists(Function1<O, bool> p) =>
       pull().forall((a) => !p(a)).flatMap((r) => Pull.output1(!r)).rill();
 
-  Rill<O> find(Function1<O, bool> f) => pull()
-      .find(f)
-      .flatMap((a) => a.fold(() => Pull.done(), (a) => Pull.output1(a.$1)))
-      .rill();
+  Rill<O> find(Function1<O, bool> f) =>
+      pull().find(f).flatMap((a) => a.fold(() => Pull.done(), (a) => Pull.output1(a.$1))).rill();
 
   Rill<O> filter(Function1<O, bool> p) => mapChunks((c) => c.filter(p));
 
@@ -81,8 +71,7 @@ final class Rill<O> {
             (a) => a.fold(
               () => Pull.done(),
               (a) => a((hd, tl) {
-                final (allPass, newLast) =
-                    hd.foldLeft<(bool, O)>((true, last), (accLast, o) {
+                final (allPass, newLast) = hd.foldLeft<(bool, O)>((true, last), (accLast, o) {
                   final (acc, last) = accLast;
                   return (acc && f(last, o), o);
                 });
@@ -90,8 +79,8 @@ final class Rill<O> {
                 if (allPass) {
                   return Pull.output(hd).append(() => go(newLast, tl));
                 } else {
-                  final (acc, newLast) = hd.foldLeft<(IList<O>, O)>(
-                      (IList.empty<O>(), last), (accLast, o) {
+                  final (acc, newLast) =
+                      hd.foldLeft<(IList<O>, O)>((IList.empty<O>(), last), (accLast, o) {
                     final (acc, last) = accLast;
 
                     if (f(last, o)) {
@@ -125,9 +114,7 @@ final class Rill<O> {
       pull().fold(initial, f).flatMap((x) => Pull.output1(x)).rill();
 
   Rill<O> handleErrorWith(Function1<RuntimeException, Rill<O>> handler) =>
-      Pull.scope(_underlying)
-          .handleErrorWith((e) => handler(e)._underlying)
-          .rillNoScope();
+      Pull.scope(_underlying).handleErrorWith((e) => handler(e)._underlying).rillNoScope();
 
   Rill<O2> map<O2>(Function1<O, O2> f) => Pull.mapOutput(this, f).rillNoScope();
 
@@ -177,11 +164,9 @@ class RillCompiled<O> {
         (scope, ec) => scope.close(ec).rethrowError(),
       ).use((scope) => Pull.compile(_pull, scope, false, init, fold));
 
-  IO<Option<O>> last() =>
-      foldChunks(none(), (acc, elem) => elem.lastOption.orElse(() => acc));
+  IO<Option<O>> last() => foldChunks(none(), (acc, elem) => elem.lastOption.orElse(() => acc));
 
-  IO<IList<O>> toIList() =>
-      foldChunks(IList.empty(), (acc, chunk) => acc.concat(chunk));
+  IO<IList<O>> toIList() => foldChunks(IList.empty(), (acc, chunk) => acc.concat(chunk));
 }
 
 class ToPull<O> {
@@ -210,11 +195,9 @@ class ToPull<O> {
     }
   }
 
-  Pull<O, Option<Rill<O>>> dropThrough(Function1<O, bool> p) =>
-      _dropWhile_(p, true);
+  Pull<O, Option<Rill<O>>> dropThrough(Function1<O, bool> p) => _dropWhile_(p, true);
 
-  Pull<O, Option<Rill<O>>> dropWhile(Function1<O, bool> p) =>
-      _dropWhile_(p, false);
+  Pull<O, Option<Rill<O>>> dropWhile(Function1<O, bool> p) => _dropWhile_(p, false);
 
   Pull<O, Option<Rill<O>>> _dropWhile_(
     Function1<O, bool> p,
@@ -239,43 +222,39 @@ class ToPull<O> {
 
   Pull<O, Unit> echo() => self._underlying;
 
-  Pull<O, Option<(O, Rill<O>)>> find(Function1<O, bool> f) =>
-      uncons().flatMap((a) => a.fold(
-            () => Pull.pure(none()),
-            (a) => a((hd, tl) {
-              return hd.indexWhere(f).fold(
-                () => tl.pull().find(f),
-                (idx) {
-                  if (idx + 1 < hd.size) {
-                    final rem = hd.drop(idx + 1);
-                    return Pull.pure(Some((hd[idx], tl.cons(rem))));
-                  } else {
-                    return Pull.pure(Some((hd[idx], tl)));
-                  }
-                },
-              );
-            }),
-          ));
+  Pull<O, Option<(O, Rill<O>)>> find(Function1<O, bool> f) => uncons().flatMap((a) => a.fold(
+        () => Pull.pure(none()),
+        (a) => a((hd, tl) {
+          return hd.indexWhere(f).fold(
+            () => tl.pull().find(f),
+            (idx) {
+              if (idx + 1 < hd.size) {
+                final rem = hd.drop(idx + 1);
+                return Pull.pure(Some((hd[idx], tl.cons(rem))));
+              } else {
+                return Pull.pure(Some((hd[idx], tl)));
+              }
+            },
+          );
+        }),
+      ));
 
-  Pull<O, O2> fold<O2>(O2 init, Function2<O2, O, O2> f) =>
-      uncons().flatMap((a) => a.fold(
-          () => Pull.pure(init),
-          (a) => a(
-                (hd, tl) {
-                  final acc = hd.foldLeft(init, f);
-                  return tl.pull().fold(acc, f);
-                },
-              )));
+  Pull<O, O2> fold<O2>(O2 init, Function2<O2, O, O2> f) => uncons().flatMap((a) => a.fold(
+      () => Pull.pure(init),
+      (a) => a(
+            (hd, tl) {
+              final acc = hd.foldLeft(init, f);
+              return tl.pull().fold(acc, f);
+            },
+          )));
 
   Pull<O, bool> forall(Function1<O, bool> p) => uncons().flatMap((a) => a.foldN(
         () => Pull.pure<O, bool>(true),
-        (hd, tl) =>
-            hd.forall(p) ? tl.pull().forall(p) : Pull.pure<O, bool>(false),
+        (hd, tl) => hd.forall(p) ? tl.pull().forall(p) : Pull.pure<O, bool>(false),
       ));
 
-  Pull<O, Option<(IList<O>, Rill<O>)>> uncons() => self._underlying
-      .uncons()
-      .map((a) => a.map((a) => a((hd, tl) => (hd, tl.rillNoScope()))));
+  Pull<O, Option<(IList<O>, Rill<O>)>> uncons() =>
+      self._underlying.uncons().map((a) => a.map((a) => a((hd, tl) => (hd, tl.rillNoScope()))));
 
   Pull<O, Option<(O, Rill<O>)>> uncons1() =>
       uncons().flatMap((a) => a.fold(() => Pull.pure(none()), (x) {
@@ -348,11 +327,10 @@ class ToPull<O> {
     if (n <= 0) {
       return Pull.pure(Some((IList.empty(), self)));
     } else {
-      return unconsMin(n, allowFewerTotal: allowFewerTotal)
-          .map((x) => x.map((a) => a((hd, tl) {
-                final (pfx, sfx) = hd.splitAt(n);
-                return (pfx, tl.cons(sfx));
-              })));
+      return unconsMin(n, allowFewerTotal: allowFewerTotal).map((x) => x.map((a) => a((hd, tl) {
+            final (pfx, sfx) = hd.splitAt(n);
+            return (pfx, tl.cons(sfx));
+          })));
     }
   }
 }

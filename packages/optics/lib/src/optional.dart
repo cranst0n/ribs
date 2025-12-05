@@ -17,13 +17,11 @@ class POptional<S, T, A, B> extends PSetter<S, T, A, B> with Fold<S, A> {
   Function1<S, Option<T>> replaceOption(B b) => modifyOption((_) => b);
 
   @override
-  Function1<S, Option<A>> find(Function1<A, bool> p) =>
-      (s) => getOption(s).filter(p);
+  Function1<S, Option<A>> find(Function1<A, bool> p) => (s) => getOption(s).filter(p);
 
-  POptional<S, T, C, D> andThenO<C, D>(POptional<A, B, C, D> other) =>
-      POptional<S, T, C, D>(
-        (s) => getOrModify(s).flatMap(
-            (a) => other.getOrModify(a).bimap((b) => replace(b)(s), (c) => c)),
+  POptional<S, T, C, D> andThenO<C, D>(POptional<A, B, C, D> other) => POptional<S, T, C, D>(
+        (s) => getOrModify(s)
+            .flatMap((a) => other.getOrModify(a).bimap((b) => replace(b)(s), (c) => c)),
         (d) => modify(other.replace(d)),
       );
 }

@@ -24,8 +24,8 @@ final class HexDumpFormat {
     this.lengthLimit,
   );
 
-  static final Default = HexDumpFormat._(
-      true, 2, 8, true, Alphabets.hexLower, true, 0, Integer.MaxValue);
+  static final Default =
+      HexDumpFormat._(true, 2, 8, true, Alphabets.hexLower, true, 0, Integer.MaxValue);
 
   static final NoAnsi = Default.withAnsi(false);
 
@@ -57,8 +57,7 @@ final class HexDumpFormat {
     while (bv.nonEmpty && takeFullLine) {
       takeFullLine = pos + numBytesPerLine <= lengthLimit;
 
-      final bitsToTake =
-          takeFullLine ? numBitsPerLine : (lengthLimit - pos) * 8;
+      final bitsToTake = takeFullLine ? numBitsPerLine : (lengthLimit - pos) * 8;
 
       if (bv.nonEmpty && bitsToTake > 0) {
         final bitsInLine = bv.take(bitsToTake);
@@ -101,8 +100,7 @@ final class HexDumpFormat {
     if (includeAsciiColumn) {
       final bytesOnThisLine = bytes.size;
       final dataBytePadding = (numBytesPerLine - bytesOnThisLine) * 3 - 1;
-      final numFullDataColumns =
-          (bytesOnThisLine - 1) ~/ dataColumnWidthInBytes;
+      final numFullDataColumns = (bytesOnThisLine - 1) ~/ dataColumnWidthInBytes;
       final numAdditionalColumnSpacers = dataColumnCount - numFullDataColumns;
       final padding = dataBytePadding + numAdditionalColumnSpacers;
 
@@ -165,13 +163,10 @@ final class HexDumpFormat {
   final _FaintUnmappable = '${_Ansi.Faint}�${_Ansi.Normal}';
 
   void _renderAsciiBestEffort(StringBuffer bldr, ByteVector bytes) {
-    final decoded =
-        convert.ascii.decode(bytes.toByteArray(), allowInvalid: true);
+    final decoded = convert.ascii.decode(bytes.toByteArray(), allowInvalid: true);
     final nonPrintableReplacement = ansiEnabled ? _FaintDot : '.';
-    final printable =
-        _replaceNoPrintable(decoded, replaceWith: nonPrintableReplacement);
-    final colorized =
-        ansiEnabled ? printable.replaceAll('�', _FaintUnmappable) : printable;
+    final printable = _replaceNoPrintable(decoded, replaceWith: nonPrintableReplacement);
+    final colorized = ansiEnabled ? printable.replaceAll('�', _FaintUnmappable) : printable;
 
     bldr.write(colorized);
   }

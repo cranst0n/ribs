@@ -22,9 +22,9 @@ Future<void> snippet2() async {
 
   // Substitute the definition of fut with it's expression
   // x and y are different! (probably)
-  await Future(() => Random.secure().nextInt(1000)).then((x) =>
-      Future(() => Random.secure().nextInt(1000))
-          .then((y) => print('x: $x / y: $y')));
+  await Future(
+    () => Random.secure().nextInt(1000),
+  ).then((x) => Future(() => Random.secure().nextInt(1000)).then((y) => print('x: $x / y: $y')));
 
   // io-2
 }
@@ -35,9 +35,7 @@ Future<void> snippet3() async {
   final rng = IO.delay(() => Random.secure().nextInt(1000));
 
   // x and y are different! (probably)
-  await rng
-      .flatMap((x) => rng.flatMap((y) => IO.println('x: $x / y: $y')))
-      .unsafeRunFuture();
+  await rng.flatMap((x) => rng.flatMap((y) => IO.println('x: $x / y: $y'))).unsafeRunFuture();
 
   // io-3
 }
@@ -49,8 +47,7 @@ Future<void> asyncSnippet1() async {
     IO.async_<A>((cb) {
       fut().then(
         (a) => cb(Right(a)),
-        onError: (Object err, StackTrace st) =>
-            cb(Left(RuntimeException(err, st))),
+        onError: (Object err, StackTrace st) => cb(Left(RuntimeException(err, st))),
       );
     });
 
@@ -65,16 +62,15 @@ Future<void> errorHandlingSnippet1() async {
 
   // composable handler using handleError
   final ioA = IO.delay(() => 90 / 0).handleError((ex) => 0);
-  final ioB =
-      IO.delay(() => 90 / 0).handleErrorWith((ex) => IO.pure(double.infinity));
+  final ioB = IO.delay(() => 90 / 0).handleErrorWith((ex) => IO.pure(double.infinity));
 
   IO<double> safeDiv(int a, int b) => IO.defer(() {
-        if (b != 0) {
-          return IO.pure(a / b);
-        } else {
-          return IO.raiseError(RuntimeException('cannot divide by 0!'));
-        }
-      });
+    if (b != 0) {
+      return IO.pure(a / b);
+    } else {
+      return IO.raiseError(RuntimeException('cannot divide by 0!'));
+    }
+  });
 
   // error-handling-1
 }
@@ -117,12 +113,14 @@ Future<void> conversionsSnippet() async {
 
   IO.fromFuture(IO.delay(() => Future(() => 42)));
 
-  IO.fromCancelableOperation(IO.delay(
-    () => CancelableOperation.fromFuture(
-      Future(() => 32),
-      onCancel: () => print('canceled!'),
+  IO.fromCancelableOperation(
+    IO.delay(
+      () => CancelableOperation.fromFuture(
+        Future(() => 32),
+        onCancel: () => print('canceled!'),
+      ),
     ),
-  ));
+  );
 
   // conversions-1
 

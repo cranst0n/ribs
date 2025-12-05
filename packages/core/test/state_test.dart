@@ -24,8 +24,7 @@ extension CandyMachineOps on CandyMachine {
   CandyMachine get redeemLollipop => _extract(20, Lollipop);
   CandyMachine get redeemSnickers => _extract(55, Snickers);
 
-  CandyMachine _eat(Candy candy) =>
-      map((myCandy) => myCandy.removeFirst((c) => c == candy));
+  CandyMachine _eat(Candy candy) => map((myCandy) => myCandy.removeFirst((c) => c == candy));
 
   CandyMachine _extract(int cost, Candy candy) =>
       transform((s, a) => s >= cost ? (s - cost, a.appended(candy)) : (s, a));
@@ -80,9 +79,7 @@ void main() {
 
   test('State.ap', () {
     expect(
-      machine.insertDime.redeemGum.redeemGum
-          .ap(State.pure((l) => l.size))
-          .runA(0),
+      machine.insertDime.redeemGum.redeemGum.ap(State.pure((l) => l.size)).runA(0),
       2,
     );
   });

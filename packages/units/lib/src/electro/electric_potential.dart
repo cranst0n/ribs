@@ -31,8 +31,7 @@ abstract class ElectricPotentialUnit extends BaseUnit<ElectricPotential> {
   const ElectricPotentialUnit(super.unit, super.symbol, super.conversionFactor);
 
   @override
-  ElectricPotential call(num value) =>
-      ElectricPotential(value.toDouble(), this);
+  ElectricPotential call(num value) => ElectricPotential(value.toDouble(), this);
 }
 
 final class Microvolts extends ElectricPotentialUnit {

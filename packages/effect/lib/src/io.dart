@@ -57,34 +57,24 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
           (winner) => winner.fold(
             (aWon) => aWon((oca, f) {
               return oca.fold(
-                () => f
-                    .cancel()
-                    .productR(() => poll(IO.canceled))
-                    .productR(() => IO.never()),
+                () => f.cancel().productR(() => poll(IO.canceled)).productR(() => IO.never()),
                 (err) => f.cancel().productR(() => IO.raiseError(err)),
-                (a) => poll(f.join())
-                    .onCancel(f.cancel())
-                    .flatMap((ocb) => ocb.fold(
-                          () => poll(IO.canceled).productR(() => IO.never()),
-                          (err) => IO.raiseError(err),
-                          (b) => IO.pure((a, b)),
-                        )),
+                (a) => poll(f.join()).onCancel(f.cancel()).flatMap((ocb) => ocb.fold(
+                      () => poll(IO.canceled).productR(() => IO.never()),
+                      (err) => IO.raiseError(err),
+                      (b) => IO.pure((a, b)),
+                    )),
               );
             }),
             (bWon) => bWon((f, ocb) {
               return ocb.fold(
-                () => f
-                    .cancel()
-                    .productR(() => poll(IO.canceled))
-                    .productR(() => IO.never()),
+                () => f.cancel().productR(() => poll(IO.canceled)).productR(() => IO.never()),
                 (err) => f.cancel().productR(() => IO.raiseError(err)),
-                (b) => poll(f.join())
-                    .onCancel(f.cancel())
-                    .flatMap((oca) => oca.fold(
-                          () => poll(IO.canceled).productR(() => IO.never()),
-                          (err) => IO.raiseError(err),
-                          (a) => IO.pure((a, b)),
-                        )),
+                (b) => poll(f.join()).onCancel(f.cancel()).flatMap((oca) => oca.fold(
+                      () => poll(IO.canceled).productR(() => IO.never()),
+                      (err) => IO.raiseError(err),
+                      (a) => IO.pure((a, b)),
+                    )),
               );
             }),
           ),
@@ -99,10 +89,8 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
       IO.uncancelable(
         (poll) => poll(racePair(ioa, iob)).flatMap(
           (winner) => winner.fold(
-            (aWon) => aWon(
-                (a, f) => poll(f.join()).onCancel(f.cancel()).tupleLeft(a)),
-            (bWon) => bWon(
-                (f, b) => poll(f.join()).onCancel(f.cancel()).tupleRight(b)),
+            (aWon) => aWon((a, f) => poll(f.join()).onCancel(f.cancel()).tupleLeft(a)),
+            (bWon) => bWon((f, b) => poll(f.join()).onCancel(f.cancel()).tupleRight(b)),
           ),
         ),
       );
@@ -116,9 +104,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   ) =>
       IO.uncancelable(
         (poll) => acquire(poll).flatMap(
-          (a) => IO
-              .defer(() => poll(use(a)))
-              .guaranteeCase((oc) => release(a, oc)),
+          (a) => IO.defer(() => poll(use(a))).guaranteeCase((oc) => release(a, oc)),
         ),
       );
 
@@ -166,17 +152,14 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   /// Create an [IO] that returns the value of the underlying [Future] or
   /// the error [fut] emits.
-  static IO<A> fromFuture<A>(IO<Future<A>> fut) =>
-      fut.flatMap((f) => async_<A>((cb) => f.then(
-            (a) => cb(a.asRight()),
-            onError: (Object e, StackTrace s) =>
-                cb(RuntimeException(e, s).asLeft()),
-          )));
+  static IO<A> fromFuture<A>(IO<Future<A>> fut) => fut.flatMap((f) => async_<A>((cb) => f.then(
+        (a) => cb(a.asRight()),
+        onError: (Object e, StackTrace s) => cb(RuntimeException(e, s).asLeft()),
+      )));
 
   /// Create an [IO] that returns the value of the underlying [Future] function
   /// or the error [futF] emits.
-  static IO<A> fromFutureF<A>(Function0<Future<A>> futF) =>
-      fromFuture(IO.delay(futF));
+  static IO<A> fromFutureF<A>(Function0<Future<A>> futF) => fromFuture(IO.delay(futF));
 
   /// Alias for `IO.pure` when [option] is [Some], or `IO.raiseError` with
   /// [orElse] providing the error when [option] is [None].
@@ -204,8 +187,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   /// Writes [message] with a newline to stderr, delaying the effect until
   /// evaluation.
-  static IO<Unit> printErrLn(String message) =>
-      _platformImpl.printErrLn(message);
+  static IO<Unit> printErrLn(String message) => _platformImpl.printErrLn(message);
 
   /// Lifts a pure value into [IO].
   static IO<A> pure<A>(A a) => _Pure(a);
@@ -253,16 +235,14 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
     IO<A> ioa,
     IO<B> iob,
   ) =>
-      IO.uncancelable(
-          (poll) => poll(racePair(ioa, iob)).flatMap((winner) => winner.fold(
-                (aWon) => aWon((a, f) => f.cancel().as(Left(a))),
-                (bWon) => bWon((f, b) => f.cancel().as(Right(b))),
-              )));
+      IO.uncancelable((poll) => poll(racePair(ioa, iob)).flatMap((winner) => winner.fold(
+            (aWon) => aWon((a, f) => f.cancel().as(Left(a))),
+            (bWon) => bWon((f, b) => f.cancel().as(Right(b))),
+          )));
 
   /// Runs [ioa] and [iob] together, returning a pair of the [Outcome] of the
   /// [IO] that finished first (won) and an [IOFiber] handle for the loser.
-  static IO<Either<AWon<A, B>, BWon<A, B>>> racePair<A, B>(
-          IO<A> ioa, IO<B> iob) =>
+  static IO<Either<AWon<A, B>, BWon<A, B>>> racePair<A, B>(IO<A> ioa, IO<B> iob) =>
       _RacePair(ioa, iob);
 
   /// Create an IO that will inject the given error into the IO evaluation.
@@ -296,8 +276,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// Creates an uncancelable region within the IO run loop. The [Poll] provided
   /// can be used to create unmasked cancelable regions within the uncancelable
   /// region.
-  static IO<A> uncancelable<A>(Function1<Poll, IO<A>> body) =>
-      _Uncancelable(body);
+  static IO<A> uncancelable<A>(Function1<Poll, IO<A>> body) => _Uncancelable(body);
 
   /// Alias for `IO.pure(Unit())`.
   static IO<Unit> unit = IO.pure(Unit());
@@ -317,8 +296,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   IO<A> andWait(Duration duration) => flatTap((_) => IO.sleep(duration));
 
   @override
-  IO<B> ap<B>(covariant IO<Function1<A, B>> f) =>
-      flatMap((a) => f.map((f) => f(a)));
+  IO<B> ap<B>(covariant IO<Function1<A, B>> f) => flatMap((a) => f.map((f) => f(a)));
 
   /// Replaces the result of this [IO] with the given value.
   IO<B> as<B>(B b) => map((_) => b);
@@ -352,18 +330,16 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
         return start().flatMap((fiber) {
           return poll(fiber.join())
               .onCancel(fin.guarantee(fiber.cancel()))
-              .flatMap(
-                  (oc) => oc.embed(poll(canceled.productR(() => IO.never()))));
+              .flatMap((oc) => oc.embed(poll(canceled.productR(() => IO.never()))));
         });
       });
 
   /// Prints the result of this IO (value, error or canceled) to stdout
-  IO<A> debug({String prefix = 'DEBUG'}) =>
-      guaranteeCase((outcome) => outcome.fold(
-            () => IO.println('$prefix: Canceled'),
-            (err) => IO.println('$prefix: Errored: $err'),
-            (a) => IO.println('$prefix: Succeeded: $a'),
-          ));
+  IO<A> debug({String prefix = 'DEBUG'}) => guaranteeCase((outcome) => outcome.fold(
+        () => IO.println('$prefix: Canceled'),
+        (err) => IO.println('$prefix: Errored: $err'),
+        (a) => IO.println('$prefix: Succeeded: $a'),
+      ));
 
   /// Return an IO that will wait the specified [duration] **before** evaluating
   /// and then return the result.
@@ -372,40 +348,33 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// Sequences the evaluation of this IO and the provided function [f] that
   /// will create the next [IO] to be evaluated.
   @override
-  IO<B> flatMap<B>(covariant Function1<A, IO<B>> f) =>
-      _FlatMap(this, Fn1.of(f));
+  IO<B> flatMap<B>(covariant Function1<A, IO<B>> f) => _FlatMap(this, Fn1.of(f));
 
   /// Performs the side-effect encoded in [f] using the value created by this
   /// [IO], then returning the original value.
-  IO<A> flatTap<B>(covariant Function1<A, IO<B>> f) =>
-      flatMap((a) => f(a).as(a));
+  IO<A> flatTap<B>(covariant Function1<A, IO<B>> f) => flatMap((a) => f(a).as(a));
 
   /// Continually re-evaluate this [IO] forever, until an error or cancelation.
   IO<Never> foreverM() => productR(() => foreverM());
 
   /// Executes the provided finalizer [fin] regardless of the [Outcome] of
   /// evaluating this [IO].
-  IO<A> guarantee(IO<Unit> fin) => onCancel(fin)
-      .onError((e) => fin.productR(() => IO.raiseError(e)))
-      .productL(() => fin);
+  IO<A> guarantee(IO<Unit> fin) =>
+      onCancel(fin).onError((e) => fin.productR(() => IO.raiseError(e))).productL(() => fin);
 
   /// Executes the provided finalizer [fin] which can decide what action to
   /// take depending on the [Outcome] of this [IO].
   IO<A> guaranteeCase(Function1<Outcome<A>, IO<Unit>> fin) =>
-      onCancel(fin(Canceled()))
-          .onError((e) => fin(Errored(e)))
-          .flatTap((a) => fin(Succeeded(a)));
+      onCancel(fin(Canceled())).onError((e) => fin(Errored(e))).flatTap((a) => fin(Succeeded(a)));
 
   /// Intercepts any upstream Exception, returning the value generated by [f].
-  IO<A> handleError(Function1<RuntimeException, A> f) =>
-      handleErrorWith((e) => IO.pure(f(e)));
+  IO<A> handleError(Function1<RuntimeException, A> f) => handleErrorWith((e) => IO.pure(f(e)));
 
   /// Intercepts any upstream Exception, sequencing in the [IO] generated by [f].
   IO<A> handleErrorWith(covariant Function1<RuntimeException, IO<A>> f) =>
       _HandleErrorWith(this, Fn1.of(f));
 
-  IO<A> isolate({String? debugName}) =>
-      _platformImpl.isolate(this, debugName: debugName);
+  IO<A> isolate({String? debugName}) => _platformImpl.isolate(this, debugName: debugName);
 
   /// Continually re-evaluates this [IO] until the computed value satisfies the
   /// given predicate [p]. The first computed value that satisfies [p] will be
@@ -415,8 +384,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// Continually re-evaluates this [IO] while the computed value satisfies the
   /// given predicate [p]. The first computed value that does not satisfy [p]
   /// will be the final result.
-  IO<A> iterateWhile(Function1<A, bool> p) =>
-      flatMap((a) => p(a) ? iterateWhile(p) : IO.pure(a));
+  IO<A> iterateWhile(Function1<A, bool> p) => flatMap((a) => p(a) ? iterateWhile(p) : IO.pure(a));
 
   /// Applies [f] to the value of this IO, returning the result.
   @override
@@ -428,8 +396,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   /// Performs the given side-effect if this [IO] results in a error.
   IO<A> onError(covariant Function1<RuntimeException, IO<Unit>> f) =>
-      handleErrorWith(
-          (e) => f(e).attempt().productR(() => IO.raiseError<A>(e)));
+      handleErrorWith((e) => f(e).attempt().productR(() => IO.raiseError<A>(e)));
 
   /// Replaces any failures from this IO with [None]. A successful value is
   /// wrapped in [Some].
@@ -453,8 +420,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   /// Returns the value created from [recover] or [map], depending on whether
   /// this [IO] results in an error or is successful.
-  IO<B> redeem<B>(
-          Function1<RuntimeException, B> recover, Function1<A, B> map) =>
+  IO<B> redeem<B>(Function1<RuntimeException, B> recover, Function1<A, B> map) =>
       attempt().map((a) => a.fold(recover, map));
 
   /// Returns the value created from [recover] or [map], depending on whether
@@ -467,9 +433,8 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   /// Runs this [IO] [n] times, accumulating the result from each evaluation
   /// into an [IList].
-  IO<IList<A>> replicate(int n) => n <= 0
-      ? IO.pure(nil())
-      : flatMap((a) => replicate(n - 1).map((l) => l.prepended(a)));
+  IO<IList<A>> replicate(int n) =>
+      n <= 0 ? IO.pure(nil()) : flatMap((a) => replicate(n - 1).map((l) => l.prepended(a)));
 
   /// Runs this [IO] [n] times, accumulating the result from each evaluation
   /// into an [IList]. All replications will be run asynchronously.
@@ -478,13 +443,11 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
       : IO.both(this, parReplicate(n - 1)).mapN((a, acc) => acc.prepended(a));
 
   /// Runs this [IO] [n] times, discarding any resulting values.
-  IO<Unit> replicate_(int n) =>
-      n <= 0 ? IO.unit : flatMap((_) => replicate_(n - 1));
+  IO<Unit> replicate_(int n) => n <= 0 ? IO.unit : flatMap((_) => replicate_(n - 1));
 
   /// Runs this [IO] [n] times, discarding any resulting values.  All
   /// replications will be run asynchronously.
-  IO<Unit> parReplicate_(int n) =>
-      n <= 0 ? IO.unit : IO.both(this, parReplicate_(n - 1)).voided();
+  IO<Unit> parReplicate_(int n) => n <= 0 ? IO.unit : IO.both(this, parReplicate_(n - 1)).voided();
 
   /// Starts the execution of this IO, returning a handle to the running IO in
   /// the form of an [IOFiber]. The fiber can be used to wait for a result
@@ -493,29 +456,28 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   /// Times how long this [IO] takes to evaluate, and returns the [Duration]
   /// and the value as a tuple.
-  IO<(Duration, A)> timed() => (now, this, now)
-      .mapN((startTime, a, endTime) => (endTime.difference(startTime), a));
+  IO<(Duration, A)> timed() =>
+      (now, this, now).mapN((startTime, a, endTime) => (endTime.difference(startTime), a));
 
   /// Creates an [IO] that returns the value of this IO, or raises an error
   /// if the evaluation take longer than [duration].
-  IO<A> timeout(Duration duration) => timeoutTo(
-      duration,
-      IO.defer(() => IO.raiseError(
-          RuntimeException(TimeoutException(duration.toString())))));
+  IO<A> timeout(Duration duration) => timeoutTo(duration,
+      IO.defer(() => IO.raiseError(RuntimeException(TimeoutException(duration.toString())))));
 
   IO<A> timeoutAndForget(Duration duration) => IO.uncancelable(
         (poll) => poll(IO.racePair(this, IO.sleep(duration))).flatMap(
           (a) => a.fold(
             (aWon) {
               final (oc, f) = aWon;
-              return poll(f.cancel().productR(() =>
-                  oc.embed(poll(IO.canceled).productR(() => IO.never<A>()))));
+              return poll(f
+                  .cancel()
+                  .productR(() => oc.embed(poll(IO.canceled).productR(() => IO.never<A>()))));
             },
             (bWon) {
               final (f, _) = bWon;
 
-              return f.cancel().start().productR(() => IO.raiseError<A>(
-                  RuntimeException(TimeoutException(duration.toString()))));
+              return f.cancel().start().productR(
+                  () => IO.raiseError<A>(RuntimeException(TimeoutException(duration.toString()))));
             },
           ),
         ),
@@ -562,8 +524,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   ///
   /// Note that [cond] is evaluated *after* evaluating this [IO] for each
   /// repetition.
-  IO<Unit> untilM_(IO<bool> cond) =>
-      productR(() => cond.ifM(() => IO.unit, () => untilM_(cond)));
+  IO<Unit> untilM_(IO<bool> cond) => productR(() => cond.ifM(() => IO.unit, () => untilM_(cond)));
 
   /// Discards the value of this IO and replaces it with [Unit].
   IO<Unit> voided() => as(Unit());
@@ -794,10 +755,8 @@ final class _FlatMap<A, B> extends IO<B> {
 final class _Attempt<A> extends IO<Either<RuntimeException, A>> {
   final IO<A> ioa;
 
-  Either<RuntimeException, A> right(dynamic value) =>
-      Right<RuntimeException, A>(value as A);
-  Either<RuntimeException, A> left(RuntimeException error) =>
-      Left<RuntimeException, A>(error);
+  Either<RuntimeException, A> right(dynamic value) => Right<RuntimeException, A>(value as A);
+  Either<RuntimeException, A> left(RuntimeException error) => Left<RuntimeException, A>(error);
 
   _Attempt(this.ioa);
 
@@ -1034,8 +993,7 @@ final class IOFiber<A> {
     }
   }
 
-  void _asyncContinueSuccessfulR() =>
-      _runLoop(_succeeded(_objectState.pop(), 0), _autoCedeN);
+  void _asyncContinueSuccessfulR() => _runLoop(_succeeded(_objectState.pop(), 0), _autoCedeN);
 
   void _asyncContinueFailedR() =>
       _runLoop(_failed(_objectState.pop() as RuntimeException, 0), _autoCedeN);
@@ -1091,8 +1049,7 @@ final class IOFiber<A> {
         } else if (cur0 is _Delay) {
           ///////////////////////// DELAY /////////////////////////
           cur0 =
-              Either.catching(() => (cur0 as _Delay).thunk(), (a, b) => (a, b))
-                  .fold<IO<dynamic>>(
+              Either.catching(() => (cur0 as _Delay).thunk(), (a, b) => (a, b)).fold<IO<dynamic>>(
             (err) => _failed(RuntimeException(err.$1, err.$2), 0),
             (v) => _succeeded(v, 0),
           );
@@ -1102,10 +1059,10 @@ final class IOFiber<A> {
           final f = cur0.f;
 
           IO<dynamic> next(Function0<dynamic> value) =>
-              Either.catching(() => f(value()), (a, b) => (a, b))
-                  .fold<IO<dynamic>>(
-                      (err) => _failed(RuntimeException(err.$1, err.$2), 0),
-                      (v) => _succeeded(v, 0));
+              Either.catching(() => f(value()), (a, b) => (a, b)).fold<IO<dynamic>>(
+                (err) => _failed(RuntimeException(err.$1, err.$2), 0),
+                (v) => _succeeded(v, 0),
+              );
 
           if (ioa is _Pure) {
             cur0 = next(() => ioa.value);
@@ -1125,9 +1082,8 @@ final class IOFiber<A> {
           final f = cur0.f;
 
           IO<dynamic> next(Function0<dynamic> value) =>
-              Either.catching(() => f(value()), (a, b) => (a, b)).fold(
-                  (err) => _failed(RuntimeException(err.$1, err.$2), 0),
-                  identity);
+              Either.catching(() => f(value()), (a, b) => (a, b))
+                  .fold((err) => _failed(RuntimeException(err.$1, err.$2), 0), identity);
 
           if (ioa is _Pure) {
             cur0 = next(() => ioa.value);
@@ -1159,9 +1115,8 @@ final class IOFiber<A> {
               error = RuntimeException(e, s);
             }
 
-            cur0 = error == null
-                ? _succeeded(cur0.right(result), 0)
-                : _succeeded(cur0.left(error), 0);
+            cur0 =
+                error == null ? _succeeded(cur0.right(result), 0) : _succeeded(cur0.left(error), 0);
           } else {
             final attempt = cur0;
             // Push this function on to allow proper type tagging when running
@@ -1358,9 +1313,7 @@ final class IOFiber<A> {
           if (depth > _DefaultMaxStackDepth) {
             return error == null ? _Pure(transformed) : _Error(error);
           } else {
-            return error == null
-                ? _succeeded(transformed, depth + 1)
-                : _failed(error, depth + 1);
+            return error == null ? _succeeded(transformed, depth + 1) : _failed(error, depth + 1);
           }
         }
       case _Cont.FlatMap:
@@ -1376,9 +1329,7 @@ final class IOFiber<A> {
             error = RuntimeException(e, s);
           }
 
-          return error == null
-              ? transformed as IO<dynamic>
-              : _failed(error, depth + 1);
+          return error == null ? transformed as IO<dynamic> : _failed(error, depth + 1);
         }
       case _Cont.Attempt:
         final f = _objectState.pop() as Fn1F;
@@ -1489,8 +1440,7 @@ final class IOFiber<A> {
     }
   }
 
-  IO<dynamic> _cancelationLoopFailureK(RuntimeException err) =>
-      _cancelationLoopSuccessK();
+  IO<dynamic> _cancelationLoopFailureK(RuntimeException err) => _cancelationLoopSuccessK();
 }
 
 // Continuations
@@ -1528,8 +1478,7 @@ class _SyncStep {
       } else if (io is _Error) {
         return SyncIO.raiseError((io as _Error).error);
       } else if (io is _Delay) {
-        return SyncIO.delay(() => (io as _Delay).thunk())
-            .map((a) => Right((a, limit)));
+        return SyncIO.delay(() => (io as _Delay).thunk()).map((a) => Right((a, limit)));
       } else if (io is _Map) {
         final map = io as _Map<dynamic, A>;
 

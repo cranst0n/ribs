@@ -19,8 +19,7 @@ final class TopCursor extends HCursor {
   ACursor left() => fail(CursorOp.moveLeft);
 
   @override
-  HCursor replace(Json newValue, HCursor cursor, CursorOp? op) =>
-      TopCursor(newValue, cursor, op);
+  HCursor replace(Json newValue, HCursor cursor, CursorOp? op) => TopCursor(newValue, cursor, op);
 
   @override
   ACursor right() => fail(CursorOp.moveRight);

@@ -173,8 +173,7 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
   }
 
   @override
-  Option<A> get lastOption =>
-      Option.when(() => _last0 != null, () => _last0!.head);
+  Option<A> get lastOption => Option.when(() => _last0 != null, () => _last0!.head);
 
   @override
   int get length => _len;
@@ -260,8 +259,7 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
       _ensureUnaliased();
 
       if (idx < 0 || idx + count > _len) {
-        throw RangeError(
-            '$idx to ${idx + count} is out of bounds (min 0, max ${_len - 1})');
+        throw RangeError('$idx to ${idx + count} is out of bounds (min 0, max ${_len - 1})');
       }
 
       _removeAfter(_locate(idx), count);

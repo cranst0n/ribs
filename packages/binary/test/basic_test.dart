@@ -6,12 +6,13 @@ sealed class Animal {
   const Animal();
 
   static final codec = Codec.discriminatedBy(
-      Codec.uint8,
-      imap({
-        7: Dog.codec,
-        1: Cat.codec,
-        3: Lion.codec,
-      }));
+    Codec.uint8,
+    imap({
+      7: Dog.codec,
+      1: Cat.codec,
+      3: Lion.codec,
+    }),
+  );
 }
 
 class Dog extends Animal {
@@ -23,7 +24,7 @@ class Dog extends Animal {
     Codec.constant(ByteVector([1, 2]).bits),
     Codec.int8,
     Codec.constant(BitVector.bit(true)),
-    (_, age, __) => Dog(age),
+    (_, age, _) => Dog(age),
     (Dog dog) => (Unit(), dog.age, Unit()),
   );
 
@@ -31,8 +32,7 @@ class Dog extends Animal {
   String toString() => 'Dog($age)';
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) || other is Dog && other.age == age;
+  bool operator ==(Object other) => identical(this, other) || other is Dog && other.age == age;
 
   @override
   int get hashCode => age.hashCode;
@@ -40,24 +40,27 @@ class Dog extends Animal {
 
 class Cat extends Animal {
   const Cat();
-  static final codec = Codec.constant(ByteVector([1, 2]).bits)
-      .xmap((a) => const Cat(), (_) => Unit());
+  static final codec = Codec.constant(
+    ByteVector([1, 2]).bits,
+  ).xmap((a) => const Cat(), (_) => Unit());
 }
 
 class Lion extends Cat {
   const Lion();
-  static final codec = Codec.constant(ByteVector([1, 2]).bits)
-      .xmap((a) => const Lion(), (_) => Unit());
+  static final codec = Codec.constant(
+    ByteVector([1, 2]).bits,
+  ).xmap((a) => const Lion(), (_) => Unit());
 }
 
 void main() {
   test('uint8', () {
     final codec = Codec.uint8;
 
-    final value = codec
-        .decode(ByteVector.fromBin('101').getOrElse(() => fail('boom')).bits)
-        .getOrElse(() => fail('boom'))
-        .value;
+    final value =
+        codec
+            .decode(ByteVector.fromBin('101').getOrElse(() => fail('boom')).bits)
+            .getOrElse(() => fail('boom'))
+            .value;
 
     final roundTrip = codec
         .encode(value)
@@ -160,9 +163,10 @@ void main() {
   });
 }
 
-Stream<Animal> get animalStream =>
-    Stream.periodic(Duration.zero, identity).map((age) => switch (age) {
-          _ when age.isEven => Dog(age),
-          _ when age % 3 == 0 => const Cat(),
-          _ => const Lion(),
-        });
+Stream<Animal> get animalStream => Stream.periodic(Duration.zero, identity).map(
+  (age) => switch (age) {
+    _ when age.isEven => Dog(age),
+    _ when age % 3 == 0 => const Cat(),
+    _ => const Lion(),
+  },
+);

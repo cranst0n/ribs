@@ -60,8 +60,7 @@ void main() {
       );
 
       expect(
-        Json.obj([('key1', Json.True), ('key2', Json.Null)])
-            .deepDropNullValues(),
+        Json.obj([('key1', Json.True), ('key2', Json.Null)]).deepDropNullValues(),
         Json.obj([('key1', Json.True)]),
       );
 
@@ -205,8 +204,7 @@ void main() {
       expect(Json.Null.withBoolean((b) => Json.boolean(!b)), Json.Null);
       expect(Json.True.withBoolean((b) => Json.boolean(!b)), Json.False);
 
-      expect(
-          Json.number(0).withBoolean((b) => Json.boolean(!b)), Json.number(0));
+      expect(Json.number(0).withBoolean((b) => Json.boolean(!b)), Json.number(0));
 
       expect(Json.str('').withBoolean((b) => Json.boolean(!b)), Json.str(''));
       expect(Json.arr([]).withBoolean((b) => Json.boolean(!b)), Json.arr([]));
@@ -226,8 +224,7 @@ void main() {
       expect(Json.Null.withNumber((n) => Json.number(n * 2)), Json.Null);
       expect(Json.True.withNumber((n) => Json.number(n * 2)), Json.True);
 
-      expect(
-          Json.number(1).withNumber((n) => Json.number(n * 2)), Json.number(2));
+      expect(Json.number(1).withNumber((n) => Json.number(n * 2)), Json.number(2));
 
       expect(Json.str('').withNumber((n) => Json.number(n * 2)), Json.str(''));
       expect(Json.arr([]).withNumber((n) => Json.number(n * 2)), Json.arr([]));
@@ -238,13 +235,11 @@ void main() {
       expect(Json.Null.withObject((o) => Json.number(o.size)), Json.Null);
       expect(Json.True.withObject((o) => Json.number(o.size)), Json.True);
 
-      expect(Json.number(0).withObject((o) => Json.number(o.size)),
-          Json.number(0));
+      expect(Json.number(0).withObject((o) => Json.number(o.size)), Json.number(0));
 
       expect(Json.str('').withObject((o) => Json.number(o.size)), Json.str(''));
       expect(Json.arr([]).withObject((o) => Json.number(o.size)), Json.arr([]));
-      expect(
-          Json.obj([]).withObject((o) => Json.number(o.size)), Json.number(0));
+      expect(Json.obj([]).withObject((o) => Json.number(o.size)), Json.number(0));
     });
 
     test('withString', () {
@@ -287,8 +282,7 @@ void main() {
       expect(Json.True.mapObject((o) => JsonObject.empty), Json.True);
       expect(Json.number(0).mapObject((o) => JsonObject.empty), Json.number(0));
       expect(Json.arr([]).mapObject((o) => JsonObject.empty), Json.arr([]));
-      expect(Json.obj([('key', Json.True)]).mapObject((o) => JsonObject.empty),
-          Json.obj([]));
+      expect(Json.obj([('key', Json.True)]).mapObject((o) => JsonObject.empty), Json.obj([]));
     });
 
     test('mapString', () {

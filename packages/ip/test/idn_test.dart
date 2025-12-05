@@ -9,8 +9,8 @@ import 'arbitraries.dart';
 void main() {
   group('IDN', () {
     forAll('supports any hostname', genHostname, (hostname) {
-      final representable = hostname.labels
-          .forall((l) => !l.toString().toLowerCase().startsWith('xn--'));
+      final representable =
+          hostname.labels.forall((l) => !l.toString().toLowerCase().startsWith('xn--'));
 
       if (representable) {
         final idn = IDN.fromHostname(hostname);
@@ -30,8 +30,7 @@ void main() {
       );
     });
 
-    forAll('require overall ascii length be less than 254 chars', genIDN,
-        (idn) {
+    forAll('require overall ascii length be less than 254 chars', genIDN, (idn) {
       final istr = idn.toString();
       final i2 = '$istr.$istr';
 
@@ -63,9 +62,7 @@ void main() {
 
     forAll('support normalization', genIDN, (idn) {
       final expected = IDN
-          .fromString(idn.labels
-              .map((a) => a.toString().toLowerCase())
-              .mkString(sep: '.'))
+          .fromString(idn.labels.map((a) => a.toString().toLowerCase()).mkString(sep: '.'))
           .getOrElse(
             () => throw Exception('IDN normalization test failed: $idn'),
           );

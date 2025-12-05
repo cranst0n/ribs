@@ -91,8 +91,7 @@ final class MacAddress extends Ordered<MacAddress> {
 
   @override
   bool operator ==(Object that) => switch (that) {
-        final MacAddress that =>
-          ilist(_bytes).zip(ilist(that._bytes)).forall((t) => t.$1 == t.$2),
+        final MacAddress that => ilist(_bytes).zip(ilist(that._bytes)).forall((t) => t.$1 == t.$2),
         _ => false,
       };
 
@@ -100,8 +99,6 @@ final class MacAddress extends Ordered<MacAddress> {
   int get hashCode => Object.hashAll(_bytes);
 
   @override
-  String toString() => _bytes
-      .toIList()
-      .map((b) => b.toRadixString(16).padLeft(2, '0'))
-      .mkString(sep: ':');
+  String toString() =>
+      _bytes.toIList().map((b) => b.toRadixString(16).padLeft(2, '0')).mkString(sep: ':');
 }

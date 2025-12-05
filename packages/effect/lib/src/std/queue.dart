@@ -17,8 +17,7 @@ abstract class Queue<A> {
   static IO<Queue<A>> dropping<A>(int capacity) =>
       Ref.of(_State.empty<A>()).map((s) => _DroppingQueue(capacity, s));
 
-  static IO<Queue<A>> synchronous<A>() =>
-      Ref.of(_SyncState.empty<A>()).map(_SyncQueue.new);
+  static IO<Queue<A>> synchronous<A>() => Ref.of(_SyncState.empty<A>()).map(_SyncQueue.new);
 
   static IO<Queue<A>> unbounded<A>() => bounded(9007199254740991);
 
@@ -66,20 +65,18 @@ final class _SyncQueue<A> extends Queue<A> {
   IO<Unit> offer(A a) {
     return Deferred.of<bool>().flatMap((latch) {
       return IO.uncancelable((poll) {
-        final checkCommit =
-            poll(latch.value()).ifM(() => IO.unit, () => poll(offer(a)));
+        final checkCommit = poll(latch.value()).ifM(() => IO.unit, () => poll(offer(a)));
 
         final modificationF = stateR.modify((s) {
           if (s.takers.nonEmpty) {
             final (taker, tail) = s.takers.dequeue();
 
-            final finish =
-                taker.complete((a, latch)).productR(() => checkCommit);
+            final finish = taker.complete((a, latch)).productR(() => checkCommit);
 
             return (_SyncState(s.offerers, tail), finish);
           } else {
-            final cleanupF = stateR.update((s) =>
-                _SyncState(s.offerers.filter((a) => a.$2 != latch), s.takers));
+            final cleanupF =
+                stateR.update((s) => _SyncState(s.offerers.filter((a) => a.$2 != latch), s.takers));
 
             return (
               _SyncState(s.offerers.enqueue((a, latch)), s.takers),
@@ -101,10 +98,7 @@ final class _SyncQueue<A> extends Queue<A> {
           if (st.offerers.nonEmpty) {
             final ((value, offerer), tail) = st.offerers.dequeue();
 
-            return (
-              _SyncState(tail, st.takers),
-              offerer.complete(true).as(value)
-            );
+            return (_SyncState(tail, st.takers), offerer.complete(true).as(value));
           } else {
             final removeListener = stateR.modify((st) {
               // todo: tailrec
@@ -125,17 +119,17 @@ final class _SyncQueue<A> extends Queue<A> {
                 }
               }
 
-              final (found, takers2) = filterFound(
-                  st.takers, ListQueue.empty<Deferred<(A, Deferred<bool>)>>());
+              final (found, takers2) =
+                  filterFound(st.takers, ListQueue.empty<Deferred<(A, Deferred<bool>)>>());
 
               return (_SyncState(st.offerers, takers2), found);
             });
 
-            final failCommit = latch.value().flatMap((a) =>
-                a((_, commitLatch) => commitLatch.complete(false).voided()));
+            final failCommit = latch
+                .value()
+                .flatMap((a) => a((_, commitLatch) => commitLatch.complete(false).voided()));
 
-            final cleanupF =
-                removeListener.ifM(() => IO.unit, () => failCommit);
+            final cleanupF = removeListener.ifM(() => IO.unit, () => failCommit);
 
             final awaitF = poll(latch.value())
                 .onCancel(cleanupF)
@@ -158,8 +152,7 @@ final class _SyncQueue<A> extends Queue<A> {
 
         final commitF = Deferred.of<bool>().flatMap((latch) {
           return IO.uncancelable((poll) {
-            return taker
-                .complete((a, latch)).productR(() => poll(latch.value()));
+            return taker.complete((a, latch)).productR(() => poll(latch.value()));
           });
         });
 
@@ -177,10 +170,7 @@ final class _SyncQueue<A> extends Queue<A> {
         if (st.offerers.nonEmpty) {
           final ((value, offerer), tail) = st.offerers.dequeue();
 
-          return (
-            _SyncState(tail, st.takers),
-            offerer.complete(true).as(value.some)
-          );
+          return (_SyncState(tail, st.takers), offerer.complete(true).as(value.some));
         } else {
           return (st, IO.none());
         }
@@ -195,8 +185,7 @@ final class _SyncState<A> {
 
   _SyncState(this.offerers, this.takers);
 
-  static _SyncState<A> empty<A>() =>
-      _SyncState(ListQueue.empty(), ListQueue.empty());
+  static _SyncState<A> empty<A>() => _SyncState(ListQueue.empty(), ListQueue.empty());
 }
 
 abstract class _AbstractQueue<A> extends Queue<A> {
@@ -205,8 +194,8 @@ abstract class _AbstractQueue<A> extends Queue<A> {
 
   _AbstractQueue(this.capacity, this.state);
 
-  (_State<A>, IO<Unit>) onOfferNoCapacity(_State<A> s, A a,
-      Deferred<Unit> offerer, Poll poll, Function0<IO<Unit>> recurse);
+  (_State<A>, IO<Unit>) onOfferNoCapacity(
+      _State<A> s, A a, Deferred<Unit> offerer, Poll poll, Function0<IO<Unit>> recurse);
 
   (_State<A>, IO<bool>) onTryOfferNoCapacity(_State<A> s, A a);
 
@@ -297,13 +286,12 @@ abstract class _AbstractQueue<A> extends Queue<A> {
 
             final awaitF = poll(taker.value())
                 .onCancel(cleanup.flatten())
-                .productR(
-                    () => poll(take()).onCancel(_notifyNextTaker().flatten()));
+                .productR(() => poll(take()).onCancel(_notifyNextTaker().flatten()));
 
             final (fulfill, offerers2) = st.offerers.isEmpty
                 ? (awaitF, st.offerers)
-                : st.offerers.dequeue()((release, rest) =>
-                    (release.complete(Unit()).productR(() => awaitF), rest));
+                : st.offerers.dequeue()(
+                    (release, rest) => (release.complete(Unit()).productR(() => awaitF), rest));
 
             return (
               _State(st.queue, st.size, st.takers.enqueue(taker), offerers2),
@@ -357,8 +345,7 @@ final class _State<A> {
 
   _State(this.queue, this.size, this.takers, this.offerers);
 
-  static _State<A> empty<A>() =>
-      _State(ListQueue.empty(), 0, ListQueue.empty(), ListQueue.empty());
+  static _State<A> empty<A>() => _State(ListQueue.empty(), 0, ListQueue.empty(), ListQueue.empty());
 
   _State<A> copy({
     ListQueue<A>? queue,
@@ -400,15 +387,12 @@ final class _BoundedQueue<A> extends _AbstractQueue<A> {
 
     return (
       _State(queue, size, takers, offerers.enqueue(offerer)),
-      poll(offerer.value())
-          .productR(() => poll(recurse()))
-          .onCancel(cleanup.flatten()),
+      poll(offerer.value()).productR(() => poll(recurse())).onCancel(cleanup.flatten()),
     );
   }
 
   @override
-  (_State<A>, IO<bool>) onTryOfferNoCapacity(_State<A> s, A a) =>
-      (s, IO.pure(false));
+  (_State<A>, IO<bool>) onTryOfferNoCapacity(_State<A> s, A a) => (s, IO.pure(false));
 }
 
 final class _DroppingQueue<A> extends _AbstractQueue<A> {
@@ -425,8 +409,7 @@ final class _DroppingQueue<A> extends _AbstractQueue<A> {
       (s, IO.unit);
 
   @override
-  (_State<A>, IO<bool>) onTryOfferNoCapacity(_State<A> s, A a) =>
-      (s, IO.pure(false));
+  (_State<A>, IO<bool>) onTryOfferNoCapacity(_State<A> s, A a) => (s, IO.pure(false));
 }
 
 final class _CircularBufferQueue<A> extends _AbstractQueue<A> {

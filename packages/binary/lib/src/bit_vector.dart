@@ -30,8 +30,7 @@ sealed class BitVector implements Comparable<BitVector> {
       bvs.iterator.foldLeft(BitVector.empty, (a, b) => a.concat(b));
 
   factory BitVector.concatDart(Iterable<BitVector> bvs) =>
-      RIterator.fromDart(bvs.iterator)
-          .foldLeft(BitVector.empty, (a, b) => a.concat(b));
+      RIterator.fromDart(bvs.iterator).foldLeft(BitVector.empty, (a, b) => a.concat(b));
 
   factory BitVector.fill(int n, bool high) {
     final needed = _bytesNeededForBits(n);
@@ -40,11 +39,9 @@ sealed class BitVector implements Comparable<BitVector> {
     return _toBytes(bs, n);
   }
 
-  factory BitVector.from(RIterableOnce<int> bs) =>
-      _toBytes(ByteVector.from(bs), bs.size * 8);
+  factory BitVector.from(RIterableOnce<int> bs) => _toBytes(ByteVector.from(bs), bs.size * 8);
 
-  factory BitVector.fromDart(Iterable<int> bs) =>
-      _toBytes(ByteVector.fromDart(bs), bs.length * 8);
+  factory BitVector.fromDart(Iterable<int> bs) => _toBytes(ByteVector.fromDart(bs), bs.length * 8);
 
   factory BitVector.high(int size) => BitVector.fill(size, true);
 
@@ -74,8 +71,7 @@ sealed class BitVector implements Comparable<BitVector> {
     String s, [
     BinaryAlphabet alphabet = Alphabets.binary,
   ]) =>
-      fromBinDescriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), identity);
+      fromBinDescriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, BitVector> fromBinDescriptive(
     String s, [
@@ -102,15 +98,13 @@ sealed class BitVector implements Comparable<BitVector> {
     String s, [
     HexAlphabet alphabet = Alphabets.hexLower,
   ]) =>
-      fromHexDescriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), identity);
+      fromHexDescriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, BitVector> fromHexDescriptive(
     String s, [
     HexAlphabet alphabet = Alphabets.hexLower,
   ]) =>
-      fromHexInternal(s, alphabet)
-          .mapN((bytes, count) => bytes.bits.drop(count.isEven ? 0 : 4));
+      fromHexInternal(s, alphabet).mapN((bytes, count) => bytes.bits.drop(count.isEven ? 0 : 4));
 
   static Option<BitVector> fromBase32(
     String s, [
@@ -122,8 +116,7 @@ sealed class BitVector implements Comparable<BitVector> {
     String s, [
     Base32Alphabet alphabet = Alphabets.base32,
   ]) =>
-      fromBase32Descriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), identity);
+      fromBase32Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, BitVector> fromBase32Descriptive(
     String str, [
@@ -141,8 +134,7 @@ sealed class BitVector implements Comparable<BitVector> {
     String s, [
     Base64Alphabet alphabet = Alphabets.base64,
   ]) =>
-      fromBase64Descriptive(s, alphabet)
-          .fold((err) => throw ArgumentError(err), identity);
+      fromBase64Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
   static Either<String, BitVector> fromBase64Descriptive(
     String str, [
@@ -159,9 +151,7 @@ sealed class BitVector implements Comparable<BitVector> {
     final bytes = Uint8List(8)..buffer.asByteData().setInt64(0, i);
     final relevantBits = ByteVector(bytes).bits.shiftLeft(64 - size).take(size);
 
-    return ordering == Endian.big
-        ? relevantBits
-        : relevantBits.reverseByteOrder();
+    return ordering == Endian.big ? relevantBits : relevantBits.reverseByteOrder();
   }
 
   factory BitVector.fromBigInt(
@@ -180,9 +170,7 @@ sealed class BitVector implements Comparable<BitVector> {
       relevantBits = bits.takeRight(actualSize);
     }
 
-    return ordering == Endian.big
-        ? relevantBits
-        : relevantBits.reverseByteOrder();
+    return ordering == Endian.big ? relevantBits : relevantBits.reverseByteOrder();
   }
 
   BitVector operator ~() => not;
@@ -223,8 +211,7 @@ sealed class BitVector implements Comparable<BitVector> {
 
   /// Returns `true` if the size of this `BitVector` is less than or equal to `n`. Unlike `size`,
   /// this forces this `BitVector` from left to right, halting as soon as it has a definite answer.
-  bool sizeLessThanOrEqual(int n) =>
-      n == Integer.MaxValue || sizeLessThan(n + 1);
+  bool sizeLessThanOrEqual(int n) => n == Integer.MaxValue || sizeLessThan(n + 1);
 
   /// Returns true if the `n`th bit is high, false otherwise.
   bool get(int n);
@@ -237,8 +224,7 @@ sealed class BitVector implements Comparable<BitVector> {
 
   /// Returns `Some(true)` if the `n`th bit is high, `Some(false)` if low, and `None` if `n >=
   /// size`.
-  Option<bool> lift(int n) =>
-      Option.when(() => sizeGreaterThan(n), () => get(n));
+  Option<bool> lift(int n) => Option.when(() => sizeGreaterThan(n), () => get(n));
 
   BitVector get _unchunk => this;
 
@@ -249,12 +235,10 @@ sealed class BitVector implements Comparable<BitVector> {
   BitVector insert(int idx, bool b) => take(idx).append(b).concat(drop(idx));
 
   /// Returns a vector with the specified bit vector inserted at the specified index.
-  BitVector splice(int idx, BitVector b) =>
-      take(idx).concat(b).concat(drop(idx));
+  BitVector splice(int idx, BitVector b) => take(idx).concat(b).concat(drop(idx));
 
   /// Returns a vector with the specified bit vector replacing bits `[idx, idx + b.size]`.
-  BitVector patch(int idx, BitVector b) =>
-      take(idx).concat(b).concat(drop(idx + b.size));
+  BitVector patch(int idx, BitVector b) => take(idx).concat(b).concat(drop(idx + b.size));
 
   /// Returns a new bit vector with the `n`th bit high (and all other bits unmodified).
   BitVector set(int n) => update(n, true);
@@ -336,8 +320,7 @@ sealed class BitVector implements Comparable<BitVector> {
     RIterator<int> limit(RIterator<int> itr) =>
         (step < n) ? itr.take((size - n) + 1) : itr.takeWhile((i) => i < size);
 
-    return limit(RIterator.iterate(0, (x) => x + step))
-        .map((idx) => slice(idx, idx + n));
+    return limit(RIterator.iterate(0, (x) => x + step)).map((idx) => slice(idx, idx + n));
   }
 
   /// Returns a vector whose contents are the results of taking the first `n` bits of this vector.
@@ -357,8 +340,7 @@ sealed class BitVector implements Comparable<BitVector> {
   ) =>
       sizeGreaterThanOrEqual(n)
           ? f(take(n))
-          : err(
-              'cannot acquire $n bits from a vector that contains $size bits');
+          : err('cannot acquire $n bits from a vector that contains $size bits');
 
   /// Consumes the first `n` bits of this vector and decodes them with the specified function,
   /// resulting in a vector of the remaining bits and the decoded value. If this vector does not
@@ -367,8 +349,7 @@ sealed class BitVector implements Comparable<BitVector> {
     int n,
     Function1<BitVector, Either<String, A>> decode,
   ) =>
-      acquire(n).flatMap(
-          (toDecode) => decode(toDecode).map((decoded) => (drop(n), decoded)));
+      acquire(n).flatMap((toDecode) => decode(toDecode).map((decoded) => (drop(n), decoded)));
 
   /// If this vector has at least `n` bits, returns `f(take(n),drop(n))`, otherwise calls `err` with
   /// a meaningful error message. This function can be used to avoid intermediate allocations of
@@ -381,8 +362,7 @@ sealed class BitVector implements Comparable<BitVector> {
     if (sizeGreaterThanOrEqual(n)) {
       return f(take(n), drop(n)); // todo unsafeTake, unsafeDrop
     } else {
-      return err(
-          "cannot acquire $n bits from a vector that contains $size bits");
+      return err("cannot acquire $n bits from a vector that contains $size bits");
     }
   }
 
@@ -439,17 +419,15 @@ sealed class BitVector implements Comparable<BitVector> {
 
   /// Returns an `n`-bit vector whose contents are 0 or more low bits followed by this vector's
   /// contents.
-  BitVector padRight(int n) =>
-      size < n ? concat(BitVector.low(n - size)) : this;
+  BitVector padRight(int n) => size < n ? concat(BitVector.low(n - size)) : this;
 
   /// Returns an `n`-bit vector whose contents are 0 or more low bits followed by this vector's
   /// contents.
-  BitVector padLeft(int n) =>
-      size < n ? BitVector.low(n - size).concat(this) : this;
+  BitVector padLeft(int n) => size < n ? BitVector.low(n - size).concat(this) : this;
 
-  BitVector get reverse => BitVector.fromByteVector(
-          compact().underlying.reverse.map(_reverseBitsInByte))
-      .drop(8 - _validBitsInLastByte(size));
+  BitVector get reverse =>
+      BitVector.fromByteVector(compact().underlying.reverse.map(_reverseBitsInByte))
+          .drop(8 - _validBitsInLastByte(size));
 
   /// Returns a new vector of the same size with the byte order reversed.
   ///
@@ -541,8 +519,7 @@ sealed class BitVector implements Comparable<BitVector> {
       if (n >= size) {
         return extensionHigh ? BitVector.high(size) : BitVector.low(size);
       } else {
-        return (extensionHigh ? BitVector.high(n) : BitVector.low(n))
-            .concat(dropRight(n));
+        return (extensionHigh ? BitVector.high(n) : BitVector.low(n)).concat(dropRight(n));
       }
     }
   }
@@ -569,8 +546,7 @@ sealed class BitVector implements Comparable<BitVector> {
 
   _Bytes compact() {
     if (_bytesNeededForBits(size) > Integer.MaxValue) {
-      throw ArgumentError(
-          'cannot compact bit vector of size ${size.toDouble() / 8 / 1e9} GB');
+      throw ArgumentError('cannot compact bit vector of size ${size.toDouble() / 8 / 1e9} GB');
     }
 
     // TODO: tailrec
@@ -582,10 +558,8 @@ sealed class BitVector implements Comparable<BitVector> {
           final _Suspend s => go(rem.prepended(s.underlying), acc),
           final _Bytes b => go(rem, acc.appended(b)),
           final _Drop d => go(rem, acc.appended(d.interpretDrop())),
-          _Append(left: final l, right: final r) =>
-            go(rem.prepended(r).prepended(l), acc),
-          final _Chunks c =>
-            go(rem.prepended(c.chunks.right).prepended(c.chunks.left), acc),
+          _Append(left: final l, right: final r) => go(rem.prepended(r).prepended(l), acc),
+          final _Chunks c => go(rem.prepended(c.chunks.right).prepended(c.chunks.left), acc),
         };
       } else {
         return acc;
@@ -634,8 +608,7 @@ sealed class BitVector implements Comparable<BitVector> {
 
         return switch (cur) {
           final _Bytes b => tail.foldLeft(b, (a, b) => a.concat(b)),
-          _Append(left: final l, right: final r) =>
-            go(tail.prepended(r).prepended(l)),
+          _Append(left: final l, right: final r) => go(tail.prepended(r).prepended(l)),
           final _Drop d => tail.foldLeft(d, (a, b) => a.concat(b)),
           final _Suspend s => go(tail.prepended(s.underlying)),
           final _Chunks c => go(tail.prepended(c.chunks)),
@@ -677,14 +650,11 @@ sealed class BitVector implements Comparable<BitVector> {
 
   void printHexDump() => HexDumpFormat.Default.printBits(this);
 
-  String toBase16([HexAlphabet alphabet = Alphabets.hexLower]) =>
-      toHex(alphabet);
+  String toBase16([HexAlphabet alphabet = Alphabets.hexLower]) => toHex(alphabet);
 
-  String toBase32([Base32Alphabet alphabet = Alphabets.base32]) =>
-      bytes.toBase32(alphabet);
+  String toBase32([Base32Alphabet alphabet = Alphabets.base32]) => bytes.toBase32(alphabet);
 
-  String toBase64([Base64Alphabet alphabet = Alphabets.base64]) =>
-      bytes.toBase64(alphabet);
+  String toBase64([Base64Alphabet alphabet = Alphabets.base64]) => bytes.toBase64(alphabet);
 
   String toBase64NoPad() => toBase64(Alphabets.base64NoPad);
 
@@ -695,20 +665,16 @@ sealed class BitVector implements Comparable<BitVector> {
   int toInt({bool signed = true, Endian ordering = Endian.big}) {
     return switch (this) {
       final _Bytes bytes => switch (size) {
-          32 when signed => ByteData.sublistView(bytes.underlying.toByteArray())
-              .getInt32(0, ordering),
+          32 when signed =>
+            ByteData.sublistView(bytes.underlying.toByteArray()).getInt32(0, ordering),
           32 when !signed =>
-            ByteData.sublistView(bytes.underlying.toByteArray())
-                .getUint32(0, ordering),
-          16 when signed => ByteData.sublistView(bytes.underlying.toByteArray())
-              .getInt16(0, ordering),
+            ByteData.sublistView(bytes.underlying.toByteArray()).getUint32(0, ordering),
+          16 when signed =>
+            ByteData.sublistView(bytes.underlying.toByteArray()).getInt16(0, ordering),
           16 when !signed =>
-            ByteData.sublistView(bytes.underlying.toByteArray())
-                .getUint16(0, ordering),
-          8 when signed =>
-            ByteData.sublistView(bytes.underlying.toByteArray()).getInt8(0),
-          8 when !signed =>
-            ByteData.sublistView(bytes.underlying.toByteArray()).getUint8(0),
+            ByteData.sublistView(bytes.underlying.toByteArray()).getUint16(0, ordering),
+          8 when signed => ByteData.sublistView(bytes.underlying.toByteArray()).getInt8(0),
+          8 when !signed => ByteData.sublistView(bytes.underlying.toByteArray()).getUint8(0),
           _ => ordering == Endian.little
               ? invertReverseByteOrder().toInt(signed: signed)
               : _getBigEndianInt(0, size, signed),
@@ -739,10 +705,9 @@ sealed class BitVector implements Comparable<BitVector> {
     return signed ? result.toSigned(bits) : result;
   }
 
-  BigInt toBigInt({bool signed = true, Endian ordering = Endian.big}) =>
-      ordering == Endian.little
-          ? invertReverseByteOrder().toBigInt(signed: signed)
-          : _getBigEndianBigInt(0, size, signed);
+  BigInt toBigInt({bool signed = true, Endian ordering = Endian.big}) => ordering == Endian.little
+      ? invertReverseByteOrder().toBigInt(signed: signed)
+      : _getBigEndianBigInt(0, size, signed);
 
   BigInt _getBigEndianBigInt(int start, int bits, bool signed) {
     if (bits == 0) {
@@ -753,16 +718,12 @@ sealed class BitVector implements Comparable<BitVector> {
 
       // Include an explicit sign bit of 0 when we're unsigned and the first bit is high
       final explicitZeroSignBit = !signed && firstBit;
-      final explicitZeroSign =
-          explicitZeroSignBit ? BitVector.zero : BitVector.empty;
+      final explicitZeroSign = explicitZeroSignBit ? BitVector.zero : BitVector.empty;
       final mod = (bits + explicitZeroSign.size) % 8;
       final pad = mod == 0 ? BitVector.empty : BitVector.fill(8 - mod, signBit);
 
-      final bytes = explicitZeroSign
-          .concat(pad)
-          .concat(slice(start, start + bits))
-          .bytes
-          .toByteArray();
+      final bytes =
+          explicitZeroSign.concat(pad).concat(slice(start, start + bits)).bytes.toByteArray();
 
       if (signBit) {
         for (int i = 0; i < bytes.length; i++) {
@@ -869,17 +830,14 @@ sealed class BitVector implements Comparable<BitVector> {
   BitVector _mapBytes(Function1<ByteVector, ByteVector> f) {
     return switch (this) {
       final _Bytes b => _toBytes(f(b.underlying), b.size),
-      _Append(left: final l, right: final r) =>
-        _Append(l._mapBytes(f), r._mapBytes(f)),
+      _Append(left: final l, right: final r) => _Append(l._mapBytes(f), r._mapBytes(f)),
       final _Drop d => _Drop(d.underlying._mapBytes(f).compact(), d.offset),
       final _Suspend s => _Suspend(() => s.underlying._mapBytes(f)),
-      final _Chunks c => _Chunks(
-          _Append(c.chunks.left._mapBytes(f), c.chunks.right._mapBytes(f))),
+      final _Chunks c => _Chunks(_Append(c.chunks.left._mapBytes(f), c.chunks.right._mapBytes(f))),
     };
   }
 
-  BitVector _zipBytesWith(BitVector other, Function2<int, int, int> op) =>
-      _toBytes(
+  BitVector _zipBytesWith(BitVector other, Function2<int, int, int> op) => _toBytes(
         compact().underlying.zipWithI(other.compact().underlying, op),
         min(size, other.size),
       );
@@ -985,9 +943,8 @@ final class _Append extends BitVector {
       // TODO: tailrec
       BitVector go(BitVector cur, int n) {
         return switch (cur) {
-          _Append(left: final left, right: final right) => n >= left.size
-              ? go(right, n - left.size)
-              : _Append(left.drop(n), right),
+          _Append(left: final left, right: final right) =>
+            n >= left.size ? go(right, n - left.size) : _Append(left.drop(n), right),
           final _Suspend s => go(s.underlying, n),
           _ => cur.drop(n),
         };
@@ -1055,13 +1012,11 @@ final class _Bytes extends BitVector {
       final bytesCleared = _clearUnneededBits(size, underlying);
 
       final hi = bytesCleared.get(bytesCleared.size - 1);
-      final lo =
-          (((other.underlying.head & _topNBits(nInvalidBits)) & 0x000000ff) >>>
-                  _validBitsInLastByte(size)) &
-              0xff;
+      final lo = (((other.underlying.head & _topNBits(nInvalidBits)) & 0x000000ff) >>>
+              _validBitsInLastByte(size)) &
+          0xff;
 
-      final updatedOurBytes =
-          bytesCleared.update(bytesCleared.size - 1, (hi | lo) & 0xff);
+      final updatedOurBytes = bytesCleared.update(bytesCleared.size - 1, (hi | lo) & 0xff);
       final updatedOtherBytes = other.drop(nInvalidBits).bytes;
 
       return _toBytes(
@@ -1254,8 +1209,8 @@ final class _Drop extends BitVector {
       return BitVector.empty.align();
     } else {
       final lowByte = low ~/ 8;
-      final shiftedWholeBytes = underlying.underlying
-          .slice(lowByte, lowByte + _bytesNeededForBits(newSize) + 1);
+      final shiftedWholeBytes =
+          underlying.underlying.slice(lowByte, lowByte + _bytesNeededForBits(newSize) + 1);
 
       final bitsToShiftEachByte = low % 8;
 
@@ -1268,8 +1223,8 @@ final class _Drop extends BitVector {
           shiftedWholeBytes.drop(1).append(0),
           (a, b) {
             final hi = a << bitsToShiftEachByte;
-            final low = ((b & _topNBits(bitsToShiftEachByte)) & 0x000000ff) >>>
-                (8 - bitsToShiftEachByte);
+            final low =
+                ((b & _topNBits(bitsToShiftEachByte)) & 0x000000ff) >>> (8 - bitsToShiftEachByte);
 
             return hi | low;
           },
@@ -1371,8 +1326,7 @@ A _reduceBalanced<A>(
   }
 
   return v
-      .foldLeft(IList.empty<(A, int)>(),
-          (stack, a) => fixup(stack.prepended((a, size(a)))))
+      .foldLeft(IList.empty<(A, int)>(), (stack, a) => fixup(stack.prepended((a, size(a)))))
       .reverse()
       .map((t) => t.$1)
       .reduceLeft(f);

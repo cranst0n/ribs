@@ -16,6 +16,5 @@ extension OptionIOOps<A> on Option<IO<A>> {
   /// Returns an [IO] that will return [None] if this is a [None], or the
   /// evaluation of the [IO] lifted into an [Option], specifically a [Some].
   /// /// {@macro option_tupled}
-  IO<Option<A>> sequence() =>
-      fold(() => IO.pure(none()), (io) => io.map((a) => Some(a)));
+  IO<Option<A>> sequence() => fold(() => IO.pure(none()), (io) => io.map((a) => Some(a)));
 }

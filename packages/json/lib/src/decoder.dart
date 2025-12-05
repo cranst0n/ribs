@@ -21,14 +21,12 @@ import 'package:ribs_json/src/decoder/prepared_decoder.dart';
 abstract mixin class Decoder<A> {
   static Decoder<A> constant<A>(A a) => Decoder.instance((_) => Right(a));
 
-  static Decoder<A> instance<A>(Function1<HCursor, DecodeResult<A>> decodeF) =>
-      DecoderF(decodeF);
+  static Decoder<A> instance<A>(Function1<HCursor, DecodeResult<A>> decodeF) => DecoderF(decodeF);
 
-  static Decoder<A> failed<A>(DecodingFailure failure) =>
-      Decoder.instance((_) => Left(failure));
+  static Decoder<A> failed<A>(DecodingFailure failure) => Decoder.instance((_) => Left(failure));
 
-  static Decoder<A> failedWithMessage<A>(String message) => Decoder.instance(
-      (c) => Left(DecodingFailure(CustomReason(message), c.history())));
+  static Decoder<A> failedWithMessage<A>(String message) =>
+      Decoder.instance((c) => Left(DecodingFailure(CustomReason(message), c.history())));
 
   DecodeResult<A> decode(Json json) => decodeC(json.hcursor);
 
@@ -39,17 +37,14 @@ abstract mixin class Decoder<A> {
 
   Decoder<A> at(String key) => DownFieldDecoder(key, this);
 
-  Decoder<Either<A, B>> either<B>(Decoder<B> decodeB) =>
-      EitherDecoder(this, decodeB);
+  Decoder<Either<A, B>> either<B>(Decoder<B> decodeB) => EitherDecoder(this, decodeB);
 
   Decoder<B> emap<B>(Function1<A, Either<String, B>> f) => EmapDecoder(this, f);
 
-  Decoder<A> ensure(Function1<A, bool> p, Function0<String> message) =>
-      Decoder.instance((c) => decodeC(c)
-          .filterOrElse(p, () => DecodingFailure.fromString(message(), c)));
+  Decoder<A> ensure(Function1<A, bool> p, Function0<String> message) => Decoder.instance(
+      (c) => decodeC(c).filterOrElse(p, () => DecodingFailure.fromString(message(), c)));
 
-  Decoder<B> flatMap<B>(covariant Function1<A, Decoder<B>> f) =>
-      FlatMapDecoder(this, f);
+  Decoder<B> flatMap<B>(covariant Function1<A, Decoder<B>> f) => FlatMapDecoder(this, f);
 
   Decoder<A> handleError(Function1<DecodingFailure, A> f) =>
       handleErrorWith((err) => Decoder.instance((_) => f(err).asRight()));
@@ -57,8 +52,7 @@ abstract mixin class Decoder<A> {
   Decoder<A> handleErrorWith(Function1<DecodingFailure, Decoder<A>> f) =>
       HandleErrorDecoder(this, f);
 
-  Decoder<B> map<B>(Function1<A, B> f) =>
-      Decoder.instance((c) => decodeC(c).map(f));
+  Decoder<B> map<B>(Function1<A, B> f) => Decoder.instance((c) => decodeC(c).map(f));
 
   Decoder<Option<A>> optional() => OptionDecoder(this);
 
@@ -86,18 +80,16 @@ abstract mixin class Decoder<A> {
   /// Primitive Instances
   //////////////////////////////////////////////////////////////////////////////
 
-  static Decoder<BigInt> bigInt = string.emap((a) =>
-      Option(BigInt.tryParse(a)).toRight(() => 'BigInt.tryParse failed: $a'));
+  static Decoder<BigInt> bigInt =
+      string.emap((a) => Option(BigInt.tryParse(a)).toRight(() => 'BigInt.tryParse failed: $a'));
 
-  static Decoder<bool> boolean = Decoder.instance((c) => Either.cond(
-      () => c.value is JBoolean,
-      () => (c.value as JBoolean).value,
-      () => _wrongTypeFail('bool', c)));
+  static Decoder<bool> boolean = Decoder.instance((c) => Either.cond(() => c.value is JBoolean,
+      () => (c.value as JBoolean).value, () => _wrongTypeFail('bool', c)));
 
   static Decoder<Uint8List> bytes = string.map(base64Decode);
 
-  static Decoder<DateTime> dateTime = string.emap((a) =>
-      Either.catching(() => DateTime.parse(a), (err, _) => err.toString()));
+  static Decoder<DateTime> dateTime =
+      string.emap((a) => Either.catching(() => DateTime.parse(a), (err, _) => err.toString()));
 
   static Decoder<double> dubble = Decoder.instance((j) {
     if (j.value is JNumber) {
@@ -109,8 +101,7 @@ abstract mixin class Decoder<A> {
     }
   });
 
-  static Decoder<Duration> duration =
-      integer.map((a) => Duration(microseconds: a));
+  static Decoder<Duration> duration = integer.map((a) => Duration(microseconds: a));
 
   static Decoder<T> enumerationByIndex<T extends Enum>(List<T> values) =>
       integer.emap((index) => IList.fromDart(values)
@@ -122,42 +113,32 @@ abstract mixin class Decoder<A> {
           .find((v) => v.name == name)
           .toRight(() => 'Invalid enum name for $T: $name'));
 
-  static Decoder<IList<A>> ilist<A>(Decoder<A> decodeA) =>
-      list(decodeA).map(IList.fromDart);
+  static Decoder<IList<A>> ilist<A>(Decoder<A> decodeA) => list(decodeA).map(IList.fromDart);
 
-  static Decoder<int> integer = number.emap((number) => Either.cond(
-      () => number is int,
-      () => number as int,
-      () => 'Found decimal ($number). Expected integer.'));
+  static Decoder<int> integer = number.emap((number) => Either.cond(() => number is int,
+      () => number as int, () => 'Found decimal ($number). Expected integer.'));
 
   static Decoder<Json> json = Decoder.instance((c) => c.value.asRight());
 
   static Decoder<num> number = Decoder.instance((c) => Either.cond(
-      () => c.value is JNumber,
-      () => (c.value as JNumber).value,
-      () => _wrongTypeFail('num', c)));
+      () => c.value is JNumber, () => (c.value as JNumber).value, () => _wrongTypeFail('num', c)));
 
   static Decoder<List<A>> list<A>(Decoder<A> decodeA) => ListDecoder(decodeA);
 
-  static Decoder<Map<K, V>> mapOf<K, V>(
-          KeyDecoder<K> decodeK, Decoder<V> decodeV) =>
+  static Decoder<Map<K, V>> mapOf<K, V>(KeyDecoder<K> decodeK, Decoder<V> decodeV) =>
       MapDecoder<K, V>(decodeK, decodeV);
 
-  static Decoder<IMap<K, V>> imapOf<K, V>(
-          KeyDecoder<K> decodeK, Decoder<V> decodeV) =>
+  static Decoder<IMap<K, V>> imapOf<K, V>(KeyDecoder<K> decodeK, Decoder<V> decodeV) =>
       mapOf(decodeK, decodeV).map(IMap.fromDart);
 
   static Decoder<NonEmptyIList<A>> nonEmptyIList<A>(Decoder<A> decodeA) =>
       NonEmptyIListDecoder(decodeA);
 
   static Decoder<String> string = Decoder.instance((c) => Either.cond(
-      () => c.value is JString,
-      () => (c.value as JString).value,
-      () => _wrongTypeFail('num', c)));
+      () => c.value is JString, () => (c.value as JString).value, () => _wrongTypeFail('num', c)));
 
   static DecodingFailure _wrongTypeFail(String expected, HCursor cursor) =>
-      DecodingFailure(
-          WrongTypeExpectation(expected, cursor.value), cursor.history());
+      DecodingFailure(WrongTypeExpectation(expected, cursor.value), cursor.history());
 
   //////////////////////////////////////////////////////////////////////////////
   /// Tuple Instances
@@ -339,8 +320,7 @@ abstract mixin class Decoder<A> {
         }
       });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I, J)>
-      tuple10<A, B, C, D, E, F, G, H, I, J>(
+  static Decoder<(A, B, C, D, E, F, G, H, I, J)> tuple10<A, B, C, D, E, F, G, H, I, J>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
@@ -352,27 +332,26 @@ abstract mixin class Decoder<A> {
     Decoder<I> decodeI,
     Decoder<J> decodeJ,
   ) =>
-          DecoderF((c) {
-            if (c.value.isArray && (c.value as JArray).value.size == 10) {
-              return (
-                decodeA.tryDecodeC(c.downN(0)),
-                decodeB.tryDecodeC(c.downN(1)),
-                decodeC.tryDecodeC(c.downN(2)),
-                decodeD.tryDecodeC(c.downN(3)),
-                decodeE.tryDecodeC(c.downN(4)),
-                decodeF.tryDecodeC(c.downN(5)),
-                decodeG.tryDecodeC(c.downN(6)),
-                decodeH.tryDecodeC(c.downN(7)),
-                decodeI.tryDecodeC(c.downN(8)),
-                decodeJ.tryDecodeC(c.downN(9)),
-              ).tupled();
-            } else {
-              return _wrongTypeFail('array[10]', c).asLeft();
-            }
-          });
+      DecoderF((c) {
+        if (c.value.isArray && (c.value as JArray).value.size == 10) {
+          return (
+            decodeA.tryDecodeC(c.downN(0)),
+            decodeB.tryDecodeC(c.downN(1)),
+            decodeC.tryDecodeC(c.downN(2)),
+            decodeD.tryDecodeC(c.downN(3)),
+            decodeE.tryDecodeC(c.downN(4)),
+            decodeF.tryDecodeC(c.downN(5)),
+            decodeG.tryDecodeC(c.downN(6)),
+            decodeH.tryDecodeC(c.downN(7)),
+            decodeI.tryDecodeC(c.downN(8)),
+            decodeJ.tryDecodeC(c.downN(9)),
+          ).tupled();
+        } else {
+          return _wrongTypeFail('array[10]', c).asLeft();
+        }
+      });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I, J, K)>
-      tuple11<A, B, C, D, E, F, G, H, I, J, K>(
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K)> tuple11<A, B, C, D, E, F, G, H, I, J, K>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
@@ -385,28 +364,27 @@ abstract mixin class Decoder<A> {
     Decoder<J> decodeJ,
     Decoder<K> decodeK,
   ) =>
-          DecoderF((c) {
-            if (c.value.isArray && (c.value as JArray).value.size == 11) {
-              return (
-                decodeA.tryDecodeC(c.downN(0)),
-                decodeB.tryDecodeC(c.downN(1)),
-                decodeC.tryDecodeC(c.downN(2)),
-                decodeD.tryDecodeC(c.downN(3)),
-                decodeE.tryDecodeC(c.downN(4)),
-                decodeF.tryDecodeC(c.downN(5)),
-                decodeG.tryDecodeC(c.downN(6)),
-                decodeH.tryDecodeC(c.downN(7)),
-                decodeI.tryDecodeC(c.downN(8)),
-                decodeJ.tryDecodeC(c.downN(9)),
-                decodeK.tryDecodeC(c.downN(10)),
-              ).tupled();
-            } else {
-              return _wrongTypeFail('array[11]', c).asLeft();
-            }
-          });
+      DecoderF((c) {
+        if (c.value.isArray && (c.value as JArray).value.size == 11) {
+          return (
+            decodeA.tryDecodeC(c.downN(0)),
+            decodeB.tryDecodeC(c.downN(1)),
+            decodeC.tryDecodeC(c.downN(2)),
+            decodeD.tryDecodeC(c.downN(3)),
+            decodeE.tryDecodeC(c.downN(4)),
+            decodeF.tryDecodeC(c.downN(5)),
+            decodeG.tryDecodeC(c.downN(6)),
+            decodeH.tryDecodeC(c.downN(7)),
+            decodeI.tryDecodeC(c.downN(8)),
+            decodeJ.tryDecodeC(c.downN(9)),
+            decodeK.tryDecodeC(c.downN(10)),
+          ).tupled();
+        } else {
+          return _wrongTypeFail('array[11]', c).asLeft();
+        }
+      });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L)>
-      tuple12<A, B, C, D, E, F, G, H, I, J, K, L>(
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L)> tuple12<A, B, C, D, E, F, G, H, I, J, K, L>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
     Decoder<C> decodeC,
@@ -420,26 +398,26 @@ abstract mixin class Decoder<A> {
     Decoder<K> decodeK,
     Decoder<L> decodeL,
   ) =>
-          DecoderF((c) {
-            if (c.value.isArray && (c.value as JArray).value.size == 12) {
-              return (
-                decodeA.tryDecodeC(c.downN(0)),
-                decodeB.tryDecodeC(c.downN(1)),
-                decodeC.tryDecodeC(c.downN(2)),
-                decodeD.tryDecodeC(c.downN(3)),
-                decodeE.tryDecodeC(c.downN(4)),
-                decodeF.tryDecodeC(c.downN(5)),
-                decodeG.tryDecodeC(c.downN(6)),
-                decodeH.tryDecodeC(c.downN(7)),
-                decodeI.tryDecodeC(c.downN(8)),
-                decodeJ.tryDecodeC(c.downN(9)),
-                decodeK.tryDecodeC(c.downN(10)),
-                decodeL.tryDecodeC(c.downN(11)),
-              ).tupled();
-            } else {
-              return _wrongTypeFail('array[12]', c).asLeft();
-            }
-          });
+      DecoderF((c) {
+        if (c.value.isArray && (c.value as JArray).value.size == 12) {
+          return (
+            decodeA.tryDecodeC(c.downN(0)),
+            decodeB.tryDecodeC(c.downN(1)),
+            decodeC.tryDecodeC(c.downN(2)),
+            decodeD.tryDecodeC(c.downN(3)),
+            decodeE.tryDecodeC(c.downN(4)),
+            decodeF.tryDecodeC(c.downN(5)),
+            decodeG.tryDecodeC(c.downN(6)),
+            decodeH.tryDecodeC(c.downN(7)),
+            decodeI.tryDecodeC(c.downN(8)),
+            decodeJ.tryDecodeC(c.downN(9)),
+            decodeK.tryDecodeC(c.downN(10)),
+            decodeL.tryDecodeC(c.downN(11)),
+          ).tupled();
+        } else {
+          return _wrongTypeFail('array[12]', c).asLeft();
+        }
+      });
 
   static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M)>
       tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>(
@@ -801,8 +779,7 @@ abstract mixin class Decoder<A> {
             }
           });
 
-  static Decoder<
-          (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
       tuple21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
@@ -856,8 +833,7 @@ abstract mixin class Decoder<A> {
             }
           });
 
-  static Decoder<
-          (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
+  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
       tuple22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>(
     Decoder<A> decodeA,
     Decoder<B> decodeB,
@@ -918,8 +894,8 @@ abstract mixin class Decoder<A> {
     Decoder<B> decoderB,
     Function2<A, B, C> apply,
   ) =>
-      Decoder.instance((cursor) =>
-          (decoderA.decodeC(cursor), decoderB.decodeC(cursor)).mapN(apply));
+      Decoder.instance(
+          (cursor) => (decoderA.decodeC(cursor), decoderB.decodeC(cursor)).mapN(apply));
 
   static Decoder<D> product3<A, B, C, D>(
     Decoder<A> decoderA,
@@ -1233,8 +1209,7 @@ abstract mixin class Decoder<A> {
             decoderO.decodeC(cursor),
           ).mapN(apply));
 
-  static Decoder<Q>
-      product16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>(
+  static Decoder<Q> product16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>(
     Decoder<A> decoderA,
     Decoder<B> decoderB,
     Decoder<C> decoderC,
@@ -1253,27 +1228,26 @@ abstract mixin class Decoder<A> {
     Decoder<P> decoderP,
     Function16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> apply,
   ) =>
-          Decoder.instance((cursor) => (
-                decoderA.decodeC(cursor),
-                decoderB.decodeC(cursor),
-                decoderC.decodeC(cursor),
-                decoderD.decodeC(cursor),
-                decoderE.decodeC(cursor),
-                decoderF.decodeC(cursor),
-                decoderG.decodeC(cursor),
-                decoderH.decodeC(cursor),
-                decoderI.decodeC(cursor),
-                decoderJ.decodeC(cursor),
-                decoderK.decodeC(cursor),
-                decoderL.decodeC(cursor),
-                decoderM.decodeC(cursor),
-                decoderN.decodeC(cursor),
-                decoderO.decodeC(cursor),
-                decoderP.decodeC(cursor),
-              ).mapN(apply));
+      Decoder.instance((cursor) => (
+            decoderA.decodeC(cursor),
+            decoderB.decodeC(cursor),
+            decoderC.decodeC(cursor),
+            decoderD.decodeC(cursor),
+            decoderE.decodeC(cursor),
+            decoderF.decodeC(cursor),
+            decoderG.decodeC(cursor),
+            decoderH.decodeC(cursor),
+            decoderI.decodeC(cursor),
+            decoderJ.decodeC(cursor),
+            decoderK.decodeC(cursor),
+            decoderL.decodeC(cursor),
+            decoderM.decodeC(cursor),
+            decoderN.decodeC(cursor),
+            decoderO.decodeC(cursor),
+            decoderP.decodeC(cursor),
+          ).mapN(apply));
 
-  static Decoder<R>
-      product17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>(
+  static Decoder<R> product17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>(
     Decoder<A> decoderA,
     Decoder<B> decoderB,
     Decoder<C> decoderC,
@@ -1293,28 +1267,27 @@ abstract mixin class Decoder<A> {
     Decoder<Q> decoderQ,
     Function17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> apply,
   ) =>
-          Decoder.instance((cursor) => (
-                decoderA.decodeC(cursor),
-                decoderB.decodeC(cursor),
-                decoderC.decodeC(cursor),
-                decoderD.decodeC(cursor),
-                decoderE.decodeC(cursor),
-                decoderF.decodeC(cursor),
-                decoderG.decodeC(cursor),
-                decoderH.decodeC(cursor),
-                decoderI.decodeC(cursor),
-                decoderJ.decodeC(cursor),
-                decoderK.decodeC(cursor),
-                decoderL.decodeC(cursor),
-                decoderM.decodeC(cursor),
-                decoderN.decodeC(cursor),
-                decoderO.decodeC(cursor),
-                decoderP.decodeC(cursor),
-                decoderQ.decodeC(cursor),
-              ).mapN(apply));
+      Decoder.instance((cursor) => (
+            decoderA.decodeC(cursor),
+            decoderB.decodeC(cursor),
+            decoderC.decodeC(cursor),
+            decoderD.decodeC(cursor),
+            decoderE.decodeC(cursor),
+            decoderF.decodeC(cursor),
+            decoderG.decodeC(cursor),
+            decoderH.decodeC(cursor),
+            decoderI.decodeC(cursor),
+            decoderJ.decodeC(cursor),
+            decoderK.decodeC(cursor),
+            decoderL.decodeC(cursor),
+            decoderM.decodeC(cursor),
+            decoderN.decodeC(cursor),
+            decoderO.decodeC(cursor),
+            decoderP.decodeC(cursor),
+            decoderQ.decodeC(cursor),
+          ).mapN(apply));
 
-  static Decoder<S>
-      product18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>(
+  static Decoder<S> product18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>(
     Decoder<A> decoderA,
     Decoder<B> decoderB,
     Decoder<C> decoderC,
@@ -1335,29 +1308,28 @@ abstract mixin class Decoder<A> {
     Decoder<R> decoderR,
     Function18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> apply,
   ) =>
-          Decoder.instance((cursor) => (
-                decoderA.decodeC(cursor),
-                decoderB.decodeC(cursor),
-                decoderC.decodeC(cursor),
-                decoderD.decodeC(cursor),
-                decoderE.decodeC(cursor),
-                decoderF.decodeC(cursor),
-                decoderG.decodeC(cursor),
-                decoderH.decodeC(cursor),
-                decoderI.decodeC(cursor),
-                decoderJ.decodeC(cursor),
-                decoderK.decodeC(cursor),
-                decoderL.decodeC(cursor),
-                decoderM.decodeC(cursor),
-                decoderN.decodeC(cursor),
-                decoderO.decodeC(cursor),
-                decoderP.decodeC(cursor),
-                decoderQ.decodeC(cursor),
-                decoderR.decodeC(cursor),
-              ).mapN(apply));
+      Decoder.instance((cursor) => (
+            decoderA.decodeC(cursor),
+            decoderB.decodeC(cursor),
+            decoderC.decodeC(cursor),
+            decoderD.decodeC(cursor),
+            decoderE.decodeC(cursor),
+            decoderF.decodeC(cursor),
+            decoderG.decodeC(cursor),
+            decoderH.decodeC(cursor),
+            decoderI.decodeC(cursor),
+            decoderJ.decodeC(cursor),
+            decoderK.decodeC(cursor),
+            decoderL.decodeC(cursor),
+            decoderM.decodeC(cursor),
+            decoderN.decodeC(cursor),
+            decoderO.decodeC(cursor),
+            decoderP.decodeC(cursor),
+            decoderQ.decodeC(cursor),
+            decoderR.decodeC(cursor),
+          ).mapN(apply));
 
-  static Decoder<T>
-      product19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>(
+  static Decoder<T> product19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>(
     Decoder<A> decoderA,
     Decoder<B> decoderB,
     Decoder<C> decoderC,
@@ -1377,33 +1349,31 @@ abstract mixin class Decoder<A> {
     Decoder<Q> decoderQ,
     Decoder<R> decoderR,
     Decoder<S> decoderS,
-    Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
-        apply,
+    Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> apply,
   ) =>
-          Decoder.instance((cursor) => (
-                decoderA.decodeC(cursor),
-                decoderB.decodeC(cursor),
-                decoderC.decodeC(cursor),
-                decoderD.decodeC(cursor),
-                decoderE.decodeC(cursor),
-                decoderF.decodeC(cursor),
-                decoderG.decodeC(cursor),
-                decoderH.decodeC(cursor),
-                decoderI.decodeC(cursor),
-                decoderJ.decodeC(cursor),
-                decoderK.decodeC(cursor),
-                decoderL.decodeC(cursor),
-                decoderM.decodeC(cursor),
-                decoderN.decodeC(cursor),
-                decoderO.decodeC(cursor),
-                decoderP.decodeC(cursor),
-                decoderQ.decodeC(cursor),
-                decoderR.decodeC(cursor),
-                decoderS.decodeC(cursor),
-              ).mapN(apply));
+      Decoder.instance((cursor) => (
+            decoderA.decodeC(cursor),
+            decoderB.decodeC(cursor),
+            decoderC.decodeC(cursor),
+            decoderD.decodeC(cursor),
+            decoderE.decodeC(cursor),
+            decoderF.decodeC(cursor),
+            decoderG.decodeC(cursor),
+            decoderH.decodeC(cursor),
+            decoderI.decodeC(cursor),
+            decoderJ.decodeC(cursor),
+            decoderK.decodeC(cursor),
+            decoderL.decodeC(cursor),
+            decoderM.decodeC(cursor),
+            decoderN.decodeC(cursor),
+            decoderO.decodeC(cursor),
+            decoderP.decodeC(cursor),
+            decoderQ.decodeC(cursor),
+            decoderR.decodeC(cursor),
+            decoderS.decodeC(cursor),
+          ).mapN(apply));
 
-  static Decoder<U>
-      product20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>(
+  static Decoder<U> product20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>(
     Decoder<A> decoderA,
     Decoder<B> decoderB,
     Decoder<C> decoderC,
@@ -1424,34 +1394,32 @@ abstract mixin class Decoder<A> {
     Decoder<R> decoderR,
     Decoder<S> decoderS,
     Decoder<T> decoderT,
-    Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>
-        apply,
+    Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> apply,
   ) =>
-          Decoder.instance((cursor) => (
-                decoderA.decodeC(cursor),
-                decoderB.decodeC(cursor),
-                decoderC.decodeC(cursor),
-                decoderD.decodeC(cursor),
-                decoderE.decodeC(cursor),
-                decoderF.decodeC(cursor),
-                decoderG.decodeC(cursor),
-                decoderH.decodeC(cursor),
-                decoderI.decodeC(cursor),
-                decoderJ.decodeC(cursor),
-                decoderK.decodeC(cursor),
-                decoderL.decodeC(cursor),
-                decoderM.decodeC(cursor),
-                decoderN.decodeC(cursor),
-                decoderO.decodeC(cursor),
-                decoderP.decodeC(cursor),
-                decoderQ.decodeC(cursor),
-                decoderR.decodeC(cursor),
-                decoderS.decodeC(cursor),
-                decoderT.decodeC(cursor),
-              ).mapN(apply));
+      Decoder.instance((cursor) => (
+            decoderA.decodeC(cursor),
+            decoderB.decodeC(cursor),
+            decoderC.decodeC(cursor),
+            decoderD.decodeC(cursor),
+            decoderE.decodeC(cursor),
+            decoderF.decodeC(cursor),
+            decoderG.decodeC(cursor),
+            decoderH.decodeC(cursor),
+            decoderI.decodeC(cursor),
+            decoderJ.decodeC(cursor),
+            decoderK.decodeC(cursor),
+            decoderL.decodeC(cursor),
+            decoderM.decodeC(cursor),
+            decoderN.decodeC(cursor),
+            decoderO.decodeC(cursor),
+            decoderP.decodeC(cursor),
+            decoderQ.decodeC(cursor),
+            decoderR.decodeC(cursor),
+            decoderS.decodeC(cursor),
+            decoderT.decodeC(cursor),
+          ).mapN(apply));
 
-  static Decoder<V> product21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q,
-          R, S, T, U, V>(
+  static Decoder<V> product21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>(
     Decoder<A> decoderA,
     Decoder<B> decoderB,
     Decoder<C> decoderC,
@@ -1473,8 +1441,7 @@ abstract mixin class Decoder<A> {
     Decoder<S> decoderS,
     Decoder<T> decoderT,
     Decoder<U> decoderU,
-    Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>
-        apply,
+    Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> apply,
   ) =>
       Decoder.instance((cursor) => (
             decoderA.decodeC(cursor),
@@ -1500,8 +1467,7 @@ abstract mixin class Decoder<A> {
             decoderU.decodeC(cursor),
           ).mapN(apply));
 
-  static Decoder<W> product22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q,
-          R, S, T, U, V, W>(
+  static Decoder<W> product22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W>(
     Decoder<A> decoderA,
     Decoder<B> decoderB,
     Decoder<C> decoderC,
@@ -1524,9 +1490,7 @@ abstract mixin class Decoder<A> {
     Decoder<T> decoderT,
     Decoder<U> decoderU,
     Decoder<V> decoderV,
-    Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V,
-            W>
-        apply,
+    Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W> apply,
   ) =>
       Decoder.instance((cursor) => (
             decoderA.decodeC(cursor),

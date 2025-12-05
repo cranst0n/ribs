@@ -47,8 +47,7 @@ class Ref<A> {
   ///
   /// See [flatModifyFull] to create a finalizer that
   /// can potentially be canceled.
-  IO<B> flatModify<B>(Function1<A, (A, IO<B>)> f) =>
-      IO.uncancelable((_) => modify(f).flatten());
+  IO<B> flatModify<B>(Function1<A, (A, IO<B>)> f) => IO.uncancelable((_) => modify(f).flatten());
 
   IO<B> flatModifyFull<B>(Function1<(Poll, A), (A, IO<B>)> f) =>
       IO.uncancelable((poll) => modify((a) => f((poll, a))).flatten());
@@ -60,19 +59,17 @@ class Ref<A> {
   IO<A> getAndSet(A a) => getAndUpdate((_) => a);
 
   /// Modifies the value of this ref according to [f] and returns the new value.
-  IO<B> modify<B>(Function1<A, (A, B)> f) =>
-      IO.delay(() => f(_underlying)((newA, result) {
-            _underlying = newA;
-            return result;
-          }));
+  IO<B> modify<B>(Function1<A, (A, B)> f) => IO.delay(() => f(_underlying)((newA, result) {
+        _underlying = newA;
+        return result;
+      }));
 
   /// Sets the value of this ref to [a].
   IO<Unit> setValue(A a) => IO.exec(() => _underlying = a);
 
   /// Attempts to update the value of this ref according to [f]. If the update
   /// succeeds, `true` is returned, otherwise `false` is returned.
-  IO<bool> tryUpdate(Function1<A, A> f) =>
-      tryModify((a) => (f(a), Unit())).map((a) => a.isDefined);
+  IO<bool> tryUpdate(Function1<A, A> f) => tryModify((a) => (f(a), Unit())).map((a) => a.isDefined);
 
   /// Attempts to modify the value of this ref according to [f]. If the
   /// modification succeeds, the new value is returned as a [Some]. If it
@@ -93,8 +90,7 @@ class Ref<A> {
       });
 
   /// Updates the value of this ref by applying [f] to the current value.
-  IO<Unit> update(Function1<A, A> f) =>
-      IO.exec(() => _underlying = f(_underlying));
+  IO<Unit> update(Function1<A, A> f) => IO.exec(() => _underlying = f(_underlying));
 
   /// Updates the value of this ref by applying [f] to the current value and
   /// returns the new value.

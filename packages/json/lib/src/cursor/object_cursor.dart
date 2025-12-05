@@ -30,8 +30,8 @@ final class ObjectCursor extends HCursor {
       ObjectCursor(obj, keyValue, parent, changed, cursor, op);
 
   @override
-  ACursor delete() => parent.replace(
-      Json.fromJsonObject(obj.remove(keyValue)), this, CursorOp.deleteGoParent);
+  ACursor delete() =>
+      parent.replace(Json.fromJsonObject(obj.remove(keyValue)), this, CursorOp.deleteGoParent);
 
   @override
   ACursor field(String key) => obj.contains(key)
@@ -42,8 +42,8 @@ final class ObjectCursor extends HCursor {
   ACursor left() => fail(CursorOp.moveLeft);
 
   @override
-  HCursor replace(Json newValue, HCursor cursor, CursorOp? op) => ObjectCursor(
-      obj.add(keyValue, newValue), keyValue, parent, true, cursor, op);
+  HCursor replace(Json newValue, HCursor cursor, CursorOp? op) =>
+      ObjectCursor(obj.add(keyValue, newValue), keyValue, parent, true, cursor, op);
 
   @override
   ACursor right() => fail(CursorOp.moveRight);

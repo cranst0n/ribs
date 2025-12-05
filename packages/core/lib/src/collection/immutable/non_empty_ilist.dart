@@ -37,8 +37,8 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
         return NonEmptyIList(l.head, l.tail());
       });
 
-  static NonEmptyIList<A> unsafe<A>(RIterableOnce<A> as) => from(as)
-      .getOrElse(() => throw ArgumentError('NonEmptyList.fromUnsafe: empty'));
+  static NonEmptyIList<A> unsafe<A>(RIterableOnce<A> as) =>
+      from(as).getOrElse(() => throw ArgumentError('NonEmptyList.fromUnsafe: empty'));
 
   /// If the given [Iterable] is non-empty, a [NonEmptyIList] wrapped in a
   /// [Some] is returned. If the [Iterable] is empty, [None] is returned.
@@ -56,8 +56,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   /// the [Iterable] is non-empty. If the [Iterable] is empty, an
   /// [ArgumentError] will be thrown.
   static NonEmptyIList<A> fromDartUnsafe<A>(Iterable<A> as) =>
-      fromDart(as).getOrElse(
-          () => throw ArgumentError('NonEmptyList.fromDartUnsafe: empty'));
+      fromDart(as).getOrElse(() => throw ArgumentError('NonEmptyList.fromDartUnsafe: empty'));
 
   /// Creates a [NonEmptyIList] with a single element.
   static NonEmptyIList<A> one<A>(A head) => nel(head);
@@ -73,8 +72,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       NonEmptyIList(head, _tail.appendedAll(suffix));
 
   @override
-  NonEmptyIList<A> concat(RIterableOnce<A> as) =>
-      NonEmptyIList(head, _tail.concat(as));
+  NonEmptyIList<A> concat(RIterableOnce<A> as) => NonEmptyIList(head, _tail.concat(as));
 
   /// Adds all elements of [nel] to the end of this list.
   ///
@@ -82,8 +80,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   /// final l = nel(1, [2, 3, 4, 5]);
   /// assert(l.concatNel(l) == nel(1, [2, 3, 4, 5, 1, 2, 3, 4, 5]));
   /// ```
-  NonEmptyIList<A> concatNel(NonEmptyIList<A> nel) =>
-      NonEmptyIList(head, _tail.concat(nel));
+  NonEmptyIList<A> concatNel(NonEmptyIList<A> nel) => NonEmptyIList(head, _tail.concat(nel));
 
   @override
   IList<B> collect<B>(Function1<A, Option<B>> f) => toIList().collect(f);
@@ -121,8 +118,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   IList<A> filterNot(Function1<A, bool> p) => toIList().filterNot(p);
 
   @override
-  IMap<K, NonEmptyIList<A>> groupBy<K>(Function1<A, K> f) =>
-      groupMap(f, identity);
+  IMap<K, NonEmptyIList<A>> groupBy<K>(Function1<A, K> f) => groupMap(f, identity);
 
   @override
   RIterator<IList<A>> grouped(int size) => toIList().grouped(size);
@@ -136,9 +132,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
         imap({}),
         (acc, a) => acc.updatedWith(
           key(a),
-          (prev) => prev
-              .map((l) => l.appended(value(a)))
-              .orElse(() => nel(value(a)).some),
+          (prev) => prev.map((l) => l.appended(value(a))).orElse(() => nel(value(a)).some),
         ),
       );
 
@@ -152,8 +146,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   IList<A> intersect(RSeq<A> that) => toIList().intersect(that);
 
   @override
-  NonEmptyIList<A> intersperse(A x) =>
-      NonEmptyIList.unsafe(toIList().intersperse(x));
+  NonEmptyIList<A> intersperse(A x) => NonEmptyIList.unsafe(toIList().intersperse(x));
 
   @override
   bool get isEmpty => false;
@@ -165,16 +158,14 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   int get length => 1 + _tail.length;
 
   @override
-  NonEmptyIList<B> map<B>(Function1<A, B> f) =>
-      NonEmptyIList(f(head), _tail.map(f));
+  NonEmptyIList<B> map<B>(Function1<A, B> f) => NonEmptyIList(f(head), _tail.map(f));
 
   @override
   NonEmptyIList<A> padTo(int len, A elem) =>
       size >= len ? this : NonEmptyIList(head, _tail.padTo(len - 1, elem));
 
   @override
-  (IList<A>, IList<A>) partition(Function1<A, bool> p) =>
-      toIList().partition(p);
+  (IList<A>, IList<A>) partition(Function1<A, bool> p) => toIList().partition(p);
 
   @override
   (IList<A1>, IList<A2>) partitionMap<A1, A2>(Function1<A, Either<A1, A2>> f) =>
@@ -185,8 +176,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       toIList().patch(from, other, replaced);
 
   @override
-  RIterator<NonEmptyIList<A>> permutations() =>
-      toIList().permutations().map(NonEmptyIList.unsafe);
+  RIterator<NonEmptyIList<A>> permutations() => toIList().permutations().map(NonEmptyIList.unsafe);
 
   @override
   NonEmptyIList<A> prepended(A elem) => NonEmptyIList(elem, toIList());
@@ -204,8 +194,8 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   @override
   NonEmptyIList<A> reverse() => _tail.isEmpty
       ? this
-      : NonEmptyIList(_tail.lastOption.getOrElse(() => head),
-          _tail.init().reverse().appended(head));
+      : NonEmptyIList(
+          _tail.lastOption.getOrElse(() => head), _tail.init().reverse().appended(head));
 
   @override
   NonEmptyIList<B> scan<B>(B z, Function2<B, A, B> f) => scanLeft(z, f);
@@ -225,12 +215,10 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  RIterator<IList<A>> sliding(int size, [int step = 1]) =>
-      toIList().sliding(size, step);
+  RIterator<IList<A>> sliding(int size, [int step = 1]) => toIList().sliding(size, step);
 
   @override
-  NonEmptyIList<A> sorted(Order<A> o) =>
-      fromDartUnsafe(toIList().sorted(o).toList());
+  NonEmptyIList<A> sorted(Order<A> o) => fromDartUnsafe(toIList().sorted(o).toList());
 
   @override
   NonEmptyIList<A> sortBy<B>(Order<B> order, Function1<A, B> f) =>
@@ -276,8 +264,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   IList<A> toIList() => _tail.prepended(head);
 
   @override
-  Either<B, NonEmptyIList<C>> traverseEither<B, C>(
-          Function1<A, Either<B, C>> f) =>
+  Either<B, NonEmptyIList<C>> traverseEither<B, C>(Function1<A, Either<B, C>> f) =>
       super.traverseEither(f).map(NonEmptyIList.unsafe);
 
   @override
@@ -311,8 +298,8 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       NonEmptyIList.unsafe(super.zipAll(that, thisElem, thatElem));
 
   @override
-  NonEmptyIList<(A, int)> zipWithIndex() => NonEmptyIList(
-      (head, 0), _tail.zipWithIndex().map((a) => a.copy($2: a.$2 + 1)));
+  NonEmptyIList<(A, int)> zipWithIndex() =>
+      NonEmptyIList((head, 0), _tail.zipWithIndex().map((a) => a.copy($2: a.$2 + 1)));
 
   @override
   String toString() => mkString(start: 'NonEmptyIList(', sep: ', ', end: ')');

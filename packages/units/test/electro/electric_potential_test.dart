@@ -7,8 +7,7 @@ import '../quantity_properties.dart';
 
 void main() {
   group('DataRate', () {
-    QuantityProperties.parsing(
-        ElectricPotential.parse, ElectricPotential.units);
+    QuantityProperties.parsing(ElectricPotential.parse, ElectricPotential.units);
     QuantityProperties.equivalence(electricPotential, electricPotentialUnit);
     QuantityProperties.roundtrip(electricPotential, roundTrips);
   });

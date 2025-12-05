@@ -16,8 +16,7 @@ Future<void> snippet1() async {
 
   // file-example-use
   // Use the resource by passing an IO op to the 'use' function
-  final IO<Uint8List> program =
-      fileResource.use((raf) => IO.fromFutureF(() => raf.read(100)));
+  final IO<Uint8List> program = fileResource.use((raf) => IO.fromFutureF(() => raf.read(100)));
 
   (await program.unsafeRunFutureOutcome()).fold(
     () => print('Program canceled.'),
@@ -31,12 +30,11 @@ Future<void> snippet1() async {
 void snippet2() {
   // multiple-resources
   Resource<RandomAccessFile> openFile(String path) => Resource.make(
-        IO.fromFutureF(() => File(path).open()),
-        (raf) => IO.exec(() => raf.close()),
-      );
+    IO.fromFutureF(() => File(path).open()),
+    (raf) => IO.exec(() => raf.close()),
+  );
 
-  IO<Uint8List> readBytes(RandomAccessFile raf, int n) =>
-      IO.fromFutureF(() => raf.read(n));
+  IO<Uint8List> readBytes(RandomAccessFile raf, int n) => IO.fromFutureF(() => raf.read(n));
   IO<Unit> writeBytes(RandomAccessFile raf, Uint8List bytes) =>
       IO.fromFutureF(() => raf.writeFrom(bytes)).voided();
 
@@ -45,15 +43,13 @@ void snippet2() {
 
   /// Copy the first [n] bytes from [fromPathA] and [fromPathB], then write
   /// bytes to [toPath]
-  IO<Unit> copyN(String fromPathA, String fromPathB, String toPath, int n) => (
-        openFile(fromPathA),
-        openFile(fromPathB),
-        openFile(toPath)
-      ).tupled().useN(
+  IO<Unit> copyN(String fromPathA, String fromPathB, String toPath, int n) =>
+      (openFile(fromPathA), openFile(fromPathB), openFile(toPath)).tupled().useN(
         (fromA, fromB, to) {
-          return (readBytes(fromA, n), readBytes(fromB, n))
-              .parMapN(concatBytes)
-              .flatMap((a) => writeBytes(to, a));
+          return (
+            readBytes(fromA, n),
+            readBytes(fromB, n),
+          ).parMapN(concatBytes).flatMap((a) => writeBytes(to, a));
         },
       );
 

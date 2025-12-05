@@ -36,9 +36,7 @@ final class MHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, MSet<A> {
 
   static MHashSet<A> from<A>(RIterableOnce<A> xs) {
     final k = xs.knownSize;
-    final cap = k > 0
-        ? ((k + 1).toDouble() ~/ DefaultLoadFactor)
-        : DefaultInitialCapacity;
+    final cap = k > 0 ? ((k + 1).toDouble() ~/ DefaultLoadFactor) : DefaultInitialCapacity;
 
     return MHashSet<A>(initialCapacity: cap).concat(xs);
   }
@@ -199,8 +197,7 @@ final class MHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, MSet<A> {
     }
   }
 
-  static int _newThreshold(int size, double loadFactor) =>
-      (size.toDouble() * loadFactor).toInt();
+  static int _newThreshold(int size, double loadFactor) => (size.toDouble() * loadFactor).toInt();
 
   static int _tableSizeFor(int capacity) =>
       min(Integer.highestOneBit(max(capacity - 1, 4)) * 2, 1 << 30);

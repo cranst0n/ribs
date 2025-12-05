@@ -10,11 +10,9 @@ abstract class Backpressure {
         },
       );
 
-  static IO<Backpressure> lossless(int bound) =>
-      create(BackpressureStategy.lossless, bound);
+  static IO<Backpressure> lossless(int bound) => create(BackpressureStategy.lossless, bound);
 
-  static IO<Backpressure> lossy(int bound) =>
-      create(BackpressureStategy.lossy, bound);
+  static IO<Backpressure> lossy(int bound) => create(BackpressureStategy.lossy, bound);
 
   IO<Option<A>> metered<A>(IO<A> io);
 }

@@ -49,19 +49,15 @@ class CrcParams {
 
   factory CrcParams.crc8() => CrcParams.crc8SMBus();
 
-  factory CrcParams.crc8SMBus() =>
-      CrcParams.hex('0x07', '0x00', false, false, '0x00');
+  factory CrcParams.crc8SMBus() => CrcParams.hex('0x07', '0x00', false, false, '0x00');
 
-  factory CrcParams.crc8Rohc() =>
-      CrcParams.hex('0x07', '0xff', true, true, '0x00');
+  factory CrcParams.crc8Rohc() => CrcParams.hex('0x07', '0xff', true, true, '0x00');
 
   factory CrcParams.crc16() => CrcParams.crc16Arc();
 
-  factory CrcParams.crc16Arc() =>
-      CrcParams.hex('0x8005', '0x0000', true, true, '0x0000');
+  factory CrcParams.crc16Arc() => CrcParams.hex('0x8005', '0x0000', true, true, '0x0000');
 
-  factory CrcParams.crc16Kermit() =>
-      CrcParams.hex('0x1021', '0x0000', true, true, '0x0000');
+  factory CrcParams.crc16Kermit() => CrcParams.hex('0x1021', '0x0000', true, true, '0x0000');
 
   factory CrcParams.crc24() => CrcParams.crc24OpenPgp();
 

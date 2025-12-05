@@ -39,14 +39,14 @@ class AppConfig {
   );
 
   static final versionG = Getter<AppConfig, Version>((cfg) => cfg.version);
-  static final baseDirS = Setter<AppConfig, String>(
-      (f) => (cfg) => cfg.copy(baseDir: f(cfg.baseDir)));
+  static final baseDirS =
+      Setter<AppConfig, String>((f) => (cfg) => cfg.copy(baseDir: f(cfg.baseDir)));
 
-  static final dbConfigL = Lens<AppConfig, DBConfig>(
-      (cfg) => cfg.dbConfig, (db) => (app) => app.copy(dbConfig: db));
+  static final dbConfigL =
+      Lens<AppConfig, DBConfig>((cfg) => cfg.dbConfig, (db) => (app) => app.copy(dbConfig: db));
   static final dbConfigG = Getter<AppConfig, DBConfig>((aC) => aC.dbConfig);
-  static final dbConfigS = Setter<AppConfig, DBConfig>(
-      (f) => (cfg) => cfg.copy(dbConfig: f(cfg.dbConfig)));
+  static final dbConfigS =
+      Setter<AppConfig, DBConfig>((f) => (cfg) => cfg.copy(dbConfig: f(cfg.dbConfig)));
 
   static final dbPortG = dbConfigG.andThenG(DBConfig.portG);
   static final dbPortS = dbConfigS.andThenS(DBConfig.portS);
@@ -79,11 +79,10 @@ class DBConfig {
   String toString() => 'DBConfig($credentials, $port, $host)';
 
   static final portG = Getter<DBConfig, int>((cfg) => cfg.port);
-  static final portS =
-      Setter<DBConfig, int>((f) => (cfg) => cfg.copy(port: f(cfg.port)));
+  static final portS = Setter<DBConfig, int>((f) => (cfg) => cfg.copy(port: f(cfg.port)));
 
-  static final hostL = Lens<DBConfig, Option<String>>(
-      (cfg) => cfg.host, (h) => (cfg) => cfg.copy(host: h));
+  static final hostL =
+      Lens<DBConfig, Option<String>>((cfg) => cfg.host, (h) => (cfg) => cfg.copy(host: h));
 }
 
 class Credentials {
@@ -107,9 +106,7 @@ class Credentials {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Credentials &&
-          other.username == username &&
-          other.password == password);
+      (other is Credentials && other.username == username && other.password == password);
 
   @override
   int get hashCode => username.hashCode * password.hashCode;
@@ -142,8 +139,7 @@ class Languages {
         (langOpt) => (langs) => langOpt.fold(
             () => langs,
             (lang) => langs.copy(
-                  supported:
-                      langs.supported.map((a) => a.code != langCode ? a : lang),
+                  supported: langs.supported.map((a) => a.code != langCode ? a : lang),
                 )),
       );
 

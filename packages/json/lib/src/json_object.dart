@@ -8,12 +8,10 @@ import 'package:ribs_json/ribs_json.dart';
 sealed class JsonObject {
   static JsonObject get empty => _LinkedHashMapJsonObject(LinkedHashMap());
 
-  static JsonObject fromIList(IList<(String, Json)> fields) =>
-      fromIterable(fields.toList());
+  static JsonObject fromIList(IList<(String, Json)> fields) => fromIterable(fields.toList());
 
-  static JsonObject fromIterable(Iterable<(String, Json)> fields) =>
-      _LinkedHashMapJsonObject(LinkedHashMap.fromIterables(
-          fields.map((e) => e.$1), fields.map((e) => e.$2)));
+  static JsonObject fromIterable(Iterable<(String, Json)> fields) => _LinkedHashMapJsonObject(
+      LinkedHashMap.fromIterables(fields.map((e) => e.$1), fields.map((e) => e.$2)));
 
   JsonObject add(String key, Json value);
 
@@ -31,8 +29,7 @@ sealed class JsonObject {
             ),
       );
 
-  JsonObject filter(Function1<(String, Json), bool> p) =>
-      JsonObject.fromIList(toIList().filter(p));
+  JsonObject filter(Function1<(String, Json), bool> p) => JsonObject.fromIList(toIList().filter(p));
 
   bool get isEmpty;
 
@@ -84,24 +81,20 @@ final class _LinkedHashMapJsonObject extends JsonObject {
       LinkedHashMap.from(fields.map((key, value) => MapEntry(key, f(value)))));
 
   @override
-  JsonObject remove(String key) =>
-      _LinkedHashMapJsonObject(LinkedHashMap.of(fields)..remove(key));
+  JsonObject remove(String key) => _LinkedHashMapJsonObject(LinkedHashMap.of(fields)..remove(key));
 
   @override
   int get size => fields.length;
 
   @override
-  IList<(String, Json)> toIList() =>
-      IList.fromDart(fields.entries).map((e) => (e.key, e.value));
+  IList<(String, Json)> toIList() => IList.fromDart(fields.entries).map((e) => (e.key, e.value));
 
   @override
   IList<Json> get values => IList.fromDart(fields.values);
 
   @override
   String toString() {
-    return keys
-        .map((k) => '"$k": ${getUnsafe(k)}')
-        .mkString(start: '{ ', sep: ', ', end: ' }');
+    return keys.map((k) => '"$k": ${getUnsafe(k)}').mkString(start: '{ ', sep: ', ', end: ' }');
   }
 
   @override

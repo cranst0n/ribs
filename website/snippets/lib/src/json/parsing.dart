@@ -5,8 +5,9 @@ import 'package:ribs_json/ribs_json.dart';
 
 // parsing-1
 
-final Either<ParsingFailure, Json> json =
-    Json.parse('[ null, 1, true, "hi!", { "distance": 3.14 } ]');
+final Either<ParsingFailure, Json> json = Json.parse(
+  '[ null, 1, true, "hi!", { "distance": 3.14 } ]',
+);
 
 // parsing-1
 

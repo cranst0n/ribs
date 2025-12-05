@@ -17,16 +17,14 @@ final class Temperature extends Quantity<Temperature> {
   Temperature get toKelvin => _convert(kelvin);
   Temperature get toRankine => _convert(rankine);
 
-  Temperature get toFahrenheitDegrees =>
-      _convert(fahrenheit, withOffset: false);
+  Temperature get toFahrenheitDegrees => _convert(fahrenheit, withOffset: false);
   Temperature get toCelsiusDegrees => _convert(celcius, withOffset: false);
   Temperature get toKelvinDegrees => _convert(kelvin, withOffset: false);
   Temperature get toRankineDegrees => _convert(rankine, withOffset: false);
 
   @override
-  String toString() => unit is Kelvin
-      ? super.toString()
-      : '${value.toStringAsFixed(1)}${unit.symbol}';
+  String toString() =>
+      unit is Kelvin ? super.toString() : '${value.toStringAsFixed(1)}${unit.symbol}';
 
   static const celcius = Celcius._();
   static const fahrenheit = Fahrenheit._();
@@ -52,8 +50,7 @@ final class Temperature extends Quantity<Temperature> {
       if (unit is Fahrenheit && toScale is Celcius) {
         return TemperatureConversions.fahrenheitToCelsiusScale(value).celcius;
       } else if (unit is Celcius && toScale is Fahrenheit) {
-        return TemperatureConversions.celsiusToFahrenheitScale(value)
-            .fahrenheit;
+        return TemperatureConversions.celsiusToFahrenheitScale(value).fahrenheit;
       } else if (unit is Celcius && toScale is Kelvin) {
         return TemperatureConversions.celsiusToKelvinScale(value).kelvin;
       } else if (unit is Kelvin && toScale is Celcius) {
@@ -65,8 +62,7 @@ final class Temperature extends Quantity<Temperature> {
       } else if (unit is Fahrenheit && toScale is Rankine) {
         return TemperatureConversions.fahrenheitToRankineScale(value).rankine;
       } else if (unit is Rankine && toScale is Fahrenheit) {
-        return TemperatureConversions.rankineToFahrenheitScale(value)
-            .fahrenheit;
+        return TemperatureConversions.rankineToFahrenheitScale(value).fahrenheit;
       } else if (unit is Celcius && toScale is Rankine) {
         return TemperatureConversions.celsiusToRankineScale(value).rankine;
       } else if (unit is Rankine && toScale is Celcius) {
@@ -80,8 +76,7 @@ final class Temperature extends Quantity<Temperature> {
       if (unit is Fahrenheit && toScale is Celcius) {
         return TemperatureConversions.fahrenheitToCelsiusDegrees(value).celcius;
       } else if (unit is Celcius && toScale is Fahrenheit) {
-        return TemperatureConversions.celsiusToFahrenheitDegrees(value)
-            .fahrenheit;
+        return TemperatureConversions.celsiusToFahrenheitDegrees(value).fahrenheit;
       } else if (unit is Celcius && toScale is Kelvin) {
         return TemperatureConversions.celsiusToKelvinDegrees(value).kelvin;
       } else if (unit is Kelvin && toScale is Celcius) {
@@ -89,13 +84,11 @@ final class Temperature extends Quantity<Temperature> {
       } else if (unit is Fahrenheit && toScale is Kelvin) {
         return TemperatureConversions.fahrenheitToKelvinDegrees(value).kelvin;
       } else if (unit is Kelvin && toScale is Fahrenheit) {
-        return TemperatureConversions.kelvinToFahrenheitDegrees(value)
-            .fahrenheit;
+        return TemperatureConversions.kelvinToFahrenheitDegrees(value).fahrenheit;
       } else if (unit is Fahrenheit && toScale is Rankine) {
         return TemperatureConversions.fahrenheitToRankineDegrees(value).rankine;
       } else if (unit is Rankine && toScale is Fahrenheit) {
-        return TemperatureConversions.rankineToFahrenheitDegrees(value)
-            .fahrenheit;
+        return TemperatureConversions.rankineToFahrenheitDegrees(value).fahrenheit;
       } else if (unit is Celcius && toScale is Rankine) {
         return TemperatureConversions.celsiusToRankineDegrees(value).rankine;
       } else if (unit is Rankine && toScale is Celcius) {
@@ -128,24 +121,20 @@ final class Celcius extends TemperatureScale {
   const Celcius._() : super('celcius', '°C');
 
   @override
-  double converterFrom(double value) =>
-      TemperatureConversions.celsiusToKelvinScale(value);
+  double converterFrom(double value) => TemperatureConversions.celsiusToKelvinScale(value);
 
   @override
-  double converterTo(double value) =>
-      TemperatureConversions.kelvinToCelsiusScale(value);
+  double converterTo(double value) => TemperatureConversions.kelvinToCelsiusScale(value);
 }
 
 final class Fahrenheit extends TemperatureScale {
   const Fahrenheit._() : super('fahrenheit', '°F');
 
   @override
-  double converterFrom(double value) =>
-      TemperatureConversions.fahrenheitToKelvinScale(value);
+  double converterFrom(double value) => TemperatureConversions.fahrenheitToKelvinScale(value);
 
   @override
-  double converterTo(double value) =>
-      TemperatureConversions.kelvinToFahrenheitScale(value);
+  double converterTo(double value) => TemperatureConversions.kelvinToFahrenheitScale(value);
 }
 
 final class Kelvin extends TemperatureScale {
@@ -162,12 +151,10 @@ final class Rankine extends TemperatureScale {
   const Rankine._() : super('rankine', '°R');
 
   @override
-  double converterFrom(double value) =>
-      TemperatureConversions.rankineToKelvinScale(value);
+  double converterFrom(double value) => TemperatureConversions.rankineToKelvinScale(value);
 
   @override
-  double converterTo(double value) =>
-      TemperatureConversions.kelvinToRankineScale(value);
+  double converterTo(double value) => TemperatureConversions.kelvinToRankineScale(value);
 }
 
 class TemperatureConversions {
@@ -178,14 +165,11 @@ class TemperatureConversions {
    * These conversions do not adjust for the zero offset.
    * Essentially they only do the 9:5 conversion between F degrees and C|K degrees
    */
-  static double celsiusToFahrenheitDegrees(double celsius) =>
-      celsius * 9.0 / 5.0;
-  static double fahrenheitToCelsiusDegrees(double fahrenheit) =>
-      fahrenheit * 5.0 / 9.0;
+  static double celsiusToFahrenheitDegrees(double celsius) => celsius * 9.0 / 5.0;
+  static double fahrenheitToCelsiusDegrees(double fahrenheit) => fahrenheit * 5.0 / 9.0;
   static double celsiusToKelvinDegrees(double celsius) => celsius;
   static double kelvinToCelsiusDegrees(double kelvin) => kelvin;
-  static double fahrenheitToKelvinDegrees(double fahrenheit) =>
-      fahrenheit * 5.0 / 9.0;
+  static double fahrenheitToKelvinDegrees(double fahrenheit) => fahrenheit * 5.0 / 9.0;
   static double kelvinToFahrenheitDegrees(double kelvin) => kelvin * 9.0 / 5.0;
   static double celsiusToRankineDegrees(double celsius) => celsius * 9.0 / 5.0;
   static double rankineToCelsiusDegrees(double rankine) => rankine * 5.0 / 9.0;
@@ -199,22 +183,15 @@ class TemperatureConversions {
    * These conversions will adjust the result by the zero offset.
    * They are used to find the equivalent absolute temperature in the other scale.
    */
-  static double celsiusToFahrenheitScale(double celsius) =>
-      celsius * 9.0 / 5.0 + 32.0;
-  static double fahrenheitToCelsiusScale(double fahrenheit) =>
-      (fahrenheit - 32.0) * 5.0 / 9.0;
+  static double celsiusToFahrenheitScale(double celsius) => celsius * 9.0 / 5.0 + 32.0;
+  static double fahrenheitToCelsiusScale(double fahrenheit) => (fahrenheit - 32.0) * 5.0 / 9.0;
   static double celsiusToKelvinScale(double celsius) => celsius + 273.15;
   static double kelvinToCelsiusScale(double kelvin) => kelvin - 273.15;
-  static double fahrenheitToKelvinScale(double fahrenheit) =>
-      (fahrenheit + 459.67) * 5.0 / 9.0;
-  static double kelvinToFahrenheitScale(double kelvin) =>
-      kelvin * 9.0 / 5.0 - 459.67;
-  static double celsiusToRankineScale(double celsius) =>
-      (celsius + 273.15) * 9.0 / 5.0;
-  static double rankineToCelsiusScale(double rankine) =>
-      (rankine - 491.67) * 5.0 / 9.0;
-  static double fahrenheitToRankineScale(double fahrenheit) =>
-      fahrenheit + 459.67;
+  static double fahrenheitToKelvinScale(double fahrenheit) => (fahrenheit + 459.67) * 5.0 / 9.0;
+  static double kelvinToFahrenheitScale(double kelvin) => kelvin * 9.0 / 5.0 - 459.67;
+  static double celsiusToRankineScale(double celsius) => (celsius + 273.15) * 9.0 / 5.0;
+  static double rankineToCelsiusScale(double rankine) => (rankine - 491.67) * 5.0 / 9.0;
+  static double fahrenheitToRankineScale(double fahrenheit) => fahrenheit + 459.67;
   static double rankineToFahrenheitScale(double rankine) => rankine - 459.67;
   static double kelvinToRankineScale(double kelvin) => kelvin * 9.0 / 5.0;
   static double rankineToKelvinScale(double rankine) => rankine * 5.0 / 9.0;

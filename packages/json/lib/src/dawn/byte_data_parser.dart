@@ -24,8 +24,8 @@ final class ByteDataParser extends SyncParser with ByteBasedParser {
   bool atEof(int i) => i >= _limit;
 
   @override
-  String atRange(int i, int j) => String.fromCharCodes(
-      src.buffer.asUint8List().getRange(i + _start, j + _start));
+  String atRange(int i, int j) =>
+      String.fromCharCodes(src.buffer.asUint8List().getRange(i + _start, j + _start));
 
   @override
   int byte(int i) => src[i + _start];

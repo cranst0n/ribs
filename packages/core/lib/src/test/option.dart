@@ -24,8 +24,7 @@ class _IsSome<A> extends Matcher {
   }
 
   @override
-  Description describe(Description description) =>
-      description.add('<Instance of Option<$A>>');
+  Description describe(Description description) => description.add('<Instance of Option<$A>>');
 }
 
 class _IsNone extends Matcher {
@@ -41,6 +40,5 @@ class _IsNone extends Matcher {
   }
 
   @override
-  Description describe(Description description) =>
-      description.add('<Instance of None>');
+  Description describe(Description description) => description.add('<Instance of None>');
 }

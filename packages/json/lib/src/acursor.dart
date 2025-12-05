@@ -90,19 +90,16 @@ abstract class ACursor {
           final lastOp = cursor.lastOp;
 
           return switch (lastOp) {
-            Field _ => loop(cursor.lastCursor,
-                acc.prependElem(PathElem.objectKey(lastOp.key))),
+            Field _ => loop(cursor.lastCursor, acc.prependElem(PathElem.objectKey(lastOp.key))),
             DownField _ =>
               // We tried to move down, and then that failed, so the field was missing.
-              loop(cursor.lastCursor,
-                  acc.prependElem(PathElem.objectKey(lastOp.key))),
+              loop(cursor.lastCursor, acc.prependElem(PathElem.objectKey(lastOp.key))),
             DownArray _ =>
               // We tried to move into an array, but it must have been empty.
               loop(cursor.lastCursor, acc.prependElem(PathElem.arrayIndex(0))),
             DownN _ =>
               // We tried to move into an array at index N, but there was no element there.
-              loop(cursor.lastCursor,
-                  acc.prependElem(PathElem.arrayIndex(lastOp.n))),
+              loop(cursor.lastCursor, acc.prependElem(PathElem.arrayIndex(lastOp.n))),
             MoveLeft _ =>
               // We tried to move to before the start of the array.
               loop(cursor.lastCursor, acc.prependElem(PathElem.arrayIndex(-1))),
@@ -110,8 +107,7 @@ abstract class ACursor {
                 ? // We tried to move to past the end of the array.
                 loop(
                     lastCursor.parent,
-                    acc.prependElem(
-                        PathElem.arrayIndex(lastCursor.indexValue + 1)),
+                    acc.prependElem(PathElem.arrayIndex(lastCursor.indexValue + 1)),
                   )
                 : // Invalid state, skip for now.
                 loop(cursor.lastCursor, acc),
@@ -127,10 +123,10 @@ abstract class ACursor {
           };
         } else {
           return switch (cursor) {
-            ArrayCursor _ => loop(cursor.parent,
-                acc.prependElem(PathElem.arrayIndex(cursor.indexValue))),
-            ObjectCursor _ => loop(cursor.parent,
-                acc.prependElem(PathElem.objectKey(cursor.keyValue))),
+            ArrayCursor _ =>
+              loop(cursor.parent, acc.prependElem(PathElem.arrayIndex(cursor.indexValue))),
+            ObjectCursor _ =>
+              loop(cursor.parent, acc.prependElem(PathElem.objectKey(cursor.keyValue))),
             TopCursor _ => acc,
             _ => loop(cursor.lastCursor, acc),
           };
@@ -143,11 +139,9 @@ abstract class ACursor {
 
   DecodeResult<A> decode<A>(Decoder<A> decoder) => decoder.tryDecodeC(this);
 
-  DecodeResult<A> get<A>(String key, Decoder<A> decoder) =>
-      downField(key).decode(decoder);
+  DecodeResult<A> get<A>(String key, Decoder<A> decoder) => downField(key).decode(decoder);
 
-  DecodeResult<A> getOrElse<A>(
-          String key, Decoder<A> decoder, Function0<A> fallback) =>
+  DecodeResult<A> getOrElse<A>(String key, Decoder<A> decoder, Function0<A> fallback) =>
       get(key, decoder.optional()).fold(
         (err) => fallback().asRight(),
         (aOpt) => aOpt.fold(() => fallback().asRight(), (a) => a.asRight()),

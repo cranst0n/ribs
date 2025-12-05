@@ -40,14 +40,13 @@ final class Request extends Message {
   Request withBody(EntityBody body) => copy(body: body);
   Request withEmptyBody() => withBody(EntityBody.Empty);
 
-  Request transformHeaders(Function1<Headers, Headers> f) =>
-      copy(headers: f(headers));
+  Request transformHeaders(Function1<Headers, Headers> f) => copy(headers: f(headers));
 
   Request filterHeaders(Function1<Header, bool> p) =>
       transformHeaders((h) => h.transform((a) => a.filter(p)));
 
-  Request removeHeader(CIString key) => transformHeaders(
-      (h) => h.transform((l) => l.filterNot((hdrs) => hdrs.name == key)));
+  Request removeHeader(CIString key) =>
+      transformHeaders((h) => h.transform((l) => l.filterNot((hdrs) => hdrs.name == key)));
 
   Request addHeader(Header header) => transformHeaders((h) => h.add(header));
   Request putHeader(Header header) => transformHeaders((h) => h.put(header));

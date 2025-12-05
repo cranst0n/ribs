@@ -7,8 +7,7 @@ extension StringOps on String {
 
   String dropRight(int n) => take(length - max(n, 0));
 
-  String dropWhile(Function1<String, bool> p) =>
-      switch (indexWhere((c) => !p(c))) {
+  String dropWhile(Function1<String, bool> p) => switch (indexWhere((c) => !p(c))) {
         -1 => '',
         final x => substring(x),
       };
@@ -54,8 +53,7 @@ extension StringOps on String {
     return true;
   }
 
-  String fold(String z, Function2<String, String, String> op) =>
-      foldLeft(z, op);
+  String fold(String z, Function2<String, String, String> op) => foldLeft(z, op);
 
   B foldLeft<B>(B z, Function2<B, String, B> op) {
     var v = z;
@@ -83,8 +81,7 @@ extension StringOps on String {
 
   RIterator<String> grouped(int size) => _StringGroupedIterator(this, size);
 
-  String get head =>
-      nonEmpty ? this[0] : throw RangeError('.head on empty string');
+  String get head => nonEmpty ? this[0] : throw RangeError('.head on empty string');
 
   Option<String> get headOption => nonEmpty ? Some(this[0]) : none();
 
@@ -114,8 +111,7 @@ extension StringOps on String {
 
   RIterator<String> inits() => _iterateUntilEmpty((s) => s.init());
 
-  String get last =>
-      nonEmpty ? this[length - 1] : throw RangeError('.last on empty string');
+  String get last => nonEmpty ? this[length - 1] : throw RangeError('.last on empty string');
 
   Option<String> get lastOption => nonEmpty ? Some(this[length - 1]) : none();
 
@@ -133,8 +129,7 @@ extension StringOps on String {
     return (res1.toString(), res2.toString());
   }
 
-  RIterator<String> get riterator =>
-      RIterator.tabulate(length, (ix) => this[ix]);
+  RIterator<String> get riterator => RIterator.tabulate(length, (ix) => this[ix]);
 
   String slice(int from, int until) {
     final start = max(from, 0);
@@ -148,21 +143,17 @@ extension StringOps on String {
 
   (String, String) splitAt(int n) => (take(n), drop(n));
 
-  (String, String) span(Function1<String, bool> p) =>
-      switch (indexWhere((c) => !p(c))) {
+  (String, String) span(Function1<String, bool> p) => switch (indexWhere((c) => !p(c))) {
         -1 => (this, ''),
         final x => (substring(0, x), substring(x)),
       };
 
-  String stripPrefix(String prefix) =>
-      startsWith(prefix) ? substring(prefix.length) : this;
+  String stripPrefix(String prefix) => startsWith(prefix) ? substring(prefix.length) : this;
 
   String stripSuffix(String suffix) =>
       endsWith(suffix) ? substring(0, length - suffix.length) : this;
 
-  String tail() => nonEmpty
-      ? substring(1, length)
-      : throw RangeError('.tail on empty string');
+  String tail() => nonEmpty ? substring(1, length) : throw RangeError('.tail on empty string');
 
   RIterator<String> tails() => _iterateUntilEmpty((s) => s.tail());
 
@@ -170,16 +161,13 @@ extension StringOps on String {
 
   String takeRight(int n) => drop(length - max(n, 0));
 
-  String takeWhile(Function1<String, bool> p) =>
-      switch (indexWhere((c) => !p(c))) {
+  String takeWhile(Function1<String, bool> p) => switch (indexWhere((c) => !p(c))) {
         -1 => this,
         final x => substring(0, x),
       };
 
   RIterator<String> _iterateUntilEmpty(Function1<String, String> f) =>
-      RIterator.iterate(this, f)
-          .takeWhile((s) => s.nonEmpty)
-          .concat(RIterator.single(''));
+      RIterator.iterate(this, f).takeWhile((s) => s.nonEmpty).concat(RIterator.single(''));
 }
 
 class _StringGroupedIterator extends RIterator<String> {

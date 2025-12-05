@@ -65,8 +65,8 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
     return result;
   }
 
-  ISet<A> diff(ISet<A> that) => foldLeft(ISet.empty<A>(),
-      (result, elem) => that.contains(elem) ? result : result + elem);
+  ISet<A> diff(ISet<A> that) =>
+      foldLeft(ISet.empty<A>(), (result, elem) => that.contains(elem) ? result : result + elem);
 
   @override
   ISet<A> drop(int n) => super.drop(n).toISet();
@@ -86,16 +86,13 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
   ISet<A> filterNot(Function1<A, bool> p) => super.filterNot(p).toISet();
 
   @override
-  ISet<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) =>
-      views.FlatMap(this, f).toISet();
+  ISet<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) => views.FlatMap(this, f).toISet();
 
   @override
-  RIterator<ISet<A>> grouped(int size) =>
-      super.grouped(size).map((a) => a.toISet());
+  RIterator<ISet<A>> grouped(int size) => super.grouped(size).map((a) => a.toISet());
 
   @override
-  IMap<K, ISet<A>> groupBy<K>(Function1<A, K> f) =>
-      super.groupBy(f).mapValues((a) => a.toISet());
+  IMap<K, ISet<A>> groupBy<K>(Function1<A, K> f) => super.groupBy(f).mapValues((a) => a.toISet());
 
   @override
   IMap<K, ISet<B>> groupMap<K, B>(
@@ -138,12 +135,10 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
   ISet<B> scan<B>(B z, Function2<B, A, B> op) => scanLeft(z, op);
 
   @override
-  ISet<B> scanLeft<B>(B z, Function2<B, A, B> op) =>
-      super.scanLeft(z, op).toISet();
+  ISet<B> scanLeft<B>(B z, Function2<B, A, B> op) => super.scanLeft(z, op).toISet();
 
   @override
-  ISet<B> scanRight<B>(B z, Function2<A, B, B> op) =>
-      super.scanRight(z, op).toISet();
+  ISet<B> scanRight<B>(B z, Function2<A, B, B> op) => super.scanRight(z, op).toISet();
 
   @override
   ISet<A> slice(int from, int until) => super.slice(from, until).toISet();
@@ -255,8 +250,7 @@ class _SubsetsOfNItr<A> extends RIterator<ISet<A>> {
   final Array<int> _idxs;
   bool _hasNext = true;
 
-  _SubsetsOfNItr(this.elems, this.len)
-      : _idxs = Array.range(0, len + 1).update(len, elems.size);
+  _SubsetsOfNItr(this.elems, this.len) : _idxs = Array.range(0, len + 1).update(len, elems.size);
 
   @override
   bool get hasNext => _hasNext;

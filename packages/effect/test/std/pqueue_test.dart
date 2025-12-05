@@ -33,10 +33,7 @@ void main() {
       return q.offer(1).start().flatMap((_) {
         return q.take().flatMap((v1) {
           return IO
-              .delay(() => q
-                  .take()
-                  .unsafeRunFuture()
-                  .then((value) => futureValue = Option(value)))
+              .delay(() => q.take().unsafeRunFuture().then((value) => futureValue = Option(value)))
               .start()
               .flatMap((ff) {
             return ff.joinWithNever().flatMap((f) {
@@ -44,8 +41,7 @@ void main() {
 
               return q.offer(2).flatMap((_) {
                 return IO.fromFuture(IO.pure(f)).flatMap((v2) {
-                  return expectIO(v1, 1)
-                      .productR(() => expectIO(v2, isSome(2)));
+                  return expectIO(v1, 1).productR(() => expectIO(v2, isSome(2)));
                 });
               });
             });

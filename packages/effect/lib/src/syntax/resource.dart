@@ -20,11 +20,9 @@ extension ResourceTuple2Ops<A, B> on Resource<(A, B)> {
 extension ResourceTuple3Ops<A, B, C> on Resource<(A, B, C)> {
   Resource<D> evalMapN<D>(Function3<A, B, C, IO<D>> f) => evalMap(f.tupled);
 
-  Resource<(A, B, C)> evalTapN<D>(Function3<A, B, C, IO<D>> f) =>
-      evalTap(f.tupled);
+  Resource<(A, B, C)> evalTapN<D>(Function3<A, B, C, IO<D>> f) => evalTap(f.tupled);
 
-  Resource<D> flatMapN<D>(Function3<A, B, C, Resource<D>> f) =>
-      flatMap(f.tupled);
+  Resource<D> flatMapN<D>(Function3<A, B, C, Resource<D>> f) => flatMap(f.tupled);
 
   Resource<D> mapN<D>(Function3<A, B, C, D> f) => map(f.tupled);
 
@@ -57,21 +55,15 @@ extension Tuple2ResourceOps<A, B> on (Resource<A>, Resource<B>) {
 }
 
 /// {@macro resource_tuple_ops}
-extension Tuple3ResourceOps<A, B, C> on (
-  Resource<A>,
-  Resource<B>,
-  Resource<C>
-) {
+extension Tuple3ResourceOps<A, B, C> on (Resource<A>, Resource<B>, Resource<C>) {
   /// {@macro resource_mapN}
   Resource<D> mapN<D>(Function3<A, B, C, D> fn) => tupled().map(fn.tupled);
 
   /// {@macro resource_parMapN}
-  Resource<D> parMapN<D>(Function3<A, B, C, D> fn) =>
-      parTupled().map(fn.tupled);
+  Resource<D> parMapN<D>(Function3<A, B, C, D> fn) => parTupled().map(fn.tupled);
 
   /// {@macro resource_tupled}
-  Resource<(A, B, C)> tupled() =>
-      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
+  Resource<(A, B, C)> tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 
   /// {@macro resource_parTupled}
   Resource<(A, B, C)> parTupled() =>
@@ -79,22 +71,15 @@ extension Tuple3ResourceOps<A, B, C> on (
 }
 
 /// {@macro resource_tuple_ops}
-extension Tuple4ResourceOps<A, B, C, D> on (
-  Resource<A>,
-  Resource<B>,
-  Resource<C>,
-  Resource<D>
-) {
+extension Tuple4ResourceOps<A, B, C, D> on (Resource<A>, Resource<B>, Resource<C>, Resource<D>) {
   /// {@macro resource_mapN}
   Resource<E> mapN<E>(Function4<A, B, C, D, E> fn) => tupled().map(fn.tupled);
 
   /// {@macro resource_parMapN}
-  Resource<E> parMapN<E>(Function4<A, B, C, D, E> fn) =>
-      parTupled().map(fn.tupled);
+  Resource<E> parMapN<E>(Function4<A, B, C, D, E> fn) => parTupled().map(fn.tupled);
 
   /// {@macro resource_tupled}
-  Resource<(A, B, C, D)> tupled() =>
-      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
+  Resource<(A, B, C, D)> tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 
   /// {@macro resource_parTupled}
   Resource<(A, B, C, D)> parTupled() =>
@@ -110,12 +95,10 @@ extension Tuple5ResourceOps<A, B, C, D, E> on (
   Resource<E>
 ) {
   /// {@macro resource_mapN}
-  Resource<F> mapN<F>(Function5<A, B, C, D, E, F> fn) =>
-      tupled().map(fn.tupled);
+  Resource<F> mapN<F>(Function5<A, B, C, D, E, F> fn) => tupled().map(fn.tupled);
 
   /// {@macro resource_parMapN}
-  Resource<F> parMapN<F>(Function5<A, B, C, D, E, F> fn) =>
-      parTupled().map(fn.tupled);
+  Resource<F> parMapN<F>(Function5<A, B, C, D, E, F> fn) => parTupled().map(fn.tupled);
 
   /// {@macro resource_tupled}
   Resource<(A, B, C, D, E)> tupled() =>

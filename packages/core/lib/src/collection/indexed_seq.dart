@@ -24,8 +24,7 @@ mixin IndexedSeq<A> on RIterable<A>, RSeq<A> {
     }
   }
 
-  static IndexedSeq<A> fromDart<A>(Iterable<A> elems) =>
-      from(RIterator.fromDart(elems.iterator));
+  static IndexedSeq<A> fromDart<A>(Iterable<A> elems) => from(RIterator.fromDart(elems.iterator));
 
   @override
   IndexedSeq<A> appended(A elem) => iseqviews.Appended(this, elem);
@@ -35,8 +34,7 @@ mixin IndexedSeq<A> on RIterable<A>, RSeq<A> {
       iseqviews.Concat(this, suffix.toIndexedSeq());
 
   @override
-  IndexedSeq<B> collect<B>(Function1<A, Option<B>> f) =>
-      super.collect(f).toIndexedSeq();
+  IndexedSeq<B> collect<B>(Function1<A, Option<B>> f) => super.collect(f).toIndexedSeq();
 
   @override
   RIterator<IndexedSeq<A>> combinations(int n) =>
@@ -50,8 +48,7 @@ mixin IndexedSeq<A> on RIterable<A>, RSeq<A> {
   IndexedSeq<A> diff(RSeq<A> that) => super.diff(that).toIndexedSeq();
 
   @override
-  IndexedSeq<A> distinctBy<B>(Function1<A, B> f) =>
-      super.distinctBy(f).toIndexedSeq();
+  IndexedSeq<A> distinctBy<B>(Function1<A, B> f) => super.distinctBy(f).toIndexedSeq();
 
   @override
   IndexedSeq<A> drop(int n) => iseqviews.Drop(this, n);
@@ -60,15 +57,13 @@ mixin IndexedSeq<A> on RIterable<A>, RSeq<A> {
   IndexedSeq<A> dropRight(int n) => iseqviews.DropRight(this, n);
 
   @override
-  IndexedSeq<A> dropWhile(Function1<A, bool> p) =>
-      super.dropWhile(p).toIndexedSeq();
+  IndexedSeq<A> dropWhile(Function1<A, bool> p) => super.dropWhile(p).toIndexedSeq();
 
   @override
   IndexedSeq<A> filter(Function1<A, bool> p) => super.filter(p).toIndexedSeq();
 
   @override
-  IndexedSeq<A> filterNot(Function1<A, bool> p) =>
-      super.filterNot(p).toIndexedSeq();
+  IndexedSeq<A> filterNot(Function1<A, bool> p) => super.filterNot(p).toIndexedSeq();
 
   @override
   IndexedSeq<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) =>
@@ -79,8 +74,7 @@ mixin IndexedSeq<A> on RIterable<A>, RSeq<A> {
       super.groupBy(f).mapValues((a) => a.toIndexedSeq());
 
   @override
-  IMap<K, IndexedSeq<B>> groupMap<K, B>(
-          Function1<A, K> key, Function1<A, B> f) =>
+  IMap<K, IndexedSeq<B>> groupMap<K, B>(Function1<A, K> key, Function1<A, B> f) =>
       super.groupMap(key, f).mapValues((a) => a.toIndexedSeq());
 
   @override
@@ -99,8 +93,7 @@ mixin IndexedSeq<A> on RIterable<A>, RSeq<A> {
   }
 
   @override
-  (IndexedSeq<A1>, IndexedSeq<A2>) partitionMap<A1, A2>(
-      Function1<A, Either<A1, A2>> f) {
+  (IndexedSeq<A1>, IndexedSeq<A2>) partitionMap<A1, A2>(Function1<A, Either<A1, A2>> f) {
     final (a, b) = super.partitionMap(f);
     return (a.toIndexedSeq(), b.toIndexedSeq());
   }
@@ -110,27 +103,22 @@ mixin IndexedSeq<A> on RIterable<A>, RSeq<A> {
       super.patch(from, other, replaced).toIndexedSeq();
 
   @override
-  RIterator<IndexedSeq<A>> permutations() =>
-      super.permutations().map((a) => a.toIndexedSeq());
+  RIterator<IndexedSeq<A>> permutations() => super.permutations().map((a) => a.toIndexedSeq());
 
   @override
   IndexedSeq<A> prepended(A elem) => super.prepended(elem).toIndexedSeq();
 
   @override
-  IndexedSeq<A> prependedAll(RIterableOnce<A> prefix) =>
-      super.prependedAll(prefix).toIndexedSeq();
+  IndexedSeq<A> prependedAll(RIterableOnce<A> prefix) => super.prependedAll(prefix).toIndexedSeq();
 
   @override
-  IndexedSeq<B> scan<B>(B z, Function2<B, A, B> op) =>
-      super.scan(z, op).toIndexedSeq();
+  IndexedSeq<B> scan<B>(B z, Function2<B, A, B> op) => super.scan(z, op).toIndexedSeq();
 
   @override
-  IndexedSeq<B> scanLeft<B>(B z, Function2<B, A, B> op) =>
-      super.scanLeft(z, op).toIndexedSeq();
+  IndexedSeq<B> scanLeft<B>(B z, Function2<B, A, B> op) => super.scanLeft(z, op).toIndexedSeq();
 
   @override
-  IndexedSeq<B> scanRight<B>(B z, Function2<A, B, B> op) =>
-      super.scanRight(z, op).toIndexedSeq();
+  IndexedSeq<B> scanRight<B>(B z, Function2<A, B, B> op) => super.scanRight(z, op).toIndexedSeq();
 
   @override
   RIterator<IndexedSeq<A>> sliding(int size, [int step = 1]) =>
@@ -141,15 +129,13 @@ mixin IndexedSeq<A> on RIterable<A>, RSeq<A> {
       super.sortBy(order, f).toIndexedSeq();
 
   @override
-  IndexedSeq<A> sortWith(Function2<A, A, bool> lt) =>
-      super.sortWith(lt).toIndexedSeq();
+  IndexedSeq<A> sortWith(Function2<A, A, bool> lt) => super.sortWith(lt).toIndexedSeq();
 
   @override
   IndexedSeq<A> sorted(Order<A> order) => super.sorted(order).toIndexedSeq();
 
   @override
-  IndexedSeq<(A, B)> zip<B>(RIterableOnce<B> that) =>
-      super.zip(that).toIndexedSeq();
+  IndexedSeq<(A, B)> zip<B>(RIterableOnce<B> that) => super.zip(that).toIndexedSeq();
 
   @override
   IndexedSeq<(A, B)> zipAll<B>(RIterableOnce<B> that, A thisElem, B thatElem) =>

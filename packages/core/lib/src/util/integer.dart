@@ -14,11 +14,9 @@ sealed class Integer {
 
   static int highestOneBit(int i) => i & (MinValue >>> numberOfLeadingZeros(i));
 
-  static int numberOfLeadingZeros(int i) =>
-      _platformImpl.numberOfLeadingZeros(i);
+  static int numberOfLeadingZeros(int i) => _platformImpl.numberOfLeadingZeros(i);
 
-  static int numberOfTrailingZeros(int i) =>
-      _platformImpl.numberOfTrailingZeros(i);
+  static int numberOfTrailingZeros(int i) => _platformImpl.numberOfTrailingZeros(i);
 
   static int rotateLeft(int i, int distance) =>
       (i << distance) | (i >>> (_platformImpl.Size - distance));

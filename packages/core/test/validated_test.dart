@@ -98,11 +98,9 @@ void main() {
     });
 
     test('flatten', () {
-      expect(42.valid<String>().valid<String>().flatten(),
-          isValid<String, int>(42));
+      expect(42.valid<String>().valid<String>().flatten(), isValid<String, int>(42));
 
-      expect('err'.invalid<int>().valid<String>().flatten(),
-          isInvalid<String, int>('err'));
+      expect('err'.invalid<int>().valid<String>().flatten(), isInvalid<String, int>('err'));
     });
 
     test('forall', () {
@@ -226,8 +224,7 @@ void main() {
 
       expect(
         (iA, iB, iC).tupled(),
-        nel('invalid username', ['invalid password', 'invalid birthday'])
-            .invalid<Value>(),
+        nel('invalid username', ['invalid password', 'invalid birthday']).invalid<Value>(),
       );
 
       expect(

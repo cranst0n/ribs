@@ -79,16 +79,13 @@ final class _Vector2<A> extends _BigVector<A> {
   }
 
   @override
-  IVector<B> map<B>(Function1<A, B> f) => _Vector2(_mapElems1(_prefix1, f),
-      len1, _mapElems2(data2, f), _mapElems1(suffix1, f), length0);
+  IVector<B> map<B>(Function1<A, B> f) => _Vector2(
+      _mapElems1(_prefix1, f), len1, _mapElems2(data2, f), _mapElems1(suffix1, f), length0);
 
   @override
   IVector<A> prepended(A elem) {
     if (len1 < _WIDTH) {
-      return _copy(
-          prefix1: _copyPrepend1(elem, _prefix1),
-          len1: len1 + 1,
-          length0: length0 + 1);
+      return _copy(prefix1: _copyPrepend1(elem, _prefix1), len1: len1 + 1, length0: length0 + 1);
     } else if (data2.length < _WIDTH - 2) {
       return _copy(
         prefix1: _wrap1(elem),

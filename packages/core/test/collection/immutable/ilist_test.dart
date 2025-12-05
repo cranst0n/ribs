@@ -129,8 +129,7 @@ void main() {
       expect(nil<int>().concat(nil<int>()), nil<int>());
       expect(ilist([1, 2, 3]).concat(nil<int>()), ilist([1, 2, 3]));
       expect(nil<int>().concat(ilist([1, 2, 3])), ilist([1, 2, 3]));
-      expect(
-          ilist([1, 2, 3]).concat(ilist([1, 2, 3])), ilist([1, 2, 3, 1, 2, 3]));
+      expect(ilist([1, 2, 3]).concat(ilist([1, 2, 3])), ilist([1, 2, 3, 1, 2, 3]));
     });
 
     test('contains', () {
@@ -165,8 +164,7 @@ void main() {
 
     test('deleteFirst', () {
       expect(nil<int>().deleteFirst((x) => x > 0), isNone());
-      expect(ilist([0, 1, 2]).deleteFirst((x) => x > 0),
-          isSome((1, ilist([0, 2]))));
+      expect(ilist([0, 1, 2]).deleteFirst((x) => x > 0), isSome((1, ilist([0, 2]))));
       expect(ilist([-2, -1, 0]).deleteFirst((x) => x > 0), isNone());
     });
 
@@ -459,8 +457,7 @@ void main() {
 
     test('maxByOption', () {
       expect(nil<String>().maxByOption((a) => a.length, Order.ints), isNone());
-      expect(ilist(['a', 'bc', 'def']).maxByOption((a) => a.length, Order.ints),
-          const Some('def'));
+      expect(ilist(['a', 'bc', 'def']).maxByOption((a) => a.length, Order.ints), const Some('def'));
     });
 
     test('maxOption', () {
@@ -470,8 +467,7 @@ void main() {
 
     test('minByOption', () {
       expect(nil<String>().minByOption((a) => a.length, Order.ints), isNone());
-      expect(ilist(['a', 'bc', 'def']).minByOption((a) => a.length, Order.ints),
-          const Some('a'));
+      expect(ilist(['a', 'bc', 'def']).minByOption((a) => a.length, Order.ints), const Some('a'));
     });
 
     test('minOption', () {
@@ -481,8 +477,7 @@ void main() {
 
     test('mkString', () {
       expect(nil<int>().mkString(sep: ','), '');
-      expect(
-          ilist([1, 2, 3]).mkString(start: '[', sep: '|', end: '>'), '[1|2|3>');
+      expect(ilist([1, 2, 3]).mkString(start: '[', sep: '|', end: '>'), '[1|2|3>');
     });
 
     test('padTo', () {
@@ -495,13 +490,11 @@ void main() {
 
     test('partition', () {
       expect(nil<int>().partition((x) => x < 0), (nil<int>(), nil<int>()));
-      expect(ilist([1, -2, 3, 4]).partition((x) => x < 0),
-          (ilist([-2]), ilist([1, 3, 4])));
+      expect(ilist([1, -2, 3, 4]).partition((x) => x < 0), (ilist([-2]), ilist([1, 3, 4])));
     });
 
     test('partitionMap', () {
-      Either<String, int> f(int x) =>
-          Either.cond(() => x.isEven, () => x, () => '$x');
+      Either<String, int> f(int x) => Either.cond(() => x.isEven, () => x, () => '$x');
 
       expect(nil<int>().partitionMap(f), (nil<String>(), nil<int>()));
       expect(ilist([1, 2, 3]).partitionMap(f), (ilist(['1', '3']), ilist([2])));
@@ -585,8 +578,7 @@ void main() {
     test('scanRight', () {
       expect(nil<int>().scanRight(0, (a, b) => a + b), ilist([0]));
       expect(ilist([1]).scanRight(0, (a, b) => a + b), ilist([1, 0]));
-      expect(
-          ilist([1, 2, 3]).scanRight(0, (a, b) => a + b), ilist([6, 5, 3, 0]));
+      expect(ilist([1, 2, 3]).scanRight(0, (a, b) => a + b), ilist([6, 5, 3, 0]));
       expect(
         IList.range(0, 10).scanRight(0, (a, b) => a + b),
         ilist([45, 45, 44, 42, 39, 35, 30, 24, 17, 9, 0]),
@@ -668,8 +660,7 @@ void main() {
     });
 
     test('sortWith', () {
-      expect(
-          ilist([4, 2, 8, 1]).sortWith((a, b) => a < b), ilist([1, 2, 4, 8]));
+      expect(ilist([4, 2, 8, 1]).sortWith((a, b) => a < b), ilist([1, 2, 4, 8]));
     });
 
     test('sorted', () {
@@ -678,12 +669,10 @@ void main() {
 
     test('span', () {
       expect(nil<int>().span((n) => n > 3), (nil<int>(), nil<int>()));
-      expect(
-          ilist([1, 2, 3]).span((n) => n > 3), (nil<int>(), ilist([1, 2, 3])));
+      expect(ilist([1, 2, 3]).span((n) => n > 3), (nil<int>(), ilist([1, 2, 3])));
       expect(ilist([1, 2, 3]).span((n) => n < 2), (ilist([1]), ilist([2, 3])));
       expect(ilist([1, 2, 3]).span((n) => n < 3), (ilist([1, 2]), ilist([3])));
-      expect(ilist([1, 2, 3, 2, 1]).span((n) => n < 3),
-          (ilist([1, 2]), ilist([3, 2, 1])));
+      expect(ilist([1, 2, 3, 2, 1]).span((n) => n < 3), (ilist([1, 2]), ilist([3, 2, 1])));
     });
 
     test('splitAt', () {
@@ -703,14 +692,12 @@ void main() {
 
     test('sequenceEither', () {
       expect(
-        ilist([1.asRight<int>(), 2.asRight<int>(), 3.asRight<int>()])
-            .sequence(),
+        ilist([1.asRight<int>(), 2.asRight<int>(), 3.asRight<int>()]).sequence(),
         ilist([1, 2, 3]).asRight<String>(),
       );
 
       expect(
-        ilist([1.asRight<int>(), 42.asLeft<int>(), 3.asRight<int>()])
-            .sequence(),
+        ilist([1.asRight<int>(), 42.asLeft<int>(), 3.asRight<int>()]).sequence(),
         42.asLeft<int>(),
       );
     });
@@ -776,8 +763,7 @@ void main() {
       );
 
       expect(
-        ilist([1, 2, 3]).traverseEither(
-            (a) => Either.cond(() => a.isEven, () => a, () => 'odd')),
+        ilist([1, 2, 3]).traverseEither((a) => Either.cond(() => a.isEven, () => a, () => 'odd')),
         'odd'.asLeft<int>(),
       );
     });
@@ -789,8 +775,7 @@ void main() {
       );
 
       expect(
-        ilist([1, 2, 3])
-            .traverseOption((a) => Option.when(() => a.isEven, () => a)),
+        ilist([1, 2, 3]).traverseOption((a) => Option.when(() => a.isEven, () => a)),
         isNone(),
       );
     });
@@ -826,15 +811,11 @@ void main() {
       final b = ilist([5, 4, 3, 2, 1]);
       final c = ilist([5, 4, 3]);
 
-      expect(
-          a.zipAll(b, 0, 1), ilist([(1, 5), (2, 4), (3, 3), (4, 2), (5, 1)]));
-      expect(
-          b.zipAll(a, 0, 1), ilist([(5, 1), (4, 2), (3, 3), (2, 4), (1, 5)]));
+      expect(a.zipAll(b, 0, 1), ilist([(1, 5), (2, 4), (3, 3), (4, 2), (5, 1)]));
+      expect(b.zipAll(a, 0, 1), ilist([(5, 1), (4, 2), (3, 3), (2, 4), (1, 5)]));
 
-      expect(
-          a.zipAll(c, 0, 1), ilist([(1, 5), (2, 4), (3, 3), (4, 1), (5, 1)]));
-      expect(
-          c.zipAll(a, 0, 1), ilist([(5, 1), (4, 2), (3, 3), (0, 4), (0, 5)]));
+      expect(a.zipAll(c, 0, 1), ilist([(1, 5), (2, 4), (3, 3), (4, 1), (5, 1)]));
+      expect(c.zipAll(a, 0, 1), ilist([(5, 1), (4, 2), (3, 3), (0, 4), (0, 5)]));
     });
 
     test('zipWithIndex', () {

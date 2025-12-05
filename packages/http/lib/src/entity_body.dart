@@ -30,9 +30,8 @@ final class EntityBody extends StreamView<List<int>> {
   static EntityBody json(Json json) => string(json.printWith(Printer.noSpaces))
       .withContentType(ContentType(MediaType.application.json));
 
-  static EntityBody urlForm(UrlForm urlForm) =>
-      EntityBody.string(UrlForm.encodeString(urlForm)).withContentType(
-          ContentType(MediaType.application.xWwwFormUrlEncoded));
+  static EntityBody urlForm(UrlForm urlForm) => EntityBody.string(UrlForm.encodeString(urlForm))
+      .withContentType(ContentType(MediaType.application.xWwwFormUrlEncoded));
 
   static const Empty = EntityBody(Stream.empty());
 }

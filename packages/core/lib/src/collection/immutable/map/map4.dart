@@ -13,8 +13,7 @@
 
 part of '../imap.dart';
 
-final class _Map4<K, V>
-    with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V>, IMap<K, V> {
+final class _Map4<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V>, IMap<K, V> {
   final K key1;
   final V value1;
   final K key2;
@@ -24,26 +23,19 @@ final class _Map4<K, V>
   final K key4;
   final V value4;
 
-  const _Map4(this.key1, this.value1, this.key2, this.value2, this.key3,
-      this.value3, this.key4, this.value4);
+  const _Map4(this.key1, this.value1, this.key2, this.value2, this.key3, this.value3, this.key4,
+      this.value4);
 
   @override
-  bool contains(K key) =>
-      key == key1 || key == key2 || key == key3 || key == key4;
+  bool contains(K key) => key == key1 || key == key2 || key == key3 || key == key4;
 
   @override
   bool exists(Function1<(K, V), bool> p) =>
-      p((key1, value1)) ||
-      p((key2, value2)) ||
-      p((key3, value3)) ||
-      p((key4, value4));
+      p((key1, value1)) || p((key2, value2)) || p((key3, value3)) || p((key4, value4));
 
   @override
   bool forall(Function1<(K, V), bool> p) =>
-      p((key1, value1)) &&
-      p((key2, value2)) &&
-      p((key3, value3)) &&
-      p((key4, value4));
+      p((key1, value1)) && p((key2, value2)) && p((key3, value3)) && p((key4, value4));
 
   @override
   void foreach<U>(Function1<(K, V), U> f) {
@@ -64,8 +56,7 @@ final class _Map4<K, V>
 
   @override
   RIterator<(K, V)> get iterator =>
-      ilist([(key1, value1), (key2, value2), (key3, value3), (key4, value4)])
-          .iterator;
+      ilist([(key1, value1), (key2, value2), (key3, value3), (key4, value4)]).iterator;
 
   @override
   ISet<K> get keys => ISet.of([key1, key2, key3, key4]);
@@ -110,6 +101,5 @@ final class _Map4<K, V>
   }
 
   @override
-  RIterator<V> get valuesIterator =>
-      ilist([value1, value2, value3, value4]).iterator;
+  RIterator<V> get valuesIterator => ilist([value1, value2, value3, value4]).iterator;
 }

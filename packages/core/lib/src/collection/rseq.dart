@@ -31,8 +31,7 @@ mixin RSeq<A> on RIterable<A> {
     }
   }
 
-  static RSeq<A> fromDart<A>(Iterable<A> elems) =>
-      from(RIterator.fromDart(elems.iterator));
+  static RSeq<A> fromDart<A>(Iterable<A> elems) => from(RIterator.fromDart(elems.iterator));
 
   /// Returns a new Seq, with the given [elem] added to the end.
   RSeq<A> appended(A elem) => seqviews.Appended(this, elem).toSeq();
@@ -63,8 +62,7 @@ mixin RSeq<A> on RIterable<A> {
   }
 
   @override
-  RSeq<A> concat(RIterableOnce<A> suffix) =>
-      seqviews.Concat(this, suffix.toSeq());
+  RSeq<A> concat(RIterableOnce<A> suffix) => seqviews.Concat(this, suffix.toSeq());
 
   /// Returns true, if any element of this collection equals [elem].
   bool contains(A elem) => exists((a) => a == elem);
@@ -161,12 +159,10 @@ mixin RSeq<A> on RIterable<A> {
   RSeq<A> filterNot(Function1<A, bool> p) => super.filterNot(p).toSeq();
 
   @override
-  RSeq<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) =>
-      views.FlatMap(this, f).toSeq();
+  RSeq<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) => views.FlatMap(this, f).toSeq();
 
   @override
-  IMap<K, RSeq<A>> groupBy<K>(Function1<A, K> f) =>
-      super.groupBy(f).mapValues((a) => a.toSeq());
+  IMap<K, RSeq<A>> groupBy<K>(Function1<A, K> f) => super.groupBy(f).mapValues((a) => a.toSeq());
 
   @override
   IMap<K, RSeq<B>> groupMap<K, B>(Function1<A, K> key, Function1<A, B> f) =>
@@ -179,8 +175,7 @@ mixin RSeq<A> on RIterable<A> {
 
   /// Returns the first index, if any, where the element at that index equals
   /// [elem]. If no index contains [elem], [None] is returned.
-  Option<int> indexOf(A elem, [int from = 0]) =>
-      indexWhere((a) => a == elem, from);
+  Option<int> indexOf(A elem, [int from = 0]) => indexWhere((a) => a == elem, from);
 
   /// Finds the first index in this collection where the next sequence of
   /// elements is equal to [that]. If [that] cannot be found in this collection,
@@ -221,8 +216,7 @@ mixin RSeq<A> on RIterable<A> {
   /// Returns the index of the first element that satisfies the predicate [p].
   /// If no element satisfies, [None] is returned.
   /// {@endtemplate}
-  Option<int> indexWhere(Function1<A, bool> p, [int from = 0]) =>
-      iterator.indexWhere(p, from);
+  Option<int> indexWhere(Function1<A, bool> p, [int from = 0]) => iterator.indexWhere(p, from);
 
   @override
   RSeq<A> init() => dropRight(1);
@@ -276,8 +270,7 @@ mixin RSeq<A> on RIterable<A> {
 
   /// Returns the last index, if any, where the element at that index equals
   /// [elem]. If no index contains [elem], [None] is returned.
-  Option<int> lastIndexOf(A elem, [int end = 2147483647]) =>
-      lastIndexWhere((a) => a == elem, end);
+  Option<int> lastIndexOf(A elem, [int end = 2147483647]) => lastIndexWhere((a) => a == elem, end);
 
   /// Finds the last index in this collection where the next sequence of
   /// elements is equal to [that]. If [that] cannot be found in this collection,
@@ -367,8 +360,7 @@ mixin RSeq<A> on RIterable<A> {
   RSeq<A> prepended(A elem) => seqviews.Prepended(elem, this).toSeq();
 
   /// Returns a new collection with all [elems] added to the beginning.
-  RSeq<A> prependedAll(RIterableOnce<A> prefix) =>
-      seqviews.Concat(prefix.toSeq(), this);
+  RSeq<A> prependedAll(RIterableOnce<A> prefix) => seqviews.Concat(prefix.toSeq(), this);
 
   RSeq<A> removeAt(int idx) {
     if (0 <= idx && idx < length) {
@@ -383,8 +375,7 @@ mixin RSeq<A> on RIterable<A> {
     }
   }
 
-  RSeq<A> removeFirst(Function1<A, bool> p) =>
-      indexWhere(p).fold(() => this, removeAt);
+  RSeq<A> removeFirst(Function1<A, bool> p) => indexWhere(p).fold(() => this, removeAt);
 
   /// Returns a new collection with the order of the elements reversed.
   RSeq<A> reverse();
@@ -398,9 +389,8 @@ mixin RSeq<A> on RIterable<A> {
   bool sameElements(RIterable<A> that) {
     final thisKnownSize = knownSize;
     final thatKnownSize = that.knownSize;
-    final knownDifference = thisKnownSize != -1 &&
-        thatKnownSize != -1 &&
-        thisKnownSize != thatKnownSize;
+    final knownDifference =
+        thisKnownSize != -1 && thatKnownSize != -1 && thisKnownSize != thatKnownSize;
 
     return !knownDifference && iterator.sameElements(that);
   }
@@ -409,12 +399,10 @@ mixin RSeq<A> on RIterable<A> {
   RSeq<B> scan<B>(B z, Function2<B, A, B> op) => super.scan(z, op).toSeq();
 
   @override
-  RSeq<B> scanLeft<B>(B z, Function2<B, A, B> op) =>
-      super.scanLeft(z, op).toSeq();
+  RSeq<B> scanLeft<B>(B z, Function2<B, A, B> op) => super.scanLeft(z, op).toSeq();
 
   @override
-  RSeq<B> scanRight<B>(B z, Function2<A, B, B> op) =>
-      super.scanRight(z, op).toSeq();
+  RSeq<B> scanRight<B>(B z, Function2<A, B, B> op) => super.scanRight(z, op).toSeq();
 
   @override
   RIterator<RSeq<A>> sliding(int size, [int step = 1]) =>
@@ -439,20 +427,17 @@ mixin RSeq<A> on RIterable<A> {
 
   /// Returns a new collection that is sorted according to [order] after
   /// applying [f] to each element in this collection.
-  RSeq<A> sortBy<B>(Order<B> order, Function1<A, B> f) =>
-      sorted(order.contramap(f));
+  RSeq<A> sortBy<B>(Order<B> order, Function1<A, B> f) => sorted(order.contramap(f));
 
   /// Returns a new collection sorted using the provided function [lt] which is
   /// used to determine if one element is less than the other.
   RSeq<A> sortWith(Function2<A, A, bool> lt) => sorted(Order.fromLessThan(lt));
 
   @override
-  (RSeq<A>, RSeq<A>) span(Function1<A, bool> p) =>
-      super.span(p)((a, b) => (a.toSeq(), b.toSeq()));
+  (RSeq<A>, RSeq<A>) span(Function1<A, bool> p) => super.span(p)((a, b) => (a.toSeq(), b.toSeq()));
 
   @override
-  (RSeq<A>, RSeq<A>) splitAt(int n) =>
-      super.splitAt(n)((a, b) => (a.toSeq(), b.toSeq()));
+  (RSeq<A>, RSeq<A>) splitAt(int n) => super.splitAt(n)((a, b) => (a.toSeq(), b.toSeq()));
 
   /// Returns true if the beginning of this collection corresponds with [that].
   bool startsWith(RIterableOnce<A> that, [int offset = 0]) {
@@ -564,10 +549,8 @@ class _PermutationsItr<A> extends RIterator<RSeq<A>> {
   static _PermutationsItr<A> from<A>(RSeq<A> l) {
     final m = <A, int>{};
 
-    final (elems, idxs) = l
-        .map((e) => (e, m.putIfAbsent(e, () => m.length)))
-        .sortBy(Order.ints, (a) => a.$2)
-        .unzip();
+    final (elems, idxs) =
+        l.map((e) => (e, m.putIfAbsent(e, () => m.length))).sortBy(Order.ints, (a) => a.$2).unzip();
 
     return _PermutationsItr._(elems.toList(), idxs.toList());
   }
@@ -635,10 +618,8 @@ class _CombinationsItr<A> extends RIterator<RSeq<A>> {
   static _CombinationsItr<A> from<A>(int n, RSeq<A> l) {
     final m = <A, int>{};
 
-    final (elems, idxs) = l
-        .map((e) => (e, m.putIfAbsent(e, () => m.length)))
-        .sortBy(Order.ints, (a) => a.$2)
-        .unzip();
+    final (elems, idxs) =
+        l.map((e) => (e, m.putIfAbsent(e, () => m.length))).sortBy(Order.ints, (a) => a.$2).unzip();
 
     final cnts = List.filled(m.length, 0);
     idxs.foreach((i) => cnts[i] += 1);

@@ -7,8 +7,7 @@ final class ProvideCodec<A> extends Codec<A> {
   ProvideCodec(this.value);
 
   @override
-  Either<Err, DecodeResult<A>> decode(BitVector bv) =>
-      Either.right(DecodeResult(value, bv));
+  Either<Err, DecodeResult<A>> decode(BitVector bv) => Either.right(DecodeResult(value, bv));
 
   @override
   Either<Err, BitVector> encode(A a) => Either.right(BitVector.empty);

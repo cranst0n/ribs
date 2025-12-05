@@ -4,8 +4,7 @@ import 'package:ribs_sqlite/ribs_sqlite.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 abstract mixin class Read<A> {
-  static Read<A> fromGet<A>(Get<A> get) =>
-      Read.instance(ilist([get]), get.unsafeGet);
+  static Read<A> fromGet<A>(Get<A> get) => Read.instance(ilist([get]), get.unsafeGet);
 
   static Read<A> instance<A>(
     IList<Get<dynamic>> gets,
@@ -17,8 +16,7 @@ abstract mixin class Read<A> {
 
   A unsafeGet(Row row, int n);
 
-  Read<B> emap<B>(Function1<A, Either<String, B>> f) =>
-      Read.instance(gets, (row, n) {
+  Read<B> emap<B>(Function1<A, Either<String, B>> f) => Read.instance(gets, (row, n) {
         final a = unsafeGet(row, n);
 
         return f(a).fold(
@@ -29,8 +27,7 @@ abstract mixin class Read<A> {
 
   int get length => gets.length;
 
-  Read<B> map<B>(Function1<A, B> f) =>
-      Read.instance(gets, (row, n) => f(unsafeGet(row, n)));
+  Read<B> map<B>(Function1<A, B> f) => Read.instance(gets, (row, n) => f(unsafeGet(row, n)));
 
   static Read<BigInt> bigInt = Read.fromGet(Get.bigInt);
   static Read<IList<int>> blob = Read.fromGet(Get.blob);
@@ -77,9 +74,7 @@ extension Tuple3ReadOps<A, B, C> on (Read<A>, Read<B>, Read<C>) {
 
     return Read.instance(
       initRead.gets.concat(last.gets),
-      (row, n) => initRead
-          .unsafeGet(row, n)
-          .append(last.unsafeGet(row, n + initRead.length)),
+      (row, n) => initRead.unsafeGet(row, n).append(last.unsafeGet(row, n + initRead.length)),
     );
   }
 }
@@ -90,28 +85,18 @@ extension Tuple4ReadOps<A, B, C, D> on (Read<A>, Read<B>, Read<C>, Read<D>) {
 
     return Read.instance(
       initRead.gets.concat(last.gets),
-      (row, n) => initRead
-          .unsafeGet(row, n)
-          .append(last.unsafeGet(row, n + initRead.length)),
+      (row, n) => initRead.unsafeGet(row, n).append(last.unsafeGet(row, n + initRead.length)),
     );
   }
 }
 
-extension Tuple5ReadOps<A, B, C, D, E> on (
-  Read<A>,
-  Read<B>,
-  Read<C>,
-  Read<D>,
-  Read<E>
-) {
+extension Tuple5ReadOps<A, B, C, D, E> on (Read<A>, Read<B>, Read<C>, Read<D>, Read<E>) {
   Read<(A, B, C, D, E)> get tupled {
     final initRead = init().tupled;
 
     return Read.instance(
       initRead.gets.concat(last.gets),
-      (row, n) => initRead
-          .unsafeGet(row, n)
-          .append(last.unsafeGet(row, n + initRead.length)),
+      (row, n) => initRead.unsafeGet(row, n).append(last.unsafeGet(row, n + initRead.length)),
     );
   }
 }
@@ -129,9 +114,7 @@ extension Tuple6ReadOps<A, B, C, D, E, F> on (
 
     return Read.instance(
       initRead.gets.concat(last.gets),
-      (row, n) => initRead
-          .unsafeGet(row, n)
-          .append(last.unsafeGet(row, n + initRead.length)),
+      (row, n) => initRead.unsafeGet(row, n).append(last.unsafeGet(row, n + initRead.length)),
     );
   }
 }
@@ -150,9 +133,7 @@ extension Tuple7ReadOps<A, B, C, D, E, F, G> on (
 
     return Read.instance(
       initRead.gets.concat(last.gets),
-      (row, n) => initRead
-          .unsafeGet(row, n)
-          .append(last.unsafeGet(row, n + initRead.length)),
+      (row, n) => initRead.unsafeGet(row, n).append(last.unsafeGet(row, n + initRead.length)),
     );
   }
 }
@@ -172,9 +153,7 @@ extension Tuple8ReadOps<A, B, C, D, E, F, G, H> on (
 
     return Read.instance(
       initRead.gets.concat(last.gets),
-      (row, n) => initRead
-          .unsafeGet(row, n)
-          .append(last.unsafeGet(row, n + initRead.length)),
+      (row, n) => initRead.unsafeGet(row, n).append(last.unsafeGet(row, n + initRead.length)),
     );
   }
 }
@@ -195,9 +174,7 @@ extension Tuple9ReadOps<A, B, C, D, E, F, G, H, I> on (
 
     return Read.instance(
       initRead.gets.concat(last.gets),
-      (row, n) => initRead
-          .unsafeGet(row, n)
-          .append(last.unsafeGet(row, n + initRead.length)),
+      (row, n) => initRead.unsafeGet(row, n).append(last.unsafeGet(row, n + initRead.length)),
     );
   }
 }
@@ -219,9 +196,7 @@ extension Tuple10ReadOps<A, B, C, D, E, F, G, H, I, J> on (
 
     return Read.instance(
       initRead.gets.concat(last.gets),
-      (row, n) => initRead
-          .unsafeGet(row, n)
-          .append(last.unsafeGet(row, n + initRead.length)),
+      (row, n) => initRead.unsafeGet(row, n).append(last.unsafeGet(row, n + initRead.length)),
     );
   }
 }
@@ -244,9 +219,7 @@ extension Tuple11ReadOps<A, B, C, D, E, F, G, H, I, J, K> on (
 
     return Read.instance(
       initRead.gets.concat(last.gets),
-      (row, n) => initRead
-          .unsafeGet(row, n)
-          .append(last.unsafeGet(row, n + initRead.length)),
+      (row, n) => initRead.unsafeGet(row, n).append(last.unsafeGet(row, n + initRead.length)),
     );
   }
 }
@@ -270,9 +243,7 @@ extension Tuple12ReadOps<A, B, C, D, E, F, G, H, I, J, K, L> on (
 
     return Read.instance(
       initRead.gets.concat(last.gets),
-      (row, n) => initRead
-          .unsafeGet(row, n)
-          .append(last.unsafeGet(row, n + initRead.length)),
+      (row, n) => initRead.unsafeGet(row, n).append(last.unsafeGet(row, n + initRead.length)),
     );
   }
 }
@@ -297,9 +268,7 @@ extension Tuple13ReadOps<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
 
     return Read.instance(
       initRead.gets.concat(last.gets),
-      (row, n) => initRead
-          .unsafeGet(row, n)
-          .append(last.unsafeGet(row, n + initRead.length)),
+      (row, n) => initRead.unsafeGet(row, n).append(last.unsafeGet(row, n + initRead.length)),
     );
   }
 }
@@ -325,9 +294,7 @@ extension Tuple14ReadOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
 
     return Read.instance(
       initRead.gets.concat(last.gets),
-      (row, n) => initRead
-          .unsafeGet(row, n)
-          .append(last.unsafeGet(row, n + initRead.length)),
+      (row, n) => initRead.unsafeGet(row, n).append(last.unsafeGet(row, n + initRead.length)),
     );
   }
 }
@@ -354,9 +321,7 @@ extension Tuple15ReadOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
 
     return Read.instance(
       initRead.gets.concat(last.gets),
-      (row, n) => initRead
-          .unsafeGet(row, n)
-          .append(last.unsafeGet(row, n + initRead.length)),
+      (row, n) => initRead.unsafeGet(row, n).append(last.unsafeGet(row, n + initRead.length)),
     );
   }
 }

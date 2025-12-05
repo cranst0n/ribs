@@ -11,6 +11,5 @@ class IStatementParameters {
   IStatementParameters setParameter<A>(int n, A value) =>
       IStatementParameters(params.padTo(n + 1, null).updated(n, value));
 
-  StatementParameters toStatementParameters() =>
-      StatementParameters(params.toList());
+  StatementParameters toStatementParameters() => StatementParameters(params.toList());
 }

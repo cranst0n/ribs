@@ -56,9 +56,7 @@ void main() {
       expect(op, ioSucceeded(true));
     });
 
-    test(
-        'access - setter should fail if value is modified before setter is called',
-        () {
+    test('access - setter should fail if value is modified before setter is called', () {
       final op = IO.ref(0).flatMap((r) {
         return r.access().flatMap((valueAndSetter) {
           final (value, setter) = valueAndSetter;
@@ -92,8 +90,7 @@ void main() {
 
       final op = IO.ref(0).flatMap((r) {
         return r
-            .flatModify((_) =>
-                (1, IO.canceled.productR(() => IO.exec(() => passed = true))))
+            .flatModify((_) => (1, IO.canceled.productR(() => IO.exec(() => passed = true))))
             .start()
             .flatMap((f) => f.join())
             .voided()
@@ -139,22 +136,20 @@ void main() {
   });
 
   test('getAndUpdate', () {
-    final test = Ref.of(0)
-        .flatMap((ref) => ref.getAndUpdate((a) => a + 1).product(ref.value()));
+    final test = Ref.of(0).flatMap((ref) => ref.getAndUpdate((a) => a + 1).product(ref.value()));
 
     expect(test, ioSucceeded((0, 1)));
   });
 
   test('getAndSet', () {
-    final test =
-        Ref.of(0).flatMap((ref) => ref.getAndSet(42).product(ref.value()));
+    final test = Ref.of(0).flatMap((ref) => ref.getAndSet(42).product(ref.value()));
 
     expect(test, ioSucceeded((0, 42)));
   });
 
   test('access successful set', () {
-    final test = Ref.of(0).flatMap(
-        (ref) => ref.access().flatMap((t) => t.$2(42)).product(ref.value()));
+    final test =
+        Ref.of(0).flatMap((ref) => ref.access().flatMap((t) => t.$2(42)).product(ref.value()));
 
     expect(test, ioSucceeded((true, 42)));
   });
@@ -169,8 +164,8 @@ void main() {
   });
 
   test('tryModify', () {
-    final test = Ref.of(0).flatMap((ref) =>
-        ref.tryModify((x) => (x + 3, x.toString())).product(ref.value()));
+    final test = Ref.of(0)
+        .flatMap((ref) => ref.tryModify((x) => (x + 3, x.toString())).product(ref.value()));
 
     expect(test, ioSucceeded(('0'.some, 3)));
   });

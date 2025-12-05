@@ -35,8 +35,7 @@ mixin MMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
   void clear();
 
   @override
-  MMap<K, V> concat(covariant RIterableOnce<(K, V)> suffix) =>
-      MMap.from(super.concat(suffix));
+  MMap<K, V> concat(covariant RIterableOnce<(K, V)> suffix) => MMap.from(super.concat(suffix));
 
   @override
   MMap<K, V> drop(int n) => MMap.from(super.drop(n));
@@ -45,8 +44,7 @@ mixin MMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
   MMap<K, V> dropRight(int n) => MMap.from(super.dropRight(n));
 
   @override
-  MMap<K, V> dropWhile(Function1<(K, V), bool> p) =>
-      MMap.from(super.dropWhile(p));
+  MMap<K, V> dropWhile(Function1<(K, V), bool> p) => MMap.from(super.dropWhile(p));
 
   @override
   MMap<K, V> filter(Function1<(K, V), bool> p) => from(super.filter(p));
@@ -71,8 +69,7 @@ mixin MMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
   V getOrElseUpdate(K key, Function0<V> defaultValue);
 
   @override
-  RIterator<MMap<K, V>> grouped(int size) =>
-      iterator.grouped(size).map(MMap.from);
+  RIterator<MMap<K, V>> grouped(int size) => iterator.grouped(size).map(MMap.from);
 
   @override
   MMap<K, V> init() => MMap.from(super.init());
@@ -132,8 +129,7 @@ mixin MMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
   MMap<K, V> takeRight(int n) => MMap.from(super.takeRight(n));
 
   @override
-  MMap<K, V> takeWhile(Function1<(K, V), bool> p) =>
-      MMap.from(super.takeWhile(p));
+  MMap<K, V> takeWhile(Function1<(K, V), bool> p) => MMap.from(super.takeWhile(p));
 
   @override
   MMap<K, V> tapEach<U>(Function1<(K, V), U> f) {

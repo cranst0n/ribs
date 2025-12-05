@@ -42,8 +42,7 @@ final class _CountDownLatchImpl extends CountDownLatch {
 }
 
 sealed class _State {
-  static IO<_State> initial(int n) =>
-      IO.deferred<Unit>().map((signal) => _Awaiting(n, signal));
+  static IO<_State> initial(int n) => IO.deferred<Unit>().map((signal) => _Awaiting(n, signal));
 }
 
 final class _Awaiting extends _State {

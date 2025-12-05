@@ -76,8 +76,11 @@ void snippet4() {
   // codecs-4
   // Solution using .emap
   final petTypeDecoderA = Decoder.integer.emap(
-    (n) => Either.cond(() => 0 <= n && n < PetType.values.length,
-        () => PetType.values[n], () => 'Invalid value index for PetType: $n'),
+    (n) => Either.cond(
+      () => 0 <= n && n < PetType.values.length,
+      () => PetType.values[n],
+      () => 'Invalid value index for PetType: $n',
+    ),
   );
 
   print(Json.decode('100', petTypeDecoderA));

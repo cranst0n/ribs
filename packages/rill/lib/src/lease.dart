@@ -2,8 +2,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
 abstract class Lease {
-  static Lease of(IO<Either<RuntimeException, Unit>> cancel) =>
-      _GenericLease(cancel);
+  static Lease of(IO<Either<RuntimeException, Unit>> cancel) => _GenericLease(cancel);
 
   IO<Either<RuntimeException, Unit>> cancel();
 }

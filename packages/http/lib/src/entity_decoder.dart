@@ -8,16 +8,16 @@ abstract class EntityDecoder<A> {
 
   ISet<MediaRange> get consumes;
 
-  EntityDecoder<B> map<B>(Function1<A, B> f) => _DecoderF(
-      (m, s) => decode(m, s).map((result) => result.map(f)), consumes);
+  EntityDecoder<B> map<B>(Function1<A, B> f) =>
+      _DecoderF((m, s) => decode(m, s).map((result) => result.map(f)), consumes);
 
   EntityDecoder<B> flatMapR<B>(Function1<A, DecodeResult<B>> f) =>
       _DecoderF((m, s) => decode(m, s).map((a) => a.flatMap(f)), consumes);
 
   static final binary = _DecoderF<List<int>>(
     (media, strict) => IO
-        .fromFutureF(() => media.body.fold(
-            List<int>.empty(growable: true), (acc, elem) => acc..addAll(elem)))
+        .fromFutureF(() =>
+            media.body.fold(List<int>.empty(growable: true), (acc, elem) => acc..addAll(elem)))
         .redeem(
           (err) => DecodeFailure(err.message).asLeft(),
           (bytes) => bytes.asRight(),
@@ -28,9 +28,7 @@ abstract class EntityDecoder<A> {
   static final json = _DecoderF<Json>(
     (media, strict) => IO
         .fromFutureF(
-          () => media.body
-              .transform(JsonTransformer.bytes(AsyncParserMode.singleValue))
-              .first,
+          () => media.body.transform(JsonTransformer.bytes(AsyncParserMode.singleValue)).first,
         )
         .redeem(
           (err) => DecodeFailure(err.message).asLeft(),
@@ -39,16 +37,15 @@ abstract class EntityDecoder<A> {
     iset({MediaRange.text}),
   );
 
-  static EntityDecoder<A> jsonAs<A>(Decoder<A> decoder) => json.flatMapR(
-      (json) => decoder.decode(json).leftMap((a) => DecodeFailure(a)));
+  static EntityDecoder<A> jsonAs<A>(Decoder<A> decoder) =>
+      json.flatMapR((json) => decoder.decode(json).leftMap((a) => DecodeFailure(a)));
 
   static final string = _DecoderF<String>(
-    (media, strict) => IO
-        .fromFutureF(() => media.bodyText.fold('', (acc, elem) => acc + elem))
-        .redeem(
-          (err) => DecodeFailure(err.message, err.stackTrace).asLeft(),
-          (str) => str.asRight(),
-        ),
+    (media, strict) =>
+        IO.fromFutureF(() => media.bodyText.fold('', (acc, elem) => acc + elem)).redeem(
+              (err) => DecodeFailure(err.message, err.stackTrace).asLeft(),
+              (str) => str.asRight(),
+            ),
     iset({}),
   );
 

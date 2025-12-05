@@ -38,6 +38,5 @@ final class _Vector0<A> extends _BigVector<A> {
   int get _vectorSliceCount => 0;
 
   @override
-  Array<dynamic> _vectorSlice(int idx) =>
-      throw Exception('Vector0.vectorSlice');
+  Array<dynamic> _vectorSlice(int idx) => throw Exception('Vector0.vectorSlice');
 }

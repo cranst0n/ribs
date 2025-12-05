@@ -101,8 +101,10 @@ void main() {
     });
 
     test('flatMap', () {
-      expect(nel(1, [2, 3]).flatMap((n) => nel(n - 1, [n, n + 1])),
-          nel(0, [1, 2, 1, 2, 3, 2, 3, 4]));
+      expect(
+        nel(1, [2, 3]).flatMap((n) => nel(n - 1, [n, n + 1])),
+        nel(0, [1, 2, 1, 2, 3, 2, 3, 4]),
+      );
     });
 
     test('flatten', () {
@@ -307,8 +309,7 @@ void main() {
       );
 
       expect(
-        nel(1, [2, 3]).traverseEither(
-            (a) => Either.cond(() => a.isEven, () => a, () => 'odd')),
+        nel(1, [2, 3]).traverseEither((a) => Either.cond(() => a.isEven, () => a, () => 'odd')),
         'odd'.asLeft<int>(),
       );
     });
@@ -320,8 +321,7 @@ void main() {
       );
 
       expect(
-        nel(1, [2, 3])
-            .traverseOption((a) => Option.when(() => a.isEven, () => a)),
+        nel(1, [2, 3]).traverseOption((a) => Option.when(() => a.isEven, () => a)),
         isNone(),
       );
     });

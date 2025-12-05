@@ -89,9 +89,8 @@ final class Printer {
         escapeNonAscii: escapeNonAscii ?? this.escapeNonAscii,
       );
 
-  _PiecesAtDepth get _pieces => indent.isEmpty
-      ? _ConstantPieces(_Pieces.fromPrinter(this))
-      : _MemoizedPieces(this);
+  _PiecesAtDepth get _pieces =>
+      indent.isEmpty ? _ConstantPieces(_Pieces.fromPrinter(this)) : _MemoizedPieces(this);
 
   static Printer noSpaces = Printer();
 
@@ -234,8 +233,7 @@ class _PrintFolder extends JsonFolder<void> {
         '${_toHex((s >> 0) & 15)}';
   }
 
-  String _toHex(int nibble) =>
-      String.fromCharCode(nibble + (nibble >= 10 ? 87 : 48));
+  String _toHex(int nibble) => String.fromCharCode(nibble + (nibble >= 10 ? 87 : 48));
 }
 
 class _Pieces {
@@ -367,8 +365,8 @@ final class _MemoizedPieces extends _PiecesAtDepth {
 
     final colons = builder.toString();
 
-    return _Pieces(lBraces, rBraces, lBrackets, rBrackets, lrEmptyBrackets,
-        arrayCommas, objectCommas, colons);
+    return _Pieces(
+        lBraces, rBraces, lBrackets, rBrackets, lrEmptyBrackets, arrayCommas, objectCommas, colons);
   }
 
   void addIndentation(StringBuffer builder, String s, int depth) {

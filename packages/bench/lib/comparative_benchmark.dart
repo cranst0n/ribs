@@ -66,18 +66,14 @@ class ComparativeEmitter implements ScoreEmitter {
 
     libs.foreach((lib) {
       final opValues = ops.map((op) {
-        final bestValue = imap(values)
-            .filter((kv) => kv.$1.$2 == op)
-            .values
-            .minOption(Order.doubles);
+        final bestValue =
+            imap(values).filter((kv) => kv.$1.$2 == op).values.minOption(Order.doubles);
 
         return Option(values[(lib, op)]).fold(
           () => chalk.dim.grey('n/a'),
           (value) => bestValue.fold(
             () => _formatValue(value),
-            (best) => value == best
-                ? chalk.green(_formatValue(value))
-                : _formatValue(value),
+            (best) => value == best ? chalk.green(_formatValue(value)) : _formatValue(value),
           ),
         );
       }).toList();
@@ -105,18 +101,14 @@ class ComparativeEmitter implements ScoreEmitter {
 
     libs.foreach((lib) {
       final cells = ops.map((op) {
-        final bestValue = imap(values)
-            .filter((kv) => kv.$1.$2 == op)
-            .values
-            .minOption(Order.doubles);
+        final bestValue =
+            imap(values).filter((kv) => kv.$1.$2 == op).values.minOption(Order.doubles);
 
         return Option(values[(lib, op)]).fold(
           () => ' ',
           (value) => bestValue.fold(
             () => _formatValue(value),
-            (best) => value == best
-                ? '**${_formatValue(value)}**'
-                : _formatValue(value),
+            (best) => value == best ? '**${_formatValue(value)}**' : _formatValue(value),
           ),
         );
       }).prepended(lib);
@@ -131,11 +123,9 @@ class ComparativeEmitter implements ScoreEmitter {
 
   String _formatValue(double val) => val.toStringAsFixed(2);
 
-  IList<String> libraries() => IList.fromDart(values.keys.map((e) => e.$1))
-      .distinct()
-      .sorted(Order.strings);
+  IList<String> libraries() =>
+      IList.fromDart(values.keys.map((e) => e.$1)).distinct().sorted(Order.strings);
 
-  IList<String> operations() => IList.fromDart(values.keys.map((e) => e.$2))
-      .distinct()
-      .sorted(Order.strings);
+  IList<String> operations() =>
+      IList.fromDart(values.keys.map((e) => e.$2)).distinct().sorted(Order.strings);
 }

@@ -64,19 +64,11 @@ void main() {
     await 'insert into todo values(?, ?, ?, ?)'
         .update(Todo.rw)
         .updateMany(ilist([
-          Todo(const TodoId(1), 'Shop', Option('for groceries'),
-              Json.arr([Json.True, Json.Null])),
-          Todo(
-              const TodoId(2),
-              'Play',
-              Option('baseball'),
-              Json.obj([
-                ("club", Json.str("Crestwood")),
-                ("players", Json.number(4))
-              ])),
+          Todo(const TodoId(1), 'Shop', Option('for groceries'), Json.arr([Json.True, Json.Null])),
+          Todo(const TodoId(2), 'Play', Option('baseball'),
+              Json.obj([("club", Json.str("Crestwood")), ("players", Json.number(4))])),
           Todo(const TodoId(3), 'Study', none(), Json.arr([])),
-          Todo(const TodoId(10), 'Test', Option('123'),
-              Json.obj([("one", Json.True)])),
+          Todo(const TodoId(10), 'Test', Option('123'), Json.obj([("one", Json.True)])),
         ]))
         .run(db)
         .unsafeRunFuture();
@@ -98,12 +90,11 @@ void main() {
 
     expect(res1.id, const TodoId(2));
 
-    final res2 =
-        await 'select id,title,description,raw from todo where id = 1000'
-            .query(Todo.rw)
-            .option()
-            .run(db)
-            .unsafeRunFuture();
+    final res2 = await 'select id,title,description,raw from todo where id = 1000'
+        .query(Todo.rw)
+        .option()
+        .run(db)
+        .unsafeRunFuture();
 
     expect(res2, isNone());
 
@@ -119,11 +110,8 @@ void main() {
 
     expect(res3, ivec([(5000, 'Foo'), (5001, 'Bar')]));
 
-    final res4 = await '''select max(id) from todo'''
-        .query(Read.integer)
-        .option()
-        .run(db)
-        .unsafeRunFuture();
+    final res4 =
+        await '''select max(id) from todo'''.query(Read.integer).option().run(db).unsafeRunFuture();
 
     expect(res4, isSome(5001));
 
@@ -167,14 +155,10 @@ void main() {
 
     final stmt = 'insert into foo values (?,?,?)'.update(rw);
 
-    final resNone =
-        await stmt.update((1, none(), 'A'.some)).run(db).unsafeRunFuture();
+    final resNone = await stmt.update((1, none(), 'A'.some)).run(db).unsafeRunFuture();
     expect(resNone, Unit());
 
-    final resSome = await stmt
-        .update((2, Some(Json.True), none()))
-        .run(db)
-        .unsafeRunFuture();
+    final resSome = await stmt.update((2, Some(Json.True), none())).run(db).unsafeRunFuture();
     expect(resSome, Unit());
   });
 
@@ -194,8 +178,7 @@ void main() {
 
     final stmt = 'insert into foo values (?,?,?,?)'.update(rw);
 
-    Future<void> testInsert(
-        Option<(int, String)> a, Option<(int, String)> b) async {
+    Future<void> testInsert(Option<(int, String)> a, Option<(int, String)> b) async {
       final res = await stmt.update((a, b)).run(db).unsafeRunFuture();
 
       expect(res, Unit());
@@ -222,10 +205,7 @@ void main() {
     final item1 = (1, ilist([1, 2, 3]));
     final item2 = (2, ilist([4, 5, 6]));
 
-    final res0 = await insert
-        .updateMany(ilist([item1, item2]))
-        .run(db)
-        .unsafeRunFuture();
+    final res0 = await insert.updateMany(ilist([item1, item2])).run(db).unsafeRunFuture();
 
     expect(res0, Unit());
 
@@ -242,21 +222,18 @@ void main() {
         .run(db)
         .unsafeRunFuture();
 
-    final tupleW =
-        (Write.string, Write.string.optional(), Write.json.optional()).tupled;
+    final tupleW = (Write.string, Write.string.optional(), Write.json.optional()).tupled;
 
     final uq = '''
       insert into todo (title, description, raw) values(?, ?, ?) returning id
     '''
         .updateQuery(tupleW, Read.integer);
 
-    final res0 =
-        await uq.update(('foo', none(), none())).run(db).unsafeRunFuture();
+    final res0 = await uq.update(('foo', none(), none())).run(db).unsafeRunFuture();
 
     expect(res0, 1);
 
-    final res1 =
-        await uq.update(('bar', none(), none())).run(db).unsafeRunFuture();
+    final res1 = await uq.update(('bar', none(), none())).run(db).unsafeRunFuture();
 
     expect(res1, 2);
 

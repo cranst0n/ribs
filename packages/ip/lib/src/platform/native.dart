@@ -22,8 +22,7 @@ final class PlatformImpl extends PlatformBase {
       .fromFutureF(() => InternetAddress(address.toString()).reverse())
       .map(hostnameFromInternetAddress)
       .flatMap((hostnameOpt) => hostnameOpt.fold(
-            () => IO.raiseError(
-                RuntimeException('Reverse lookup failed for: $address')),
+            () => IO.raiseError(RuntimeException('Reverse lookup failed for: $address')),
             (a) => IO.pure(a),
           ));
 

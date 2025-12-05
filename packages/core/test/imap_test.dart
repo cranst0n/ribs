@@ -65,8 +65,7 @@ void main() {
     });
 
     test('compose', () {
-      final f = imap({0: 2, 2: 4})
-          .compose((String n) => n.codeUnitAt(0) - 'A'.codeUnitAt(0));
+      final f = imap({0: 2, 2: 4}).compose((String n) => n.codeUnitAt(0) - 'A'.codeUnitAt(0));
 
       expect(f('A'), isSome(2));
       expect(f('B'), isNone());
@@ -186,8 +185,7 @@ void main() {
 
     test('map', () {
       expect(imap<int, int>({}).map((kv) => kv.$1 + kv.$2).isEmpty, isTrue);
-      expect(imap({1: 1, 2: 2, 3: 3}).map((kv) => kv.$1 + kv.$2).toIList(),
-          ilist([2, 4, 6]));
+      expect(imap({1: 1, 2: 2, 3: 3}).map((kv) => kv.$1 + kv.$2).toIList(), ilist([2, 4, 6]));
     });
 
     test('mapValues', () {

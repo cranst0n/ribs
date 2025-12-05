@@ -60,9 +60,7 @@ final class PathToRoot {
     CursorOp op,
   ) {
     return Option.when(() => op is MoveLeft, () {
-      return acc.lastOption
-          .flatMap((lastOp) => lastOp.asArrayIndex())
-          .map((arrIx) {
+      return acc.lastOption.flatMap((lastOp) => lastOp.asArrayIndex()).map((arrIx) {
         return Either.cond(
           () => arrIx.index >= 0,
           () => acc.appended(PathElem.arrayIndex(arrIx.index - 1)),
@@ -77,9 +75,7 @@ final class PathToRoot {
     CursorOp op,
   ) {
     return Option.when(() => op is MoveRight, () {
-      return acc.lastOption
-          .flatMap((lastOp) => lastOp.asArrayIndex())
-          .map((arrIx) {
+      return acc.lastOption.flatMap((lastOp) => lastOp.asArrayIndex()).map((arrIx) {
         return Either.cond(
           () => arrIx.index < Integer.MaxValue,
           () => acc.appended(PathElem.arrayIndex(arrIx.index + 1)),
@@ -189,8 +185,7 @@ final class ObjectKey extends PathElem {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is ObjectKey && other.keyName == keyName);
+      identical(this, other) || (other is ObjectKey && other.keyName == keyName);
 
   @override
   int get hashCode => keyName.hashCode;

@@ -22,21 +22,17 @@ final class Headers {
     } else {
       final thoseNames = those.headers.map((h) => h.name);
 
-      return Headers.ilist(headers
-          .filterNot((h) => thoseNames.contains(h.name))
-          .concat(those.headers));
+      return Headers.ilist(
+          headers.filterNot((h) => thoseNames.contains(h.name)).concat(those.headers));
     }
   }
 
   Headers put(Header header) => concat(Headers([header]));
 
-  Headers redactSensitive() =>
-      transform((hdrs) => hdrs.map((hdr) => sensitiveHeaders.contains(hdr.name)
-          ? Header(hdr.name, '<REDACTED>')
-          : hdr));
+  Headers redactSensitive() => transform((hdrs) => hdrs
+      .map((hdr) => sensitiveHeaders.contains(hdr.name) ? Header(hdr.name, '<REDACTED>') : hdr));
 
-  Headers transform(Function1<IList<Header>, IList<Header>> f) =>
-      Headers.ilist(f(headers));
+  Headers transform(Function1<IList<Header>, IList<Header>> f) => Headers.ilist(f(headers));
 
   Option<NonEmptyIList<Header>> get(String key) =>
       headers.filter((h) => h.name == CIString(key)).toNel();
@@ -48,8 +44,7 @@ final class Headers {
 
   static const empty = Headers.ilist(Nil());
 
-  static ISet<CIString> sensitiveHeaders =
-      iset({Authorization.name, Cookie.name, SetCookie.name});
+  static ISet<CIString> sensitiveHeaders = iset({Authorization.name, Cookie.name, SetCookie.name});
 }
 
 final class Header {

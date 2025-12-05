@@ -1,20 +1,17 @@
 import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-MMultiDict<K, V> mmultidict<K, V>(Iterable<(K, V)> as) =>
-    MMultiDict.fromDartIterable(as);
+MMultiDict<K, V> mmultidict<K, V>(Iterable<(K, V)> as) => MMultiDict.fromDartIterable(as);
 
 @immutable
-final class MMultiDict<K, V>
-    with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMultiDict<K, V> {
+final class MMultiDict<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMultiDict<K, V> {
   final MMap<K, MSet<V>> _elems;
 
   MMultiDict._(this._elems);
 
   static MMultiDict<K, V> empty<K, V>() => MMultiDict._(MMap.empty());
 
-  static MMultiDict<K, V> from<K, V>(RIterableOnce<(K, V)> elems) =>
-      switch (elems) {
+  static MMultiDict<K, V> from<K, V>(RIterableOnce<(K, V)> elems) => switch (elems) {
         final MMultiDict<K, V> md => md,
         _ => MMultiDict._(MMap.from(elems
             .toIList()
@@ -47,16 +44,13 @@ final class MMultiDict<K, V>
   MMultiDict<K, V> dropRight(int n) => MMultiDict.from(super.dropRight(n));
 
   @override
-  MMultiDict<K, V> dropWhile(Function1<(K, V), bool> p) =>
-      MMultiDict.from(super.dropWhile(p));
+  MMultiDict<K, V> dropWhile(Function1<(K, V), bool> p) => MMultiDict.from(super.dropWhile(p));
 
   @override
-  MMultiDict<K, V> filter(Function1<(K, V), bool> p) =>
-      MMultiDict.from(super.filter(p));
+  MMultiDict<K, V> filter(Function1<(K, V), bool> p) => MMultiDict.from(super.filter(p));
 
   @override
-  MMultiDict<K, V> filterNot(Function1<(K, V), bool> p) =>
-      MMultiDict.from(super.filterNot(p));
+  MMultiDict<K, V> filterNot(Function1<(K, V), bool> p) => MMultiDict.from(super.filterNot(p));
 
   @override
   MMultiDict<K, V> filterSets(Function1<(K, RSet<V>), bool> p) =>
@@ -70,8 +64,7 @@ final class MMultiDict<K, V>
       super.groupBy(f).mapValues(MMultiDict.from);
 
   @override
-  RIterator<MMultiDict<K, V>> grouped(int size) =>
-      super.grouped(size).map(MMultiDict.from);
+  RIterator<MMultiDict<K, V>> grouped(int size) => super.grouped(size).map(MMultiDict.from);
 
   @override
   MMultiDict<K, V> init() => MMultiDict.from(super.init());
@@ -95,8 +88,7 @@ final class MMultiDict<K, V>
   RMap<K, RSet<V>> get sets => _elems;
 
   @override
-  MMultiDict<K, V> slice(int from, int until) =>
-      MMultiDict.from(super.slice(from, until));
+  MMultiDict<K, V> slice(int from, int until) => MMultiDict.from(super.slice(from, until));
 
   @override
   RIterator<MMultiDict<K, V>> sliding(int size, [int step = 1]) =>
@@ -127,8 +119,7 @@ final class MMultiDict<K, V>
   MMultiDict<K, V> takeRight(int n) => MMultiDict.from(super.takeRight(n));
 
   @override
-  MMultiDict<K, V> takeWhile(Function1<(K, V), bool> p) =>
-      MMultiDict.from(super.takeWhile(p));
+  MMultiDict<K, V> takeWhile(Function1<(K, V), bool> p) => MMultiDict.from(super.takeWhile(p));
 
   @override
   MMultiDict<K, V> tapEach<U>(Function1<(K, V), U> f) {

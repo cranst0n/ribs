@@ -23,15 +23,13 @@ mixin RIterable<A> on RIterableOnce<A> {
     }
   }
 
-  static RIterable<A> fromDart<A>(Iterable<A> elems) =>
-      from(RIterator.fromDart(elems.iterator));
+  static RIterable<A> fromDart<A>(Iterable<A> elems) => from(RIterator.fromDart(elems.iterator));
 
   @override
   RIterable<B> collect<B>(Function1<A, Option<B>> f) => views.Collect(this, f);
 
   /// Returns a copy of this collection, with [elems] added to the end.
-  RIterable<A> concat(covariant RIterableOnce<A> suffix) =>
-      views.Concat(this, suffix);
+  RIterable<A> concat(covariant RIterableOnce<A> suffix) => views.Concat(this, suffix);
 
   @override
   RIterable<A> drop(int n) => views.Drop(this, n);
@@ -49,8 +47,7 @@ mixin RIterable<A> on RIterableOnce<A> {
   RIterable<A> filterNot(Function1<A, bool> p) => views.Filter(this, p, true);
 
   @override
-  RIterable<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) =>
-      views.FlatMap(this, f);
+  RIterable<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) => views.FlatMap(this, f);
 
   /// {@macro iterable_once_foldLeft}
   A fold(A init, Function2<A, A, A> op) => foldLeft(init, op);
@@ -193,8 +190,7 @@ mixin RIterable<A> on RIterableOnce<A> {
   }
 
   @override
-  RIterable<B> scanLeft<B>(B z, Function2<B, A, B> op) =>
-      views.ScanLeft(this, z, op);
+  RIterable<B> scanLeft<B>(B z, Function2<B, A, B> op) => views.ScanLeft(this, z, op);
 
   RIterable<B> scanRight<B>(B z, Function2<A, B, B> op) {
     var acc = z;
@@ -209,19 +205,16 @@ mixin RIterable<A> on RIterableOnce<A> {
   }
 
   @override
-  RIterable<A> slice(int from, int until) =>
-      views.Drop(views.Take(this, until), from);
+  RIterable<A> slice(int from, int until) => views.Drop(views.Take(this, until), from);
 
   /// Returns an iterator where elements are fixed size chunks of size [n] of
   /// the original collection. Each chunk is calculated by sliding a 'window'
   /// of size [n] over the original collection, moving the window [step]
   /// elements at a time.
-  RIterator<RIterableOnce<A>> sliding(int size, [int step = 1]) =>
-      iterator.sliding(size, step);
+  RIterator<RIterableOnce<A>> sliding(int size, [int step = 1]) => iterator.sliding(size, step);
 
   @override
-  (RIterable<A>, RIterable<A>) span(Function1<A, bool> p) =>
-      (takeWhile(p), dropWhile(p));
+  (RIterable<A>, RIterable<A>) span(Function1<A, bool> p) => (takeWhile(p), dropWhile(p));
 
   @override
   (RIterable<A>, RIterable<A>) splitAt(int n) => (take(n), drop(n));

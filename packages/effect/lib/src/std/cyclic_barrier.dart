@@ -7,8 +7,7 @@ final class CyclicBarrier {
 
   static IO<CyclicBarrier> withCapacity(int capacity) {
     if (capacity < 1) {
-      throw ArgumentError(
-          'Cyclic barrier constructed with capacity $capacity. Must be > 0');
+      throw ArgumentError('Cyclic barrier constructed with capacity $capacity. Must be > 0');
     }
 
     return IO
@@ -28,10 +27,7 @@ final class CyclicBarrier {
         final awaitingNow = prev.awaiting - 1;
 
         if (awaitingNow == 0) {
-          return (
-            _State(capacity, prev.epoch + 1, gate),
-            prev.unblock.complete(Unit()).voided()
-          );
+          return (_State(capacity, prev.epoch + 1, gate), prev.unblock.complete(Unit()).voided());
         } else {
           final newState = _State(awaitingNow, prev.epoch, prev.unblock);
 

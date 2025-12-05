@@ -48,8 +48,7 @@ final class MoveRight extends _UnconstrainedOp {
   int get hashCode => 0;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) || other is MoveRight;
+  bool operator ==(Object other) => identical(this, other) || other is MoveRight;
 }
 
 final class MoveUp extends _UnconstrainedOp {
@@ -75,8 +74,7 @@ final class Field extends _UnconstrainedOp {
   int get hashCode => key.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) || (other is Field && key == other.key);
+  bool operator ==(Object other) => identical(this, other) || (other is Field && key == other.key);
 }
 
 final class DownField extends _ObjectOp {
@@ -103,8 +101,7 @@ final class DownArray extends _ArrayOp {
   int get hashCode => 0;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) || other is DownArray;
+  bool operator ==(Object other) => identical(this, other) || other is DownArray;
 }
 
 final class DownN extends _ArrayOp {
@@ -119,8 +116,7 @@ final class DownN extends _ArrayOp {
   int get hashCode => n.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) || (other is DownN && n == other.n);
+  bool operator ==(Object other) => identical(this, other) || (other is DownN && n == other.n);
 }
 
 final class DeleteGoParent extends _UnconstrainedOp {
@@ -131,6 +127,5 @@ final class DeleteGoParent extends _UnconstrainedOp {
   int get hashCode => 0;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) || other is DeleteGoParent;
+  bool operator ==(Object other) => identical(this, other) || other is DeleteGoParent;
 }
