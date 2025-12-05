@@ -213,21 +213,27 @@ final class _Node<K> {
   K? get key => _key;
   int get hash => _hash;
 
-  // TODO: tailrec
   _Node<K>? findNode(K k, int h) {
-    if (h == _hash && k == _key) {
-      return this;
-    } else if (next == null || _hash > h) {
-      return null;
-    } else {
-      return next!.findNode(k, h);
+    var curr = this;
+
+    while (true) {
+      if (h == curr._hash && k == curr._key) {
+        return this;
+      } else if (curr.next == null || curr._hash > h) {
+        return null;
+      } else {
+        curr = next!;
+      }
     }
   }
 
-  // TODO: tailrec
   void foreach<U>(Function1<K, U> f) {
-    if (_key != null) f(_key);
-    next?.foreach(f);
+    var currKey = _key;
+
+    while (currKey != null) {
+      f(currKey);
+      currKey = next?._key;
+    }
   }
 
   @override

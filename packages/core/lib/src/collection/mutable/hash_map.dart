@@ -256,27 +256,36 @@ final class _Node<K, V> {
   V? get value => _value;
   int get hash => _hash;
 
-  // TODO: tailrec
   _Node<K, V>? findNode(K k, int h) {
-    if (h == _hash && k == _key) {
-      return this;
-    } else if (next == null || _hash > h) {
-      return null;
-    } else {
-      return next!.findNode(k, h);
+    var curr = this;
+
+    while (true) {
+      if (h == curr._hash && k == curr._key) {
+        return this;
+      } else if (curr.next == null || curr._hash > h) {
+        return null;
+      } else {
+        curr = next!;
+      }
     }
   }
 
-  // TODO: tailrec
   void foreach<U>(Function1<(K, V), U> f) {
-    if (_key != null && _value != null) f((_key, _value!));
-    next?.foreach(f);
+    _Node<K, V>? curr = this;
+
+    while (curr != null) {
+      if (curr._key != null && curr._value != null) f((curr._key, _value!));
+      curr = next;
+    }
   }
 
-  // TODO: tailrec
   void foreachEntry<U>(Function2<K, V, U> f) {
-    if (_key != null && _value != null) f(_key, _value as V);
-    next?.foreachEntry(f);
+    _Node<K, V>? curr = this;
+
+    while (curr != null) {
+      if (curr._key != null && curr._value != null) f(curr._key, _value as V);
+      curr = next;
+    }
   }
 
   @override
