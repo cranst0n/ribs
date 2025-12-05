@@ -5,12 +5,25 @@ import 'dart:typed_data';
 import 'package:ribs_core/ribs_core.dart';
 
 sealed class MurmurHash3 {
+  static const arraySeed = 0x3c074a61;
   static final mapSeed = 'Map'.hashCode;
   static const productSeed = 0xcafebabe;
   static final seqSeed = 'Seq'.hashCode;
   static final setSeed = 'Set'.hashCode;
+  static const stringSeed = 0xf7ca7fd2;
 
   static final _Murmur3Impl _impl = _Murmur3Impl();
+
+  static int bytesHash(Uint8List data) => _impl.bytesHash(data, arraySeed);
+
+  static int mix(int hash, int data) => _impl.mix(hash, data);
+
+  static int mixLast(int hash, int data) => _impl.mixLast(hash, data);
+
+  static int finalizeHash(int hash, int length) =>
+      _impl.finalizeHash(hash, length);
+
+  static int stringHash(String str) => _impl.stringHash(str, stringSeed);
 
   static int listHash(IList<dynamic> xs) => _impl.listHash(xs, seqSeed);
 

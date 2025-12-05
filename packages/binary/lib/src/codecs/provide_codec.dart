@@ -11,7 +11,7 @@ final class ProvideCodec<A> extends Codec<A> {
       Either.right(DecodeResult(value, bv));
 
   @override
-  Either<Err, BitVector> encode(A a) => Either.right(BitVector.empty());
+  Either<Err, BitVector> encode(A a) => Either.right(BitVector.empty);
 
   @override
   String? get description => 'provide($value)';

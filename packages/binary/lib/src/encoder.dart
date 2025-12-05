@@ -18,7 +18,7 @@ abstract mixin class Encoder<A> {
       Encoder.instance<B>((b) => encode(f(b)));
 
   Either<Err, BitVector> encodeAll(Iterable<A> as) => as.fold(
-      Either.right(BitVector.empty()),
+      Either.right(BitVector.empty),
       (acc, a) =>
           encode(a).flatMap((res) => acc.map((acc) => acc.concat(res))));
 

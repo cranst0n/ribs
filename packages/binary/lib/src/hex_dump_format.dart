@@ -62,7 +62,7 @@ final class HexDumpFormat {
 
       if (bv.nonEmpty && bitsToTake > 0) {
         final bitsInLine = bv.take(bitsToTake);
-        final line = _renderLine(bitsInLine.bytes(), addressOffset + pos);
+        final line = _renderLine(bitsInLine.bytes, addressOffset + pos);
 
         onLine(line);
 

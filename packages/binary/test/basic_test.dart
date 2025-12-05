@@ -20,7 +20,7 @@ class Dog extends Animal {
   const Dog(this.age);
 
   static final codec = Codec.product3(
-    Codec.constant(ByteVector.fromList([1, 2]).bits),
+    Codec.constant(ByteVector([1, 2]).bits),
     Codec.int8,
     Codec.constant(BitVector.bit(true)),
     (_, age, __) => Dog(age),
@@ -40,13 +40,13 @@ class Dog extends Animal {
 
 class Cat extends Animal {
   const Cat();
-  static final codec = Codec.constant(ByteVector.fromList([1, 2]).bits)
+  static final codec = Codec.constant(ByteVector([1, 2]).bits)
       .xmap((a) => const Cat(), (_) => Unit());
 }
 
 class Lion extends Cat {
   const Lion();
-  static final codec = Codec.constant(ByteVector.fromList([1, 2]).bits)
+  static final codec = Codec.constant(ByteVector([1, 2]).bits)
       .xmap((a) => const Lion(), (_) => Unit());
 }
 

@@ -56,7 +56,7 @@ abstract class Codec<A> extends Encoder<A> with Decoder<A> {
       FixedSizeStrictCodec(size, bits);
 
   static final Codec<ByteVector> bytes = bits
-      .xmap((bits) => bits.bytes(), (bytes) => bytes.bits)
+      .xmap((bits) => bits.bytes, (bytes) => bytes.bits)
       .withDescription('bytes');
 
   static Codec<ByteVector> bytesN(int size) => FixedSizeCodec(size * 8, bytes);

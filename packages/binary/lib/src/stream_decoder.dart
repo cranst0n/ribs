@@ -8,7 +8,7 @@ class StreamDecoder<To> implements StreamTransformer<BitVector, To> {
   final StreamController<To> _controller;
   StreamSubscription<BitVector>? _subscription;
 
-  BitVector _buffer = BitVector.empty();
+  BitVector _buffer = BitVector.empty;
 
   StreamDecoder(this.decoder) : _controller = StreamController();
 

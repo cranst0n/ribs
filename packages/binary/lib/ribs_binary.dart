@@ -3,6 +3,8 @@ export 'src/bit_vector.dart';
 export 'src/byte_vector.dart';
 export 'src/codec.dart';
 export 'src/codec_products.dart';
+export 'src/crc.dart';
+export 'src/crc_params.dart';
 export 'src/decoder.dart';
 export 'src/encoder.dart';
 export 'src/err.dart';

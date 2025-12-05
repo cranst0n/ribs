@@ -20,7 +20,7 @@ final class IntCodec extends Codec<int> {
     return bv.acquire(bits).fold(
       (_) => Either.left(Err.insufficientBits(bits, bv.size)),
       (intBits) {
-        final i = intBits.toInt(signed, ordering);
+        final i = intBits.toInt(signed: signed, ordering: ordering);
 
         if (i > maxValue) {
           return Either.left(Err.general(
@@ -44,7 +44,7 @@ final class IntCodec extends Codec<int> {
       return Either.left(Err.general(
           '$i is less than minimum value $minValue for $description'));
     } else {
-      return Either.right(BitVector.fromInt(i, bits, ordering));
+      return Either.right(BitVector.fromInt(i, size: bits, ordering: ordering));
     }
   }
 

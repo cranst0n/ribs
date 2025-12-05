@@ -108,8 +108,8 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
   static Gen<IList<A>> atLeastOne<A>(List<A> as) =>
       chooseInt(1, as.length - 1).flatMap((size) => ilistOfN(size, oneOf(as)));
 
-  static Gen<BigInt> bigInt = Gen.chooseInt(1, 20).flatMap(
-      (n) => Gen.listOfN(n, Gen.numChar).map((a) => BigInt.parse(a.join())));
+  static Gen<BigInt> bigInt = Gen.listOf(Gen.chooseInt(1, 20), Gen.numChar)
+      .map((a) => BigInt.parse(a.join()));
 
   static Gen<String> binChar = charSample('01');
 

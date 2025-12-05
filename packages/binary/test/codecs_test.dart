@@ -9,13 +9,19 @@ import 'arbitraries.dart';
 void main() {
   group('Binary Codecs', () {
     testCodec('bits', bitVector, Codec.bits);
-    testCodec('bitsStrict', bitVector.map((a) => a.padTo(100).take(100)),
-        Codec.bitsStrict(100));
+    testCodec(
+      'bitsStrict',
+      bitVector.map((a) => a.concat(BitVector.low(100)).take(100)),
+      Codec.bitsStrict(100),
+    );
     testCodec('boolean', Gen.boolean, Codec.boolean);
     testCodec('booleanN', Gen.boolean, Codec.booleanN(2));
     testCodec('bytes', byteVector, Codec.bytes);
-    testCodec('bytesStrict', byteVector.map((a) => a.padTo(16).take(16)),
-        Codec.bytesStrict(16));
+    testCodec(
+      'bytesStrict',
+      byteVector.map((a) => a.concat(ByteVector.low(16)).take(16)),
+      Codec.bytesStrict(16),
+    );
     testCodec('int4', genInt4, Codec.int4);
     testCodec('int8', genInt8, Codec.int8);
     testCodec('int16', genInt16, Codec.int16);
@@ -137,9 +143,6 @@ void main() {
         (a) => expect(a.remainder.isEmpty, isTrue),
       );
     });
-
-    testCodec('bytesStrict', byteVector.map((a) => a.padTo(16).take(16)),
-        Codec.bytesStrict(16));
   });
 }
 
