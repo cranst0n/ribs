@@ -1,3 +1,7 @@
+## 1.0.0-dev.15
+
+- Update dependencies
+
 ## 1.0.0-dev.14
 
 - Add `Codec.bytes`

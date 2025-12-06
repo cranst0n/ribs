@@ -1,3 +1,8 @@
+## 1.0.0-dev.8
+
+- Bug fixes
+- Update dependencies
+
 ## 1.0.0-dev.7
 
 - Update dependencies
