@@ -23,7 +23,7 @@ final class _ZipAllIterator<A, B> extends RIterator<(A, B)> {
   final RIterator<B> thatIterator;
 
   _ZipAllIterator(this.self, this.that, this.thisElem, this.thatElem)
-      : thatIterator = that.iterator;
+    : thatIterator = that.iterator;
 
   @override
   bool get hasNext => self.hasNext || thatIterator.hasNext;

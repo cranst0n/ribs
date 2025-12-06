@@ -87,13 +87,8 @@ extension Tuple4ResourceOps<A, B, C, D> on (Resource<A>, Resource<B>, Resource<C
 }
 
 /// {@macro resource_tuple_ops}
-extension Tuple5ResourceOps<A, B, C, D, E> on (
-  Resource<A>,
-  Resource<B>,
-  Resource<C>,
-  Resource<D>,
-  Resource<E>
-) {
+extension Tuple5ResourceOps<A, B, C, D, E>
+    on (Resource<A>, Resource<B>, Resource<C>, Resource<D>, Resource<E>) {
   /// {@macro resource_mapN}
   Resource<F> mapN<F>(Function5<A, B, C, D, E, F> fn) => tupled().map(fn.tupled);
 

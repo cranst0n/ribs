@@ -63,60 +63,57 @@ abstract class Client {
     String uri, {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
-  }) =>
-      IO.fromEither(_uri(uri)).flatMap((uri) => deleteUri(uri, headers: headers, body: body));
+  }) => IO.fromEither(_uri(uri)).flatMap((uri) => deleteUri(uri, headers: headers, body: body));
 
   IO<Response> deleteUri(
     Uri uri, {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
-  }) =>
-      request(Request.delete(uri).withHeaders(headers).withBody(body));
+  }) => request(Request.delete(uri).withHeaders(headers).withBody(body));
 
   IO<Response> get(
     String uri, {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
-  }) =>
-      IO.fromEither(_uri(uri)).flatMap((uri) => getUri(uri, headers: headers, body: body));
+  }) => IO.fromEither(_uri(uri)).flatMap((uri) => getUri(uri, headers: headers, body: body));
 
   IO<Json> getJson(
     String uri, {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
-  }) =>
-      IO.fromEither(_uri(uri)).flatMap(
-          (uri) => fetch(Request(uri: uri, headers: headers, body: body), EntityDecoder.json));
+  }) => IO
+      .fromEither(_uri(uri))
+      .flatMap((uri) => fetch(Request(uri: uri, headers: headers, body: body), EntityDecoder.json));
 
   IO<A> getJsonAs<A>(
     String uri,
     Decoder<A> decoder, {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
-  }) =>
-      IO.fromEither(_uri(uri)).flatMap((uri) =>
-          fetch(Request(uri: uri, headers: headers, body: body), EntityDecoder.jsonAs(decoder)));
+  }) => IO
+      .fromEither(_uri(uri))
+      .flatMap(
+        (uri) =>
+            fetch(Request(uri: uri, headers: headers, body: body), EntityDecoder.jsonAs(decoder)),
+      );
 
   IO<Response> getUri(
     Uri uri, {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
-  }) =>
-      request(Request.get(uri).withHeaders(headers).withBody(body));
+  }) => request(Request.get(uri).withHeaders(headers).withBody(body));
 
   IO<Response> post(
     String uri, {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
-  }) =>
-      IO.fromEither(_uri(uri)).flatMap((uri) => postUri(uri, headers: headers, body: body));
+  }) => IO.fromEither(_uri(uri)).flatMap((uri) => postUri(uri, headers: headers, body: body));
 
   IO<Response> postUri(
     Uri uri, {
     Headers headers = Headers.empty,
     EntityBody body = EntityBody.Empty,
-  }) =>
-      request(Request.post(uri).withHeaders(headers).withBody(body));
+  }) => request(Request.post(uri).withHeaders(headers).withBody(body));
 
   Either<FormatException, Uri> _uri(String s) {
     try {

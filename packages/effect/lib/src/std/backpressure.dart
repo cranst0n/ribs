@@ -6,7 +6,7 @@ abstract class Backpressure {
       Semaphore.permits(bound).map(
         (sem) => switch (strategy) {
           BackpressureStategy.lossy => _BackpressureLossy(bound, sem),
-          BackpressureStategy.lossless => _BackpressureLossless(bound, sem)
+          BackpressureStategy.lossless => _BackpressureLossless(bound, sem),
         },
       );
 
@@ -30,9 +30,9 @@ final class _BackpressureLossy extends Backpressure {
 
   @override
   IO<Option<A>> metered<A>(IO<A> io) => semaphore.tryAcquire().bracket(
-        (acquired) => acquired ? io.map(Some.new) : IO.none<A>(),
-        (acquired) => acquired ? semaphore.release() : IO.unit,
-      );
+    (acquired) => acquired ? io.map(Some.new) : IO.none<A>(),
+    (acquired) => acquired ? semaphore.release() : IO.unit,
+  );
 }
 
 final class _BackpressureLossless extends Backpressure {
@@ -46,7 +46,7 @@ final class _BackpressureLossless extends Backpressure {
 
   @override
   IO<Option<A>> metered<A>(IO<A> io) => semaphore.acquire().bracket(
-        (_) => io.map(Some.new),
-        (_) => semaphore.release(),
-      );
+    (_) => io.map(Some.new),
+    (_) => semaphore.release(),
+  );
 }

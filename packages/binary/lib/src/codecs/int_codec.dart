@@ -12,8 +12,8 @@ final class IntCodec extends Codec<int> {
   final int maxValue;
 
   IntCodec(this.bits, this.signed, this.ordering)
-      : minValue = signed ? -(1 << (bits - 1)) : 0,
-        maxValue = (1 << (signed ? bits - 1 : bits)) - 1;
+    : minValue = signed ? -(1 << (bits - 1)) : 0,
+      maxValue = (1 << (signed ? bits - 1 : bits)) - 1;
 
   @override
   Either<Err, DecodeResult<int>> decode(BitVector bv) {
@@ -24,10 +24,12 @@ final class IntCodec extends Codec<int> {
 
         if (i > maxValue) {
           return Either.left(
-              Err.general('$i is greating than maximum value $maxValue for $description'));
+            Err.general('$i is greating than maximum value $maxValue for $description'),
+          );
         } else if (i < minValue) {
           return Either.left(
-              Err.general('$i is less than minimum value $minValue for $description'));
+            Err.general('$i is less than minimum value $minValue for $description'),
+          );
         } else {
           return Either.right(DecodeResult(i, bv.drop(bits)));
         }
@@ -39,7 +41,8 @@ final class IntCodec extends Codec<int> {
   Either<Err, BitVector> encode(int i) {
     if (i > maxValue) {
       return Either.left(
-          Err.general('$i is greating than maximum value $maxValue for $description'));
+        Err.general('$i is greating than maximum value $maxValue for $description'),
+      );
     } else if (i < minValue) {
       return Either.left(Err.general('$i is less than minimum value $minValue for $description'));
     } else {

@@ -61,30 +61,29 @@ final class Seconds extends TimeUnit {
 
 final class Minutes extends TimeUnit {
   const Minutes._()
-      : super('minute', 'min', 1.0 * Duration.millisecondsPerSecond * Duration.secondsPerMinute);
+    : super('minute', 'min', 1.0 * Duration.millisecondsPerSecond * Duration.secondsPerMinute);
 }
 
 final class Hours extends TimeUnit {
   const Hours._()
-      : super(
-            'hour',
-            'h',
-            1.0 *
-                Duration.millisecondsPerSecond *
-                Duration.secondsPerMinute *
-                Duration.minutesPerHour);
+    : super(
+        'hour',
+        'h',
+        1.0 * Duration.millisecondsPerSecond * Duration.secondsPerMinute * Duration.minutesPerHour,
+      );
 }
 
 final class Days extends TimeUnit {
   const Days._()
-      : super(
-            'day',
-            'd',
-            1.0 *
-                Duration.millisecondsPerSecond *
-                Duration.secondsPerMinute *
-                Duration.minutesPerHour *
-                Duration.hoursPerDay);
+    : super(
+        'day',
+        'd',
+        1.0 *
+            Duration.millisecondsPerSecond *
+            Duration.secondsPerMinute *
+            Duration.minutesPerHour *
+            Duration.hoursPerDay,
+      );
 }
 
 extension TimeOps on num {

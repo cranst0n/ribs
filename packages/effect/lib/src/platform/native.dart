@@ -23,8 +23,11 @@ final class PlatformImpl extends PlatformBase {
   IO<Unit> printErrLn(String message) => _printlnTo(stderr, message);
 
   @override
-  IO<String> readLine() => IO.delay(() => stdin.readLineSync()).flatMap(
-      (l) => Option(l).fold(() => IO.raiseError(RuntimeException('stdin line ended')), IO.pure));
+  IO<String> readLine() => IO
+      .delay(() => stdin.readLineSync())
+      .flatMap(
+        (l) => Option(l).fold(() => IO.raiseError(RuntimeException('stdin line ended')), IO.pure),
+      );
 
   IO<Unit> _printTo(Stdout s, String message) => _opAndFlush(s, (std) => std.write(message));
 

@@ -17,9 +17,9 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
 
   @override
   Codec<Option<A>> optional() => from(
-        OptionDecoder(this),
-        Encoder.instance<Option<A>>((a) => a.fold(() => JNull(), encode)),
-      );
+    OptionDecoder(this),
+    Encoder.instance<Option<A>>((a) => a.fold(() => JNull(), encode)),
+  );
 
   Codec<B> xmap<B>(Function1<A, B> f, Function1<B, A> g) => iemap((a) => f(a).asRight(), g);
 
@@ -28,33 +28,33 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
   static Codec<A> instance<A>(
     Function1<HCursor, DecodeResult<A>> decodeF,
     Function1<A, Json> encodeF,
-  ) =>
-      from(Decoder.instance(decodeF), Encoder.instance(encodeF));
+  ) => from(Decoder.instance(decodeF), Encoder.instance(encodeF));
 
   static Codec<A> oneOf<
-      A,
-      B extends A,
-      C extends A,
-      D extends A,
-      E extends A,
-      F extends A,
-      G extends A,
-      H extends A,
-      I extends A,
-      J extends A,
-      K extends A,
-      L extends A,
-      M extends A,
-      N extends A,
-      O extends A,
-      P extends A,
-      Q extends A,
-      R extends A,
-      S extends A,
-      T extends A,
-      U extends A,
-      V extends A,
-      W extends A>(
+    A,
+    B extends A,
+    C extends A,
+    D extends A,
+    E extends A,
+    F extends A,
+    G extends A,
+    H extends A,
+    I extends A,
+    J extends A,
+    K extends A,
+    L extends A,
+    M extends A,
+    N extends A,
+    O extends A,
+    P extends A,
+    Q extends A,
+    R extends A,
+    S extends A,
+    T extends A,
+    U extends A,
+    V extends A,
+    W extends A
+  >(
     Codec<B> b, [
     Codec<C>? c,
     Codec<D>? d,
@@ -79,9 +79,10 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<W>? w,
   ]) {
     final encoder = Encoder.instance<A>((a) {
-      Json tryEncode<Z>(Z value, Codec<Z>? codec) => codec != null
-          ? codec.encode(value)
-          : throw StateError('No codec provided for ${value.runtimeType}');
+      Json tryEncode<Z>(Z value, Codec<Z>? codec) =>
+          codec != null
+              ? codec.encode(value)
+              : throw StateError('No codec provided for ${value.runtimeType}');
 
       return switch (a) {
         final B x => b.encode(x),
@@ -179,8 +180,7 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<B> codecB,
     Function2<A, B, C> apply,
     Function1<C, (A, B)> tupled,
-  ) =>
-      KeyValueCodec.product2(codecA, codecB, apply, tupled);
+  ) => KeyValueCodec.product2(codecA, codecB, apply, tupled);
 
   static Codec<D> product3<A, B, C, D>(
     KeyValueCodec<A> codecA,
@@ -188,8 +188,7 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<C> codecC,
     Function3<A, B, C, D> apply,
     Function1<D, (A, B, C)> tupled,
-  ) =>
-      KeyValueCodec.product3(codecA, codecB, codecC, apply, tupled);
+  ) => KeyValueCodec.product3(codecA, codecB, codecC, apply, tupled);
 
   static Codec<E> product4<A, B, C, D, E>(
     KeyValueCodec<A> codecA,
@@ -198,8 +197,7 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<D> codecD,
     Function4<A, B, C, D, E> apply,
     Function1<E, (A, B, C, D)> tupled,
-  ) =>
-      KeyValueCodec.product4(codecA, codecB, codecC, codecD, apply, tupled);
+  ) => KeyValueCodec.product4(codecA, codecB, codecC, codecD, apply, tupled);
 
   static Codec<F> product5<A, B, C, D, E, F>(
     KeyValueCodec<A> codecA,
@@ -209,8 +207,7 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<E> codecE,
     Function5<A, B, C, D, E, F> apply,
     Function1<F, (A, B, C, D, E)> tupled,
-  ) =>
-      KeyValueCodec.product5(codecA, codecB, codecC, codecD, codecE, apply, tupled);
+  ) => KeyValueCodec.product5(codecA, codecB, codecC, codecD, codecE, apply, tupled);
 
   static Codec<G> product6<A, B, C, D, E, F, G>(
     KeyValueCodec<A> codecA,
@@ -221,8 +218,7 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<F> codecF,
     Function6<A, B, C, D, E, F, G> apply,
     Function1<G, (A, B, C, D, E, F)> tupled,
-  ) =>
-      KeyValueCodec.product6(codecA, codecB, codecC, codecD, codecE, codecF, apply, tupled);
+  ) => KeyValueCodec.product6(codecA, codecB, codecC, codecD, codecE, codecF, apply, tupled);
 
   static Codec<H> product7<A, B, C, D, E, F, G, H>(
     KeyValueCodec<A> codecA,
@@ -248,9 +244,18 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<H> codecH,
     Function8<A, B, C, D, E, F, G, H, I> apply,
     Function1<I, (A, B, C, D, E, F, G, H)> tupled,
-  ) =>
-      KeyValueCodec.product8(
-          codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, apply, tupled);
+  ) => KeyValueCodec.product8(
+    codecA,
+    codecB,
+    codecC,
+    codecD,
+    codecE,
+    codecF,
+    codecG,
+    codecH,
+    apply,
+    tupled,
+  );
 
   static Codec<J> product9<A, B, C, D, E, F, G, H, I, J>(
     KeyValueCodec<A> codecA,
@@ -264,9 +269,19 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<I> codecI,
     Function9<A, B, C, D, E, F, G, H, I, J> apply,
     Function1<J, (A, B, C, D, E, F, G, H, I)> tupled,
-  ) =>
-      KeyValueCodec.product9(
-          codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, codecI, apply, tupled);
+  ) => KeyValueCodec.product9(
+    codecA,
+    codecB,
+    codecC,
+    codecD,
+    codecE,
+    codecF,
+    codecG,
+    codecH,
+    codecI,
+    apply,
+    tupled,
+  );
 
   static Codec<K> product10<A, B, C, D, E, F, G, H, I, J, K>(
     KeyValueCodec<A> codecA,
@@ -281,9 +296,20 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<J> codecJ,
     Function10<A, B, C, D, E, F, G, H, I, J, K> apply,
     Function1<K, (A, B, C, D, E, F, G, H, I, J)> tupled,
-  ) =>
-      KeyValueCodec.product10(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-          codecI, codecJ, apply, tupled);
+  ) => KeyValueCodec.product10(
+    codecA,
+    codecB,
+    codecC,
+    codecD,
+    codecE,
+    codecF,
+    codecG,
+    codecH,
+    codecI,
+    codecJ,
+    apply,
+    tupled,
+  );
 
   static Codec<L> product11<A, B, C, D, E, F, G, H, I, J, K, L>(
     KeyValueCodec<A> codecA,
@@ -299,9 +325,21 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<K> codecK,
     Function11<A, B, C, D, E, F, G, H, I, J, K, L> apply,
     Function1<L, (A, B, C, D, E, F, G, H, I, J, K)> tupled,
-  ) =>
-      KeyValueCodec.product11(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-          codecI, codecJ, codecK, apply, tupled);
+  ) => KeyValueCodec.product11(
+    codecA,
+    codecB,
+    codecC,
+    codecD,
+    codecE,
+    codecF,
+    codecG,
+    codecH,
+    codecI,
+    codecJ,
+    codecK,
+    apply,
+    tupled,
+  );
 
   static Codec<M> product12<A, B, C, D, E, F, G, H, I, J, K, L, M>(
     KeyValueCodec<A> codecA,
@@ -318,9 +356,22 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<L> codecL,
     Function12<A, B, C, D, E, F, G, H, I, J, K, L, M> apply,
     Function1<M, (A, B, C, D, E, F, G, H, I, J, K, L)> tupled,
-  ) =>
-      KeyValueCodec.product12(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-          codecI, codecJ, codecK, codecL, apply, tupled);
+  ) => KeyValueCodec.product12(
+    codecA,
+    codecB,
+    codecC,
+    codecD,
+    codecE,
+    codecF,
+    codecG,
+    codecH,
+    codecI,
+    codecJ,
+    codecK,
+    codecL,
+    apply,
+    tupled,
+  );
 
   static Codec<N> product13<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
     KeyValueCodec<A> codecA,
@@ -338,9 +389,23 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<M> codecM,
     Function13<A, B, C, D, E, F, G, H, I, J, K, L, M, N> apply,
     Function1<N, (A, B, C, D, E, F, G, H, I, J, K, L, M)> tupled,
-  ) =>
-      KeyValueCodec.product13(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-          codecI, codecJ, codecK, codecL, codecM, apply, tupled);
+  ) => KeyValueCodec.product13(
+    codecA,
+    codecB,
+    codecC,
+    codecD,
+    codecE,
+    codecF,
+    codecG,
+    codecH,
+    codecI,
+    codecJ,
+    codecK,
+    codecL,
+    codecM,
+    apply,
+    tupled,
+  );
 
   static Codec<O> product14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
     KeyValueCodec<A> codecA,
@@ -359,9 +424,24 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<N> codecN,
     Function14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> apply,
     Function1<O, (A, B, C, D, E, F, G, H, I, J, K, L, M, N)> tupled,
-  ) =>
-      KeyValueCodec.product14(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-          codecI, codecJ, codecK, codecL, codecM, codecN, apply, tupled);
+  ) => KeyValueCodec.product14(
+    codecA,
+    codecB,
+    codecC,
+    codecD,
+    codecE,
+    codecF,
+    codecG,
+    codecH,
+    codecI,
+    codecJ,
+    codecK,
+    codecL,
+    codecM,
+    codecN,
+    apply,
+    tupled,
+  );
 
   static Codec<P> product15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>(
     KeyValueCodec<A> codecA,
@@ -381,9 +461,25 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<O> codecO,
     Function15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> apply,
     Function1<P, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> tupled,
-  ) =>
-      KeyValueCodec.product15(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-          codecI, codecJ, codecK, codecL, codecM, codecN, codecO, apply, tupled);
+  ) => KeyValueCodec.product15(
+    codecA,
+    codecB,
+    codecC,
+    codecD,
+    codecE,
+    codecF,
+    codecG,
+    codecH,
+    codecI,
+    codecJ,
+    codecK,
+    codecL,
+    codecM,
+    codecN,
+    codecO,
+    apply,
+    tupled,
+  );
 
   static Codec<Q> product16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>(
     KeyValueCodec<A> codecA,
@@ -404,9 +500,26 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<P> codecP,
     Function16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> apply,
     Function1<Q, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P)> tupled,
-  ) =>
-      KeyValueCodec.product16(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-          codecI, codecJ, codecK, codecL, codecM, codecN, codecO, codecP, apply, tupled);
+  ) => KeyValueCodec.product16(
+    codecA,
+    codecB,
+    codecC,
+    codecD,
+    codecE,
+    codecF,
+    codecG,
+    codecH,
+    codecI,
+    codecJ,
+    codecK,
+    codecL,
+    codecM,
+    codecN,
+    codecO,
+    codecP,
+    apply,
+    tupled,
+  );
 
   static Codec<R> product17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>(
     KeyValueCodec<A> codecA,
@@ -428,9 +541,27 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<Q> codecQ,
     Function17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> apply,
     Function1<R, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q)> tupled,
-  ) =>
-      KeyValueCodec.product17(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-          codecI, codecJ, codecK, codecL, codecM, codecN, codecO, codecP, codecQ, apply, tupled);
+  ) => KeyValueCodec.product17(
+    codecA,
+    codecB,
+    codecC,
+    codecD,
+    codecE,
+    codecF,
+    codecG,
+    codecH,
+    codecI,
+    codecJ,
+    codecK,
+    codecL,
+    codecM,
+    codecN,
+    codecO,
+    codecP,
+    codecQ,
+    apply,
+    tupled,
+  );
 
   static Codec<S> product18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>(
     KeyValueCodec<A> codecA,
@@ -453,28 +584,28 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<R> codecR,
     Function18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> apply,
     Function1<S, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R)> tupled,
-  ) =>
-      KeyValueCodec.product18(
-          codecA,
-          codecB,
-          codecC,
-          codecD,
-          codecE,
-          codecF,
-          codecG,
-          codecH,
-          codecI,
-          codecJ,
-          codecK,
-          codecL,
-          codecM,
-          codecN,
-          codecO,
-          codecP,
-          codecQ,
-          codecR,
-          apply,
-          tupled);
+  ) => KeyValueCodec.product18(
+    codecA,
+    codecB,
+    codecC,
+    codecD,
+    codecE,
+    codecF,
+    codecG,
+    codecH,
+    codecI,
+    codecJ,
+    codecK,
+    codecL,
+    codecM,
+    codecN,
+    codecO,
+    codecP,
+    codecQ,
+    codecR,
+    apply,
+    tupled,
+  );
 
   static Codec<T> product19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>(
     KeyValueCodec<A> codecA,
@@ -498,29 +629,29 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<S> codecS,
     Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> apply,
     Function1<T, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)> tupled,
-  ) =>
-      KeyValueCodec.product19(
-          codecA,
-          codecB,
-          codecC,
-          codecD,
-          codecE,
-          codecF,
-          codecG,
-          codecH,
-          codecI,
-          codecJ,
-          codecK,
-          codecL,
-          codecM,
-          codecN,
-          codecO,
-          codecP,
-          codecQ,
-          codecR,
-          codecS,
-          apply,
-          tupled);
+  ) => KeyValueCodec.product19(
+    codecA,
+    codecB,
+    codecC,
+    codecD,
+    codecE,
+    codecF,
+    codecG,
+    codecH,
+    codecI,
+    codecJ,
+    codecK,
+    codecL,
+    codecM,
+    codecN,
+    codecO,
+    codecP,
+    codecQ,
+    codecR,
+    codecS,
+    apply,
+    tupled,
+  );
 
   static Codec<U> product20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>(
     KeyValueCodec<A> codecA,
@@ -545,30 +676,30 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<T> codecT,
     Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> apply,
     Function1<U, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)> tupled,
-  ) =>
-      KeyValueCodec.product20(
-          codecA,
-          codecB,
-          codecC,
-          codecD,
-          codecE,
-          codecF,
-          codecG,
-          codecH,
-          codecI,
-          codecJ,
-          codecK,
-          codecL,
-          codecM,
-          codecN,
-          codecO,
-          codecP,
-          codecQ,
-          codecR,
-          codecS,
-          codecT,
-          apply,
-          tupled);
+  ) => KeyValueCodec.product20(
+    codecA,
+    codecB,
+    codecC,
+    codecD,
+    codecE,
+    codecF,
+    codecG,
+    codecH,
+    codecI,
+    codecJ,
+    codecK,
+    codecL,
+    codecM,
+    codecN,
+    codecO,
+    codecP,
+    codecQ,
+    codecR,
+    codecS,
+    codecT,
+    apply,
+    tupled,
+  );
 
   static Codec<V> product21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>(
     KeyValueCodec<A> codecA,
@@ -594,31 +725,31 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<U> codecU,
     Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> apply,
     Function1<V, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)> tupled,
-  ) =>
-      KeyValueCodec.product21(
-          codecA,
-          codecB,
-          codecC,
-          codecD,
-          codecE,
-          codecF,
-          codecG,
-          codecH,
-          codecI,
-          codecJ,
-          codecK,
-          codecL,
-          codecM,
-          codecN,
-          codecO,
-          codecP,
-          codecQ,
-          codecR,
-          codecS,
-          codecT,
-          codecU,
-          apply,
-          tupled);
+  ) => KeyValueCodec.product21(
+    codecA,
+    codecB,
+    codecC,
+    codecD,
+    codecE,
+    codecF,
+    codecG,
+    codecH,
+    codecI,
+    codecJ,
+    codecK,
+    codecL,
+    codecM,
+    codecN,
+    codecO,
+    codecP,
+    codecQ,
+    codecR,
+    codecS,
+    codecT,
+    codecU,
+    apply,
+    tupled,
+  );
 
   static Codec<W> product22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W>(
     KeyValueCodec<A> codecA,
@@ -645,32 +776,32 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     KeyValueCodec<V> codecV,
     Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W> apply,
     Function1<W, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)> tupled,
-  ) =>
-      KeyValueCodec.product22(
-          codecA,
-          codecB,
-          codecC,
-          codecD,
-          codecE,
-          codecF,
-          codecG,
-          codecH,
-          codecI,
-          codecJ,
-          codecK,
-          codecL,
-          codecM,
-          codecN,
-          codecO,
-          codecP,
-          codecQ,
-          codecR,
-          codecS,
-          codecT,
-          codecU,
-          codecV,
-          apply,
-          tupled);
+  ) => KeyValueCodec.product22(
+    codecA,
+    codecB,
+    codecC,
+    codecD,
+    codecE,
+    codecF,
+    codecG,
+    codecH,
+    codecI,
+    codecJ,
+    codecK,
+    codecL,
+    codecM,
+    codecN,
+    codecO,
+    codecP,
+    codecQ,
+    codecR,
+    codecS,
+    codecT,
+    codecU,
+    codecV,
+    apply,
+    tupled,
+  );
 
   //////////////////////////////////////////////////////////////////////////////
   /// Tuple Instances
@@ -679,24 +810,23 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
   static Codec<(A, B)> tuple2<A, B>(
     Codec<A> codecA,
     Codec<B> codecB,
-  ) =>
-      Codec.from(Decoder.tuple2(codecA, codecB), Encoder.tuple2(codecA, codecB));
+  ) => Codec.from(Decoder.tuple2(codecA, codecB), Encoder.tuple2(codecA, codecB));
 
   static Codec<(A, B, C)> tuple3<A, B, C>(
     Codec<A> codecA,
     Codec<B> codecB,
     Codec<C> codecC,
-  ) =>
-      Codec.from(Decoder.tuple3(codecA, codecB, codecC), Encoder.tuple3(codecA, codecB, codecC));
+  ) => Codec.from(Decoder.tuple3(codecA, codecB, codecC), Encoder.tuple3(codecA, codecB, codecC));
 
   static Codec<(A, B, C, D)> tuple4<A, B, C, D>(
     Codec<A> codecA,
     Codec<B> codecB,
     Codec<C> codecC,
     Codec<D> codecD,
-  ) =>
-      Codec.from(Decoder.tuple4(codecA, codecB, codecC, codecD),
-          Encoder.tuple4(codecA, codecB, codecC, codecD));
+  ) => Codec.from(
+    Decoder.tuple4(codecA, codecB, codecC, codecD),
+    Encoder.tuple4(codecA, codecB, codecC, codecD),
+  );
 
   static Codec<(A, B, C, D, E)> tuple5<A, B, C, D, E>(
     Codec<A> codecA,
@@ -704,9 +834,10 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<C> codecC,
     Codec<D> codecD,
     Codec<E> codecE,
-  ) =>
-      Codec.from(Decoder.tuple5(codecA, codecB, codecC, codecD, codecE),
-          Encoder.tuple5(codecA, codecB, codecC, codecD, codecE));
+  ) => Codec.from(
+    Decoder.tuple5(codecA, codecB, codecC, codecD, codecE),
+    Encoder.tuple5(codecA, codecB, codecC, codecD, codecE),
+  );
 
   static Codec<(A, B, C, D, E, F)> tuple6<A, B, C, D, E, F>(
     Codec<A> codecA,
@@ -715,9 +846,10 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<D> codecD,
     Codec<E> codecE,
     Codec<F> codecF,
-  ) =>
-      Codec.from(Decoder.tuple6(codecA, codecB, codecC, codecD, codecE, codecF),
-          Encoder.tuple6(codecA, codecB, codecC, codecD, codecE, codecF));
+  ) => Codec.from(
+    Decoder.tuple6(codecA, codecB, codecC, codecD, codecE, codecF),
+    Encoder.tuple6(codecA, codecB, codecC, codecD, codecE, codecF),
+  );
 
   static Codec<(A, B, C, D, E, F, G)> tuple7<A, B, C, D, E, F, G>(
     Codec<A> codecA,
@@ -727,9 +859,10 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<E> codecE,
     Codec<F> codecF,
     Codec<G> codecG,
-  ) =>
-      Codec.from(Decoder.tuple7(codecA, codecB, codecC, codecD, codecE, codecF, codecG),
-          Encoder.tuple7(codecA, codecB, codecC, codecD, codecE, codecF, codecG));
+  ) => Codec.from(
+    Decoder.tuple7(codecA, codecB, codecC, codecD, codecE, codecF, codecG),
+    Encoder.tuple7(codecA, codecB, codecC, codecD, codecE, codecF, codecG),
+  );
 
   static Codec<(A, B, C, D, E, F, G, H)> tuple8<A, B, C, D, E, F, G, H>(
     Codec<A> codecA,
@@ -740,9 +873,10 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<F> codecF,
     Codec<G> codecG,
     Codec<H> codecH,
-  ) =>
-      Codec.from(Decoder.tuple8(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH),
-          Encoder.tuple8(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH));
+  ) => Codec.from(
+    Decoder.tuple8(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH),
+    Encoder.tuple8(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH),
+  );
 
   static Codec<(A, B, C, D, E, F, G, H, I)> tuple9<A, B, C, D, E, F, G, H, I>(
     Codec<A> codecA,
@@ -754,10 +888,10 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<G> codecG,
     Codec<H> codecH,
     Codec<I> codecI,
-  ) =>
-      Codec.from(
-          Decoder.tuple9(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, codecI),
-          Encoder.tuple9(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, codecI));
+  ) => Codec.from(
+    Decoder.tuple9(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, codecI),
+    Encoder.tuple9(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, codecI),
+  );
 
   static Codec<(A, B, C, D, E, F, G, H, I, J)> tuple10<A, B, C, D, E, F, G, H, I, J>(
     Codec<A> codecA,
@@ -770,12 +904,10 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<H> codecH,
     Codec<I> codecI,
     Codec<J> codecJ,
-  ) =>
-      Codec.from(
-          Decoder.tuple10(
-              codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, codecI, codecJ),
-          Encoder.tuple10(
-              codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, codecI, codecJ));
+  ) => Codec.from(
+    Decoder.tuple10(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, codecI, codecJ),
+    Encoder.tuple10(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, codecI, codecJ),
+  );
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K)> tuple11<A, B, C, D, E, F, G, H, I, J, K>(
     Codec<A> codecA,
@@ -789,12 +921,34 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<I> codecI,
     Codec<J> codecJ,
     Codec<K> codecK,
-  ) =>
-      Codec.from(
-          Decoder.tuple11(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, codecI,
-              codecJ, codecK),
-          Encoder.tuple11(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, codecI,
-              codecJ, codecK));
+  ) => Codec.from(
+    Decoder.tuple11(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+    ),
+    Encoder.tuple11(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+    ),
+  );
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L)> tuple12<A, B, C, D, E, F, G, H, I, J, K, L>(
     Codec<A> codecA,
@@ -809,15 +963,39 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<J> codecJ,
     Codec<K> codecK,
     Codec<L> codecL,
-  ) =>
-      Codec.from(
-          Decoder.tuple12(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, codecI,
-              codecJ, codecK, codecL),
-          Encoder.tuple12(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH, codecI,
-              codecJ, codecK, codecL));
+  ) => Codec.from(
+    Decoder.tuple12(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+    ),
+    Encoder.tuple12(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+    ),
+  );
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M)>
-      tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>(
+  tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>(
     Codec<A> codecA,
     Codec<B> codecB,
     Codec<C> codecC,
@@ -831,15 +1009,41 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<K> codecK,
     Codec<L> codecL,
     Codec<M> codecM,
-  ) =>
-          Codec.from(
-              Decoder.tuple13(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-                  codecI, codecJ, codecK, codecL, codecM),
-              Encoder.tuple13(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-                  codecI, codecJ, codecK, codecL, codecM));
+  ) => Codec.from(
+    Decoder.tuple13(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+    ),
+    Encoder.tuple13(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+    ),
+  );
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M, N)>
-      tuple14<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
+  tuple14<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
     Codec<A> codecA,
     Codec<B> codecB,
     Codec<C> codecC,
@@ -854,15 +1058,43 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<L> codecL,
     Codec<M> codecM,
     Codec<N> codecN,
-  ) =>
-          Codec.from(
-              Decoder.tuple14(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-                  codecI, codecJ, codecK, codecL, codecM, codecN),
-              Encoder.tuple14(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-                  codecI, codecJ, codecK, codecL, codecM, codecN));
+  ) => Codec.from(
+    Decoder.tuple14(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+    ),
+    Encoder.tuple14(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+    ),
+  );
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)>
-      tuple15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
+  tuple15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
     Codec<A> codecA,
     Codec<B> codecB,
     Codec<C> codecC,
@@ -878,15 +1110,45 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<M> codecM,
     Codec<N> codecN,
     Codec<O> codecO,
-  ) =>
-          Codec.from(
-              Decoder.tuple15(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-                  codecI, codecJ, codecK, codecL, codecM, codecN, codecO),
-              Encoder.tuple15(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-                  codecI, codecJ, codecK, codecL, codecM, codecN, codecO));
+  ) => Codec.from(
+    Decoder.tuple15(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+      codecO,
+    ),
+    Encoder.tuple15(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+      codecO,
+    ),
+  );
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P)>
-      tuple16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>(
+  tuple16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>(
     Codec<A> codecA,
     Codec<B> codecB,
     Codec<C> codecC,
@@ -903,15 +1165,47 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<N> codecN,
     Codec<O> codecO,
     Codec<P> codecP,
-  ) =>
-          Codec.from(
-              Decoder.tuple16(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-                  codecI, codecJ, codecK, codecL, codecM, codecN, codecO, codecP),
-              Encoder.tuple16(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-                  codecI, codecJ, codecK, codecL, codecM, codecN, codecO, codecP));
+  ) => Codec.from(
+    Decoder.tuple16(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+      codecO,
+      codecP,
+    ),
+    Encoder.tuple16(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+      codecO,
+      codecP,
+    ),
+  );
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q)>
-      tuple17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>(
+  tuple17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>(
     Codec<A> codecA,
     Codec<B> codecB,
     Codec<C> codecC,
@@ -929,15 +1223,49 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<O> codecO,
     Codec<P> codecP,
     Codec<Q> codecQ,
-  ) =>
-          Codec.from(
-              Decoder.tuple17(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-                  codecI, codecJ, codecK, codecL, codecM, codecN, codecO, codecP, codecQ),
-              Encoder.tuple17(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-                  codecI, codecJ, codecK, codecL, codecM, codecN, codecO, codecP, codecQ));
+  ) => Codec.from(
+    Decoder.tuple17(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+      codecO,
+      codecP,
+      codecQ,
+    ),
+    Encoder.tuple17(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+      codecO,
+      codecP,
+      codecQ,
+    ),
+  );
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R)>
-      tuple18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>(
+  tuple18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>(
     Codec<A> codecA,
     Codec<B> codecB,
     Codec<C> codecC,
@@ -956,15 +1284,51 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<P> codecP,
     Codec<Q> codecQ,
     Codec<R> codecR,
-  ) =>
-          Codec.from(
-              Decoder.tuple18(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-                  codecI, codecJ, codecK, codecL, codecM, codecN, codecO, codecP, codecQ, codecR),
-              Encoder.tuple18(codecA, codecB, codecC, codecD, codecE, codecF, codecG, codecH,
-                  codecI, codecJ, codecK, codecL, codecM, codecN, codecO, codecP, codecQ, codecR));
+  ) => Codec.from(
+    Decoder.tuple18(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+      codecO,
+      codecP,
+      codecQ,
+      codecR,
+    ),
+    Encoder.tuple18(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+      codecO,
+      codecP,
+      codecQ,
+      codecR,
+    ),
+  );
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)>
-      tuple19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>(
+  tuple19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>(
     Codec<A> codecA,
     Codec<B> codecB,
     Codec<C> codecC,
@@ -984,51 +1348,53 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<Q> codecQ,
     Codec<R> codecR,
     Codec<S> codecS,
-  ) =>
-          Codec.from(
-              Decoder.tuple19(
-                  codecA,
-                  codecB,
-                  codecC,
-                  codecD,
-                  codecE,
-                  codecF,
-                  codecG,
-                  codecH,
-                  codecI,
-                  codecJ,
-                  codecK,
-                  codecL,
-                  codecM,
-                  codecN,
-                  codecO,
-                  codecP,
-                  codecQ,
-                  codecR,
-                  codecS),
-              Encoder.tuple19(
-                  codecA,
-                  codecB,
-                  codecC,
-                  codecD,
-                  codecE,
-                  codecF,
-                  codecG,
-                  codecH,
-                  codecI,
-                  codecJ,
-                  codecK,
-                  codecL,
-                  codecM,
-                  codecN,
-                  codecO,
-                  codecP,
-                  codecQ,
-                  codecR,
-                  codecS));
+  ) => Codec.from(
+    Decoder.tuple19(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+      codecO,
+      codecP,
+      codecQ,
+      codecR,
+      codecS,
+    ),
+    Encoder.tuple19(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+      codecO,
+      codecP,
+      codecQ,
+      codecR,
+      codecS,
+    ),
+  );
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)>
-      tuple20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>(
+  tuple20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>(
     Codec<A> codecA,
     Codec<B> codecB,
     Codec<C> codecC,
@@ -1049,53 +1415,55 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<R> codecR,
     Codec<S> codecS,
     Codec<T> codecT,
-  ) =>
-          Codec.from(
-              Decoder.tuple20(
-                  codecA,
-                  codecB,
-                  codecC,
-                  codecD,
-                  codecE,
-                  codecF,
-                  codecG,
-                  codecH,
-                  codecI,
-                  codecJ,
-                  codecK,
-                  codecL,
-                  codecM,
-                  codecN,
-                  codecO,
-                  codecP,
-                  codecQ,
-                  codecR,
-                  codecS,
-                  codecT),
-              Encoder.tuple20(
-                  codecA,
-                  codecB,
-                  codecC,
-                  codecD,
-                  codecE,
-                  codecF,
-                  codecG,
-                  codecH,
-                  codecI,
-                  codecJ,
-                  codecK,
-                  codecL,
-                  codecM,
-                  codecN,
-                  codecO,
-                  codecP,
-                  codecQ,
-                  codecR,
-                  codecS,
-                  codecT));
+  ) => Codec.from(
+    Decoder.tuple20(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+      codecO,
+      codecP,
+      codecQ,
+      codecR,
+      codecS,
+      codecT,
+    ),
+    Encoder.tuple20(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+      codecO,
+      codecP,
+      codecQ,
+      codecR,
+      codecS,
+      codecT,
+    ),
+  );
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
-      tuple21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>(
+  tuple21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>(
     Codec<A> codecA,
     Codec<B> codecB,
     Codec<C> codecC,
@@ -1117,55 +1485,57 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<S> codecS,
     Codec<T> codecT,
     Codec<U> codecU,
-  ) =>
-          Codec.from(
-              Decoder.tuple21(
-                  codecA,
-                  codecB,
-                  codecC,
-                  codecD,
-                  codecE,
-                  codecF,
-                  codecG,
-                  codecH,
-                  codecI,
-                  codecJ,
-                  codecK,
-                  codecL,
-                  codecM,
-                  codecN,
-                  codecO,
-                  codecP,
-                  codecQ,
-                  codecR,
-                  codecS,
-                  codecT,
-                  codecU),
-              Encoder.tuple21(
-                  codecA,
-                  codecB,
-                  codecC,
-                  codecD,
-                  codecE,
-                  codecF,
-                  codecG,
-                  codecH,
-                  codecI,
-                  codecJ,
-                  codecK,
-                  codecL,
-                  codecM,
-                  codecN,
-                  codecO,
-                  codecP,
-                  codecQ,
-                  codecR,
-                  codecS,
-                  codecT,
-                  codecU));
+  ) => Codec.from(
+    Decoder.tuple21(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+      codecO,
+      codecP,
+      codecQ,
+      codecR,
+      codecS,
+      codecT,
+      codecU,
+    ),
+    Encoder.tuple21(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+      codecO,
+      codecP,
+      codecQ,
+      codecR,
+      codecS,
+      codecT,
+      codecU,
+    ),
+  );
 
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
-      tuple22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>(
+  tuple22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>(
     Codec<A> codecA,
     Codec<B> codecB,
     Codec<C> codecC,
@@ -1188,54 +1558,56 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     Codec<T> codecT,
     Codec<U> codecU,
     Codec<V> codecV,
-  ) =>
-          Codec.from(
-              Decoder.tuple22(
-                  codecA,
-                  codecB,
-                  codecC,
-                  codecD,
-                  codecE,
-                  codecF,
-                  codecG,
-                  codecH,
-                  codecI,
-                  codecJ,
-                  codecK,
-                  codecL,
-                  codecM,
-                  codecN,
-                  codecO,
-                  codecP,
-                  codecQ,
-                  codecR,
-                  codecS,
-                  codecT,
-                  codecU,
-                  codecV),
-              Encoder.tuple22(
-                  codecA,
-                  codecB,
-                  codecC,
-                  codecD,
-                  codecE,
-                  codecF,
-                  codecG,
-                  codecH,
-                  codecI,
-                  codecJ,
-                  codecK,
-                  codecL,
-                  codecM,
-                  codecN,
-                  codecO,
-                  codecP,
-                  codecQ,
-                  codecR,
-                  codecS,
-                  codecT,
-                  codecU,
-                  codecV));
+  ) => Codec.from(
+    Decoder.tuple22(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+      codecO,
+      codecP,
+      codecQ,
+      codecR,
+      codecS,
+      codecT,
+      codecU,
+      codecV,
+    ),
+    Encoder.tuple22(
+      codecA,
+      codecB,
+      codecC,
+      codecD,
+      codecE,
+      codecF,
+      codecG,
+      codecH,
+      codecI,
+      codecJ,
+      codecK,
+      codecL,
+      codecM,
+      codecN,
+      codecO,
+      codecP,
+      codecQ,
+      codecR,
+      codecS,
+      codecT,
+      codecU,
+      codecV,
+    ),
+  );
 }
 
 extension KeyValueCodecOps on String {

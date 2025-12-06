@@ -27,19 +27,19 @@ class Ref<A> {
   /// changed since taking the snapshot), the setter is a noop and returns
   /// `false`.
   IO<(A, Function1<A, IO<bool>>)> access() => IO.delay(() {
-        final snapshot = _underlying;
+    final snapshot = _underlying;
 
-        IO<bool> setter(A a) => IO.delay(() {
-              if (_underlying == snapshot) {
-                _underlying = a;
-                return true;
-              } else {
-                return false;
-              }
-            });
+    IO<bool> setter(A a) => IO.delay(() {
+      if (_underlying == snapshot) {
+        _underlying = a;
+        return true;
+      } else {
+        return false;
+      }
+    });
 
-        return (snapshot, setter);
-      });
+    return (snapshot, setter);
+  });
 
   /// Like [modify], but also schedules the resulting effect right after
   /// modification. The modification and finalizer are both within an
@@ -59,10 +59,12 @@ class Ref<A> {
   IO<A> getAndSet(A a) => getAndUpdate((_) => a);
 
   /// Modifies the value of this ref according to [f] and returns the new value.
-  IO<B> modify<B>(Function1<A, (A, B)> f) => IO.delay(() => f(_underlying)((newA, result) {
-        _underlying = newA;
-        return result;
-      }));
+  IO<B> modify<B>(Function1<A, (A, B)> f) => IO.delay(
+    () => f(_underlying)((newA, result) {
+      _underlying = newA;
+      return result;
+    }),
+  );
 
   /// Sets the value of this ref to [a].
   IO<Unit> setValue(A a) => IO.exec(() => _underlying = a);
@@ -75,19 +77,19 @@ class Ref<A> {
   /// modification succeeds, the new value is returned as a [Some]. If it
   /// fails, [None] is returned.
   IO<Option<B>> tryModify<B>(Function1<A, (A, B)> f) => IO.delay(() {
-        final initial = _underlying;
+    final initial = _underlying;
 
-        return f(initial)(
-          (u, b) {
-            if (initial == _underlying) {
-              _underlying = u;
-              return Some(b);
-            } else {
-              return none();
-            }
-          },
-        );
-      });
+    return f(initial)(
+      (u, b) {
+        if (initial == _underlying) {
+          _underlying = u;
+          return Some(b);
+        } else {
+          return none();
+        }
+      },
+    );
+  });
 
   /// Updates the value of this ref by applying [f] to the current value.
   IO<Unit> update(Function1<A, A> f) => IO.exec(() => _underlying = f(_underlying));
@@ -95,9 +97,9 @@ class Ref<A> {
   /// Updates the value of this ref by applying [f] to the current value and
   /// returns the new value.
   IO<A> updateAndGet(Function1<A, A> f) => modify((a) {
-        final newA = f(a);
-        return (newA, newA);
-      });
+    final newA = f(a);
+    return (newA, newA);
+  });
 
   /// Returns the current value of this ref.
   IO<A> value() => IO.delay(() => _underlying);

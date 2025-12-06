@@ -14,7 +14,9 @@ class StreamEncoder<A> implements StreamTransformer<A, BitVector> {
   Stream<BitVector> bind(Stream<A> stream) {
     _subscription = stream.listen(
       (a) {
-        encoder.encode(a).fold(
+        encoder
+            .encode(a)
+            .fold(
               (err) => _controller.addError(err),
               (bv) => _controller.add(bv),
             );

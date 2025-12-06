@@ -92,7 +92,10 @@ extension IOIListOps<A> on IList<A> {
   /// resulting list. If an error or cancelation is encountered for any element,
   /// that result is returned and any additional elements will not be evaluated.
   /// {@endtemplate}
-  IO<IList<B>> traverseFilterIO<B>(Function1<A, IO<Option<B>>> f) =>
-      traverseIO(f).map((opts) => opts.foldLeft(
-          IList.empty<B>(), (acc, elem) => elem.fold(() => acc, (elem) => acc.appended(elem))));
+  IO<IList<B>> traverseFilterIO<B>(Function1<A, IO<Option<B>>> f) => traverseIO(f).map(
+    (opts) => opts.foldLeft(
+      IList.empty<B>(),
+      (acc, elem) => elem.fold(() => acc, (elem) => acc.appended(elem)),
+    ),
+  );
 }

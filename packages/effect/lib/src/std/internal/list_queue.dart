@@ -10,11 +10,11 @@ class ListQueue<A> {
   ListQueue<A> concat(ListQueue<A> suffix) => ListQueue._(_list.concat(suffix._list));
 
   (A, ListQueue<A>) dequeue() => _list.uncons(
-        (hdtl) => hdtl.foldN(
-          () => throw StateError('Called dequeue on an empty Queue'),
-          (hd, tl) => (hd, ListQueue._(tl)),
-        ),
-      );
+    (hdtl) => hdtl.foldN(
+      () => throw StateError('Called dequeue on an empty Queue'),
+      (hd, tl) => (hd, ListQueue._(tl)),
+    ),
+  );
 
   Option<(A, ListQueue<A>)> dequeueOption() => Option.when(() => nonEmpty, () => dequeue());
 

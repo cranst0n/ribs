@@ -113,9 +113,9 @@ sealed class Option<A> with RIterableOnce<A> {
 
   @override
   bool operator ==(Object other) => fold(
-        () => other is None,
-        (value) => other is Some<A> && value == other.value,
-      );
+    () => other is None,
+    (value) => other is Some<A> && value == other.value,
+  );
 
   @override
   int get hashCode => fold(() => 0, (a) => a.hashCode);

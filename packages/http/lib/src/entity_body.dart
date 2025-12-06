@@ -17,21 +17,23 @@ final class EntityBody extends StreamView<List<int>> {
   });
 
   EntityBody withContentType(ContentType contentType) => EntityBody(
-        this,
-        headers: headers.put(Header.contentType(contentType)),
-        bodyLength: bodyLength,
-      );
+    this,
+    headers: headers.put(Header.contentType(contentType)),
+    bodyLength: bodyLength,
+  );
 
   static EntityBody string(String str) {
     final body = utf8.encode(str);
     return EntityBody(Stream.value(body), bodyLength: Some(body.length));
   }
 
-  static EntityBody json(Json json) => string(json.printWith(Printer.noSpaces))
-      .withContentType(ContentType(MediaType.application.json));
+  static EntityBody json(Json json) => string(
+    json.printWith(Printer.noSpaces),
+  ).withContentType(ContentType(MediaType.application.json));
 
-  static EntityBody urlForm(UrlForm urlForm) => EntityBody.string(UrlForm.encodeString(urlForm))
-      .withContentType(ContentType(MediaType.application.xWwwFormUrlEncoded));
+  static EntityBody urlForm(UrlForm urlForm) => EntityBody.string(
+    UrlForm.encodeString(urlForm),
+  ).withContentType(ContentType(MediaType.application.xWwwFormUrlEncoded));
 
   static const Empty = EntityBody(Stream.empty());
 }

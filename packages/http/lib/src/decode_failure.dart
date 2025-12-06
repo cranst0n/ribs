@@ -3,7 +3,7 @@ class DecodeFailure implements Exception {
   final StackTrace stackTrace;
 
   DecodeFailure(this.message, [StackTrace? stackTrace])
-      : stackTrace = stackTrace ?? StackTrace.current;
+    : stackTrace = stackTrace ?? StackTrace.current;
 
   @override
   String toString() => message.toString();

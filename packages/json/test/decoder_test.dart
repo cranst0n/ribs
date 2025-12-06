@@ -6,17 +6,18 @@ import 'package:test/test.dart';
 void main() {
   group('Decoder', () {
     test('flatMap', () {
-      final evenDecoder =
-          Decoder.integer.flatMap((i) => i.isEven ? Decoder.constant(i) : Decoder.constant(i * 2));
+      final evenDecoder = Decoder.integer.flatMap(
+        (i) => i.isEven ? Decoder.constant(i) : Decoder.constant(i * 2),
+      );
 
       expect(evenDecoder.decode(Json.number(2)), 2.asRight<DecodingFailure>());
       expect(evenDecoder.decode(Json.number(3)), 6.asRight<DecodingFailure>());
     });
 
     test('handleError', () {
-      final d =
-          Decoder.instance<int>((c) => DecodingFailure(CustomReason('boom'), c.history()).asLeft())
-              .handleErrorWith((_) => Decoder.constant(42));
+      final d = Decoder.instance<int>(
+        (c) => DecodingFailure(CustomReason('boom'), c.history()).asLeft(),
+      ).handleErrorWith((_) => Decoder.constant(42));
 
       expect(d.decode(Json.False), 42.asRight<DecodingFailure>());
       expect(d.decode(Json.Null), 42.asRight<DecodingFailure>());
@@ -135,7 +136,9 @@ void main() {
       );
 
       expect(
-          decoder.decode(json), (true, false, true, false, true, false).asRight<DecodingFailure>());
+        decoder.decode(json),
+        (true, false, true, false, true, false).asRight<DecodingFailure>(),
+      );
     });
 
     test('product7', () {
@@ -152,8 +155,10 @@ void main() {
         (a, b, c, d, e, f, g) => (a, b, c, d, e, f, g),
       );
 
-      expect(decoder.decode(json),
-          (true, false, true, false, true, false, true).asRight<DecodingFailure>());
+      expect(
+        decoder.decode(json),
+        (true, false, true, false, true, false, true).asRight<DecodingFailure>(),
+      );
     });
 
     test('product8', () {
@@ -171,8 +176,10 @@ void main() {
         (a, b, c, d, e, f, g, h) => (a, b, c, d, e, f, g, h),
       );
 
-      expect(decoder.decode(json),
-          (true, false, true, false, true, false, true, false).asRight<DecodingFailure>());
+      expect(
+        decoder.decode(json),
+        (true, false, true, false, true, false, true, false).asRight<DecodingFailure>(),
+      );
     });
 
     test('product9', () {
@@ -191,8 +198,10 @@ void main() {
         (a, b, c, d, e, f, g, h, i) => (a, b, c, d, e, f, g, h, i),
       );
 
-      expect(decoder.decode(json),
-          (true, false, true, false, true, false, true, false, true).asRight<DecodingFailure>());
+      expect(
+        decoder.decode(json),
+        (true, false, true, false, true, false, true, false, true).asRight<DecodingFailure>(),
+      );
     });
 
     test('product10', () {
@@ -213,9 +222,20 @@ void main() {
       );
 
       expect(
-          decoder.decode(json),
-          (true, false, true, false, true, false, true, false, true, false)
-              .asRight<DecodingFailure>());
+        decoder.decode(json),
+        (
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+        ).asRight<DecodingFailure>(),
+      );
     });
 
     test('product11', () {
@@ -237,9 +257,21 @@ void main() {
       );
 
       expect(
-          decoder.decode(json),
-          (true, false, true, false, true, false, true, false, true, false, true)
-              .asRight<DecodingFailure>());
+        decoder.decode(json),
+        (
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+        ).asRight<DecodingFailure>(),
+      );
     });
 
     test('product12', () {
@@ -262,9 +294,22 @@ void main() {
       );
 
       expect(
-          decoder.decode(json),
-          (true, false, true, false, true, false, true, false, true, false, true, false)
-              .asRight<DecodingFailure>());
+        decoder.decode(json),
+        (
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+        ).asRight<DecodingFailure>(),
+      );
     });
 
     test('product13', () {
@@ -288,9 +333,23 @@ void main() {
       );
 
       expect(
-          decoder.decode(json),
-          (true, false, true, false, true, false, true, false, true, false, true, false, true)
-              .asRight<DecodingFailure>());
+        decoder.decode(json),
+        (
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+        ).asRight<DecodingFailure>(),
+      );
     });
 
     test('product14', () {
@@ -315,23 +374,24 @@ void main() {
       );
 
       expect(
-          decoder.decode(json),
-          (
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false
-          ).asRight<DecodingFailure>());
+        decoder.decode(json),
+        (
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+        ).asRight<DecodingFailure>(),
+      );
     });
 
     test('product15', () {
@@ -353,29 +413,45 @@ void main() {
         Decoder.boolean.at('key13'),
         Decoder.boolean.at('key14'),
         Decoder.boolean.at('key15'),
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) =>
-            (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o),
+        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) => (
+          a,
+          b,
+          c,
+          d,
+          e,
+          f,
+          g,
+          h,
+          i,
+          j,
+          k,
+          l,
+          m,
+          n,
+          o,
+        ),
       );
 
       expect(
-          decoder.decode(json),
-          (
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true
-          ).asRight<DecodingFailure>());
+        decoder.decode(json),
+        (
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+        ).asRight<DecodingFailure>(),
+      );
     });
   });
 }

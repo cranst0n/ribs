@@ -9,8 +9,7 @@ IO<Unit> expectIO(
   dynamic matcher, {
   String? reason,
   Object? skip,
-}) =>
-    IO.fromFutureF(() => expectLater(actual, matcher, reason: reason, skip: skip)).voided();
+}) => IO.fromFutureF(() => expectLater(actual, matcher, reason: reason, skip: skip)).voided();
 
 Matcher ioSucceeded([Object? matcher]) => _Succeeded(matcher ?? anyOf(isNotNull, isNull));
 

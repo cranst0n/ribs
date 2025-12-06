@@ -8,13 +8,16 @@ final class ConstantCodec extends Codec<Unit> {
 
   @override
   Either<Err, DecodeResult<Unit>> decode(BitVector bv) {
-    return bv.acquire(constant.size).fold(
-        (err) => Either.left(Err.insufficientBits(constant.size, bv.size)),
-        (actual) => Either.cond(
-              () => actual == constant,
-              () => DecodeResult(Unit(), bv.drop(constant.size)),
-              () => Err.general('Expected constant $constant but got $actual'),
-            ));
+    return bv
+        .acquire(constant.size)
+        .fold(
+          (err) => Either.left(Err.insufficientBits(constant.size, bv.size)),
+          (actual) => Either.cond(
+            () => actual == constant,
+            () => DecodeResult(Unit(), bv.drop(constant.size)),
+            () => Err.general('Expected constant $constant but got $actual'),
+          ),
+        );
   }
 
   @override

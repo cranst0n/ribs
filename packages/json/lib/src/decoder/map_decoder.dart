@@ -13,8 +13,10 @@ final class MapDecoder<K, V> extends Decoder<Map<K, V>> {
     if (cursor.value is JObject) {
       return _decodeJsonObject(cursor, (cursor.value as JObject).value);
     } else {
-      return DecodingFailure(WrongTypeExpectation('object', cursor.value), cursor.history())
-          .asLeft();
+      return DecodingFailure(
+        WrongTypeExpectation('object', cursor.value),
+        cursor.history(),
+      ).asLeft();
     }
   }
 

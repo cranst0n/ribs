@@ -21,20 +21,19 @@ class CacheControl {
     CacheDirective? directiveH,
     CacheDirective? directiveI,
     CacheDirective? directiveJ,
-  ]) =>
-      Header(
-        name,
-        ilist([
-          directiveA,
-          directiveB,
-          directiveC,
-          directiveD,
-          directiveE,
-          directiveF,
-          directiveG,
-          directiveH,
-          directiveI,
-          directiveJ,
-        ]).noNulls().map((a) => a.toString()).mkString(sep: '; '),
-      );
+  ]) => Header(
+    name,
+    ilist([
+      directiveA,
+      directiveB,
+      directiveC,
+      directiveD,
+      directiveE,
+      directiveF,
+      directiveG,
+      directiveH,
+      directiveI,
+      directiveJ,
+    ]).noNulls().map((a) => a.toString()).mkString(sep: '; '),
+  );
 }

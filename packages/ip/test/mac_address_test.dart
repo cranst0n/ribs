@@ -8,8 +8,9 @@ import 'arbitraries.dart';
 void main() {
   group('MacAddress', () {
     forAll('roundtrip through string', Gen.listOfN(6, Gen.byte), (bytes) {
-      final addr = MacAddress.fromByteList(bytes)
-          .getOrElse(() => throw 'MacAddress string roundtrip failed: $bytes');
+      final addr = MacAddress.fromByteList(
+        bytes,
+      ).getOrElse(() => throw 'MacAddress string roundtrip failed: $bytes');
       expect(MacAddress.fromString(addr.toString()), isSome(addr));
     });
 

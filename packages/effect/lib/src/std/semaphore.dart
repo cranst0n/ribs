@@ -87,17 +87,22 @@ final class _SemaphoreImpl extends Semaphore {
               }
             }
 
-            final cleanup = state.modify((currentState) {
-              // both hold correctly even if the Request gets canceled
-              // after having been fulfilled
-              final permitsAcquiredSoFar = n -
-                  currentState.waiting.find((x) => x == req).map((req) => req.n).getOrElse(() => 0);
+            final cleanup =
+                state.modify((currentState) {
+                  // both hold correctly even if the Request gets canceled
+                  // after having been fulfilled
+                  final permitsAcquiredSoFar =
+                      n -
+                      currentState.waiting
+                          .find((x) => x == req)
+                          .map((req) => req.n)
+                          .getOrElse(() => 0);
 
-              final waitingNow = currentState.waiting.filterNot((x) => x == req);
+                  final waitingNow = currentState.waiting.filterNot((x) => x == req);
 
-              // releaseN is commutative, the separate Ref access is ok
-              return (_State(currentState.permits, waitingNow), releaseN(permitsAcquiredSoFar));
-            }).flatten();
+                  // releaseN is commutative, the separate Ref access is ok
+                  return (_State(currentState.permits, waitingNow), releaseN(permitsAcquiredSoFar));
+                }).flatten();
 
             final action = switch (decision) {
               _Action.done => IO.unit,
@@ -116,12 +121,12 @@ final class _SemaphoreImpl extends Semaphore {
 
   @override
   IO<int> count() => state.value().map((state) {
-        if (state.waiting.nonEmpty) {
-          return -state.waiting.map((req) => req.n).sum();
-        } else {
-          return state.permits;
-        }
-      });
+    if (state.waiting.nonEmpty) {
+      return -state.waiting.map((req) => req.n).sum();
+    } else {
+      return state.permits;
+    }
+  });
 
   @override
   Resource<Unit> permit() => Resource.makeFull((poll) => poll(acquire()), (_) => release());

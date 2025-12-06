@@ -19,9 +19,10 @@ final class InterruptContext {
   static IO<InterruptContext> create(
     UniqueToken newScopeId,
     IO<Unit> cancelParent,
-  ) =>
-      (Ref.of(none<InterruptionOutcome>()), Deferred.of<InterruptionOutcome>())
-          .mapN((ref, deferred) => InterruptContext._(deferred, ref, newScopeId, cancelParent));
+  ) => (
+    Ref.of(none<InterruptionOutcome>()),
+    Deferred.of<InterruptionOutcome>(),
+  ).mapN((ref, deferred) => InterruptContext._(deferred, ref, newScopeId, cancelParent));
 
   IO<Unit> _complete(InterruptionOutcome outcome) => ref
       .update((a) => a.orElse(() => Some(outcome)))
@@ -78,11 +79,10 @@ final class InterruptContext {
     Ref<Option<InterruptionOutcome>>? ref,
     UniqueToken? interruptRoot,
     IO<Unit>? cancelParent,
-  }) =>
-      InterruptContext._(
-        deferred ?? this.deferred,
-        ref ?? this.ref,
-        interruptRoot ?? this.interruptRoot,
-        cancelParent ?? this.cancelParent,
-      );
+  }) => InterruptContext._(
+    deferred ?? this.deferred,
+    ref ?? this.ref,
+    interruptRoot ?? this.interruptRoot,
+    cancelParent ?? this.cancelParent,
+  );
 }

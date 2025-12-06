@@ -87,10 +87,10 @@ final class _BinaryAlphabet extends BinaryAlphabet {
 
   @override
   int toIndex(String c) => switch (c) {
-        '0' => 0,
-        '1' => 1,
-        _ => throw ArgumentError('Invalid binary char: $c'),
-      };
+    '0' => 0,
+    '1' => 1,
+    _ => throw ArgumentError('Invalid binary char: $c'),
+  };
 }
 
 /// Binary alphabet that uses `{t, f}` and allows whitespace
@@ -106,10 +106,10 @@ final class _TruthyAlphabet extends BinaryAlphabet {
 
   @override
   int toIndex(String c) => switch (c) {
-        't' || 'T' => 0,
-        'f' || 'F' => 1,
-        _ => throw ArgumentError('Invalid binary char: $c'),
-      };
+    't' || 'T' => 0,
+    'f' || 'F' => 1,
+    _ => throw ArgumentError('Invalid binary char: $c'),
+  };
 }
 
 abstract class LenientHex extends HexAlphabet {
@@ -232,14 +232,16 @@ final class Base32Crockford extends Base32Alphabet {
       _chars.zipWithIndex().concat(_chars.map((c) => c.toLowerCase()).zipWithIndex()).toIMap();
 
   static final _minAndIndicies = _charIndicesLookupArray(
-    _uppersAndLowers.concat(imap({
-      'O': _uppersAndLowers['0'],
-      'o': _uppersAndLowers['0'],
-      'I': _uppersAndLowers['1'],
-      'i': _uppersAndLowers['1'],
-      'L': _uppersAndLowers['1'],
-      'l': _uppersAndLowers['1']
-    })),
+    _uppersAndLowers.concat(
+      imap({
+        'O': _uppersAndLowers['0'],
+        'o': _uppersAndLowers['0'],
+        'I': _uppersAndLowers['1'],
+        'i': _uppersAndLowers['1'],
+        'L': _uppersAndLowers['1'],
+        'l': _uppersAndLowers['1'],
+      }),
+    ),
   );
 
   static final _indicesMin = _minAndIndicies.$1;
@@ -299,11 +301,10 @@ abstract class _Base64Base extends Base64Alphabet {
     };
   }
 
-  static final _chars = _charRange('A', 'Z')
-      .concat(_charRange('a', 'z'))
-      .concat(_charRange('0', '9'))
-      .appended('+')
-      .appended('/');
+  static final _chars = _charRange(
+    'A',
+    'Z',
+  ).concat(_charRange('a', 'z')).concat(_charRange('0', '9')).appended('+').appended('/');
 }
 
 final class _Base64 extends _Base64Base {
@@ -341,11 +342,10 @@ abstract class _Base64UrlBase extends Base64Alphabet {
     };
   }
 
-  static final chars = _charRange('A', 'Z')
-      .concat(_charRange('a', 'z'))
-      .concat(_charRange('0', '9'))
-      .appended('-')
-      .appended('_');
+  static final chars = _charRange(
+    'A',
+    'Z',
+  ).concat(_charRange('a', 'z')).concat(_charRange('0', '9')).appended('-').appended('_');
 }
 
 final class _Base64Url extends _Base64UrlBase {

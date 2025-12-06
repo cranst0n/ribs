@@ -15,8 +15,9 @@ void main() {
     forAll('top should return from navigation into an object', genJson, (json) {
       final c = HCursor.fromJson(json);
 
-      final intoObject = c.keys
-          .flatMap((keys) => keys.headOption.flatMap((first) => c.downField(first).success()));
+      final intoObject = c.keys.flatMap(
+        (keys) => keys.headOption.flatMap((first) => c.downField(first).success()),
+      );
 
       expect(
         intoObject.forall((atFirst) => atFirst.top() == Some(json)),
@@ -26,10 +27,9 @@ void main() {
 
     forAll('top should return from navigation into an array', genJson, (json) {
       expect(
-        HCursor.fromJson(json)
-            .downArray()
-            .success()
-            .forall((atFirst) => atFirst.top() == Some(json)),
+        HCursor.fromJson(
+          json,
+        ).downArray().success().forall((atFirst) => atFirst.top() == Some(json)),
         isTrue,
       );
     });
@@ -37,8 +37,9 @@ void main() {
     forAll('root should return from navigation into an object', genJson, (json) {
       final c = HCursor.fromJson(json);
 
-      final intoObject = c.keys
-          .flatMap((keys) => keys.headOption.flatMap((first) => c.downField(first).success()));
+      final intoObject = c.keys.flatMap(
+        (keys) => keys.headOption.flatMap((first) => c.downField(first).success()),
+      );
 
       expect(
         intoObject.forall((atFirst) => atFirst.root().focus() == Some(json)),
@@ -53,8 +54,9 @@ void main() {
     forAll('up should undo navigation into an object', genJson, (json) {
       final c = HCursor.fromJson(json);
 
-      final intoObject = c.keys
-          .flatMap((keys) => keys.headOption.flatMap((first) => c.downField(first).success()));
+      final intoObject = c.keys.flatMap(
+        (keys) => keys.headOption.flatMap((first) => c.downField(first).success()),
+      );
 
       expect(
         intoObject.forall((a) => a.up().success().flatMap((a) => a.focus()) == Some(json)),
@@ -82,8 +84,14 @@ void main() {
     });
 
     test('withFocus should support adding an element to an array', () {
-      final result = cursor.downField('a').success().map((a) => a.withFocus(
-          (j) => j.asArray().fold(() => j, (a) => Json.arrI(a.prepended(Json.number(0))))));
+      final result = cursor
+          .downField('a')
+          .success()
+          .map(
+            (a) => a.withFocus(
+              (j) => j.asArray().fold(() => j, (a) => Json.arrI(a.prepended(Json.number(0)))),
+            ),
+          );
 
       expect(result.flatMap((a) => a.top()), isSome(j2));
     });
@@ -94,17 +102,20 @@ void main() {
       expect(result.flatMap((a) => a.top()), isSome(j4));
     });
 
-    forAll('delete should remove a value from an array',
-        (genJson, Gen.ilistOf(Gen.chooseInt(0, 5), genJson)).tupled, (tup) {
-      final (h, t) = tup;
+    forAll(
+      'delete should remove a value from an array',
+      (genJson, Gen.ilistOf(Gen.chooseInt(0, 5), genJson)).tupled,
+      (tup) {
+        final (h, t) = tup;
 
-      final result = HCursor.fromJson(Json.arrI(t.prepended(h)))
-          .downArray()
-          .success()
-          .flatMap((f) => f.delete().success());
+        final result = HCursor.fromJson(
+          Json.arrI(t.prepended(h)),
+        ).downArray().success().flatMap((f) => f.delete().success());
 
-      expect(result.flatMap((a) => a.focus()), isSome(Json.arrI(t)));
-    }, numTests: 10);
+        expect(result.flatMap((a) => a.focus()), isSome(Json.arrI(t)));
+      },
+      numTests: 10,
+    );
   });
 
   forAll('delete should fail at the top', genJson, (json) {
@@ -262,8 +273,8 @@ void main() {
         'a',
         Json.arr([
           Json.str('string'),
-          Json.obj([('b', Json.number(1))])
-        ])
+          Json.obj([('b', Json.number(1))]),
+        ]),
       ),
       ('c', Json.True),
     ]);
@@ -300,15 +311,15 @@ final j1 = Json.obj([
     'b',
     Json.obj([
       ('d', Json.arr([Json.True, Json.False, Json.True])),
-    ])
+    ]),
   ),
   (
     'c',
     Json.obj([
       ('e', Json.number(100.1)),
       ('f', Json.number(200.2)),
-    ])
-  )
+    ]),
+  ),
 ]);
 
 final j2 = Json.obj([
@@ -317,15 +328,15 @@ final j2 = Json.obj([
     'b',
     Json.obj([
       ('d', Json.arr([Json.True, Json.False, Json.True])),
-    ])
+    ]),
   ),
   (
     'c',
     Json.obj([
       ('e', Json.number(100.1)),
       ('f', Json.number(200.2)),
-    ])
-  )
+    ]),
+  ),
 ]);
 
 final j3 = Json.obj([
@@ -336,8 +347,8 @@ final j3 = Json.obj([
     Json.obj([
       ('e', Json.number(100.1)),
       ('f', Json.number(200.2)),
-    ])
-  )
+    ]),
+  ),
 ]);
 
 final j4 = Json.obj([
@@ -347,8 +358,8 @@ final j4 = Json.obj([
     Json.obj([
       ('e', Json.number(100.1)),
       ('f', Json.number(200.2)),
-    ])
-  )
+    ]),
+  ),
 ]);
 
 final cursor = HCursor.fromJson(j1);

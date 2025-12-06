@@ -37,14 +37,16 @@ void main() {
   test('post json', () async {
     await Client.sdk().use((client) {
       return client
-          .request(Request(
-            method: Method.POST,
-            headers: Headers([
-              Header.accept(MediaType.application.json),
-            ]),
-            uri: Uri.parse('https://postman-echo.com/post'),
-            body: EntityBody.string('hello!'),
-          ))
+          .request(
+            Request(
+              method: Method.POST,
+              headers: Headers([
+                Header.accept(MediaType.application.json),
+              ]),
+              uri: Uri.parse('https://postman-echo.com/post'),
+              body: EntityBody.string('hello!'),
+            ),
+          )
           .flatTap((r) => EntityDecoder.string.decode(r, false));
     }).unsafeRunFuture();
   }, skip: true);
@@ -52,20 +54,26 @@ void main() {
   test('post form', () async {
     await Client.sdk().use((client) {
       return client
-          .request(Request(
-        method: Method.POST,
-        headers: Headers([
-          Header.accept(MediaType.application.json),
-        ]),
-        uri: Uri.parse('https://postman-echo.com/post'),
-        body: EntityBody.urlForm(UrlForm(imap({
-          'foo1': ilist(['bar1']),
-          'foo2': ilist(['bar2']),
-        }))),
-      ))
+          .request(
+            Request(
+              method: Method.POST,
+              headers: Headers([
+                Header.accept(MediaType.application.json),
+              ]),
+              uri: Uri.parse('https://postman-echo.com/post'),
+              body: EntityBody.urlForm(
+                UrlForm(
+                  imap({
+                    'foo1': ilist(['bar1']),
+                    'foo2': ilist(['bar2']),
+                  }),
+                ),
+              ),
+            ),
+          )
           .flatTap((r) {
-        return EntityDecoder.string.decode(r, false);
-      });
+            return EntityDecoder.string.decode(r, false);
+          });
     }).unsafeRunFuture();
   }, skip: true);
 
@@ -79,17 +87,18 @@ void main() {
 
   test('backpressured', () async {
     Request req() => Request(
-          method: Method.POST,
-          headers: Headers([
-            Header.accept(MediaType.application.json),
-          ]),
-          uri: Uri.parse('https://postman-echo.com/post'),
-        );
+      method: Method.POST,
+      headers: Headers([
+        Header.accept(MediaType.application.json),
+      ]),
+      uri: Uri.parse('https://postman-echo.com/post'),
+    );
 
     final test = Client.sdk().use((client) {
       return Backpressured.create(client, 1).flatMap((client) {
         return IList.tabulate(5, (_) => req()).parTraverseIO(
-            (req) => client.request(req).flatTap((resp) => IO.println('Response: $resp')));
+          (req) => client.request(req).flatTap((resp) => IO.println('Response: $resp')),
+        );
       });
     });
 

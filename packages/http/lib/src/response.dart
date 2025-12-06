@@ -15,13 +15,12 @@ final class Response extends Message {
     HttpVersion? version,
     Headers? headers,
     EntityBody? body,
-  }) =>
-      Response(
-        status: status ?? this.status,
-        version: version ?? this.version,
-        headers: headers ?? this.headers,
-        body: body ?? this.body,
-      );
+  }) => Response(
+    status: status ?? this.status,
+    version: version ?? this.version,
+    headers: headers ?? this.headers,
+    body: body ?? this.body,
+  );
 
   Response withBody(EntityBody body) => copy(body: body);
 

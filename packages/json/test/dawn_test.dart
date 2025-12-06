@@ -25,12 +25,12 @@ void _testGroup(
         .sortWith((a, b) => basename(a.path).compareTo(basename(b.path)) < 0)
         .map((f) => File(f.path))
         .foreach((fileEntity) {
-      final desc = basename(fileEntity.path).replaceAll('.json', '');
-      final bytes = File(fileEntity.path).readAsBytesSync();
+          final desc = basename(fileEntity.path).replaceAll('.json', '');
+          final bytes = File(fileEntity.path).readAsBytesSync();
 
-      test(desc, () {
-        f(Json.parseBytes(bytes));
-      });
-    });
+          test(desc, () {
+            f(Json.parseBytes(bytes));
+          });
+        });
   });
 }

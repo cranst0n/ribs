@@ -18,53 +18,72 @@ void main() {
     testCodec('dateTime', Gen.dateTime, Codec.dateTime);
 
     forAll(
-        'dubble',
-        Gen.chooseDouble(-double.maxFinite, double.maxFinite,
-            specials: ilist([double.infinity, double.negativeInfinity, double.nan])), (a) {
-      if (a.isFinite) {
-        expect(
-          Codec.dubble.decode(Codec.dubble.encode(a)),
-          isRight<DecodingFailure, double>(a),
-        );
-      } else {
-        Codec.dubble.decode(Codec.dubble.encode(a)).fold(
-              (err) => fail('Codec.double failed for [$a]: $err'),
-              (n) => expect(n.isNaN, isTrue),
-            );
-      }
-    });
+      'dubble',
+      Gen.chooseDouble(
+        -double.maxFinite,
+        double.maxFinite,
+        specials: ilist([double.infinity, double.negativeInfinity, double.nan]),
+      ),
+      (a) {
+        if (a.isFinite) {
+          expect(
+            Codec.dubble.decode(Codec.dubble.encode(a)),
+            isRight<DecodingFailure, double>(a),
+          );
+        } else {
+          Codec.dubble
+              .decode(Codec.dubble.encode(a))
+              .fold(
+                (err) => fail('Codec.double failed for [$a]: $err'),
+                (n) => expect(n.isNaN, isTrue),
+              );
+        }
+      },
+    );
 
     testCodec('duration', Gen.duration, Codec.duration);
 
-    testCodec('enumerationByIndex', Gen.chooseEnum(Vehicles.values),
-        Codec.enumerationByIndex(Vehicles.values));
+    testCodec(
+      'enumerationByIndex',
+      Gen.chooseEnum(Vehicles.values),
+      Codec.enumerationByIndex(Vehicles.values),
+    );
 
-    testCodec('enumerationByName', Gen.chooseEnum(Vehicles.values),
-        Codec.enumerationByName(Vehicles.values));
+    testCodec(
+      'enumerationByName',
+      Gen.chooseEnum(Vehicles.values),
+      Codec.enumerationByName(Vehicles.values),
+    );
 
     testCodec('integer', Gen.integer, Codec.integer);
 
     testCodec('ilist', Gen.ilistOf(Gen.chooseInt(0, 20), Gen.boolean), Codec.ilist(Codec.boolean));
 
     testCodec(
-        'imap',
-        Gen.chooseInt(0, 20)
-            .flatMap((n) => Gen.imapOfN(n, Gen.stringOf(Gen.alphaUpperChar), Gen.boolean)),
-        Codec.imapOf(KeyCodec.string, Codec.boolean));
+      'imap',
+      Gen.chooseInt(
+        0,
+        20,
+      ).flatMap((n) => Gen.imapOfN(n, Gen.stringOf(Gen.alphaUpperChar), Gen.boolean)),
+      Codec.imapOf(KeyCodec.string, Codec.boolean),
+    );
 
     testCodec('json', genJson, Codec.json);
 
     forAll('list', Gen.listOf(Gen.chooseInt(0, 20), Gen.boolean), (l) {
-      Codec.list(Codec.boolean).decode(Codec.list(Codec.boolean).encode(l)).fold(
+      Codec.list(Codec.boolean)
+          .decode(Codec.list(Codec.boolean).encode(l))
+          .fold(
             (err) => fail('Codec.list failed for [$l]: $err'),
             (a) => expect(ilist(a), ilist(l)),
           );
     });
 
     forAll('map', Gen.mapOfN(100, Gen.stringOf(Gen.alphaUpperChar), Gen.nonNegativeInt), (m) {
-      Codec.mapOf(KeyCodec.string, Codec.integer)
-          .decode(Codec.mapOf(KeyCodec.string, Codec.integer).encode(m))
-          .fold(
+      Codec.mapOf(
+        KeyCodec.string,
+        Codec.integer,
+      ).decode(Codec.mapOf(KeyCodec.string, Codec.integer).encode(m)).fold(
         (err) => fail('Codec.list failed for [$m]: $err'),
         (a) {
           expect(m.length, a.length);
@@ -82,8 +101,11 @@ void main() {
       Animal.codec,
     );
 
-    testCodec('nonEmptyIList', Gen.nonEmptyIList(Gen.positiveInt, 500),
-        Codec.nonEmptyIList(Codec.integer));
+    testCodec(
+      'nonEmptyIList',
+      Gen.nonEmptyIList(Gen.positiveInt, 500),
+      Codec.nonEmptyIList(Codec.integer),
+    );
 
     testCodec('num', Gen.oneOf([1, 3.14, -1238.12]), Codec.number);
 
@@ -105,20 +127,38 @@ void main() {
     });
 
     forAll('tuple5', Gen.integer.tuple5, (t) {
-      final d =
-          Codec.tuple5(Codec.integer, Codec.integer, Codec.integer, Codec.integer, Codec.integer);
+      final d = Codec.tuple5(
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+      );
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
     forAll('tuple6', Gen.integer.tuple6, (t) {
       final d = Codec.tuple6(
-          Codec.integer, Codec.integer, Codec.integer, Codec.integer, Codec.integer, Codec.integer);
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+      );
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
     forAll('tuple7', Gen.integer.tuple7, (t) {
-      final d = Codec.tuple7(Codec.integer, Codec.integer, Codec.integer, Codec.integer,
-          Codec.integer, Codec.integer, Codec.integer);
+      final d = Codec.tuple7(
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+        Codec.integer,
+      );
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
@@ -306,7 +346,7 @@ final class Dog extends Animal {
   static final codec = (
     'name'.as(Codec.string),
     'age'.as(Codec.integer),
-    'tailWags'.as(Codec.integer)
+    'tailWags'.as(Codec.integer),
   ).product(Dog.new, (d) => (d.name, d.age, d.tailWags));
 
   static final gen = (Gen.alphaNumString(10), Gen.integer, Gen.integer).tupled.map(Dog.new.tupled);
@@ -347,8 +387,11 @@ final class Cat extends Animal {
   @override
   int get hashCode => Object.hash(name, age, lives);
 
-  static final codec = ('name'.as(Codec.string), 'age'.as(Codec.integer), 'lives'.as(Codec.integer))
-      .product(Cat.new, (c) => (c.name, c.age, c.lives));
+  static final codec = (
+    'name'.as(Codec.string),
+    'age'.as(Codec.integer),
+    'lives'.as(Codec.integer),
+  ).product(Cat.new, (c) => (c.name, c.age, c.lives));
 
   static final gen = (Gen.alphaNumString(10), Gen.integer, Gen.integer).tupled.map(Cat.new.tupled);
 }
@@ -377,9 +420,12 @@ final class HermitCrab extends Animal {
   static final codec = (
     'name'.as(Codec.string),
     'age'.as(Codec.integer),
-    'shells'.as(Codec.integer)
+    'shells'.as(Codec.integer),
   ).product(HermitCrab.new, (hc) => (hc.name, hc.age, hc.shells));
 
-  static final gen =
-      (Gen.alphaNumString(10), Gen.integer, Gen.integer).tupled.map(HermitCrab.new.tupled);
+  static final gen = (
+    Gen.alphaNumString(10),
+    Gen.integer,
+    Gen.integer,
+  ).tupled.map(HermitCrab.new.tupled);
 }

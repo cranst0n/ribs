@@ -23,9 +23,9 @@ final class _SliceIterator<A> extends RIterator<A> {
   int _dropping;
 
   _SliceIterator(this.self, this.start, this.limit)
-      : _unbounded = limit < 0,
-        _remaining = limit,
-        _dropping = start;
+    : _unbounded = limit < 0,
+      _remaining = limit,
+      _dropping = start;
 
   @override
   bool get hasNext {

@@ -26,13 +26,12 @@ final class _State<A> {
     int? size,
     ListQueue<Deferred<Unit>>? takers,
     ListQueue<Deferred<Unit>>? offerers,
-  }) =>
-      _State(
-        heap ?? this.heap,
-        size ?? this.size,
-        takers ?? this.takers,
-        offerers ?? this.offerers,
-      );
+  }) => _State(
+    heap ?? this.heap,
+    size ?? this.size,
+    takers ?? this.takers,
+    offerers ?? this.offerers,
+  );
 }
 
 class _BoundedPQueue<A> extends PQueue<A> {
@@ -76,7 +75,7 @@ class _BoundedPQueue<A> extends PQueue<A> {
 
             return (
               _State(heap, size, takers, offerers.enqueue(offerer)),
-              poll(offerer.value().productR(() => poll(offer(a))).onCancel(cleanup.flatten()))
+              poll(offerer.value().productR(() => poll(offer(a))).onCancel(cleanup.flatten())),
             );
           }
         }).flatten();
@@ -111,8 +110,9 @@ class _BoundedPQueue<A> extends PQueue<A> {
               }
             });
 
-            final awaiter =
-                poll(taker.value().productR(() => poll(take()))).onCancel(cleanup.flatten());
+            final awaiter = poll(
+              taker.value().productR(() => poll(take())),
+            ).onCancel(cleanup.flatten());
 
             final IO<A> fulfill;
             final ListQueue<Deferred<Unit>> offerers2;
@@ -141,12 +141,16 @@ class _BoundedPQueue<A> extends PQueue<A> {
     return ref.flatModify((s) {
       return switch (s) {
         _State(:final heap, :final size, :final takers, :final offerers) when takers.nonEmpty =>
-          takers.dequeue()((taker, rest) =>
-              (_State(heap.insert(a), size + 1, rest, offerers), taker.complete(Unit()).as(true))),
-        _State(:final heap, :final size, :final takers, :final offerers) when size < capacity => (
-            _State(heap.insert(a), size + 1, takers, offerers),
-            IO.pure(true)
+          takers.dequeue()(
+            (taker, rest) => (
+              _State(heap.insert(a), size + 1, rest, offerers),
+              taker.complete(Unit()).as(true),
+            ),
           ),
+        _State(:final heap, :final size, :final takers, :final offerers) when size < capacity => (
+          _State(heap.insert(a), size + 1, takers, offerers),
+          IO.pure(true),
+        ),
         _ => (s, IO.pure(false)),
       };
     });
@@ -159,9 +163,15 @@ class _BoundedPQueue<A> extends PQueue<A> {
         _State(:final heap, :final size, :final takers, :final offerers)
             when heap.nonEmpty && offerers.isEmpty =>
           heap.take()((rest, a) => (_State(rest, size - 1, takers, offerers), IO.pure(Some(a)))),
-        _State(:final heap, :final size, :final takers, :final offerers) when heap.nonEmpty =>
-          heap.take()((rest, a) => offerers.dequeue()((release, tail) =>
-              (_State(rest, size - 1, takers, tail), release.complete(Unit()).as(Some(a))))),
+        _State(:final heap, :final size, :final takers, :final offerers) when heap.nonEmpty => heap
+            .take()(
+          (rest, a) => offerers.dequeue()(
+            (release, tail) => (
+              _State(rest, size - 1, takers, tail),
+              release.complete(Unit()).as(Some(a)),
+            ),
+          ),
+        ),
         _ => (s, IO.none<A>()),
       };
     });

@@ -18,9 +18,9 @@ class PIso<S, T, A, B> extends PLens<S, T, A, B> {
   PIso<B, A, T, S> reverse() => PIso<B, A, T, S>(reverseGet, get);
 
   PIso<S, T, C, D> andThen<C, D>(PIso<A, B, C, D> other) => PIso<S, T, C, D>(
-        (s) => other.get(get(s)),
-        (d) => reverseGet(other.reverseGet(d)),
-      );
+    (s) => other.get(get(s)),
+    (d) => reverseGet(other.reverseGet(d)),
+  );
 
   PSetter<S, T, A, B> asSetter() => this;
 }

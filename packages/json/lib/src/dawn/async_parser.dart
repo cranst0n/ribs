@@ -36,19 +36,18 @@ final class AsyncParser extends Parser with ByteBasedParser {
   factory AsyncParser({
     AsyncParserMode mode = AsyncParserMode.singleValue,
     bool multiValue = false,
-  }) =>
-      AsyncParser._(
-        mode._start,
-        0,
-        null,
-        nil(),
-        List.empty(growable: true),
-        0,
-        0,
-        false,
-        mode._value,
-        multiValue,
-      );
+  }) => AsyncParser._(
+    mode._start,
+    0,
+    null,
+    nil(),
+    List.empty(growable: true),
+    0,
+    0,
+    false,
+    mode._value,
+    multiValue,
+  );
 
   AsyncParser._(
     this._state,
@@ -73,12 +72,12 @@ final class AsyncParser extends Parser with ByteBasedParser {
   Either<ParseException, IList<Json>> absorbString(String buf) => absorb(utf8.encoder.convert(buf));
 
   Either<ParseException, IList<Json>> finalAbsorb(Uint8List buf) => absorb(buf).fold(
-        (err) => err.asLeft(),
-        (xs) => finish().fold(
-          (err) => err.asLeft(),
-          (ys) => xs.concat(ys).asRight(),
-        ),
-      );
+    (err) => err.asLeft(),
+    (xs) => finish().fold(
+      (err) => err.asLeft(),
+      (ys) => xs.concat(ys).asRight(),
+    ),
+  );
 
   Either<ParseException, IList<Json>> finalAbsorbString(String buf) =>
       finalAbsorb(utf8.encoder.convert(buf));

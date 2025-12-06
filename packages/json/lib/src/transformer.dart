@@ -16,8 +16,8 @@ abstract class JsonTransformer<A> implements StreamTransformer<A, Json> {
   static JsonTransformer<String> strings(AsyncParserMode mode) => _StringJsonTransformer(mode);
 
   JsonTransformer(AsyncParserMode mode)
-      : _parser = AsyncParser(mode: mode),
-        _controller = StreamController();
+    : _parser = AsyncParser(mode: mode),
+      _controller = StreamController();
 
   Either<ParseException, IList<Json>> absorb(A a);
 

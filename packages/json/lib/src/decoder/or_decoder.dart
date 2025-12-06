@@ -12,7 +12,9 @@ final class OrDecoder<A> extends Decoder<A> {
 
   @override
   DecodeResult<A> tryDecodeC(ACursor cursor) {
-    return decodeA.tryDecodeC(cursor).fold(
+    return decodeA
+        .tryDecodeC(cursor)
+        .fold(
           (err) => decodeB.tryDecodeC(cursor),
           (a) => a.asRight(),
         );

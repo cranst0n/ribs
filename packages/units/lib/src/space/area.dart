@@ -5,20 +5,20 @@ final class Area extends Quantity<Area> {
   Area(super.value, super.unit);
 
   Volume operator *(Length that) => switch (unit) {
-        SquareUsMiles _ => Volume.cubicUsMiles(value * that.toUsMiles.value),
-        SquareYards _ => Volume.cubicYards(value * that.toYards.value),
-        SquareFeet _ => Volume.cubicFeet(value * that.toFeet.value),
-        SquareInches _ => Volume.cubicInches(value * that.toInches.value),
-        _ => Volume.cubicMeters(toSquareMeters.value * that.toMeters.value),
-      };
+    SquareUsMiles _ => Volume.cubicUsMiles(value * that.toUsMiles.value),
+    SquareYards _ => Volume.cubicYards(value * that.toYards.value),
+    SquareFeet _ => Volume.cubicFeet(value * that.toFeet.value),
+    SquareInches _ => Volume.cubicInches(value * that.toInches.value),
+    _ => Volume.cubicMeters(toSquareMeters.value * that.toMeters.value),
+  };
 
   Length operator /(Length that) => switch (unit) {
-        SquareUsMiles _ => Length.usMiles(value / that.toUsMiles.value),
-        SquareYards _ => Length.yards(value / that.toYards.value),
-        SquareFeet _ => Length.feet(value / that.toFeet.value),
-        SquareInches _ => Length.inches(value / that.toInches.value),
-        _ => Length.meters(toSquareMeters.value / that.toMeters.value),
-      };
+    SquareUsMiles _ => Length.usMiles(value / that.toUsMiles.value),
+    SquareYards _ => Length.yards(value / that.toYards.value),
+    SquareFeet _ => Length.feet(value / that.toFeet.value),
+    SquareInches _ => Length.inches(value / that.toInches.value),
+    _ => Length.meters(toSquareMeters.value / that.toMeters.value),
+  };
 
   Area get toSquareMeters => to(squareMeters).squareMeters;
   Area get toSquareCentimeters => to(squareCentimeters).squareCentimeters;
@@ -71,12 +71,12 @@ final class SquareMeters extends AreaUnit {
 
 final class SquareCentimeters extends AreaUnit {
   const SquareCentimeters._()
-      : super('square centimeter', 'cm²', MetricSystem.Centi * MetricSystem.Centi);
+    : super('square centimeter', 'cm²', MetricSystem.Centi * MetricSystem.Centi);
 }
 
 final class SquareKilometers extends AreaUnit {
   const SquareKilometers._()
-      : super('square kilometer', 'km²', MetricSystem.Kilo * MetricSystem.Kilo);
+    : super('square kilometer', 'km²', MetricSystem.Kilo * MetricSystem.Kilo);
 }
 
 final class SquareUsMiles extends AreaUnit {

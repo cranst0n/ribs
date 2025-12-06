@@ -154,7 +154,9 @@ final class IVectorBuilder<A> {
         setLen(v5.length0 + _offset);
         a5 = _arr5(_WIDTH);
         a5![0] = _copyPrepend4(
-            _copyPrepend3(_copyPrepend2(v5._prefix1, v5.prefix2), v5.prefix3), v5.prefix4);
+          _copyPrepend3(_copyPrepend2(v5._prefix1, v5.prefix2), v5.prefix3),
+          v5.prefix4,
+        );
         Array.arraycopy(d5, 0, a5!, 1, d5.length);
         a4 = Array.copyOf(s4, _WIDTH);
         a3 = Array.copyOf(s3, _WIDTH);
@@ -176,9 +178,12 @@ final class IVectorBuilder<A> {
         setLen(v6.length0 + _offset);
         a6 = _arr6(_LASTWIDTH);
         a6![0] = _copyPrepend5(
-            _copyPrepend4(
-                _copyPrepend3(_copyPrepend2(v6._prefix1, v6.prefix2), v6.prefix3), v6.prefix4),
-            v6.prefix5);
+          _copyPrepend4(
+            _copyPrepend3(_copyPrepend2(v6._prefix1, v6.prefix2), v6.prefix3),
+            v6.prefix4,
+          ),
+          v6.prefix5,
+        );
         Array.arraycopy(d6, 0, a6!, 1, d6.length);
         a5 = Array.copyOf(s5, _WIDTH);
         a4 = Array.copyOf(s4, _WIDTH);
@@ -205,7 +210,8 @@ final class IVectorBuilder<A> {
   IVectorBuilder<A> _alignTo(int before, IVector<A> bigVector) {
     if (_len1 != 0 || _lenRest != 0) {
       throw Exception(
-          "A non-empty VectorBuilder cannot be aligned retrospectively. Please call .reset() or use a new VectorBuilder.");
+        "A non-empty VectorBuilder cannot be aligned retrospectively. Please call .reset() or use a new VectorBuilder.",
+      );
     }
 
     final (prefixLength, maxPrefixLength) = switch (bigVector) {
@@ -516,7 +522,8 @@ final class IVectorBuilder<A> {
     if (xor <= 0) {
       // level = 6 or something very unexpected happened
       throw ArgumentError(
-          'advance1($idx, $xor): a1=$a1, a2=$a2, a3=$a3, a4=$a4, a5=$a5, a6=$a6, depth=$_depth');
+        'advance1($idx, $xor): a1=$a1, a2=$a2, a3=$a3, a4=$a4, a5=$a5, a6=$a6, depth=$_depth',
+      );
     } else if (xor < _WIDTH2) {
       if (_depth <= 1) {
         a2 = _arr2(_WIDTH);
@@ -628,7 +635,18 @@ final class IVectorBuilder<A> {
       final len123 = len12 + prefix3.length * _WIDTH2;
 
       return _Vector4(
-          prefix1, len1, prefix2, len12, prefix3, len123, data, suffix3, suffix2, suffix1, realLen);
+        prefix1,
+        len1,
+        prefix2,
+        len12,
+        prefix3,
+        len123,
+        data,
+        suffix3,
+        suffix2,
+        suffix1,
+        realLen,
+      );
     } else if (len <= _WIDTH5) {
       final i1 = (len - 1) & _MASK;
       final i2 = ((len - 1) >>> _BITS) & _MASK;
@@ -648,8 +666,22 @@ final class IVectorBuilder<A> {
       final len12 = len1 + prefix2.length * _WIDTH;
       final len123 = len12 + prefix3.length * _WIDTH2;
       final len1234 = len123 + prefix4.length * _WIDTH3;
-      return _Vector5(prefix1, len1, prefix2, len12, prefix3, len123, prefix4, len1234, data,
-          suffix4, suffix3, suffix2, suffix1, realLen);
+      return _Vector5(
+        prefix1,
+        len1,
+        prefix2,
+        len12,
+        prefix3,
+        len123,
+        prefix4,
+        len1234,
+        data,
+        suffix4,
+        suffix3,
+        suffix2,
+        suffix1,
+        realLen,
+      );
     } else {
       final i1 = (len - 1) & _MASK;
       final i2 = ((len - 1) >>> _BITS) & _MASK;
@@ -673,8 +705,25 @@ final class IVectorBuilder<A> {
       final len123 = len12 + prefix3.length * _WIDTH2;
       final len1234 = len123 + prefix4.length * _WIDTH3;
       final len12345 = len1234 + prefix5.length * _WIDTH4;
-      return _Vector6(prefix1, len1, prefix2, len12, prefix3, len123, prefix4, len1234, prefix5,
-          len12345, data, suffix5, suffix4, suffix3, suffix2, suffix1, realLen);
+      return _Vector6(
+        prefix1,
+        len1,
+        prefix2,
+        len12,
+        prefix3,
+        len123,
+        prefix4,
+        len1234,
+        prefix5,
+        len12345,
+        data,
+        suffix5,
+        suffix4,
+        suffix3,
+        suffix2,
+        suffix1,
+        realLen,
+      );
     }
   }
 }

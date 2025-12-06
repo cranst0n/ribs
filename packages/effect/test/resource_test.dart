@@ -6,14 +6,14 @@ import 'package:test/test.dart';
 void main() {
   test('makes acquires non interruptible', () {
     final test = IO.ref(false).flatMap((interrupted) {
-      final fa =
-          IO.uncancelable((poll) => poll(IO.sleep(5.seconds).onCancel(interrupted.setValue(true))));
+      final fa = IO.uncancelable(
+        (poll) => poll(IO.sleep(5.seconds).onCancel(interrupted.setValue(true))),
+      );
 
-      return Resource.make(fa, (_) => IO.unit)
-          .use_()
-          .timeout(1.second)
-          .attempt()
-          .productR(() => interrupted.value());
+      return Resource.make(
+        fa,
+        (_) => IO.unit,
+      ).use_().timeout(1.second).attempt().productR(() => interrupted.value());
     });
 
     expect(test, ioSucceeded(false));
@@ -21,14 +21,14 @@ void main() {
 
   test('makes acquires non interruptible, overriding uncancelable', () {
     final test = IO.ref(false).flatMap((interrupted) {
-      final fa =
-          IO.uncancelable((poll) => poll(IO.sleep(5.seconds).onCancel(interrupted.setValue(true))));
+      final fa = IO.uncancelable(
+        (poll) => poll(IO.sleep(5.seconds).onCancel(interrupted.setValue(true))),
+      );
 
-      return Resource.make(fa, (_) => IO.unit)
-          .use_()
-          .timeout(1.second)
-          .attempt()
-          .productR(() => interrupted.value());
+      return Resource.make(
+        fa,
+        (_) => IO.unit,
+      ).use_().timeout(1.second).attempt().productR(() => interrupted.value());
     });
 
     expect(test, ioSucceeded(false));
@@ -82,11 +82,15 @@ void main() {
     final test = (flag, flag, flag, flag).tupled().flatMap((ft) {
       final (acquireFin, resourceFin, a, b) = ft;
 
-      final io = IO.uncancelable((poll) =>
-          sleep.onCancel(a.setValue(true)).productR(() => poll(sleep).onCancel(b.setValue(true))));
+      final io = IO.uncancelable(
+        (poll) =>
+            sleep.onCancel(a.setValue(true)).productR(() => poll(sleep).onCancel(b.setValue(true))),
+      );
 
-      final resource = Resource.makeFull((poll) => poll(io).onCancel(acquireFin.setValue(true)),
-          (_) => resourceFin.setValue(true));
+      final resource = Resource.makeFull(
+        (poll) => poll(io).onCancel(acquireFin.setValue(true)),
+        (_) => resourceFin.setValue(true),
+      );
 
       return resource
           .use_()

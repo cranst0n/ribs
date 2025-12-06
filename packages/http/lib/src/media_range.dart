@@ -55,13 +55,13 @@ final class MediaType extends MediaRange {
 
   @override
   MediaType withExtensions(IMap<String, String> ext) => MediaType(
-        mainType,
-        ext,
-        subType,
-        compressible: compressible,
-        binary: binary,
-        fileExtensions: fileExtensions,
-      );
+    mainType,
+    ext,
+    subType,
+    compressible: compressible,
+    binary: binary,
+    fileExtensions: fileExtensions,
+  );
 
   @override
   String toString() => '$mainType/$subType${_renderExtensions()}';
@@ -108,49 +108,73 @@ final class _Application {
   static const type = 'application';
 
   final javascript = MediaType._full(
-      type, IMap.empty(), 'javascript', _Compressible, _NotBinary, ilist(['js', 'mjs']));
+    type,
+    IMap.empty(),
+    'javascript',
+    _Compressible,
+    _NotBinary,
+    ilist(['js', 'mjs']),
+  );
 
-  final json =
-      MediaType._full(type, IMap.empty(), 'json', _Compressible, _Binary, ilist(['json', 'map']));
+  final json = MediaType._full(
+    type,
+    IMap.empty(),
+    'json',
+    _Compressible,
+    _Binary,
+    ilist(['json', 'map']),
+  );
 
   final octet_stream = MediaType._full(
-      type,
-      IMap.empty(),
-      'octet-stream',
-      _Uncompressible,
-      _Binary,
-      ilist([
-        'bin',
-        'dms',
-        'lrf',
-        'mar',
-        'so',
-        'dist',
-        'distz',
-        'pkg',
-        'bpk',
-        'dump',
-        'elc',
-        'deploy',
-        'exe',
-        'dll',
-        'deb',
-        'dmg',
-        'iso',
-        'img',
-        'msi',
-        'msp',
-        'msm',
-        'buffer'
-      ]));
+    type,
+    IMap.empty(),
+    'octet-stream',
+    _Uncompressible,
+    _Binary,
+    ilist([
+      'bin',
+      'dms',
+      'lrf',
+      'mar',
+      'so',
+      'dist',
+      'distz',
+      'pkg',
+      'bpk',
+      'dump',
+      'elc',
+      'deploy',
+      'exe',
+      'dll',
+      'deb',
+      'dmg',
+      'iso',
+      'img',
+      'msi',
+      'msp',
+      'msm',
+      'buffer',
+    ]),
+  );
 
   final pdf = MediaType._full(type, IMap.empty(), 'pdf', _Uncompressible, _Binary, ilist(['pdf']));
 
-  final xWwwFormUrlEncoded =
-      MediaType._basic(type, IMap.empty(), 'x-www-form-urlencoded', _Compressible, _NotBinary);
+  final xWwwFormUrlEncoded = MediaType._basic(
+    type,
+    IMap.empty(),
+    'x-www-form-urlencoded',
+    _Compressible,
+    _NotBinary,
+  );
 
   final xml = MediaType._full(
-      type, IMap.empty(), 'xml', _Compressible, _NotBinary, ilist(['xml', 'xsl', 'xsd', 'rng']));
+    type,
+    IMap.empty(),
+    'xml',
+    _Compressible,
+    _NotBinary,
+    ilist(['xml', 'xsl', 'xsd', 'rng']),
+  );
 
   final zip = MediaType._full(type, IMap.empty(), 'zip', _Uncompressible, _Binary, ilist(['zip']));
 }
@@ -166,8 +190,14 @@ final class _Audio {
 
   final aac = MediaType._basic(type, IMap.empty(), 'aac', _Compressible, _Binary);
 
-  final plain = MediaType._full(type, IMap.empty(), 'mpeg', _Uncompressible, _Binary,
-      ilist(['mpga', 'mp2', 'mp2a', 'mp3', 'm2a', 'm3a']));
+  final plain = MediaType._full(
+    type,
+    IMap.empty(),
+    'mpeg',
+    _Uncompressible,
+    _Binary,
+    ilist(['mpga', 'mp2', 'mp2a', 'mp3', 'm2a', 'm3a']),
+  );
 }
 
 final class _Image {
@@ -182,15 +212,33 @@ final class _Image {
   final gif = MediaType._full(type, IMap.empty(), 'gif', _Uncompressible, _Binary, ilist(['gif']));
 
   final jpeg = MediaType._full(
-      type, IMap.empty(), 'jpeg', _Uncompressible, _Binary, ilist(['jpeg', 'jpg', 'jpe']));
+    type,
+    IMap.empty(),
+    'jpeg',
+    _Uncompressible,
+    _Binary,
+    ilist(['jpeg', 'jpg', 'jpe']),
+  );
 
   final png = MediaType._full(type, IMap.empty(), 'png', _Uncompressible, _Binary, ilist(['png']));
 
   final svg_xml = MediaType._full(
-      type, IMap.empty(), 'svg_xml', _Compressible, _Binary, ilist(['svg', 'svgz']));
+    type,
+    IMap.empty(),
+    'svg_xml',
+    _Compressible,
+    _Binary,
+    ilist(['svg', 'svgz']),
+  );
 
-  final tiff =
-      MediaType._full(type, IMap.empty(), 'tiff', _Uncompressible, _Binary, ilist(['tif', 'tiff']));
+  final tiff = MediaType._full(
+    type,
+    IMap.empty(),
+    'tiff',
+    _Uncompressible,
+    _Binary,
+    ilist(['tif', 'tiff']),
+  );
 }
 
 final class _Multipart {
@@ -219,10 +267,22 @@ final class _Text {
   final csv = MediaType._full(type, IMap.empty(), 'csv', _Compressible, _NotBinary, ilist(['csv']));
 
   final html = MediaType._full(
-      type, IMap.empty(), 'html', _Compressible, _NotBinary, ilist(['html', 'htm', 'shtml']));
+    type,
+    IMap.empty(),
+    'html',
+    _Compressible,
+    _NotBinary,
+    ilist(['html', 'htm', 'shtml']),
+  );
 
-  final plain = MediaType._full(type, IMap.empty(), 'plain', _Compressible, _NotBinary,
-      ilist(['txt', 'text', 'conf', 'def', 'list', 'log', 'in', 'ini']));
+  final plain = MediaType._full(
+    type,
+    IMap.empty(),
+    'plain',
+    _Compressible,
+    _NotBinary,
+    ilist(['txt', 'text', 'conf', 'def', 'list', 'log', 'in', 'ini']),
+  );
 }
 
 final class _Video {
@@ -235,10 +295,22 @@ final class _Video {
   static const type = 'video';
 
   final mp4 = MediaType._full(
-      type, IMap.empty(), 'mp4', _Uncompressible, _Binary, ilist(['mp4', 'mp4v', 'mpg4']));
+    type,
+    IMap.empty(),
+    'mp4',
+    _Uncompressible,
+    _Binary,
+    ilist(['mp4', 'mp4v', 'mpg4']),
+  );
 
-  final mpeg = MediaType._full(type, IMap.empty(), 'mpeg', _Uncompressible, _Binary,
-      ilist(['mpeg', 'mpg', 'mpe', 'm1v', 'm2v']));
+  final mpeg = MediaType._full(
+    type,
+    IMap.empty(),
+    'mpeg',
+    _Uncompressible,
+    _Binary,
+    ilist(['mpeg', 'mpg', 'mpe', 'm1v', 'm2v']),
+  );
 }
 
 const _Compressible = true;

@@ -95,10 +95,10 @@ void main() {
             .flatMap((f) => f.join())
             .voided()
             .flatMap((_) {
-          return r.value().map((result) {
-            return result == 1;
-          });
-        });
+              return r.value().map((result) {
+                return result == 1;
+              });
+            });
       });
 
       await expectLater(op, ioSucceeded(true));
@@ -115,8 +115,9 @@ void main() {
               final (poll, _) = t;
               return (
                 1,
-                poll(IO.canceled.productR(() => IO.exec(() => failed = true)))
-                    .onCancel(IO.exec(() => passed = true))
+                poll(
+                  IO.canceled.productR(() => IO.exec(() => failed = true)),
+                ).onCancel(IO.exec(() => passed = true)),
               );
             })
             .start()
@@ -148,24 +149,28 @@ void main() {
   });
 
   test('access successful set', () {
-    final test =
-        Ref.of(0).flatMap((ref) => ref.access().flatMap((t) => t.$2(42)).product(ref.value()));
+    final test = Ref.of(
+      0,
+    ).flatMap((ref) => ref.access().flatMap((t) => t.$2(42)).product(ref.value()));
 
     expect(test, ioSucceeded((true, 42)));
   });
 
   test('access failed set', () {
-    final test = Ref.of(0).flatMap((ref) => ref
-        .access()
-        .flatMap((t) => ref.setValue(10).flatMap((_) => t.$2(42)))
-        .product(ref.value()));
+    final test = Ref.of(0).flatMap(
+      (ref) => ref
+          .access()
+          .flatMap((t) => ref.setValue(10).flatMap((_) => t.$2(42)))
+          .product(ref.value()),
+    );
 
     expect(test, ioSucceeded((false, 10)));
   });
 
   test('tryModify', () {
-    final test = Ref.of(0)
-        .flatMap((ref) => ref.tryModify((x) => (x + 3, x.toString())).product(ref.value()));
+    final test = Ref.of(
+      0,
+    ).flatMap((ref) => ref.tryModify((x) => (x + 3, x.toString())).product(ref.value()));
 
     expect(test, ioSucceeded(('0'.some, 3)));
   });

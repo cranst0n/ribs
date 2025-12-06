@@ -42,15 +42,14 @@ sealed class Json {
     Function1<String, A> jsonString,
     Function1<IList<Json>, A> jsonArray,
     Function1<JsonObject, A> jsonObject,
-  ) =>
-      switch (this) {
-        JNull _ => jsonNull(),
-        final JBoolean b => jsonBoolean(b.value),
-        final JNumber n => jsonNumber(n.value),
-        final JString s => jsonString(s.value),
-        final JArray a => jsonArray(a.value),
-        final JObject o => jsonObject(o.value),
-      };
+  ) => switch (this) {
+    JNull _ => jsonNull(),
+    final JBoolean b => jsonBoolean(b.value),
+    final JNumber n => jsonNumber(n.value),
+    final JString s => jsonString(s.value),
+    final JArray a => jsonArray(a.value),
+    final JObject o => jsonObject(o.value),
+  };
 
   Json dropNullValues() => mapObject((a) => a.filter((keyValue) => !keyValue.$2.isNull));
 
@@ -61,13 +60,17 @@ sealed class Json {
 
   Json deepMerge(Json that) => (asObject(), that.asObject())
       .mapN(
-        (lhs, rhs) => fromJsonObject(lhs.toIList().foldLeft(
-              rhs,
-              (acc, kv) => rhs.get(kv.$1).fold(
-                    () => acc.add(kv.$1, kv.$2),
-                    (r) => acc.add(kv.$1, kv.$2.deepMerge(r)),
-                  ),
-            )),
+        (lhs, rhs) => fromJsonObject(
+          lhs.toIList().foldLeft(
+            rhs,
+            (acc, kv) => rhs
+                .get(kv.$1)
+                .fold(
+                  () => acc.add(kv.$1, kv.$2),
+                  (r) => acc.add(kv.$1, kv.$2.deepMerge(r)),
+                ),
+          ),
+        ),
       )
       .getOrElse(() => that);
 
@@ -116,13 +119,13 @@ sealed class Json {
 
   @override
   int get hashCode => fold(
-        () => 0,
-        (boolean) => boolean.hashCode,
-        (number) => number.hashCode,
-        (string) => string.hashCode,
-        (ilist) => ilist.hashCode,
-        (object) => object.keys.hashCode * object.values.hashCode,
-      );
+    () => 0,
+    (boolean) => boolean.hashCode,
+    (number) => number.hashCode,
+    (string) => string.hashCode,
+    (ilist) => ilist.hashCode,
+    (object) => object.keys.hashCode * object.values.hashCode,
+  );
 }
 
 final class JNull extends Json {
@@ -595,8 +598,7 @@ abstract class JsonFolder<A> {
     Function1<String, A> onString,
     Function1<IList<Json>, A> onArray,
     Function1<JsonObject, A> onObject,
-  ) =>
-      _JsonFolderF(onNull, onBoolean, onNumber, onString, onArray, onObject);
+  ) => _JsonFolderF(onNull, onBoolean, onNumber, onString, onArray, onObject);
 }
 
 class _JsonFolderF<A> extends JsonFolder<A> {
@@ -607,8 +609,14 @@ class _JsonFolderF<A> extends JsonFolder<A> {
   final Function1<IList<Json>, A> _onArrayF;
   final Function1<JsonObject, A> _onObjectF;
 
-  _JsonFolderF(this._onNullF, this._onBooleanF, this._onNumberF, this._onStringF, this._onArrayF,
-      this._onObjectF);
+  _JsonFolderF(
+    this._onNullF,
+    this._onBooleanF,
+    this._onNumberF,
+    this._onStringF,
+    this._onArrayF,
+    this._onObjectF,
+  );
 
   @override
   A onNull() => _onNullF();

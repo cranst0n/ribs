@@ -67,8 +67,7 @@ enum Status {
   InsufficientStorage._(507, 'Insufficient Storage'),
   LoopDetected._(508, 'Loop Detected'),
   NotExtended._(510, 'Not Extended'),
-  NetworkAuthenticationRequired._(511, "Network Authentication Required"),
-  ;
+  NetworkAuthenticationRequired._(511, "Network Authentication Required");
 
   final int code;
   final String reason;
@@ -76,19 +75,19 @@ enum Status {
 
   const Status._(this.code, this.reason, {this.isEntityAllowed = true});
 
-  static Either<String, Status> fromInt(int code) => ilist(values)
-      .find((status) => status.code == code)
-      .toRight(() => 'Invalid Status Code: $code');
+  static Either<String, Status> fromInt(int code) => ilist(
+    values,
+  ).find((status) => status.code == code).toRight(() => 'Invalid Status Code: $code');
 
   bool get isSuccess => responseClass.isSuccess;
 
   ResponseClass get responseClass => switch (code) {
-        _ when code < 200 => ResponseClass.informational,
-        _ when code < 300 => ResponseClass.successful,
-        _ when code < 400 => ResponseClass.redirection,
-        _ when code < 500 => ResponseClass.clientError,
-        _ => ResponseClass.serverError,
-      };
+    _ when code < 200 => ResponseClass.informational,
+    _ when code < 300 => ResponseClass.successful,
+    _ when code < 400 => ResponseClass.redirection,
+    _ when code < 500 => ResponseClass.clientError,
+    _ => ResponseClass.serverError,
+  };
 }
 
 enum ResponseClass {
@@ -96,8 +95,7 @@ enum ResponseClass {
   successful(true),
   redirection(true),
   clientError(false),
-  serverError(false),
-  ;
+  serverError(false);
 
   final bool isSuccess;
 

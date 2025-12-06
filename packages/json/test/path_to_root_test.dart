@@ -9,8 +9,8 @@ void main() {
           'a',
           Json.arr([
             Json.str('string'),
-            Json.obj([('b', Json.number(1))])
-          ])
+            Json.obj([('b', Json.number(1))]),
+          ]),
         ),
         ('c', Json.True),
       ]);

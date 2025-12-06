@@ -36,16 +36,16 @@ void main() {
               .delay(() => q.take().unsafeRunFuture().then((value) => futureValue = Option(value)))
               .start()
               .flatMap((ff) {
-            return ff.joinWithNever().flatMap((f) {
-              expect(futureValue, isNone());
+                return ff.joinWithNever().flatMap((f) {
+                  expect(futureValue, isNone());
 
-              return q.offer(2).flatMap((_) {
-                return IO.fromFuture(IO.pure(f)).flatMap((v2) {
-                  return expectIO(v1, 1).productR(() => expectIO(v2, isSome(2)));
+                  return q.offer(2).flatMap((_) {
+                    return IO.fromFuture(IO.pure(f)).flatMap((v2) {
+                      return expectIO(v1, 1).productR(() => expectIO(v2, isSome(2)));
+                    });
+                  });
                 });
               });
-            });
-          });
         });
       });
     });
@@ -59,9 +59,10 @@ void main() {
     IO<Unit> producer(PQueue<int> q, int n) =>
         n > 0 ? q.offer(count - n).productR(() => producer(q, n - 1)) : IO.unit;
 
-    IO<int> consumer(PQueue<int> q, int n, ListQueue<int> acc) => n > 0
-        ? q.take().flatMap((a) => consumer(q, n - 1, acc.enqueue(a)))
-        : IO.pure(acc.foldLeft(0, (a, b) => a + b));
+    IO<int> consumer(PQueue<int> q, int n, ListQueue<int> acc) =>
+        n > 0
+            ? q.take().flatMap((a) => consumer(q, n - 1, acc.enqueue(a)))
+            : IO.pure(acc.foldLeft(0, (a, b) => a + b));
 
     final test = PQueue.bounded(Order.ints, 0).flatMap((q) {
       return producer(q, count).start().flatMap((p) {

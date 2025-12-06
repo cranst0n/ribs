@@ -9,8 +9,9 @@ import 'arbitraries.dart';
 void main() {
   group('IDN', () {
     forAll('supports any hostname', genHostname, (hostname) {
-      final representable =
-          hostname.labels.forall((l) => !l.toString().toLowerCase().startsWith('xn--'));
+      final representable = hostname.labels.forall(
+        (l) => !l.toString().toLowerCase().startsWith('xn--'),
+      );
 
       if (representable) {
         final idn = IDN.fromHostname(hostname);
@@ -36,7 +37,9 @@ void main() {
 
       final expected = Option.unless(
         () => idn.hostname.toString().length > 253 ~/ 2,
-        () => IDN.fromString(i2).getOrElse(
+        () => IDN
+            .fromString(i2)
+            .getOrElse(
               () => throw Exception('IDN overall length test failed: $idn'),
             ),
       );

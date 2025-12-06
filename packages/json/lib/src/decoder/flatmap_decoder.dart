@@ -8,14 +8,18 @@ final class FlatMapDecoder<A, B> extends Decoder<B> {
   FlatMapDecoder(this.decodeA, this.f);
 
   @override
-  DecodeResult<B> decodeC(HCursor cursor) => decodeA.decodeC(cursor).fold(
+  DecodeResult<B> decodeC(HCursor cursor) => decodeA
+      .decodeC(cursor)
+      .fold(
         (failure) => failure.asLeft(),
         (a) => f(a).decodeC(cursor),
       );
 
   @override
   DecodeResult<B> tryDecodeC(ACursor cursor) {
-    return decodeA.tryDecodeC(cursor).fold(
+    return decodeA
+        .tryDecodeC(cursor)
+        .fold(
           (failure) => failure.asLeft(),
           (a) => f(a).tryDecodeC(cursor),
         );

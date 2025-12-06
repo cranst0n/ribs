@@ -23,8 +23,16 @@ final class _Map4<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V
   final K key4;
   final V value4;
 
-  const _Map4(this.key1, this.value1, this.key2, this.value2, this.key3, this.value3, this.key4,
-      this.value4);
+  const _Map4(
+    this.key1,
+    this.value1,
+    this.key2,
+    this.value2,
+    this.key3,
+    this.value3,
+    this.key4,
+    this.value4,
+  );
 
   @override
   bool contains(K key) => key == key1 || key == key2 || key == key3 || key == key4;
@@ -47,12 +55,12 @@ final class _Map4<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V
 
   @override
   Option<V> get(K key) => switch (key) {
-        _ when key == key1 => Some(value1),
-        _ when key == key2 => Some(value2),
-        _ when key == key3 => Some(value3),
-        _ when key == key4 => Some(value4),
-        _ => none(),
-      };
+    _ when key == key1 => Some(value1),
+    _ when key == key2 => Some(value2),
+    _ when key == key3 => Some(value3),
+    _ when key == key4 => Some(value4),
+    _ => none(),
+  };
 
   @override
   RIterator<(K, V)> get iterator =>

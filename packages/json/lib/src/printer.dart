@@ -67,27 +67,26 @@ final class Printer {
     String? colonRight,
     bool? dropNullValues,
     bool? escapeNonAscii,
-  }) =>
-      Printer(
-        indent: indent ?? this.indent,
-        lbraceLeft: lbraceLeft ?? this.lbraceLeft,
-        lbraceRight: lbraceRight ?? this.lbraceRight,
-        rbraceLeft: rbraceLeft ?? this.rbraceLeft,
-        rbraceRight: rbraceRight ?? this.rbraceRight,
-        lbracketLeft: lbracketLeft ?? this.lbracketLeft,
-        lbracketRight: lbracketRight ?? this.lbracketRight,
-        rbracketLeft: rbracketLeft ?? this.rbracketLeft,
-        rbracketRight: rbracketRight ?? this.rbracketRight,
-        lrbracketsEmpty: lrbracketsEmpty ?? this.lrbracketsEmpty,
-        arrayCommaLeft: arrayCommaLeft ?? this.arrayCommaLeft,
-        arrayCommaRight: arrayCommaRight ?? this.arrayCommaRight,
-        objectCommaLeft: objectCommaLeft ?? this.objectCommaLeft,
-        objectCommaRight: objectCommaRight ?? this.objectCommaRight,
-        colonLeft: colonLeft ?? this.colonLeft,
-        colonRight: colonRight ?? this.colonRight,
-        dropNullValues: dropNullValues ?? this.dropNullValues,
-        escapeNonAscii: escapeNonAscii ?? this.escapeNonAscii,
-      );
+  }) => Printer(
+    indent: indent ?? this.indent,
+    lbraceLeft: lbraceLeft ?? this.lbraceLeft,
+    lbraceRight: lbraceRight ?? this.lbraceRight,
+    rbraceLeft: rbraceLeft ?? this.rbraceLeft,
+    rbraceRight: rbraceRight ?? this.rbraceRight,
+    lbracketLeft: lbracketLeft ?? this.lbracketLeft,
+    lbracketRight: lbracketRight ?? this.lbracketRight,
+    rbracketLeft: rbracketLeft ?? this.rbracketLeft,
+    rbracketRight: rbracketRight ?? this.rbracketRight,
+    lrbracketsEmpty: lrbracketsEmpty ?? this.lrbracketsEmpty,
+    arrayCommaLeft: arrayCommaLeft ?? this.arrayCommaLeft,
+    arrayCommaRight: arrayCommaRight ?? this.arrayCommaRight,
+    objectCommaLeft: objectCommaLeft ?? this.objectCommaLeft,
+    objectCommaRight: objectCommaRight ?? this.objectCommaRight,
+    colonLeft: colonLeft ?? this.colonLeft,
+    colonRight: colonRight ?? this.colonRight,
+    dropNullValues: dropNullValues ?? this.dropNullValues,
+    escapeNonAscii: escapeNonAscii ?? this.escapeNonAscii,
+  );
 
   _PiecesAtDepth get _pieces =>
       indent.isEmpty ? _ConstantPieces(_Pieces.fromPrinter(this)) : _MemoizedPieces(this);
@@ -99,16 +98,17 @@ final class Printer {
   static Printer spaces4 = indented('    ');
 
   static Printer indented(String indent) => Printer(
-      indent: indent,
-      lbraceRight: '\n',
-      rbraceLeft: '\n',
-      lbracketRight: '\n',
-      rbracketLeft: '\n',
-      lrbracketsEmpty: '\n',
-      arrayCommaRight: '\n',
-      objectCommaRight: '\n',
-      colonLeft: ' ',
-      colonRight: ' ');
+    indent: indent,
+    lbraceRight: '\n',
+    rbraceLeft: '\n',
+    lbracketRight: '\n',
+    rbracketLeft: '\n',
+    lrbracketsEmpty: '\n',
+    arrayCommaRight: '\n',
+    objectCommaRight: '\n',
+    colonLeft: ' ',
+    colonRight: ' ',
+  );
 }
 
 class _PrintFolder extends JsonFolder<void> {
@@ -366,7 +366,15 @@ final class _MemoizedPieces extends _PiecesAtDepth {
     final colons = builder.toString();
 
     return _Pieces(
-        lBraces, rBraces, lBrackets, rBrackets, lrEmptyBrackets, arrayCommas, objectCommas, colons);
+      lBraces,
+      rBraces,
+      lBrackets,
+      rBrackets,
+      lrEmptyBrackets,
+      arrayCommas,
+      objectCommas,
+      colons,
+    );
   }
 
   void addIndentation(StringBuffer builder, String s, int depth) {

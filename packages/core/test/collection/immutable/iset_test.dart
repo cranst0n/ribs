@@ -122,8 +122,9 @@ void main() {
       expect(iset({-1, -2, 3}).forall((x) => x > 0), isFalse);
     });
 
-    forAll('foreach', Gen.ilistOf(Gen.chooseInt(0, 100), Gen.integer).map((l) => l.toISet()),
-        (aSet) {
+    forAll('foreach', Gen.ilistOf(Gen.chooseInt(0, 100), Gen.integer).map((l) => l.toISet()), (
+      aSet,
+    ) {
       var count = 0;
       aSet.foreach((_) => count += 1);
       expect(count, aSet.size);

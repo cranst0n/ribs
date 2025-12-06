@@ -16,13 +16,12 @@ class AppConfig {
     Version? version,
     DBConfig? dbConfig,
     Languages? languages,
-  }) =>
-      AppConfig(
-        baseDir ?? this.baseDir,
-        version ?? this.version,
-        dbConfig ?? this.dbConfig,
-        languages ?? this.languages,
-      );
+  }) => AppConfig(
+    baseDir ?? this.baseDir,
+    version ?? this.version,
+    dbConfig ?? this.dbConfig,
+    languages ?? this.languages,
+  );
 
   @override
   String toString() => 'AppConfig($baseDir, $version, $dbConfig,$languages)';
@@ -31,28 +30,36 @@ class AppConfig {
     '/tmp',
     '1.0.2',
     DBConfig(Credentials('user', 'pass'), 1234, 'dbhost'.some),
-    Languages(nel(Language('en', 'English'), [
-      Language('es', 'Spanish'),
-      Language('fr', 'French'),
-      Language('de', 'German'),
-    ])),
+    Languages(
+      nel(Language('en', 'English'), [
+        Language('es', 'Spanish'),
+        Language('fr', 'French'),
+        Language('de', 'German'),
+      ]),
+    ),
   );
 
   static final versionG = Getter<AppConfig, Version>((cfg) => cfg.version);
-  static final baseDirS =
-      Setter<AppConfig, String>((f) => (cfg) => cfg.copy(baseDir: f(cfg.baseDir)));
+  static final baseDirS = Setter<AppConfig, String>(
+    (f) => (cfg) => cfg.copy(baseDir: f(cfg.baseDir)),
+  );
 
-  static final dbConfigL =
-      Lens<AppConfig, DBConfig>((cfg) => cfg.dbConfig, (db) => (app) => app.copy(dbConfig: db));
+  static final dbConfigL = Lens<AppConfig, DBConfig>(
+    (cfg) => cfg.dbConfig,
+    (db) => (app) => app.copy(dbConfig: db),
+  );
   static final dbConfigG = Getter<AppConfig, DBConfig>((aC) => aC.dbConfig);
-  static final dbConfigS =
-      Setter<AppConfig, DBConfig>((f) => (cfg) => cfg.copy(dbConfig: f(cfg.dbConfig)));
+  static final dbConfigS = Setter<AppConfig, DBConfig>(
+    (f) => (cfg) => cfg.copy(dbConfig: f(cfg.dbConfig)),
+  );
 
   static final dbPortG = dbConfigG.andThenG(DBConfig.portG);
   static final dbPortS = dbConfigS.andThenS(DBConfig.portS);
 
   static final languagesL = Lens<AppConfig, Languages>(
-      (cfg) => cfg.languages, (lang) => (cfg) => cfg.copy(languages: lang));
+    (cfg) => cfg.languages,
+    (lang) => (cfg) => cfg.copy(languages: lang),
+  );
 
   static final supportedLanguages = languagesL.andThenL(Languages.supportedL);
 }
@@ -68,12 +75,11 @@ class DBConfig {
     Credentials? credentials,
     int? port,
     Option<String>? host,
-  }) =>
-      DBConfig(
-        credentials ?? this.credentials,
-        port ?? this.port,
-        host ?? this.host,
-      );
+  }) => DBConfig(
+    credentials ?? this.credentials,
+    port ?? this.port,
+    host ?? this.host,
+  );
 
   @override
   String toString() => 'DBConfig($credentials, $port, $host)';
@@ -81,8 +87,10 @@ class DBConfig {
   static final portG = Getter<DBConfig, int>((cfg) => cfg.port);
   static final portS = Setter<DBConfig, int>((f) => (cfg) => cfg.copy(port: f(cfg.port)));
 
-  static final hostL =
-      Lens<DBConfig, Option<String>>((cfg) => cfg.host, (h) => (cfg) => cfg.copy(host: h));
+  static final hostL = Lens<DBConfig, Option<String>>(
+    (cfg) => cfg.host,
+    (h) => (cfg) => cfg.copy(host: h),
+  );
 }
 
 class Credentials {
@@ -94,11 +102,10 @@ class Credentials {
   Credentials copy({
     String? username,
     String? password,
-  }) =>
-      Credentials(
-        username ?? this.username,
-        password ?? this.password,
-      );
+  }) => Credentials(
+    username ?? this.username,
+    password ?? this.password,
+  );
 
   @override
   String toString() => 'Credentials($username, $password)';
@@ -126,8 +133,7 @@ class Languages {
 
   Languages copy({
     NonEmptyIList<Language>? supported,
-  }) =>
-      Languages(supported ?? this.supported);
+  }) => Languages(supported ?? this.supported);
 
   @override
   String toString() => 'Languages($supported)';
@@ -136,18 +142,20 @@ class Languages {
   static Lens<Languages, Option<Language>> replaceLang(String langCode) =>
       Lens<Languages, Option<Language>>(
         (langs) => langs.supported.find((a) => a.code == langCode),
-        (langOpt) => (langs) => langOpt.fold(
-            () => langs,
-            (lang) => langs.copy(
-                  supported: langs.supported.map((a) => a.code != langCode ? a : lang),
-                )),
+        (langOpt) =>
+            (langs) => langOpt.fold(
+              () => langs,
+              (lang) => langs.copy(
+                supported: langs.supported.map((a) => a.code != langCode ? a : lang),
+              ),
+            ),
       );
 
   static final Lens<Languages, NonEmptyIList<Language>> supportedL =
       Lens<Languages, NonEmptyIList<Language>>(
-    (langs) => langs.supported,
-    (supported) => (langs) => langs.copy(supported: supported),
-  );
+        (langs) => langs.supported,
+        (supported) => (langs) => langs.copy(supported: supported),
+      );
 }
 
 class Language {
@@ -159,8 +167,7 @@ class Language {
   Language copy({
     String? code,
     String? comment,
-  }) =>
-      Language(code ?? this.code, comment ?? this.comment);
+  }) => Language(code ?? this.code, comment ?? this.comment);
 
   @override
   String toString() => 'Language($code, $comment)';

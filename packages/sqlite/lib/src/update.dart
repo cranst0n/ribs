@@ -9,12 +9,14 @@ final class Update<A> {
 
   const Update(this.raw, this.write);
 
-  UpdateStatement update(A a) => UpdateStatement((db) => IO.exec(() {
-        db.execute(
-          raw,
-          write.setParameter(IStatementParameters.empty(), 0, a).params.toList(),
-        );
-      }));
+  UpdateStatement update(A a) => UpdateStatement(
+    (db) => IO.exec(() {
+      db.execute(
+        raw,
+        write.setParameter(IStatementParameters.empty(), 0, a).params.toList(),
+      );
+    }),
+  );
 
   UpdateStatement updateMany(RIterable<A> as) {
     return UpdateStatement((db) {

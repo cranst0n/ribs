@@ -23,10 +23,10 @@ sealed class Outcome<A> {
   /// [Canceled], raise an error if the outcome is [Errored] or return the
   /// successful value if the outcome is [Succeeded].
   IO<A> embed(IO<A> onCancel) => fold(
-        () => onCancel,
-        (err) => IO.raiseError(err),
-        (a) => IO.pure(a),
-      );
+    () => onCancel,
+    (err) => IO.raiseError(err),
+    (a) => IO.pure(a),
+  );
 
   /// Returns an [IO] that will never complete if the outcome is a [Canceled].
   IO<A> embedNever() => embed(IO.never());
@@ -62,10 +62,10 @@ sealed class Outcome<A> {
 
   @override
   String toString() => fold(
-        () => 'Canceled',
-        (err) => 'Errored($err)',
-        (value) => 'Succeeded($value)',
-      );
+    () => 'Canceled',
+    (err) => 'Errored($err)',
+    (value) => 'Succeeded($value)',
+  );
 
   @override
   bool operator ==(Object other);
@@ -86,8 +86,7 @@ final class Succeeded<A> extends Outcome<A> {
     Function0<B> canceled,
     Function1<RuntimeException, B> errored,
     Function1<A, B> succeeded,
-  ) =>
-      succeeded(value);
+  ) => succeeded(value);
 
   @override
   bool operator ==(Object other) =>
@@ -109,8 +108,7 @@ final class Errored<A> extends Outcome<A> {
     Function0<B> canceled,
     Function1<RuntimeException, B> errored,
     Function1<A, B> succeeded,
-  ) =>
-      errored(error);
+  ) => errored(error);
 
   @override
   bool operator ==(Object other) =>
@@ -129,8 +127,7 @@ final class Canceled<A> extends Outcome<A> {
     Function0<B> canceled,
     Function1<RuntimeException, B> errored,
     Function1<Never, B> succeeded,
-  ) =>
-      canceled();
+  ) => canceled();
 
   @override
   bool operator ==(Object other) => other is Canceled;

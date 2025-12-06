@@ -5,16 +5,16 @@ import 'package:ribs_sqlite/ribs_sqlite.dart';
 abstract mixin class Put<A> {
   static Put<A> instance<A>(
     Function3<IStatementParameters, int, A, IStatementParameters> f,
-  ) =>
-      _PutF(f);
+  ) => _PutF(f);
 
   IStatementParameters setParameter(IStatementParameters params, int n, A a);
 
   Put<B> contramap<B>(Function1<B, A> f) => _PutFContramap(this, f);
 
   static final Put<BigInt> bigInt = _genericPut();
-  static final Put<IList<int>> blob =
-      _genericPut<List<int>>().contramap<IList<int>>((ilist) => ilist.toList());
+  static final Put<IList<int>> blob = _genericPut<List<int>>().contramap<IList<int>>(
+    (ilist) => ilist.toList(),
+  );
   static final Put<bool> boolean = integer.contramap((b) => b ? 1 : 0);
   static final Put<DateTime> dateTime = string.contramap((dt) => dt.toIso8601String());
   static final Put<double> dubble = _genericPut();

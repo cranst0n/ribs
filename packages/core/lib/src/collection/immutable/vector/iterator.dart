@@ -36,10 +36,10 @@ final class _NewVectorIterator<A> extends RIterator<A> {
   int sliceEnd;
 
   _NewVectorIterator(this.v, this.totalLength, this.sliceCount)
-      : a1 = v._prefix1,
-        a1len = v._prefix1.length,
-        len1 = totalLength,
-        sliceEnd = v._prefix1.length;
+    : a1 = v._prefix1,
+      a1len = v._prefix1.length,
+      len1 = totalLength,
+      sliceEnd = v._prefix1.length;
 
   @override
   bool get hasNext => len1 > i1;

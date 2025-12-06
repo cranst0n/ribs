@@ -165,8 +165,19 @@ final class _VectorSliceBuilder {
           final len12 = len1 + (prefix2.length * _WIDTH);
           final len123 = len12 + (prefix3.length * _WIDTH2);
 
-          return _Vector4(prefix1, len1, prefix2, len12, prefix3, len123, data4, suffix3, suffix2,
-              suffix1, len);
+          return _Vector4(
+            prefix1,
+            len1,
+            prefix2,
+            len12,
+            prefix3,
+            len123,
+            data4,
+            suffix3,
+            suffix2,
+            suffix1,
+            len,
+          );
 
         case 5:
           final prefix2 = prefixOr2(2, _empty2);
@@ -180,8 +191,22 @@ final class _VectorSliceBuilder {
           final len123 = len12 + (prefix3.length * _WIDTH2);
           final len1234 = len123 + (prefix4.length * _WIDTH3);
 
-          return _Vector5(prefix1, len1, prefix2, len12, prefix3, len123, prefix4, len1234, data5,
-              suffix4, suffix3, suffix2, suffix1, len);
+          return _Vector5(
+            prefix1,
+            len1,
+            prefix2,
+            len12,
+            prefix3,
+            len123,
+            prefix4,
+            len1234,
+            data5,
+            suffix4,
+            suffix3,
+            suffix2,
+            suffix1,
+            len,
+          );
 
         case 6:
           final prefix2 = prefixOr2(2, _empty2);
@@ -197,8 +222,25 @@ final class _VectorSliceBuilder {
           final len123 = len12 + (prefix3.length * _WIDTH2);
           final len1234 = len123 + (prefix4.length * _WIDTH3);
           final len12345 = len1234 + (prefix5.length * _WIDTH4);
-          return _Vector6(prefix1, len1, prefix2, len12, prefix3, len123, prefix4, len1234, prefix5,
-              len12345, data6, suffix5, suffix4, suffix3, suffix2, suffix1, len);
+          return _Vector6(
+            prefix1,
+            len1,
+            prefix2,
+            len12,
+            prefix3,
+            len123,
+            prefix4,
+            len1234,
+            prefix5,
+            len12345,
+            data6,
+            suffix5,
+            suffix4,
+            suffix3,
+            suffix2,
+            suffix1,
+            len,
+          );
 
         default:
           throw ArgumentError.value(resultDim, 'resultDim');

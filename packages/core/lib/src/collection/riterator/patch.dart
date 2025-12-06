@@ -28,8 +28,8 @@ final class _PatchIterator<A> extends RIterator<A> {
   int _state;
 
   _PatchIterator(this.self, this.from, this.patchElems, this.replaced)
-      : _origElems = self,
-        _state = from > 0 ? from : 0;
+    : _origElems = self,
+      _state = from > 0 ? from : 0;
 
   @override
   bool get hasNext {

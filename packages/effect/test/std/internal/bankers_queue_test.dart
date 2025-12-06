@@ -36,32 +36,35 @@ void main() {
 BankersQueue<A> buildQueue<A>(IList<A> elems) =>
     elems.foldLeft(BankersQueue.empty(), (heap, e) => heap.pushBack(e));
 
-IList<A> toListFromFront<A>(BankersQueue<A> queue) => queue
-    .tryPopFront()((rest, hd) => hd.fold(() => nil(), (a) => toListFromFront(rest).prepended(a)));
+IList<A> toListFromFront<A>(BankersQueue<A> queue) => queue.tryPopFront()(
+  (rest, hd) => hd.fold(() => nil(), (a) => toListFromFront(rest).prepended(a)),
+);
 
-IList<A> toListFromBack<A>(BankersQueue<A> queue) => queue
-    .tryPopBack()((rest, hd) => hd.fold(() => nil(), (a) => toListFromBack(rest).prepended(a)));
+IList<A> toListFromBack<A>(BankersQueue<A> queue) => queue.tryPopBack()(
+  (rest, hd) => hd.fold(() => nil(), (a) => toListFromBack(rest).prepended(a)),
+);
 
 sealed class Op<A> {
   static Gen<Op<A>> gen<A>(Gen<A> genA) => Gen.frequency(
-        [
-          (1, Gen.constant(PopFront())),
-          (1, Gen.constant(PopBack())),
-          (3, genA.map(PushFront.new)),
-          (3, genA.map(PushBack.new)),
-        ],
-      );
+    [
+      (1, Gen.constant(PopFront())),
+      (1, Gen.constant(PopBack())),
+      (3, genA.map(PushFront.new)),
+      (3, genA.map(PushBack.new)),
+    ],
+  );
 
   static Gen<IList<Op<A>>> genList<A>(Gen<A> genA) => Gen.ilistOfN(100, gen(genA));
 
   static BankersQueue<A> fold<A>(IList<Op<A>> ops) => ops.foldLeft(
-      BankersQueue.empty<A>(),
-      (queue, op) => switch (op) {
-            PushFront(value: final a) => queue.pushFront(a),
-            PushBack(value: final a) => queue.pushBack(a),
-            PopFront _ => queue.nonEmpty ? queue.tryPopFront().$1 : queue,
-            PopBack _ => queue.nonEmpty ? queue.tryPopBack().$1 : queue,
-          });
+    BankersQueue.empty<A>(),
+    (queue, op) => switch (op) {
+      PushFront(value: final a) => queue.pushFront(a),
+      PushBack(value: final a) => queue.pushBack(a),
+      PopFront _ => queue.nonEmpty ? queue.tryPopFront().$1 : queue,
+      PopBack _ => queue.nonEmpty ? queue.tryPopBack().$1 : queue,
+    },
+  );
 }
 
 final class PushFront<A> extends Op<A> {

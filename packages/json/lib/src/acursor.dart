@@ -16,9 +16,9 @@ abstract class ACursor {
 
   IList<CursorOp> history() {
     IList<CursorOp> loop(ACursor? c) => Option(c?.lastOp).fold(
-          () => IList.empty(),
-          (op) => loop(c?.lastCursor).prepended(op),
-        );
+      () => IList.empty(),
+      (op) => loop(c?.lastCursor).prepended(op),
+    );
 
     return loop(this);
   }
@@ -92,41 +92,46 @@ abstract class ACursor {
           return switch (lastOp) {
             Field _ => loop(cursor.lastCursor, acc.prependElem(PathElem.objectKey(lastOp.key))),
             DownField _ =>
-              // We tried to move down, and then that failed, so the field was missing.
-              loop(cursor.lastCursor, acc.prependElem(PathElem.objectKey(lastOp.key))),
+            // We tried to move down, and then that failed, so the field was missing.
+            loop(cursor.lastCursor, acc.prependElem(PathElem.objectKey(lastOp.key))),
             DownArray _ =>
-              // We tried to move into an array, but it must have been empty.
-              loop(cursor.lastCursor, acc.prependElem(PathElem.arrayIndex(0))),
+            // We tried to move into an array, but it must have been empty.
+            loop(cursor.lastCursor, acc.prependElem(PathElem.arrayIndex(0))),
             DownN _ =>
-              // We tried to move into an array at index N, but there was no element there.
-              loop(cursor.lastCursor, acc.prependElem(PathElem.arrayIndex(lastOp.n))),
+            // We tried to move into an array at index N, but there was no element there.
+            loop(cursor.lastCursor, acc.prependElem(PathElem.arrayIndex(lastOp.n))),
             MoveLeft _ =>
-              // We tried to move to before the start of the array.
-              loop(cursor.lastCursor, acc.prependElem(PathElem.arrayIndex(-1))),
-            MoveRight _ => lastCursor is ArrayCursor
-                ? // We tried to move to past the end of the array.
-                loop(
+            // We tried to move to before the start of the array.
+            loop(cursor.lastCursor, acc.prependElem(PathElem.arrayIndex(-1))),
+            MoveRight _ =>
+              lastCursor is ArrayCursor
+                  ? // We tried to move to past the end of the array.
+                  loop(
                     lastCursor.parent,
                     acc.prependElem(PathElem.arrayIndex(lastCursor.indexValue + 1)),
                   )
-                : // Invalid state, skip for now.
-                loop(cursor.lastCursor, acc),
+                  : // Invalid state, skip for now.
+                  loop(cursor.lastCursor, acc),
             _ =>
-              // CursorOp.MoveUp or CursorOp.DeleteGoParent, both are move up
-              // events.
-              //
-              // Recalling we are in a failed branch here, this should only
-              // fail if we are already at the top of the tree or if the
-              // cursor state is broken, in either
-              // case this is the only valid action to take.
-              loop(cursor.lastCursor, acc),
+            // CursorOp.MoveUp or CursorOp.DeleteGoParent, both are move up
+            // events.
+            //
+            // Recalling we are in a failed branch here, this should only
+            // fail if we are already at the top of the tree or if the
+            // cursor state is broken, in either
+            // case this is the only valid action to take.
+            loop(cursor.lastCursor, acc),
           };
         } else {
           return switch (cursor) {
-            ArrayCursor _ =>
-              loop(cursor.parent, acc.prependElem(PathElem.arrayIndex(cursor.indexValue))),
-            ObjectCursor _ =>
-              loop(cursor.parent, acc.prependElem(PathElem.objectKey(cursor.keyValue))),
+            ArrayCursor _ => loop(
+              cursor.parent,
+              acc.prependElem(PathElem.arrayIndex(cursor.indexValue)),
+            ),
+            ObjectCursor _ => loop(
+              cursor.parent,
+              acc.prependElem(PathElem.objectKey(cursor.keyValue)),
+            ),
             TopCursor _ => acc,
             _ => loop(cursor.lastCursor, acc),
           };

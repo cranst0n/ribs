@@ -14,8 +14,10 @@ final class UpdateQuery<A, B> {
   UpdateQueryStatement<A, B, B> update(A a) {
     return UpdateQueryStatement(this, (db) {
       return IO.delay(() {
-        final resultSet =
-            db.select(raw, write.setParameter(IStatementParameters.empty(), 0, a).params.toList());
+        final resultSet = db.select(
+          raw,
+          write.setParameter(IStatementParameters.empty(), 0, a).params.toList(),
+        );
 
         return read.unsafeGet(resultSet.first, 0);
       });

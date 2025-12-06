@@ -18,9 +18,9 @@ final class Port extends Ordered<Port> {
 
   @override
   bool operator ==(Object that) => switch (that) {
-        final Port that => value == that.value,
-        _ => false,
-      };
+    final Port that => value == that.value,
+    _ => false,
+  };
 
   @override
   int get hashCode => Object.hashAll([value, 'Port'.hashCode]);

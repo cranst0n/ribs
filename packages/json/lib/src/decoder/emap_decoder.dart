@@ -12,7 +12,9 @@ final class EmapDecoder<A, B> extends Decoder<B> {
 
   @override
   DecodeResult<B> tryDecodeC(ACursor cursor) {
-    return aDecoder.tryDecodeC(cursor).fold(
+    return aDecoder
+        .tryDecodeC(cursor)
+        .fold(
           (failure) => failure.asLeft(),
           (a) => f(a).leftMap((str) => DecodingFailure.fromString(str, cursor)),
         );

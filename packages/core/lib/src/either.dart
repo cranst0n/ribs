@@ -43,8 +43,7 @@ sealed class Either<A, B> implements Monad<B> {
     Function0<bool> test,
     Function0<B> ifTrue,
     Function0<A> ifFalse,
-  ) =>
-      test() ? right(ifTrue()) : left(ifFalse());
+  ) => test() ? right(ifTrue()) : left(ifFalse());
 
   /// Lifts the given value into a [Right].
   static Either<A, B> pure<A, B>(B b) => Right(b);

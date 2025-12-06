@@ -39,11 +39,11 @@ void main() {
       expect(
         Json.obj([
           ('key1', Json.True),
-          ('key2', Json.obj([('subkey', Json.Null)]))
+          ('key2', Json.obj([('subkey', Json.Null)])),
         ]).dropNullValues(),
         Json.obj([
           ('key1', Json.True),
-          ('key2', Json.obj([('subkey', Json.Null)]))
+          ('key2', Json.obj([('subkey', Json.Null)])),
         ]),
       );
     });
@@ -67,7 +67,7 @@ void main() {
       expect(
         Json.obj([
           ('key1', Json.True),
-          ('key2', Json.obj([('subkey', Json.Null)]))
+          ('key2', Json.obj([('subkey', Json.Null)])),
         ]).deepDropNullValues(),
         Json.obj([('key1', Json.True), ('key2', Json.obj([]))]),
       );
@@ -255,8 +255,10 @@ void main() {
       expect(Json.Null.mapArray((a) => a.reverse()), Json.Null);
       expect(Json.True.mapArray((a) => a.reverse()), Json.True);
       expect(Json.number(0).mapArray((a) => a.reverse()), Json.number(0));
-      expect(Json.arr([Json.True, Json.False]).mapArray((a) => a.reverse()),
-          Json.arr([Json.False, Json.True]));
+      expect(
+        Json.arr([Json.True, Json.False]).mapArray((a) => a.reverse()),
+        Json.arr([Json.False, Json.True]),
+      );
       expect(Json.obj([]).mapArray((a) => a.reverse()), Json.obj([]));
     });
 
@@ -303,19 +305,19 @@ void main() {
       var objs = 0;
 
       JsonFolder<void> folder() => JsonFolder.of(
-            () => nulls += 1,
-            (b) => bools += 1,
-            (n) => nums += 1,
-            (s) => strings += 1,
-            (arr) {
-              arrs += 1;
-              arr.foreach((a) => a.foldWith(folder()));
-            },
-            (obj) {
-              objs += 1;
-              obj.values.foreach((a) => a.foldWith(folder()));
-            },
-          );
+        () => nulls += 1,
+        (b) => bools += 1,
+        (n) => nums += 1,
+        (s) => strings += 1,
+        (arr) {
+          arrs += 1;
+          arr.foreach((a) => a.foldWith(folder()));
+        },
+        (obj) {
+          objs += 1;
+          obj.values.foreach((a) => a.foldWith(folder()));
+        },
+      );
 
       final json = Json.obj([
         ('a', Json.Null),
@@ -329,10 +331,10 @@ void main() {
             (
               '2',
               Json.arr([
-                Json.arr([Json.Null, Json.number(-1), Json.str('hi')])
-              ])
-            )
-          ])
+                Json.arr([Json.Null, Json.number(-1), Json.str('hi')]),
+              ]),
+            ),
+          ]),
         ),
       ]);
 

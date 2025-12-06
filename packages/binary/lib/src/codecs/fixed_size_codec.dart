@@ -17,11 +17,17 @@ final class FixedSizeCodec<A> extends Codec<A> {
   }
 
   @override
-  Either<Err, BitVector> encode(A a) =>
-      codec.encode(a).map((a) => a.padTo(size)).flatMap((bv) => bv.size == size
-          ? Either.right<Err, BitVector>(bv)
-          : Either.left<Err, BitVector>(
-              Err.general('$bv requires ${bv.size} bytes but is fixed size of $size bits')));
+  Either<Err, BitVector> encode(A a) => codec
+      .encode(a)
+      .map((a) => a.padTo(size))
+      .flatMap(
+        (bv) =>
+            bv.size == size
+                ? Either.right<Err, BitVector>(bv)
+                : Either.left<Err, BitVector>(
+                  Err.general('$bv requires ${bv.size} bytes but is fixed size of $size bits'),
+                ),
+      );
 
   @override
   String? get description => 'fixedSize($size, $codec)';

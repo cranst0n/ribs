@@ -8,12 +8,14 @@ void main(List<String> args) async {
   String todoUri(int id) => 'https://jsonplaceholder.typicode.com/todos/$id';
 
   final prog = Client.sdk()
-      .use((client) => IO.both(
-            client.fetchString(
-                usersUri, EntityDecoder.jsonAs(Codec.ilist(User.codec))),
-            IList.range(1, 10, 2).map(todoUri).parTraverseIO((uri) =>
-                client.fetchString(uri, EntityDecoder.jsonAs(Todo.codec))),
-          ))
+      .use(
+        (client) => IO.both(
+          client.fetchString(usersUri, EntityDecoder.jsonAs(Codec.ilist(User.codec))),
+          IList.range(1, 10, 2)
+              .map(todoUri)
+              .parTraverseIO((uri) => client.fetchString(uri, EntityDecoder.jsonAs(Todo.codec))),
+        ),
+      )
       .timed()
       .start()
       // .flatTap((fiber) => IO.cede.productR(() => fiber.cancel()))

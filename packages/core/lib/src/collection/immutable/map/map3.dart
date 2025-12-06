@@ -44,11 +44,11 @@ final class _Map3<K, V>
 
   @override
   Option<V> get(K key) => switch (key) {
-        _ when key == key1 => Some(value1),
-        _ when key == key2 => Some(value2),
-        _ when key == key3 => Some(value3),
-        _ => none(),
-      };
+    _ when key == key1 => Some(value1),
+    _ when key == key2 => Some(value2),
+    _ when key == key3 => Some(value3),
+    _ => none(),
+  };
 
   @override
   RIterator<(K, V)> get iterator =>

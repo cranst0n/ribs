@@ -48,7 +48,7 @@ extension IListTuple3Ops<A, B, C> on IList<(A, B, C)> {
   /// items from each tuple element of this list. The third list is all the
   /// third items from each tuple element of this list.
   (IList<A>, IList<B>, IList<C>) unzip() => foldLeft(
-        (nil<A>(), nil<B>(), nil<C>()),
-        (acc, abc) => (acc.$1.appended(abc.$1), acc.$2.appended(abc.$2), acc.$3.appended(abc.$3)),
-      );
+    (nil<A>(), nil<B>(), nil<C>()),
+    (acc, abc) => (acc.$1.appended(abc.$1), acc.$2.appended(abc.$2), acc.$3.appended(abc.$3)),
+  );
 }

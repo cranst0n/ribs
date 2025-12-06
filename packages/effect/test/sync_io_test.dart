@@ -42,9 +42,9 @@ void main() {
 
   test('handleErrorWith', () {
     expect(
-      SyncIO.raiseError<int>(RuntimeException('boom!'))
-          .handleErrorWith((a) => SyncIO.pure(42))
-          .unsafeRunSync(),
+      SyncIO.raiseError<int>(
+        RuntimeException('boom!'),
+      ).handleErrorWith((a) => SyncIO.pure(42)).unsafeRunSync(),
       42,
     );
   });
@@ -61,10 +61,11 @@ void main() {
     expect(SyncIO.pure(42).redeem((_) => 'bad', (_) => 'good').unsafeRunSync(), 'good');
 
     expect(
-        SyncIO.raiseError<int>(RuntimeException('boom'))
-            .redeem((_) => 'bad', (_) => 'good')
-            .unsafeRunSync(),
-        'bad');
+      SyncIO.raiseError<int>(
+        RuntimeException('boom'),
+      ).redeem((_) => 'bad', (_) => 'good').unsafeRunSync(),
+      'bad',
+    );
   });
 
   test('redeemWith', () {

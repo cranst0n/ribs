@@ -35,8 +35,7 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
   SyncIO<B> redeemWith<B>(
     Function1<RuntimeException, SyncIO<B>> recover,
     Function1<A, SyncIO<B>> bind,
-  ) =>
-      attempt().flatMap((a) => a.fold(recover, bind));
+  ) => attempt().flatMap((a) => a.fold(recover, bind));
 
   SyncIO<Unit> voided() => map((_) => Unit());
 
@@ -63,9 +62,10 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
           error = RuntimeException(e, s);
         }
 
-        cur0 = error == null
-            ? succeeded(conts, objectState, result, 0)
-            : failed(conts, objectState, error, 0);
+        cur0 =
+            error == null
+                ? succeeded(conts, objectState, result, 0)
+                : failed(conts, objectState, error, 0);
       } else if (cur0 is _Error) {
         cur0 = failed(conts, objectState, cur0.value, 0);
       } else if (cur0 is _Map) {

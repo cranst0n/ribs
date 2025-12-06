@@ -33,26 +33,29 @@ final class PathToRoot {
   static Either<String, PathToRoot> fromHistory(IList<CursorOp> ops) {
     final initial = Either.right<String, IList<PathElem>>(IList.empty());
 
-    return ops.reverse().foldLeft<Either<String, IList<PathElem>>>(
-      initial,
-      (acc, op) {
-        return acc.flatMap((acc) {
-          final result = _onMoveLeft(acc, op)
-              .orElse(() => _onMoveRight(acc, op))
-              .orElse(() => _onMoveUp(acc, op))
-              .orElse(() => _onField(acc, op))
-              .orElse(() => _onDownField(acc, op))
-              .orElse(() => _onDownArray(acc, op))
-              .orElse(() => _onDownN(acc, op))
-              .orElse(() => _onDeleteGoParent(acc, op));
+    return ops
+        .reverse()
+        .foldLeft<Either<String, IList<PathElem>>>(
+          initial,
+          (acc, op) {
+            return acc.flatMap((acc) {
+              final result = _onMoveLeft(acc, op)
+                  .orElse(() => _onMoveRight(acc, op))
+                  .orElse(() => _onMoveUp(acc, op))
+                  .orElse(() => _onField(acc, op))
+                  .orElse(() => _onDownField(acc, op))
+                  .orElse(() => _onDownArray(acc, op))
+                  .orElse(() => _onDownN(acc, op))
+                  .orElse(() => _onDeleteGoParent(acc, op));
 
-          return result.fold(
-            () => Left('Invalid cursor history state: $op'),
-            (a) => a.fold((a) => a.asLeft(), (x) => x.asRight()),
-          );
-        });
-      },
-    ).map(PathToRoot.new);
+              return result.fold(
+                () => Left('Invalid cursor history state: $op'),
+                (a) => a.fold((a) => a.asLeft(), (x) => x.asRight()),
+              );
+            });
+          },
+        )
+        .map(PathToRoot.new);
   }
 
   static Option<Either<String, IList<PathElem>>> _onMoveLeft(

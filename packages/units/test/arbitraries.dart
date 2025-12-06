@@ -8,14 +8,18 @@ final _intValue = Gen.chooseInt(1, 1000);
 // Electro
 
 final electricPotentialUnit = Gen.oneOf(ElectricPotential.units);
-final electricPotential =
-    (_doubleValue, electricPotentialUnit).tupled.map(ElectricPotential.new.tupled);
+final electricPotential = (
+  _doubleValue,
+  electricPotentialUnit,
+).tupled.map(ElectricPotential.new.tupled);
 
 // Information
 
 final informationUnit = Gen.oneOf(Information.units);
-final information =
-    (_intValue, informationUnit).tupled.map((t) => Information(t.$1.toDouble(), t.$2));
+final information = (
+  _intValue,
+  informationUnit,
+).tupled.map((t) => Information(t.$1.toDouble(), t.$2));
 
 final dataRateUnit = Gen.oneOf(DataRate.units);
 final dataRate = (_doubleValue, dataRateUnit).tupled.map(DataRate.new.tupled);
@@ -59,9 +63,8 @@ final time = (_doubleValue, timeUnit).tupled.map(Time.new.tupled);
 
 Gen<String> quantityString<A extends Quantity<A>>(
   Iterable<UnitOfMeasure<A>> units,
-) =>
-    (
-      Gen.positiveInt,
-      Gen.oneOf(['', ' ']),
-      Gen.oneOf(units.expand((element) => [element.symbol, element.unit, '${element.unit}s']))
-    ).tupled.map((tuple) => '${tuple.$1}${tuple.$2}${tuple.$3}');
+) => (
+  Gen.positiveInt,
+  Gen.oneOf(['', ' ']),
+  Gen.oneOf(units.expand((element) => [element.symbol, element.unit, '${element.unit}s'])),
+).tupled.map((tuple) => '${tuple.$1}${tuple.$2}${tuple.$3}');

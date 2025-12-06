@@ -23,12 +23,15 @@ void main() {
       expect(Cidr.fromIpAndMask(ip, mask), Cidr.of(ip, prefixBits));
     });
 
-    forAll('parsing from string: only masks with a valid length return a CIDR',
-        (genIp, Gen.nonNegativeInt).tupled, (tuple) {
-      final (ip, prefixBits) = tuple;
+    forAll(
+      'parsing from string: only masks with a valid length return a CIDR',
+      (genIp, Gen.nonNegativeInt).tupled,
+      (tuple) {
+        final (ip, prefixBits) = tuple;
 
-      final cidr = Cidr.fromString('$ip/$prefixBits');
-      expect(cidr.isDefined, 0 <= prefixBits && prefixBits <= ip.bitSize);
-    });
+        final cidr = Cidr.fromString('$ip/$prefixBits');
+        expect(cidr.isDefined, 0 <= prefixBits && prefixBits <= ip.bitSize);
+      },
+    );
   });
 }

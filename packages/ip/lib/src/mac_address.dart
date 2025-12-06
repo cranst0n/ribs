@@ -8,9 +8,9 @@ final class MacAddress extends Ordered<MacAddress> {
   const MacAddress._(this._bytes);
 
   static Option<MacAddress> fromByteList(Iterable<int> bytes) => Option.when(
-        () => bytes.length == 6,
-        () => MacAddress._(Uint8List.fromList(bytes.toList())),
-      );
+    () => bytes.length == 6,
+    () => MacAddress._(Uint8List.fromList(bytes.toList())),
+  );
 
   static MacAddress fromBytes(
     int b0,
@@ -19,12 +19,11 @@ final class MacAddress extends Ordered<MacAddress> {
     int b3,
     int b4,
     int b5,
-  ) =>
-      MacAddress._(
-        Uint8List.fromList(
-          [b0, b1, b2, b3, b4, b5].map((b) => b & 0xff).toList(),
-        ),
-      );
+  ) => MacAddress._(
+    Uint8List.fromList(
+      [b0, b1, b2, b3, b4, b5].map((b) => b & 0xff).toList(),
+    ),
+  );
 
   static MacAddress fromInt(int value) {
     final bytes = Uint8List(6);
@@ -70,8 +69,9 @@ final class MacAddress extends Ordered<MacAddress> {
   int toInt() {
     var result = 0;
 
-    Iterable<int>.generate(_bytes.length)
-        .forEach((i) => result = (result << 8) | (0x0ff & _bytes[i]));
+    Iterable<int>.generate(
+      _bytes.length,
+    ).forEach((i) => result = (result << 8) | (0x0ff & _bytes[i]));
 
     return result;
   }
@@ -91,9 +91,9 @@ final class MacAddress extends Ordered<MacAddress> {
 
   @override
   bool operator ==(Object that) => switch (that) {
-        final MacAddress that => ilist(_bytes).zip(ilist(that._bytes)).forall((t) => t.$1 == t.$2),
-        _ => false,
-      };
+    final MacAddress that => ilist(_bytes).zip(ilist(that._bytes)).forall((t) => t.$1 == t.$2),
+    _ => false,
+  };
 
   @override
   int get hashCode => Object.hashAll(_bytes);
