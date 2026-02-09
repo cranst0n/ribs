@@ -1,25 +1,20 @@
 import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-IMultiDict<K, V> imultidict<K, V>(Iterable<(K, V)> as) =>
-    IMultiDict.fromDartIterable(as);
+IMultiDict<K, V> imultidict<K, V>(Iterable<(K, V)> as) => IMultiDict.fromDartIterable(as);
 
 @immutable
-final class IMultiDict<K, V>
-    with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMultiDict<K, V> {
+final class IMultiDict<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMultiDict<K, V> {
   final IMap<K, ISet<V>> _elems;
 
   IMultiDict._(this._elems);
 
   static IMultiDict<K, V> empty<K, V>() => IMultiDict._(IMap.empty());
 
-  static IMultiDict<K, V> from<K, V>(RIterableOnce<(K, V)> elems) =>
-      switch (elems) {
+  static IMultiDict<K, V> from<K, V>(RIterableOnce<(K, V)> elems) => switch (elems) {
         final IMultiDict<K, V> md => md,
-        _ => IMultiDict._(elems
-            .toIList()
-            .groupMap((kv) => kv.$1, (kv) => kv.$2)
-            .mapValues((l) => l.toISet())),
+        _ => IMultiDict._(
+            elems.toIList().groupMap((kv) => kv.$1, (kv) => kv.$2).mapValues((l) => l.toISet())),
       };
 
   static IMultiDict<K, V> fromDart<K, V>(Map<K, V> m) =>
@@ -51,16 +46,13 @@ final class IMultiDict<K, V>
   IMultiDict<K, V> dropRight(int n) => IMultiDict.from(super.dropRight(n));
 
   @override
-  IMultiDict<K, V> dropWhile(Function1<(K, V), bool> p) =>
-      IMultiDict.from(super.dropWhile(p));
+  IMultiDict<K, V> dropWhile(Function1<(K, V), bool> p) => IMultiDict.from(super.dropWhile(p));
 
   @override
-  IMultiDict<K, V> filter(Function1<(K, V), bool> p) =>
-      IMultiDict.from(super.filter(p));
+  IMultiDict<K, V> filter(Function1<(K, V), bool> p) => IMultiDict.from(super.filter(p));
 
   @override
-  IMultiDict<K, V> filterNot(Function1<(K, V), bool> p) =>
-      IMultiDict.from(super.filterNot(p));
+  IMultiDict<K, V> filterNot(Function1<(K, V), bool> p) => IMultiDict.from(super.filterNot(p));
 
   @override
   IMultiDict<K, V> filterSets(Function1<(K, RSet<V>), bool> p) =>
@@ -74,8 +66,7 @@ final class IMultiDict<K, V>
       super.groupBy(f).mapValues(IMultiDict.from);
 
   @override
-  RIterator<IMultiDict<K, V>> grouped(int size) =>
-      super.grouped(size).map(IMultiDict.from);
+  RIterator<IMultiDict<K, V>> grouped(int size) => super.grouped(size).map(IMultiDict.from);
 
   @override
   IMultiDict<K, V> init() => IMultiDict.from(super.init());
@@ -99,8 +90,7 @@ final class IMultiDict<K, V>
   RMap<K, ISet<V>> get sets => _elems;
 
   @override
-  IMultiDict<K, V> slice(int from, int until) =>
-      IMultiDict.from(super.slice(from, until));
+  IMultiDict<K, V> slice(int from, int until) => IMultiDict.from(super.slice(from, until));
 
   @override
   RIterator<IMultiDict<K, V>> sliding(int size, [int step = 1]) =>
@@ -131,8 +121,7 @@ final class IMultiDict<K, V>
   IMultiDict<K, V> takeRight(int n) => IMultiDict.from(super.takeRight(n));
 
   @override
-  IMultiDict<K, V> takeWhile(Function1<(K, V), bool> p) =>
-      IMultiDict.from(super.takeWhile(p));
+  IMultiDict<K, V> takeWhile(Function1<(K, V), bool> p) => IMultiDict.from(super.takeWhile(p));
 
   @override
   IMultiDict<K, V> tapEach<U>(Function1<(K, V), U> f) {

@@ -30,8 +30,7 @@ void main() {
 
   test('basic', () async {
     await Client.sdk().use((client) {
-      return client
-          .requestString('https://postman-echo.com/get?foo1=bar1&foo2=bar2');
+      return client.requestString('https://postman-echo.com/get?foo1=bar1&foo2=bar2');
     }).unsafeRunFuture();
   }, skip: true);
 
@@ -89,9 +88,8 @@ void main() {
 
     final test = Client.sdk().use((client) {
       return Backpressured.create(client, 1).flatMap((client) {
-        return IList.tabulate(5, (_) => req()).parTraverseIO((req) => client
-            .request(req)
-            .flatTap((resp) => IO.println('Response: $resp')));
+        return IList.tabulate(5, (_) => req()).parTraverseIO(
+            (req) => client.request(req).flatTap((resp) => IO.println('Response: $resp')));
       });
     });
 

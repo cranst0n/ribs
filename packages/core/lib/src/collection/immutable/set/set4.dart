@@ -22,8 +22,7 @@ class _Set4<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   const _Set4(this.elem1, this.elem2, this.elem3, this.elem4);
 
   @override
-  bool contains(A elem) =>
-      elem == elem1 || elem == elem2 || elem == elem3 || elem == elem4;
+  bool contains(A elem) => elem == elem1 || elem == elem2 || elem == elem3 || elem == elem4;
 
   @override
   ISet<A> excl(A elem) {
@@ -41,8 +40,7 @@ class _Set4<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   }
 
   @override
-  bool exists(Function1<A, bool> p) =>
-      p(elem1) || p(elem2) || p(elem3) || p(elem4);
+  bool exists(Function1<A, bool> p) => p(elem1) || p(elem2) || p(elem3) || p(elem4);
 
   @override
   ISet<A> filter(Function1<A, bool> p) {
@@ -113,8 +111,7 @@ class _Set4<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   }
 
   @override
-  bool forall(Function1<A, bool> p) =>
-      p(elem1) && p(elem2) && p(elem3) && p(elem4);
+  bool forall(Function1<A, bool> p) => p(elem1) && p(elem2) && p(elem3) && p(elem4);
 
   @override
   A get head => elem1;

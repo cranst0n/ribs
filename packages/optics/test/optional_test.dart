@@ -44,8 +44,8 @@ void main() {
     });
 
     test('andThenO', () {
-      final doubleSecond = second.andThenO(
-          Optional<int, int>((a) => a.asRight(), (a) => (b) => a * b));
+      final doubleSecond =
+          second.andThenO(Optional<int, int>((a) => a.asRight(), (a) => (b) => a * b));
 
       expect(doubleSecond.modify((x) => x)(a), ilist([1, 4, 3]));
     });

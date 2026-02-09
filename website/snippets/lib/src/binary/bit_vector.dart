@@ -24,8 +24,7 @@ final bitsD = BitVector.high(10); // 10 bits all set to 1
 void snippet2() {
   // bitvector-2
 
-  final bits =
-      BitVector.bits([true, false, true, true, false, false, true, true]);
+  final bits = BitVector.bits([true, false, true, true, false, false, true, true]);
 
   print(bits.toBin()); // 10110011
   print('0x${bits.toHex()}'); // 0xb3

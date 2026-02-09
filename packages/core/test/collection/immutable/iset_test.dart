@@ -122,8 +122,7 @@ void main() {
       expect(iset({-1, -2, 3}).forall((x) => x > 0), isFalse);
     });
 
-    forAll('foreach',
-        Gen.ilistOf(Gen.chooseInt(0, 100), Gen.integer).map((l) => l.toISet()),
+    forAll('foreach', Gen.ilistOf(Gen.chooseInt(0, 100), Gen.integer).map((l) => l.toISet()),
         (aSet) {
       var count = 0;
       aSet.foreach((_) => count += 1);
@@ -167,8 +166,7 @@ void main() {
 
     test('mkString', () {
       expect(iset<int>({}).mkString(sep: ','), '');
-      expect(
-          iset({1, 2, 3}).mkString(start: '[', sep: '|', end: '>'), '[1|2|3>');
+      expect(iset({1, 2, 3}).mkString(start: '[', sep: '|', end: '>'), '[1|2|3>');
     });
 
     test('reduceOption', () {
@@ -179,10 +177,8 @@ void main() {
 
     test('removedAll', () {
       expect(iset<int>({}).removedAll(iset([1, 2, 3])), iset<int>({}));
-      expect(
-          iset<int>({2, 4, 6}).removedAll(iset([1, 2, 3])), iset<int>({4, 6}));
-      expect(
-          iset<int>({1, 2, 3}).removedAll(iset([1, 2, 3, 1])), iset<int>({}));
+      expect(iset<int>({2, 4, 6}).removedAll(iset([1, 2, 3])), iset<int>({4, 6}));
+      expect(iset<int>({1, 2, 3}).removedAll(iset([1, 2, 3, 1])), iset<int>({}));
     });
 
     test('subsetOf', () {
@@ -213,12 +209,12 @@ void main() {
     });
 
     forAll(
-        'size/emptines',
-        Gen.chooseInt(0, 100)
-            .map((n) => IList.tabulate(n, identity))
-            .map((a) => a.toISet()), (aSet) {
-      expect(aSet.size > 0, aSet.isNotEmpty);
-      expect(aSet.size == 0, aSet.isEmpty);
-    });
+      'size/emptines',
+      Gen.chooseInt(0, 100).map((n) => IList.tabulate(n, identity)).map((a) => a.toISet()),
+      (aSet) {
+        expect(aSet.size > 0, aSet.isNotEmpty);
+        expect(aSet.size == 0, aSet.isEmpty);
+      },
+    );
   });
 }

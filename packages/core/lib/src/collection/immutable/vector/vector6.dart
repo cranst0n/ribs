@@ -75,16 +75,15 @@ final class _Vector6<A> extends _BigVector<A> {
         }
       } else if (idx >= len1234) {
         final io = idx - len1234;
-        return prefix5[io >>> _BITS4]![(io >>> _BITS3) & _MASK]![
-            (io >>> _BITS2) & _MASK]![(io >>> _BITS) & _MASK]![io & _MASK] as A;
+        return prefix5[io >>> _BITS4]![(io >>> _BITS3) & _MASK]![(io >>> _BITS2) & _MASK]![
+            (io >>> _BITS) & _MASK]![io & _MASK] as A;
       } else if (idx >= len123) {
         final io = idx - len123;
-        return prefix4[io >>> _BITS3]![(io >>> _BITS2) & _MASK]![
-            (io >>> _BITS) & _MASK]![io & _MASK] as A;
+        return prefix4[io >>> _BITS3]![(io >>> _BITS2) & _MASK]![(io >>> _BITS) & _MASK]![
+            io & _MASK] as A;
       } else if (idx >= len12) {
         final io = idx - len12;
-        return prefix3[io >>> _BITS2]![(io >>> _BITS) & _MASK]![io & _MASK]
-            as A;
+        return prefix3[io >>> _BITS2]![(io >>> _BITS) & _MASK]![io & _MASK] as A;
       } else if (idx >= len1) {
         final io = idx - len1;
         return prefix2[io >>> _BITS]![io & _MASK] as A;
@@ -115,8 +114,7 @@ final class _Vector6<A> extends _BigVector<A> {
       );
     } else if (suffix4.length < _WIDTH - 1) {
       return _copy(
-        suffix4: _copyAppend4(
-            suffix4, _copyAppend3(suffix3, _copyAppend2(suffix2, suffix1))),
+        suffix4: _copyAppend4(suffix4, _copyAppend3(suffix3, _copyAppend2(suffix2, suffix1))),
         suffix3: _empty3,
         suffix2: _empty2,
         suffix1: _wrap1(elem),
@@ -125,9 +123,7 @@ final class _Vector6<A> extends _BigVector<A> {
     } else if (suffix5.length < _WIDTH - 1) {
       return _copy(
         suffix5: _copyAppend5(
-            suffix5,
-            _copyAppend4(suffix4,
-                _copyAppend3(suffix3, _copyAppend2(suffix2, suffix1)))),
+            suffix5, _copyAppend4(suffix4, _copyAppend3(suffix3, _copyAppend2(suffix2, suffix1)))),
         suffix4: _empty4,
         suffix3: _empty3,
         suffix2: _empty2,
@@ -138,10 +134,8 @@ final class _Vector6<A> extends _BigVector<A> {
       return _copy(
         data6: _copyAppend6(
             data6,
-            _copyAppend5(
-                suffix5,
-                _copyAppend4(suffix4,
-                    _copyAppend3(suffix3, _copyAppend2(suffix2, suffix1))))),
+            _copyAppend5(suffix5,
+                _copyAppend4(suffix4, _copyAppend3(suffix3, _copyAppend2(suffix2, suffix1))))),
         suffix5: _empty5,
         suffix4: _empty4,
         suffix3: _empty3,
@@ -227,8 +221,7 @@ final class _Vector6<A> extends _BigVector<A> {
         len12: 1,
         prefix3: _empty3,
         len123: 1,
-        prefix4: _copyPrepend4(
-            _copyPrepend3(_copyPrepend2(_prefix1, prefix2), prefix3), prefix4),
+        prefix4: _copyPrepend4(_copyPrepend3(_copyPrepend2(_prefix1, prefix2), prefix3), prefix4),
         len1234: len1234 + 1,
         len12345: len12345 + 1,
         length0: length0 + 1,
@@ -244,9 +237,7 @@ final class _Vector6<A> extends _BigVector<A> {
         prefix4: _empty4,
         len1234: 1,
         prefix5: _copyPrepend5(
-            _copyPrepend4(
-                _copyPrepend3(_copyPrepend2(_prefix1, prefix2), prefix3),
-                prefix4),
+            _copyPrepend4(_copyPrepend3(_copyPrepend2(_prefix1, prefix2), prefix3), prefix4),
             prefix5),
         len12345: len12345 + 1,
         length0: length0 + 1,
@@ -265,9 +256,7 @@ final class _Vector6<A> extends _BigVector<A> {
         len12345: 1,
         data6: _copyPrepend6(
             _copyPrepend5(
-                _copyPrepend4(
-                    _copyPrepend3(_copyPrepend2(_prefix1, prefix2), prefix3),
-                    prefix4),
+                _copyPrepend4(_copyPrepend3(_copyPrepend2(_prefix1, prefix2), prefix3), prefix4),
                 prefix5),
             data6),
         length0: length0 + 1,
@@ -306,11 +295,9 @@ final class _Vector6<A> extends _BigVector<A> {
         final i2 = (io >>> _BITS) & _MASK;
         final i1 = io & _MASK;
         if (i6 < data6.length) {
-          return _copy(
-              data6: _copyUpdate6(data6, i6, i5, i4, i3, i2, i1, elem));
+          return _copy(data6: _copyUpdate6(data6, i6, i5, i4, i3, i2, i1, elem));
         } else if (i5 < suffix5.length) {
-          return _copy(
-              suffix5: _copyUpdate5(suffix5, i5, i4, i3, i2, i1, elem));
+          return _copy(suffix5: _copyUpdate5(suffix5, i5, i4, i3, i2, i1, elem));
         } else if (i4 < suffix4.length) {
           return _copy(suffix4: _copyUpdate4(suffix4, i4, i3, i2, i1, elem));
         } else if (i3 < suffix3.length) {
@@ -323,33 +310,21 @@ final class _Vector6<A> extends _BigVector<A> {
       } else if (index >= len1234) {
         final io = index - len1234;
         return _copy(
-            prefix5: _copyUpdate5(
-                prefix5,
-                io >>> _BITS4,
-                (io >>> _BITS3) & _MASK,
-                (io >>> _BITS2) & _MASK,
-                (io >>> _BITS) & _MASK,
-                io & _MASK,
-                elem));
+            prefix5: _copyUpdate5(prefix5, io >>> _BITS4, (io >>> _BITS3) & _MASK,
+                (io >>> _BITS2) & _MASK, (io >>> _BITS) & _MASK, io & _MASK, elem));
       } else if (index >= len123) {
         final io = index - len123;
         return _copy(
-            prefix4: _copyUpdate4(
-                prefix4,
-                io >>> _BITS3,
-                (io >>> _BITS2) & _MASK,
-                (io >>> _BITS) & _MASK,
-                io & _MASK,
-                elem));
+            prefix4: _copyUpdate4(prefix4, io >>> _BITS3, (io >>> _BITS2) & _MASK,
+                (io >>> _BITS) & _MASK, io & _MASK, elem));
       } else if (index >= len12) {
         final io = index - len12;
         return _copy(
-            prefix3: _copyUpdate3(prefix3, io >>> _BITS2,
-                (io >>> _BITS) & _MASK, io & _MASK, elem));
+            prefix3:
+                _copyUpdate3(prefix3, io >>> _BITS2, (io >>> _BITS) & _MASK, io & _MASK, elem));
       } else if (index >= len1) {
         final io = index - len1;
-        return _copy(
-            prefix2: _copyUpdate2(prefix2, io >>> _BITS, io & _MASK, elem));
+        return _copy(prefix2: _copyUpdate2(prefix2, io >>> _BITS, io & _MASK, elem));
       } else {
         return _copy(prefix1: _copyUpdate1(_prefix1, index, elem));
       }

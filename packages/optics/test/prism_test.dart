@@ -10,8 +10,8 @@ void main() {
     });
 
     test('andThenP', () {
-      final andThen = IntOrString.i
-          .andThenP(Prism<int, String>((i) => i.asLeft(), (s) => s.length));
+      final andThen =
+          IntOrString.i.andThenP(Prism<int, String>((i) => i.asLeft(), (s) => s.length));
 
       expect(andThen.reverseGet("a"), I(1));
       expect(andThen.reverseGet("ab"), I(2));

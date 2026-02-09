@@ -5,14 +5,12 @@ abstract mixin class Write<A> {
   static Write<A> instance<A>(
     IList<Put<dynamic>> puts,
     Function3<IStatementParameters, int, A, IStatementParameters> f,
-  ) =>
-      _WriteF(puts, f);
+  ) => _WriteF(puts, f);
 
-  static Write<A> fromPut<A>(Put<A> put) =>
-      Write.instance(ilist([put]), put.setParameter);
+  static Write<A> fromPut<A>(Put<A> put) => Write.instance(ilist([put]), put.setParameter);
 
-  Write<B> contramap<B>(Function1<B, A> f) => Write.instance(
-      puts, (params, n, value) => setParameter(params, n, f(value)));
+  Write<B> contramap<B>(Function1<B, A> f) =>
+      Write.instance(puts, (params, n, value) => setParameter(params, n, f(value)));
 
   int get length => puts.length;
 
@@ -20,7 +18,7 @@ abstract mixin class Write<A> {
 
   IStatementParameters setParameter(IStatementParameters params, int n, A a);
 
-  static final unit = Write.instance<Unit>(nil(), (params, _, __) => params);
+  static final unit = Write.instance<Unit>(nil(), (params, _, _) => params);
 
   static final bigInt = Write.fromPut(Put.bigInt);
   static final blob = Write.fromPut(Put.blob);
@@ -34,19 +32,18 @@ abstract mixin class Write<A> {
 
 extension WriteOptionOps<A> on Write<A> {
   Write<Option<A>> optional() => Write.instance(
-        puts,
-        (params, n, a) => a.fold(
-          () => params.setParameter(n + length - 1, null),
-          (some) => setParameter(params, n, some),
-        ),
-      );
+    puts,
+    (params, n, a) => a.fold(
+      () => params.setParameter(n + length - 1, null),
+      (some) => setParameter(params, n, some),
+    ),
+  );
 }
 
 final class _WriteF<A> extends Write<A> {
   @override
   final IList<Put<dynamic>> puts;
-  final Function3<IStatementParameters, int, A, IStatementParameters>
-      setParameterF;
+  final Function3<IStatementParameters, int, A, IStatementParameters> setParameterF;
 
   _WriteF(this.puts, this.setParameterF);
 
@@ -57,12 +54,12 @@ final class _WriteF<A> extends Write<A> {
 
 extension Tuple2WriteOps<A, B> on (Write<A>, Write<B>) {
   Write<(A, B)> get tupled => Write.instance(
-        ilist([$1.puts, $2.puts]).flatten(),
-        (params, n, tuple) {
-          final p0 = $1.setParameter(params, n, tuple.$1);
-          return $2.setParameter(p0, n + $1.length, tuple.$2);
-        },
-      );
+    ilist([$1.puts, $2.puts]).flatten(),
+    (params, n, tuple) {
+      final p0 = $1.setParameter(params, n, tuple.$1);
+      return $2.setParameter(p0, n + $1.length, tuple.$2);
+    },
+  );
 }
 
 extension Tuple3WriteOps<A, B, C> on (Write<A>, Write<B>, Write<C>) {
@@ -76,12 +73,7 @@ extension Tuple3WriteOps<A, B, C> on (Write<A>, Write<B>, Write<C>) {
   }
 }
 
-extension Tuple4WriteOps<A, B, C, D> on (
-  Write<A>,
-  Write<B>,
-  Write<C>,
-  Write<D>
-) {
+extension Tuple4WriteOps<A, B, C, D> on (Write<A>, Write<B>, Write<C>, Write<D>) {
   Write<(A, B, C, D)> get tupled {
     final initWrite = init().tupled;
 
@@ -92,13 +84,7 @@ extension Tuple4WriteOps<A, B, C, D> on (
   }
 }
 
-extension Tuple5WriteOps<A, B, C, D, E> on (
-  Write<A>,
-  Write<B>,
-  Write<C>,
-  Write<D>,
-  Write<E>
-) {
+extension Tuple5WriteOps<A, B, C, D, E> on (Write<A>, Write<B>, Write<C>, Write<D>, Write<E>) {
   Write<(A, B, C, D, E)> get tupled {
     final initWrite = init().tupled;
 
@@ -109,14 +95,8 @@ extension Tuple5WriteOps<A, B, C, D, E> on (
   }
 }
 
-extension Tuple6WriteOps<A, B, C, D, E, F> on (
-  Write<A>,
-  Write<B>,
-  Write<C>,
-  Write<D>,
-  Write<E>,
-  Write<F>
-) {
+extension Tuple6WriteOps<A, B, C, D, E, F>
+    on (Write<A>, Write<B>, Write<C>, Write<D>, Write<E>, Write<F>) {
   Write<(A, B, C, D, E, F)> get tupled {
     final initWrite = init().tupled;
 
@@ -127,15 +107,8 @@ extension Tuple6WriteOps<A, B, C, D, E, F> on (
   }
 }
 
-extension Tuple7WriteOps<A, B, C, D, E, F, G> on (
-  Write<A>,
-  Write<B>,
-  Write<C>,
-  Write<D>,
-  Write<E>,
-  Write<F>,
-  Write<G>
-) {
+extension Tuple7WriteOps<A, B, C, D, E, F, G>
+    on (Write<A>, Write<B>, Write<C>, Write<D>, Write<E>, Write<F>, Write<G>) {
   Write<(A, B, C, D, E, F, G)> get tupled {
     final initWrite = init().tupled;
 
@@ -146,16 +119,8 @@ extension Tuple7WriteOps<A, B, C, D, E, F, G> on (
   }
 }
 
-extension Tuple8WriteOps<A, B, C, D, E, F, G, H> on (
-  Write<A>,
-  Write<B>,
-  Write<C>,
-  Write<D>,
-  Write<E>,
-  Write<F>,
-  Write<G>,
-  Write<H>
-) {
+extension Tuple8WriteOps<A, B, C, D, E, F, G, H>
+    on (Write<A>, Write<B>, Write<C>, Write<D>, Write<E>, Write<F>, Write<G>, Write<H>) {
   Write<(A, B, C, D, E, F, G, H)> get tupled {
     final initWrite = init().tupled;
 
@@ -166,17 +131,8 @@ extension Tuple8WriteOps<A, B, C, D, E, F, G, H> on (
   }
 }
 
-extension Tuple9WriteOps<A, B, C, D, E, F, G, H, I> on (
-  Write<A>,
-  Write<B>,
-  Write<C>,
-  Write<D>,
-  Write<E>,
-  Write<F>,
-  Write<G>,
-  Write<H>,
-  Write<I>
-) {
+extension Tuple9WriteOps<A, B, C, D, E, F, G, H, I>
+    on (Write<A>, Write<B>, Write<C>, Write<D>, Write<E>, Write<F>, Write<G>, Write<H>, Write<I>) {
   Write<(A, B, C, D, E, F, G, H, I)> get tupled {
     final initWrite = init().tupled;
 
@@ -187,18 +143,20 @@ extension Tuple9WriteOps<A, B, C, D, E, F, G, H, I> on (
   }
 }
 
-extension Tuple10WriteOps<A, B, C, D, E, F, G, H, I, J> on (
-  Write<A>,
-  Write<B>,
-  Write<C>,
-  Write<D>,
-  Write<E>,
-  Write<F>,
-  Write<G>,
-  Write<H>,
-  Write<I>,
-  Write<J>
-) {
+extension Tuple10WriteOps<A, B, C, D, E, F, G, H, I, J>
+    on
+        (
+          Write<A>,
+          Write<B>,
+          Write<C>,
+          Write<D>,
+          Write<E>,
+          Write<F>,
+          Write<G>,
+          Write<H>,
+          Write<I>,
+          Write<J>,
+        ) {
   Write<(A, B, C, D, E, F, G, H, I, J)> get tupled {
     final initWrite = init().tupled;
 
@@ -209,19 +167,21 @@ extension Tuple10WriteOps<A, B, C, D, E, F, G, H, I, J> on (
   }
 }
 
-extension Tuple11WriteOps<A, B, C, D, E, F, G, H, I, J, K> on (
-  Write<A>,
-  Write<B>,
-  Write<C>,
-  Write<D>,
-  Write<E>,
-  Write<F>,
-  Write<G>,
-  Write<H>,
-  Write<I>,
-  Write<J>,
-  Write<K>
-) {
+extension Tuple11WriteOps<A, B, C, D, E, F, G, H, I, J, K>
+    on
+        (
+          Write<A>,
+          Write<B>,
+          Write<C>,
+          Write<D>,
+          Write<E>,
+          Write<F>,
+          Write<G>,
+          Write<H>,
+          Write<I>,
+          Write<J>,
+          Write<K>,
+        ) {
   Write<(A, B, C, D, E, F, G, H, I, J, K)> get tupled {
     final initWrite = init().tupled;
 
@@ -232,20 +192,22 @@ extension Tuple11WriteOps<A, B, C, D, E, F, G, H, I, J, K> on (
   }
 }
 
-extension Tuple12WriteOps<A, B, C, D, E, F, G, H, I, J, K, L> on (
-  Write<A>,
-  Write<B>,
-  Write<C>,
-  Write<D>,
-  Write<E>,
-  Write<F>,
-  Write<G>,
-  Write<H>,
-  Write<I>,
-  Write<J>,
-  Write<K>,
-  Write<L>
-) {
+extension Tuple12WriteOps<A, B, C, D, E, F, G, H, I, J, K, L>
+    on
+        (
+          Write<A>,
+          Write<B>,
+          Write<C>,
+          Write<D>,
+          Write<E>,
+          Write<F>,
+          Write<G>,
+          Write<H>,
+          Write<I>,
+          Write<J>,
+          Write<K>,
+          Write<L>,
+        ) {
   Write<(A, B, C, D, E, F, G, H, I, J, K, L)> get tupled {
     final initWrite = init().tupled;
 
@@ -256,21 +218,23 @@ extension Tuple12WriteOps<A, B, C, D, E, F, G, H, I, J, K, L> on (
   }
 }
 
-extension Tuple13WriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
-  Write<A>,
-  Write<B>,
-  Write<C>,
-  Write<D>,
-  Write<E>,
-  Write<F>,
-  Write<G>,
-  Write<H>,
-  Write<I>,
-  Write<J>,
-  Write<K>,
-  Write<L>,
-  Write<M>
-) {
+extension Tuple13WriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M>
+    on
+        (
+          Write<A>,
+          Write<B>,
+          Write<C>,
+          Write<D>,
+          Write<E>,
+          Write<F>,
+          Write<G>,
+          Write<H>,
+          Write<I>,
+          Write<J>,
+          Write<K>,
+          Write<L>,
+          Write<M>,
+        ) {
   Write<(A, B, C, D, E, F, G, H, I, J, K, L, M)> get tupled {
     final initWrite = init().tupled;
 
@@ -281,22 +245,24 @@ extension Tuple13WriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
   }
 }
 
-extension Tuple14WriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
-  Write<A>,
-  Write<B>,
-  Write<C>,
-  Write<D>,
-  Write<E>,
-  Write<F>,
-  Write<G>,
-  Write<H>,
-  Write<I>,
-  Write<J>,
-  Write<K>,
-  Write<L>,
-  Write<M>,
-  Write<N>
-) {
+extension Tuple14WriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N>
+    on
+        (
+          Write<A>,
+          Write<B>,
+          Write<C>,
+          Write<D>,
+          Write<E>,
+          Write<F>,
+          Write<G>,
+          Write<H>,
+          Write<I>,
+          Write<J>,
+          Write<K>,
+          Write<L>,
+          Write<M>,
+          Write<N>,
+        ) {
   Write<(A, B, C, D, E, F, G, H, I, J, K, L, M, N)> get tupled {
     final initWrite = init().tupled;
 
@@ -307,23 +273,25 @@ extension Tuple14WriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
   }
 }
 
-extension Tuple15WriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
-  Write<A>,
-  Write<B>,
-  Write<C>,
-  Write<D>,
-  Write<E>,
-  Write<F>,
-  Write<G>,
-  Write<H>,
-  Write<I>,
-  Write<J>,
-  Write<K>,
-  Write<L>,
-  Write<M>,
-  Write<N>,
-  Write<O>
-) {
+extension Tuple15WriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>
+    on
+        (
+          Write<A>,
+          Write<B>,
+          Write<C>,
+          Write<D>,
+          Write<E>,
+          Write<F>,
+          Write<G>,
+          Write<H>,
+          Write<I>,
+          Write<J>,
+          Write<K>,
+          Write<L>,
+          Write<M>,
+          Write<N>,
+          Write<O>,
+        ) {
   Write<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> get tupled {
     final initWrite = init().tupled;
 

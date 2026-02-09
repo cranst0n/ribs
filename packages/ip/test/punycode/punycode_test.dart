@@ -86,8 +86,7 @@ const testStrings = [
   ),
   TestCase(
     description: "long string with both ASCII and non-ASCII characters",
-    encoded:
-        "Willst du die Blthe des frhen, die Frchte des spteren Jahres-x9e96lkal",
+    encoded: "Willst du die Blthe des frhen, die Frchte des spteren Jahres-x9e96lkal",
     decoded: "Willst du die Blüthe des frühen, die Früchte des späteren Jahres",
   ),
   TestCase(
@@ -127,8 +126,7 @@ const testStrings = [
   ),
   TestCase(
     description: "Korean (Hangul syllables)",
-    encoded:
-        "989aomsvi5e83db1d2a355cv1e0vak1dwrv93d5xbh15a0dt30a5jpsd879ccm6fea98c",
+    encoded: "989aomsvi5e83db1d2a355cv1e0vak1dwrv93d5xbh15a0dt30a5jpsd879ccm6fea98c",
     decoded: "세계의모든사람들이한국어를이해한다면얼마나좋을까",
   ),
   TestCase(
@@ -175,8 +173,7 @@ const testStrings = [
     decoded: "そのスピードで",
   ),
   TestCase(
-    description:
-        "ASCII string that breaks the existing rules for host-name labels",
+    description: "ASCII string that breaks the existing rules for host-name labels",
     encoded: "-> \$1.00 <--",
     decoded: "-> \$1.00 <-",
   ),

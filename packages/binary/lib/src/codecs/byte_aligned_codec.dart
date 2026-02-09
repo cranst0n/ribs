@@ -7,9 +7,9 @@ final class ByteAlignedCodec<A> extends Codec<A> {
   ByteAlignedCodec(this.codec);
 
   @override
-  Either<Err, DecodeResult<A>> decode(BitVector bv) =>
-      codec.decode(bv).map((res) => res.mapRemainder(
-          (r) => r.drop(_padAmount(bv.size - res.remainder.size))));
+  Either<Err, DecodeResult<A>> decode(BitVector bv) => codec
+      .decode(bv)
+      .map((res) => res.mapRemainder((r) => r.drop(_padAmount(bv.size - res.remainder.size))));
 
   @override
   Either<Err, BitVector> encode(A a) =>

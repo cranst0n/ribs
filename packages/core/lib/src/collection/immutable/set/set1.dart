@@ -34,8 +34,7 @@ class _Set1<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   bool exists(Function1<A, bool> p) => p(elem1);
 
   @override
-  Option<A> find(Function1<A, bool> p) =>
-      Option.when(() => p(elem1), () => elem1);
+  Option<A> find(Function1<A, bool> p) => Option.when(() => p(elem1), () => elem1);
 
   @override
   bool forall(Function1<A, bool> p) => p(elem1);

@@ -43,8 +43,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   /// Creates an IList from the given Dart [Iterable].
-  static IList<A> fromDart<A>(Iterable<A> elems) =>
-      from(RIterator.fromDart(elems.iterator));
+  static IList<A> fromDart<A>(Iterable<A> elems) => from(RIterator.fromDart(elems.iterator));
 
   /// Create an IList of size [n] and sets the element at each index by
   /// invoking [f] and passing the index.
@@ -137,8 +136,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  RIterator<IList<A>> combinations(int n) =>
-      super.combinations(n).map((a) => a.toIList());
+  RIterator<IList<A>> combinations(int n) => super.combinations(n).map((a) => a.toIList());
 
   @override
   IList<A> concat(covariant RIterableOnce<A> suffix) => appendedAll(suffix);
@@ -332,21 +330,18 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  IMap<K, IList<A>> groupBy<K>(Function1<A, K> f) =>
-      super.groupBy(f).mapValues((a) => a.toIList());
+  IMap<K, IList<A>> groupBy<K>(Function1<A, K> f) => super.groupBy(f).mapValues((a) => a.toIList());
 
   @override
   IMap<K, IList<B>> groupMap<K, B>(Function1<A, K> key, Function1<A, B> f) =>
       super.groupMap(key, f).mapValues((a) => a.toIList());
 
   @override
-  RIterator<IList<A>> grouped(int size) =>
-      super.grouped(size).map((a) => a.toIList());
+  RIterator<IList<A>> grouped(int size) => super.grouped(size).map((a) => a.toIList());
 
   IList<A> insertAt(int idx, A elem) {
     if (0 <= idx && idx <= length) {
-      return splitAt(idx)(
-          (before, after) => before.concat(after.prepended(elem)));
+      return splitAt(idx)((before, after) => before.concat(after.prepended(elem)));
     } else {
       throw RangeError('$idx is out of bounds (min 0, max $length)');
     }
@@ -484,8 +479,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  RIterator<IList<A>> permutations() =>
-      super.permutations().map((a) => a.toIList());
+  RIterator<IList<A>> permutations() => super.permutations().map((a) => a.toIList());
 
   @override
   IList<A> prepended(A elem) => Cons(elem, this);
@@ -554,12 +548,10 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   IList<B> scan<B>(B z, Function2<B, A, B> op) => scanLeft(z, op);
 
   @override
-  IList<B> scanLeft<B>(B z, Function2<B, A, B> op) =>
-      super.scanLeft(z, op).toIList();
+  IList<B> scanLeft<B>(B z, Function2<B, A, B> op) => super.scanLeft(z, op).toIList();
 
   @override
-  IList<B> scanRight<B>(B z, Function2<A, B, B> op) =>
-      super.scanRight(z, op).toIList();
+  IList<B> scanRight<B>(B z, Function2<A, B, B> op) => super.scanRight(z, op).toIList();
 
   @override
   IList<A> slice(int from, int until) {
@@ -577,8 +569,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       super.sliding(size, step).map((a) => a.toIList());
 
   @override
-  IList<A> sortBy<B>(Order<B> order, Function1<A, B> f) =>
-      super.sortBy(order, f).toIList();
+  IList<A> sortBy<B>(Order<B> order, Function1<A, B> f) => super.sortBy(order, f).toIList();
 
   @override
   IList<A> sorted(Order<A> order) => super.sorted(order).toIList();

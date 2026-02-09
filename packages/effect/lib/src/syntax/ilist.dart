@@ -27,8 +27,7 @@ extension IOIListOps<A> on IList<A> {
     IO<IList<B>> result = IO.pure(nil());
 
     foreach((elem) {
-      result =
-          IO.both(result, f(elem)).map((t) => t((acc, b) => acc.prepended(b)));
+      result = IO.both(result, f(elem)).map((t) => t((acc, b) => acc.prepended(b)));
     });
 
     return result.map((a) => a.reverse());
@@ -94,6 +93,6 @@ extension IOIListOps<A> on IList<A> {
   /// that result is returned and any additional elements will not be evaluated.
   /// {@endtemplate}
   IO<IList<B>> traverseFilterIO<B>(Function1<A, IO<Option<B>>> f) =>
-      traverseIO(f).map((opts) => opts.foldLeft(IList.empty<B>(),
-          (acc, elem) => elem.fold(() => acc, (elem) => acc.appended(elem))));
+      traverseIO(f).map((opts) => opts.foldLeft(
+          IList.empty<B>(), (acc, elem) => elem.fold(() => acc, (elem) => acc.appended(elem))));
 }

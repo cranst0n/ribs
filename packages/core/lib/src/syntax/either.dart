@@ -37,17 +37,12 @@ extension Tuple2EitherOps<EE, A, B> on (Either<EE, A>, Either<EE, B>) {
 }
 
 /// {@macro either_tuple_ops}
-extension Tuple3EitherOps<EE, A, B, C> on (
-  Either<EE, A>,
-  Either<EE, B>,
-  Either<EE, C>
-) {
+extension Tuple3EitherOps<EE, A, B, C> on (Either<EE, A>, Either<EE, B>, Either<EE, C>) {
   /// {@macro either_mapN}
   Either<EE, D> mapN<D>(Function3<A, B, C, D> fn) => tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
-  Either<EE, (A, B, C)> tupled() =>
-      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
+  Either<EE, (A, B, C)> tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -61,8 +56,7 @@ extension Tuple4EitherOps<EE, A, B, C, D> on (
   Either<EE, E> mapN<E>(Function4<A, B, C, D, E> fn) => tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
-  Either<EE, (A, B, C, D)> tupled() =>
-      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
+  Either<EE, (A, B, C, D)> tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
@@ -74,8 +68,7 @@ extension Tuple5EitherOps<EE, A, B, C, D, E> on (
   Either<EE, E>
 ) {
   /// {@macro either_mapN}
-  Either<EE, F> mapN<F>(Function5<A, B, C, D, E, F> fn) =>
-      tupled().map(fn.tupled);
+  Either<EE, F> mapN<F>(Function5<A, B, C, D, E, F> fn) => tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
   Either<EE, (A, B, C, D, E)> tupled() =>
@@ -92,8 +85,7 @@ extension Tuple6EitherOps<EE, A, B, C, D, E, F> on (
   Either<EE, F>
 ) {
   /// {@macro either_mapN}
-  Either<EE, G> mapN<G>(Function6<A, B, C, D, E, F, G> fn) =>
-      tupled().map(fn.tupled);
+  Either<EE, G> mapN<G>(Function6<A, B, C, D, E, F, G> fn) => tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
   Either<EE, (A, B, C, D, E, F)> tupled() =>
@@ -111,8 +103,7 @@ extension Tuple7EitherOps<EE, A, B, C, D, E, F, G> on (
   Either<EE, G>
 ) {
   /// {@macro either_mapN}
-  Either<EE, H> mapN<H>(Function7<A, B, C, D, E, F, G, H> fn) =>
-      tupled().map(fn.tupled);
+  Either<EE, H> mapN<H>(Function7<A, B, C, D, E, F, G, H> fn) => tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
   Either<EE, (A, B, C, D, E, F, G)> tupled() =>
@@ -131,8 +122,7 @@ extension Tuple8EitherOps<EE, A, B, C, D, E, F, G, H> on (
   Either<EE, H>
 ) {
   /// {@macro either_mapN}
-  Either<EE, I> mapN<I>(Function8<A, B, C, D, E, F, G, H, I> fn) =>
-      tupled().map(fn.tupled);
+  Either<EE, I> mapN<I>(Function8<A, B, C, D, E, F, G, H, I> fn) => tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
   Either<EE, (A, B, C, D, E, F, G, H)> tupled() =>
@@ -152,8 +142,7 @@ extension Tuple9EitherOps<EE, A, B, C, D, E, F, G, H, I> on (
   Either<EE, I>
 ) {
   /// {@macro either_mapN}
-  Either<EE, J> mapN<J>(Function9<A, B, C, D, E, F, G, H, I, J> fn) =>
-      tupled().map(fn.tupled);
+  Either<EE, J> mapN<J>(Function9<A, B, C, D, E, F, G, H, I, J> fn) => tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
   Either<EE, (A, B, C, D, E, F, G, H, I)> tupled() =>
@@ -174,8 +163,7 @@ extension Tuple10EitherOps<EE, A, B, C, D, E, F, G, H, I, J> on (
   Either<EE, J>
 ) {
   /// {@macro either_mapN}
-  Either<EE, K> mapN<K>(Function10<A, B, C, D, E, F, G, H, I, J, K> fn) =>
-      tupled().map(fn.tupled);
+  Either<EE, K> mapN<K>(Function10<A, B, C, D, E, F, G, H, I, J, K> fn) => tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
   Either<EE, (A, B, C, D, E, F, G, H, I, J)> tupled() =>
@@ -246,8 +234,7 @@ extension Tuple13EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M> on (
   Either<EE, M>
 ) {
   /// {@macro either_mapN}
-  Either<EE, N> mapN<N>(
-          Function13<A, B, C, D, E, F, G, H, I, J, K, L, M, N> fn) =>
+  Either<EE, N> mapN<N>(Function13<A, B, C, D, E, F, G, H, I, J, K, L, M, N> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
@@ -273,8 +260,7 @@ extension Tuple14EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
   Either<EE, N>
 ) {
   /// {@macro either_mapN}
-  Either<EE, O> mapN<O>(
-          Function14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> fn) =>
+  Either<EE, O> mapN<O>(Function14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
@@ -301,8 +287,7 @@ extension Tuple15EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
   Either<EE, O>
 ) {
   /// {@macro either_mapN}
-  Either<EE, P> mapN<P>(
-          Function15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> fn) =>
+  Either<EE, P> mapN<P>(Function15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
@@ -311,8 +296,7 @@ extension Tuple15EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
 }
 
 /// {@macro either_tuple_ops}
-extension Tuple16EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>
-    on (
+extension Tuple16EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> on (
   Either<EE, A>,
   Either<EE, B>,
   Either<EE, C>,
@@ -331,8 +315,7 @@ extension Tuple16EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>
   Either<EE, P>
 ) {
   /// {@macro either_mapN}
-  Either<EE, Q> mapN<Q>(
-          Function16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> fn) =>
+  Either<EE, Q> mapN<Q>(Function16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
@@ -341,8 +324,7 @@ extension Tuple16EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>
 }
 
 /// {@macro either_tuple_ops}
-extension Tuple17EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
-    Q> on (
+extension Tuple17EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> on (
   Either<EE, A>,
   Either<EE, B>,
   Either<EE, C>,
@@ -362,9 +344,7 @@ extension Tuple17EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
   Either<EE, Q>
 ) {
   /// {@macro either_mapN}
-  Either<EE, R> mapN<R>(
-          Function17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
-              fn) =>
+  Either<EE, R> mapN<R>(Function17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
@@ -373,8 +353,7 @@ extension Tuple17EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
 }
 
 /// {@macro either_tuple_ops}
-extension Tuple18EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
-    Q, R> on (
+extension Tuple18EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> on (
   Either<EE, A>,
   Either<EE, B>,
   Either<EE, C>,
@@ -395,9 +374,7 @@ extension Tuple18EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
   Either<EE, R>
 ) {
   /// {@macro either_mapN}
-  Either<EE, S> mapN<S>(
-          Function18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
-              fn) =>
+  Either<EE, S> mapN<S>(Function18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
@@ -406,8 +383,7 @@ extension Tuple18EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
 }
 
 /// {@macro either_tuple_ops}
-extension Tuple19EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
-    Q, R, S> on (
+extension Tuple19EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> on (
   Either<EE, A>,
   Either<EE, B>,
   Either<EE, C>,
@@ -430,18 +406,16 @@ extension Tuple19EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
 ) {
   /// {@macro either_mapN}
   Either<EE, T> mapN<T>(
-          Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
-              fn) =>
+          Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
-  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)>
-      tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
+  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
-extension Tuple20EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
-    Q, R, S, T> on (
+extension Tuple20EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> on (
   Either<EE, A>,
   Either<EE, B>,
   Either<EE, C>,
@@ -465,19 +439,16 @@ extension Tuple20EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
 ) {
   /// {@macro either_mapN}
   Either<EE, U> mapN<U>(
-          Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
-                  U>
-              fn) =>
+          Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
-  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)>
-      tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
+  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
-extension Tuple21EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
-    Q, R, S, T, U> on (
+extension Tuple21EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> on (
   Either<EE, A>,
   Either<EE, B>,
   Either<EE, C>,
@@ -502,19 +473,17 @@ extension Tuple21EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
 ) {
   /// {@macro either_mapN}
   Either<EE, V> mapN<V>(
-          Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
-                  U, V>
-              fn) =>
+          Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
-  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
-      tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
+  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }
 
 /// {@macro either_tuple_ops}
-extension Tuple22EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
-    Q, R, S, T, U, V> on (
+extension Tuple22EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>
+    on (
   Either<EE, A>,
   Either<EE, B>,
   Either<EE, C>,
@@ -540,12 +509,10 @@ extension Tuple22EitherOps<EE, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
 ) {
   /// {@macro either_mapN}
   Either<EE, W> mapN<W>(
-          Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
-                  U, V, W>
-              fn) =>
+          Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro either_tupled}
-  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
-      tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
+  Either<EE, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 }

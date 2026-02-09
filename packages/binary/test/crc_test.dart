@@ -32,8 +32,7 @@ void main() {
     test('CRC8', () => expect(Crc.crc8(checkBytes), hex('f4')));
 
     test('CCITT-16', () {
-      final ccitt16 =
-          Crc.of(hex('1021'), hex('ffff'), false, false, hex('0000'));
+      final ccitt16 = Crc.of(hex('1021'), hex('ffff'), false, false, hex('0000'));
 
       expect(ccitt16(hex('12345670')), hex('b1e4'));
       expect(ccitt16(hex('5a261977')), hex('1aad'));
@@ -90,8 +89,7 @@ void main() {
     testCrcParams('Crc24', CrcParams.crc24(), hex('0x21cf02'));
     testCrcParams('Crc24 / OpenPgp', CrcParams.crc24OpenPgp(), hex('0x21cf02'));
     testCrcParams('Crc32', CrcParams.crc32(), hex('0xcbf43926'));
-    testCrcParams(
-        'Crc32 / ISO HDLC', CrcParams.crc32IsoHdlc(), hex('0xcbf43926'));
+    testCrcParams('Crc32 / ISO HDLC', CrcParams.crc32IsoHdlc(), hex('0xcbf43926'));
   });
 }
 
@@ -118,8 +116,7 @@ void testCrc(
   BitVector finalXor,
   BitVector expected,
 ) {
-  final crcParams =
-      CrcParams(poly, initial, reflectInput, reflectOutput, finalXor);
+  final crcParams = CrcParams(poly, initial, reflectInput, reflectOutput, finalXor);
 
   testCrcParams(label, crcParams, expected);
 }

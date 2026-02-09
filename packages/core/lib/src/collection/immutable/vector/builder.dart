@@ -135,8 +135,7 @@ final class IVectorBuilder<A> {
         _offset = _WIDTH3 - v4.len123;
         setLen(v4.length0 + _offset);
         a4 = _arr4(_WIDTH);
-        a4![0] =
-            _copyPrepend3(_copyPrepend2(v4._prefix1, v4.prefix2), v4.prefix3);
+        a4![0] = _copyPrepend3(_copyPrepend2(v4._prefix1, v4.prefix2), v4.prefix3);
         Array.arraycopy(d4, 0, a4!, 1, d4.length);
         a3 = Array.copyOf(s3, _WIDTH);
         a2 = Array.copyOf(s2, _WIDTH);
@@ -155,8 +154,7 @@ final class IVectorBuilder<A> {
         setLen(v5.length0 + _offset);
         a5 = _arr5(_WIDTH);
         a5![0] = _copyPrepend4(
-            _copyPrepend3(_copyPrepend2(v5._prefix1, v5.prefix2), v5.prefix3),
-            v5.prefix4);
+            _copyPrepend3(_copyPrepend2(v5._prefix1, v5.prefix2), v5.prefix3), v5.prefix4);
         Array.arraycopy(d5, 0, a5!, 1, d5.length);
         a4 = Array.copyOf(s4, _WIDTH);
         a3 = Array.copyOf(s3, _WIDTH);
@@ -179,9 +177,7 @@ final class IVectorBuilder<A> {
         a6 = _arr6(_LASTWIDTH);
         a6![0] = _copyPrepend5(
             _copyPrepend4(
-                _copyPrepend3(
-                    _copyPrepend2(v6._prefix1, v6.prefix2), v6.prefix3),
-                v6.prefix4),
+                _copyPrepend3(_copyPrepend2(v6._prefix1, v6.prefix2), v6.prefix3), v6.prefix4),
             v6.prefix5);
         Array.arraycopy(d6, 0, a6!, 1, d6.length);
         a5 = Array.copyOf(s5, _WIDTH);
@@ -194,8 +190,7 @@ final class IVectorBuilder<A> {
         a3![s3.length] = a2;
         a2![s2.length] = a1;
       default:
-        throw StateError(
-            'VectorBuilder.initFromVector: ${v._vectorSliceCount}');
+        throw StateError('VectorBuilder.initFromVector: ${v._vectorSliceCount}');
     }
 
     if (_len1 == 0 && _lenRest > 0) {
@@ -615,8 +610,7 @@ final class IVectorBuilder<A> {
       final suffix1 = _copyIfDifferentSize(a3![i3]![i2]!, i1 + 1);
       final len1 = prefix1.length;
       final len12 = len1 + prefix2.length * _WIDTH;
-      return _Vector3(
-          prefix1, len1, prefix2, len12, data, suffix2, suffix1, realLen);
+      return _Vector3(prefix1, len1, prefix2, len12, data, suffix2, suffix1, realLen);
     } else if (len <= _WIDTH4) {
       final i1 = (len - 1) & _MASK;
       final i2 = ((len - 1) >>> _BITS) & _MASK;
@@ -633,8 +627,8 @@ final class IVectorBuilder<A> {
       final len12 = len1 + prefix2.length * _WIDTH;
       final len123 = len12 + prefix3.length * _WIDTH2;
 
-      return _Vector4(prefix1, len1, prefix2, len12, prefix3, len123, data,
-          suffix3, suffix2, suffix1, realLen);
+      return _Vector4(
+          prefix1, len1, prefix2, len12, prefix3, len123, data, suffix3, suffix2, suffix1, realLen);
     } else if (len <= _WIDTH5) {
       final i1 = (len - 1) & _MASK;
       final i2 = ((len - 1) >>> _BITS) & _MASK;
@@ -654,8 +648,8 @@ final class IVectorBuilder<A> {
       final len12 = len1 + prefix2.length * _WIDTH;
       final len123 = len12 + prefix3.length * _WIDTH2;
       final len1234 = len123 + prefix4.length * _WIDTH3;
-      return _Vector5(prefix1, len1, prefix2, len12, prefix3, len123, prefix4,
-          len1234, data, suffix4, suffix3, suffix2, suffix1, realLen);
+      return _Vector5(prefix1, len1, prefix2, len12, prefix3, len123, prefix4, len1234, data,
+          suffix4, suffix3, suffix2, suffix1, realLen);
     } else {
       final i1 = (len - 1) & _MASK;
       final i2 = ((len - 1) >>> _BITS) & _MASK;
@@ -673,31 +667,14 @@ final class IVectorBuilder<A> {
       final suffix4 = Array.copyOf(a6![i6]![i5]!, i4);
       final suffix3 = Array.copyOf(a6![i6]![i5]![i4]!, i3);
       final suffix2 = Array.copyOf(a6![i6]![i5]![i4]![i3]!, i2);
-      final suffix1 =
-          _copyIfDifferentSize(a6![i6]![i5]![i4]![i3]![i2]!, i1 + 1);
+      final suffix1 = _copyIfDifferentSize(a6![i6]![i5]![i4]![i3]![i2]!, i1 + 1);
       final len1 = prefix1.length;
       final len12 = len1 + prefix2.length * _WIDTH;
       final len123 = len12 + prefix3.length * _WIDTH2;
       final len1234 = len123 + prefix4.length * _WIDTH3;
       final len12345 = len1234 + prefix5.length * _WIDTH4;
-      return _Vector6(
-          prefix1,
-          len1,
-          prefix2,
-          len12,
-          prefix3,
-          len123,
-          prefix4,
-          len1234,
-          prefix5,
-          len12345,
-          data,
-          suffix5,
-          suffix4,
-          suffix3,
-          suffix2,
-          suffix1,
-          realLen);
+      return _Vector6(prefix1, len1, prefix2, len12, prefix3, len123, prefix4, len1234, prefix5,
+          len12345, data, suffix5, suffix4, suffix3, suffix2, suffix1, realLen);
     }
   }
 }

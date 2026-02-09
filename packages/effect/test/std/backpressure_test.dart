@@ -5,8 +5,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('Backpressure', () {
-    test('Lossy Strategy should return IO[None] when no permits are available',
-        () {
+    test('Lossy Strategy should return IO[None] when no permits are available', () {
       final test = Backpressure.lossy(1).flatMap((backpressure) {
         final never = backpressure.metered(IO.never<Unit>());
 
@@ -18,9 +17,7 @@ void main() {
       expect(test, ioSucceeded(true));
     });
 
-    test(
-        'Lossless Strategy should complete effects even when no permits are available',
-        () {
+    test('Lossless Strategy should complete effects even when no permits are available', () {
       final test = Backpressure.lossless(1).flatMap((backpressure) {
         return backpressure
             .metered(IO.sleep(1.second).productR(() => IO.pure(1)))

@@ -20,8 +20,7 @@ sealed class MurmurHash3 {
 
   static int mixLast(int hash, int data) => _impl.mixLast(hash, data);
 
-  static int finalizeHash(int hash, int length) =>
-      _impl.finalizeHash(hash, length);
+  static int finalizeHash(int hash, int length) => _impl.finalizeHash(hash, length);
 
   static int stringHash(String str) => _impl.stringHash(str, stringSeed);
 
@@ -67,8 +66,7 @@ sealed class MurmurHash3 {
 
   static int setHash(RSet<dynamic> xs) => _impl.unorderedHash(xs, setSeed);
 
-  static int unorderedHash(RIterableOnce<dynamic> xs, int seed) =>
-      _impl.unorderedHash(xs, seed);
+  static int unorderedHash(RIterableOnce<dynamic> xs, int seed) => _impl.unorderedHash(xs, seed);
 
   static final _emptyMapHash = unorderedHash(nil(), mapSeed);
 

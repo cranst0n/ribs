@@ -31,11 +31,7 @@ void main() {
 
     expect(json.isObject, isTrue);
 
-    final cursor = HCursor.fromJson(json)
-        .downField('a')
-        .downN(1)
-        .downField('b')
-        .downField('c');
+    final cursor = HCursor.fromJson(json).downField('a').downN(1).downField('b').downField('c');
 
     expect(cursor.focus(), Some(Json.boolean(false)));
 
@@ -67,8 +63,7 @@ void main() {
     );
 
     final cursor = json.hcursor.downArray().downField('foo');
-    final decoded = cursor
-        .decode(Decoder.nonEmptyIList(Decoder.integer).map((a) => a.reverse()));
+    final decoded = cursor.decode(Decoder.nonEmptyIList(Decoder.integer).map((a) => a.reverse()));
 
     expect(decoded, NonEmptyIList(3, ilist([2, 1])).asRight<DecodingFailure>());
   });
@@ -80,8 +75,7 @@ void main() {
     final decoded = Parse3.codec.decode(json);
 
     decoded.fold(
-      (failure) =>
-          expect(failure.reason, WrongTypeExpectation('bool', Json.number(32))),
+      (failure) => expect(failure.reason, WrongTypeExpectation('bool', Json.number(32))),
       (good) => fail('should not have parsed successfully'),
     );
   });
@@ -100,30 +94,23 @@ void main() {
       ('d', Json.number(5)),
       (
         'z',
-        Json.obj([
-          ('1', Json.number(1)),
-          ('2', Json.number(-2)),
-          ('3', Json.number(3))
-        ]),
+        Json.obj([('1', Json.number(1)), ('2', Json.number(-2)), ('3', Json.number(3))]),
       ),
     ]);
 
     final oneIntoTwo = obj2.deepMerge(obj1);
     final twoIntoOne = obj1.deepMerge(obj2);
 
-    expect(oneIntoTwo.asObject().flatMap((obj) => obj.get('a')),
-        Json.number(1).some);
+    expect(oneIntoTwo.asObject().flatMap((obj) => obj.get('a')), Json.number(1).some);
 
-    expect(twoIntoOne.asObject().flatMap((obj) => obj.get('a')),
-        Json.number(2).some);
+    expect(twoIntoOne.asObject().flatMap((obj) => obj.get('a')), Json.number(2).some);
   });
 
   test('Decoder.mapOf', () {
-    final json = Json.parse('{"3": "1", "2": "2", "1": "3"}')
-        .getOrElse(() => fail('parse3.map fail'));
+    final json =
+        Json.parse('{"3": "1", "2": "2", "1": "3"}').getOrElse(() => fail('parse3.map fail'));
 
-    final decoded =
-        Decoder.mapOf(MapKey.keyDecoder, Decoder.string).decode(json);
+    final decoded = Decoder.mapOf(MapKey.keyDecoder, Decoder.string).decode(json);
 
     decoded.fold(
       (err) => fail('Decoder.mapOf failed: $err'),
@@ -137,8 +124,7 @@ void main() {
 
   test('Encoder.mapOf', () {
     final encoder = Encoder.mapOf(
-        KeyEncoder.instance<bool>((a) => a.toString().length.toString()),
-        Encoder.integer);
+        KeyEncoder.instance<bool>((a) => a.toString().length.toString()), Encoder.integer);
 
     final encoded = encoder.encode({true: 1, false: 2});
 
@@ -154,11 +140,7 @@ void main() {
   test('Encoder', () {
     expect(
       Parse3.codec.encode(const Parse3(1, 'two', false)),
-      Json.obj([
-        ('foo', JNumber(1)),
-        ('bar', JString('two')),
-        ('baz', JBoolean(false))
-      ]),
+      Json.obj([('foo', JNumber(1)), ('bar', JString('two')), ('baz', JBoolean(false))]),
     );
   });
 
@@ -247,11 +229,11 @@ void main() {
   test('Decoder.either', () {
     final json = Json.parse('{"1": 3.14}').getOrElse(() => fail('lal'));
 
-    final eitherNumOrBool = Decoder.mapOf(
-        KeyDecoder.string, Decoder.number.either(Decoder.boolean));
+    final eitherNumOrBool =
+        Decoder.mapOf(KeyDecoder.string, Decoder.number.either(Decoder.boolean));
 
-    final eitherBoolOrNum = Decoder.mapOf(
-        KeyDecoder.string, Decoder.boolean.either(Decoder.number));
+    final eitherBoolOrNum =
+        Decoder.mapOf(KeyDecoder.string, Decoder.boolean.either(Decoder.number));
 
     expect(eitherNumOrBool.decode(json).isRight, isTrue);
     expect(eitherBoolOrNum.decode(json).isRight, isTrue);
@@ -270,8 +252,7 @@ class MapKey {
   String toString() => 'MK($k)';
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) || (other is MapKey && other.k == k);
+  bool operator ==(Object other) => identical(this, other) || (other is MapKey && other.k == k);
 
   @override
   int get hashCode => k.hashCode;

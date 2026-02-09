@@ -15,8 +15,7 @@ final class User {
   const User(this.name, this.alias, this.age);
 }
 
-Either<String, User> userEither(Name name, Alias alias, Age age) =>
-    throw UnimplementedError();
+Either<String, User> userEither(Name name, Alias alias, Age age) => throw UnimplementedError();
 
 // create-user-1
 
@@ -32,10 +31,10 @@ ValidatedNel<String, Age> validateAge(Age age) =>
     age < 18 ? 'Too young!'.invalidNel() : age.validNel();
 
 ValidatedNel<String, User> createUser(User user) => (
-      validateName(user.name),
-      validateAlias(user.alias),
-      validateAge(user.age),
-    ).mapN(User.new);
+  validateName(user.name),
+  validateAlias(user.alias),
+  validateAge(user.age),
+).mapN(User.new);
 
 // create-user-2
 
@@ -68,8 +67,7 @@ void storeUser(User user) => throw UnimplementedError();
 
 void handleCreateUser() {
   succeeded.fold(
-    (errors) =>
-        notifyUser(errors.mkString(start: 'User creation failed: ', sep: ',')),
+    (errors) => notifyUser(errors.mkString(start: 'User creation failed: ', sep: ',')),
     (user) => storeUser(user),
   );
 }

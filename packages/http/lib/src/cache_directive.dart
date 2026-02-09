@@ -13,14 +13,11 @@ sealed class CacheDirective {
 
   static CacheDirective custom(String name) => _CustomDirective(name);
 
-  static CacheDirective maxAge(Duration deltaSeconds) =>
-      _SecondsBased('max-age', deltaSeconds);
+  static CacheDirective maxAge(Duration deltaSeconds) => _SecondsBased('max-age', deltaSeconds);
 
-  static CacheDirective maxStale(Duration deltaSeconds) =>
-      _SecondsBased('max-stale', deltaSeconds);
+  static CacheDirective maxStale(Duration deltaSeconds) => _SecondsBased('max-stale', deltaSeconds);
 
-  static CacheDirective minFresh(Duration deltaSeconds) =>
-      _SecondsBased('min-fresh', deltaSeconds);
+  static CacheDirective minFresh(Duration deltaSeconds) => _SecondsBased('min-fresh', deltaSeconds);
 
   static CacheDirective mustRevalidate = _CustomDirective('must-revalidate');
 
@@ -40,8 +37,7 @@ sealed class CacheDirective {
 
   static CacheDirective public = _CustomDirective('public');
 
-  static CacheDirective sMaxAge(Duration deltaSeconds) =>
-      _SecondsBased('s-maxage', deltaSeconds);
+  static CacheDirective sMaxAge(Duration deltaSeconds) => _SecondsBased('s-maxage', deltaSeconds);
 
   static CacheDirective staleIfError(Duration deltaSeconds) =>
       _SecondsBased('stale-if-error', deltaSeconds);

@@ -8,8 +8,7 @@ final class BooleanCodec extends Codec<bool> {
       (bs) => DecodeResult(bs.head, bv.drop(1)).asRight());
 
   @override
-  Either<Err, BitVector> encode(bool a) =>
-      Either.right(a ? BitVector.high(1) : BitVector.low(1));
+  Either<Err, BitVector> encode(bool a) => Either.right(a ? BitVector.high(1) : BitVector.low(1));
 
   @override
   String? get description => 'bool';

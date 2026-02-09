@@ -24,8 +24,7 @@ abstract class Punycode {
   /// Only the non-ASCII parts of the [domain] name will be converted,
   /// i.e. it doesn't matter if you call it with a domain that's already in
   /// ASCII.
-  static Uri uriEncode(Uri uri) =>
-      uri.replace(host: domainEncode(Uri.decodeComponent(uri.host)));
+  static Uri uriEncode(Uri uri) => uri.replace(host: domainEncode(Uri.decodeComponent(uri.host)));
 
   /// Converts a Punycode string representing a domain name or an email address
   /// to Unicode.
@@ -39,9 +38,7 @@ abstract class Punycode {
         throw PunycodeException.invalidInput();
       }
 
-      return part.startsWith('xn--')
-          ? decode(part.substring(4).toLowerCase())
-          : part;
+      return part.startsWith('xn--') ? decode(part.substring(4).toLowerCase()) : part;
     });
   }
 
@@ -207,8 +204,7 @@ abstract class Punycode {
           // Represent delta as a generalized variable-length integer.
           var q = delta;
           for (var k = _base; /* no condition */; k += _base) {
-            final t =
-                k <= bias ? _tMin : (k >= bias + _tMax ? _tMax : k - bias);
+            final t = k <= bias ? _tMin : (k >= bias + _tMax ? _tMax : k - bias);
             if (q < t) {
               break;
             }
@@ -351,10 +347,9 @@ class PunycodeException implements Exception {
   final String message;
 
   factory PunycodeException.overflow() => const PunycodeException._('overflow');
-  factory PunycodeException.notBasic() => const PunycodeException._(
-      'Illegal input >= 0x80 (not a basic code point)');
-  factory PunycodeException.invalidInput() =>
-      const PunycodeException._('Invalid input');
+  factory PunycodeException.notBasic() =>
+      const PunycodeException._('Illegal input >= 0x80 (not a basic code point)');
+  factory PunycodeException.invalidInput() => const PunycodeException._('Invalid input');
 
   const PunycodeException._(this.message);
 }

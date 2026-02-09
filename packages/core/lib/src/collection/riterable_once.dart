@@ -179,8 +179,7 @@ mixin RIterableOnce<A> {
   /// collection, moving from right to left. The fold uses a seed value of
   /// [z].
   /// {@endtemplate}
-  B foldRight<B>(B z, Function2<A, B, B> op) =>
-      _reversed().foldLeft(z, (b, a) => op(a, b));
+  B foldRight<B>(B z, Function2<A, B, B> op) => _reversed().foldLeft(z, (b, a) => op(a, b));
 
   /// {@template iterable_forall}
   /// Returns true if **all** elements of this collection satisfy the given
@@ -221,8 +220,7 @@ mixin RIterableOnce<A> {
   /// and using the given [Order] to find the greatest.
   ///
   /// If this collection is empty, [None] is returned.
-  Option<A> maxByOption<B>(Function1<A, B> f, Order<B> order) =>
-      _minMaxByOption(f, order.max);
+  Option<A> maxByOption<B>(Function1<A, B> f, Order<B> order) => _minMaxByOption(f, order.max);
 
   /// Finds the largest element in this collection according to the given
   /// [Order].
@@ -237,8 +235,7 @@ mixin RIterableOnce<A> {
   /// and using the given [Order] to find the greatest.
   ///
   /// If this collection is empty, [None] is returned.
-  Option<A> minByOption<B>(Function1<A, B> f, Order<B> order) =>
-      _minMaxByOption(f, order.min);
+  Option<A> minByOption<B>(Function1<A, B> f, Order<B> order) => _minMaxByOption(f, order.min);
 
   /// Returns a [String] by using each elements [toString()], adding [sep]
   /// between each element. If [start] is defined, it will be prepended to the
@@ -278,11 +275,9 @@ mixin RIterableOnce<A> {
   Option<A> reduceOption(Function2<A, A, A> op) => reduceLeftOption(op);
 
   A reduceLeft(Function2<A, A, A> op) => switch (this) {
-        final IndexedSeq<A> seq when seq.length > 0 =>
-          _foldl(seq, 1, seq[0], op),
+        final IndexedSeq<A> seq when seq.length > 0 => _foldl(seq, 1, seq[0], op),
         _ when knownSize == 0 => throw UnsupportedError('empty.reduceLeft'),
-        _ => _reduceLeftIterator(
-            () => throw UnsupportedError('empty.reduceLeft'), op),
+        _ => _reduceLeftIterator(() => throw UnsupportedError('empty.reduceLeft'), op),
       };
 
   /// Returns a summary values of all elements of this collection by applying

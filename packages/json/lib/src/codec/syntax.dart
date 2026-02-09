@@ -21,11 +21,7 @@ extension Codec2Ops<A, B> on ((String, Codec<A>), (String, Codec<B>)) {
       ($1.kv, $2.kv).product(apply, tupled);
 }
 
-extension Codec3KVOps<A, B, C> on (
-  KeyValueCodec<A>,
-  KeyValueCodec<B>,
-  KeyValueCodec<C>
-) {
+extension Codec3KVOps<A, B, C> on (KeyValueCodec<A>, KeyValueCodec<B>, KeyValueCodec<C>) {
   Codec<D> product<D>(
     Function3<A, B, C, D> apply,
     Function1<D, (A, B, C)> tupled,
@@ -33,11 +29,7 @@ extension Codec3KVOps<A, B, C> on (
       Codec.product3($1, $2, $3, apply, tupled);
 }
 
-extension Codec3Ops<A, B, C> on (
-  (String, Codec<A>),
-  (String, Codec<B>),
-  (String, Codec<C>)
-) {
+extension Codec3Ops<A, B, C> on ((String, Codec<A>), (String, Codec<B>), (String, Codec<C>)) {
   Codec<D> product<D>(
     Function3<A, B, C, D> apply,
     Function1<D, (A, B, C)> tupled,
@@ -192,8 +184,7 @@ extension Codec8Ops<A, B, C, D, E, F, G, H> on (
     Function8<A, B, C, D, E, F, G, H, I> apply,
     Function1<I, (A, B, C, D, E, F, G, H)> tupled,
   ) =>
-      ($1.kv, $2.kv, $3.kv, $4.kv, $5.kv, $6.kv, $7.kv, $8.kv)
-          .product(apply, tupled);
+      ($1.kv, $2.kv, $3.kv, $4.kv, $5.kv, $6.kv, $7.kv, $8.kv).product(apply, tupled);
 }
 
 extension Codec9KVOps<A, B, C, D, E, F, G, H, I> on (
@@ -229,8 +220,7 @@ extension Codec9Ops<A, B, C, D, E, F, G, H, I> on (
     Function9<A, B, C, D, E, F, G, H, I, J> apply,
     Function1<J, (A, B, C, D, E, F, G, H, I)> tupled,
   ) =>
-      ($1.kv, $2.kv, $3.kv, $4.kv, $5.kv, $6.kv, $7.kv, $8.kv, $9.kv)
-          .product(apply, tupled);
+      ($1.kv, $2.kv, $3.kv, $4.kv, $5.kv, $6.kv, $7.kv, $8.kv, $9.kv).product(apply, tupled);
 }
 
 extension Codec10KVOps<A, B, C, D, E, F, G, H, I, J> on (
@@ -289,8 +279,7 @@ extension Codec11KVOps<A, B, C, D, E, F, G, H, I, J, K> on (
     Function11<A, B, C, D, E, F, G, H, I, J, K, L> apply,
     Function1<L, (A, B, C, D, E, F, G, H, I, J, K)> tupled,
   ) =>
-      Codec.product11(
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, apply, tupled);
+      Codec.product11($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, apply, tupled);
 }
 
 extension Codec11Ops<A, B, C, D, E, F, G, H, I, J, K> on (
@@ -310,19 +299,8 @@ extension Codec11Ops<A, B, C, D, E, F, G, H, I, J, K> on (
     Function11<A, B, C, D, E, F, G, H, I, J, K, L> apply,
     Function1<L, (A, B, C, D, E, F, G, H, I, J, K)> tupled,
   ) =>
-      (
-        $1.kv,
-        $2.kv,
-        $3.kv,
-        $4.kv,
-        $5.kv,
-        $6.kv,
-        $7.kv,
-        $8.kv,
-        $9.kv,
-        $10.kv,
-        $11.kv
-      ).product(apply, tupled);
+      ($1.kv, $2.kv, $3.kv, $4.kv, $5.kv, $6.kv, $7.kv, $8.kv, $9.kv, $10.kv, $11.kv)
+          .product(apply, tupled);
 }
 
 extension Codec12KVOps<A, B, C, D, E, F, G, H, I, J, K, L> on (
@@ -343,8 +321,7 @@ extension Codec12KVOps<A, B, C, D, E, F, G, H, I, J, K, L> on (
     Function12<A, B, C, D, E, F, G, H, I, J, K, L, M> apply,
     Function1<M, (A, B, C, D, E, F, G, H, I, J, K, L)> tupled,
   ) =>
-      Codec.product12(
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, apply, tupled);
+      Codec.product12($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, apply, tupled);
 }
 
 extension Codec12Ops<A, B, C, D, E, F, G, H, I, J, K, L> on (
@@ -365,20 +342,8 @@ extension Codec12Ops<A, B, C, D, E, F, G, H, I, J, K, L> on (
     Function12<A, B, C, D, E, F, G, H, I, J, K, L, M> apply,
     Function1<M, (A, B, C, D, E, F, G, H, I, J, K, L)> tupled,
   ) =>
-      (
-        $1.kv,
-        $2.kv,
-        $3.kv,
-        $4.kv,
-        $5.kv,
-        $6.kv,
-        $7.kv,
-        $8.kv,
-        $9.kv,
-        $10.kv,
-        $11.kv,
-        $12.kv
-      ).product(apply, tupled);
+      ($1.kv, $2.kv, $3.kv, $4.kv, $5.kv, $6.kv, $7.kv, $8.kv, $9.kv, $10.kv, $11.kv, $12.kv)
+          .product(apply, tupled);
 }
 
 extension Codec13KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
@@ -400,8 +365,7 @@ extension Codec13KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
     Function13<A, B, C, D, E, F, G, H, I, J, K, L, M, N> apply,
     Function1<N, (A, B, C, D, E, F, G, H, I, J, K, L, M)> tupled,
   ) =>
-      Codec.product13($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
-          apply, tupled);
+      Codec.product13($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, apply, tupled);
 }
 
 extension Codec13Ops<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
@@ -460,8 +424,7 @@ extension Codec14KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
     Function14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> apply,
     Function1<O, (A, B, C, D, E, F, G, H, I, J, K, L, M, N)> tupled,
   ) =>
-      Codec.product14($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
-          $14, apply, tupled);
+      Codec.product14($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, apply, tupled);
 }
 
 extension Codec14Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
@@ -523,8 +486,8 @@ extension Codec15KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
     Function15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> apply,
     Function1<P, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> tupled,
   ) =>
-      Codec.product15($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
-          $14, $15, apply, tupled);
+      Codec.product15(
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, apply, tupled);
 }
 
 extension Codec15Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
@@ -589,8 +552,8 @@ extension Codec16KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> on (
     Function16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> apply,
     Function1<Q, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P)> tupled,
   ) =>
-      Codec.product16($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
-          $14, $15, $16, apply, tupled);
+      Codec.product16(
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, apply, tupled);
 }
 
 extension Codec16Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> on (
@@ -658,8 +621,8 @@ extension Codec17KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> on (
     Function17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> apply,
     Function1<R, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q)> tupled,
   ) =>
-      Codec.product17($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
-          $14, $15, $16, $17, apply, tupled);
+      Codec.product17($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
+          apply, tupled);
 }
 
 extension Codec17Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> on (
@@ -706,8 +669,7 @@ extension Codec17Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> on (
       ).product(apply, tupled);
 }
 
-extension Codec18KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
-    on (
+extension Codec18KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> on (
   KeyValueCodec<A>,
   KeyValueCodec<B>,
   KeyValueCodec<C>,
@@ -731,8 +693,8 @@ extension Codec18KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
     Function18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> apply,
     Function1<S, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R)> tupled,
   ) =>
-      Codec.product18($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
-          $14, $15, $16, $17, $18, apply, tupled);
+      Codec.product18($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
+          $18, apply, tupled);
 }
 
 extension Codec18Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> on (
@@ -781,8 +743,7 @@ extension Codec18Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> on (
       ).product(apply, tupled);
 }
 
-extension Codec19KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
-    on (
+extension Codec19KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> on (
   KeyValueCodec<A>,
   KeyValueCodec<B>,
   KeyValueCodec<C>,
@@ -804,17 +765,14 @@ extension Codec19KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
   KeyValueCodec<S>
 ) {
   Codec<T> product<T>(
-    Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
-        apply,
-    Function1<T, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)>
-        tupled,
+    Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> apply,
+    Function1<T, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)> tupled,
   ) =>
-      Codec.product19($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
-          $14, $15, $16, $17, $18, $19, apply, tupled);
+      Codec.product19($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
+          $18, $19, apply, tupled);
 }
 
-extension Codec19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
-    on (
+extension Codec19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> on (
   (String, Codec<A>),
   (String, Codec<B>),
   (String, Codec<C>),
@@ -836,10 +794,8 @@ extension Codec19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
   (String, Codec<S>)
 ) {
   Codec<T> product<T>(
-    Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
-        apply,
-    Function1<T, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)>
-        tupled,
+    Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> apply,
+    Function1<T, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)> tupled,
   ) =>
       (
         $1.kv,
@@ -864,8 +820,7 @@ extension Codec19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
       ).product(apply, tupled);
 }
 
-extension Codec20KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
-    T> on (
+extension Codec20KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> on (
   KeyValueCodec<A>,
   KeyValueCodec<B>,
   KeyValueCodec<C>,
@@ -888,17 +843,14 @@ extension Codec20KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
   KeyValueCodec<T>
 ) {
   Codec<U> product<U>(
-    Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>
-        apply,
-    Function1<U, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)>
-        tupled,
+    Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> apply,
+    Function1<U, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)> tupled,
   ) =>
-      Codec.product20($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
-          $14, $15, $16, $17, $18, $19, $20, apply, tupled);
+      Codec.product20($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
+          $18, $19, $20, apply, tupled);
 }
 
-extension Codec20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
-    on (
+extension Codec20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> on (
   (String, Codec<A>),
   (String, Codec<B>),
   (String, Codec<C>),
@@ -921,10 +873,8 @@ extension Codec20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
   (String, Codec<T>)
 ) {
   Codec<U> product<U>(
-    Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>
-        apply,
-    Function1<U, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)>
-        tupled,
+    Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> apply,
+    Function1<U, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)> tupled,
   ) =>
       (
         $1.kv,
@@ -950,8 +900,7 @@ extension Codec20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
       ).product(apply, tupled);
 }
 
-extension Codec21KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
-    T, U> on (
+extension Codec21KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> on (
   KeyValueCodec<A>,
   KeyValueCodec<B>,
   KeyValueCodec<C>,
@@ -975,18 +924,14 @@ extension Codec21KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
   KeyValueCodec<U>
 ) {
   Codec<V> product<V>(
-    Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>
-        apply,
-    Function1<V,
-            (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
-        tupled,
+    Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> apply,
+    Function1<V, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)> tupled,
   ) =>
-      Codec.product21($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
-          $14, $15, $16, $17, $18, $19, $20, $21, apply, tupled);
+      Codec.product21($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
+          $18, $19, $20, $21, apply, tupled);
 }
 
-extension Codec21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
-    U> on (
+extension Codec21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> on (
   (String, Codec<A>),
   (String, Codec<B>),
   (String, Codec<C>),
@@ -1010,11 +955,8 @@ extension Codec21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
   (String, Codec<U>)
 ) {
   Codec<V> product<V>(
-    Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>
-        apply,
-    Function1<V,
-            (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
-        tupled,
+    Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> apply,
+    Function1<V, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)> tupled,
   ) =>
       (
         $1.kv,
@@ -1041,8 +983,7 @@ extension Codec21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
       ).product(apply, tupled);
 }
 
-extension Codec22KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
-    T, U, V> on (
+extension Codec22KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> on (
   KeyValueCodec<A>,
   KeyValueCodec<B>,
   KeyValueCodec<C>,
@@ -1067,19 +1008,14 @@ extension Codec22KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
   KeyValueCodec<V>
 ) {
   Codec<W> product<W>(
-    Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V,
-            W>
-        apply,
-    Function1<W,
-            (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
-        tupled,
+    Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W> apply,
+    Function1<W, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)> tupled,
   ) =>
-      Codec.product22($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
-          $14, $15, $16, $17, $18, $19, $20, $21, $22, apply, tupled);
+      Codec.product22($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
+          $18, $19, $20, $21, $22, apply, tupled);
 }
 
-extension Codec22Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
-    U, V> on (
+extension Codec22Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> on (
   (String, Codec<A>),
   (String, Codec<B>),
   (String, Codec<C>),
@@ -1104,12 +1040,8 @@ extension Codec22Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
   (String, Codec<V>)
 ) {
   Codec<W> product<W>(
-    Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V,
-            W>
-        apply,
-    Function1<W,
-            (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
-        tupled,
+    Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W> apply,
+    Function1<W, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)> tupled,
   ) =>
       (
         $1.kv,

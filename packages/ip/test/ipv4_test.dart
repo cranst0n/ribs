@@ -7,8 +7,7 @@ import 'package:test/scaffolding.dart';
 import 'arbitraries.dart';
 
 void main() {
-  Ipv4Address ipv4(int a, int b, int c, int d) =>
-      Ipv4Address.fromBytes(a, b, c, d);
+  Ipv4Address ipv4(int a, int b, int c, int d) => Ipv4Address.fromBytes(a, b, c, d);
 
   group('Ipv4Address', () {
     test('fromString empty', () {

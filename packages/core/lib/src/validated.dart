@@ -19,8 +19,7 @@ sealed class Validated<E, A> implements Functor<A> {
 
   /// Lifts the given value [e] into an [Invalid] where the error type is
   /// wrapped in a [NonEmptyIList].
-  static ValidatedNel<E, A> invalidNel<E, A>(E e) =>
-      Invalid(NonEmptyIList.one(e));
+  static ValidatedNel<E, A> invalidNel<E, A>(E e) => Invalid(NonEmptyIList.one(e));
 
   /// Lifts the given value [a] into a [Valid].
   static Validated<E, A> valid<E, A>(A a) => Valid(a);
@@ -35,8 +34,7 @@ sealed class Validated<E, A> implements Functor<A> {
 
   /// Creates a new Validated by applying [f] if this is a [Valid], otherwise
   /// returns the error value.
-  Validated<E, B> andThen<B>(Function1<A, Validated<E, B>> f) =>
-      fold(Validated.invalid, f);
+  Validated<E, B> andThen<B>(Function1<A, Validated<E, B>> f) => fold(Validated.invalid, f);
 
   /// Returns a new Validated by applying [fe] or [fa] depending on if this
   /// instance is an [Invalid] or [Valid] respectively.
@@ -79,19 +77,16 @@ sealed class Validated<E, A> implements Functor<A> {
 
   /// Returns a new validated by applying [f] to the value of this instance if
   /// it is an [Invalid].
-  Validated<EE, A> leftMap<EE>(Function1<E, EE> f) =>
-      fold((e) => f(e).invalid(), (a) => a.valid());
+  Validated<EE, A> leftMap<EE>(Function1<E, EE> f) => fold((e) => f(e).invalid(), (a) => a.valid());
 
   /// Returns a new validated by applying [f] to the value of this instance if
   /// it is a [Valid].
   @override
-  Validated<E, B> map<B>(Function1<A, B> f) =>
-      fold((e) => e.invalid(), (a) => f(a).valid());
+  Validated<E, B> map<B>(Function1<A, B> f) => fold((e) => e.invalid(), (a) => f(a).valid());
 
   /// If this instance is a [Valid], this is returned. Otherwise, the result of
   /// evaluating [orElse] is returned.
-  Validated<E, A> orElse(Function0<Validated<E, A>> orElse) =>
-      fold((_) => orElse(), (_) => this);
+  Validated<E, A> orElse(Function0<Validated<E, A>> orElse) => fold((_) => orElse(), (_) => this);
 
   /// Returns a new Validated where the invalid and valid types are swapped.
   Validated<A, E> swap() => fold((e) => e.valid(), (a) => a.invalid());
@@ -109,8 +104,7 @@ sealed class Validated<E, A> implements Functor<A> {
   Option<A> toOption() => fold((_) => none(), (a) => Some(a));
 
   /// Converts this instance to a [ValidatedNel].
-  ValidatedNel<E, A> toValidatedNel() =>
-      fold(Validated.invalidNel, Validated.validNel);
+  ValidatedNel<E, A> toValidatedNel() => fold(Validated.invalidNel, Validated.validNel);
 
   /// Alias for [fold].
   A valueOr(Function1<E, A> f) => fold(f, identity);

@@ -185,8 +185,7 @@ final class _Vector3<A> extends _BigVector<A> {
         }
       } else if (index >= len1) {
         final io = index - len1;
-        return _copy(
-            prefix2: _copyUpdate2(prefix2, io >>> _BITS, io & _MASK, elem));
+        return _copy(prefix2: _copyUpdate2(prefix2, io >>> _BITS, io & _MASK, elem));
       } else {
         return _copy(prefix1: _copyUpdate1(_prefix1, index, elem));
       }

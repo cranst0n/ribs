@@ -8,27 +8,21 @@ abstract mixin class Encoder<A> {
 
   static Either<Err, BitVector> encodeBoth<A, B>(
           Encoder<A> encodeA, A a, Encoder<B> encodeB, B b) =>
-      encodeA
-          .encode(a)
-          .flatMap((bvA) => encodeB.encode(b).map((bvB) => bvA.concat(bvB)));
+      encodeA.encode(a).flatMap((bvA) => encodeB.encode(b).map((bvB) => bvA.concat(bvB)));
 
   Either<Err, BitVector> encode(A a);
 
-  Encoder<B> contramap<B>(Function1<B, A> f) =>
-      Encoder.instance<B>((b) => encode(f(b)));
+  Encoder<B> contramap<B>(Function1<B, A> f) => Encoder.instance<B>((b) => encode(f(b)));
 
-  Either<Err, BitVector> encodeAll(Iterable<A> as) => as.fold(
-      Either.right(BitVector.empty),
-      (acc, a) =>
-          encode(a).flatMap((res) => acc.map((acc) => acc.concat(res))));
+  Either<Err, BitVector> encodeAll(Iterable<A> as) => as.fold(Either.right(BitVector.empty),
+      (acc, a) => encode(a).flatMap((res) => acc.map((acc) => acc.concat(res))));
 
   static Encoder<(A, B)> tuple2<A, B>(
     Encoder<A> encodeA,
     Encoder<B> encodeB,
   ) =>
-      _EncoderF((tuple) => encodeA
-          .encode(tuple.$1)
-          .flatMap((a) => encodeB.encode(tuple.last).map(a.concat)));
+      _EncoderF((tuple) =>
+          encodeA.encode(tuple.$1).flatMap((a) => encodeB.encode(tuple.last).map(a.concat)));
 
   static Encoder<(A, B, C)> tuple3<A, B, C>(
     Encoder<A> encodeA,
@@ -81,10 +75,9 @@ abstract mixin class Encoder<A> {
     Encoder<F> encodeF,
     Encoder<G> encodeG,
   ) =>
-      _EncoderF((tuple) =>
-          tuple6(encodeA, encodeB, encodeC, encodeD, encodeE, encodeF)
-              .encode(tuple.init())
-              .flatMap((a) => encodeG.encode(tuple.last).map(a.concat)));
+      _EncoderF((tuple) => tuple6(encodeA, encodeB, encodeC, encodeD, encodeE, encodeF)
+          .encode(tuple.init())
+          .flatMap((a) => encodeG.encode(tuple.last).map(a.concat)));
 
   static Encoder<(A, B, C, D, E, F, G, H)> tuple8<A, B, C, D, E, F, G, H>(
     Encoder<A> encodeA,
@@ -96,10 +89,9 @@ abstract mixin class Encoder<A> {
     Encoder<G> encodeG,
     Encoder<H> encodeH,
   ) =>
-      _EncoderF((tuple) =>
-          tuple7(encodeA, encodeB, encodeC, encodeD, encodeE, encodeF, encodeG)
-              .encode(tuple.init())
-              .flatMap((a) => encodeH.encode(tuple.last).map(a.concat)));
+      _EncoderF((tuple) => tuple7(encodeA, encodeB, encodeC, encodeD, encodeE, encodeF, encodeG)
+          .encode(tuple.init())
+          .flatMap((a) => encodeH.encode(tuple.last).map(a.concat)));
 
   static Encoder<(A, B, C, D, E, F, G, H, I)> tuple9<A, B, C, D, E, F, G, H, I>(
     Encoder<A> encodeA,
@@ -112,13 +104,12 @@ abstract mixin class Encoder<A> {
     Encoder<H> encodeH,
     Encoder<I> encodeI,
   ) =>
-      _EncoderF((tuple) => tuple8(encodeA, encodeB, encodeC, encodeD, encodeE,
-              encodeF, encodeG, encodeH)
-          .encode(tuple.init())
-          .flatMap((a) => encodeI.encode(tuple.last).map(a.concat)));
+      _EncoderF((tuple) =>
+          tuple8(encodeA, encodeB, encodeC, encodeD, encodeE, encodeF, encodeG, encodeH)
+              .encode(tuple.init())
+              .flatMap((a) => encodeI.encode(tuple.last).map(a.concat)));
 
-  static Encoder<(A, B, C, D, E, F, G, H, I, J)>
-      tuple10<A, B, C, D, E, F, G, H, I, J>(
+  static Encoder<(A, B, C, D, E, F, G, H, I, J)> tuple10<A, B, C, D, E, F, G, H, I, J>(
     Encoder<A> encodeA,
     Encoder<B> encodeB,
     Encoder<C> encodeC,
@@ -130,13 +121,12 @@ abstract mixin class Encoder<A> {
     Encoder<I> encodeI,
     Encoder<J> encodeJ,
   ) =>
-          _EncoderF((tuple) => tuple9(encodeA, encodeB, encodeC, encodeD,
-                  encodeE, encodeF, encodeG, encodeH, encodeI)
+      _EncoderF((tuple) =>
+          tuple9(encodeA, encodeB, encodeC, encodeD, encodeE, encodeF, encodeG, encodeH, encodeI)
               .encode(tuple.init())
               .flatMap((a) => encodeJ.encode(tuple.last).map(a.concat)));
 
-  static Encoder<(A, B, C, D, E, F, G, H, I, J, K)>
-      tuple11<A, B, C, D, E, F, G, H, I, J, K>(
+  static Encoder<(A, B, C, D, E, F, G, H, I, J, K)> tuple11<A, B, C, D, E, F, G, H, I, J, K>(
     Encoder<A> encodeA,
     Encoder<B> encodeB,
     Encoder<C> encodeC,
@@ -149,13 +139,12 @@ abstract mixin class Encoder<A> {
     Encoder<J> encodeJ,
     Encoder<K> encodeK,
   ) =>
-          _EncoderF((tuple) => tuple10(encodeA, encodeB, encodeC, encodeD,
-                  encodeE, encodeF, encodeG, encodeH, encodeI, encodeJ)
-              .encode(tuple.init())
-              .flatMap((a) => encodeK.encode(tuple.last).map(a.concat)));
+      _EncoderF((tuple) => tuple10(encodeA, encodeB, encodeC, encodeD, encodeE, encodeF, encodeG,
+              encodeH, encodeI, encodeJ)
+          .encode(tuple.init())
+          .flatMap((a) => encodeK.encode(tuple.last).map(a.concat)));
 
-  static Encoder<(A, B, C, D, E, F, G, H, I, J, K, L)>
-      tuple12<A, B, C, D, E, F, G, H, I, J, K, L>(
+  static Encoder<(A, B, C, D, E, F, G, H, I, J, K, L)> tuple12<A, B, C, D, E, F, G, H, I, J, K, L>(
     Encoder<A> encodeA,
     Encoder<B> encodeB,
     Encoder<C> encodeC,
@@ -169,10 +158,10 @@ abstract mixin class Encoder<A> {
     Encoder<K> encodeK,
     Encoder<L> encodeL,
   ) =>
-          _EncoderF((tuple) => tuple11(encodeA, encodeB, encodeC, encodeD,
-                  encodeE, encodeF, encodeG, encodeH, encodeI, encodeJ, encodeK)
-              .encode(tuple.init())
-              .flatMap((a) => encodeL.encode(tuple.last).map(a.concat)));
+      _EncoderF((tuple) => tuple11(encodeA, encodeB, encodeC, encodeD, encodeE, encodeF, encodeG,
+              encodeH, encodeI, encodeJ, encodeK)
+          .encode(tuple.init())
+          .flatMap((a) => encodeL.encode(tuple.last).map(a.concat)));
 
   static Encoder<(A, B, C, D, E, F, G, H, I, J, K, L, M)>
       tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>(
@@ -190,19 +179,8 @@ abstract mixin class Encoder<A> {
     Encoder<L> encodeL,
     Encoder<M> encodeM,
   ) =>
-          _EncoderF((tuple) => tuple12(
-                  encodeA,
-                  encodeB,
-                  encodeC,
-                  encodeD,
-                  encodeE,
-                  encodeF,
-                  encodeG,
-                  encodeH,
-                  encodeI,
-                  encodeJ,
-                  encodeK,
-                  encodeL)
+          _EncoderF((tuple) => tuple12(encodeA, encodeB, encodeC, encodeD, encodeE, encodeF,
+                  encodeG, encodeH, encodeI, encodeJ, encodeK, encodeL)
               .encode(tuple.init())
               .flatMap((a) => encodeM.encode(tuple.last).map(a.concat)));
 
@@ -223,20 +201,8 @@ abstract mixin class Encoder<A> {
     Encoder<M> encodeM,
     Encoder<N> encodeN,
   ) =>
-          _EncoderF((tuple) => tuple13(
-                  encodeA,
-                  encodeB,
-                  encodeC,
-                  encodeD,
-                  encodeE,
-                  encodeF,
-                  encodeG,
-                  encodeH,
-                  encodeI,
-                  encodeJ,
-                  encodeK,
-                  encodeL,
-                  encodeM)
+          _EncoderF((tuple) => tuple13(encodeA, encodeB, encodeC, encodeD, encodeE, encodeF,
+                  encodeG, encodeH, encodeI, encodeJ, encodeK, encodeL, encodeM)
               .encode(tuple.init())
               .flatMap((a) => encodeN.encode(tuple.last).map(a.concat)));
 
@@ -258,21 +224,8 @@ abstract mixin class Encoder<A> {
     Encoder<N> encodeN,
     Encoder<O> encodeO,
   ) =>
-          _EncoderF((tuple) => tuple14(
-                  encodeA,
-                  encodeB,
-                  encodeC,
-                  encodeD,
-                  encodeE,
-                  encodeF,
-                  encodeG,
-                  encodeH,
-                  encodeI,
-                  encodeJ,
-                  encodeK,
-                  encodeL,
-                  encodeM,
-                  encodeN)
+          _EncoderF((tuple) => tuple14(encodeA, encodeB, encodeC, encodeD, encodeE, encodeF,
+                  encodeG, encodeH, encodeI, encodeJ, encodeK, encodeL, encodeM, encodeN)
               .encode(tuple.init())
               .flatMap((a) => encodeO.encode(tuple.last).map(a.concat)));
 
@@ -295,22 +248,8 @@ abstract mixin class Encoder<A> {
     Encoder<O> encodeO,
     Encoder<P> encodeP,
   ) =>
-          _EncoderF((tuple) => tuple15(
-                  encodeA,
-                  encodeB,
-                  encodeC,
-                  encodeD,
-                  encodeE,
-                  encodeF,
-                  encodeG,
-                  encodeH,
-                  encodeI,
-                  encodeJ,
-                  encodeK,
-                  encodeL,
-                  encodeM,
-                  encodeN,
-                  encodeO)
+          _EncoderF((tuple) => tuple15(encodeA, encodeB, encodeC, encodeD, encodeE, encodeF,
+                  encodeG, encodeH, encodeI, encodeJ, encodeK, encodeL, encodeM, encodeN, encodeO)
               .encode(tuple.init())
               .flatMap((a) => encodeP.encode(tuple.last).map(a.concat)));
 
@@ -486,8 +425,7 @@ abstract mixin class Encoder<A> {
               .encode(tuple.init())
               .flatMap((a) => encodeT.encode(tuple.last).map(a.concat)));
 
-  static Encoder<
-          (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
+  static Encoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
       tuple21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>(
     Encoder<A> encodeA,
     Encoder<B> encodeB,
@@ -535,8 +473,7 @@ abstract mixin class Encoder<A> {
               .encode(tuple.init())
               .flatMap((a) => encodeU.encode(tuple.last).map(a.concat)));
 
-  static Encoder<
-          (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
+  static Encoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
       tuple22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>(
     Encoder<A> encodeA,
     Encoder<B> encodeB,

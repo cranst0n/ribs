@@ -14,9 +14,7 @@ void main() {
     }, skip: 'Expected to be non-terminating');
 
     test('await is cancelable', () {
-      final test = newBarrier(2)
-          .flatMap((barrier) => barrier.await())
-          .timeoutTo(1.second, IO.unit);
+      final test = newBarrier(2).flatMap((barrier) => barrier.await()).timeoutTo(1.second, IO.unit);
 
       expect(test, ioSucceeded());
     });
@@ -31,9 +29,7 @@ void main() {
 
     test('should reset once full', () {
       final test = newBarrier(2).flatMap((barrier) {
-        return (barrier.await(), barrier.await())
-            .parTupled()
-            .productR(() => barrier.await());
+        return (barrier.await(), barrier.await()).parTupled().productR(() => barrier.await());
       });
 
       expect(test, ioSucceeded());
@@ -41,10 +37,7 @@ void main() {
 
     test('should clean up upon cancelation of await', () {
       final test = newBarrier(2).flatMap((barrier) {
-        return barrier
-            .await()
-            .timeoutTo(1.second, IO.unit)
-            .productR(() => barrier.await());
+        return barrier.await().timeoutTo(1.second, IO.unit).productR(() => barrier.await());
       });
 
       expect(test, ioSucceeded());

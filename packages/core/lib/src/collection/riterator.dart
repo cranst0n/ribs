@@ -66,13 +66,11 @@ abstract class RIterator<A> with RIterableOnce<A> {
 
   static RIterator<A> fromDart<A>(Iterator<A> it) => _DartIterator(it);
 
-  static RIterator<A> iterate<A>(A start, Function1<A, A> f) =>
-      _IterateIterator(start, f);
+  static RIterator<A> iterate<A>(A start, Function1<A, A> f) => _IterateIterator(start, f);
 
   static RIterator<A> single<A>(A a) => _SingleIterator(a);
 
-  static RIterator<A> tabulate<A>(int len, Function1<int, A> f) =>
-      _TabulateIterator(len, f);
+  static RIterator<A> tabulate<A>(int len, Function1<int, A> f) => _TabulateIterator(len, f);
 
   static RIterator<A> unfold<A, S>(
     S initial,
@@ -83,8 +81,7 @@ abstract class RIterator<A> with RIterableOnce<A> {
   // ///////////////////////////////////////////////////////////////////////////
 
   @override
-  RIterator<B> collect<B>(Function1<A, Option<B>> f) =>
-      _CollectIterator(this, f);
+  RIterator<B> collect<B>(Function1<A, Option<B>> f) => _CollectIterator(this, f);
 
   RIterator<A> concat(RIterableOnce<A> xs) => _ConcatIterator(this).concat(xs);
 
@@ -102,12 +99,10 @@ abstract class RIterator<A> with RIterableOnce<A> {
   RIterator<A> filter(Function1<A, bool> p) => _FilterIterator(this, p, false);
 
   @override
-  RIterator<A> filterNot(Function1<A, bool> p) =>
-      _FilterIterator(this, p, true);
+  RIterator<A> filterNot(Function1<A, bool> p) => _FilterIterator(this, p, true);
 
   @override
-  RIterator<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) =>
-      _FlatMapIterator(this, f);
+  RIterator<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) => _FlatMapIterator(this, f);
 
   RIterator<RSeq<A>> grouped(int size) => _GroupedIterator(this, size, size);
 
@@ -145,18 +140,15 @@ abstract class RIterator<A> with RIterableOnce<A> {
   }
 
   @override
-  RIterator<B> scanLeft<B>(B z, Function2<B, A, B> op) =>
-      _ScanLeftIterator(this, z, op);
+  RIterator<B> scanLeft<B>(B z, Function2<B, A, B> op) => _ScanLeftIterator(this, z, op);
 
   @override
   RIterator<A> slice(int from, int until) => sliceIterator(from, max(until, 0));
 
-  RIterator<RSeq<A>> sliding(int size, [int step = 1]) =>
-      _GroupedIterator(this, size, step);
+  RIterator<RSeq<A>> sliding(int size, [int step = 1]) => _GroupedIterator(this, size, step);
 
   @override
-  (RIterator<A>, RIterator<A>) span(Function1<A, bool> p) =>
-      spanIterator(this, p);
+  (RIterator<A>, RIterator<A>) span(Function1<A, bool> p) => spanIterator(this, p);
 
   @override
   RIterator<A> take(int n) => sliceIterator(0, max(n, 0));

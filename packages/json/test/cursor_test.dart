@@ -8,17 +8,15 @@ import 'arbitraries.dart';
 
 void main() {
   group('Cursor', () {
-    forAll(
-        'focus should return the JSON value in a newly created cursor', genJson,
-        (json) {
+    forAll('focus should return the JSON value in a newly created cursor', genJson, (json) {
       expect(HCursor.fromJson(json).focus(), isSome<Json>());
     });
 
     forAll('top should return from navigation into an object', genJson, (json) {
       final c = HCursor.fromJson(json);
 
-      final intoObject = c.keys.flatMap((keys) =>
-          keys.headOption.flatMap((first) => c.downField(first).success()));
+      final intoObject = c.keys
+          .flatMap((keys) => keys.headOption.flatMap((first) => c.downField(first).success()));
 
       expect(
         intoObject.forall((atFirst) => atFirst.top() == Some(json)),
@@ -36,12 +34,11 @@ void main() {
       );
     });
 
-    forAll('root should return from navigation into an object', genJson,
-        (json) {
+    forAll('root should return from navigation into an object', genJson, (json) {
       final c = HCursor.fromJson(json);
 
-      final intoObject = c.keys.flatMap((keys) =>
-          keys.headOption.flatMap((first) => c.downField(first).success()));
+      final intoObject = c.keys
+          .flatMap((keys) => keys.headOption.flatMap((first) => c.downField(first).success()));
 
       expect(
         intoObject.forall((atFirst) => atFirst.root().focus() == Some(json)),
@@ -56,12 +53,11 @@ void main() {
     forAll('up should undo navigation into an object', genJson, (json) {
       final c = HCursor.fromJson(json);
 
-      final intoObject = c.keys.flatMap((keys) =>
-          keys.headOption.flatMap((first) => c.downField(first).success()));
+      final intoObject = c.keys
+          .flatMap((keys) => keys.headOption.flatMap((first) => c.downField(first).success()));
 
       expect(
-        intoObject.forall(
-            (a) => a.up().success().flatMap((a) => a.focus()) == Some(json)),
+        intoObject.forall((a) => a.up().success().flatMap((a) => a.focus()) == Some(json)),
         isTrue,
       );
     });
@@ -69,8 +65,7 @@ void main() {
     forAll('up should undo navigation into an array', genJson, (json) {
       final success = HCursor.fromJson(json).downArray().success();
       expect(
-        success.forall((atFirst) =>
-            atFirst.up().success().flatMap((a) => a.focus()) == Some(json)),
+        success.forall((atFirst) => atFirst.up().success().flatMap((a) => a.focus()) == Some(json)),
         isTrue,
       );
     });
@@ -82,23 +77,19 @@ void main() {
       expect(result.history(), ilist([CursorOp.moveUp]));
     });
 
-    forAll('withFocus should have no effect when given the identity function',
-        genJson, (json) {
+    forAll('withFocus should have no effect when given the identity function', genJson, (json) {
       expect(HCursor.fromJson(json).withFocus(identity).focus(), isSome(json));
     });
 
     test('withFocus should support adding an element to an array', () {
       final result = cursor.downField('a').success().map((a) => a.withFocus(
-          (j) => j
-              .asArray()
-              .fold(() => j, (a) => Json.arrI(a.prepended(Json.number(0))))));
+          (j) => j.asArray().fold(() => j, (a) => Json.arrI(a.prepended(Json.number(0))))));
 
       expect(result.flatMap((a) => a.top()), isSome(j2));
     });
 
     test('delete should remove a value from an object', () {
-      final result =
-          cursor.downField('b').success().flatMap((a) => a.delete().success());
+      final result = cursor.downField('b').success().flatMap((a) => a.delete().success());
 
       expect(result.flatMap((a) => a.top()), isSome(j4));
     });
@@ -124,8 +115,7 @@ void main() {
   });
 
   test('set should replace an element', () {
-    final result =
-        cursor.downField('b').success().map((a) => a.set(Json.number(10)));
+    final result = cursor.downField('b').success().map((a) => a.set(Json.number(10)));
 
     expect(result.flatMap((a) => a.top()), isSome(j3));
   });
@@ -142,15 +132,16 @@ void main() {
   });
 
   test('left should successfully select an existing value', () {
-    final result = cursor.downField('a').success().flatMap(
-        (c) => c.downN(3).success().flatMap((a) => a.left().success()));
+    final result = cursor
+        .downField('a')
+        .success()
+        .flatMap((c) => c.downN(3).success().flatMap((a) => a.left().success()));
 
     expect(result.flatMap((a) => a.focus()), isSome(Json.number(3)));
   });
 
   test("left should fail to select a value that doesn't exist", () {
-    final result =
-        cursor.downField('b').success().flatMap((c) => c.left().success());
+    final result = cursor.downField('b').success().flatMap((c) => c.left().success());
 
     expect(result.flatMap((a) => a.focus()), isNone());
   });
@@ -163,44 +154,45 @@ void main() {
   });
 
   test('right should successfully select an existing value', () {
-    final result = cursor.downField('a').success().flatMap(
-        (c) => c.downN(3).success().flatMap((a) => a.right().success()));
+    final result = cursor
+        .downField('a')
+        .success()
+        .flatMap((c) => c.downN(3).success().flatMap((a) => a.right().success()));
 
     expect(result.flatMap((a) => a.focus()), isSome(Json.number(5)));
   });
 
   test("right should fail to select a value that doesn't exist", () {
-    final result =
-        cursor.downField('b').success().flatMap((c) => c.right().success());
+    final result = cursor.downField('b').success().flatMap((c) => c.right().success());
 
     expect(result.flatMap((a) => a.focus()), isNone());
   });
 
   test('downArray should successfully select an existing value', () {
-    final result = cursor.downField('a').success().flatMap((c) =>
-        c.downN(3).success().flatMap((a) => a.up().downArray().success()));
+    final result = cursor
+        .downField('a')
+        .success()
+        .flatMap((c) => c.downN(3).success().flatMap((a) => a.up().downArray().success()));
 
     expect(result.flatMap((a) => a.focus()), isSome(Json.number(1)));
   });
 
   test("downArray should fail to select a value that doesn't exist", () {
-    final result = cursor
-        .downField('b')
-        .success()
-        .flatMap((c) => c.up().downArray().success());
+    final result = cursor.downField('b').success().flatMap((c) => c.up().downArray().success());
 
     expect(result.flatMap((a) => a.focus()), isNone());
   });
 
   test('field should successfully select an existing value', () {
-    final result = cursor.downField('c').success().flatMap((c) =>
-        c.downField('e').success().flatMap((e) => e.field('f').success()));
+    final result = cursor
+        .downField('c')
+        .success()
+        .flatMap((c) => c.downField('e').success().flatMap((e) => e.field('f').success()));
 
     expect(result.flatMap((a) => a.focus()), isSome(Json.number(200.2)));
   });
 
-  forAll('field should fail at the top',
-      (genJson, Gen.nonEmptyAlphaNumString(10)).tupled, (tup) {
+  forAll('field should fail at the top', (genJson, Gen.nonEmptyAlphaNumString(10)).tupled, (tup) {
     final (json, key) = tup;
     final result = HCursor.fromJson(json).field(key);
 
@@ -209,8 +201,10 @@ void main() {
   });
 
   test('getOrElse should successfully decode an existing field', () {
-    final result = cursor.downField('b').success().map((b) =>
-        b.getOrElse('d', Decoder.ilist(Decoder.boolean), () => nil<bool>()));
+    final result = cursor
+        .downField('b')
+        .success()
+        .map((b) => b.getOrElse('d', Decoder.ilist(Decoder.boolean), () => nil<bool>()));
 
     expect(
       result,
@@ -219,8 +213,10 @@ void main() {
   });
 
   test('getOrElse should use the fallback if field is missing', () {
-    final result = cursor.downField('b').success().map((b) =>
-        b.getOrElse('z', Decoder.ilist(Decoder.boolean), () => nil<bool>()));
+    final result = cursor
+        .downField('b')
+        .success()
+        .map((b) => b.getOrElse('z', Decoder.ilist(Decoder.boolean), () => nil<bool>()));
 
     expect(
       result,
@@ -278,17 +274,7 @@ void main() {
     expect(c.downField('a').pathString, '.a');
     expect(c.downField('a').downArray().pathString, '.a[0]');
     expect(c.downField('a').downN(1).downField('b').pathString, '.a[1].b');
-    expect(
-        c
-            .downField('a')
-            .downN(1)
-            .downField('b')
-            .up()
-            .left()
-            .right()
-            .left()
-            .pathString,
-        '.a[0]');
+    expect(c.downField('a').downN(1).downField('b').up().left().right().left().pathString, '.a[0]');
   });
 
   group('ArrayCursor', () {

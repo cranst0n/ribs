@@ -70,8 +70,7 @@ void main() {
 
     test('compute next IP', () {
       expect(
-        Ipv6Address.fromString('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff')
-            .map((ip) => ip.next()),
+        Ipv6Address.fromString('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff').map((ip) => ip.next()),
         Ipv6Address.fromString('::'),
       );
     });
@@ -92,8 +91,7 @@ void main() {
     });
 
     test('converting V4 mapped address', () {
-      final addr = Ipv6Address.fromString('::ffff:f:f')
-          .getOrElse(() => fail('ip parse failed'));
+      final addr = Ipv6Address.fromString('::ffff:f:f').getOrElse(() => fail('ip parse failed'));
 
       expect(addr.version, IpVersion.v6);
       expect(addr.toString(), '::ffff:f:f');

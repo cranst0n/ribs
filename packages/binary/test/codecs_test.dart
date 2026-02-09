@@ -52,8 +52,7 @@ void main() {
     testVariableInt('integerL', genIntN(true), (bits) => Codec.integerL(bits));
 
     testVariableInt('uinteger', genIntN(false), (bits) => Codec.uinteger(bits));
-    testVariableInt(
-        'uintegerL', genIntN(false), (bits) => Codec.uintegerL(bits));
+    testVariableInt('uintegerL', genIntN(false), (bits) => Codec.uintegerL(bits));
 
     testCodec('float32', genFloat32, Codec.float32, (f) => closeTo(f, 1));
     testCodec('float64', genFloat64, Codec.float64, (f) => closeTo(f, 1));
@@ -93,20 +92,17 @@ void main() {
         (err) => fail('peek codec failed on input [$str]: $err'),
         (a) {
           expect(a.value, str);
-          expect(a.remainder,
-              codec.encode(str).getOrElse(() => fail('peek encode failed')));
+          expect(a.remainder, codec.encode(str).getOrElse(() => fail('peek encode failed')));
         },
       );
     });
 
-    testCodec(
-        'option', Gen.option(genInt32), Codec.int32.optional(Codec.boolean));
+    testCodec('option', Gen.option(genInt32), Codec.int32.optional(Codec.boolean));
 
     testCodec('either', Gen.either(genInt32, Gen.boolean),
         Codec.either(Codec.boolean, Codec.int32, Codec.boolean));
 
-    forAll('byteAligned', Gen.chooseInt(0, 8).map((a) => BitVector.low(a)),
-        (bv) {
+    forAll('byteAligned', Gen.chooseInt(0, 8).map((a) => BitVector.low(a)), (bv) {
       final codec = Codec.byteAligned(Codec.bits);
 
       codec.encode(bv).fold(
@@ -171,8 +167,7 @@ Gen<double> genFloat64 = Gen.chooseDouble(-100000000.0, 100000000.0);
 Gen<(int, int)> genIntN(bool signed) => Gen.chooseInt(2, 32).flatMap((bits) {
       return (
         Gen.constant(bits),
-        Gen.chooseInt(signed ? -(1 << (bits - 1)) : 0,
-            (1 << (signed ? bits - 1 : bits)) - 1),
+        Gen.chooseInt(signed ? -(1 << (bits - 1)) : 0, (1 << (signed ? bits - 1 : bits)) - 1),
       ).tupled;
     });
 
@@ -193,8 +188,7 @@ void testCodec<A>(String description, Gen<A> gen, Codec<A> codec,
 }
 
 @isTest
-void testVariableInt(String description, Gen<(int, int)> gen,
-    Function1<int, Codec<int>> codecC) {
+void testVariableInt(String description, Gen<(int, int)> gen, Function1<int, Codec<int>> codecC) {
   forAll(description, gen, (t) {
     final (bits, n) = t;
     final codec = codecC(bits);

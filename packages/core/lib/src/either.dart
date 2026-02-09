@@ -56,8 +56,8 @@ sealed class Either<A, B> implements Monad<B> {
   /// [Right]. If either this or [f] is a [Left], that value is returned, in
   /// that order.
   @override
-  Either<A, C> ap<C>(Either<A, Function1<B, C>> f) => fold((a) => left<A, C>(a),
-      (b) => f.fold((a) => left<A, C>(a), (f) => right(f(b))));
+  Either<A, C> ap<C>(Either<A, Function1<B, C>> f) =>
+      fold((a) => left<A, C>(a), (b) => f.fold((a) => left<A, C>(a), (f) => right(f(b))));
 
   /// Applies the appropriate function [fa] or [fb] to the value of this
   /// instance depending on if this is a [Left] or [Right].
@@ -74,8 +74,7 @@ sealed class Either<A, B> implements Monad<B> {
   Either<A, B> ensure(Function1<B, bool> p, Function0<A> onFailure) =>
       fold((_) => this, (b) => p(b) ? this : left(onFailure()));
 
-  bool exists(Function1<B, bool> p) =>
-      foldLeft(false, (acc, elem) => acc || p(elem));
+  bool exists(Function1<B, bool> p) => foldLeft(false, (acc, elem) => acc || p(elem));
 
   /// Checks if the value of this [Right] satisfies the given predicate [p].
   /// If this is a [Left] or if the [Right] value does not satisfy [p], then
@@ -86,21 +85,17 @@ sealed class Either<A, B> implements Monad<B> {
   /// Applies [f] to this value is this is a [Right]. If this is a [Left], then
   /// the original value is returned.
   @override
-  Either<A, C> flatMap<C>(covariant Function1<B, Either<A, C>> f) =>
-      fold(left<A, C>, f);
+  Either<A, C> flatMap<C>(covariant Function1<B, Either<A, C>> f) => fold(left<A, C>, f);
 
   /// Applies [op] to [init] and this value if this is a [Right]. If this is
   /// a [Left], [init] is returned.
-  R2 foldLeft<R2>(R2 init, Function2<R2, B, R2> op) =>
-      fold((_) => init, (r) => op(init, r));
+  R2 foldLeft<R2>(R2 init, Function2<R2, B, R2> op) => fold((_) => init, (r) => op(init, r));
 
   /// Applies [op] to this value and [init] if this is a [Right]. If this is
   /// a [Left], [init] is returned.
-  R2 foldRight<R2>(R2 init, Function2<B, R2, R2> op) =>
-      fold((_) => init, (r) => op(r, init));
+  R2 foldRight<R2>(R2 init, Function2<B, R2, R2> op) => fold((_) => init, (r) => op(r, init));
 
-  bool forall(Function1<B, bool> p) =>
-      foldLeft(true, (acc, elem) => acc && p(elem));
+  bool forall(Function1<B, bool> p) => foldLeft(true, (acc, elem) => acc && p(elem));
 
   /// Applies side effect [f] if this is a [Right].
   void foreach<U>(Function1<B, U> f) => fold((_) {}, f);
@@ -123,13 +118,11 @@ sealed class Either<A, B> implements Monad<B> {
   /// Returns a new Either by applying [f] to the value of this instance if
   /// it is a [Right].
   @override
-  Either<A, C> map<C>(Function1<B, C> f) =>
-      fold(left<A, C>, (r) => Right(f(r)));
+  Either<A, C> map<C>(Function1<B, C> f) => fold(left<A, C>, (r) => Right(f(r)));
 
   /// If this instance is a [Right], this is returned. Otherwise, the result of
   /// evaluating [orElse] is returned.
-  Either<A, B> orElse(Function0<Either<A, B>> or) =>
-      fold((a) => or(), (b) => this);
+  Either<A, B> orElse(Function0<Either<A, B>> or) => fold((a) => or(), (b) => this);
 
   /// Tuples the values of this Either and [other] if both are instances of
   /// [Right]. Otherwise, the first [Left] value is returned, this or [other]
@@ -156,8 +149,8 @@ sealed class Either<A, B> implements Monad<B> {
   String toString() => fold((a) => 'Left($a)', (b) => 'Right($b)');
 
   @override
-  bool operator ==(Object other) => fold((a) => other is Left && a == other.a,
-      (b) => other is Right && b == other.b);
+  bool operator ==(Object other) =>
+      fold((a) => other is Left && a == other.a, (b) => other is Right && b == other.b);
 
   @override
   int get hashCode => fold((a) => a.hashCode, (b) => b.hashCode);

@@ -10,22 +10,17 @@ final class PlatformImpl extends PlatformBase {
   IO<A> isolate<A>(IO<A> io, {String? debugName}) => io;
 
   @override
-  IO<Unit> print(String message) =>
-      IO.exec(() => web.console.log(message.toJS));
+  IO<Unit> print(String message) => IO.exec(() => web.console.log(message.toJS));
 
   @override
-  IO<Unit> println(String message) =>
-      IO.exec(() => web.console.log(message.toJS));
+  IO<Unit> println(String message) => IO.exec(() => web.console.log(message.toJS));
 
   @override
-  IO<Unit> printErr(String message) =>
-      IO.exec(() => web.console.log(message.toJS));
+  IO<Unit> printErr(String message) => IO.exec(() => web.console.log(message.toJS));
 
   @override
-  IO<Unit> printErrLn(String message) =>
-      IO.exec(() => web.console.log(message.toJS));
+  IO<Unit> printErrLn(String message) => IO.exec(() => web.console.log(message.toJS));
 
   @override
-  IO<String> readLine() =>
-      IO.raiseError(RuntimeException('Unavailable: IO.readLine()'));
+  IO<String> readLine() => IO.raiseError(RuntimeException('Unavailable: IO.readLine()'));
 }

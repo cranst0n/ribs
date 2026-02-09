@@ -32,8 +32,7 @@ final class StatefulRandom {
     }
   }
 
-  (StatefulRandom, T) _next<T>(Function1<Random, T> f) =>
-      (StatefulRandom(_nextSeed()), f(_random));
+  (StatefulRandom, T) _next<T>(Function1<Random, T> f) => (StatefulRandom(_nextSeed()), f(_random));
 
   int _nextSeed() => _random.nextInt(pow(2, 32).toInt());
 

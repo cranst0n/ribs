@@ -23,11 +23,11 @@ final class IntCodec extends Codec<int> {
         final i = intBits.toInt(signed: signed, ordering: ordering);
 
         if (i > maxValue) {
-          return Either.left(Err.general(
-              '$i is greating than maximum value $maxValue for $description'));
+          return Either.left(
+              Err.general('$i is greating than maximum value $maxValue for $description'));
         } else if (i < minValue) {
-          return Either.left(Err.general(
-              '$i is less than minimum value $minValue for $description'));
+          return Either.left(
+              Err.general('$i is less than minimum value $minValue for $description'));
         } else {
           return Either.right(DecodeResult(i, bv.drop(bits)));
         }
@@ -38,17 +38,15 @@ final class IntCodec extends Codec<int> {
   @override
   Either<Err, BitVector> encode(int i) {
     if (i > maxValue) {
-      return Either.left(Err.general(
-          '$i is greating than maximum value $maxValue for $description'));
+      return Either.left(
+          Err.general('$i is greating than maximum value $maxValue for $description'));
     } else if (i < minValue) {
-      return Either.left(Err.general(
-          '$i is less than minimum value $minValue for $description'));
+      return Either.left(Err.general('$i is less than minimum value $minValue for $description'));
     } else {
       return Either.right(BitVector.fromInt(i, size: bits, ordering: ordering));
     }
   }
 
   @override
-  String? get description =>
-      '${signed ? 'u' : ''}int$bits${ordering == Endian.little ? 'L' : ''}';
+  String? get description => '${signed ? 'u' : ''}int$bits${ordering == Endian.little ? 'L' : ''}';
 }

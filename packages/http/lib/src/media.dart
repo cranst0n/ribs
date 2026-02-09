@@ -13,12 +13,10 @@ abstract class Media {
     this.body = EntityBody.Empty,
   });
 
-  Option<ContentType> get contentType => headers
-      .get('Content-Type')
-      .flatMap((nel) => ContentType.parse(nel.head.value));
+  Option<ContentType> get contentType =>
+      headers.get('Content-Type').flatMap((nel) => ContentType.parse(nel.head.value));
 
-  IO<DecodeResult<A>> attemptAs<A>(EntityDecoder<A> decoder) =>
-      decoder.decode(this, false);
+  IO<DecodeResult<A>> attemptAs<A>(EntityDecoder<A> decoder) => decoder.decode(this, false);
 
   Stream<String> get bodyText => body.map(utf8.decode);
 }

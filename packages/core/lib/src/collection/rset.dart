@@ -18,8 +18,7 @@ mixin RSet<A> on RIterable<A> {
 
   static RSet<A> from<A>(RIterableOnce<A> xs) => ISet.from(xs);
 
-  static RSet<A> of<A>(Iterable<A> xs) =>
-      RSet.from(RIterator.fromDart(xs.iterator));
+  static RSet<A> of<A>(Iterable<A> xs) => RSet.from(RIterator.fromDart(xs.iterator));
 
   bool contains(A elem);
 }

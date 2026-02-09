@@ -7,8 +7,7 @@ class ClientLogger {
     bool logResponses = true,
   }) {
     final reqLogged = logRequests ? RequestLogger.create(client) : client;
-    final resLogged =
-        logResponses ? ResponseLogger.create(reqLogged) : reqLogged;
+    final resLogged = logResponses ? ResponseLogger.create(reqLogged) : reqLogged;
 
     return resLogged;
   }

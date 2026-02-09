@@ -75,12 +75,10 @@ extension Tuple3IOOps<A, B, C> on (IO<A>, IO<B>, IO<C>) {
   IO<D> parMapN<D>(Function3<A, B, C, D> fn) => parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
-  IO<(A, B, C)> tupled() =>
-      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
+  IO<(A, B, C)> tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 
   /// {@macro io_parTupled}
-  IO<(A, B, C)> parTupled() =>
-      IO.both(init().parTupled(), last).map((t) => t.$1.append(t.$2));
+  IO<(A, B, C)> parTupled() => IO.both(init().parTupled(), last).map((t) => t.$1.append(t.$2));
 }
 
 /// {@macro io_tuple_ops}
@@ -92,12 +90,10 @@ extension Tuple4IOOps<A, B, C, D> on (IO<A>, IO<B>, IO<C>, IO<D>) {
   IO<E> parMapN<E>(Function4<A, B, C, D, E> fn) => parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
-  IO<(A, B, C, D)> tupled() =>
-      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
+  IO<(A, B, C, D)> tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 
   /// {@macro io_parTupled}
-  IO<(A, B, C, D)> parTupled() =>
-      IO.both(init().parTupled(), last).map((t) => t.$1.append(t.$2));
+  IO<(A, B, C, D)> parTupled() => IO.both(init().parTupled(), last).map((t) => t.$1.append(t.$2));
 }
 
 /// {@macro io_tuple_ops}
@@ -106,12 +102,10 @@ extension Tuple5IOOps<A, B, C, D, E> on (IO<A>, IO<B>, IO<C>, IO<D>, IO<E>) {
   IO<F> mapN<F>(Function5<A, B, C, D, E, F> fn) => tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
-  IO<F> parMapN<F>(Function5<A, B, C, D, E, F> fn) =>
-      parTupled().map(fn.tupled);
+  IO<F> parMapN<F>(Function5<A, B, C, D, E, F> fn) => parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
-  IO<(A, B, C, D, E)> tupled() =>
-      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
+  IO<(A, B, C, D, E)> tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 
   /// {@macro io_parTupled}
   IO<(A, B, C, D, E)> parTupled() =>
@@ -119,24 +113,15 @@ extension Tuple5IOOps<A, B, C, D, E> on (IO<A>, IO<B>, IO<C>, IO<D>, IO<E>) {
 }
 
 /// {@macro io_tuple_ops}
-extension Tuple6IOOps<A, B, C, D, E, F> on (
-  IO<A>,
-  IO<B>,
-  IO<C>,
-  IO<D>,
-  IO<E>,
-  IO<F>
-) {
+extension Tuple6IOOps<A, B, C, D, E, F> on (IO<A>, IO<B>, IO<C>, IO<D>, IO<E>, IO<F>) {
   /// {@macro io_mapN}
   IO<G> mapN<G>(Function6<A, B, C, D, E, F, G> fn) => tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
-  IO<G> parMapN<G>(Function6<A, B, C, D, E, F, G> fn) =>
-      parTupled().map(fn.tupled);
+  IO<G> parMapN<G>(Function6<A, B, C, D, E, F, G> fn) => parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
-  IO<(A, B, C, D, E, F)> tupled() =>
-      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
+  IO<(A, B, C, D, E, F)> tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 
   /// {@macro io_parTupled}
   IO<(A, B, C, D, E, F)> parTupled() =>
@@ -144,22 +129,12 @@ extension Tuple6IOOps<A, B, C, D, E, F> on (
 }
 
 /// {@macro io_tuple_ops}
-extension Tuple7IOOps<A, B, C, D, E, F, G> on (
-  IO<A>,
-  IO<B>,
-  IO<C>,
-  IO<D>,
-  IO<E>,
-  IO<F>,
-  IO<G>
-) {
+extension Tuple7IOOps<A, B, C, D, E, F, G> on (IO<A>, IO<B>, IO<C>, IO<D>, IO<E>, IO<F>, IO<G>) {
   /// {@macro io_mapN}
-  IO<H> mapN<H>(Function7<A, B, C, D, E, F, G, H> fn) =>
-      tupled().map(fn.tupled);
+  IO<H> mapN<H>(Function7<A, B, C, D, E, F, G, H> fn) => tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
-  IO<H> parMapN<H>(Function7<A, B, C, D, E, F, G, H> fn) =>
-      parTupled().map(fn.tupled);
+  IO<H> parMapN<H>(Function7<A, B, C, D, E, F, G, H> fn) => parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
   IO<(A, B, C, D, E, F, G)> tupled() =>
@@ -182,12 +157,10 @@ extension Tuple8IOOps<A, B, C, D, E, F, G, H> on (
   IO<H>
 ) {
   /// {@macro io_mapN}
-  IO<I> mapN<I>(Function8<A, B, C, D, E, F, G, H, I> fn) =>
-      tupled().map(fn.tupled);
+  IO<I> mapN<I>(Function8<A, B, C, D, E, F, G, H, I> fn) => tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
-  IO<I> parMapN<I>(Function8<A, B, C, D, E, F, G, H, I> fn) =>
-      parTupled().map(fn.tupled);
+  IO<I> parMapN<I>(Function8<A, B, C, D, E, F, G, H, I> fn) => parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
   IO<(A, B, C, D, E, F, G, H)> tupled() =>
@@ -211,12 +184,10 @@ extension Tuple9IOOps<A, B, C, D, E, F, G, H, I> on (
   IO<I>
 ) {
   /// {@macro io_mapN}
-  IO<J> mapN<J>(Function9<A, B, C, D, E, F, G, H, I, J> fn) =>
-      tupled().map(fn.tupled);
+  IO<J> mapN<J>(Function9<A, B, C, D, E, F, G, H, I, J> fn) => tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
-  IO<J> parMapN<J>(Function9<A, B, C, D, E, F, G, H, I, J> fn) =>
-      parTupled().map(fn.tupled);
+  IO<J> parMapN<J>(Function9<A, B, C, D, E, F, G, H, I, J> fn) => parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
   IO<(A, B, C, D, E, F, G, H, I)> tupled() =>
@@ -241,12 +212,10 @@ extension Tuple10IOOps<A, B, C, D, E, F, G, H, I, J> on (
   IO<J>
 ) {
   /// {@macro io_mapN}
-  IO<K> mapN<K>(Function10<A, B, C, D, E, F, G, H, I, J, K> fn) =>
-      tupled().map(fn.tupled);
+  IO<K> mapN<K>(Function10<A, B, C, D, E, F, G, H, I, J, K> fn) => tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
-  IO<K> parMapN<K>(Function10<A, B, C, D, E, F, G, H, I, J, K> fn) =>
-      parTupled().map(fn.tupled);
+  IO<K> parMapN<K>(Function10<A, B, C, D, E, F, G, H, I, J, K> fn) => parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
   IO<(A, B, C, D, E, F, G, H, I, J)> tupled() =>
@@ -272,12 +241,10 @@ extension Tuple11IOOps<A, B, C, D, E, F, G, H, I, J, K> on (
   IO<K>
 ) {
   /// {@macro io_mapN}
-  IO<L> mapN<L>(Function11<A, B, C, D, E, F, G, H, I, J, K, L> fn) =>
-      tupled().map(fn.tupled);
+  IO<L> mapN<L>(Function11<A, B, C, D, E, F, G, H, I, J, K, L> fn) => tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
-  IO<L> parMapN<L>(Function11<A, B, C, D, E, F, G, H, I, J, K, L> fn) =>
-      parTupled().map(fn.tupled);
+  IO<L> parMapN<L>(Function11<A, B, C, D, E, F, G, H, I, J, K, L> fn) => parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
   IO<(A, B, C, D, E, F, G, H, I, J, K)> tupled() =>
@@ -304,8 +271,7 @@ extension Tuple12IOOps<A, B, C, D, E, F, G, H, I, J, K, L> on (
   IO<L>
 ) {
   /// {@macro io_mapN}
-  IO<M> mapN<M>(Function12<A, B, C, D, E, F, G, H, I, J, K, L, M> fn) =>
-      tupled().map(fn.tupled);
+  IO<M> mapN<M>(Function12<A, B, C, D, E, F, G, H, I, J, K, L, M> fn) => tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
   IO<M> parMapN<M>(Function12<A, B, C, D, E, F, G, H, I, J, K, L, M> fn) =>
@@ -337,8 +303,7 @@ extension Tuple13IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
   IO<M>
 ) {
   /// {@macro io_mapN}
-  IO<N> mapN<N>(Function13<A, B, C, D, E, F, G, H, I, J, K, L, M, N> fn) =>
-      tupled().map(fn.tupled);
+  IO<N> mapN<N>(Function13<A, B, C, D, E, F, G, H, I, J, K, L, M, N> fn) => tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
   IO<N> parMapN<N>(Function13<A, B, C, D, E, F, G, H, I, J, K, L, M, N> fn) =>
@@ -375,8 +340,7 @@ extension Tuple14IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
       tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
-  IO<O> parMapN<O>(
-          Function14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> fn) =>
+  IO<O> parMapN<O>(Function14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> fn) =>
       parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
@@ -407,13 +371,11 @@ extension Tuple15IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
   IO<O>
 ) {
   /// {@macro io_mapN}
-  IO<P> mapN<P>(
-          Function15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> fn) =>
+  IO<P> mapN<P>(Function15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
-  IO<P> parMapN<P>(
-          Function15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> fn) =>
+  IO<P> parMapN<P>(Function15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> fn) =>
       parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
@@ -445,13 +407,11 @@ extension Tuple16IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> on (
   IO<P>
 ) {
   /// {@macro io_mapN}
-  IO<Q> mapN<Q>(
-          Function16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> fn) =>
+  IO<Q> mapN<Q>(Function16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
-  IO<Q> parMapN<Q>(
-          Function16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> fn) =>
+  IO<Q> parMapN<Q>(Function16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> fn) =>
       parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
@@ -484,15 +444,11 @@ extension Tuple17IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> on (
   IO<Q>
 ) {
   /// {@macro io_mapN}
-  IO<R> mapN<R>(
-          Function17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
-              fn) =>
+  IO<R> mapN<R>(Function17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
-  IO<R> parMapN<R>(
-          Function17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
-              fn) =>
+  IO<R> parMapN<R>(Function17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> fn) =>
       parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
@@ -505,8 +461,7 @@ extension Tuple17IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> on (
 }
 
 /// {@macro io_tuple_ops}
-extension Tuple18IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
-    on (
+extension Tuple18IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> on (
   IO<A>,
   IO<B>,
   IO<C>,
@@ -527,15 +482,11 @@ extension Tuple18IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
   IO<R>
 ) {
   /// {@macro io_mapN}
-  IO<S> mapN<S>(
-          Function18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
-              fn) =>
+  IO<S> mapN<S>(Function18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
-  IO<S> parMapN<S>(
-          Function18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
-              fn) =>
+  IO<S> parMapN<S>(Function18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> fn) =>
       parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
@@ -548,8 +499,7 @@ extension Tuple18IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
 }
 
 /// {@macro io_tuple_ops}
-extension Tuple19IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
-    on (
+extension Tuple19IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> on (
   IO<A>,
   IO<B>,
   IO<C>,
@@ -571,15 +521,11 @@ extension Tuple19IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
   IO<S>
 ) {
   /// {@macro io_mapN}
-  IO<T> mapN<T>(
-          Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
-              fn) =>
+  IO<T> mapN<T>(Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
-  IO<T> parMapN<T>(
-          Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
-              fn) =>
+  IO<T> parMapN<T>(Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> fn) =>
       parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
@@ -592,8 +538,7 @@ extension Tuple19IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
 }
 
 /// {@macro io_tuple_ops}
-extension Tuple20IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
-    T> on (
+extension Tuple20IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> on (
   IO<A>,
   IO<B>,
   IO<C>,
@@ -616,17 +561,11 @@ extension Tuple20IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
   IO<T>
 ) {
   /// {@macro io_mapN}
-  IO<U> mapN<U>(
-          Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
-                  U>
-              fn) =>
+  IO<U> mapN<U>(Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
-  IO<U> parMapN<U>(
-          Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
-                  U>
-              fn) =>
+  IO<U> parMapN<U>(Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> fn) =>
       parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
@@ -634,14 +573,12 @@ extension Tuple20IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
       init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 
   /// {@macro io_parTupled}
-  IO<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)>
-      parTupled() =>
-          IO.both(init().parTupled(), last).map((t) => t.$1.append(t.$2));
+  IO<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)> parTupled() =>
+      IO.both(init().parTupled(), last).map((t) => t.$1.append(t.$2));
 }
 
 /// {@macro io_tuple_ops}
-extension Tuple21IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
-    T, U> on (
+extension Tuple21IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> on (
   IO<A>,
   IO<B>,
   IO<C>,
@@ -665,32 +602,25 @@ extension Tuple21IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
   IO<U>
 ) {
   /// {@macro io_mapN}
-  IO<V> mapN<V>(
-          Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
-                  U, V>
-              fn) =>
+  IO<V> mapN<V>(Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
   IO<V> parMapN<V>(
-          Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
-                  U, V>
-              fn) =>
+          Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> fn) =>
       parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
-  IO<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
-      tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
+  IO<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 
   /// {@macro io_parTupled}
-  IO<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
-      parTupled() =>
-          IO.both(init().parTupled(), last).map((t) => t.$1.append(t.$2));
+  IO<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)> parTupled() =>
+      IO.both(init().parTupled(), last).map((t) => t.$1.append(t.$2));
 }
 
 /// {@macro io_tuple_ops}
-extension Tuple22IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
-    T, U, V> on (
+extension Tuple22IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> on (
   IO<A>,
   IO<B>,
   IO<C>,
@@ -716,25 +646,19 @@ extension Tuple22IOOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S,
 ) {
   /// {@macro io_mapN}
   IO<W> mapN<W>(
-          Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
-                  U, V, W>
-              fn) =>
+          Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W> fn) =>
       tupled().map(fn.tupled);
 
   /// {@macro io_parMapN}
   IO<W> parMapN<W>(
-          Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
-                  U, V, W>
-              fn) =>
+          Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W> fn) =>
       parTupled().map(fn.tupled);
 
   /// {@macro io_tupled}
-  IO<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
-      tupled() => init().tupled().flatMap((x) => last.map((a) => x.append(a)));
+  IO<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)> tupled() =>
+      init().tupled().flatMap((x) => last.map((a) => x.append(a)));
 
   /// {@macro io_parTupled}
-  IO<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
-      parTupled() => IO
-          .both(init().parTupled(), last)
-          .map((t) => t((a, b) => a.append(b)));
+  IO<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)> parTupled() =>
+      IO.both(init().parTupled(), last).map((t) => t((a, b) => a.append(b)));
 }

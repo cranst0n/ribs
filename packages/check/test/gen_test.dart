@@ -97,15 +97,10 @@ void main() {
     expect(int.tryParse(str, radix: 16), isNotNull);
   });
 
-  forAll(
-      'imapOf',
-      Gen.imapOf(
-          Gen.chooseInt(1, 20), Gen.nonEmptyHexString(), Gen.positiveInt),
+  forAll('imapOf', Gen.imapOf(Gen.chooseInt(1, 20), Gen.nonEmptyHexString(), Gen.positiveInt),
       (m) => expect(m.isEmpty, isFalse));
 
-  forAll(
-      'mapOf',
-      Gen.mapOf(Gen.chooseInt(1, 20), Gen.nonEmptyHexString(), Gen.positiveInt),
+  forAll('mapOf', Gen.mapOf(Gen.chooseInt(1, 20), Gen.nonEmptyHexString(), Gen.positiveInt),
       (m) => expect(m.isEmpty, isFalse));
 
   forAll('nonEmptyHexString', Gen.nonEmptyHexString(8), (str) {
@@ -116,8 +111,7 @@ void main() {
     expect(x, anyOf(1, 2, 3));
   });
 
-  forAll('oneOfGen', Gen.oneOfGen([Gen.constant('a'), Gen.constant('b')]),
-      (ab) {
+  forAll('oneOfGen', Gen.oneOfGen([Gen.constant('a'), Gen.constant('b')]), (ab) {
     expect(ab, anyOf('a', 'b'));
   });
 

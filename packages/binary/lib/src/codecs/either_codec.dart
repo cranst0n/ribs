@@ -11,12 +11,8 @@ final class EitherCodec<A, B> extends Codec<Either<A, B>> {
   @override
   Either<Err, DecodeResult<Either<A, B>>> decode(BitVector bv) =>
       indicator.decode(bv).flatMap((a) => a.value
-          ? rightCodec
-              .decode(a.remainder)
-              .map((r) => r.map((v) => Either.right(v)))
-          : leftCodec
-              .decode(a.remainder)
-              .map((r) => r.map((v) => Either.left(v))));
+          ? rightCodec.decode(a.remainder).map((r) => r.map((v) => Either.right(v)))
+          : leftCodec.decode(a.remainder).map((r) => r.map((v) => Either.left(v))));
 
   @override
   Either<Err, BitVector> encode(Either<A, B> a) => (

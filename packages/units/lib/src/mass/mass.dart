@@ -106,13 +106,11 @@ final class Pounds extends MassUnit {
 }
 
 final class Kilopounds extends MassUnit {
-  const Kilopounds._()
-      : super('kilopound', 'klb', _PoundConversionFactor * MetricSystem.Kilo);
+  const Kilopounds._() : super('kilopound', 'klb', _PoundConversionFactor * MetricSystem.Kilo);
 }
 
 final class Megapounds extends MassUnit {
-  const Megapounds._()
-      : super('megapound', 'Mlb', _PoundConversionFactor * MetricSystem.Mega);
+  const Megapounds._() : super('megapound', 'Mlb', _PoundConversionFactor * MetricSystem.Mega);
 }
 
 final class Stone extends MassUnit {
@@ -124,18 +122,15 @@ final class TroyGrains extends MassUnit {
 }
 
 final class Pennyweights extends MassUnit {
-  const Pennyweights._()
-      : super('pennyweight', 'dwt', _TroyGrainsConversionFactor * 24);
+  const Pennyweights._() : super('pennyweight', 'dwt', _TroyGrainsConversionFactor * 24);
 }
 
 final class TroyOunces extends MassUnit {
-  const TroyOunces._()
-      : super('troy ounce', 'oz t', _TroyGrainsConversionFactor * 480);
+  const TroyOunces._() : super('troy ounce', 'oz t', _TroyGrainsConversionFactor * 480);
 }
 
 final class TroyPounds extends MassUnit {
-  const TroyPounds._()
-      : super('troy pound', 'lb t', _TroyGrainsConversionFactor * 480 * 12);
+  const TroyPounds._() : super('troy pound', 'lb t', _TroyGrainsConversionFactor * 480 * 12);
 }
 
 final class Tolas extends MassUnit {
@@ -147,8 +142,7 @@ final class Carats extends MassUnit {
 }
 
 final class Dalton extends MassUnit {
-  const Dalton._()
-      : super('dalton', 'Da', MetricSystem.Kilo * 1.66053906660e-27);
+  const Dalton._() : super('dalton', 'Da', MetricSystem.Kilo * 1.66053906660e-27);
 }
 
 extension MassOps on num {

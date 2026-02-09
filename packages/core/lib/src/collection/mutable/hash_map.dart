@@ -15,8 +15,7 @@ import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
 
-final class MHashMap<K, V>
-    with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V>, MMap<K, V> {
+final class MHashMap<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V>, MMap<K, V> {
   static const DefaultInitialCapacity = 16;
   static const DefaultLoadFactor = 0.75;
 
@@ -165,8 +164,7 @@ final class MHashMap<K, V>
 
   int _index(int hash) => hash & (_table.length - 1);
 
-  static int _newThreshold(int size, double loadFactor) =>
-      (size.toDouble() * loadFactor).toInt();
+  static int _newThreshold(int size, double loadFactor) => (size.toDouble() * loadFactor).toInt();
 
   Some<V>? _put0b(
     K key,

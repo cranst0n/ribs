@@ -35,8 +35,8 @@ void main() {
     });
 
     test('traverseFilterIO', () {
-      final io = nel(1, [2, 3]).traverseFilterIO(
-          (a) => IO.pure(Option.when(() => a.isOdd, () => a)));
+      final io =
+          nel(1, [2, 3]).traverseFilterIO((a) => IO.pure(Option.when(() => a.isOdd, () => a)));
 
       expect(io, ioSucceeded(ilist([1, 3])));
     });

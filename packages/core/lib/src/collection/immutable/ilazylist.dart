@@ -26,8 +26,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   _State<A> _evaluateState() {
     if (_midEvaluation) {
-      throw Exception(
-          'self-referential ILazyList or a derivation thereof has no more elements');
+      throw Exception('self-referential ILazyList or a derivation thereof has no more elements');
     }
 
     _midEvaluation = true;
@@ -48,8 +47,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   static ILazyListBuilder<A> builder<A>() => ILazyListBuilder();
 
-  static ILazyList<A> continually<A>(A elem) =>
-      newLL(() => sCons(elem, continually(elem)));
+  static ILazyList<A> continually<A>(A elem) => newLL(() => sCons(elem, continually(elem)));
 
   static ILazyList<A> empty<A>() => newLL(() => _Empty<A>()).force();
 
@@ -69,8 +67,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   static ILazyList<int> ints(int start, [int step = 1]) =>
       newLL(() => sCons(start, ints(start + step, step)));
 
-  static ILazyList<A> iterate<A>(Function0<A> start, Function1<A, A> f) =>
-      newLL(() {
+  static ILazyList<A> iterate<A>(Function0<A> start, Function1<A, A> f) => newLL(() {
         final head = start();
         return sCons(head, iterate(() => f(head), f));
       });
@@ -163,8 +160,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   /// Will force evaluation
   @override
-  RIterator<ILazyList<A>> combinations(int n) =>
-      super.combinations(n).map(ILazyList.from);
+  RIterator<ILazyList<A>> combinations(int n) => super.combinations(n).map(ILazyList.from);
 
   @override
   ILazyList<A> concat(covariant RIterableOnce<A> suffix) => appendedAll(suffix);
@@ -280,8 +276,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  ILazyList<A> filter(Function1<A, bool> p) =>
-      knownIsEmpty ? empty() : _filterImpl(this, p, false);
+  ILazyList<A> filter(Function1<A, bool> p) => knownIsEmpty ? empty() : _filterImpl(this, p, false);
 
   @override
   ILazyList<A> filterNot(Function1<A, bool> p) =>
@@ -349,8 +344,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
         rest = rest.tail();
         return sCons(
           head,
-          newLL(() => stateFromIteratorConcatSuffix(
-              it!, () => _flatMapImpl(rest, f)._state)),
+          newLL(() => stateFromIteratorConcatSuffix(it!, () => _flatMapImpl(rest, f)._state)),
         );
       } else {
         return _Empty();
@@ -397,16 +391,14 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   /// Will force evaluation
   @override
-  IMap<K, ILazyList<A>> groupBy<K>(Function1<A, K> f) =>
-      super.groupBy(f).mapValues(ILazyList.from);
+  IMap<K, ILazyList<A>> groupBy<K>(Function1<A, K> f) => super.groupBy(f).mapValues(ILazyList.from);
 
   @override
   RIterator<ILazyList<A>> grouped(int size) => _slidingImpl(size, size);
 
   /// Will force evaluation
   @override
-  IMap<K, ILazyList<B>> groupMap<K, B>(
-          Function1<A, K> key, Function1<A, B> f) =>
+  IMap<K, ILazyList<B>> groupMap<K, B>(Function1<A, K> key, Function1<A, B> f) =>
       super.groupMap(key, f).mapValues(ILazyList.from);
 
   @override
@@ -449,8 +441,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  ILazyList<A> intersperse(A x) =>
-      knownIsEmpty ? this : _intersperseImpl(x, false);
+  ILazyList<A> intersperse(A x) => knownIsEmpty ? this : _intersperseImpl(x, false);
 
   ILazyList<A> _intersperseImpl(A x, bool addIt) {
     if (knownIsEmpty) {
@@ -459,9 +450,8 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       return newLL(() {
         final hd = addIt ? x : head;
 
-        final tl = (isEmpty || addIt)
-            ? _intersperseImpl(x, !addIt)
-            : tail()._intersperseImpl(x, !addIt);
+        final tl =
+            (isEmpty || addIt) ? _intersperseImpl(x, !addIt) : tail()._intersperseImpl(x, !addIt);
 
         return sCons(hd, tl);
       });
@@ -472,8 +462,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   bool get isEmpty => _state is _Empty;
 
   @override
-  RIterator<A> get iterator =>
-      knownIsEmpty ? RIterator.empty() : _LazyIterator(this);
+  RIterator<A> get iterator => knownIsEmpty ? RIterator.empty() : _LazyIterator(this);
 
   @override
   int get knownSize => knownIsEmpty ? 0 : -1;
@@ -537,8 +526,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  (ILazyList<A>, ILazyList<A>) partition(Function1<A, bool> p) =>
-      (filter(p), filterNot(p));
+  (ILazyList<A>, ILazyList<A>) partition(Function1<A, bool> p) => (filter(p), filterNot(p));
 
   @override
   (ILazyList<A1>, ILazyList<A2>) partitionMap<A1, A2>(
@@ -576,8 +564,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   /// Will force evaluation
   @override
-  RIterator<ILazyList<A>> permutations() =>
-      super.permutations().map(ILazyList.from);
+  RIterator<ILazyList<A>> permutations() => super.permutations().map(ILazyList.from);
 
   @override
   ILazyList<A> prepended(A elem) => newLL(() => sCons(elem, this));
@@ -589,8 +576,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     } else if (prefix.knownSize == 0) {
       return this;
     } else {
-      return newLL(
-          () => stateFromIteratorConcatSuffix(prefix.iterator, () => _state));
+      return newLL(() => stateFromIteratorConcatSuffix(prefix.iterator, () => _state));
     }
   }
 
@@ -691,15 +677,13 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   /// Will force evaluation
   @override
-  ILazyList<B> scanRight<B>(B z, Function2<A, B, B> op) =>
-      ILazyList.from(super.scanRight(z, op));
+  ILazyList<B> scanRight<B>(B z, Function2<A, B, B> op) => ILazyList.from(super.scanRight(z, op));
 
   @override
   ILazyList<A> slice(int from, int until) => take(until).drop(from);
 
   @override
-  RIterator<ILazyList<A>> sliding(int size, [int step = 1]) =>
-      _slidingImpl(size, step);
+  RIterator<ILazyList<A>> sliding(int size, [int step = 1]) => _slidingImpl(size, step);
 
   RIterator<ILazyList<A>> _slidingImpl(int size, int step) {
     if (knownIsEmpty) {
@@ -711,8 +695,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   /// Will force evaluation
   @override
-  ILazyList<A> sortBy<B>(Order<B> order, Function1<A, B> f) =>
-      sorted(order.contramap(f));
+  ILazyList<A> sortBy<B>(Order<B> order, Function1<A, B> f) => sorted(order.contramap(f));
 
   /// Will force evaluation
   @override
@@ -720,12 +703,10 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   /// Will force evaluation
   @override
-  ILazyList<A> sortWith(Function2<A, A, bool> lt) =>
-      sorted(Order.fromLessThan(lt));
+  ILazyList<A> sortWith(Function2<A, A, bool> lt) => sorted(Order.fromLessThan(lt));
 
   @override
-  (ILazyList<A>, ILazyList<A>) span(Function1<A, bool> p) =>
-      (takeWhile(p), dropWhile(p));
+  (ILazyList<A>, ILazyList<A>) span(Function1<A, bool> p) => (takeWhile(p), dropWhile(p));
 
   @override
   (ILazyList<A>, ILazyList<A>) splitAt(int n) => (take(n), drop(n));
@@ -879,18 +860,15 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   _State<(A, B)> _zipAllState<B>(RIterator<B> it, A thisElem, B thatElem) {
     if (it.hasNext) {
       if (isEmpty) {
-        return sCons((head, it.next()),
-            newLL(() => ILazyList.continually(thisElem)._zipState(it)));
+        return sCons((head, it.next()), newLL(() => ILazyList.continually(thisElem)._zipState(it)));
       } else {
-        return sCons((head, it.next()),
-            newLL(() => tail()._zipAllState(it, thisElem, thatElem)));
+        return sCons((head, it.next()), newLL(() => tail()._zipAllState(it, thisElem, thatElem)));
       }
     } else {
       if (isEmpty) {
         return _Empty();
       } else {
-        return sCons(
-            (head, thatElem), tail().zip(ILazyList.continually(thatElem)));
+        return sCons((head, thatElem), tail().zip(ILazyList.continually(thatElem)));
       }
     }
   }
@@ -901,8 +879,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   // TODO: hashCode / ==
 
   @override
-  String toString() =>
-      addStringNoForce(StringBuffer('ILazyList'), '(', ', ', ')').toString();
+  String toString() => addStringNoForce(StringBuffer('ILazyList'), '(', ', ', ')').toString();
 
   // ///////////////////////////////////////////////////////////////////////////
   // ///////////////////////////////////////////////////////////////////////////
@@ -913,8 +890,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   // ///////////////////////////////////////////////////////////////////////////
   // ///////////////////////////////////////////////////////////////////////////
 
-  static ILazyList<A> newLL<A>(Function0<_State<A>> state) =>
-      ILazyList._(state);
+  static ILazyList<A> newLL<A>(Function0<_State<A>> state) => ILazyList._(state);
 
   static _State<A> sCons<A>(A hd, ILazyList<A> tl) => _Cons(hd, tl);
 
@@ -976,15 +952,12 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
       bool scoutNonEmpty() => scout._stateEvaluated && !scout.isEmpty;
 
-      if ((cursor != scout) &&
-          (!scout._stateEvaluated || (cursor._state != scout._state))) {
+      if ((cursor != scout) && (!scout._stateEvaluated || (cursor._state != scout._state))) {
         cursor = scout;
         if (scoutNonEmpty()) {
           scout = scout.tail();
           // Use 2x 1x iterator trick for cycle detection; slow iterator can add strings
-          while ((cursor != scout) &&
-              scoutNonEmpty() &&
-              (cursor._state != scout._state)) {
+          while ((cursor != scout) && scoutNonEmpty() && (cursor._state != scout._state)) {
             appendCursorElement();
             cursor = cursor.tail();
             scout = scout.tail();
@@ -1005,8 +978,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
             ..write('<not computed>');
         }
       } else {
-        bool same(ILazyList<A> a, ILazyList<A> b) =>
-            a == b || a._state == b._state;
+        bool same(ILazyList<A> a, ILazyList<A> b) => a == b || a._state == b._state;
 
         // Cycle.
         // If we have a prefix of length P followed by a cycle of length C,
@@ -1080,8 +1052,7 @@ final class _SlidingIterator<A> extends RIterator<ILazyList<A>> {
   ILazyList<A> lazyList;
   bool first = true;
 
-  _SlidingIterator(this.lazyList, this.sz, this.step)
-      : minLen = sz - max(step, 0);
+  _SlidingIterator(this.lazyList, this.sz, this.step) : minLen = sz - max(step, 0);
 
   @override
   bool get hasNext {
@@ -1140,8 +1111,8 @@ final class ILazyListBuilder<A> {
   ILazyListBuilder<A> addAll(RIterableOnce<A> elems) {
     if (elems.knownSize != 0) {
       final deferred = _DeferredState<A>();
-      _next.init(() => ILazyList.stateFromIteratorConcatSuffix(
-          elems.iterator, () => deferred.eval()));
+      _next.init(
+          () => ILazyList.stateFromIteratorConcatSuffix(elems.iterator, () => deferred.eval()));
       _next = deferred;
     }
 
@@ -1150,8 +1121,7 @@ final class ILazyListBuilder<A> {
 
   ILazyListBuilder<A> addOne(A elem) {
     final deferred = _DeferredState<A>();
-    _next.init(
-        () => ILazyList.sCons(elem, ILazyList.newLL(() => deferred.eval())));
+    _next.init(() => ILazyList.sCons(elem, ILazyList.newLL(() => deferred.eval())));
     _next = deferred;
     return this;
   }

@@ -1,26 +1,20 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_check/ribs_check.dart';
 
-final binString =
-    Gen.listOf(Gen.chooseInt(0, 128), Gen.binChar).map((a) => a.join());
+final binString = Gen.listOf(Gen.chooseInt(0, 128), Gen.binChar).map((a) => a.join());
 
-final hexString =
-    Gen.listOf(Gen.chooseInt(0, 16), Gen.hexChar).map((a) => a.join());
+final hexString = Gen.listOf(Gen.chooseInt(0, 16), Gen.hexChar).map((a) => a.join());
 
-final base32String = Gen.listOf(Gen.chooseInt(0, 16),
-        Gen.charSample('ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'))
+final base32String =
+    Gen.listOf(Gen.chooseInt(0, 16), Gen.charSample('ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'))
+        .map((a) => a.join());
+
+final base64String = Gen.listOf(Gen.chooseInt(0, 16).map((a) => a * 4),
+        Gen.charSample('ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789+/'))
     .map((a) => a.join());
 
-final base64String = Gen.listOf(
-        Gen.chooseInt(0, 16).map((a) => a * 4),
-        Gen.charSample(
-            'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789+/'))
-    .map((a) => a.join());
-
-final base64UrlString = Gen.listOf(
-        Gen.chooseInt(0, 16).map((a) => a * 4),
-        Gen.charSample(
-            'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789-_'))
+final base64UrlString = Gen.listOf(Gen.chooseInt(0, 16).map((a) => a * 4),
+        Gen.charSample('ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789-_'))
     .map((a) => a.join());
 
 final bitVector = Gen.oneOfGen([
@@ -48,17 +42,15 @@ Gen<BitVector> _genBitVector({
       });
     });
 
-Gen<BitVector> _genSplitBits(int maxSize) =>
-    Gen.chooseInt(0, maxSize).flatMap((n) {
+Gen<BitVector> _genSplitBits(int maxSize) => Gen.chooseInt(0, maxSize).flatMap((n) {
       return _genBitVector(maxBytes: 15).map((b) {
         final m = b.nonEmpty ? (n % b.size).abs() : 0;
         return b.take(m).concat(b.drop(m));
       });
     });
 
-Gen<BitVector> _genConcatBits(Gen<BitVector> g) => g.map((b) => b
-    .toIList()
-    .foldLeft(BitVector.empty, (acc, high) => acc.concat(BitVector.bit(high))));
+Gen<BitVector> _genConcatBits(Gen<BitVector> g) => g.map(
+    (b) => b.toIList().foldLeft(BitVector.empty, (acc, high) => acc.concat(BitVector.bit(high))));
 
 final byteVector = Gen.oneOfGen([
   _standardByteVectors(100),
@@ -68,12 +60,11 @@ final byteVector = Gen.oneOfGen([
   _genSplitBytes(_genConcatBytes(_standardByteVectors(500))),
 ]);
 
-final bytesWithIndex = byteVector
-    .flatMap((bv) => Gen.chooseInt(0, bv.size + 1).map((i) => (bv, i)));
+final bytesWithIndex =
+    byteVector.flatMap((bv) => Gen.chooseInt(0, bv.size + 1).map((i) => (bv, i)));
 
 Gen<ByteVector> _standardByteVectors(int maxSize) =>
-    Gen.listOf(Gen.chooseInt(0, maxSize), Gen.byte)
-        .map((bytes) => ByteVector(bytes));
+    Gen.listOf(Gen.chooseInt(0, maxSize), Gen.byte).map((bytes) => ByteVector(bytes));
 
 Gen<ByteVector> _genConcatBytes(Gen<ByteVector> g) =>
     g.map((b) => b.foldLeft(ByteVector.empty, (acc, b) => acc.append(b)));
@@ -86,5 +77,5 @@ final _sliceByteVectors = Gen.chooseInt(0, 100).flatMap((n) {
   });
 });
 
-Gen<ByteVector> _genSplitBytes(Gen<ByteVector> g) => g.flatMap((b) =>
-    Gen.chooseInt(0, b.size + 1).map((n) => b.take(n).concat(b.drop(n))));
+Gen<ByteVector> _genSplitBytes(Gen<ByteVector> g) =>
+    g.flatMap((b) => Gen.chooseInt(0, b.size + 1).map((n) => b.take(n).concat(b.drop(n))));

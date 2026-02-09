@@ -10,16 +10,11 @@ IO<Unit> expectIO(
   String? reason,
   Object? skip,
 }) =>
-    IO
-        .fromFutureF(
-            () => expectLater(actual, matcher, reason: reason, skip: skip))
-        .voided();
+    IO.fromFutureF(() => expectLater(actual, matcher, reason: reason, skip: skip)).voided();
 
-Matcher ioSucceeded([Object? matcher]) =>
-    _Succeeded(matcher ?? anyOf(isNotNull, isNull));
+Matcher ioSucceeded([Object? matcher]) => _Succeeded(matcher ?? anyOf(isNotNull, isNull));
 
-Matcher ioErrored([Object? matcher]) =>
-    _Errored(matcher ?? isA<RuntimeException>());
+Matcher ioErrored([Object? matcher]) => _Errored(matcher ?? isA<RuntimeException>());
 
 Matcher ioCanceled() => _Canceled();
 
@@ -77,8 +72,7 @@ class _Canceled extends AsyncMatcher {
   _Canceled();
 
   @override
-  Description describe(Description description) =>
-      description.add('<Instance of IO<_>>');
+  Description describe(Description description) => description.add('<Instance of IO<_>>');
 
   @override
   dynamic matchAsync(dynamic item) {

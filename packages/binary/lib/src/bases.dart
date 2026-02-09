@@ -170,9 +170,7 @@ final class _Base32Base extends Base32Alphabet {
   int toIndex(String c) {
     final lookupIndex = c.codeUnitAt(0) - _indicesMin;
 
-    if (0 <= lookupIndex &&
-        lookupIndex < _indices.size &&
-        _indices[lookupIndex] >= 0) {
+    if (0 <= lookupIndex && lookupIndex < _indices.size && _indices[lookupIndex] >= 0) {
       return _indices[lookupIndex];
     } else {
       throw ArgumentError();
@@ -181,8 +179,7 @@ final class _Base32Base extends Base32Alphabet {
 
   static final _chars = _charRange('A', 'Z').concat(_charRange('2', '7'));
 
-  static final _indiciesAndMin =
-      _charIndicesLookupArray(_chars.zipWithIndex().toIMap());
+  static final _indiciesAndMin = _charIndicesLookupArray(_chars.zipWithIndex().toIMap());
 
   static final _indicesMin = _indiciesAndMin.$1;
   static final _indices = _indiciesAndMin.$2;
@@ -212,9 +209,7 @@ final class Base32Crockford extends Base32Alphabet {
   int toIndex(String c) {
     final lookupIndex = c.codeUnitAt(0) - _indicesMin;
 
-    if (lookupIndex >= 0 &&
-        lookupIndex < _indices.length &&
-        _indices[lookupIndex] >= 0) {
+    if (lookupIndex >= 0 && lookupIndex < _indices.length && _indices[lookupIndex] >= 0) {
       return _indices[lookupIndex];
     } else if (ignore(c)) {
       return Bases.IgnoreChar;
@@ -233,10 +228,8 @@ final class Base32Crockford extends Base32Alphabet {
       .concat(_charRange('P', 'T'))
       .concat(_charRange('V', 'Z'));
 
-  static final _uppersAndLowers = _chars
-      .zipWithIndex()
-      .concat(_chars.map((c) => c.toLowerCase()).zipWithIndex())
-      .toIMap();
+  static final _uppersAndLowers =
+      _chars.zipWithIndex().concat(_chars.map((c) => c.toLowerCase()).zipWithIndex()).toIMap();
 
   static final _minAndIndicies = _charIndicesLookupArray(
     _uppersAndLowers.concat(imap({
@@ -367,8 +360,7 @@ final class _Base64UrlNoPad extends _Base64UrlBase {
 }
 
 IList<String> _charRange(String start, String end) =>
-    IList.rangeTo(start.codeUnitAt(0), end.codeUnitAt(0))
-        .map(String.fromCharCode);
+    IList.rangeTo(start.codeUnitAt(0), end.codeUnitAt(0)).map(String.fromCharCode);
 
 (int, IList<int>) _charIndicesLookupArray(IMap<String, int> indicesMap) {
   final indicesMin = indicesMap.keys

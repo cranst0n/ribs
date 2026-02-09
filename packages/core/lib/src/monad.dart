@@ -10,6 +10,5 @@ mixin Monad<A> on Functor<A>, Applicative<A> {
   Monad<B> map<B>(Function1<A, B> f);
 
   @override
-  Monad<B> ap<B>(covariant Monad<Function1<A, B>> f) =>
-      flatMap((a) => f.map((f) => f(a)));
+  Monad<B> ap<B>(covariant Monad<Function1<A, B>> f) => flatMap((a) => f.map((f) => f(a)));
 }

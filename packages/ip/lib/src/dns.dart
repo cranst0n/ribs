@@ -10,11 +10,9 @@ final class Dns {
 
   static IO<IList<IpAddress>> loopback() => _platformImpl.loopback();
 
-  static IO<IList<IpAddress>> resolve(Hostname hostname) =>
-      _platformImpl.resolve(hostname);
+  static IO<IList<IpAddress>> resolve(Hostname hostname) => _platformImpl.resolve(hostname);
 
-  static IO<Hostname> reverse(IpAddress address) =>
-      _platformImpl.reverse(address);
+  static IO<Hostname> reverse(IpAddress address) => _platformImpl.reverse(address);
 
   static IO<Option<Hostname>> reverseOption(IpAddress address) =>
       _platformImpl.reverseOption(address);

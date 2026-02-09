@@ -9,8 +9,7 @@ final class MediaRange {
     this.extensions,
   );
 
-  MediaRange withExtensions(IMap<String, String> ext) =>
-      MediaRange(mainType, ext);
+  MediaRange withExtensions(IMap<String, String> ext) => MediaRange(mainType, ext);
 
   static final all = MediaRange('*', IMap.empty());
   static final application = MediaRange('application', IMap.empty());
@@ -108,11 +107,11 @@ final class _Application {
 
   static const type = 'application';
 
-  final javascript = MediaType._full(type, IMap.empty(), 'javascript',
-      _Compressible, _NotBinary, ilist(['js', 'mjs']));
+  final javascript = MediaType._full(
+      type, IMap.empty(), 'javascript', _Compressible, _NotBinary, ilist(['js', 'mjs']));
 
-  final json = MediaType._full(type, IMap.empty(), 'json', _Compressible,
-      _Binary, ilist(['json', 'map']));
+  final json =
+      MediaType._full(type, IMap.empty(), 'json', _Compressible, _Binary, ilist(['json', 'map']));
 
   final octet_stream = MediaType._full(
       type,
@@ -145,17 +144,15 @@ final class _Application {
         'buffer'
       ]));
 
-  final pdf = MediaType._full(
-      type, IMap.empty(), 'pdf', _Uncompressible, _Binary, ilist(['pdf']));
+  final pdf = MediaType._full(type, IMap.empty(), 'pdf', _Uncompressible, _Binary, ilist(['pdf']));
 
-  final xWwwFormUrlEncoded = MediaType._basic(
-      type, IMap.empty(), 'x-www-form-urlencoded', _Compressible, _NotBinary);
+  final xWwwFormUrlEncoded =
+      MediaType._basic(type, IMap.empty(), 'x-www-form-urlencoded', _Compressible, _NotBinary);
 
-  final xml = MediaType._full(type, IMap.empty(), 'xml', _Compressible,
-      _NotBinary, ilist(['xml', 'xsl', 'xsd', 'rng']));
+  final xml = MediaType._full(
+      type, IMap.empty(), 'xml', _Compressible, _NotBinary, ilist(['xml', 'xsl', 'xsd', 'rng']));
 
-  final zip = MediaType._full(
-      type, IMap.empty(), 'zip', _Uncompressible, _Binary, ilist(['zip']));
+  final zip = MediaType._full(type, IMap.empty(), 'zip', _Uncompressible, _Binary, ilist(['zip']));
 }
 
 final class _Audio {
@@ -167,11 +164,10 @@ final class _Audio {
 
   static const type = 'audio';
 
-  final aac =
-      MediaType._basic(type, IMap.empty(), 'aac', _Compressible, _Binary);
+  final aac = MediaType._basic(type, IMap.empty(), 'aac', _Compressible, _Binary);
 
-  final plain = MediaType._full(type, IMap.empty(), 'mpeg', _Uncompressible,
-      _Binary, ilist(['mpga', 'mp2', 'mp2a', 'mp3', 'm2a', 'm3a']));
+  final plain = MediaType._full(type, IMap.empty(), 'mpeg', _Uncompressible, _Binary,
+      ilist(['mpga', 'mp2', 'mp2a', 'mp3', 'm2a', 'm3a']));
 }
 
 final class _Image {
@@ -183,20 +179,18 @@ final class _Image {
 
   static const type = 'image';
 
-  final gif = MediaType._full(
-      type, IMap.empty(), 'gif', _Uncompressible, _Binary, ilist(['gif']));
+  final gif = MediaType._full(type, IMap.empty(), 'gif', _Uncompressible, _Binary, ilist(['gif']));
 
-  final jpeg = MediaType._full(type, IMap.empty(), 'jpeg', _Uncompressible,
-      _Binary, ilist(['jpeg', 'jpg', 'jpe']));
+  final jpeg = MediaType._full(
+      type, IMap.empty(), 'jpeg', _Uncompressible, _Binary, ilist(['jpeg', 'jpg', 'jpe']));
 
-  final png = MediaType._full(
-      type, IMap.empty(), 'png', _Uncompressible, _Binary, ilist(['png']));
+  final png = MediaType._full(type, IMap.empty(), 'png', _Uncompressible, _Binary, ilist(['png']));
 
-  final svg_xml = MediaType._full(type, IMap.empty(), 'svg_xml', _Compressible,
-      _Binary, ilist(['svg', 'svgz']));
+  final svg_xml = MediaType._full(
+      type, IMap.empty(), 'svg_xml', _Compressible, _Binary, ilist(['svg', 'svgz']));
 
-  final tiff = MediaType._full(type, IMap.empty(), 'tiff', _Uncompressible,
-      _Binary, ilist(['tif', 'tiff']));
+  final tiff =
+      MediaType._full(type, IMap.empty(), 'tiff', _Uncompressible, _Binary, ilist(['tif', 'tiff']));
 }
 
 final class _Multipart {
@@ -208,8 +202,7 @@ final class _Multipart {
 
   static const type = 'multipart';
 
-  final form_data = MediaType._basic(
-      type, IMap.empty(), 'form-data', _Uncompressible, _NotBinary);
+  final form_data = MediaType._basic(type, IMap.empty(), 'form-data', _Uncompressible, _NotBinary);
 }
 
 final class _Text {
@@ -221,21 +214,14 @@ final class _Text {
 
   static const type = 'text';
 
-  final css = MediaType._full(
-      type, IMap.empty(), 'css', _Compressible, _NotBinary, ilist(['css']));
+  final css = MediaType._full(type, IMap.empty(), 'css', _Compressible, _NotBinary, ilist(['css']));
 
-  final csv = MediaType._full(
-      type, IMap.empty(), 'csv', _Compressible, _NotBinary, ilist(['csv']));
+  final csv = MediaType._full(type, IMap.empty(), 'csv', _Compressible, _NotBinary, ilist(['csv']));
 
-  final html = MediaType._full(type, IMap.empty(), 'html', _Compressible,
-      _NotBinary, ilist(['html', 'htm', 'shtml']));
+  final html = MediaType._full(
+      type, IMap.empty(), 'html', _Compressible, _NotBinary, ilist(['html', 'htm', 'shtml']));
 
-  final plain = MediaType._full(
-      type,
-      IMap.empty(),
-      'plain',
-      _Compressible,
-      _NotBinary,
+  final plain = MediaType._full(type, IMap.empty(), 'plain', _Compressible, _NotBinary,
       ilist(['txt', 'text', 'conf', 'def', 'list', 'log', 'in', 'ini']));
 }
 
@@ -248,11 +234,11 @@ final class _Video {
 
   static const type = 'video';
 
-  final mp4 = MediaType._full(type, IMap.empty(), 'mp4', _Uncompressible,
-      _Binary, ilist(['mp4', 'mp4v', 'mpg4']));
+  final mp4 = MediaType._full(
+      type, IMap.empty(), 'mp4', _Uncompressible, _Binary, ilist(['mp4', 'mp4v', 'mpg4']));
 
-  final mpeg = MediaType._full(type, IMap.empty(), 'mpeg', _Uncompressible,
-      _Binary, ilist(['mpeg', 'mpg', 'mpe', 'm1v', 'm2v']));
+  final mpeg = MediaType._full(type, IMap.empty(), 'mpeg', _Uncompressible, _Binary,
+      ilist(['mpeg', 'mpg', 'mpe', 'm1v', 'm2v']));
 }
 
 const _Compressible = true;

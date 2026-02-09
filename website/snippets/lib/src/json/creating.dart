@@ -10,7 +10,7 @@ final anObject = Json.obj([
     Json.arr([
       Json.number(123),
       Json.number(3.14),
-    ])
+    ]),
   ),
 ]);
 

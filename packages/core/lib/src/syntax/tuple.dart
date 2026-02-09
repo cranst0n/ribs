@@ -5,8 +5,7 @@ extension Tuple2Ops<A, B> on (A, B) {
   (A, B, C) append<C>(C $3) => ($1, $2, $3);
 
   /// Applies each function to the respective item of this tuple.
-  (C, D) bimap<C, D>(Function1<A, C> fa, Function1<B, D> fb) =>
-      (fa($1), fb($2));
+  (C, D) bimap<C, D>(Function1<A, C> fa, Function1<B, D> fb) => (fa($1), fb($2));
 
   /// Syntax to allow calling a tuple as a function and automatically
   /// destructure the elements.
@@ -152,8 +151,7 @@ extension Tuple6Ops<A, B, C, D, E, F> on (A, B, C, D, E, F) {
 extension Tuple7Ops<A, B, C, D, E, F, G> on (A, B, C, D, E, F, G) {
   (A, B, C, D, E, F, G, H) append<H>(H $8) => ($1, $2, $3, $4, $5, $6, $7, $8);
 
-  H call<H>(Function7<A, B, C, D, E, F, G, H> f) =>
-      f($1, $2, $3, $4, $5, $6, $7);
+  H call<H>(Function7<A, B, C, D, E, F, G, H> f) => f($1, $2, $3, $4, $5, $6, $7);
 
   (A, B, C, D, E, F, G) copy({
     A? $1,
@@ -184,11 +182,9 @@ extension Tuple7Ops<A, B, C, D, E, F, G> on (A, B, C, D, E, F, G) {
 }
 
 extension Tuple8Ops<A, B, C, D, E, F, G, H> on (A, B, C, D, E, F, G, H) {
-  (A, B, C, D, E, F, G, H, I) append<I>(I $9) =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9);
+  (A, B, C, D, E, F, G, H, I) append<I>(I $9) => ($1, $2, $3, $4, $5, $6, $7, $8, $9);
 
-  I call<I>(Function8<A, B, C, D, E, F, G, H, I> f) =>
-      f($1, $2, $3, $4, $5, $6, $7, $8);
+  I call<I>(Function8<A, B, C, D, E, F, G, H, I> f) => f($1, $2, $3, $4, $5, $6, $7, $8);
 
   (A, B, C, D, E, F, G, H) copy({
     A? $1,
@@ -215,18 +211,15 @@ extension Tuple8Ops<A, B, C, D, E, F, G, H> on (A, B, C, D, E, F, G, H) {
 
   H get last => $8;
 
-  (I, A, B, C, D, E, F, G, H) prepend<I>(I $9) =>
-      ($9, $1, $2, $3, $4, $5, $6, $7, $8);
+  (I, A, B, C, D, E, F, G, H) prepend<I>(I $9) => ($9, $1, $2, $3, $4, $5, $6, $7, $8);
 
   (B, C, D, E, F, G, H) tail() => ($2, $3, $4, $5, $6, $7, $8);
 }
 
 extension Tuple9Ops<A, B, C, D, E, F, G, H, I> on (A, B, C, D, E, F, G, H, I) {
-  (A, B, C, D, E, F, G, H, I, J) append<J>(J $10) =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+  (A, B, C, D, E, F, G, H, I, J) append<J>(J $10) => ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
 
-  J call<J>(Function9<A, B, C, D, E, F, G, H, I, J> f) =>
-      f($1, $2, $3, $4, $5, $6, $7, $8, $9);
+  J call<J>(Function9<A, B, C, D, E, F, G, H, I, J> f) => f($1, $2, $3, $4, $5, $6, $7, $8, $9);
 
   (A, B, C, D, E, F, G, H, I) copy({
     A? $1,
@@ -255,24 +248,12 @@ extension Tuple9Ops<A, B, C, D, E, F, G, H, I> on (A, B, C, D, E, F, G, H, I) {
 
   I get last => $9;
 
-  (J, A, B, C, D, E, F, G, H, I) prepend<J>(J $10) =>
-      ($10, $1, $2, $3, $4, $5, $6, $7, $8, $9);
+  (J, A, B, C, D, E, F, G, H, I) prepend<J>(J $10) => ($10, $1, $2, $3, $4, $5, $6, $7, $8, $9);
 
   (B, C, D, E, F, G, H, I) tail() => ($2, $3, $4, $5, $6, $7, $8, $9);
 }
 
-extension Tuple10Ops<A, B, C, D, E, F, G, H, I, J> on (
-  A,
-  B,
-  C,
-  D,
-  E,
-  F,
-  G,
-  H,
-  I,
-  J
-) {
+extension Tuple10Ops<A, B, C, D, E, F, G, H, I, J> on (A, B, C, D, E, F, G, H, I, J) {
   (A, B, C, D, E, F, G, H, I, J, K) append<K>(K $11) =>
       ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
 
@@ -314,19 +295,7 @@ extension Tuple10Ops<A, B, C, D, E, F, G, H, I, J> on (
   (B, C, D, E, F, G, H, I, J) tail() => ($2, $3, $4, $5, $6, $7, $8, $9, $10);
 }
 
-extension Tuple11Ops<A, B, C, D, E, F, G, H, I, J, K> on (
-  A,
-  B,
-  C,
-  D,
-  E,
-  F,
-  G,
-  H,
-  I,
-  J,
-  K
-) {
+extension Tuple11Ops<A, B, C, D, E, F, G, H, I, J, K> on (A, B, C, D, E, F, G, H, I, J, K) {
   (A, B, C, D, E, F, G, H, I, J, K, L) append<L>(L $12) =>
       ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
 
@@ -360,32 +329,17 @@ extension Tuple11Ops<A, B, C, D, E, F, G, H, I, J, K> on (
         $11 ?? this.$11
       );
 
-  (A, B, C, D, E, F, G, H, I, J) init() =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+  (A, B, C, D, E, F, G, H, I, J) init() => ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
 
   K get last => $11;
 
   (L, A, B, C, D, E, F, G, H, I, J, K) prepend<L>(L $12) =>
       ($12, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
 
-  (B, C, D, E, F, G, H, I, J, K) tail() =>
-      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
+  (B, C, D, E, F, G, H, I, J, K) tail() => ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
 }
 
-extension Tuple12Ops<A, B, C, D, E, F, G, H, I, J, K, L> on (
-  A,
-  B,
-  C,
-  D,
-  E,
-  F,
-  G,
-  H,
-  I,
-  J,
-  K,
-  L
-) {
+extension Tuple12Ops<A, B, C, D, E, F, G, H, I, J, K, L> on (A, B, C, D, E, F, G, H, I, J, K, L) {
   (A, B, C, D, E, F, G, H, I, J, K, L, M) append<M>(M $13) =>
       ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);
 
@@ -421,16 +375,14 @@ extension Tuple12Ops<A, B, C, D, E, F, G, H, I, J, K, L> on (
         $12 ?? this.$12
       );
 
-  (A, B, C, D, E, F, G, H, I, J, K) init() =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
+  (A, B, C, D, E, F, G, H, I, J, K) init() => ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
 
   L get last => $12;
 
   (M, A, B, C, D, E, F, G, H, I, J, K, L) prepend<M>(M $13) =>
       ($13, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
 
-  (B, C, D, E, F, G, H, I, J, K, L) tail() =>
-      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
+  (B, C, D, E, F, G, H, I, J, K, L) tail() => ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
 }
 
 extension Tuple13Ops<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
@@ -652,25 +604,8 @@ extension Tuple16Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> on (
   O,
   P
 ) {
-  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) append<Q>(Q $17) => (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13,
-        $14,
-        $15,
-        $16,
-        $17
-      );
+  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) append<Q>(Q $17) =>
+      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17);
 
   Q call<Q>(Function16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> f) =>
       f($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16);
@@ -717,25 +652,8 @@ extension Tuple16Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> on (
 
   P get last => $16;
 
-  (Q, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) prepend<Q>(Q $17) => (
-        $17,
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13,
-        $14,
-        $15,
-        $16
-      );
+  (Q, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) prepend<Q>(Q $17) =>
+      ($17, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16);
 
   (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) tail() =>
       ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16);
@@ -760,31 +678,11 @@ extension Tuple17Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> on (
   P,
   Q
 ) {
-  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) append<R>(R $18) => (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13,
-        $14,
-        $15,
-        $16,
-        $17,
-        $18
-      );
+  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) append<R>(R $18) =>
+      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18);
 
-  R call<R>(
-          Function17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> f) =>
-      f($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-          $17);
+  R call<R>(Function17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> f) =>
+      f($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17);
 
   (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) copy({
     A? $1,
@@ -830,26 +728,8 @@ extension Tuple17Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> on (
 
   Q get last => $17;
 
-  (R, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) prepend<R>(R $18) => (
-        $18,
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13,
-        $14,
-        $15,
-        $16,
-        $17
-      );
+  (R, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) prepend<R>(R $18) =>
+      ($18, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17);
 
   (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) tail() =>
       ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17);
@@ -876,33 +756,10 @@ extension Tuple18Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> on (
   R
 ) {
   (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) append<S>(S $19) =>
-      (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13,
-        $14,
-        $15,
-        $16,
-        $17,
-        $18,
-        $19
-      );
+      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19);
 
-  S call<S>(
-          Function18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
-              f) =>
-      f($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-          $17, $18);
+  S call<S>(Function18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> f) =>
+      f($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18);
 
   (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) copy({
     A? $1,
@@ -945,104 +802,44 @@ extension Tuple18Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> on (
         $18 ?? this.$18
       );
 
-  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) init() => (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13,
-        $14,
-        $15,
-        $16,
-        $17
-      );
+  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) init() =>
+      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17);
 
   R get last => $18;
 
   (S, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) prepend<S>(S $19) =>
-      (
-        $19,
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13,
-        $14,
-        $15,
-        $16,
-        $17,
-        $18
-      );
+      ($19, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18);
 
-  (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) tail() => (
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13,
-        $14,
-        $15,
-        $16,
-        $17,
-        $18
-      );
+  (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) tail() =>
+      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18);
 }
 
-extension Tuple19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
-    on (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) {
-  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) append<T>(
-          T $20) =>
-      (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13,
-        $14,
-        $15,
-        $16,
-        $17,
-        $18,
-        $19,
-        $20
-      );
+extension Tuple19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> on (
+  A,
+  B,
+  C,
+  D,
+  E,
+  F,
+  G,
+  H,
+  I,
+  J,
+  K,
+  L,
+  M,
+  N,
+  O,
+  P,
+  Q,
+  R,
+  S
+) {
+  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) append<T>(T $20) =>
+      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20);
 
-  T call<T>(
-          Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
-              f) =>
-      f($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-          $17, $18, $19);
+  T call<T>(Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> f) =>
+      f($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19);
 
   (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) copy({
     A? $1,
@@ -1087,81 +884,41 @@ extension Tuple19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
         $19 ?? this.$19
       );
 
-  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) init() => (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13,
-        $14,
-        $15,
-        $16,
-        $17,
-        $18
-      );
+  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) init() =>
+      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18);
 
   S get last => $19;
 
-  (T, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) prepend<T>(
-          T $20) =>
-      (
-        $20,
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13,
-        $14,
-        $15,
-        $16,
-        $17,
-        $18,
-        $19
-      );
+  (T, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) prepend<T>(T $20) =>
+      ($20, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19);
 
-  (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) tail() => (
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13,
-        $14,
-        $15,
-        $16,
-        $17,
-        $18,
-        $19
-      );
+  (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) tail() =>
+      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19);
 }
 
-extension Tuple20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
-    on (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) {
-  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) append<U>(
-          U $21) =>
-      (
+extension Tuple20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> on (
+  A,
+  B,
+  C,
+  D,
+  E,
+  F,
+  G,
+  H,
+  I,
+  J,
+  K,
+  L,
+  M,
+  N,
+  O,
+  P,
+  Q,
+  R,
+  S,
+  T
+) {
+  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) append<U>(U $21) => (
         $1,
         $2,
         $3,
@@ -1185,12 +942,8 @@ extension Tuple20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
         $21
       );
 
-  U call<U>(
-          Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
-                  U>
-              f) =>
-      f($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-          $17, $18, $19, $20);
+  U call<U>(Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> f) =>
+      f($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20);
 
   (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) copy({
     A? $1,
@@ -1237,33 +990,12 @@ extension Tuple20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
         $20 ?? this.$20
       );
 
-  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) init() => (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13,
-        $14,
-        $15,
-        $16,
-        $17,
-        $18,
-        $19
-      );
+  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) init() =>
+      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19);
 
   T get last => $20;
 
-  (U, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) prepend<U>(
-          U $21) =>
-      (
+  (U, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) prepend<U>(U $21) => (
         $21,
         $1,
         $2,
@@ -1287,34 +1019,34 @@ extension Tuple20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
         $20
       );
 
-  (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) tail() => (
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13,
-        $14,
-        $15,
-        $16,
-        $17,
-        $18,
-        $19,
-        $20
-      );
+  (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) tail() =>
+      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20);
 }
 
-extension Tuple21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
-    U> on (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) {
-  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) append<V>(
-          V $22) =>
-      (
+extension Tuple21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> on (
+  A,
+  B,
+  C,
+  D,
+  E,
+  F,
+  G,
+  H,
+  I,
+  J,
+  K,
+  L,
+  M,
+  N,
+  O,
+  P,
+  Q,
+  R,
+  S,
+  T,
+  U
+) {
+  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) append<V>(V $22) => (
         $1,
         $2,
         $3,
@@ -1339,12 +1071,8 @@ extension Tuple21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
         $22
       );
 
-  V call<V>(
-          Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
-                  U, V>
-              f) =>
-      f($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-          $17, $18, $19, $20, $21);
+  V call<V>(Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> f) => f($1,
+      $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21);
 
   (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) copy({
     A? $1,
@@ -1393,34 +1121,12 @@ extension Tuple21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
         $21 ?? this.$21
       );
 
-  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) init() => (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13,
-        $14,
-        $15,
-        $16,
-        $17,
-        $18,
-        $19,
-        $20
-      );
+  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) init() =>
+      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20);
 
   U get last => $21;
 
-  (V, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) prepend<V>(
-          V $22) =>
-      (
+  (V, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) prepend<V>(V $22) => (
         $22,
         $1,
         $2,
@@ -1445,7 +1151,36 @@ extension Tuple21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
         $21
       );
 
-  (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) tail() => (
+  (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) tail() =>
+      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21);
+}
+
+extension Tuple22Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> on (
+  A,
+  B,
+  C,
+  D,
+  E,
+  F,
+  G,
+  H,
+  I,
+  J,
+  K,
+  L,
+  M,
+  N,
+  O,
+  P,
+  Q,
+  R,
+  S,
+  T,
+  U,
+  V
+) {
+  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W) append<W>(W $23) => (
+        $1,
         $2,
         $3,
         $4,
@@ -1465,66 +1200,34 @@ extension Tuple21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
         $18,
         $19,
         $20,
-        $21
+        $21,
+        $22,
+        $23
       );
-}
 
-extension Tuple22Ops<
-    A,
-    B,
-    C,
-    D,
-    E,
-    F,
-    G,
-    H,
-    I,
-    J,
-    K,
-    L,
-    M,
-    N,
-    O,
-    P,
-    Q,
-    R,
-    S,
-    T,
-    U,
-    V> on (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) {
-  (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W)
-      append<W>(W $23) => (
-            $1,
-            $2,
-            $3,
-            $4,
-            $5,
-            $6,
-            $7,
-            $8,
-            $9,
-            $10,
-            $11,
-            $12,
-            $13,
-            $14,
-            $15,
-            $16,
-            $17,
-            $18,
-            $19,
-            $20,
-            $21,
-            $22,
-            $23
-          );
-
-  W call<W>(
-          Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
-                  U, V, W>
-              f) =>
-      f($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-          $17, $18, $19, $20, $21, $22);
+  W call<W>(Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W> f) => f(
+      $1,
+      $2,
+      $3,
+      $4,
+      $5,
+      $6,
+      $7,
+      $8,
+      $9,
+      $10,
+      $11,
+      $12,
+      $13,
+      $14,
+      $15,
+      $16,
+      $17,
+      $18,
+      $19,
+      $20,
+      $21,
+      $22);
 
   (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) copy({
     A? $1,
@@ -1601,32 +1304,31 @@ extension Tuple22Ops<
 
   V get last => $22;
 
-  (W, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)
-      prepend<W>(W $23) => (
-            $23,
-            $1,
-            $2,
-            $3,
-            $4,
-            $5,
-            $6,
-            $7,
-            $8,
-            $9,
-            $10,
-            $11,
-            $12,
-            $13,
-            $14,
-            $15,
-            $16,
-            $17,
-            $18,
-            $19,
-            $20,
-            $21,
-            $22
-          );
+  (W, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) prepend<W>(W $23) => (
+        $23,
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15,
+        $16,
+        $17,
+        $18,
+        $19,
+        $20,
+        $21,
+        $22
+      );
 
   (B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) tail() => (
         $2,

@@ -70,11 +70,9 @@ final class AsyncParser extends Parser with ByteBasedParser {
     return _churn();
   }
 
-  Either<ParseException, IList<Json>> absorbString(String buf) =>
-      absorb(utf8.encoder.convert(buf));
+  Either<ParseException, IList<Json>> absorbString(String buf) => absorb(utf8.encoder.convert(buf));
 
-  Either<ParseException, IList<Json>> finalAbsorb(Uint8List buf) =>
-      absorb(buf).fold(
+  Either<ParseException, IList<Json>> finalAbsorb(Uint8List buf) => absorb(buf).fold(
         (err) => err.asLeft(),
         (xs) => finish().fold(
           (err) => err.asLeft(),
@@ -225,9 +223,8 @@ final class AsyncParser extends Parser with ByteBasedParser {
         } else {
           // jump straight back into rparse
           _offset = reset(_offset);
-          final (value, j) = _state <= 0
-              ? parseAt(_offset)
-              : iparse(_state, _curr, _context!, _stack);
+          final (value, j) =
+              _state <= 0 ? parseAt(_offset) : iparse(_state, _curr, _context!, _stack);
           if (_streamMode > 0) {
             _state = _ASYNC_POSTVAL;
           } else if (_streamMode == 0) {

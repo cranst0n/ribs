@@ -18,10 +18,7 @@ final class BinomialHeap<A> {
 
   (BinomialHeap<A>, A) take() {
     final (ts, head) = _takeImpl(trees, order);
-    return (
-      BinomialHeap(ts, order),
-      head.getOrElse(() => throw Exception('Empty Heap'))
-    );
+    return (BinomialHeap(ts, order), head.getOrElse(() => throw Exception('Empty Heap')));
   }
 
   (BinomialHeap<A>, Option<A>) tryTake() {
@@ -112,8 +109,7 @@ final class BinomialTree<A> {
     if (order.lteqv(value, other.value)) {
       return BinomialTree(rank + 1, value, children.prepended(other), order);
     } else {
-      return BinomialTree(
-          rank + 1, other.value, other.children.prepended(this), order);
+      return BinomialTree(rank + 1, other.value, other.children.prepended(this), order);
     }
   }
 }

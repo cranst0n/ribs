@@ -15,25 +15,20 @@ import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
 
-abstract class Range
-    with RIterableOnce<int>, RIterable<int>, RSeq<int>, IndexedSeq<int> {
+abstract class Range with RIterableOnce<int>, RIterable<int>, RSeq<int>, IndexedSeq<int> {
   final int start;
   final int end;
   final int step;
 
   Range(this.start, this.end, this.step);
 
-  factory Range.exclusive(int start, int end, [int step = 1]) =>
-      _RangeExclusive(start, end, step);
+  factory Range.exclusive(int start, int end, [int step = 1]) => _RangeExclusive(start, end, step);
 
-  factory Range.inclusive(int start, int end, [int step = 1]) =>
-      _RangeInclusive(start, end, step);
+  factory Range.inclusive(int start, int end, [int step = 1]) => _RangeInclusive(start, end, step);
 
   @override
   bool get isEmpty =>
-      (start > end && step > 0) ||
-      (start < end && step < 0) ||
-      (start == end && !isInclusive);
+      (start > end && step > 0) || (start < end && step < 0) || (start == end && !isInclusive);
 
   bool get isInclusive;
 
@@ -43,8 +38,7 @@ abstract class Range
     if (0 <= idx && idx < _numRangeElements) {
       return start + (step * idx);
     } else {
-      throw RangeError(
-          '$idx is out of bound (min 0, max ${_numRangeElements - 1})');
+      throw RangeError('$idx is out of bound (min 0, max ${_numRangeElements - 1})');
     }
   }
 
@@ -140,8 +134,7 @@ abstract class Range
   RIterator<Range> inits() => _RangeInitsIterator(this);
 
   @override
-  RIterator<int> get iterator =>
-      _RangeIterator(start, step, _lastElement, isEmpty);
+  RIterator<int> get iterator => _RangeIterator(start, step, _lastElement, isEmpty);
 
   @override
   int get last => isEmpty ? throw _emptyRangeError('last') : _lastElement;
@@ -162,8 +155,7 @@ abstract class Range
   }
 
   @override
-  IndexedSeq<int> reverse() =>
-      isEmpty ? this : Range.inclusive(last, start, -step);
+  IndexedSeq<int> reverse() => isEmpty ? this : Range.inclusive(last, start, -step);
 
   @override
   bool sameElements(RIterable<int> that) {
@@ -171,8 +163,7 @@ abstract class Range
       return switch (length) {
         0 => that.isEmpty,
         1 => that.length == 1 && start == that.start,
-        final n =>
-          that.length == n && (start == that.start && step == that.step),
+        final n => that.length == n && (start == that.start && step == that.step),
       };
     } else {
       return super.sameElements(that);
@@ -205,10 +196,7 @@ abstract class Range
       if (x == last) {
         return (this, _newEmptyRange(last));
       } else {
-        return (
-          Range.inclusive(start, x, step),
-          Range.inclusive(x + step, last, step)
-        );
+        return (Range.inclusive(start, x, step), Range.inclusive(x + step, last, step));
       }
     }
   }
@@ -322,9 +310,8 @@ abstract class Range
   }
 
   @override
-  int get hashCode => length > 2
-      ? MurmurHash3.rangeHash(start, step, _lastElement)
-      : super.hashCode;
+  int get hashCode =>
+      length > 2 ? MurmurHash3.rangeHash(start, step, _lastElement) : super.hashCode;
 
   Range _copy({int? start, int? end, int? step, bool? isInclusive}) {
     if (isInclusive ?? this.isInclusive) {
@@ -342,8 +329,7 @@ abstract class Range
     }
   }
 
-  RangeError _emptyRangeError(String function) =>
-      RangeError('$function on empty Range');
+  RangeError _emptyRangeError(String function) => RangeError('$function on empty Range');
 
   int _argTakeWhile(Function1<int, bool> p) {
     if (isEmpty) {

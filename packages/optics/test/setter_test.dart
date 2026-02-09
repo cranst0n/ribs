@@ -6,9 +6,7 @@ void main() {
   group('Setter', () {
     test('modify', () {
       expect(
-        AppConfig.baseDirS
-            .modify((a) => a.toUpperCase())(AppConfig.test)
-            .baseDir,
+        AppConfig.baseDirS.modify((a) => a.toUpperCase())(AppConfig.test).baseDir,
         '/TMP',
       );
     });

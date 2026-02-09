@@ -80,8 +80,7 @@ void main() {
       expect(l.toString(), 'ILazyList(1, 2, <not computed>)');
     });
 
-    test('toString when head is not evaluated and tail.tail.head is evaluated',
-        () {
+    test('toString when head is not evaluated and tail.tail.head is evaluated', () {
       final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
       l.tail().tail().head;
 
@@ -120,11 +119,8 @@ void main() {
     test('toString when ILazyList has cyclic reference', () {
       late ILazyList<int> cyc;
 
-      cyc = ILazyList.from(ilist([1]))
-          .appended(2)
-          .appended(3)
-          .appended(4)
-          .lazyAppendedAll(() => cyc);
+      cyc =
+          ILazyList.from(ilist([1])).appended(2).appended(3).appended(4).lazyAppendedAll(() => cyc);
 
       final l = cyc;
       expect(l.toString(), 'ILazyList(<not computed>)');
@@ -269,8 +265,9 @@ void main() {
       final lazyList = ILazyList.ints(0).take(4);
       final list = lazyList.toIList();
 
-      lazyList.indices().foreach((i) =>
-          expect(list.updated(i, -1), lazyList.updated(i, -1).toIList()));
+      lazyList
+          .indices()
+          .foreach((i) => expect(list.updated(i, -1), lazyList.updated(i, -1).toIList()));
 
       expect(() => lazyList.updated(-1, -1), throwsRangeError);
     });

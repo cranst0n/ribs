@@ -51,8 +51,8 @@ class _ObjectContext extends FContext {
   }
 
   @override
-  Json finishAt(int index) => Json.fromJsonObject(
-      JsonObject.fromIList(ilist(m.entries).map((e) => (e.key, e.value))));
+  Json finishAt(int index) =>
+      Json.fromJsonObject(JsonObject.fromIList(ilist(m.entries).map((e) => (e.key, e.value))));
 
   @override
   bool get isObject => true;

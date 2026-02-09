@@ -9,8 +9,7 @@ void main() {
     expect(l.count((a) => a <= 0), 0);
   });
 
-  forAll('Foldable.find',
-      Gen.ilistOfN(20, Gen.chooseInt(0, 1000).map((x) => x * 2)), (l) {
+  forAll('Foldable.find', Gen.ilistOfN(20, Gen.chooseInt(0, 1000).map((x) => x * 2)), (l) {
     expect(l.find((x) => x.isEven).isDefined, isTrue);
   });
 
@@ -18,8 +17,7 @@ void main() {
     expect(nil<int>().find((_) => true), isNone());
   });
 
-  forAll('Foldable.exists',
-      Gen.ilistOfN(20, Gen.chooseInt(0, 1000).map((x) => x * 2)), (l) {
+  forAll('Foldable.exists', Gen.ilistOfN(20, Gen.chooseInt(0, 1000).map((x) => x * 2)), (l) {
     expect(l.exists((x) => x.isEven), isTrue);
   });
 

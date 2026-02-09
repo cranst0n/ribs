@@ -13,9 +13,8 @@ final class VariableSizedCodec<A> extends Codec<A> {
       sizeCodec.flatMap<A>((s) => FixedSizeCodec(s, valueCodec)).decode(bv);
 
   @override
-  Either<Err, BitVector> encode(A a) => valueCodec
-      .encode(a)
-      .flatMap((a) => sizeCodec.encode(a.size).map((b) => b.concat(a)));
+  Either<Err, BitVector> encode(A a) =>
+      valueCodec.encode(a).flatMap((a) => sizeCodec.encode(a.size).map((b) => b.concat(a)));
 
   @override
   String? get description => 'variableSized($sizeCodec, $valueCodec)';

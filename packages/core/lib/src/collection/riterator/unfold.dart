@@ -30,8 +30,7 @@ final class _UnfoldIterator<A, S> extends RIterator<A> {
   @override
   A next() {
     if (hasNext) {
-      final (value, newState) =
-          _nextResult!.getOrElse(() => throw 'unreachable');
+      final (value, newState) = _nextResult!.getOrElse(() => throw 'unreachable');
       _state = newState;
       _nextResult = null;
       return value;

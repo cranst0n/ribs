@@ -14,26 +14,22 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
   SyncIO<Either<RuntimeException, A>> attempt() => _Attempt(this);
 
   @override
-  SyncIO<B> flatMap<B>(covariant Function1<A, SyncIO<B>> f) =>
-      _FlatMap(this, Fn1.of(f));
+  SyncIO<B> flatMap<B>(covariant Function1<A, SyncIO<B>> f) => _FlatMap(this, Fn1.of(f));
 
   SyncIO<A> handleError(Function1<RuntimeException, A> f) =>
       handleErrorWith((e) => SyncIO.pure(f(e)));
 
-  SyncIO<A> handleErrorWith(
-          covariant Function1<RuntimeException, SyncIO<A>> f) =>
+  SyncIO<A> handleErrorWith(covariant Function1<RuntimeException, SyncIO<A>> f) =>
       _HandleErrorWith(this, Fn1.of(f));
 
   @override
   SyncIO<B> map<B>(covariant Function1<A, B> f) => _Map(this, Fn1.of(f));
 
-  SyncIO<A> productL<B>(Function0<SyncIO<B>> that) =>
-      flatMap((a) => that().as(a));
+  SyncIO<A> productL<B>(Function0<SyncIO<B>> that) => flatMap((a) => that().as(a));
 
   SyncIO<B> productR<B>(Function0<SyncIO<B>> that) => flatMap((_) => that());
 
-  SyncIO<B> redeem<B>(
-          Function1<RuntimeException, B> recover, Function1<A, B> map) =>
+  SyncIO<B> redeem<B>(Function1<RuntimeException, B> recover, Function1<A, B> map) =>
       attempt().map((a) => a.fold(recover, map));
 
   SyncIO<B> redeemWith<B>(

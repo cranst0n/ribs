@@ -16,12 +16,10 @@ abstract mixin class Put<A> {
   static final Put<IList<int>> blob =
       _genericPut<List<int>>().contramap<IList<int>>((ilist) => ilist.toList());
   static final Put<bool> boolean = integer.contramap((b) => b ? 1 : 0);
-  static final Put<DateTime> dateTime =
-      string.contramap((dt) => dt.toIso8601String());
+  static final Put<DateTime> dateTime = string.contramap((dt) => dt.toIso8601String());
   static final Put<double> dubble = _genericPut();
   static final Put<int> integer = _genericPut();
-  static final Put<Json> json =
-      string.contramap((json) => Printer.noSpaces.print(json));
+  static final Put<Json> json = string.contramap((json) => Printer.noSpaces.print(json));
   static final Put<String> string = _genericPut();
 
   static Put<T> _genericPut<T>() =>

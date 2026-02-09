@@ -13,8 +13,7 @@
 
 part of '../imap.dart';
 
-final class _Map2<K, V>
-    with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V>, IMap<K, V> {
+final class _Map2<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V>, IMap<K, V> {
   final K key1;
   final V value1;
   final K key2;
@@ -26,12 +25,10 @@ final class _Map2<K, V>
   bool contains(K key) => key == key1 || key == key2;
 
   @override
-  bool exists(Function1<(K, V), bool> p) =>
-      p((key1, value1)) || p((key2, value2));
+  bool exists(Function1<(K, V), bool> p) => p((key1, value1)) || p((key2, value2));
 
   @override
-  bool forall(Function1<(K, V), bool> p) =>
-      p((key1, value1)) && p((key2, value2));
+  bool forall(Function1<(K, V), bool> p) => p((key1, value1)) && p((key2, value2));
 
   @override
   void foreach<U>(Function1<(K, V), U> f) {
@@ -47,8 +44,7 @@ final class _Map2<K, V>
       };
 
   @override
-  RIterator<(K, V)> get iterator =>
-      ilist([(key1, value1), (key2, value2)]).iterator;
+  RIterator<(K, V)> get iterator => ilist([(key1, value1), (key2, value2)]).iterator;
 
   @override
   ISet<K> get keys => ISet.of([key1, key2]);

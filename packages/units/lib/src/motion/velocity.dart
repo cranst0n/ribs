@@ -5,11 +5,9 @@ final class Velocity extends Quantity<Velocity> {
   Velocity(super.value, super.unit);
 
   Velocity get toFeetPerSecond => to(feetPerSecond).feetPerSecond;
-  Velocity get toMillimetersPerSecond =>
-      to(millimetersPerSecond).millimetersPerSecond;
+  Velocity get toMillimetersPerSecond => to(millimetersPerSecond).millimetersPerSecond;
   Velocity get toMetersPerSecond => to(metersPerSecond).metersPerSecond;
-  Velocity get toKilometersPerSecond =>
-      to(kilometersPerSecond).kilometersPerSecond;
+  Velocity get toKilometersPerSecond => to(kilometersPerSecond).kilometersPerSecond;
   Velocity get toKilometersPerHour => to(kilometersPerHour).kilometersPerHour;
   Velocity get toUsMilesPerHour => to(usMilesPerHour).usMilesPerHour;
   Velocity get toKnots => to(knots).knots;
@@ -44,17 +42,13 @@ abstract class VelocityUnit extends BaseUnit<Velocity> {
 
 final class FeetPerSecond extends VelocityUnit {
   FeetPerSecond._()
-      : super('feet/second', 'ft/s',
-            Length.feet.conversionFactor / Length.meters.conversionFactor);
+      : super('feet/second', 'ft/s', Length.feet.conversionFactor / Length.meters.conversionFactor);
 }
 
 final class MillimetersPerSecond extends VelocityUnit {
   MillimetersPerSecond._()
-      : super(
-            'millimeters/second',
-            'mm/s',
-            Length.millimeters.conversionFactor /
-                Length.meters.conversionFactor);
+      : super('millimeters/second', 'mm/s',
+            Length.millimeters.conversionFactor / Length.meters.conversionFactor);
 }
 
 final class MetersPerSecond extends VelocityUnit {
@@ -63,11 +57,8 @@ final class MetersPerSecond extends VelocityUnit {
 
 final class KilometersPerSecond extends VelocityUnit {
   KilometersPerSecond._()
-      : super(
-            'kilometers/second',
-            'km/s',
-            Length.kilometers.conversionFactor /
-                Length.meters.conversionFactor);
+      : super('kilometers/second', 'km/s',
+            Length.kilometers.conversionFactor / Length.meters.conversionFactor);
 }
 
 final class KilometersPerHour extends VelocityUnit {

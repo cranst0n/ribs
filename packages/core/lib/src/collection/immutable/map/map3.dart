@@ -14,12 +14,7 @@
 part of '../imap.dart';
 
 final class _Map3<K, V>
-    with
-        RIterableOnce<(K, V)>,
-        RIterable<(K, V)>,
-        RMap<K, V>,
-        RMap<K, V>,
-        IMap<K, V> {
+    with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V>, RMap<K, V>, IMap<K, V> {
   final K key1;
   final V value1;
   final K key2;
@@ -27,8 +22,7 @@ final class _Map3<K, V>
   final K key3;
   final V value3;
 
-  const _Map3(
-      this.key1, this.value1, this.key2, this.value2, this.key3, this.value3);
+  const _Map3(this.key1, this.value1, this.key2, this.value2, this.key3, this.value3);
 
   @override
   bool contains(K key) => key == key1 || key == key2 || key == key3;

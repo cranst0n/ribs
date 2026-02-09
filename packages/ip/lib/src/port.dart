@@ -8,11 +8,10 @@ final class Port extends Ordered<Port> {
 
   const Port._(this.value);
 
-  static Option<Port> fromInt(int value) => Option.when(
-      () => MinValue <= value && value <= MaxValue, () => Port._(value));
+  static Option<Port> fromInt(int value) =>
+      Option.when(() => MinValue <= value && value <= MaxValue, () => Port._(value));
 
-  static Option<Port> fromString(String value) =>
-      Option(int.tryParse(value)).flatMap(fromInt);
+  static Option<Port> fromString(String value) => Option(int.tryParse(value)).flatMap(fromInt);
 
   @override
   int compareTo(Port other) => value.compareTo(other.value);

@@ -2,8 +2,7 @@
 
 import 'package:built_collection/built_collection.dart' as built_list;
 import 'package:dartz/dartz.dart' as dartz;
-import 'package:fast_immutable_collections/fast_immutable_collections.dart'
-    as fic;
+import 'package:fast_immutable_collections/fast_immutable_collections.dart' as fic;
 import 'package:kt_dart/collection.dart' as kt;
 import 'package:ribs_core/ribs_core.dart' as ribs;
 
@@ -15,8 +14,7 @@ void main(List<String> args) async {
   final c = RibsIVector(ribs.IVector.tabulate(n, (x) => x));
   final d = FicIList(fic.IList(fic.IList.tabulate(n, (x) => x)));
   final e = DartzIList(dartz.IList.generate(n, (x) => x));
-  final f =
-      BuiltIList(built_list.BuiltList(Iterable<int>.generate(n, (x) => x)));
+  final f = BuiltIList(built_list.BuiltList(Iterable<int>.generate(n, (x) => x)));
   final g = KtIList(kt.KtList.from(Iterable<int>.generate(n, (x) => x)));
 
   await Future.delayed(1.day, () => 0);

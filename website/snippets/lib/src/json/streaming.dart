@@ -42,22 +42,25 @@ final class Repo {
 // streaming-2
 
 // Original stream of bytes
-final Stream<List<int>> byteStream =
-    File('path/to/big-array-file.json').openRead();
+final Stream<List<int>> byteStream = File('path/to/big-array-file.json').openRead();
 
 // Use JsonTransformer to transform the bytes into individual JSON events
-final Stream<Json> jsonStream =
-    byteStream.transform(JsonTransformer.bytes(AsyncParserMode.unwrapArray));
+final Stream<Json> jsonStream = byteStream.transform(
+  JsonTransformer.bytes(AsyncParserMode.unwrapArray),
+);
 
 // Decode each Json stream element into an event, accounting for failure
-final Stream<Either<DecodingFailure, Event>> decodeStream =
-    jsonStream.map((json) => Event.codec.decode(json));
+final Stream<Either<DecodingFailure, Event>> decodeStream = jsonStream.map(
+  (json) => Event.codec.decode(json),
+);
 
 // One step further...drop any decoding errors
-final Stream<Event> eventStream = decodeStream.expand((element) => element.fold(
-      (err) => <Event>[],
-      (event) => [event],
-    ));
+final Stream<Event> eventStream = decodeStream.expand(
+  (element) => element.fold(
+    (err) => <Event>[],
+    (event) => [event],
+  ),
+);
 
 // streaming-2
 

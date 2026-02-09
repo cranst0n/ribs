@@ -28,8 +28,7 @@ Option<int> betterMax(List<int> xs) {
 
 // better-yet
 
-Option<int> betterYetMax(List<int> xs) =>
-    Option.when(() => xs.isNotEmpty, () => xs.reduce(max));
+Option<int> betterYetMax(List<int> xs) => Option.when(() => xs.isNotEmpty, () => xs.reduce(max));
 
 // better-yet
 

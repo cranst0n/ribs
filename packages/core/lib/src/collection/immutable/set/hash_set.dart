@@ -69,8 +69,7 @@ final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
           // certainty that it either caused a new subnode to be created underneath `current`, in which case we should
           // carry on mutating that subnode, or it ended up as a child data pair of the root, in which case, no harm is
           // done by including its bit position in the shallowlyMutableNodeMap anyways.
-          var shallowlyMutableNodeMap =
-              Node.bitposFrom(Node.maskFrom(improved, 0));
+          var shallowlyMutableNodeMap = Node.bitposFrom(Node.maskFrom(improved, 0));
 
           while (iter.hasNext) {
             final element = iter.next();
@@ -131,8 +130,7 @@ final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   IHashSet<A> excl(A elem) {
     final elementUnimprovedHash = elem.hashCode;
     final elementHash = Hashing.improve(elementUnimprovedHash);
-    final newRootNode =
-        _rootNode.removed(elem, elementUnimprovedHash, elementHash, 0);
+    final newRootNode = _rootNode.removed(elem, elementUnimprovedHash, elementHash, 0);
     return _newHashSetOrThis(newRootNode);
   }
 
@@ -164,8 +162,7 @@ final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   IHashSet<A> incl(A elem) {
     final elementUnimprovedHash = elem.hashCode;
     final elementHash = Hashing.improve(elementUnimprovedHash);
-    final newRootNode =
-        _rootNode.updated(elem, elementUnimprovedHash, elementHash, 0);
+    final newRootNode = _rootNode.updated(elem, elementUnimprovedHash, elementHash, 0);
     return _newHashSetOrThis(newRootNode);
   }
 
@@ -179,8 +176,7 @@ final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   bool get isEmpty => _rootNode.size == 0;
 
   @override
-  RIterator<A> get iterator =>
-      isEmpty ? RIterator.empty() : _SetIterator(_rootNode);
+  RIterator<A> get iterator => isEmpty ? RIterator.empty() : _SetIterator(_rootNode);
 
   @override
   int get knownSize => _rootNode.size;
@@ -204,14 +200,12 @@ final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
 
   @override
   bool operator ==(Object that) => switch (that) {
-        final IHashSet<A> that =>
-          identical(this, that) || _rootNode == that._rootNode,
+        final IHashSet<A> that => identical(this, that) || _rootNode == that._rootNode,
         _ => super == that,
       };
 
   @override
-  int get hashCode => MurmurHash3.unorderedHash(
-      _SetHashIterator(_rootNode), MurmurHash3.setSeed);
+  int get hashCode => MurmurHash3.unorderedHash(_SetHashIterator(_rootNode), MurmurHash3.setSeed);
 
   IHashSet<A> _newHashSetOrThis(BitmapIndexedSetNode<A> newRootNode) =>
       _rootNode == newRootNode ? this : IHashSet._(newRootNode);
@@ -262,8 +256,7 @@ final class _SetIterator<A> extends ChampBaseIterator<A, SetNode<A>> {
   }
 }
 
-final class _SetReverseIterator<A>
-    extends ChampBaseReverseIterator<A, SetNode<A>> {
+final class _SetReverseIterator<A> extends ChampBaseReverseIterator<A, SetNode<A>> {
   _SetReverseIterator(super.rootNode);
 
   @override
@@ -350,8 +343,7 @@ final class IHashSetBuilder<A> {
 
   int get size => _rootNode.size;
 
-  void update(SetNode<A> setNode, A element, int originalHash, int elementHash,
-      int shift) {
+  void update(SetNode<A> setNode, A element, int originalHash, int elementHash, int shift) {
     if (setNode is BitmapIndexedSetNode<A>) {
       final bm = setNode;
 
@@ -367,14 +359,8 @@ final class IHashSetBuilder<A> {
           _setValue(bm, bitpos, element0);
         } else {
           final element0Hash = Hashing.improve(element0UnimprovedHash);
-          final subNodeNew = bm.mergeTwoKeyValPairs(
-              element0,
-              element0UnimprovedHash,
-              element0Hash,
-              element,
-              originalHash,
-              elementHash,
-              shift + Node.BitPartitionSize);
+          final subNodeNew = bm.mergeTwoKeyValPairs(element0, element0UnimprovedHash, element0Hash,
+              element, originalHash, elementHash, shift + Node.BitPartitionSize);
           bm.migrateFromInlineToNodeInPlace(bitpos, element0Hash, subNodeNew);
         }
       } else if ((bm.nodeMap & bitpos) != 0) {
@@ -382,11 +368,9 @@ final class IHashSetBuilder<A> {
         final subNode = bm.getNode(index);
         final beforeSize = subNode.size;
         final beforeHashCode = subNode.cachedDartKeySetHashCode;
-        update(subNode, element, originalHash, elementHash,
-            shift + Node.BitPartitionSize);
+        update(subNode, element, originalHash, elementHash, shift + Node.BitPartitionSize);
         bm.size += subNode.size - beforeSize;
-        bm.cachedDartKeySetHashCode +=
-            subNode.cachedDartKeySetHashCode - beforeHashCode;
+        bm.cachedDartKeySetHashCode += subNode.cachedDartKeySetHashCode - beforeHashCode;
       } else {
         _insertValue(bm, bitpos, element, originalHash, elementHash);
       }

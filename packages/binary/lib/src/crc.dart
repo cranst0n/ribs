@@ -95,8 +95,7 @@ final class _MappedCrcBuilder<R, S> extends CrcBuilder<S> {
   _MappedCrcBuilder(this.inner, this.f);
 
   @override
-  CrcBuilder<S> updated(BitVector data) =>
-      _MappedCrcBuilder(inner.updated(data), f);
+  CrcBuilder<S> updated(BitVector data) => _MappedCrcBuilder(inner.updated(data), f);
 
   @override
   S result() => f(inner.result());
@@ -158,8 +157,7 @@ final class _GenericCrcBuilder extends CrcBuilder<BitVector> {
       }
 
       if (byteAligned) {
-        return _GenericCrcBuilder(
-            table, poly, crcreg, reflectInput, reflectOutput, finalXor);
+        return _GenericCrcBuilder(table, poly, crcreg, reflectInput, reflectOutput, finalXor);
       } else {
         final trailer = input.takeRight(size % 8);
         return _GenericCrcBuilder(
@@ -179,8 +177,7 @@ final class _GenericCrcBuilder extends CrcBuilder<BitVector> {
   }
 
   @override
-  BitVector result() =>
-      (reflectOutput ? initial.reverse : initial).xor(finalXor);
+  BitVector result() => (reflectOutput ? initial.reverse : initial).xor(finalXor);
 }
 
 BitVector _goBitwise(BitVector poly, BitVector remaining, BitVector crcreg) {

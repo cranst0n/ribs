@@ -13,8 +13,7 @@
 
 part of '../imap.dart';
 
-final class IHashMap<K, V>
-    with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V>, IMap<K, V> {
+final class IHashMap<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V>, IMap<K, V> {
   final BitmapIndexedMapNode<K, V> _rootNode;
 
   IHashMap._(this._rootNode);
@@ -100,8 +99,7 @@ class IHashMapBuilder<K, V> {
 
   IHashMapBuilder<K, V> addOneWithHash((K, V) elem, int originalHash) {
     _ensureUnaliased();
-    _update(_rootNode, elem.$1, elem.$2, originalHash,
-        Hashing.improve(originalHash), 0);
+    _update(_rootNode, elem.$1, elem.$2, originalHash, Hashing.improve(originalHash), 0);
     return this;
   }
 
@@ -139,8 +137,8 @@ class IHashMapBuilder<K, V> {
     return result;
   }
 
-  void _insertValue(BitmapIndexedMapNode<K, V> bm, int bitpos, K key,
-      int originalHash, int keyHash, V value) {
+  void _insertValue(
+      BitmapIndexedMapNode<K, V> bm, int bitpos, K key, int originalHash, int keyHash, V value) {
     final dataIx = bm.dataIndex(bitpos);
     final idx = MapNode.TupleLength * dataIx;
 
@@ -187,16 +185,8 @@ class IHashMapBuilder<K, V> {
           final value0 = bm.getValue(index);
           final key0Hash = Hashing.improve(key0UnimprovedHash);
 
-          final subNodeNew = bm.mergeTwoKeyValPairs(
-              key0,
-              value0,
-              key0UnimprovedHash,
-              key0Hash,
-              key,
-              value,
-              originalHash,
-              keyHash,
-              shift + Node.BitPartitionSize);
+          final subNodeNew = bm.mergeTwoKeyValPairs(key0, value0, key0UnimprovedHash, key0Hash, key,
+              value, originalHash, keyHash, shift + Node.BitPartitionSize);
 
           bm.migrateFromInlineToNodeInPlace(bitpos, key0Hash, subNodeNew);
         }
@@ -206,11 +196,9 @@ class IHashMapBuilder<K, V> {
         final beforeSize = subNode.size;
         final beforeHash = subNode.cachedDartKeySetHashCode;
 
-        _update(subNode, key, value, originalHash, keyHash,
-            shift + Node.BitPartitionSize);
+        _update(subNode, key, value, originalHash, keyHash, shift + Node.BitPartitionSize);
         bm.size += subNode.size - beforeSize;
-        bm.cachedDartKeySetHashCode +=
-            subNode.cachedDartKeySetHashCode - beforeHash;
+        bm.cachedDartKeySetHashCode += subNode.cachedDartKeySetHashCode - beforeHash;
       } else {
         _insertValue(bm, bitpos, key, originalHash, keyHash, value);
       }
@@ -246,8 +234,7 @@ class IHashMapBuilder<K, V> {
       BitmapIndexedMapNode(0, 0, Array.empty(), Array.empty(), 0, 0);
 }
 
-final class _MapKeyValueTupleIterator<K, V>
-    extends ChampBaseIterator<(K, V), MapNode<K, V>> {
+final class _MapKeyValueTupleIterator<K, V> extends ChampBaseIterator<(K, V), MapNode<K, V>> {
   _MapKeyValueTupleIterator(super.rootNode);
 
   @override
@@ -275,8 +262,7 @@ final class _MapKeyIterator<K, V> extends ChampBaseIterator<K, MapNode<K, V>> {
   }
 }
 
-final class _MapValueIterator<K, V>
-    extends ChampBaseIterator<V, MapNode<K, V>> {
+final class _MapValueIterator<K, V> extends ChampBaseIterator<V, MapNode<K, V>> {
   _MapValueIterator(super.rootNode);
 
   @override

@@ -38,8 +38,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   /// Creates an [IChain] from the given Dart [Iterable].
-  static IChain<A> fromDart<A>(Iterable<A> elems) =>
-      from(RIterator.fromDart(elems.iterator));
+  static IChain<A> fromDart<A>(Iterable<A> elems) => from(RIterator.fromDart(elems.iterator));
 
   static IChain<A> one<A>(A a) => _Singleton(a);
 
@@ -70,8 +69,8 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   IChain<A> appendedAll(RIterableOnce<A> suffix) => concat(suffix);
 
   @override
-  IChain<B> collect<B>(Function1<A, Option<B>> f) => foldLeft(empty<B>(),
-      (acc, elem) => f(elem).fold(() => acc, (a) => acc.appended(a)));
+  IChain<B> collect<B>(Function1<A, Option<B>> f) =>
+      foldLeft(empty<B>(), (acc, elem) => f(elem).fold(() => acc, (a) => acc.appended(a)));
 
   @override
   IChain<A> concat(covariant RIterableOnce<A> suffix) {
@@ -109,8 +108,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  IChain<A> filter(Function1<A, bool> p) =>
-      collect((a) => Option.when(() => p(a), () => a));
+  IChain<A> filter(Function1<A, bool> p) => collect((a) => Option.when(() => p(a), () => a));
 
   @override
   IChain<A> filterNot(Function1<A, bool> p) => filter((a) => !p(a));
@@ -218,13 +216,10 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   int get length {
     int loop(_NonEmpty<A> head, IList<_NonEmpty<A>> tail, int acc) {
       return switch (head) {
-        _Append(:final leftNE, :final rightNE) =>
-          loop(leftNE, tail.prepended(rightNE), acc),
-        final _Singleton<A> _ =>
-          tail.nonEmpty ? loop(tail.head, tail.tail(), acc + 1) : acc + 1,
-        _Wrap<A>(:final seq) => tail.nonEmpty
-            ? loop(tail.head, tail.tail(), acc + seq.length)
-            : acc + seq.length,
+        _Append(:final leftNE, :final rightNE) => loop(leftNE, tail.prepended(rightNE), acc),
+        final _Singleton<A> _ => tail.nonEmpty ? loop(tail.head, tail.tail(), acc + 1) : acc + 1,
+        _Wrap<A>(:final seq) =>
+          tail.nonEmpty ? loop(tail.head, tail.tail(), acc + seq.length) : acc + seq.length,
       };
     }
 
@@ -282,8 +277,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     }
 
     return switch (this) {
-      _Append(:final leftNE, :final rightNE) =>
-        loop(leftNE, ilist([rightNE]), empty()),
+      _Append(:final leftNE, :final rightNE) => loop(leftNE, ilist([rightNE]), empty()),
       _Wrap(:final seq) => _Wrap(seq.reverse()),
       _ => this,
     };

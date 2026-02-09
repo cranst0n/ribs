@@ -31,8 +31,7 @@ final class Time extends Quantity<Time> {
   };
 
   Time fromDuration(Duration d) => microseconds(d.inMicroseconds);
-  Duration get toDuration =>
-      Duration(microseconds: toMicroseconds.value.toInt());
+  Duration get toDuration => Duration(microseconds: toMicroseconds.value.toInt());
 
   static Option<Time> parse(String s) => Quantity.parse(s, units);
 }
@@ -45,13 +44,11 @@ abstract class TimeUnit extends BaseUnit<Time> {
 }
 
 final class Nanoseconds extends TimeUnit {
-  const Nanoseconds._()
-      : super('nanosecond', 'ns', 1 / Duration.microsecondsPerSecond);
+  const Nanoseconds._() : super('nanosecond', 'ns', 1 / Duration.microsecondsPerSecond);
 }
 
 final class Microseconds extends TimeUnit {
-  const Microseconds._()
-      : super('microsecond', 'µs', 1 / Duration.millisecondsPerSecond);
+  const Microseconds._() : super('microsecond', 'µs', 1 / Duration.millisecondsPerSecond);
 }
 
 final class Milliseconds extends TimeUnit {
@@ -59,14 +56,12 @@ final class Milliseconds extends TimeUnit {
 }
 
 final class Seconds extends TimeUnit {
-  const Seconds._()
-      : super('second', 's', 1.0 * Duration.millisecondsPerSecond);
+  const Seconds._() : super('second', 's', 1.0 * Duration.millisecondsPerSecond);
 }
 
 final class Minutes extends TimeUnit {
   const Minutes._()
-      : super('minute', 'min',
-            1.0 * Duration.millisecondsPerSecond * Duration.secondsPerMinute);
+      : super('minute', 'min', 1.0 * Duration.millisecondsPerSecond * Duration.secondsPerMinute);
 }
 
 final class Hours extends TimeUnit {

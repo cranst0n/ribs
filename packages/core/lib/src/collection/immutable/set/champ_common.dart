@@ -22,8 +22,7 @@ abstract class Node<T extends Node<T>> {
   static final MaxDepth = (HashCodeLength.toDouble() / BitPartitionSize).ceil();
   static const BranchingFactor = 1 << BitPartitionSize;
 
-  static int maskFrom(int hash, int shift) =>
-      (hash >>> shift) & BitPartitionMask;
+  static int maskFrom(int hash, int shift) => (hash >>> shift) & BitPartitionMask;
 
   static int bitposFrom(int mask) {
     if (mask >= 0) {
@@ -33,8 +32,7 @@ abstract class Node<T extends Node<T>> {
     }
   }
 
-  static int indexFrom(int bitmap, int bitpos) =>
-      Integer.bitCount(bitmap & (bitpos - 1));
+  static int indexFrom(int bitmap, int bitpos) => Integer.bitCount(bitmap & (bitpos - 1));
 
   static int indexFromMask(int bitmap, int mask, int bitpos) =>
       bitmap == -1 ? mask : indexFrom(bitmap, bitpos);
@@ -132,8 +130,7 @@ abstract class ChampBaseIterator<A, T extends Node<T>> extends RIterator<A> {
   }
 
   @override
-  bool get hasNext =>
-      (currentValueCursor < currentValueLength) || _searchNextValueNode();
+  bool get hasNext => (currentValueCursor < currentValueLength) || _searchNextValueNode();
 
   void _initNodes() {
     if (_nodeCursorsAndLengths == null) {
@@ -173,8 +170,7 @@ abstract class ChampBaseIterator<A, T extends Node<T>> extends RIterator<A> {
       final nodeLength = _nodeCursorsAndLengths![lengthIndex]!;
 
       if (nodeCursor < nodeLength) {
-        _nodeCursorsAndLengths![cursorIndex] =
-            _nodeCursorsAndLengths![cursorIndex]! + 1;
+        _nodeCursorsAndLengths![cursorIndex] = _nodeCursorsAndLengths![cursorIndex]! + 1;
 
         final nextNode = _nodes[_currentStackLevel]!.getNode(nodeCursor);
 
@@ -193,8 +189,7 @@ abstract class ChampBaseIterator<A, T extends Node<T>> extends RIterator<A> {
 }
 
 @internal
-abstract class ChampBaseReverseIterator<A, T extends Node<T>>
-    extends RIterator<A> {
+abstract class ChampBaseReverseIterator<A, T extends Node<T>> extends RIterator<A> {
   @protected
   int currentValueCursor = 0;
   @protected

@@ -13,8 +13,7 @@ void main() {
   BitVector bin(String str) => BitVector.fromValidBin(str);
   BitVector hex(String str) => BitVector.fromValidHex(str);
 
-  forAll('hashCode / equality', (bitVector, bitVector, Gen.integer).tupled,
-      (t) {
+  forAll('hashCode / equality', (bitVector, bitVector, Gen.integer).tupled, (t) {
     final (b, b2, n) = t;
 
     expect(b.take(n).concat(b.drop(n)), b);
@@ -96,9 +95,7 @@ void main() {
   forAll('BigInt conversions - verify sign handling', Gen.integer, (n) {
     expect(
       BitVector.fromInt(n).toBigInt(signed: false),
-      n >= 0
-          ? BigInt.from(n)
-          : (BigInt.from(n >>> 1) << 1) + BigInt.from(n & 1),
+      n >= 0 ? BigInt.from(n) : (BigInt.from(n >>> 1) << 1) + BigInt.from(n & 1),
     );
   });
 
@@ -268,18 +265,13 @@ void main() {
   forAll('int conversions', Gen.integer, (n) {
     expect(BitVector.fromInt(n).toInt(), n);
 
-    expect(
-      BitVector.fromInt(n, ordering: Endian.little)
-          .toInt(ordering: Endian.little),
-      n,
-    );
+    expect(BitVector.fromInt(n, ordering: Endian.little).toInt(ordering: Endian.little), n);
 
     if (n >= -16383 && n < 16384) {
       expect(BitVector.fromInt(n, size: 15).toInt(), n);
 
       expect(
-        BitVector.fromInt(n, size: 15, ordering: Endian.little)
-            .toInt(ordering: Endian.little),
+        BitVector.fromInt(n, size: 15, ordering: Endian.little).toInt(ordering: Endian.little),
         n,
       );
     }
@@ -379,8 +371,7 @@ void main() {
 
       final n = (b.nonEmpty ? n0 % b.size.abs() : 0) + 1;
 
-      final expected =
-          b.toBin().sliding(n, n).map(BitVector.fromValidBin).toIList();
+      final expected = b.toBin().sliding(n, n).map(BitVector.fromValidBin).toIList();
 
       expect(b.sliding(n, n).toIList(), expected);
     },

@@ -21,8 +21,7 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   @override
   A operator [](int n) {
-    Never indexOutOfRange() =>
-        throw RangeError('$n is out of bounds (min 0, max ${length - 1})');
+    Never indexOutOfRange() => throw RangeError('$n is out of bounds (min 0, max ${length - 1})');
 
     var index = 0;
     var curr = _out;
@@ -102,8 +101,7 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     }
   }
 
-  Option<(A, IQueue<A>)> dequeueOption() =>
-      Option.when(() => nonEmpty, dequeue);
+  Option<(A, IQueue<A>)> dequeueOption() => Option.when(() => nonEmpty, dequeue);
 
   IQueue<A> enqueue(A elem) => IQueue._(_in.prepended(elem), _out);
 
@@ -179,8 +177,7 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   int get length => _in.length + _out.length;
 
   @override
-  IQueue<B> map<B>(covariant Function1<A, B> f) =>
-      IQueue._(_in.map(f), _out.map(f));
+  IQueue<B> map<B>(covariant Function1<A, B> f) => IQueue._(_in.map(f), _out.map(f));
 
   @override
   IQueue<A> padTo(int len, A elem) => from(super.padTo(len, elem));
@@ -205,8 +202,7 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   IQueue<A> prepended(A elem) => IQueue._(_in, _out.prepended(elem));
 
   @override
-  IQueue<A> prependedAll(RIterableOnce<A> prefix) =>
-      IQueue._(_in, _out.prependedAll(prefix));
+  IQueue<A> prependedAll(RIterableOnce<A> prefix) => IQueue._(_in, _out.prependedAll(prefix));
 
   @override
   IQueue<A> removeAt(int idx) => from(super.removeAt(idx));
@@ -221,16 +217,13 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   IQueue<B> scan<B>(B z, Function2<B, A, B> op) => from(super.scan(z, op));
 
   @override
-  IQueue<B> scanLeft<B>(B z, Function2<B, A, B> op) =>
-      from(super.scanLeft(z, op));
+  IQueue<B> scanLeft<B>(B z, Function2<B, A, B> op) => from(super.scanLeft(z, op));
 
   @override
-  IQueue<B> scanRight<B>(B z, Function2<A, B, B> op) =>
-      from(super.scanRight(z, op));
+  IQueue<B> scanRight<B>(B z, Function2<A, B, B> op) => from(super.scanRight(z, op));
 
   @override
-  IQueue<A> sortBy<B>(Order<B> order, Function1<A, B> f) =>
-      from(super.sortBy(order, f));
+  IQueue<A> sortBy<B>(Order<B> order, Function1<A, B> f) => from(super.sortBy(order, f));
 
   @override
   IQueue<A> sorted(Order<A> order) => from(super.sorted(order));

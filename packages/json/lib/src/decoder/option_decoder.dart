@@ -15,9 +15,7 @@ final class OptionDecoder<A> extends Decoder<Option<A>> {
       if (cursor.value.isNull) {
         return none<A>().asRight();
       } else {
-        return decodeA
-            .decodeC(cursor)
-            .fold((err) => err.asLeft(), (a) => Some(a).asRight());
+        return decodeA.decodeC(cursor).fold((err) => err.asLeft(), (a) => Some(a).asRight());
       }
     } else if (cursor is FailedCursor) {
       if (!cursor.incorrectFocus) {
@@ -26,8 +24,7 @@ final class OptionDecoder<A> extends Decoder<Option<A>> {
         return DecodingFailure(MissingField(), cursor.history()).asLeft();
       }
     } else {
-      return DecodingFailure.fromString('Unhandled cursor: $cursor', cursor)
-          .asLeft();
+      return DecodingFailure.fromString('Unhandled cursor: $cursor', cursor).asLeft();
     }
   }
 }

@@ -14,8 +14,7 @@ final class State<S, A> with Functor<A>, Applicative<A>, Monad<A> {
   static State<S, A> pure<S, A>(A t) => State((s) => (s, t));
 
   @override
-  State<S, B> ap<B>(State<S, Function1<A, B>> f) =>
-      flatMap((a) => f.map((f) => f(a)));
+  State<S, B> ap<B>(State<S, Function1<A, B>> f) => flatMap((a) => f.map((f) => f(a)));
 
   @override
   State<S, B> flatMap<B>(covariant State<S, B> Function(A a) f) =>
@@ -25,8 +24,7 @@ final class State<S, A> with Functor<A>, Applicative<A>, Monad<A> {
   State<S, U> map<U>(U Function(A a) f) => flatMap((t) => State.pure(f(t)));
 
   /// Applies [f] to the current state.
-  State<S, A> modify(Function1<S, S> f) =>
-      State((s) => _run(s)((a, b) => (f(a), b)));
+  State<S, A> modify(Function1<S, S> f) => State((s) => _run(s)((a, b) => (f(a), b)));
 
   /// Runs the computation with [state] as the intial state. Returns the a tuple
   /// of the final state and the resulting value.
@@ -46,6 +44,5 @@ final class State<S, A> with Functor<A>, Applicative<A>, Monad<A> {
 
   /// Returns a [State] that will apply [f] to it's resulting value and current
   /// state. Like [map], but both components can be modified.
-  State<S, B> transform<B>(Function2<S, A, (S, B)> f) =>
-      State((s) => _run(s)(f));
+  State<S, B> transform<B>(Function2<S, A, (S, B)> f) => State((s) => _run(s)(f));
 }

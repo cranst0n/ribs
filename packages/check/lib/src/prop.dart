@@ -57,17 +57,14 @@ final class Prop<T> {
       () async {
         var count = 0;
 
-        final firstFailure = await gen
-            .stream(StatefulRandom(seedNN))
-            .take(numTests ?? 100)
-            .asyncMap((value) {
+        final firstFailure =
+            await gen.stream(StatefulRandom(seedNN)).take(numTests ?? 100).asyncMap((value) {
           count++;
           return _runProp(value, testBody);
-        }).firstWhere((result) => result.isDefined,
-                orElse: () => none<PropFailure<T>>());
+        }).firstWhere((result) => result.isDefined, orElse: () => none<PropFailure<T>>());
 
-        final shrunkenFailure = await firstFailure.fold(
-            () => Future.value(firstFailure), (a) => _shrink(a, testBody));
+        final shrunkenFailure =
+            await firstFailure.fold(() => Future.value(firstFailure), (a) => _shrink(a, testBody));
 
         shrunkenFailure.foreach((a) {
           throw TestFailure(
@@ -83,8 +80,7 @@ final class Prop<T> {
     );
   }
 
-  FutureOr<Option<PropFailure<T>>> _runProp(
-      T value, TestBody<T> testBody) async {
+  FutureOr<Option<PropFailure<T>>> _runProp(T value, TestBody<T> testBody) async {
     try {
       await testBody(value);
       return none<PropFailure<T>>();
@@ -106,8 +102,7 @@ final class Prop<T> {
                   () => Future.value(Some(original)),
                   (fail) => _shrink(fail, testBody, count: count - 1),
                 ))
-            .firstWhere((result) => result.isDefined,
-                orElse: () => Some(original));
+            .firstWhere((result) => result.isDefined, orElse: () => Some(original));
   }
 }
 

@@ -5,37 +5,22 @@ final class DataRate extends Quantity<DataRate> {
   DataRate(super.value, super.unit);
 
   DataRate get toBytesPerSecond => to(bytesPerSecond).bytesPerSecond;
-  DataRate get toKilobytesPerSecond =>
-      to(kilobytesPerSecond).kilobytesPerSecond;
-  DataRate get toKibibytesPerSecond =>
-      to(kibibytesPerSecond).kibibytesPerSecond;
-  DataRate get toMegabytesPerSecond =>
-      to(megabytesPerSecond).megabytesPerSecond;
-  DataRate get toMebibytesPerSecond =>
-      to(mebibytesPerSecond).mebibytesPerSecond;
-  DataRate get toGigabytesPerSecond =>
-      to(gigabytesPerSecond).gigabytesPerSecond;
-  DataRate get toGibibytesPerSecond =>
-      to(gibibytesPerSecond).gibibytesPerSecond;
-  DataRate get toTerabytesPerSecond =>
-      to(terabytesPerSecond).terabytesPerSecond;
-  DataRate get toTebibytesPerSecond =>
-      to(tebibytesPerSecond).tebibytesPerSecond;
-  DataRate get toPetabytesPerSecond =>
-      to(petabytesPerSecond).petabytesPerSecond;
-  DataRate get toPebibytesPerSecond =>
-      to(pebibytesPerSecond).pebibytesPerSecond;
+  DataRate get toKilobytesPerSecond => to(kilobytesPerSecond).kilobytesPerSecond;
+  DataRate get toKibibytesPerSecond => to(kibibytesPerSecond).kibibytesPerSecond;
+  DataRate get toMegabytesPerSecond => to(megabytesPerSecond).megabytesPerSecond;
+  DataRate get toMebibytesPerSecond => to(mebibytesPerSecond).mebibytesPerSecond;
+  DataRate get toGigabytesPerSecond => to(gigabytesPerSecond).gigabytesPerSecond;
+  DataRate get toGibibytesPerSecond => to(gibibytesPerSecond).gibibytesPerSecond;
+  DataRate get toTerabytesPerSecond => to(terabytesPerSecond).terabytesPerSecond;
+  DataRate get toTebibytesPerSecond => to(tebibytesPerSecond).tebibytesPerSecond;
+  DataRate get toPetabytesPerSecond => to(petabytesPerSecond).petabytesPerSecond;
+  DataRate get toPebibytesPerSecond => to(pebibytesPerSecond).pebibytesPerSecond;
   DataRate get toExabytesPerSecond => to(exabytesPerSecond).exabytesPerSecond;
-  DataRate get toExbibytesPerSecond =>
-      to(exbibytesPerSecond).exbibytesPerSecond;
-  DataRate get toZettabytesPerSecond =>
-      to(zettabytesPerSecond).zettabytesPerSecond;
-  DataRate get toZebibytesPerSecond =>
-      to(zebibytesPerSecond).zebibytesPerSecond;
-  DataRate get toYottabytesPerSecond =>
-      to(yottabytesPerSecond).yottabytesPerSecond;
-  DataRate get toYobibytesPerSecond =>
-      to(yobibytesPerSecond).yobibytesPerSecond;
+  DataRate get toExbibytesPerSecond => to(exbibytesPerSecond).exbibytesPerSecond;
+  DataRate get toZettabytesPerSecond => to(zettabytesPerSecond).zettabytesPerSecond;
+  DataRate get toZebibytesPerSecond => to(zebibytesPerSecond).zebibytesPerSecond;
+  DataRate get toYottabytesPerSecond => to(yottabytesPerSecond).yottabytesPerSecond;
+  DataRate get toYobibytesPerSecond => to(yobibytesPerSecond).yobibytesPerSecond;
   DataRate get toBitsPerSecond => to(bitsPerSecond).bitsPerSecond;
   DataRate get toKilobitsPerSecond => to(kilobitsPerSecond).kilobitsPerSecond;
   DataRate get toKibibitsPerSecond => to(kibibitsPerSecond).kibibitsPerSecond;
@@ -49,11 +34,9 @@ final class DataRate extends Quantity<DataRate> {
   DataRate get toPebibitsPerSecond => to(pebibitsPerSecond).pebibitsPerSecond;
   DataRate get toExabitsPerSecond => to(exabitsPerSecond).exabitsPerSecond;
   DataRate get toExbibitsPerSecond => to(exbibitsPerSecond).exbibitsPerSecond;
-  DataRate get toZettabitsPerSecond =>
-      to(zettabitsPerSecond).zettabitsPerSecond;
+  DataRate get toZettabitsPerSecond => to(zettabitsPerSecond).zettabitsPerSecond;
   DataRate get toZebibitsPerSecond => to(zebibitsPerSecond).zebibitsPerSecond;
-  DataRate get toYottabitsPerSecond =>
-      to(yottabitsPerSecond).yottabitsPerSecond;
+  DataRate get toYottabitsPerSecond => to(yottabitsPerSecond).yottabitsPerSecond;
   DataRate get toYobibitsPerSecond => to(yobibitsPerSecond).yobibitsPerSecond;
 
   static const bytesPerSecond = BytesPerSecond._();
@@ -143,184 +126,151 @@ final class BytesPerSecond extends DataRateUnit {
 }
 
 final class KilobytesPerSecond extends DataRateUnit {
-  const KilobytesPerSecond._()
-      : super('kilobytes/second', 'KB/s', MetricSystem.Kilo);
+  const KilobytesPerSecond._() : super('kilobytes/second', 'KB/s', MetricSystem.Kilo);
 }
 
 final class KibibytesPerSecond extends DataRateUnit {
-  const KibibytesPerSecond._()
-      : super('kibibytes/second', 'KiB/s', BinarySystem.Kilo);
+  const KibibytesPerSecond._() : super('kibibytes/second', 'KiB/s', BinarySystem.Kilo);
 }
 
 final class MegabytesPerSecond extends DataRateUnit {
-  const MegabytesPerSecond._()
-      : super('megabytes/second', 'MB/s', MetricSystem.Mega);
+  const MegabytesPerSecond._() : super('megabytes/second', 'MB/s', MetricSystem.Mega);
 }
 
 final class MebibytesPerSecond extends DataRateUnit {
-  const MebibytesPerSecond._()
-      : super('mebibytes/second', 'MiB/s', BinarySystem.Mega);
+  const MebibytesPerSecond._() : super('mebibytes/second', 'MiB/s', BinarySystem.Mega);
 }
 
 final class GigabytesPerSecond extends DataRateUnit {
-  const GigabytesPerSecond._()
-      : super('gigabytes/second', 'GB/s', MetricSystem.Giga);
+  const GigabytesPerSecond._() : super('gigabytes/second', 'GB/s', MetricSystem.Giga);
 }
 
 final class GibibytesPerSecond extends DataRateUnit {
-  const GibibytesPerSecond._()
-      : super('gibibytes/second', 'GiB/s', BinarySystem.Giga);
+  const GibibytesPerSecond._() : super('gibibytes/second', 'GiB/s', BinarySystem.Giga);
 }
 
 final class TerabytesPerSecond extends DataRateUnit {
-  const TerabytesPerSecond._()
-      : super('terabytes/second', 'TB/s', MetricSystem.Tera);
+  const TerabytesPerSecond._() : super('terabytes/second', 'TB/s', MetricSystem.Tera);
 }
 
 final class TebibytesPerSecond extends DataRateUnit {
-  const TebibytesPerSecond._()
-      : super('tebibytes/second', 'TiB/s', BinarySystem.Tera);
+  const TebibytesPerSecond._() : super('tebibytes/second', 'TiB/s', BinarySystem.Tera);
 }
 
 final class PetabytesPerSecond extends DataRateUnit {
-  const PetabytesPerSecond._()
-      : super('petabytes/second', 'PB/s', MetricSystem.Peta);
+  const PetabytesPerSecond._() : super('petabytes/second', 'PB/s', MetricSystem.Peta);
 }
 
 final class PebibytesPerSecond extends DataRateUnit {
-  const PebibytesPerSecond._()
-      : super('pebibytes/second', 'PiB/s', BinarySystem.Peta);
+  const PebibytesPerSecond._() : super('pebibytes/second', 'PiB/s', BinarySystem.Peta);
 }
 
 final class ExabytesPerSecond extends DataRateUnit {
-  const ExabytesPerSecond._()
-      : super('exabytes/second', 'EB/s', MetricSystem.Exa);
+  const ExabytesPerSecond._() : super('exabytes/second', 'EB/s', MetricSystem.Exa);
 }
 
 final class ExbibytesPerSecond extends DataRateUnit {
-  const ExbibytesPerSecond._()
-      : super('exbibytes/second', 'EiB/s', BinarySystem.Exa);
+  const ExbibytesPerSecond._() : super('exbibytes/second', 'EiB/s', BinarySystem.Exa);
 }
 
 final class ZettabytesPerSecond extends DataRateUnit {
-  const ZettabytesPerSecond._()
-      : super('zettabytes/second', 'ZB/s', MetricSystem.Zetta);
+  const ZettabytesPerSecond._() : super('zettabytes/second', 'ZB/s', MetricSystem.Zetta);
 }
 
 final class ZebibytesPerSecond extends DataRateUnit {
-  const ZebibytesPerSecond._()
-      : super('zebibytes/second', 'ZiB/s', BinarySystem.Zetta);
+  const ZebibytesPerSecond._() : super('zebibytes/second', 'ZiB/s', BinarySystem.Zetta);
 }
 
 final class YottabytesPerSecond extends DataRateUnit {
-  const YottabytesPerSecond._()
-      : super('yottabytes/second', 'YB/s', MetricSystem.Yotta);
+  const YottabytesPerSecond._() : super('yottabytes/second', 'YB/s', MetricSystem.Yotta);
 }
 
 final class YobibytesPerSecond extends DataRateUnit {
-  const YobibytesPerSecond._()
-      : super('yobibytes/second', 'YiB/s', BinarySystem.Yotta);
+  const YobibytesPerSecond._() : super('yobibytes/second', 'YiB/s', BinarySystem.Yotta);
 }
 
 final class BitsPerSecond extends DataRateUnit {
-  const BitsPerSecond._()
-      : super('bits/second', 'bps', Information.BitsConversionFactor);
+  const BitsPerSecond._() : super('bits/second', 'bps', Information.BitsConversionFactor);
 }
 
 final class KilobitsPerSecond extends DataRateUnit {
   const KilobitsPerSecond._()
-      : super('kilobits/second', 'Kbps',
-            Information.BitsConversionFactor * MetricSystem.Kilo);
+      : super('kilobits/second', 'Kbps', Information.BitsConversionFactor * MetricSystem.Kilo);
 }
 
 final class KibibitsPerSecond extends DataRateUnit {
   const KibibitsPerSecond._()
-      : super('kibibits/second', 'Kibps',
-            Information.BitsConversionFactor * BinarySystem.Kilo);
+      : super('kibibits/second', 'Kibps', Information.BitsConversionFactor * BinarySystem.Kilo);
 }
 
 final class MegabitsPerSecond extends DataRateUnit {
   const MegabitsPerSecond._()
-      : super('megabits/second', 'Mbps',
-            Information.BitsConversionFactor * MetricSystem.Giga);
+      : super('megabits/second', 'Mbps', Information.BitsConversionFactor * MetricSystem.Giga);
 }
 
 final class MebibitsPerSecond extends DataRateUnit {
   const MebibitsPerSecond._()
-      : super('mebibits/second', 'Mibps',
-            Information.BitsConversionFactor * BinarySystem.Mega);
+      : super('mebibits/second', 'Mibps', Information.BitsConversionFactor * BinarySystem.Mega);
 }
 
 final class GigabitsPerSecond extends DataRateUnit {
   const GigabitsPerSecond._()
-      : super('gigabits/second', 'Gbps',
-            Information.BitsConversionFactor * MetricSystem.Giga);
+      : super('gigabits/second', 'Gbps', Information.BitsConversionFactor * MetricSystem.Giga);
 }
 
 final class GibibitsPerSecond extends DataRateUnit {
   const GibibitsPerSecond._()
-      : super('gibibits/second', 'Gibps',
-            Information.BitsConversionFactor * BinarySystem.Giga);
+      : super('gibibits/second', 'Gibps', Information.BitsConversionFactor * BinarySystem.Giga);
 }
 
 final class TerabitsPerSecond extends DataRateUnit {
   const TerabitsPerSecond._()
-      : super('terabits/second', 'Tbps',
-            Information.BitsConversionFactor * MetricSystem.Tera);
+      : super('terabits/second', 'Tbps', Information.BitsConversionFactor * MetricSystem.Tera);
 }
 
 final class TebibitsPerSecond extends DataRateUnit {
   const TebibitsPerSecond._()
-      : super('tebibits/second', 'Tibps',
-            Information.BitsConversionFactor * BinarySystem.Tera);
+      : super('tebibits/second', 'Tibps', Information.BitsConversionFactor * BinarySystem.Tera);
 }
 
 final class PetabitsPerSecond extends DataRateUnit {
   const PetabitsPerSecond._()
-      : super('petabits/second', 'Pbps',
-            Information.BitsConversionFactor * MetricSystem.Peta);
+      : super('petabits/second', 'Pbps', Information.BitsConversionFactor * MetricSystem.Peta);
 }
 
 final class PebibitsPerSecond extends DataRateUnit {
   const PebibitsPerSecond._()
-      : super('pebibits/second', 'Pibps',
-            Information.BitsConversionFactor * BinarySystem.Peta);
+      : super('pebibits/second', 'Pibps', Information.BitsConversionFactor * BinarySystem.Peta);
 }
 
 final class ExabitsPerSecond extends DataRateUnit {
   const ExabitsPerSecond._()
-      : super('exabits/second', 'Ebps',
-            Information.BitsConversionFactor * MetricSystem.Exa);
+      : super('exabits/second', 'Ebps', Information.BitsConversionFactor * MetricSystem.Exa);
 }
 
 final class ExbibitsPerSecond extends DataRateUnit {
   const ExbibitsPerSecond._()
-      : super('exbibits/second', 'Eibps',
-            Information.BitsConversionFactor * BinarySystem.Exa);
+      : super('exbibits/second', 'Eibps', Information.BitsConversionFactor * BinarySystem.Exa);
 }
 
 final class ZettabitsPerSecond extends DataRateUnit {
   const ZettabitsPerSecond._()
-      : super('zettabits/second', 'Zbps',
-            Information.BitsConversionFactor * MetricSystem.Zetta);
+      : super('zettabits/second', 'Zbps', Information.BitsConversionFactor * MetricSystem.Zetta);
 }
 
 final class ZebibitsPerSecond extends DataRateUnit {
   const ZebibitsPerSecond._()
-      : super('zebibits/second', 'Zibps',
-            Information.BitsConversionFactor * BinarySystem.Zetta);
+      : super('zebibits/second', 'Zibps', Information.BitsConversionFactor * BinarySystem.Zetta);
 }
 
 final class YottabitsPerSecond extends DataRateUnit {
   const YottabitsPerSecond._()
-      : super('yottabits/second', 'Ybps',
-            Information.BitsConversionFactor * MetricSystem.Yotta);
+      : super('yottabits/second', 'Ybps', Information.BitsConversionFactor * MetricSystem.Yotta);
 }
 
 final class YobibitsPerSecond extends DataRateUnit {
   const YobibitsPerSecond._()
-      : super('yobibits/second', 'Yibps',
-            Information.BitsConversionFactor * BinarySystem.Yotta);
+      : super('yobibits/second', 'Yibps', Information.BitsConversionFactor * BinarySystem.Yotta);
 }
 
 extension DataRateOps on num {

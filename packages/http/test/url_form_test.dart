@@ -3,9 +3,7 @@ import 'package:test/test.dart';
 
 void main() {
   test('encode', () {
-    final f = UrlForm.single('key1', 'value1')
-            .add('key2', 'value2')
-            .add('key1', 'valueX') +
+    final f = UrlForm.single('key1', 'value1').add('key2', 'value2').add('key1', 'valueX') +
         ('key3', 'value3');
 
     expect(

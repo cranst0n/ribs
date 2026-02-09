@@ -8,16 +8,14 @@ final _intValue = Gen.chooseInt(1, 1000);
 // Electro
 
 final electricPotentialUnit = Gen.oneOf(ElectricPotential.units);
-final electricPotential = (_doubleValue, electricPotentialUnit)
-    .tupled
-    .map(ElectricPotential.new.tupled);
+final electricPotential =
+    (_doubleValue, electricPotentialUnit).tupled.map(ElectricPotential.new.tupled);
 
 // Information
 
 final informationUnit = Gen.oneOf(Information.units);
-final information = (_intValue, informationUnit)
-    .tupled
-    .map((t) => Information(t.$1.toDouble(), t.$2));
+final information =
+    (_intValue, informationUnit).tupled.map((t) => Information(t.$1.toDouble(), t.$2));
 
 final dataRateUnit = Gen.oneOf(DataRate.units);
 final dataRate = (_doubleValue, dataRateUnit).tupled.map(DataRate.new.tupled);
@@ -49,14 +47,12 @@ final volume = (_doubleValue, volumeUnit).tupled.map(Volume.new.tupled);
 // Thermal
 
 final temperatureUnit = Gen.oneOf(Temperature.units);
-final temperature =
-    (_doubleValue, temperatureUnit).tupled.map(Temperature.new.tupled);
+final temperature = (_doubleValue, temperatureUnit).tupled.map(Temperature.new.tupled);
 
 // Time
 
 final frequencyUnit = Gen.oneOf(Frequency.units);
-final frequency =
-    (_doubleValue, frequencyUnit).tupled.map(Frequency.new.tupled);
+final frequency = (_doubleValue, frequencyUnit).tupled.map(Frequency.new.tupled);
 
 final timeUnit = Gen.oneOf(Time.units);
 final time = (_doubleValue, timeUnit).tupled.map(Time.new.tupled);
@@ -67,6 +63,5 @@ Gen<String> quantityString<A extends Quantity<A>>(
     (
       Gen.positiveInt,
       Gen.oneOf(['', ' ']),
-      Gen.oneOf(units.expand(
-          (element) => [element.symbol, element.unit, '${element.unit}s']))
+      Gen.oneOf(units.expand((element) => [element.symbol, element.unit, '${element.unit}s']))
     ).tupled.map((tuple) => '${tuple.$1}${tuple.$2}${tuple.$3}');

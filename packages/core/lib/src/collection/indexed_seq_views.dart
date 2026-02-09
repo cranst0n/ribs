@@ -28,13 +28,11 @@ abstract class AbstractIndexedSeqView<A>
   const AbstractIndexedSeqView();
 }
 
-class Appended<A> extends seqviews.Appended<A>
-    with IndexedSeq<A>, IndexedSeqView<A> {
+class Appended<A> extends seqviews.Appended<A> with IndexedSeq<A>, IndexedSeqView<A> {
   const Appended(IndexedSeq<A> super.seq, super.elem);
 }
 
-class Concat<A> extends seqviews.Concat<A>
-    with IndexedSeq<A>, IndexedSeqView<A> {
+class Concat<A> extends seqviews.Concat<A> with IndexedSeq<A>, IndexedSeqView<A> {
   const Concat(IndexedSeq<A> super.prefix, IndexedSeq<A> super.suffix);
 }
 
@@ -42,8 +40,7 @@ class Drop<A> extends seqviews.Drop<A> with IndexedSeq<A>, IndexedSeqView<A> {
   const Drop(IndexedSeq<A> super.seq, super.n);
 }
 
-class DropRight<A> extends seqviews.DropRight<A>
-    with IndexedSeq<A>, IndexedSeqView<A> {
+class DropRight<A> extends seqviews.DropRight<A> with IndexedSeq<A>, IndexedSeqView<A> {
   const DropRight(IndexedSeq<A> super.seq, super.n);
 }
 
@@ -51,18 +48,15 @@ class Id<A> extends seqviews.Id<A> with IndexedSeq<A>, IndexedSeqView<A> {
   const Id(IndexedSeq<A> super.seq);
 }
 
-class Map<A, B> extends seqviews.Map<A, B>
-    with IndexedSeq<B>, IndexedSeqView<B> {
+class Map<A, B> extends seqviews.Map<A, B> with IndexedSeq<B>, IndexedSeqView<B> {
   const Map(IndexedSeq<A> super.seq, super.f);
 }
 
-class Prepended<A> extends seqviews.Prepended<A>
-    with IndexedSeq<A>, IndexedSeqView<A> {
+class Prepended<A> extends seqviews.Prepended<A> with IndexedSeq<A>, IndexedSeqView<A> {
   const Prepended(super.elem, IndexedSeq<A> super.seq);
 }
 
-class Reverse<A> extends seqviews.Reverse<A>
-    with IndexedSeq<A>, IndexedSeqView<A> {
+class Reverse<A> extends seqviews.Reverse<A> with IndexedSeq<A>, IndexedSeqView<A> {
   const Reverse(IndexedSeq<A> super.underlying);
 
   @override
@@ -99,8 +93,7 @@ class Take<A> extends seqviews.Take<A> with IndexedSeq<A>, IndexedSeqView<A> {
   const Take(IndexedSeq<A> super.seq, super.n);
 }
 
-class TakeRight<A> extends seqviews.TakeRight<A>
-    with IndexedSeq<A>, IndexedSeqView<A> {
+class TakeRight<A> extends seqviews.TakeRight<A> with IndexedSeq<A>, IndexedSeqView<A> {
   const TakeRight(IndexedSeq<A> super.seq, super.n);
 }
 

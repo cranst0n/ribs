@@ -12,10 +12,7 @@ final class Update<A> {
   UpdateStatement update(A a) => UpdateStatement((db) => IO.exec(() {
         db.execute(
           raw,
-          write
-              .setParameter(IStatementParameters.empty(), 0, a)
-              .params
-              .toList(),
+          write.setParameter(IStatementParameters.empty(), 0, a).params.toList(),
         );
       }));
 
@@ -26,9 +23,7 @@ final class Update<A> {
         (ps) => IO.exec(
           () => as.foreach((a) {
             ps.executeWith(
-              write
-                  .setParameter(IStatementParameters.empty(), 0, a)
-                  .toStatementParameters(),
+              write.setParameter(IStatementParameters.empty(), 0, a).toStatementParameters(),
             );
           }),
         ),

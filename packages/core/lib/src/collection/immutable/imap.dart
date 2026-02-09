@@ -56,15 +56,13 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
   /// Returns a new function that will accept a key of type [K] and apply
   /// the value for that key, if it exists as a [Some]. If this map doesn't
   /// contain the key, [None] will be returned.
-  Function1<K, Option<V2>> andThen<V2>(Function1<V, V2> f) =>
-      (key) => get(key).map(f);
+  Function1<K, Option<V2>> andThen<V2>(Function1<V, V2> f) => (key) => get(key).map(f);
 
   /// Composes the given function [f] with [get] and returns the result.
   Function1<A, Option<V>> compose<A>(Function1<A, K> f) => (a) => get(f(a));
 
   @override
-  IMap<K, V> concat(covariant RIterableOnce<(K, V)> suffix) =>
-      IMap.from(super.concat(suffix));
+  IMap<K, V> concat(covariant RIterableOnce<(K, V)> suffix) => IMap.from(super.concat(suffix));
 
   @override
   bool contains(K key) => get(key).isDefined;
@@ -76,8 +74,7 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
   IMap<K, V> dropRight(int n) => IMap.from(super.dropRight(n));
 
   @override
-  IMap<K, V> dropWhile(Function1<(K, V), bool> p) =>
-      IMap.from(super.dropWhile(p));
+  IMap<K, V> dropWhile(Function1<(K, V), bool> p) => IMap.from(super.dropWhile(p));
 
   @override
   IMap<K, V> filter(Function1<(K, V), bool> p) => from(super.filter(p));
@@ -90,8 +87,7 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
       IMap.from(super.groupBy(f).map((a) => (a.$1, IMap.from(a.$2))));
 
   @override
-  RIterator<IMap<K, V>> grouped(int size) =>
-      iterator.grouped(size).map(IMap.from);
+  RIterator<IMap<K, V>> grouped(int size) => iterator.grouped(size).map(IMap.from);
 
   @override
   IMap<K, V> init() => IMap.from(super.init());
@@ -101,8 +97,7 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
 
   /// Applies [f] to each value in this map and returns a new map with the same
   /// keys, with the resulting values of the function application.
-  IMap<K, W> mapValues<W>(Function1<V, W> f) =>
-      from(iterator.map((kv) => (kv.$1, f(kv.$2))));
+  IMap<K, W> mapValues<W>(Function1<V, W> f) => from(iterator.map((kv) => (kv.$1, f(kv.$2))));
 
   @override
   (IMap<K, V>, IMap<K, V>) partition(Function1<(K, V), bool> p) {
@@ -149,8 +144,7 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
   IMap<K, V> takeRight(int n) => IMap.from(super.takeRight(n));
 
   @override
-  IMap<K, V> takeWhile(Function1<(K, V), bool> p) =>
-      IMap.from(super.takeWhile(p));
+  IMap<K, V> takeWhile(Function1<(K, V), bool> p) => IMap.from(super.takeWhile(p));
 
   @override
   IMap<K, V> tapEach<U>(Function1<(K, V), U> f) {
@@ -242,15 +236,13 @@ final class _WithDefault<K, V> extends AbstractIMap<K, V> {
   int get knownSize => underlying.knownSize;
 
   @override
-  IMap<K, V> removed(K key) =>
-      _WithDefault(underlying.removed(key), defaultValueF);
+  IMap<K, V> removed(K key) => _WithDefault(underlying.removed(key), defaultValueF);
 
   @override
   int get size => underlying.size;
 
   @override
-  IMap<K, V> updated(K key, V value) =>
-      _WithDefault(underlying.updated(key, value), defaultValueF);
+  IMap<K, V> updated(K key, V value) => _WithDefault(underlying.updated(key, value), defaultValueF);
 
   @override
   RIterable<V> get values => underlying.values;

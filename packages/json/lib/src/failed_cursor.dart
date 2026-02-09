@@ -7,13 +7,10 @@ final class FailedCursor extends ACursor {
   const FailedCursor(super.lastCursor, super.lastOp);
 
   bool get incorrectFocus =>
-      ((lastOp?.requiresObject ?? false) &&
-          !(lastCursor?.value.isObject ?? false)) ||
-      ((lastOp?.requiresArray ?? false) &&
-          !(lastCursor?.value.isArray ?? false));
+      ((lastOp?.requiresObject ?? false) && !(lastCursor?.value.isObject ?? false)) ||
+      ((lastOp?.requiresArray ?? false) && !(lastCursor?.value.isArray ?? false));
 
-  bool get missingField =>
-      Option(lastOp).exists((a) => a is Field || a is DownField);
+  bool get missingField => Option(lastOp).exists((a) => a is Field || a is DownField);
 
   @override
   Option<Json> focus() => none();

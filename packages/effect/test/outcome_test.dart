@@ -27,12 +27,10 @@ void main() {
   group('Outcome equality', () {
     test('success', () {
       expect(Outcome.succeeded(Unit()) == Outcome.succeeded(Unit()), isTrue);
-      expect(Outcome.succeeded<Object>(Unit()) == Outcome.succeeded<Object>(42),
-          isFalse);
+      expect(Outcome.succeeded<Object>(Unit()) == Outcome.succeeded<Object>(42), isFalse);
 
       expect(
-        Outcome.succeeded(Unit()) ==
-            Outcome.errored<Unit>(RuntimeException('')),
+        Outcome.succeeded(Unit()) == Outcome.errored<Unit>(RuntimeException('')),
         isFalse,
       );
 
@@ -63,14 +61,11 @@ void main() {
       final err = RuntimeException('boom');
 
       expect(Outcome.succeeded('a').isSameType(Outcome.succeeded(42)), isTrue);
-      expect(Outcome.errored<int>(err).isSameType(Outcome.errored<Unit>(err)),
-          isTrue);
-      expect(
-          Outcome.canceled<int>().isSameType(Outcome.canceled<Unit>()), isTrue);
+      expect(Outcome.errored<int>(err).isSameType(Outcome.errored<Unit>(err)), isTrue);
+      expect(Outcome.canceled<int>().isSameType(Outcome.canceled<Unit>()), isTrue);
 
       expect(Outcome.succeeded(0).isSameType(Outcome.canceled<int>()), isFalse);
-      expect(Outcome.canceled<Unit>().isSameType(Outcome.errored<int>(err)),
-          isFalse);
+      expect(Outcome.canceled<Unit>().isSameType(Outcome.errored<int>(err)), isFalse);
     });
   });
 

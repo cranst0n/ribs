@@ -79,8 +79,7 @@ final class Hostname extends Host {
   }
 
   Hostname normalized() => Hostname(
-      labels.map((l) => HostnameLabel(l.toString().toLowerCase())),
-      toString().toLowerCase());
+      labels.map((l) => HostnameLabel(l.toString().toLowerCase())), toString().toLowerCase());
 
   @override
   String toString() => repr;
@@ -126,15 +125,13 @@ sealed class IpAddress extends Host {
 
   const IpAddress(this._bytes);
 
-  static Option<IpAddress> fromString(String value) =>
-      Ipv4Address.fromString(value)
-          .map((a) => a.asIpAddress)
-          .orElse(() => Ipv6Address.fromString(value));
+  static Option<IpAddress> fromString(String value) => Ipv4Address.fromString(value)
+      .map((a) => a.asIpAddress)
+      .orElse(() => Ipv6Address.fromString(value));
 
-  static Option<IpAddress> fromBytes(Iterable<int> bytes) =>
-      Ipv4Address.fromByteList(bytes)
-          .map((a) => a.asIpAddress)
-          .orElse(() => Ipv6Address.fromByteList(bytes));
+  static Option<IpAddress> fromBytes(Iterable<int> bytes) => Ipv4Address.fromByteList(bytes)
+      .map((a) => a.asIpAddress)
+      .orElse(() => Ipv6Address.fromByteList(bytes));
 
   static IO<IList<IpAddress>> loopback() => Dns.loopback();
 
@@ -150,20 +147,16 @@ sealed class IpAddress extends Host {
 
   bool get isSourceSpecificMulticast;
 
-  Option<SourceSpecificMulticastStrict<IpAddress>>
-      asSourceSpecificMulticast() =>
-          SourceSpecificMulticast.fromIpAddress(this);
+  Option<SourceSpecificMulticastStrict<IpAddress>> asSourceSpecificMulticast() =>
+      SourceSpecificMulticast.fromIpAddress(this);
 
-  Option<SourceSpecificMulticast<IpAddress>>
-      asSourceSpecificMulticastLenient() =>
-          SourceSpecificMulticast.fromIpAddressLenient(this);
+  Option<SourceSpecificMulticast<IpAddress>> asSourceSpecificMulticastLenient() =>
+      SourceSpecificMulticast.fromIpAddressLenient(this);
 
   IpAddress collapseMappedV4() => fold(identity, (v6) {
         if (v6.isMappedV4) {
-          return IpAddress.fromBytes(
-                  v6.toBytes().toIList().takeRight(4).toList())
-              .getOrElse(() =>
-                  throw Exception('IpAddress.collapseMappedV4 failure: $v6'));
+          return IpAddress.fromBytes(v6.toBytes().toIList().takeRight(4).toList())
+              .getOrElse(() => throw Exception('IpAddress.collapseMappedV4 failure: $v6'));
         } else {
           return v6;
         }
@@ -179,8 +172,7 @@ sealed class IpAddress extends Host {
 
   IpAddress get asIpAddress => this;
 
-  Option<Ipv4Address> asIpv4() =>
-      collapseMappedV4().fold((v4) => Some(v4), (_) => none());
+  Option<Ipv4Address> asIpv4() => collapseMappedV4().fold((v4) => Some(v4), (_) => none());
 
   Option<Ipv6Address> asIpv6() => fold((_) => none(), (v6) => Some(v6));
 
@@ -277,8 +269,8 @@ final class Ipv4Address extends IpAddress {
   static Option<Ipv4Address> fromByteList(Iterable<int> bytes) =>
       Option.when(() => bytes.length == 4, () => _unsafeFromBytes(bytes));
 
-  static Ipv4Address fromBytes(int a, int b, int c, int d) => _unsafeFromBytes(
-      Uint8List.fromList([a & 0xff, b & 0xff, c & 0xff, d & 0xff]));
+  static Ipv4Address fromBytes(int a, int b, int c, int d) =>
+      _unsafeFromBytes(Uint8List.fromList([a & 0xff, b & 0xff, c & 0xff, d & 0xff]));
 
   static Ipv4Address _unsafeFromBytes(Iterable<int> bytes) =>
       Ipv4Address._(Uint8List.fromList(bytes.toList()));
@@ -313,26 +305,22 @@ final class Ipv4Address extends IpAddress {
   Ipv4Address previous() => Ipv4Address.fromInt(toInt() - 1);
 
   @override
-  bool get isMulticast =>
-      MulticastRangeStart <= this && this <= MulticastRangeEnd;
+  bool get isMulticast => MulticastRangeStart <= this && this <= MulticastRangeEnd;
 
   @override
   Option<Multicast<Ipv4Address>> asMulticast() => Multicast.fromIpAddress(this);
 
   @override
   bool get isSourceSpecificMulticast =>
-      SourceSpecificMulticastRangeStart <= this &&
-      this <= SourceSpecificMulticastRangeEnd;
+      SourceSpecificMulticastRangeStart <= this && this <= SourceSpecificMulticastRangeEnd;
 
   @override
-  Option<SourceSpecificMulticastStrict<Ipv4Address>>
-      asSourceSpecificMulticast() =>
-          SourceSpecificMulticast.fromIpAddress(this);
+  Option<SourceSpecificMulticastStrict<Ipv4Address>> asSourceSpecificMulticast() =>
+      SourceSpecificMulticast.fromIpAddress(this);
 
   @override
-  Option<SourceSpecificMulticast<Ipv4Address>>
-      asSourceSpecificMulticastLenient() =>
-          SourceSpecificMulticast.fromIpAddressLenient(this);
+  Option<SourceSpecificMulticast<Ipv4Address>> asSourceSpecificMulticastLenient() =>
+      SourceSpecificMulticast.fromIpAddressLenient(this);
 
   Ipv6Address toCompatV6() {
     final compat = Uint8List(16);
@@ -342,8 +330,8 @@ final class Ipv4Address extends IpAddress {
     compat[14] = _bytes[2];
     compat[15] = _bytes[3];
 
-    return Ipv6Address.fromByteList(compat).getOrElse(
-        () => throw Exception('Error converting $this to compatible IPv6'));
+    return Ipv6Address.fromByteList(compat)
+        .getOrElse(() => throw Exception('Error converting $this to compatible IPv6'));
   }
 
   Ipv6Address toMappedV6() {
@@ -356,12 +344,11 @@ final class Ipv4Address extends IpAddress {
     mapped[14] = _bytes[2];
     mapped[15] = _bytes[3];
 
-    return Ipv6Address.fromByteList(mapped).getOrElse(
-        () => throw Exception('Error converting $this to mapped IPv6'));
+    return Ipv6Address.fromByteList(mapped)
+        .getOrElse(() => throw Exception('Error converting $this to mapped IPv6'));
   }
 
-  Ipv4Address masked(Ipv4Address mask) =>
-      Ipv4Address.fromInt(toInt() & mask.toInt());
+  Ipv4Address masked(Ipv4Address mask) => Ipv4Address.fromInt(toInt() & mask.toInt());
 
   Ipv4Address maskedLast(Ipv4Address mask) =>
       Ipv4Address.fromInt(toInt() & mask.toInt() | ~mask.toInt());
@@ -504,8 +491,7 @@ final class Ipv6Address extends IpAddress {
     });
   }
 
-  static final _mixedStringRegex =
-      RegExp(r'([:a-fA-F0-9]+:)(\d+\.\d+\.\d+\.\d+)');
+  static final _mixedStringRegex = RegExp(r'([:a-fA-F0-9]+:)(\d+\.\d+\.\d+\.\d+)');
 
   static Ipv6Address fromBytes(
     int b0,
@@ -586,29 +572,24 @@ final class Ipv6Address extends IpAddress {
   Ipv6Address previous() => Ipv6Address.fromBigInt(toBigInt() - BigInt.one);
 
   @override
-  bool get isMulticast =>
-      MulticastRangeStart <= this && this <= MulticastRangeEnd;
+  bool get isMulticast => MulticastRangeStart <= this && this <= MulticastRangeEnd;
 
   @override
   Option<Multicast<Ipv6Address>> asMulticast() => Multicast.fromIpAddress(this);
 
   @override
   bool get isSourceSpecificMulticast =>
-      SourceSpecificMulticastRangeStart <= this &&
-      this <= SourceSpecificMulticastRangeEnd;
+      SourceSpecificMulticastRangeStart <= this && this <= SourceSpecificMulticastRangeEnd;
 
   @override
-  Option<SourceSpecificMulticastStrict<Ipv6Address>>
-      asSourceSpecificMulticast() =>
-          SourceSpecificMulticast.fromIpAddress(this);
+  Option<SourceSpecificMulticastStrict<Ipv6Address>> asSourceSpecificMulticast() =>
+      SourceSpecificMulticast.fromIpAddress(this);
 
   @override
-  Option<SourceSpecificMulticast<Ipv6Address>>
-      asSourceSpecificMulticastLenient() =>
-          SourceSpecificMulticast.fromIpAddressLenient(this);
+  Option<SourceSpecificMulticast<Ipv6Address>> asSourceSpecificMulticastLenient() =>
+      SourceSpecificMulticast.fromIpAddressLenient(this);
 
-  Ipv6Address masked(Ipv6Address mask) =>
-      Ipv6Address.fromBigInt(toBigInt() & mask.toBigInt());
+  Ipv6Address masked(Ipv6Address mask) => Ipv6Address.fromBigInt(toBigInt() & mask.toBigInt());
 
   Ipv6Address maskedLast(Ipv6Address mask) =>
       Ipv6Address.fromBigInt(toBigInt() & mask.toBigInt() | ~mask.toBigInt());
@@ -646,8 +627,8 @@ final class Ipv6Address extends IpAddress {
 
   String toMixedString() {
     final bytes = toBytes();
-    final v4 = Ipv4Address.fromByteList(bytes.getRange(12, 16)).getOrElse(
-        () => throw Exception('IPv6 toMixedString failure for: $this'));
+    final v4 = Ipv4Address.fromByteList(bytes.getRange(12, 16))
+        .getOrElse(() => throw Exception('IPv6 toMixedString failure for: $this'));
 
     bytes.setRange(12, 16, [0, 1, 0, 1]);
 
@@ -714,24 +695,22 @@ final class Ipv6Address extends IpAddress {
   }
 
   /// First IP address in the IPv6 multicast range.
-  static final MulticastRangeStart =
-      fromBytes(255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+  static final MulticastRangeStart = fromBytes(255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
   /// Last IP address in the IPv6 multicast range.
-  static final MulticastRangeEnd = fromBytes(255, 255, 255, 255, 255, 255, 255,
-      255, 255, 255, 255, 255, 255, 255, 255, 255);
+  static final MulticastRangeEnd =
+      fromBytes(255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255);
 
   /// First IP address in the IPv6 source specific multicast range.
   static final SourceSpecificMulticastRangeStart =
       fromBytes(255, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
   /// Last IP address in the IPv6 source specific multicast range.
-  static final SourceSpecificMulticastRangeEnd = fromBytes(255, 63, 255, 255,
-      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255);
+  static final SourceSpecificMulticastRangeEnd =
+      fromBytes(255, 63, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255);
 
-  static Cidr<Ipv6Address> MappedV4Block = Cidr.of(
-      Ipv6Address.fromBytes(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 0, 0, 0, 0),
-      96);
+  static Cidr<Ipv6Address> MappedV4Block =
+      Cidr.of(Ipv6Address.fromBytes(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 0, 0, 0, 0), 96);
 }
 
 final class IDN extends Host {
@@ -742,8 +721,7 @@ final class IDN extends Host {
   const IDN(this.labels, this.hostname, this._toStringF);
 
   static IDN fromHostname(Hostname hostname) {
-    final labels =
-        hostname.labels.map((l) => IDNLabel(toUnicode(l.toString())));
+    final labels = hostname.labels.map((l) => IDNLabel(toUnicode(l.toString())));
     return IDN(labels, hostname, labels.mkString(sep: '.'));
   }
 
@@ -753,9 +731,8 @@ final class IDN extends Host {
     } else {
       return Option(value.split(_regex).map(IDNLabel.new).toIList())
           .filter((a) => a.nonEmpty)
-          .flatMap((ls) => toAscii(value)
-              .flatMap(Hostname.fromString)
-              .map((h) => IDN(ls, h, value)));
+          .flatMap(
+              (ls) => toAscii(value).flatMap(Hostname.fromString).map((h) => IDN(ls, h, value)));
     }
   }
 
@@ -775,8 +752,7 @@ final class IDN extends Host {
 
   static String toUnicode(String s) => Punycode.domainDecode(s);
   static Option<String> toAscii(String s) =>
-      Either.catching(() => Punycode.domainEncode(s), (err, _) => err)
-          .toOption();
+      Either.catching(() => Punycode.domainEncode(s), (err, _) => err).toOption();
 
   @override
   String toString() => _toStringF;

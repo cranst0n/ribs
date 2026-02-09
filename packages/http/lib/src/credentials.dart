@@ -17,8 +17,7 @@ sealed class Credentials {
 
   const Credentials();
 
-  static Credentials token(AuthScheme authScheme, String token) =>
-      _Token(authScheme, token);
+  static Credentials token(AuthScheme authScheme, String token) => _Token(authScheme, token);
 }
 
 final class _Token extends Credentials {

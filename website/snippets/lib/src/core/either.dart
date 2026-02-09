@@ -11,10 +11,10 @@ final class User {
 }
 
 Option<User> userOption(String name, String alias, int age) => (
-      Option.when(() => name.isEmpty, () => name),
-      Option.when(() => alias.isEmpty, () => alias),
-      Option.when(() => age >= 18, () => age),
-    ).mapN(User.new);
+  Option.when(() => name.isEmpty, () => name),
+  Option.when(() => alias.isEmpty, () => alias),
+  Option.when(() => age >= 18, () => age),
+).mapN(User.new);
 
 // create-user-1
 
@@ -63,17 +63,17 @@ final myRight2 = myRight.map(greet); // Right(Hello World!)
 Either<String, User> validateName(User u) =>
     Either.cond(() => u.name.isNotEmpty, () => u, () => 'User name is empty!');
 
-Either<String, User> validateAlias(User u) => Either.cond(
-    () => u.alias.isNotEmpty, () => u, () => 'User alias is empty!');
+Either<String, User> validateAlias(User u) =>
+    Either.cond(() => u.alias.isNotEmpty, () => u, () => 'User alias is empty!');
 
 Either<String, User> validateAge(User u) =>
     Either.cond(() => u.age > 35, () => u, () => 'User is too young!');
 
 const candidate = User('Harrison', 'Harry', 30);
 
-final validatedCandidate = validateName(candidate)
-    .flatMap(validateAlias)
-    .flatMap(validateAge); // Left(User is too young!)
+final validatedCandidate = validateName(
+  candidate,
+).flatMap(validateAlias).flatMap(validateAge); // Left(User is too young!)
 
 // flatMap-1
 

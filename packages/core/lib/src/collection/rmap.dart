@@ -39,8 +39,7 @@ mixin RMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
   V getOrElse(K key, Function0<V> orElse) => get(key).getOrElse(orElse);
 
   /// Returns a new [Map] containing the same key-value pairs.
-  Map<K, V> toMap() =>
-      Map.fromEntries(iterator.map((a) => MapEntry(a.$1, a.$2)).toList());
+  Map<K, V> toMap() => Map.fromEntries(iterator.map((a) => MapEntry(a.$1, a.$2)).toList());
 
   /// Returns a [RIterable] of all values stored in this map.
   RIterable<V> get values => valuesIterator.toSeq();
@@ -56,8 +55,7 @@ mixin RMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
     if (identical(this, other)) {
       return true;
     } else if (other is RMap<K, V>) {
-      return size == other.size &&
-          forall((kv) => other.get(kv.$1) == Some(kv.$2));
+      return size == other.size && forall((kv) => other.get(kv.$1) == Some(kv.$2));
     } else {
       return super == other;
     }

@@ -17,11 +17,7 @@ void main() {
 
     test('reverse', () {
       expect(
-        ichain([1, 2, 3])
-            .concat(IChain.one(4))
-            .concat(ichain([5, 6, 7]))
-            .reverse()
-            .toList(),
+        ichain([1, 2, 3]).concat(IChain.one(4)).concat(ichain([5, 6, 7])).reverse().toList(),
         [7, 6, 5, 4, 3, 2, 1],
       );
     });

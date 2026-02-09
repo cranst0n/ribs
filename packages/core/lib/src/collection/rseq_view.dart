@@ -21,12 +21,10 @@ mixin SeqView<A> on RIterableOnce<A>, RIterable<A>, RSeq<A>, View<A> {
   RSeq<A> appended(A elem) => seqview.Appended(this, elem);
 
   @override
-  RSeq<A> appendedAll(RIterableOnce<A> suffix) =>
-      seqview.Concat(this, suffix.toSeq());
+  RSeq<A> appendedAll(RIterableOnce<A> suffix) => seqview.Concat(this, suffix.toSeq());
 
   @override
-  RSeq<A> concat(covariant RIterableOnce<A> suffix) =>
-      seqview.Concat(this, suffix.toSeq());
+  RSeq<A> concat(covariant RIterableOnce<A> suffix) => seqview.Concat(this, suffix.toSeq());
 
   @override
   RSeq<A> drop(int n) => seqview.Drop(this, n);
@@ -41,8 +39,7 @@ mixin SeqView<A> on RIterableOnce<A>, RIterable<A>, RSeq<A>, View<A> {
   RSeq<A> prepended(A elem) => seqview.Prepended(elem, this);
 
   @override
-  RSeq<A> prependedAll(RIterableOnce<A> prefix) =>
-      seqview.Concat(prefix.toSeq(), this);
+  RSeq<A> prependedAll(RIterableOnce<A> prefix) => seqview.Concat(prefix.toSeq(), this);
 
   @override
   RSeq<A> reverse() => seqview.Reverse(this);

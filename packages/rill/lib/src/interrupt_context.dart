@@ -21,8 +21,7 @@ final class InterruptContext {
     IO<Unit> cancelParent,
   ) =>
       (Ref.of(none<InterruptionOutcome>()), Deferred.of<InterruptionOutcome>())
-          .mapN((ref, deferred) =>
-              InterruptContext._(deferred, ref, newScopeId, cancelParent));
+          .mapN((ref, deferred) => InterruptContext._(deferred, ref, newScopeId, cancelParent));
 
   IO<Unit> _complete(InterruptionOutcome outcome) => ref
       .update((a) => a.orElse(() => Some(outcome)))
@@ -37,8 +36,7 @@ final class InterruptContext {
   ) {
     if (interruptible) {
       return deferred.value().start().flatMap((fiber) {
-        return InterruptContext.create(newScopeId, fiber.cancel())
-            .flatMap((context) {
+        return InterruptContext.create(newScopeId, fiber.cancel()).flatMap((context) {
           return fiber
               .join()
               .flatMap((outcome) {

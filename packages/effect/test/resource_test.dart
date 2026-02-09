@@ -6,8 +6,8 @@ import 'package:test/test.dart';
 void main() {
   test('makes acquires non interruptible', () {
     final test = IO.ref(false).flatMap((interrupted) {
-      final fa = IO.uncancelable((poll) =>
-          poll(IO.sleep(5.seconds).onCancel(interrupted.setValue(true))));
+      final fa =
+          IO.uncancelable((poll) => poll(IO.sleep(5.seconds).onCancel(interrupted.setValue(true))));
 
       return Resource.make(fa, (_) => IO.unit)
           .use_()
@@ -21,8 +21,8 @@ void main() {
 
   test('makes acquires non interruptible, overriding uncancelable', () {
     final test = IO.ref(false).flatMap((interrupted) {
-      final fa = IO.uncancelable((poll) =>
-          poll(IO.sleep(5.seconds).onCancel(interrupted.setValue(true))));
+      final fa =
+          IO.uncancelable((poll) => poll(IO.sleep(5.seconds).onCancel(interrupted.setValue(true))));
 
       return Resource.make(fa, (_) => IO.unit)
           .use_()
@@ -82,20 +82,17 @@ void main() {
     final test = (flag, flag, flag, flag).tupled().flatMap((ft) {
       final (acquireFin, resourceFin, a, b) = ft;
 
-      final io = IO.uncancelable((poll) => sleep
-          .onCancel(a.setValue(true))
-          .productR(() => poll(sleep).onCancel(b.setValue(true))));
+      final io = IO.uncancelable((poll) =>
+          sleep.onCancel(a.setValue(true)).productR(() => poll(sleep).onCancel(b.setValue(true))));
 
-      final resource = Resource.makeFull(
-          (poll) => poll(io).onCancel(acquireFin.setValue(true)),
+      final resource = Resource.makeFull((poll) => poll(io).onCancel(acquireFin.setValue(true)),
           (_) => resourceFin.setValue(true));
 
-      return resource.use_().timeout(timeout).attempt().productR(() => (
-            a.value(),
-            b.value(),
-            acquireFin.value(),
-            resourceFin.value()
-          ).tupled());
+      return resource
+          .use_()
+          .timeout(timeout)
+          .attempt()
+          .productR(() => (a.value(), b.value(), acquireFin.value(), resourceFin.value()).tupled());
     });
 
     expect(test, ioSucceeded((false, true, true, false)));
@@ -107,8 +104,7 @@ void main() {
 
     final test = flag.flatMap((releaseComplete) {
       final release = sleep.productR(() => releaseComplete.setValue(true));
-      final resource = Resource.applyFull(
-          (poll) => IO.delay(() => (Unit(), (_) => poll(release))));
+      final resource = Resource.applyFull((poll) => IO.delay(() => (Unit(), (_) => poll(release))));
 
       return resource
           .use_()
@@ -121,9 +117,7 @@ void main() {
   }, skip: true);
 
   test('pure', () {
-    final res = Resource.pure(42)
-        .map((a) => a * 2)
-        .flatMap((a) => Resource.pure('abc'));
+    final res = Resource.pure(42).map((a) => a * 2).flatMap((a) => Resource.pure('abc'));
 
     final test = res.use((a) => IO.pure('${a}123'));
 

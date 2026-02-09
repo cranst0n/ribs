@@ -22,13 +22,11 @@ void main() {
 
     bool readerNotified = false;
 
-    final reader =
-        d.value().flatTap((a) => IO.exec(() => readerNotified = true)).start();
+    final reader = d.value().flatTap((a) => IO.exec(() => readerNotified = true)).start();
 
     final writer = IO.defer(() => d.complete(42)).delayBy(200.milliseconds);
 
-    final (_, writerSuccessful) =
-        await IO.both(reader, writer).unsafeRunFuture();
+    final (_, writerSuccessful) = await IO.both(reader, writer).unsafeRunFuture();
 
     expect(writerSuccessful, isTrue);
     expect(readerNotified, isTrue);
@@ -47,8 +45,7 @@ void main() {
 
     final writer = IO.defer(() => d.complete(42)).delayBy(200.milliseconds);
 
-    final (_, writerSuccessful) =
-        await IO.both(reader, writer).unsafeRunFuture();
+    final (_, writerSuccessful) = await IO.both(reader, writer).unsafeRunFuture();
 
     expect(writerSuccessful, isTrue);
     expect(readerNotified, isFalse);

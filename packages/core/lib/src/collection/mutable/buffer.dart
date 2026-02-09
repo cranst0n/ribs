@@ -67,8 +67,7 @@ mixin Buffer<A> on RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   Buffer<A> patchInPlace(int from, RIterableOnce<A> patch, int replaced);
 
-  Buffer<A> sliceInPlace(int start, int end) =>
-      takeInPlace(end).dropInPlace(start);
+  Buffer<A> sliceInPlace(int start, int end) => takeInPlace(end).dropInPlace(start);
 
   Buffer<A> subtractOne(A x) {
     indexOf(x).foreach(remove);

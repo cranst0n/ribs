@@ -11,8 +11,7 @@ class ReadWrite<A> extends Read<A> with Write<A> {
   @override
   IList<Get<dynamic>> get gets => read.gets;
 
-  ReadWrite<Option<A>> optional() =>
-      ReadWrite(read.optional(), write.optional());
+  ReadWrite<Option<A>> optional() => ReadWrite(read.optional(), write.optional());
 
   @override
   IList<Put<dynamic>> get puts => write.puts;
@@ -41,15 +40,10 @@ class ReadWrite<A> extends Read<A> with Write<A> {
 }
 
 extension Tuple2ReadWriteOps<A, B> on (ReadWrite<A>, ReadWrite<B>) {
-  ReadWrite<(A, B)> get tupled =>
-      ReadWrite(($1.read, $2.read).tupled, ($1.write, $2.write).tupled);
+  ReadWrite<(A, B)> get tupled => ReadWrite(($1.read, $2.read).tupled, ($1.write, $2.write).tupled);
 }
 
-extension Tuple3ReadWriteOps<A, B, C> on (
-  ReadWrite<A>,
-  ReadWrite<B>,
-  ReadWrite<C>
-) {
+extension Tuple3ReadWriteOps<A, B, C> on (ReadWrite<A>, ReadWrite<B>, ReadWrite<C>) {
   ReadWrite<(A, B, C)> get tupled => ReadWrite(
         ($1.read, $2.read, $3.read).tupled,
         ($1.write, $2.write, $3.write).tupled,
@@ -106,8 +100,7 @@ extension Tuple7ReadWriteOps<A, B, C, D, E, F, G> on (
 ) {
   ReadWrite<(A, B, C, D, E, F, G)> get tupled => ReadWrite(
         ($1.read, $2.read, $3.read, $4.read, $5.read, $6.read, $7.read).tupled,
-        ($1.write, $2.write, $3.write, $4.write, $5.write, $6.write, $7.write)
-            .tupled,
+        ($1.write, $2.write, $3.write, $4.write, $5.write, $6.write, $7.write).tupled,
       );
 }
 
@@ -122,18 +115,8 @@ extension Tuple8ReadWriteOps<A, B, C, D, E, F, G, H> on (
   ReadWrite<H>
 ) {
   ReadWrite<(A, B, C, D, E, F, G, H)> get tupled => ReadWrite(
-        ($1.read, $2.read, $3.read, $4.read, $5.read, $6.read, $7.read, $8.read)
-            .tupled,
-        (
-          $1.write,
-          $2.write,
-          $3.write,
-          $4.write,
-          $5.write,
-          $6.write,
-          $7.write,
-          $8.write
-        ).tupled,
+        ($1.read, $2.read, $3.read, $4.read, $5.read, $6.read, $7.read, $8.read).tupled,
+        ($1.write, $2.write, $3.write, $4.write, $5.write, $6.write, $7.write, $8.write).tupled,
       );
 }
 
@@ -149,28 +132,9 @@ extension Tuple9ReadWriteOps<A, B, C, D, E, F, G, H, I> on (
   ReadWrite<I>
 ) {
   ReadWrite<(A, B, C, D, E, F, G, H, I)> get tupled => ReadWrite(
-        (
-          $1.read,
-          $2.read,
-          $3.read,
-          $4.read,
-          $5.read,
-          $6.read,
-          $7.read,
-          $8.read,
-          $9.read
-        ).tupled,
-        (
-          $1.write,
-          $2.write,
-          $3.write,
-          $4.write,
-          $5.write,
-          $6.write,
-          $7.write,
-          $8.write,
-          $9.write
-        ).tupled,
+        ($1.read, $2.read, $3.read, $4.read, $5.read, $6.read, $7.read, $8.read, $9.read).tupled,
+        ($1.write, $2.write, $3.write, $4.write, $5.write, $6.write, $7.write, $8.write, $9.write)
+            .tupled,
       );
 }
 
@@ -421,8 +385,7 @@ extension Tuple15ReadWriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
   ReadWrite<N>,
   ReadWrite<O>
 ) {
-  ReadWrite<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> get tupled =>
-      ReadWrite(
+  ReadWrite<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> get tupled => ReadWrite(
         (
           $1.read,
           $2.read,

@@ -14,8 +14,7 @@ final class ParseException implements Exception {
   ParseException(this.message, this.index, this.line, this.col);
 
   @override
-  String toString() =>
-      'ParseException: $message [index: $index, line: $line, col: $col]';
+  String toString() => 'ParseException: $message [index: $index, line: $line, col: $col]';
 }
 
 final class IncompleteParseException implements Exception {
@@ -30,14 +29,12 @@ final class IncompleteParseException implements Exception {
 abstract class Parser {
   static Json parseUnsafe(String s) => StringParser(s).parse();
 
-  static Either<ParsingFailure, Json> parseFromString(String s) =>
-      Either.catching(
+  static Either<ParsingFailure, Json> parseFromString(String s) => Either.catching(
         () => parseUnsafe(s),
         (message, _) => ParsingFailure(message.toString()),
       );
 
-  static Either<ParsingFailure, Json> parseFromBytes(Uint8List l) =>
-      Either.catching(
+  static Either<ParsingFailure, Json> parseFromBytes(Uint8List l) => Either.catching(
         () => ByteDataParser(l).parse(),
         (message, _) => ParsingFailure(message.toString()),
       );
@@ -283,10 +280,7 @@ abstract class Parser {
   }
 
   Json _parseFalse(int i) {
-    if (at(i + 1) == 'a' &&
-        at(i + 2) == 'l' &&
-        at(i + 3) == 's' &&
-        at(i + 4) == 'e') {
+    if (at(i + 1) == 'a' && at(i + 2) == 'l' && at(i + 3) == 's' && at(i + 4) == 'e') {
       return Json.False;
     } else {
       die(i, 'expected false');

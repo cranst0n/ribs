@@ -11,11 +11,9 @@ abstract class JsonTransformer<A> implements StreamTransformer<A, Json> {
   final StreamController<Json> _controller;
   StreamSubscription<A>? _subscription;
 
-  static JsonTransformer<List<int>> bytes(AsyncParserMode mode) =>
-      _BytesJsonTransformer(mode);
+  static JsonTransformer<List<int>> bytes(AsyncParserMode mode) => _BytesJsonTransformer(mode);
 
-  static JsonTransformer<String> strings(AsyncParserMode mode) =>
-      _StringJsonTransformer(mode);
+  static JsonTransformer<String> strings(AsyncParserMode mode) => _StringJsonTransformer(mode);
 
   JsonTransformer(AsyncParserMode mode)
       : _parser = AsyncParser(mode: mode),
@@ -53,14 +51,12 @@ class _BytesJsonTransformer extends JsonTransformer<List<int>> {
   _BytesJsonTransformer(super.mode);
 
   @override
-  Either<ParseException, IList<Json>> absorb(List<int> a) =>
-      _parser.absorb(Uint8List.fromList(a));
+  Either<ParseException, IList<Json>> absorb(List<int> a) => _parser.absorb(Uint8List.fromList(a));
 }
 
 class _StringJsonTransformer extends JsonTransformer<String> {
   _StringJsonTransformer(super.mode);
 
   @override
-  Either<ParseException, IList<Json>> absorb(String a) =>
-      _parser.absorbString(a);
+  Either<ParseException, IList<Json>> absorb(String a) => _parser.absorbString(a);
 }

@@ -29,8 +29,7 @@ part 'vector/iterator.dart';
 
 IVector<A> ivec<A>(Iterable<A> as) => IVector.fromDart(as);
 
-sealed class IVector<A>
-    with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A> {
+sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A> {
   final _Arr1 _prefix1;
 
   IVector._(this._prefix1);
@@ -54,8 +53,7 @@ sealed class IVector<A>
     }
   }
 
-  static IVector<A> fromDart<A>(Iterable<A> elems) =>
-      from(RIterator.fromDart(elems.iterator));
+  static IVector<A> fromDart<A>(Iterable<A> elems) => from(RIterator.fromDart(elems.iterator));
 
   static IVector<A> fill<A>(int n, A elem) {
     final b = IVectorBuilder<A>();
@@ -63,15 +61,12 @@ sealed class IVector<A>
     return b.result();
   }
 
-  static IVector<IVector<A>> fill2<A>(int n1, int n2, A elem) =>
-      fill(n1, fill(n2, elem));
+  static IVector<IVector<A>> fill2<A>(int n1, int n2, A elem) => fill(n1, fill(n2, elem));
 
-  static IVector<IVector<IVector<A>>> fill3<A>(
-          int n1, int n2, int n3, A elem) =>
+  static IVector<IVector<IVector<A>>> fill3<A>(int n1, int n2, int n3, A elem) =>
       fill(n1, fill2(n2, n3, elem));
 
-  static IVector<IVector<IVector<IVector<A>>>> fill4<A>(
-          int n1, int n2, int n3, int n4, A elem) =>
+  static IVector<IVector<IVector<IVector<A>>>> fill4<A>(int n1, int n2, int n3, int n4, A elem) =>
       fill(n1, fill3(n2, n3, n4, elem));
 
   static IVector<IVector<IVector<IVector<IVector<A>>>>> fill5<A>(
@@ -94,8 +89,7 @@ sealed class IVector<A>
     }
   }
 
-  static IVector<IVector<A>> tabulate2<A>(
-          int n1, int n2, Function2<int, int, A> f) =>
+  static IVector<IVector<A>> tabulate2<A>(int n1, int n2, Function2<int, int, A> f) =>
       tabulate(n1, (i1) => tabulate(n2, (i2) => f(i1, i2)));
 
   static IVector<IVector<IVector<A>>> tabulate3<A>(
@@ -104,20 +98,11 @@ sealed class IVector<A>
 
   static IVector<IVector<IVector<IVector<A>>>> tabulate4<A>(
           int n1, int n2, int n3, int n4, Function4<int, int, int, int, A> f) =>
-      tabulate(
-          n1, (i1) => tabulate3(n2, n3, n4, (i2, i3, i4) => f(i1, i2, i3, i4)));
+      tabulate(n1, (i1) => tabulate3(n2, n3, n4, (i2, i3, i4) => f(i1, i2, i3, i4)));
 
   static IVector<IVector<IVector<IVector<IVector<A>>>>> tabulate5<A>(
-          int n1,
-          int n2,
-          int n3,
-          int n4,
-          int n5,
-          Function5<int, int, int, int, int, A> f) =>
-      tabulate(
-          n1,
-          (i1) => tabulate4(
-              n2, n3, n4, n5, (i2, i3, i4, i5) => f(i1, i2, i3, i4, i5)));
+          int n1, int n2, int n3, int n4, int n5, Function5<int, int, int, int, int, A> f) =>
+      tabulate(n1, (i1) => tabulate4(n2, n3, n4, n5, (i2, i3, i4, i5) => f(i1, i2, i3, i4, i5)));
 
   @override
   int get length => switch (this) {
@@ -145,12 +130,10 @@ sealed class IVector<A>
   IVector<A> concat(covariant RIterableOnce<A> suffix) => appendedAll(suffix);
 
   @override
-  IVector<B> collect<B>(Function1<A, Option<B>> f) =>
-      super.collect(f).toIVector();
+  IVector<B> collect<B>(Function1<A, Option<B>> f) => super.collect(f).toIVector();
 
   @override
-  RIterator<IVector<A>> combinations(int n) =>
-      super.combinations(n).map((a) => a.toIVector());
+  RIterator<IVector<A>> combinations(int n) => super.combinations(n).map((a) => a.toIVector());
 
   @override
   IVector<A> diff(RSeq<A> that) => super.diff(that).toIVector();
@@ -159,8 +142,7 @@ sealed class IVector<A>
   IVector<A> distinct() => distinctBy(identity);
 
   @override
-  IVector<A> distinctBy<B>(Function1<A, B> f) =>
-      super.distinctBy(f).toIVector();
+  IVector<A> distinctBy<B>(Function1<A, B> f) => super.distinctBy(f).toIVector();
 
   @override
   IVector<A> drop(int n) => slice(n, length);
@@ -192,16 +174,14 @@ sealed class IVector<A>
   }
 
   @override
-  IVector<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) =>
-      super.flatMap(f).toIVector();
+  IVector<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) => super.flatMap(f).toIVector();
 
   @override
   IMap<K, IVector<A>> groupBy<K>(Function1<A, K> f) =>
       super.groupBy(f).mapValues((a) => a.toIVector());
 
   @override
-  RIterator<IVector<A>> grouped(int size) =>
-      super.grouped(size).map((a) => a.toIVector());
+  RIterator<IVector<A>> grouped(int size) => super.grouped(size).map((a) => a.toIVector());
 
   @override
   IMap<K, IVector<B>> groupMap<K, B>(Function1<A, K> key, Function1<A, B> f) =>
@@ -256,8 +236,7 @@ sealed class IVector<A>
       super.patch(from, other, replaced).toIVector();
 
   @override
-  RIterator<IVector<A>> permutations() =>
-      super.permutations().map((a) => a.toIVector());
+  RIterator<IVector<A>> permutations() => super.permutations().map((a) => a.toIVector());
 
   @override
   IVector<A> prepended(A elem);
@@ -278,8 +257,7 @@ sealed class IVector<A>
   IVector<A> removeAt(int idx) => super.removeAt(idx).toIVector();
 
   @override
-  IVector<A> removeFirst(Function1<A, bool> p) =>
-      super.removeFirst(p).toIVector();
+  IVector<A> removeFirst(Function1<A, bool> p) => super.removeFirst(p).toIVector();
 
   @override
   IVector<A> reverse() => view().reverse().toIVector();
@@ -288,12 +266,10 @@ sealed class IVector<A>
   IVector<B> scan<B>(B z, Function2<B, A, B> op) => scanLeft(z, op);
 
   @override
-  IVector<B> scanLeft<B>(B z, Function2<B, A, B> op) =>
-      super.scanLeft(z, op).toIVector();
+  IVector<B> scanLeft<B>(B z, Function2<B, A, B> op) => super.scanLeft(z, op).toIVector();
 
   @override
-  IVector<B> scanRight<B>(B z, Function2<A, B, B> op) =>
-      super.scanRight(z, op).toIVector();
+  IVector<B> scanRight<B>(B z, Function2<A, B, B> op) => super.scanRight(z, op).toIVector();
 
   @override
   RIterator<IVector<A>> sliding(int size, [int step = 1]) =>
@@ -303,12 +279,10 @@ sealed class IVector<A>
   IVector<A> sorted(Order<A> order) => super.sorted(order).toIVector();
 
   @override
-  IVector<A> sortBy<B>(Order<B> order, Function1<A, B> f) =>
-      super.sortBy(order, f).toIVector();
+  IVector<A> sortBy<B>(Order<B> order, Function1<A, B> f) => super.sortBy(order, f).toIVector();
 
   @override
-  IVector<A> sortWith(Function2<A, A, bool> lt) =>
-      super.sortWith(lt).toIVector();
+  IVector<A> sortWith(Function2<A, A, bool> lt) => super.sortWith(lt).toIVector();
 
   @override
   (IVector<A>, IVector<A>) span(Function1<A, bool> p) {
@@ -410,11 +384,7 @@ sealed class IVector<A>
       return v;
     } else if (size < k - _AlignToFaster && suffix is IVector) {
       final v = suffix as IVector<A>;
-      return IVectorBuilder<A>()
-          ._alignTo(size, v)
-          .addAll(this)
-          .addAll(v)
-          .result();
+      return IVectorBuilder<A>()._alignTo(size, v).addAll(this).addAll(v).result();
     } else {
       return IVectorBuilder<A>()._initFromVector(this).addAll(suffix).result();
     }
@@ -441,11 +411,7 @@ sealed class IVector<A>
       }
       return v;
     } else {
-      return IVectorBuilder<A>()
-          ._alignTo(k, this)
-          .addAll(prefix)
-          .addAll(this)
-          .result();
+      return IVectorBuilder<A>()._alignTo(k, this).addAll(prefix).addAll(this).result();
     }
   }
 
@@ -475,8 +441,7 @@ sealed class _VectorImpl<A> extends IVector<A> {
     }
   }
 
-  RangeError _rngErr(int index) =>
-      RangeError('$index is out of bounds (min 0, max ${length - 1})');
+  RangeError _rngErr(int index) => RangeError('$index is out of bounds (min 0, max ${length - 1})');
 }
 
 sealed class _BigVector<A> extends _VectorImpl<A> {

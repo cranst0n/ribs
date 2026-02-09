@@ -14,8 +14,7 @@ sealed class Err {
 
   static Err general(String message) => General(message, nil());
 
-  static Err insufficientBits(int needed, int have) =>
-      InsufficientBits(needed, have, nil());
+  static Err insufficientBits(int needed, int have) => InsufficientBits(needed, have, nil());
 }
 
 final class General extends Err {
@@ -39,10 +38,8 @@ final class InsufficientBits extends Err {
   InsufficientBits(this.needed, this.have, this.context);
 
   @override
-  String get message =>
-      'cannot acquire $needed bits from a vector that contains $have bits';
+  String get message => 'cannot acquire $needed bits from a vector that contains $have bits';
 
   @override
-  Err pushContext(String ctx) =>
-      InsufficientBits(have, needed, context.appended(ctx));
+  Err pushContext(String ctx) => InsufficientBits(have, needed, context.appended(ctx));
 }

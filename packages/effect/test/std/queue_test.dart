@@ -189,11 +189,7 @@ void main() {
       const offerValue = 0;
 
       final test = Queue.synchronous<int>().flatMap((q) {
-        return q
-            .offer(offerValue)
-            .delayBy(100.milliseconds)
-            .start()
-            .flatMap((of) {
+        return q.offer(offerValue).delayBy(100.milliseconds).start().flatMap((of) {
           return q.take().start().flatMap((tf) {
             return tf.joinWithNever().flatMap((value) {
               return expectIO(value, offerValue);
@@ -208,10 +204,7 @@ void main() {
     test('respect fifo order', () {
       final test = Queue.synchronous<int>().flatMap((q) {
         return IList.range(0, 5).traverseIO_((i) {
-          final f = IO
-              .sleep(Duration(milliseconds: i * 200))
-              .flatMap((_) => q.offer(i))
-              .voided();
+          final f = IO.sleep(Duration(milliseconds: i * 200)).flatMap((_) => q.offer(i)).voided();
 
           return f.start();
         }).flatMap((_) {
@@ -318,8 +311,7 @@ class QueueTests {
       final test = constructor(5).flatMap((q) {
         return tryOfferN(q, ilist([1, 2, 3, 4, 5])).flatMap((offerR) {
           return tryTakeN(q, none()).flatMap((takeR) {
-            return expectIO(transform(takeR), ilist([1, 2, 3, 4, 5]))
-                .flatMap((_) {
+            return expectIO(transform(takeR), ilist([1, 2, 3, 4, 5])).flatMap((_) {
               return expectIO(offerR, nil<int>());
             });
           });
@@ -340,8 +332,7 @@ class QueueTests {
       final test = constructor(5).flatMap((q) {
         return tryOfferN(q, ilist([1, 2, 3, 4, 5, 6, 7])).flatMap((offerR) {
           return tryTakeN(q, none()).flatMap((takeR) {
-            return expectIO(transform(takeR), ilist([1, 2, 3, 4, 5]))
-                .flatMap((_) {
+            return expectIO(transform(takeR), ilist([1, 2, 3, 4, 5])).flatMap((_) {
               return expectIO(offerR, ilist([6, 7]));
             });
           });
@@ -441,9 +432,7 @@ class QueueTests {
                   .flatMap((_) {
                 return latch.value().flatMap((_) {
                   return tryTakeN(q, none()).flatMap((results) {
-                    return results.nonEmpty
-                        ? expected.await()
-                        : fail('did not take any results');
+                    return results.nonEmpty ? expected.await() : fail('did not take any results');
                   });
                 });
               });
@@ -469,10 +458,7 @@ class QueueTests {
                   .flatMap((_) {
                 return latch.await().flatMap((_) {
                   return tryTakeN(q, none()).flatMap((results) {
-                    return expected
-                        .release()
-                        .replicate_(5 - results.length)
-                        .flatMap((_) {
+                    return expected.release().replicate_(5 - results.length).flatMap((_) {
                       return expected.await();
                     });
                   });
@@ -524,8 +510,7 @@ class QueueTests {
                   return take(q).flatMap((v1) {
                     return take(q).flatMap((_) {
                       return tryTake(q).flatMap((v2) {
-                        return expectIO(v1, 1)
-                            .productR(() => expectIO(v2, isNone()));
+                        return expectIO(v1, 1).productR(() => expectIO(v2, isNone()));
                       });
                     });
                   });
@@ -583,24 +568,17 @@ class QueueTests {
           return offer(q, n);
         }).flatMap((_) {
           return IList.range(0, 4)
-              .traverseIO((n) => IO
-                  .sleep(Duration(milliseconds: n * 10))
-                  .productR(() => offer(q, 10 + n))
-                  .start())
+              .traverseIO((n) =>
+                  IO.sleep(Duration(milliseconds: n * 10)).productR(() => offer(q, 10 + n)).start())
               .flatMap((offerers) {
             return IO.cede.flatMap((_) {
               return offerers[1].cancel().flatMap((_) {
-                return offer(q, 20)
-                    .delayBy(50.milliseconds)
-                    .start()
-                    .flatMap((_) {
+                return offer(q, 20).delayBy(50.milliseconds).start().flatMap((_) {
                   return IO.sleep(100.milliseconds).flatMap((_) {
                     return tryTakeN(q, none()).flatMap((taken1) {
-                      return IList.range(0, 4)
-                          .traverseIO((_) => take(q))
-                          .flatMap((taken2) {
-                        return expectIO(taken1, ilist([0, 1, 2, 3])).productR(
-                            () => expectIO(taken2, ilist([10, 12, 13, 20])));
+                      return IList.range(0, 4).traverseIO((_) => take(q)).flatMap((taken2) {
+                        return expectIO(taken1, ilist([0, 1, 2, 3]))
+                            .productR(() => expectIO(taken2, ilist([10, 12, 13, 20])));
                       });
                     });
                   });
@@ -658,8 +636,7 @@ class QueueTests {
 
       IO<Unit> loop(int i) {
         if (i > bound) {
-          return IO.pure(
-              fail('attempted $i times and could not reproduce scenario'));
+          return IO.pure(fail('attempted $i times and could not reproduce scenario'));
         } else {
           return test.ifM(() => loop(i + 1), () => IO.unit);
         }
@@ -822,9 +799,8 @@ class QueueTests {
           return take(q).flatMap((v1) {
             return expectIO(v1, 1).flatMap((_) {
               return IO
-                  .delay(() => take(q)
-                      .unsafeRunFuture()
-                      .then((value) => futureValue = Option(value)))
+                  .delay(
+                      () => take(q).unsafeRunFuture().then((value) => futureValue = Option(value)))
                   .flatMap((f) {
                 return expectIO(futureValue, isNone()).flatMap((_) {
                   return offer(q, 2).flatMap((_) {

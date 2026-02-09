@@ -70,8 +70,7 @@ final class Volume extends Quantity<Volume> {
 }
 
 const _LitresConversionFactor = 1e-3;
-const _UsGallonsConversionFactor =
-    _LitresConversionFactor * MetricSystem.Milli * 3.785411784e3;
+const _UsGallonsConversionFactor = _LitresConversionFactor * MetricSystem.Milli * 3.785411784e3;
 
 abstract class VolumeUnit extends BaseUnit<Volume> {
   const VolumeUnit(super.unit, super.symbol, super.conversionFactor);
@@ -89,33 +88,27 @@ final class Litres extends VolumeUnit {
 }
 
 final class Nanolitres extends VolumeUnit {
-  const Nanolitres._()
-      : super('nanolitre', 'nl', _LitresConversionFactor * MetricSystem.Nano);
+  const Nanolitres._() : super('nanolitre', 'nl', _LitresConversionFactor * MetricSystem.Nano);
 }
 
 final class Microlitres extends VolumeUnit {
-  const Microlitres._()
-      : super('microlitre', 'µl', _LitresConversionFactor * MetricSystem.Micro);
+  const Microlitres._() : super('microlitre', 'µl', _LitresConversionFactor * MetricSystem.Micro);
 }
 
 final class Millilitres extends VolumeUnit {
-  const Millilitres._()
-      : super('millilitre', 'ml', _LitresConversionFactor * MetricSystem.Milli);
+  const Millilitres._() : super('millilitre', 'ml', _LitresConversionFactor * MetricSystem.Milli);
 }
 
 final class Centilitres extends VolumeUnit {
-  const Centilitres._()
-      : super('centilitre', 'cl', _LitresConversionFactor * MetricSystem.Centi);
+  const Centilitres._() : super('centilitre', 'cl', _LitresConversionFactor * MetricSystem.Centi);
 }
 
 final class Decilitres extends VolumeUnit {
-  const Decilitres._()
-      : super('decilitre', 'dl', _LitresConversionFactor * MetricSystem.Deci);
+  const Decilitres._() : super('decilitre', 'dl', _LitresConversionFactor * MetricSystem.Deci);
 }
 
 final class Hectolitres extends VolumeUnit {
-  const Hectolitres._()
-      : super('hectolitre', 'hl', _LitresConversionFactor * MetricSystem.Hecto);
+  const Hectolitres._() : super('hectolitre', 'hl', _LitresConversionFactor * MetricSystem.Hecto);
 }
 
 final class CubicUsMiles extends VolumeUnit {
@@ -151,18 +144,15 @@ final class UsCups extends VolumeUnit {
 }
 
 final class FluidOunces extends VolumeUnit {
-  const FluidOunces._()
-      : super('ounce', 'oz', _UsGallonsConversionFactor / 128);
+  const FluidOunces._() : super('ounce', 'oz', _UsGallonsConversionFactor / 128);
 }
 
 final class Tablespoons extends VolumeUnit {
-  const Tablespoons._()
-      : super('tablespoon', 'tbsp', _UsGallonsConversionFactor / 128 / 2);
+  const Tablespoons._() : super('tablespoon', 'tbsp', _UsGallonsConversionFactor / 128 / 2);
 }
 
 final class Teaspoons extends VolumeUnit {
-  const Teaspoons._()
-      : super('teaspon', 'tsp', _UsGallonsConversionFactor / 128 / 6);
+  const Teaspoons._() : super('teaspon', 'tsp', _UsGallonsConversionFactor / 128 / 6);
 }
 
 extension VolumeOps on num {

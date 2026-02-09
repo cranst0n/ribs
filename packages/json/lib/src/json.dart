@@ -22,8 +22,7 @@ sealed class Json {
   static Json number(num value) => value.isFinite ? JNumber(value) : Null;
   static Json str(String value) => JString(value);
 
-  static Either<ParsingFailure, Json> parse(String input) =>
-      dawn.Parser.parseFromString(input);
+  static Either<ParsingFailure, Json> parse(String input) => dawn.Parser.parseFromString(input);
 
   static Either<ParsingFailure, Json> parseBytes(Uint8List input) =>
       dawn.Parser.parseFromBytes(input);
@@ -32,9 +31,7 @@ sealed class Json {
       parse(input).leftMap<Error>(identity).flatMap((a) => decoder.decode(a));
 
   static Either<Error, A> decodeBytes<A>(Uint8List input, Decoder<A> decoder) =>
-      parseBytes(input)
-          .leftMap<Error>(identity)
-          .flatMap((a) => decoder.decode(a));
+      parseBytes(input).leftMap<Error>(identity).flatMap((a) => decoder.decode(a));
 
   A foldWith<A>(JsonFolder<A> folder);
 
@@ -55,8 +52,7 @@ sealed class Json {
         final JObject o => jsonObject(o.value),
       };
 
-  Json dropNullValues() =>
-      mapObject((a) => a.filter((keyValue) => !keyValue.$2.isNull));
+  Json dropNullValues() => mapObject((a) => a.filter((keyValue) => !keyValue.$2.isNull));
 
   Json deepDropNullValues() => foldWith(_DropNullFolder());
 
@@ -611,8 +607,8 @@ class _JsonFolderF<A> extends JsonFolder<A> {
   final Function1<IList<Json>, A> _onArrayF;
   final Function1<JsonObject, A> _onObjectF;
 
-  _JsonFolderF(this._onNullF, this._onBooleanF, this._onNumberF,
-      this._onStringF, this._onArrayF, this._onObjectF);
+  _JsonFolderF(this._onNullF, this._onBooleanF, this._onNumberF, this._onStringF, this._onArrayF,
+      this._onObjectF);
 
   @override
   A onNull() => _onNullF();
@@ -651,6 +647,6 @@ class _DropNullFolder extends JsonFolder<Json> {
       JArray(value.filter((a) => !a.isNull).map((a) => a.foldWith(this)));
 
   @override
-  Json onObject(JsonObject value) => Json.fromJsonObject(
-      value.filter((a) => !a.$2.isNull).mapValues((a) => a.foldWith(this)));
+  Json onObject(JsonObject value) =>
+      Json.fromJsonObject(value.filter((a) => !a.$2.isNull).mapValues((a) => a.foldWith(this)));
 }

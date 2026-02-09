@@ -207,10 +207,7 @@ void boundedDequeueTests<Q extends Dequeue<int>>(
     final test = constructor(0).flatMap((q) {
       return offer(q, 1).start().flatMap((_) {
         return take(q).flatMap((v1) {
-          return IO
-              .delay(() => take(q).unsafeRunFuture())
-              .start()
-              .flatMap((ff) {
+          return IO.delay(() => take(q).unsafeRunFuture()).start().flatMap((ff) {
             return ff.joinWithNever().flatMap((f) {
               return offer(q, 2).flatMap((_) {
                 return IO.fromFuture(IO.pure(f)).flatMap((v2) {
@@ -229,9 +226,8 @@ void boundedDequeueTests<Q extends Dequeue<int>>(
   test('offer/take with zero capacity', () {
     const count = 1000;
 
-    IO<Unit> producer(Q q, int n) => n > 0
-        ? offer(q, count - n).productR(() => producer(q, n - 1))
-        : IO.unit;
+    IO<Unit> producer(Q q, int n) =>
+        n > 0 ? offer(q, count - n).productR(() => producer(q, n - 1)) : IO.unit;
 
     IO<int> consumer(Q q, int n, ListQueue<int> acc) => n > 0
         ? take(q).flatMap((a) => consumer(q, n - 1, acc.enqueue(a)))

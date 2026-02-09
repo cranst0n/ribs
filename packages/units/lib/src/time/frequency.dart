@@ -9,8 +9,7 @@ final class Frequency extends Quantity<Frequency> {
   Frequency get toMegahertz => to(megahertz).megahertz;
   Frequency get toGigahertz => to(gigahertz).gigahertz;
   Frequency get toTerahertz => to(terahertz).terahertz;
-  Frequency get toRevolutionsPerMinute =>
-      to(revolutionsPerMinute).revolutionsPerMinute;
+  Frequency get toRevolutionsPerMinute => to(revolutionsPerMinute).revolutionsPerMinute;
 
   static const hertz = Hertz._();
   static const kilohertz = Kilohertz._();
@@ -59,8 +58,7 @@ final class Terahertz extends FrequencyUnit {
 }
 
 final class RevolutionsPerMinute extends FrequencyUnit {
-  const RevolutionsPerMinute._()
-      : super('revolutions/minute', 'rpm', 1.0 / 60.0);
+  const RevolutionsPerMinute._() : super('revolutions/minute', 'rpm', 1.0 / 60.0);
 }
 
 extension FrequencyOps on num {

@@ -9,6 +9,5 @@ class ContentType {
 
   ContentType._();
 
-  http.Header call(http.ContentType contentType) =>
-      http.Header(name, contentType.toString());
+  http.Header call(http.ContentType contentType) => http.Header(name, contentType.toString());
 }

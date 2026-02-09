@@ -33,8 +33,7 @@ final class Array<A> {
 
   static Array<A> fill<A>(int len, A? elem) => Array._(List.filled(len, elem));
 
-  static Array<A> from<A>(RIterableOnce<A?> elems) =>
-      fromDart(elems.toList(growable: false));
+  static Array<A> from<A>(RIterableOnce<A?> elems) => fromDart(elems.toList(growable: false));
 
   static Array<A> fromDart<A>(Iterable<A?> elems) {
     return Array._(elems.toList(growable: false));
@@ -58,8 +57,7 @@ final class Array<A> {
     return array;
   }
 
-  static Array<A> tabulate<A>(int n, Function1<int, A?> f) =>
-      Array._(List.generate(n, f));
+  static Array<A> tabulate<A>(int n, Function1<int, A?> f) => Array._(List.generate(n, f));
 
   A? operator [](int idx) => _list[idx];
 
