@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_check/ribs_check.dart';
@@ -9,54 +11,207 @@ import 'package:test/test.dart';
 import 'arbitraries.dart';
 
 void main() {
+  ByteVector bin(String str) => ByteVector.fromValidBin(str);
+
+  ByteVector hex(String str) => ByteVector.fromValidHex(str);
+
+  ByteVector base32(
+    String s, [
+    Base32Alphabet alphabet = Alphabets.base32,
+  ]) =>
+      ByteVector.fromValidBase32(s, alphabet);
+
+  ByteVector base58(String str) => ByteVector.fromValidBase58(str);
+
+  final deadbeef = ByteVector([0xde, 0xad, 0xbe, 0xef]);
+
   group('ByteVector', () {
-    forAll('hashCode / equality', bytesWithIndex, (t) {
+    forAll('hashCode / equals', bytesWithIndex, (t) {
       final (b, n) = t;
 
       expect(b.take(n).concat(b.drop(n)), b);
       expect(b.take(n).concat(b.drop(n)).hashCode, b.hashCode);
+
+      if (b.take(3) == b.drop(3).take(3)) {
+        expect(b.take(3).hashCode, b.drop(3).take(3).hashCode);
+      }
     });
 
-    test('fromValidBin (invalid)', () {
-      expect(
-        () => ByteVector.fromValidBin('21010'),
-        throwsArgumentError,
-      );
+    test('fromValidBin', () {
+      expect(bin(deadbeef.toBin()), deadbeef);
+      expect(() => bin('1101a000'), throwsArgumentError);
     });
 
     forAll('fromValidBin (gen)', binString, (str) {
-      expect(ByteVector.fromValidBin(str).size, str.length / 8);
+      expect(bin(str).size, (str.length / 8).ceil());
     });
 
-    test('fromValidHex (invalid)', () {
-      expect(ByteVector.fromValidHex('aa0').toHex(), '0aa0');
+    test('fromBinDescriptive', () {
+      expect(
+        ByteVector.fromBinDescriptive(deadbeef.toBin()),
+        deadbeef.asRight<String>(),
+      );
 
       expect(
-        () => ByteVector.fromValidHex('ff324V'),
-        throwsArgumentError,
+        ByteVector.fromBinDescriptive(
+          deadbeef.toBin().grouped(4).mkString(sep: ' '),
+        ),
+        deadbeef.asRight<String>(),
       );
+
+      expect(
+        ByteVector.fromBinDescriptive('0001 0011'),
+        ByteVector([0x13]).asRight<String>(),
+      );
+
+      expect(
+        ByteVector.fromBinDescriptive('0b 0001 0011 0111'),
+        ByteVector([0x01, 0x37]).asRight<String>(),
+      );
+
+      expect(
+        ByteVector.fromBinDescriptive('1101a000'),
+        "Invalid binary character 'a' at index 4".asLeft<ByteVector>(),
+      );
+
+      expect(
+        ByteVector.fromBinDescriptive('0b1101a000'),
+        "Invalid binary character 'a' at index 6".asLeft<ByteVector>(),
+      );
+
+      expect(
+        ByteVector.fromBinDescriptive('0B1101a000'),
+        "Invalid binary character 'a' at index 6".asLeft<ByteVector>(),
+      );
+    });
+
+    test('fromBinDescriptive with comments', () {
+      expect(
+        ByteVector.fromBinDescriptive('''
+          00110011 ; first line
+          11001100 # second line
+          11110000
+        '''),
+        bin('001100111100110011110000').asRight<String>(),
+      );
+
+      expect(
+        ByteVector.fromBinDescriptive(
+          r'''
+            00110011 $ first line
+            11001100 $ second line
+            11110000
+          ''',
+          CustomBinAlphabet(),
+        ),
+        BitVector.fromValidBin('001100111100110011110000')
+            .bytes
+            .asRight<String>(),
+      );
+    });
+
+    test('toBin', () {
+      expect(deadbeef.toBin(), '11011110101011011011111011101111');
+    });
+
+    forAll('toBin fromBin roundtrip', byteVector, (b) {
+      expect(bin(b.toBin()), b);
     });
 
     forAll('fromValidHex (gen)', hexString, (str) {
-      expect(ByteVector.fromValidHex(str).size, str.length / 2);
+      expect(hex(str).size, (str.length / 2).ceil());
     });
 
     test('fromValidHex', () {
-      expect(ByteVector.fromValidHex('00').toHex(), '00');
-      expect(ByteVector.fromValidHex('0x00').toHex(), '00');
-      expect(ByteVector.fromValidHex('0x000F').toHex(), '000f');
+      expect(hex('00').toHex(), '00');
+      expect(hex('0x00').toHex(), '00');
+      expect(hex('0x000F').toHex(), '000f');
 
       expect(
-        () => ByteVector.fromValidHex('0x00QF').toHex(),
+        () => hex('0x00QF').toHex(),
         throwsArgumentError,
       );
     });
 
-    test('fromValidBase32', () {
-      ByteVector hex(String s) => ByteVector.fromValidHex(s);
-      ByteVector base32(String s) => ByteVector.fromValidBase32(s);
+    test('fromHexDescriptive', () {
+      final good = deadbeef.asRight<String>();
 
-      expect(base32(''), ByteVector.empty());
+      expect(ByteVector.fromHexDescriptive('0xdeadbeef'), good);
+      expect(ByteVector.fromHexDescriptive('0xDEADBEEF'), good);
+      expect(ByteVector.fromHexDescriptive('0XDEADBEEF'), good);
+      expect(ByteVector.fromHexDescriptive('deadbeef'), good);
+      expect(ByteVector.fromHexDescriptive('DEADBEEF'), good);
+      expect(ByteVector.fromHexDescriptive('de ad be ef'), good);
+      expect(ByteVector.fromHexDescriptive('de\tad\nbe\tef'), good);
+      expect(ByteVector.fromHexDescriptive('0xde_ad_be_ef'), good);
+
+      expect(
+        ByteVector.fromHexDescriptive('0xdeadbee'),
+        ByteVector([0x0d, 0xea, 0xdb, 0xee]).asRight<String>(),
+      );
+
+      expect(
+        ByteVector.fromHexDescriptive('0xde_ad_be_e'),
+        ByteVector([0x0d, 0xea, 0xdb, 0xee]).asRight<String>(),
+      );
+
+      expect(
+        ByteVector.fromHexDescriptive('garbage'),
+        "Invalid hexadecimal character 'g' at index 0".asLeft<ByteVector>(),
+      );
+
+      expect(
+        ByteVector.fromHexDescriptive('deadbefg'),
+        "Invalid hexadecimal character 'g' at index 7".asLeft<ByteVector>(),
+      );
+    });
+
+    test('fromHexDescriptive', () {
+      expect(
+        ByteVector.fromHexDescriptive('''
+          deadbeef ; first line
+          01020304 # second line
+          05060708
+        '''),
+        hex('deadbeef0102030405060708').asRight<String>(),
+      );
+
+      expect(
+        ByteVector.fromHexDescriptive(
+          r'''
+            deadbeef $ first line
+            01020304 $ second line
+            05060708
+          ''',
+          CustomHexAlphabet(),
+        ),
+        hex('deadbeef0102030405060708').asRight<String>(),
+      );
+    });
+
+    test('hex with comments example', () {
+      const raw = '''
+          ; Start of first packet from https://wiki.wireshark.org/uploads/__moin_import__/attachments/SampleCaptures/mpeg2_mp2t_with_cc_drop01.pcap
+          01 00 5e 7b ad 47 00 0c db 78 7d 00 08 00                      ; Ethernet header
+          45 00 05 40 b6 9f 40 00 0c 11 de 95 51 a3 96 3c e9 70 03 28    ; IPv4 header
+          c3 50 15 7c 05 2c 00 00                                        ; UDP header
+          47 02 00 1e                                                    ; MP2T header
+        ''';
+
+      final packet = hex(raw);
+      expect(packet.size, 46);
+    });
+
+    test('toHex', () {
+      expect(deadbeef.toHex(), 'deadbeef');
+    });
+
+    forAll('toHex fromHex roundtrip', byteVector, (b) {
+      expect(hex(b.toHex()), b);
+    });
+
+    test('fromValidBase32', () {
+      expect(base32(''), ByteVector.empty);
       expect(base32('AA======'), hex('00'));
       expect(base32('ME======'), hex('61'));
       expect(base32('MJRGE==='), hex('626262'));
@@ -78,8 +233,6 @@ void main() {
     });
 
     test('toBase32', () {
-      ByteVector hex(String s) => ByteVector.fromValidHex(s);
-
       expect(hex('').toBase32(), '');
       expect(hex('00').toBase32(), 'AA======');
       expect(hex('61').toBase32(), 'ME======');
@@ -101,262 +254,87 @@ void main() {
       expect(hex('00000000000000000000').toBase32(), 'AAAAAAAAAAAAAAAA');
     });
 
-    forAll('fromValidBase64 (gen)', base64String, (str) {
-      expect(ByteVector.fromBase64(str).isDefined, isTrue);
-    });
-
-    forAll('and/or/not/xor', byteVector, (bv) {
-      expect(bv & bv, bv);
-      expect(bv & ~bv, ByteVector.low(bv.size));
-
-      expect(bv | bv, bv);
-      expect(bv | ~bv, ByteVector.high(bv.size));
-
-      expect(bv ^ bv, ByteVector.low(bv.size));
-      expect(bv ^ ~bv, ByteVector.high(bv.size));
-    });
-
-    forAll('acquire', byteVector, (bv) {
-      if (bv.isEmpty) {
-        expect(bv.acquire(1), isLeft<String, ByteVector>());
-      } else {
-        expect(bv.acquire(1), isRight<String, ByteVector>());
-      }
-
-      expect(bv.acquire(bv.size), isRight<String, ByteVector>());
-      expect(bv.acquire(bv.size + 1), isLeft<String, ByteVector>());
-    });
-
-    forAll('concat', Gen.ilistOf(Gen.chooseInt(0, 10), byteVector), (bvs) {
-      final c = ByteVector.concatAll(bvs);
-
-      expect(c.size, bvs.foldLeft(0, (acc, bv) => acc + bv.size));
-
-      bvs.headOption.foreach((h) => expect(c.startsWith(h), isTrue));
-      bvs.lastOption.foreach((l) => expect(c.endsWith(l), isTrue));
-    });
-
-    forAll('containsSlice', byteVector, (bv) {
-      if (bv.nonEmpty) {
-        IList.range(0, bv.size).foreach((n) {
-          expect(bv.containsSlice(bv.drop(n)), isTrue);
-        });
-      } else {
-        expect(bv.containsSlice(bv), isFalse);
-      }
-    });
-
-    forAll('dropWhile', byteVector, (bv) {
-      expect(bv.dropWhile((_) => false), bv);
-      expect(bv.dropWhile((_) => true), ByteVector.empty());
-
-      if (bv.size > 1) {
-        expect(bv.drop(1).head, bv.get(1));
-      } else if (bv.size == 1) {
-        expect(bv.drop(1).isEmpty, isTrue);
-      } else {
-        expect(bv.drop(1), bv);
-      }
-    });
-
-    forAll('endsWith', byteVector, (bv) {
-      IList.range(0, bv.size).foreach((n) {
-        expect(bv.endsWith(bv.drop(n)), isTrue);
-      });
-    });
-
-    forAll('foldLeft', byteVector, (bv) {
-      expect(bv.foldLeft(ByteVector.empty(), (acc, b) => acc.append(b)), bv);
-    });
-
-    forAll('foldRight', byteVector, (bv) {
-      expect(bv.foldRight(ByteVector.empty(), (b, acc) => acc.prepend(b)), bv);
-    });
-
-    test('grouped', () {
-      final bv = ByteVector.fromList([0, 1, 2, 3, 4, 5, 6]);
-
+    test('fail due to illegal character fromBase32', () {
       expect(
-        bv.grouped(1),
-        IList.fromDart([
-          ByteVector.fromList([0]),
-          ByteVector.fromList([1]),
-          ByteVector.fromList([2]),
-          ByteVector.fromList([3]),
-          ByteVector.fromList([4]),
-          ByteVector.fromList([5]),
-          ByteVector.fromList([6]),
-        ]),
+        ByteVector.fromBase32Descriptive('7654321'),
+        "Invalid base 32 character '1' at index 6".asLeft<ByteVector>(),
       );
 
       expect(
-        bv.grouped(2),
-        IList.fromDart([
-          ByteVector.fromList([0, 1]),
-          ByteVector.fromList([2, 3]),
-          ByteVector.fromList([4, 5]),
-          ByteVector.fromList([6]),
-        ]),
+        ByteVector.fromBase32Descriptive('ABc'),
+        "Invalid base 32 character 'c' at index 2".asLeft<ByteVector>(),
       );
-    });
 
-    forAll('headOption', byteVector, (bv) {
-      expect(bv.headOption.isDefined, bv.nonEmpty);
-
-      if (bv.nonEmpty) {
-        expect(bv.headOption, isSome(bv.head));
-      }
-    });
-
-    forAll('init', byteVector, (bv) {
-      expect(bv.startsWith(bv.init()), isTrue);
-
-      if (bv.nonEmpty) {
-        expect(bv.init().size, bv.size - 1);
-      } else {
-        expect(bv.init(), bv);
-      }
-    });
-
-    test('insert (1)', () {
-      expect(ByteVector.empty().insert(0, 1), ByteVector.fromList([1]));
       expect(
-        ByteVector.fromList([1, 2, 3, 4]).insert(0, 0),
-        ByteVector.fromList([0, 1, 2, 3, 4]),
+        ByteVector.fromBase32Descriptive('AB CD 0'),
+        "Invalid base 32 character '0' at index 6".asLeft<ByteVector>(),
       );
-      expect(
-        ByteVector.fromList([1, 2, 3, 4]).insert(1, 0),
-        ByteVector.fromList([1, 0, 2, 3, 4]),
-      );
+
+      expect(ByteVector.fromBase32("a").isEmpty, isTrue);
     });
 
-    forAll('insert (2)', byteVector, (bv) {
-      expect(
-        bv.foldLeft(ByteVector.empty(), (acc, b) => acc.insert(acc.size, b)),
-        bv,
-      );
+    test('fromValidBase32(Crockford)', () {
+      expect(base32('', Alphabets.base32Crockford), ByteVector.empty);
+      expect(base32('00======', Alphabets.base32Crockford), hex('00'));
+      expect(base32('ZZZZZZZZ', Alphabets.base32Crockford), hex('ffffffffff'));
+      expect(base32('HJKMNPTV', Alphabets.base32Crockford), hex('8ca74adb5b'));
+      expect(base32('hjkmnptv', Alphabets.base32Crockford), hex('8ca74adb5b'));
+      expect(base32('00011111', Alphabets.base32Crockford), hex('0000108421'));
+      expect(base32('0Oo1IiLl', Alphabets.base32Crockford), hex('0000108421'));
     });
 
-    forAll('last', (byteVector, byte).tupled, (t) {
-      final (bv, byte) = t;
+    test('toBase32(Crockford)', () {
+      expect(hex('').toBase32(Alphabets.base32Crockford), '');
+      expect(hex('00').toBase32(Alphabets.base32Crockford), '00======');
+      expect(hex('ffffffffff').toBase32(Alphabets.base32Crockford), 'ZZZZZZZZ');
+      expect(hex('8ca74adb5b').toBase32(Alphabets.base32Crockford), 'HJKMNPTV');
+    });
 
-      if (bv.nonEmpty) {
-        expect(bv.last, bv.get(bv.size - 1));
+    test('fromValidBase58', () {
+      void expectBase58(String actual58, String expectedHex) {
+        expect(base58(actual58), hex(expectedHex));
       }
 
-      expect(bv.append(byte).last, byte);
+      expect(base58(''), ByteVector.empty);
+
+      expectBase58('1', '00');
+      expectBase58('2g', '61');
+      expectBase58('a3gV', '626262');
+      expectBase58('aPEr', '636363');
+
+      expectBase58(
+        '2cFupjhnEsSn59qHXstmK2ffpLv2',
+        '73696d706c792061206c6f6e6720737472696e67',
+      );
+
+      expectBase58(
+        '1NS17iag9jJgTHD1VXjvLCEnZuQ3rJDE9L',
+        '00eb15231dfceb60925886b67d065299925915aeb172c06647',
+      );
+
+      expectBase58('ABnLTmg', '516b6fcd0f');
+      expectBase58('3SEo3LWLoPntC', 'bf4f89001e670274dd');
+      expectBase58('3EFU7m', '572e4794');
+      expectBase58('EJDM8drfXA6uyA', 'ecac89cad93923c02321');
+      expectBase58('Rt5zm', '10c8511e');
+      expectBase58('1111111111', '00000000000000000000');
     });
 
-    forAll('lastOption', (byteVector, byte).tupled, (t) {
-      final (bv, byte) = t;
+    test('fail due to illegal character fromBase58', () {
+      expect(
+        ByteVector.fromBase58Descriptive('R3C0NFxN'),
+        "Invalid base 58 character '0' at index 3".asLeft<ByteVector>(),
+      );
 
-      expect(bv.lastOption.isDefined, bv.nonEmpty);
-      expect(bv.append(byte).lastOption, isSome(byte));
-    });
+      expect(
+        ByteVector.fromBase58Descriptive('03CMNFxN'),
+        "Invalid base 58 character '0' at index 0".asLeft<ByteVector>(),
+      );
 
-    forAll('padLeft', byteVector, (bv) {
-      expect(bv.padLeft(0), bv);
-      expect(bv.padLeft(bv.size), bv);
-      expect(bv.padLeft(bv.size + 3).size, bv.size + 3);
-      expect(bv.padLeft(bv.size + 1).head, 0);
-    });
-
-    forAll('padRight', byteVector, (bv) {
-      expect(bv.padRight(0), bv);
-      expect(bv.padRight(bv.size), bv);
-      expect(bv.padRight(bv.size + 3).size, bv.size + 3);
-      expect(bv.padRight(bv.size + 1).last, 0);
-
-      expect(bv.padTo(bv.size + 10), bv.padRight(bv.size + 10));
-    });
-
-    forAll('patch', (byteVector, byteVector, Gen.integer).tupled, (t) {
-      final (x, y, n0) = t;
-
-      final n = x.nonEmpty ? (n0 % x.size).abs() : 0;
-      expect(x.patch(n, x.slice(n, n)), x);
-      expect(x.patch(n, y), x.take(n).concat(y).concat(x.drop(n + y.size)));
-    });
-
-    forAll('rotations', (byteVector, Gen.chooseInt(0, 100)).tupled, (t) {
-      final (bv, n) = t;
-
-      expect(bv.rotateLeft(bv.size * 8), bv);
-      expect(bv.rotateRight(bv.size * 8), bv);
-      expect(bv.rotateRight(n).rotateLeft(n), bv);
-      expect(bv.rotateLeft(n).rotateRight(n), bv);
-    });
-
-    forAll('splice', (byteVector, byteVector, Gen.integer).tupled, (t) {
-      final (x, y, n0) = t;
-
-      final n = x.nonEmpty ? (n0 % x.size).abs() : 0;
-      expect(x.splice(n, ByteVector.empty()), x);
-      expect(x.splice(n, y), x.take(n).concat(y).concat(x.drop(n)));
-    });
-
-    forAll('splitAt', byteVector, (bv) {
-      expect(bv.splitAt(0), (ByteVector.empty(), bv));
-      expect(bv.splitAt(bv.size), (bv, ByteVector.empty()));
-
-      IList.range(0, bv.size).foreach((n) {
-        expect(bv.splitAt(n)((a, b) => a.concat(b)), bv);
-      });
-    });
-
-    forAll('takeWhile', byteVector, (bv) {
-      final (expected, _) = bv.foldLeft((ByteVector.empty(), true), (acct, b) {
-        final (acc, taking) = acct;
-
-        if (taking) {
-          if (b == 0) {
-            return (acc, false);
-          } else {
-            return (acc.append(b), true);
-          }
-        } else {
-          return (acc, false);
-        }
-      });
-
-      expect(bv.takeWhile((a) => a != 0), expected);
-    });
-
-    forAll('toBin / fromBin roundtrip', byteVector, (bv) {
-      expect(ByteVector.fromBin(bv.toBin()), isSome(bv));
-    });
-
-    forAll('toHex / fromHex roundtrip', byteVector, (bv) {
-      expect(ByteVector.fromHex(bv.toHex()), isSome(bv));
-    });
-
-    forAll('toBase32 / fromBase32 roundtrip', base32String, (str) {
-      expect(ByteVector.fromBase32(str), isSome<ByteVector>());
-    });
-
-    test('fromBase64 exemplars', () {
-      expect(ByteVector.fromValidBase64('AB').toHex(), '00');
-      expect(ByteVector.fromValidBase64('ABC').toHex(), '0010');
-      expect(ByteVector.fromValidBase64('ABCD').toHex(), '001083');
-      expect(ByteVector.fromValidBase64('e1MTVE').toHex(), '7b531354');
-    });
-
-    forAll('toBase64 / fromBase64 roundtrip', base64String, (str) {
-      final dartBytes = base64Decode(str);
-      final bv = ByteVector.fromValidBase64(str);
-      final ribsBytes = bv.toByteArray();
-
-      expect(dartBytes.length, ribsBytes.length);
-
-      dartBytes
-          .toIList()
-          .zip(ribsBytes.toIList())
-          .foreach((t) => expect(t.$1, t.$2));
-
-      final dartString = base64Encode(dartBytes);
-      final ribsString = bv.toBase64();
-
-      expect(dartString, ribsString);
+      expect(
+        ByteVector.fromBase58('3CMNFxN1oHBc4R1EpboAL5yzHGgE611Xol'),
+        isNone(),
+      );
     });
 
     forAll('toBase64Url / fromBase64Url roundtrip', base64UrlString, (str) {
@@ -379,8 +357,570 @@ void main() {
       expect(dartString, ribsString);
     });
 
-    forAll('int conversion', Gen.integer, (i) {
-      expect(ByteVector.fromInt(i).toInt(), i);
+    forAll('bin roundtrip', byteVector, (bv) {
+      expect(ByteVector.fromBin(bv.toBin()), isSome(bv));
+    });
+
+    forAll('hex roundtrip', byteVector, (bv) {
+      expect(ByteVector.fromHex(bv.toHex()), isSome(bv));
+    });
+
+    forAll('base32 roundtrip', byteVector, (bv) {
+      expect(ByteVector.fromBase32(bv.toBase32()), isSome(bv));
+    });
+
+    test('foo', () {
+      final bv = hex('a9');
+      expect(bv.toBase58(), '3v');
+    });
+
+    forAll('base58 roundtrip', byteVector, (bv) {
+      final to58 =
+          ByteVector.fromBase58(bv.toBase58()).getOrElse(() => throw '');
+
+      if (to58 != bv) {
+        print('original:  ${bv.toHex()}');
+        print('roundtrip: ${to58.toHex()}');
+      }
+
+      expect(ByteVector.fromBase58(bv.toBase58()), isSome(bv));
+    });
+
+    forAll('base64 roundtrip', byteVector, (bv) {
+      expect(ByteVector.fromBase64(bv.toBase64()), isSome(bv));
+    });
+
+    forAll('base64 (no padding) roundtrip', byteVector, (bv) {
+      expect(ByteVector.fromBase64(bv.toBase64NoPad()), isSome(bv));
+    });
+
+    test('fromBase64 - digit count non-divisble by 4', () {
+      expect(
+        ByteVector.fromBase64Descriptive("A"),
+        'Final base 64 quantum had only 1 digit - must have at least 2 digits'
+            .asLeft<ByteVector>(),
+      );
+
+      expect(
+        ByteVector.fromBase64Descriptive("AB"),
+        hex("00").asRight<String>(),
+      );
+
+      expect(
+        ByteVector.fromBase64Descriptive("ABC"),
+        hex("0010").asRight<String>(),
+      );
+
+      expect(
+        ByteVector.fromBase64Descriptive("ABCD"),
+        hex("001083").asRight<String>(),
+      );
+
+      expect(
+        ByteVector.fromBase64Descriptive("ABCDA"),
+        "Final base 64 quantum had only 1 digit - must have at least 2 digits"
+            .asLeft<ByteVector>(),
+      );
+
+      expect(
+        ByteVector.fromBase64Descriptive("ABCDAB"),
+        hex("00108300").asRight<String>(),
+      );
+    });
+
+    test("fromBase64 - padding", () {
+      expect(
+        ByteVector.fromBase64Descriptive("AB=="),
+        hex("00").asRight<String>(),
+      );
+
+      final paddingError =
+          "Malformed padding - final quantum may optionally be padded with one or two padding characters such that the quantum is completed"
+              .asLeft<ByteVector>();
+
+      expect(ByteVector.fromBase64Descriptive("A="), paddingError);
+      expect(ByteVector.fromBase64Descriptive("A=="), paddingError);
+      expect(ByteVector.fromBase64Descriptive("A==="), paddingError);
+      expect(ByteVector.fromBase64Descriptive("A===="), paddingError);
+      expect(ByteVector.fromBase64Descriptive("AB="), paddingError);
+      expect(ByteVector.fromBase64Descriptive("AB==="), paddingError);
+      expect(ByteVector.fromBase64Descriptive("ABC=="), paddingError);
+      expect(ByteVector.fromBase64Descriptive("="), paddingError);
+      expect(ByteVector.fromBase64Descriptive("=="), paddingError);
+      expect(ByteVector.fromBase64Descriptive("==="), paddingError);
+      expect(ByteVector.fromBase64Descriptive("===="), paddingError);
+      expect(ByteVector.fromBase64Descriptive("====="), paddingError);
+    });
+
+    test("fromBase64 - empty input string", () {
+      expect(
+        ByteVector.fromBase64Descriptive(""),
+        ByteVector.empty.asRight<String>(),
+      );
+    });
+
+    forAll('Uint8List roundtrip', byteVector, (b) {
+      final fromList = ByteVector(b.toByteArray());
+
+      expect(b, fromList);
+      expect(fromList, b);
+
+      final fromList2 = ByteVector(b.toByteArray());
+      expect(fromList, fromList2);
+    });
+
+    forAll(
+      'dropping from a view is consistent with dropping from a strict vector',
+      (byteVector, Gen.integer).tupled,
+      (tuple) {
+        final (b, n0) = tuple;
+
+        final view = ByteVector.view(b.toByteArray());
+        final n = n0.abs();
+
+        expect(b.drop(n), view.drop(n));
+      },
+    );
+
+    forAll('and/or/not/xor', byteVector, (bv) {
+      expect(bv & bv, bv);
+      expect(bv & ~bv, ByteVector.low(bv.size));
+
+      expect(bv | bv, bv);
+      expect(bv | ~bv, ByteVector.high(bv.size));
+
+      expect(bv ^ bv, ByteVector.low(bv.size));
+      expect(bv ^ ~bv, ByteVector.high(bv.size));
+    });
+
+    test('<<', () {
+      expect(
+        ByteVector([0x55, 0x55, 0x55]) << 1,
+        ByteVector([0xaa, 0xaa, 0xaa]),
+      );
+    });
+
+    test('>>', () {
+      expect(
+        ByteVector([0x55, 0x55, 0x55]) >> 1,
+        ByteVector([0x2a, 0xaa, 0xaa]),
+      );
+
+      expect(
+        ByteVector([0xaa, 0xaa, 0xaa]) >> 1,
+        ByteVector([0xd5, 0x55, 0x55]),
+      );
+    });
+
+    test('>>>', () {
+      expect(
+        ByteVector([0x55, 0x55, 0x55]) >>> 1,
+        ByteVector([0x2a, 0xaa, 0xaa]),
+      );
+
+      expect(
+        ByteVector([0xaa, 0xaa, 0xaa]) >>> 1,
+        ByteVector([0x55, 0x55, 0x55]),
+      );
+    });
+
+    forAll('acquire', byteVector, (bv) {
+      if (bv.isEmpty) {
+        expect(bv.acquire(1), isLeft<String, ByteVector>());
+      } else {
+        expect(bv.acquire(1), isRight<String, ByteVector>());
+      }
+
+      expect(bv.acquire(bv.size), isRight<String, ByteVector>());
+      expect(bv.acquire(bv.size + 1), isLeft<String, ByteVector>());
+    });
+
+    forAll(
+      'buffer append',
+      (
+        byteVector,
+        Gen.ilistOf(Gen.chooseInt(0, 10), byteVector),
+        Gen.nonNegativeInt
+      ).tupled,
+      (tuple) {
+        final (b, bs, n) = tuple;
+
+        final unbuf = bs.foldLeft(b, (a, b) => a.concat(b));
+
+        final buf = bs.foldLeft(b.bufferBy(max(n % 50, 0) + 1),
+            (acc, a) => a.foldLeft(acc, (x, y) => x.append(y)));
+
+        expect(unbuf, buf);
+      },
+    );
+
+    forAll(
+      'buffer concat/take/drop',
+      (
+        byteVector,
+        Gen.ilistOf(Gen.chooseInt(0, 10), byteVector),
+        Gen.nonNegativeInt
+      ).tupled,
+      (tuple) {
+        final (b, bs, n) = tuple;
+
+        final unbuf = bs.foldLeft(b, (a, b) => a.concat(b));
+        final buf =
+            bs.foldLeft(b.bufferBy(max(n % 50, 0) + 1), (a, b) => a.concat(b));
+
+        expect(unbuf, buf);
+
+        final ind = max(n % (unbuf.size + 1), 0) + 1;
+
+        expect(buf.take(ind), unbuf.take(ind));
+        expect(buf.drop(ind), unbuf.drop(ind));
+      },
+    );
+
+    forAll(
+      'buffer rebuffering',
+      (byteVector, byteVector, byteVector, Gen.integer).tupled,
+      (tuple) {
+        final (b1, b2, b3, n) = tuple;
+
+        final chunkSize = max(n % 50, 0) + 1;
+
+        final b1b = b1.bufferBy(chunkSize);
+        final b1b2b3 = b1b.concat(b2).bufferBy(chunkSize + 1).concat(b3);
+
+        expect(b1b2b3, b1.concat(b2).concat(b3));
+      },
+    );
+
+    test('compact is a no-op for already compact byte vectors', () {
+      final b = ByteVector([0x80]);
+      expect(b.compact(), b.compact());
+    });
+
+    forAll('concat', Gen.ilistOf(Gen.chooseInt(0, 10), byteVector), (bvs) {
+      final c = ByteVector.concatAll(bvs);
+
+      expect(c.size, bvs.foldLeft(0, (acc, bv) => acc + bv.size));
+
+      bvs.headOption.foreach((h) => expect(c.startsWith(h), isTrue));
+      bvs.lastOption.foreach((l) => expect(c.endsWith(l), isTrue));
+    });
+
+    test('drop', () {
+      expect(hex("0011223344").drop(3), hex("3344"));
+      expect(hex("0011223344").drop(-10), hex("0011223344"));
+      expect(hex("0011223344").drop(1000), hex(""));
+    });
+
+    forAll('dropWhile', byteVector, (bv) {
+      expect(bv.dropWhile((_) => false), bv);
+      expect(bv.dropWhile((_) => true), ByteVector.empty);
+
+      final (expected, _) = bv.foldLeft((ByteVector.empty, true), (tuple, b) {
+        final (acc, dropping) = tuple;
+
+        if (dropping) {
+          if (b == 0) {
+            return (acc.append(0), false);
+          } else {
+            return (acc, true);
+          }
+        } else {
+          return (acc.append(b), false);
+        }
+      });
+
+      expect(bv.dropWhile((b) => b != 0), expected);
+    });
+
+    forAll('endsWith', (byteVector, Gen.integer).tupled, (tuple) {
+      final (bv, n0) = tuple;
+
+      final n = bv.nonEmpty ? (n0 % bv.size).abs() : 0;
+      final slice = bv.takeRight(n);
+
+      expect(bv.endsWith(slice), isTrue);
+
+      if (slice.nonEmpty) expect(bv.endsWith(~slice), isFalse);
+    });
+
+    forAll('foldLeft', byteVector, (b) {
+      expect(b.foldLeft(ByteVector.empty, (acc, b) => acc.append(b)), b);
+    });
+
+    forAll('foldRight', byteVector, (b) {
+      expect(b.foldRight(ByteVector.empty, (b, acc) => acc.prepend(b)), b);
+    });
+
+    forAll('grouped + concat', byteVector, (bv) {
+      if (bv.isEmpty) {
+        expect(bv.grouped(1).toIList(), nil<int>());
+      } else if (bv.size < 3) {
+        expect(bv.grouped(bv.size).toIList(), ilist([bv]));
+      } else {
+        expect(
+          bv
+              .grouped(bv.size ~/ 3)
+              .toIList()
+              .foldLeft(ByteVector.empty, (acc, b) => acc.concat(b)),
+          bv,
+        );
+      }
+    });
+
+    forAll('headOption', byteVector, (bv) {
+      expect(bv.headOption.isDefined, bv.nonEmpty);
+
+      if (bv.nonEmpty) {
+        expect(bv.headOption, isSome(bv.head));
+      }
+    });
+
+    forAll(
+      'indexOfSlice / containsSlice / startsWith',
+      (byteVector, Gen.integer, Gen.integer).tupled,
+      (tuple) {
+        final (bv, m0, n0) = tuple;
+
+        final m = bv.nonEmpty ? (m0 % bv.size).abs() : 0;
+        final n = bv.nonEmpty ? (n0 % bv.size).abs() : 0;
+
+        final slice = bv.slice(min(m, n), max(m, n));
+        final idx = bv.indexOfSlice(slice);
+
+        expect(idx, bv.toIList().indexOfSlice(slice.toIList()));
+        expect(bv.containsSlice(slice), isTrue);
+
+        if (bv.nonEmpty) expect(bv.containsSlice(bv.concat(bv)), isFalse);
+      },
+    );
+
+    forAll('init', byteVector, (bv) {
+      expect(bv.startsWith(bv.init()), isTrue);
+
+      if (bv.nonEmpty) {
+        expect(bv.init().size, bv.size - 1);
+      } else {
+        expect(bv.init(), bv);
+      }
+    });
+
+    test('insert (1)', () {
+      final b = ByteVector.empty;
+
+      expect(b.insert(0, 1), ByteVector([1]));
+      expect(
+        ByteVector([1, 2, 3, 4]).insert(0, 0),
+        ByteVector([0, 1, 2, 3, 4]),
+      );
+      expect(
+        ByteVector([1, 2, 3, 4]).insert(1, 0),
+        ByteVector([1, 0, 2, 3, 4]),
+      );
+    });
+
+    forAll('insert (2)', byteVector, (b) {
+      expect(
+        b.foldLeft(ByteVector.empty, (acc, b) => acc.insert(acc.size, b)),
+        b,
+      );
+    });
+
+    forAll('last', (byteVector, Gen.byte).tupled, (t) {
+      final (bv, byte) = t;
+
+      if (bv.nonEmpty) {
+        expect(bv.last, bv.get(bv.size - 1));
+      }
+
+      expect(bv.append(byte).last, byte);
+    });
+
+    forAll('lastOption', (byteVector, Gen.byte).tupled, (t) {
+      final (bv, byte) = t;
+
+      expect(bv.lastOption.isDefined, bv.nonEmpty);
+      expect(bv.append(byte).lastOption, isSome(byte));
+    });
+
+    forAll('padLeft', byteVector, (bv) {
+      expect(() => bv.padLeft(bv.size - 1), throwsArgumentError);
+      expect(bv.padLeft(bv.size + 3).size, bv.size + 3);
+      expect(bv.padLeft(bv.size + 1).head, 0);
+    });
+
+    forAll('padRight', byteVector, (bv) {
+      expect(() => bv.padRight(bv.size - 1), throwsArgumentError);
+      expect(bv.padRight(bv.size + 3).size, bv.size + 3);
+      expect(bv.padRight(bv.size + 1).last, 0);
+
+      expect(bv.padTo(bv.size + 10), bv.padRight(bv.size + 10));
+    });
+
+    forAll('patch', (byteVector, byteVector, Gen.integer).tupled, (tuple) {
+      final (x, y, n0) = tuple;
+
+      final n = x.nonEmpty ? (n0 % x.size).abs() : 0;
+
+      expect(x.patch(n, x.slice(n, n)), x);
+      expect(x.patch(n, y), x.take(n).concat(y).concat(x.drop(n + y.size)));
+    });
+
+    forAll('reverse.reverse == id', byteVector, (b) {
+      expect(b.reverse.reverse, b);
+    });
+
+    forAll('rotations', (byteVector, Gen.integer).tupled, (tuple) {
+      final (b, n) = tuple;
+
+      expect(b.rotateLeft(b.size * 8), b);
+      expect(b.rotateRight(b.size * 8), b);
+      expect(b.rotateRight(n).rotateLeft(n), b);
+      expect(b.rotateLeft(n).rotateRight(n), b);
+    });
+
+    test('slice', () {
+      expect(hex("001122334455").slice(1, 4), hex("112233"));
+      expect(hex("001122334455").slice(-21, 4), hex("00112233"));
+      expect(hex("001122334455").slice(-21, -4), hex(""));
+    });
+
+    test('sliding', () {
+      final b = hex("1122334455");
+
+      expect(
+        b.sliding(2).toIList(),
+        ilist([hex('1122'), hex('2233'), hex('3344'), hex('4455')]),
+      );
+    });
+
+    test('sliding with step', () {
+      final b = hex("1122334455");
+
+      expect(
+        b.sliding(2, 2).toIList(),
+        ilist([hex('1122'), hex('3344'), hex('55')]),
+      );
+    });
+
+    forAll('splice', (byteVector, byteVector, Gen.integer).tupled, (tuple) {
+      final (x, y, n0) = tuple;
+
+      final n = x.nonEmpty ? (n0 % x.size).abs() : 0;
+
+      expect(x.splice(n, ByteVector.empty), x);
+      expect(x.splice(n, y), x.take(n).concat(y).concat(x.drop(n)));
+    });
+
+    forAll('splitAt', byteVector, (bv) {
+      expect(bv.splitAt(0), (ByteVector.empty, bv));
+      expect(bv.splitAt(bv.size), (bv, ByteVector.empty));
+
+      IList.range(0, bv.size).foreach((n) {
+        expect(bv.splitAt(n)((a, b) => a.concat(b)), bv);
+      });
+    });
+
+    test('take', () {
+      expect(hex("0011223344").take(3), hex("001122"));
+      expect(hex("0011223344").take(1000), hex("0011223344"));
+      expect(hex("0011223344").take(-10), hex(""));
+    });
+
+    forAll('takeWhile', byteVector, (bv) {
+      final (expected, _) = bv.foldLeft((ByteVector.empty, true), (acct, b) {
+        final (acc, taking) = acct;
+
+        if (taking) {
+          if (b == 0) {
+            return (acc, false);
+          } else {
+            return (acc.append(b), true);
+          }
+        } else {
+          return (acc, false);
+        }
+      });
+
+      expect(bv.takeWhile((a) => a != 0), expected);
+    });
+
+    forAll('toInt roundtrip', Gen.integer, (n) {
+      expect(ByteVector.fromInt(n).toInt(), n);
+
+      expect(
+        ByteVector.fromInt(n, ordering: Endian.little)
+            .toInt(ordering: Endian.little),
+        n,
+      );
+    });
+
+    test('very large vectors', () {
+      final huge = ByteVector.fill(4611686018427387903, 0);
+      final huge2 = huge.concat(hex('deadbeef'));
+
+      expect(huge2.takeRight(2), hex('beef'));
+    });
+
+    test('zipWith (1)', () {
+      final b1 = ByteVector([0, 1, 2, 3]);
+      final b2 = ByteVector([1, 2, 3, 4]);
+
+      expect(b1.zipWithI(b2, (a, b) => a + b), ByteVector([1, 3, 5, 7]));
+    });
+
+    forAll('zipWith2', byteVector, (b) {
+      expect(b.zipWithI(b, (a, b) => a - b), ByteVector.fill(b.size, 0));
     });
   });
+}
+
+final class CustomBinAlphabet extends BinaryAlphabet {
+  @override
+  String toChar(int index) => switch (index) {
+        0 => '0',
+        1 => '1',
+        _ => throw ArgumentError('invalid binary index: $index'),
+      };
+
+  @override
+  int toIndex(String c) => switch (c) {
+        '0' => 0,
+        '1' => 1,
+        r'$' => Bases.IgnoreRestOfLine,
+        _ => throw ArgumentError('Invalid binary char: $c'),
+      };
+
+  @override
+  bool ignore(String c) => c.trim().isEmpty;
+}
+
+final class CustomHexAlphabet extends LenientHex {
+  static final chars = ilist([
+    '0',
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    'a',
+    'b',
+    'c',
+    'd',
+    'e',
+    'f'
+  ]);
+
+  @override
+  String toChar(int index) => chars[index];
+
+  @override
+  int toIndex(String c) => switch (c) {
+        r'$' => Bases.IgnoreRestOfLine,
+        _ => super.toIndex(c),
+      };
 }

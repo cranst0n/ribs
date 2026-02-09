@@ -8,7 +8,7 @@ final class DecodeResult<A> {
   const DecodeResult(this.value, this.remainder);
 
   factory DecodeResult.successful(A value) =>
-      DecodeResult(value, BitVector.empty());
+      DecodeResult(value, BitVector.empty);
 
   DecodeResult<B> map<B>(Function1<A, B> f) =>
       DecodeResult(f(value), remainder);

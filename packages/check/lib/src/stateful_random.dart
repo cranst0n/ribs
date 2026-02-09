@@ -13,12 +13,14 @@ final class StatefulRandom {
 
   (StatefulRandom, double) nextDouble() => _next((rnd) => rnd.nextDouble());
 
-  (StatefulRandom, int) nextInt(int max) {
-    if (kIsWeb || max <= (1 << 32)) {
-      return _next((rnd) => rnd.nextInt(max));
+  (StatefulRandom, int) nextInt(int maximum) {
+    final maxExclusive = max(maximum, 1);
+
+    if (kIsWeb || maxExclusive <= (1 << 32)) {
+      return _next((rnd) => rnd.nextInt(maxExclusive));
     } else {
       // big numbers
-      final nBits = (log(max) / log(2) + 1).floor();
+      final nBits = (log(maxExclusive) / log(2) + 1).floor();
       final bitsA = nBits ~/ 2;
       final bitsB = nBits - bitsA;
 

@@ -19,27 +19,41 @@ Either<String, (ByteVector, int)> fromBinInternal(
 
   final bldr = List<int>.empty(growable: true);
 
-  while (idx < withoutPrefix.length && err == null) {
-    final c = withoutPrefix[idx];
+  try {
+    while (idx < withoutPrefix.length) {
+      final c = withoutPrefix[idx];
 
-    if (!alphabet.ignore(c)) {
-      try {
-        byte = (byte << 1) | (1 & alphabet.toIndex(c));
+      late int bit;
+
+      if (c == '_' || c.trim().isEmpty) {
+        bit = Bases.IgnoreChar;
+      } else if (Alphabets.isHexBinCommmentChar(c)) {
+        bit = Bases.IgnoreRestOfLine;
+      } else {
+        bit = alphabet.toIndex(c);
+      }
+
+      if (bit >= 0) {
+        byte = (byte << 1) | (1 & bit);
         bits += 1;
         count += 1;
-      } catch (e) {
-        err =
-            "Invalid binary character '$c' at index ${idx + (prefixed ? 2 : 0)}";
+
+        if (bits == 8) {
+          bldr.add(byte);
+          byte = 0;
+          bits = 0;
+        }
+      } else if (bit == Bases.IgnoreRestOfLine) {
+        while (idx < withoutPrefix.length && withoutPrefix[idx] != "\n") {
+          idx += 1;
+        }
       }
-    }
 
-    if (bits == 8) {
-      bldr.add(byte);
-      byte = 0;
-      bits = 0;
+      idx += 1;
     }
-
-    idx += 1;
+  } catch (e) {
+    final c = withoutPrefix[idx];
+    err = "Invalid binary character '$c' at index ${idx + (prefixed ? 2 : 0)}";
   }
 
   if (err == null) {
@@ -78,12 +92,20 @@ Either<String, (ByteVector, int)> fromHexInternal(
 
   var j = 0;
 
-  while (idx < length && err == null) {
-    final c = withoutPrefix[idx];
+  try {
+    while (idx < length) {
+      final c = withoutPrefix[idx];
 
-    if (!alphabet.ignore(c)) {
-      try {
-        final nibble = alphabet.toIndex(c);
+      if (!alphabet.ignore(c)) {
+        late int nibble;
+
+        if (c == '_' || c.trim().isEmpty) {
+          nibble = Bases.IgnoreChar;
+        } else if (Alphabets.isHexBinCommmentChar(c)) {
+          nibble = Bases.IgnoreRestOfLine;
+        } else {
+          nibble = alphabet.toIndex(c);
+        }
 
         if (nibble >= 0) {
           if (midByte) {
@@ -96,16 +118,20 @@ Either<String, (ByteVector, int)> fromHexInternal(
           }
 
           count += 1;
+        } else if (nibble == Bases.IgnoreRestOfLine) {
+          while (idx < length && withoutPrefix[idx] != "\n") {
+            idx += 1;
+          }
         }
-      } catch (e) {
-        final c = withoutPrefix[idx];
-
-        err =
-            "Invalid hexadecimal character '$c' at index ${idx + (prefixed ? 2 : 0)}";
       }
-    }
 
-    idx += 1;
+      idx += 1;
+    }
+  } catch (e) {
+    final c = withoutPrefix[idx];
+
+    err =
+        "Invalid hexadecimal character '$c' at index ${idx + (prefixed ? 2 : 0)}";
   }
 
   final ByteVector result;
@@ -114,9 +140,9 @@ Either<String, (ByteVector, int)> fromHexInternal(
     if (midByte) {
       out[j] = hi & 0xff;
       j += 1;
-      result = ByteVector.fromList(out).take(j).shiftRight(4, false);
+      result = ByteVector(out).take(j).shiftRight(4, false);
     } else {
-      result = ByteVector.fromList(out).take(j);
+      result = ByteVector(out).take(j);
     }
 
     return (result, count).asRight();
@@ -181,7 +207,7 @@ Either<String, (ByteVector, int)> fromBase32Internal(
       count += 1;
     }
 
-    final bytes = ByteVector.fromList(acc);
+    final bytes = ByteVector(acc);
 
     final expectedPadding =
         (((bytes.size + bitsPerChar - 1) ~/ bitsPerChar * bitsPerChar) -
@@ -278,7 +304,7 @@ Either<String, (ByteVector, int)> fromBase64Internal(
     return Base64PaddingError.asLeft();
   } else {
     if (mod == 0) {
-      return (ByteVector.fromList(acc).take(bidx - padding), bidx).asRight();
+      return (ByteVector(acc).take(bidx - padding), bidx).asRight();
     } else if (mod == 1) {
       return 'Final base 64 quantum had only 1 digit - must have at least 2 digits'
           .asLeft();
@@ -286,13 +312,13 @@ Either<String, (ByteVector, int)> fromBase64Internal(
       acc[bidx] = (buffer >> 4) & 0x0ff;
       bidx += 1;
 
-      return (ByteVector.fromList(acc).take(bidx), bidx).asRight();
+      return (ByteVector(acc).take(bidx), bidx).asRight();
     } else if (mod == 3) {
       acc[bidx] = (buffer >> 10) & 0x0ff;
       acc[bidx + 1] = (buffer >> 2) & 0x0ff;
       bidx += 2;
 
-      return (ByteVector.fromList(acc).take(bidx), bidx).asRight();
+      return (ByteVector(acc).take(bidx), bidx).asRight();
     } else {
       return 'Unhandled base 64 padding/mod: $padding/$mod'.asLeft();
     }

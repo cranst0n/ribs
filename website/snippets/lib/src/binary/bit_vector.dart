@@ -7,17 +7,17 @@ import 'package:ribs_binary/ribs_binary.dart';
 // bitvector-1
 
 // Creating ByteVectors
-final bytesA = ByteVector.empty();
-final bytesB = ByteVector.fromList([0, 12, 32]);
+final bytesA = ByteVector.empty;
+final bytesB = ByteVector([0, 12, 32]);
 final bytesC = ByteVector.low(10); // 10 bytes with all bits set to 0
 final bytesD = ByteVector.high(10); // 10 bytes with all bits set to 1
 final bytesE = ByteVector(Uint8List(10));
 
 // Creating BitVectors
-final bitsA = BitVector.empty();
+final bitsA = BitVector.empty;
 final bitsB = BitVector.fromByteVector(bytesA);
-final bitsC = BitVector.low(8); // 10 bits all set to 0
-final bitsD = BitVector.high(8); // 10 bits all set to 1
+final bitsC = BitVector.low(10); // 10 bits all set to 0
+final bitsD = BitVector.high(10); // 10 bits all set to 1
 
 // bitvector-1
 

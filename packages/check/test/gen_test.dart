@@ -2,6 +2,7 @@ import 'package:ribs_check/src/gen.dart';
 import 'package:ribs_check/src/prop.dart';
 import 'package:ribs_core/test_matchers.dart';
 import 'package:test/expect.dart';
+import 'package:test/test.dart';
 
 void main() {
   forAll('tuple2', Gen.integer.tuple2, (t) => expect(t, isNotNull));
@@ -126,5 +127,9 @@ void main() {
 
   forAll('some', Gen.some(Gen.positiveInt), (i) {
     expect(i, isSome<int>());
+  });
+
+  forAll('Choose.integer(0, 0)', Gen.chooseInt(0, 0), (i) {
+    expect(i, 0);
   });
 }
