@@ -77,6 +77,9 @@ final class _Errored extends ExitCase {
     Function1<RuntimeException, B> errored,
     Function0<B> succeeded,
   ) => errored(error);
+
+  @override
+  String toString() => 'Errored: $error';
 }
 
 final class _Canceled extends ExitCase {

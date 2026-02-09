@@ -28,7 +28,8 @@ sealed class ByteVector {
 
   factory ByteVector.of(int byte) => ByteVector.fill(1, byte);
 
-  factory ByteVector.view(Uint8List bytes) => ByteVector(bytes);
+  factory ByteVector.view(Uint8List bytes) =>
+      _Chunk(_View(At.array(Uint8List.view(bytes.buffer)), 0, bytes.length));
 
   factory ByteVector._viewAt(At at, int size) => _Chunk(_View(at, 0, size));
 
@@ -214,9 +215,9 @@ sealed class ByteVector {
 
   void foreach(Function1<int, void> f) => _foreachV((v) => v.foreach(f));
 
-  ByteVector tail() => drop(1);
+  ByteVector get tail => drop(1);
 
-  ByteVector init() => dropRight(1);
+  ByteVector get init => dropRight(1);
 
   int get last => get(size - 1);
 
@@ -379,7 +380,7 @@ sealed class ByteVector {
       } else if (b.isEmpty) {
         return none();
       } else {
-        b = b.tail();
+        b = b.tail;
         idx += 1;
       }
     }
