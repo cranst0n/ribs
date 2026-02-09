@@ -301,5 +301,13 @@ void main() {
 
       expect(count, 1);
     });
+
+    test('reverse', () {
+      final ll0 = ILazyList.ints(0).take(5);
+      final ll1 = ll0.reverse();
+
+      expect(ll0.toIList(), ilist([0, 1, 2, 3, 4]));
+      expect(ll1.toIList(), ilist([4, 3, 2, 1, 0]));
+    });
   });
 }

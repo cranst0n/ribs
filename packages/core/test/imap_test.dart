@@ -160,6 +160,9 @@ void main() {
 
       imap({1: 1, 2: 2}).foreach((_) => count += 1);
       expect(count, 2);
+
+      imap({1: 1, 2: 2}).foreach((t) => count += t.$1);
+      expect(count, 5);
     });
 
     test('get', () {
@@ -319,12 +322,13 @@ void main() {
       expect(imap<int, int>({}).zip(l).toIList(), nil<((int, int), int)>());
 
       expect(
-          m.zip(l).toIList(),
-          ilist([
-            ((1, 1), 9),
-            ((2, 2), 8),
-            ((3, 3), 7),
-          ]));
+        m.zip(l).toIList(),
+        ilist([
+          ((1, 1), 9),
+          ((2, 2), 8),
+          ((3, 3), 7),
+        ]),
+      );
     });
   });
 }
