@@ -55,10 +55,10 @@ mixin SeqView<A> on RIterableOnce<A>, RIterable<A>, RSeq<A>, View<A> {
 
   @override
   RSeq<A> tapEach<U>(Function1<A, U> f) => seqview.Map(this, (a) {
-        f(a);
-        return a;
-      });
+    f(a);
+    return a;
+  });
 
   @override
-  SeqView<A> view() => this;
+  SeqView<A> get view => this;
 }

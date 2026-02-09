@@ -34,7 +34,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   static Option<NonEmptyIList<A>> from<A>(RIterableOnce<A> as) =>
       Option.when(() => as.nonEmpty, () {
         final l = as.toIList();
-        return NonEmptyIList(l.head, l.tail());
+        return NonEmptyIList(l.head, l.tail);
       });
 
   static NonEmptyIList<A> unsafe<A>(RIterableOnce<A> as) =>
@@ -48,9 +48,9 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   /// assert(NonEmptyIList.fromDart([]) == None<NonEmptyIList<int>>());
   /// ```
   static Option<NonEmptyIList<A>> fromDart<A>(Iterable<A> as) => Option.when(
-        () => as.isNotEmpty,
-        () => NonEmptyIList(as.first, as.toIList().tail()),
-      );
+    () => as.isNotEmpty,
+    () => NonEmptyIList(as.first, as.toIList().tail),
+  );
 
   /// Returns a [NonEmptyIList] with all elements from the given [Iterable] if
   /// the [Iterable] is non-empty. If the [Iterable] is empty, an
@@ -127,20 +127,19 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   IMap<K, NonEmptyIList<V>> groupMap<K, V>(
     Function1<A, K> key,
     Function1<A, V> value,
-  ) =>
-      foldLeft(
-        imap({}),
-        (acc, a) => acc.updatedWith(
-          key(a),
-          (prev) => prev.map((l) => l.appended(value(a))).orElse(() => nel(value(a)).some),
-        ),
-      );
+  ) => foldLeft(
+    imap({}),
+    (acc, a) => acc.updatedWith(
+      key(a),
+      (prev) => prev.map((l) => l.appended(value(a))).orElse(() => nel(value(a)).some),
+    ),
+  );
 
   @override
-  IList<A> init() => toIList().init();
+  IList<A> get init => toIList().init;
 
   @override
-  RIterator<IList<A>> inits() => toIList().inits();
+  RIterator<IList<A>> get inits => toIList().inits;
 
   @override
   IList<A> intersect(RSeq<A> that) => toIList().intersect(that);
@@ -192,10 +191,13 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   IList<A> removeFirst(Function1<A, bool> p) => toIList().removeFirst(p);
 
   @override
-  NonEmptyIList<A> reverse() => _tail.isEmpty
-      ? this
-      : NonEmptyIList(
-          _tail.lastOption.getOrElse(() => head), _tail.init().reverse().appended(head));
+  NonEmptyIList<A> reverse() =>
+      _tail.isEmpty
+          ? this
+          : NonEmptyIList(
+            _tail.lastOption.getOrElse(() => head),
+            _tail.init.reverse().appended(head),
+          );
 
   @override
   NonEmptyIList<B> scan<B>(B z, Function2<B, A, B> f) => scanLeft(z, f);
@@ -240,10 +242,10 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       head == that.head && _tail.startsWith(that._tail, offset);
 
   @override
-  IList<A> tail() => _tail;
+  IList<A> get tail => _tail;
 
   @override
-  RIterator<IList<A>> tails() => toIList().tails();
+  RIterator<IList<A>> get tails => toIList().tails;
 
   @override
   IList<A> take(int n) => toIList().take(n);
@@ -294,8 +296,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     RIterableOnce<B> that,
     A thisElem,
     B thatElem,
-  ) =>
-      NonEmptyIList.unsafe(super.zipAll(that, thisElem, thatElem));
+  ) => NonEmptyIList.unsafe(super.zipAll(that, thisElem, thatElem));
 
   @override
   NonEmptyIList<(A, int)> zipWithIndex() =>
@@ -317,8 +318,8 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       var b = other._tail;
 
       while (a.nonEmpty && b.nonEmpty && a.head == b.head) {
-        a = a.tail();
-        b = b.tail();
+        a = a.tail;
+        b = b.tail;
       }
 
       return a.isEmpty && b.isEmpty;

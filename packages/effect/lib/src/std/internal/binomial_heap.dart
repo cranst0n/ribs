@@ -29,13 +29,11 @@ final class BinomialHeap<A> {
   static IList<BinomialTree<A>> _insertTreeImpl<A>(
     BinomialTree<A> tree,
     IList<BinomialTree<A>> trees,
-  ) =>
-      trees.headOption.fold(
-        () => ilist([tree]),
-        (hd) => tree.rank < hd.rank
-            ? trees.prepended(tree)
-            : _insertTreeImpl(tree.link(hd), trees.tail()),
-      );
+  ) => trees.headOption.fold(
+    () => ilist([tree]),
+    (hd) =>
+        tree.rank < hd.rank ? trees.prepended(tree) : _insertTreeImpl(tree.link(hd), trees.tail),
+  );
 
   static IList<BinomialTree<A>> _merge<A>(
     IList<BinomialTree<A>> lhs,
@@ -47,9 +45,9 @@ final class BinomialHeap<A> {
       return lhs;
     } else {
       final t1 = lhs[0];
-      final ts1 = lhs.tail();
+      final ts1 = lhs.tail;
       final t2 = rhs[0];
-      final ts2 = rhs.tail();
+      final ts2 = rhs.tail;
 
       if (t1.rank < t2.rank) {
         return _merge(ts1, rhs).prepended(t1);

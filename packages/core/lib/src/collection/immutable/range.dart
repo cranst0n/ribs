@@ -128,10 +128,10 @@ abstract class Range with RIterableOnce<int>, RIterable<int>, RSeq<int>, Indexed
   int get head => isEmpty ? throw _emptyRangeError('head') : start;
 
   @override
-  Range init() => isEmpty ? throw _emptyRangeError('init') : dropRight(1);
+  Range get init => isEmpty ? throw _emptyRangeError('init') : dropRight(1);
 
   @override
-  RIterator<Range> inits() => _RangeInitsIterator(this);
+  RIterator<Range> get inits => _RangeInitsIterator(this);
 
   @override
   RIterator<int> get iterator => _RangeIterator(start, step, _lastElement, isEmpty);
@@ -218,7 +218,7 @@ abstract class Range with RIterableOnce<int>, RIterable<int>, RSeq<int>, Indexed
   (Range, Range) splitAt(int n) => (take(n), drop(n));
 
   @override
-  Range tail() {
+  Range get tail {
     if (isEmpty) throw _emptyRangeError("tail");
     if (_numRangeElements == 1) {
       return _newEmptyRange(end);
@@ -230,7 +230,7 @@ abstract class Range with RIterableOnce<int>, RIterable<int>, RSeq<int>, Indexed
   }
 
   @override
-  RIterator<Range> tails() => _RangeTailsIterator(this);
+  RIterator<Range> get tails => _RangeTailsIterator(this);
 
   @override
   Range take(int n) {
@@ -289,9 +289,10 @@ abstract class Range with RIterableOnce<int>, RIterable<int>, RSeq<int>, Indexed
   String toString() {
     final preposition = isInclusive ? 'to' : 'until';
     final stepped = step == 1 ? '' : ' by $step';
-    final prefix = isEmpty
-        ? 'empty '
-        : !_isExact
+    final prefix =
+        isEmpty
+            ? 'empty '
+            : !_isExact
             ? 'inexact '
             : '';
     return '${prefix}Range $start $preposition $end$stepped';
@@ -446,8 +447,8 @@ final class _RangeIterator extends RIterator<int> {
   int _next;
 
   _RangeIterator(this.start, this.step, this.lastElement, this.initiallyEmpty)
-      : _hasNext = !initiallyEmpty,
-        _next = start;
+    : _hasNext = !initiallyEmpty,
+      _next = start;
 
   @override
   RIterator<int> drop(int n) {

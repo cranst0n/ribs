@@ -8,11 +8,15 @@ void main() {
   final config = AppConfig.test;
 
   group('Lens', () {
-    final baseDirL =
-        Lens<AppConfig, String>((cfg) => cfg.baseDir, (b) => (s) => s.copy(baseDir: b));
+    final baseDirL = Lens<AppConfig, String>(
+      (cfg) => cfg.baseDir,
+      (b) => (s) => s.copy(baseDir: b),
+    );
 
-    final versionL =
-        Lens<AppConfig, Version>((cfg) => cfg.version, (v) => (s) => s.copy(version: v));
+    final versionL = Lens<AppConfig, Version>(
+      (cfg) => cfg.version,
+      (v) => (s) => s.copy(version: v),
+    );
 
     final reverseL = Lens<String, String>(
       (str) => String.fromCharCodes(str.codeUnits.reversed),
@@ -46,7 +50,8 @@ void main() {
       );
 
       final noFrench = AppConfig.supportedLanguages.modify(
-          (langs) => nel(langs.head, langs.tail().filter((a) => a.code != 'fr').toList()))(config);
+        (langs) => nel(langs.head, langs.tail.filter((a) => a.code != 'fr').toList()),
+      )(config);
 
       expect(
         AppConfig.supportedLanguages.exists((a) => a.exists((a) => a.code == 'fr'))(noFrench),
@@ -55,8 +60,10 @@ void main() {
     });
 
     test('andThenG', () {
-      final versionL =
-          Lens<AppConfig, Version>((cfg) => cfg.version, (v) => (s) => s.copy(version: v));
+      final versionL = Lens<AppConfig, Version>(
+        (cfg) => cfg.version,
+        (v) => (s) => s.copy(version: v),
+      );
 
       final reverseString = Getter<Version, String>((v) => v.split('').reversed.join());
 

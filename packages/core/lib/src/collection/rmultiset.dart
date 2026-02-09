@@ -5,14 +5,14 @@ mixin RMultiSet<A> on RIterableOnce<A>, RIterable<A> {
   static RMultiSet<A> empty<A>() => IMultiSet.empty();
 
   static RMultiSet<A> from<A>(RIterableOnce<A> elems) => switch (elems) {
-        final RMultiSet<A> ms => ms,
-        _ => IMultiSet.from(elems),
-      };
+    final RMultiSet<A> ms => ms,
+    _ => IMultiSet.from(elems),
+  };
 
   static RMultiSet<A> fromOccurences<A>(RIterableOnce<(A, int)> elems) => switch (elems) {
-        final RMultiSet<A> ms => ms,
-        _ => from(elems.flatMap((occ) => views.Fill(occ.$2, occ.$1))),
-      };
+    final RMultiSet<A> ms => ms,
+    _ => from(elems.flatMap((occ) => views.Fill(occ.$2, occ.$1))),
+  };
 
   static RMultiSet<A> fromDartIterable<A>(Iterable<A> elems) =>
       RMultiSet.from(RIterator.fromDart(elems.iterator));
@@ -21,11 +21,11 @@ mixin RMultiSet<A> on RIterableOnce<A>, RIterable<A> {
   RMultiSet<B> collect<B>(Function1<A, Option<B>> f) => RMultiSet.from(super.collect(f));
 
   RMultiSet<B> collectOccurances<B>(Function1<(A, int), Option<(B, int)>> f) => flatMapOccurences(
-        (kvs) => f(kvs).fold(
-          () => const views.Empty(),
-          (res) => views.Single(res),
-        ),
-      );
+    (kvs) => f(kvs).fold(
+      () => const views.Empty(),
+      (res) => views.Single(res),
+    ),
+  );
 
   @override
   RMultiSet<A> concat(covariant RIterableOnce<A> suffix) => RMultiSet.from(super.concat(suffix));
@@ -58,8 +58,7 @@ mixin RMultiSet<A> on RIterableOnce<A>, RIterable<A> {
 
   RMultiSet<B> flatMapOccurences<B>(
     Function1<(A, int), RIterableOnce<(B, int)>> f,
-  ) =>
-      RMultiSet.fromOccurences(views.FlatMap(occurrences, f));
+  ) => RMultiSet.fromOccurences(views.FlatMap(occurrences, f));
 
   int get(A elem) => occurrences.getOrElse(elem, () => 0);
 
@@ -70,17 +69,16 @@ mixin RMultiSet<A> on RIterableOnce<A>, RIterable<A> {
   IMap<K, RMultiSet<B>> groupMap<K, B>(
     Function1<A, K> key,
     Function1<A, B> f,
-  ) =>
-      super.groupMap(key, f).mapValues(RMultiSet.from);
+  ) => super.groupMap(key, f).mapValues(RMultiSet.from);
 
   @override
   RIterator<RMultiSet<A>> grouped(int size) => super.grouped(size).map(RMultiSet.from);
 
   @override
-  RMultiSet<A> init() => RMultiSet.from(super.init());
+  RMultiSet<A> get init => RMultiSet.from(super.init);
 
   @override
-  RIterator<RMultiSet<A>> inits() => super.inits().map(RMultiSet.from);
+  RIterator<RMultiSet<A>> get inits => super.inits.map(RMultiSet.from);
 
   @override
   RIterator<A> get iterator => occurrences.iterator.flatMap((kv) => views.Fill(kv.$2, kv.$1));
@@ -136,10 +134,10 @@ mixin RMultiSet<A> on RIterableOnce<A>, RIterable<A> {
   }
 
   @override
-  RMultiSet<A> tail() => RMultiSet.from(super.tail());
+  RMultiSet<A> get tail => RMultiSet.from(super.tail);
 
   @override
-  RIterator<RMultiSet<A>> tails() => super.tails().map(RMultiSet.from);
+  RIterator<RMultiSet<A>> get tails => super.tails.map(RMultiSet.from);
 
   @override
   RMultiSet<A> take(int n) => RMultiSet.from(super.take(n));

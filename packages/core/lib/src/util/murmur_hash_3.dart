@@ -294,7 +294,7 @@ final class _Murmur3Impl {
 
       prev = hash;
       n += 1;
-      elems = elems.tail();
+      elems = elems.tail;
     }
 
     if (rangeState == 2) {

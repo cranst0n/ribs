@@ -6,7 +6,7 @@ extension IONonEmptyIListOps<A> on NonEmptyIList<A> {
   /// new list. If an error or cancelation is encountered for any element,
   /// that result is returned and any additional elements will not be evaluated.
   IO<NonEmptyIList<B>> traverseIO<B>(Function1<A, IO<B>> f) =>
-      f(head).flatMap((h) => tail().traverseIO(f).map((t) => NonEmptyIList(h, t)));
+      f(head).flatMap((h) => tail.traverseIO(f).map((t) => NonEmptyIList(h, t)));
 
   /// Applies [f] to each element of this list, discarding any results. If an
   /// error or cancelation is encountered for any element, that result is
@@ -30,7 +30,7 @@ extension IONonEmptyIListOps<A> on NonEmptyIList<A> {
   /// for any element, that result is returned and all other elements will be
   /// canceled if possible.
   IO<NonEmptyIList<B>> parTraverseIO<B>(Function1<A, IO<B>> f) =>
-      IO.both(f(head), tail().parTraverseIO(f)).map((t) => NonEmptyIList(t.$1, t.$2));
+      IO.both(f(head), tail.parTraverseIO(f)).map((t) => NonEmptyIList(t.$1, t.$2));
 
   /// **Asynchronously** applies [f] to each element of this list, discarding
   /// any results. If an error or cancelation is encountered for any element,

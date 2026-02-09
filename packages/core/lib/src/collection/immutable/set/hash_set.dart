@@ -26,10 +26,10 @@ final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   static IHashSet<A> empty<A>() => IHashSet._(SetNode.empty());
 
   static IHashSet<A> from<A>(RIterableOnce<A> xs) => switch (xs) {
-        final IHashSet<A> hs => hs,
-        _ when xs.knownSize == 0 => IHashSet.empty(),
-        _ => builder<A>().addAll(xs).result(),
-      };
+    final IHashSet<A> hs => hs,
+    _ when xs.knownSize == 0 => IHashSet.empty(),
+    _ => builder<A>().addAll(xs).result(),
+  };
 
   @override
   IHashSet<A> operator +(A a) => incl(a);
@@ -76,7 +76,12 @@ final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
             final originalHash = element.hashCode;
             final improved = Hashing.improve(originalHash);
             shallowlyMutableNodeMap = current.updateWithShallowMutations(
-                element, originalHash, improved, 0, shallowlyMutableNodeMap);
+              element,
+              originalHash,
+              improved,
+              0,
+              shallowlyMutableNodeMap,
+            );
           }
 
           return IHashSet._(current);
@@ -167,10 +172,10 @@ final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   }
 
   @override
-  IHashSet<A> init() => this - last;
+  IHashSet<A> get init => this - last;
 
   @override
-  RIterator<IHashSet<A>> inits() => super.inits().map(IHashSet.from);
+  RIterator<IHashSet<A>> get inits => super.inits.map(IHashSet.from);
 
   @override
   bool get isEmpty => _rootNode.size == 0;
@@ -186,9 +191,9 @@ final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
 
   @override
   IHashSet<A> removedAll(RIterableOnce<A> that) => switch (that) {
-        final ISet<A> that => diff(that),
-        _ => _removedAllWithShallowMutations(that),
-      };
+    final ISet<A> that => diff(that),
+    _ => _removedAllWithShallowMutations(that),
+  };
 
   RIterator<A> get reverseIterator => _SetReverseIterator(_rootNode);
 
@@ -196,13 +201,13 @@ final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   int get size => _rootNode.size;
 
   @override
-  IHashSet<A> tail() => this - head;
+  IHashSet<A> get tail => this - head;
 
   @override
   bool operator ==(Object that) => switch (that) {
-        final IHashSet<A> that => identical(this, that) || _rootNode == that._rootNode,
-        _ => super == that,
-      };
+    final IHashSet<A> that => identical(this, that) || _rootNode == that._rootNode,
+    _ => super == that,
+  };
 
   @override
   int get hashCode => MurmurHash3.unorderedHash(_SetHashIterator(_rootNode), MurmurHash3.setSeed);
@@ -359,8 +364,15 @@ final class IHashSetBuilder<A> {
           _setValue(bm, bitpos, element0);
         } else {
           final element0Hash = Hashing.improve(element0UnimprovedHash);
-          final subNodeNew = bm.mergeTwoKeyValPairs(element0, element0UnimprovedHash, element0Hash,
-              element, originalHash, elementHash, shift + Node.BitPartitionSize);
+          final subNodeNew = bm.mergeTwoKeyValPairs(
+            element0,
+            element0UnimprovedHash,
+            element0Hash,
+            element,
+            originalHash,
+            elementHash,
+            shift + Node.BitPartitionSize,
+          );
           bm.migrateFromInlineToNodeInPlace(bitpos, element0Hash, subNodeNew);
         }
       } else if ((bm.nodeMap & bitpos) != 0) {

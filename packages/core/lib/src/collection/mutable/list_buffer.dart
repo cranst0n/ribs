@@ -92,7 +92,7 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
     IList<A> cur = _first;
 
     while (!cur.isEmpty) {
-      final follow = cur.tail();
+      final follow = cur.tail;
       if (!p(cur.head)) {
         if (prev == null) {
           _first = follow;
@@ -155,10 +155,10 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
 
   @override
   RIterator<A> get iterator => MutationTrackerIterator(
-        _first.iterator,
-        _mutationCount,
-        () => _mutationCount,
-      );
+    _first.iterator,
+    _mutationCount,
+    () => _mutationCount,
+  );
 
   @override
   int get knownSize => _len;
@@ -241,11 +241,11 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
     final nx = _getNext(p);
 
     if (p == null) {
-      _first = nx.tail();
+      _first = nx.tail;
       if (_first.isEmpty) _last0 = null;
     } else {
       if (_last0 == nx) _last0 = p;
-      p.next = nx.tail();
+      p.next = nx.tail;
     }
 
     _len -= 1;
@@ -287,17 +287,17 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
     _ensureUnaliased();
     if (isEmpty) {
     } else if (_first.head == elem) {
-      _first = _first.tail();
+      _first = _first.tail;
       _reduceLengthBy(1);
     } else {
       var cursor = _first;
-      while (!cursor.tail().isEmpty && cursor.tail().head != elem) {
-        cursor = cursor.tail();
+      while (!cursor.tail.isEmpty && cursor.tail.head != elem) {
+        cursor = cursor.tail;
       }
-      if (!cursor.tail().isEmpty) {
+      if (!cursor.tail.isEmpty) {
         final z = cursor as Cons<A>;
         if (z.next == _last0) _last0 = z;
-        z.next = cursor.tail().tail();
+        z.next = cursor.tail.tail;
         _reduceLengthBy(1);
       }
     }
@@ -318,7 +318,7 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
     }
 
     if (idx == 0) {
-      final newElem = Cons(elem, _first.tail());
+      final newElem = Cons(elem, _first.tail);
       if (_last0 == _first) {
         _last0 = newElem;
       }
@@ -326,8 +326,8 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
     } else {
       // `p` can not be `null` because the case where `idx == 0` is handled above
       final p = _locate(idx)!;
-      final newElem = Cons(elem, p.tail().tail());
-      if (_last0 == p.tail()) {
+      final newElem = Cons(elem, p.tail.tail);
+      if (_last0 == p.tail) {
         _last0 = newElem;
       }
       p.next = newElem;
@@ -410,7 +410,7 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
       var p = _first;
 
       while (j > 0) {
-        p = p.tail();
+        p = p.tail;
         j -= 1;
       }
 
@@ -428,7 +428,7 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
     IList<A> nx = _getNext(prev);
 
     while (i >= 0) {
-      nx = _getNext(nx.tail() as Cons<A>);
+      nx = _getNext(nx.tail as Cons<A>);
       i -= 1;
     }
 

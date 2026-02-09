@@ -29,8 +29,8 @@ final class MHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, MSet<A> {
   MHashSet({
     this.initialCapacity = DefaultInitialCapacity,
     this.loadFactor = DefaultLoadFactor,
-  })  : _table = Array.ofDim(_tableSizeFor(initialCapacity)),
-        _threshold = _newThreshold(_tableSizeFor(initialCapacity), loadFactor);
+  }) : _table = Array.ofDim(_tableSizeFor(initialCapacity)),
+       _threshold = _newThreshold(_tableSizeFor(initialCapacity), loadFactor);
 
   static MHashSet<A> empty<A>() => MHashSet();
 

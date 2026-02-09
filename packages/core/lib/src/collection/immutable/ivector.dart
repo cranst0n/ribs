@@ -70,8 +70,13 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
       fill(n1, fill3(n2, n3, n4, elem));
 
   static IVector<IVector<IVector<IVector<IVector<A>>>>> fill5<A>(
-          int n1, int n2, int n3, int n4, int n5, A elem) =>
-      fill(n1, fill4(n2, n3, n4, n5, elem));
+    int n1,
+    int n2,
+    int n3,
+    int n4,
+    int n5,
+    A elem,
+  ) => fill(n1, fill4(n2, n3, n4, n5, elem));
 
   static IVector<A> tabulate<A>(int n, Function1<int, A> f) {
     if (n > 0) {
@@ -93,22 +98,34 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
       tabulate(n1, (i1) => tabulate(n2, (i2) => f(i1, i2)));
 
   static IVector<IVector<IVector<A>>> tabulate3<A>(
-          int n1, int n2, int n3, Function3<int, int, int, A> f) =>
-      tabulate(n1, (i1) => tabulate2(n2, n3, (i2, i3) => f(i1, i2, i3)));
+    int n1,
+    int n2,
+    int n3,
+    Function3<int, int, int, A> f,
+  ) => tabulate(n1, (i1) => tabulate2(n2, n3, (i2, i3) => f(i1, i2, i3)));
 
   static IVector<IVector<IVector<IVector<A>>>> tabulate4<A>(
-          int n1, int n2, int n3, int n4, Function4<int, int, int, int, A> f) =>
-      tabulate(n1, (i1) => tabulate3(n2, n3, n4, (i2, i3, i4) => f(i1, i2, i3, i4)));
+    int n1,
+    int n2,
+    int n3,
+    int n4,
+    Function4<int, int, int, int, A> f,
+  ) => tabulate(n1, (i1) => tabulate3(n2, n3, n4, (i2, i3, i4) => f(i1, i2, i3, i4)));
 
   static IVector<IVector<IVector<IVector<IVector<A>>>>> tabulate5<A>(
-          int n1, int n2, int n3, int n4, int n5, Function5<int, int, int, int, int, A> f) =>
-      tabulate(n1, (i1) => tabulate4(n2, n3, n4, n5, (i2, i3, i4, i5) => f(i1, i2, i3, i4, i5)));
+    int n1,
+    int n2,
+    int n3,
+    int n4,
+    int n5,
+    Function5<int, int, int, int, int, A> f,
+  ) => tabulate(n1, (i1) => tabulate4(n2, n3, n4, n5, (i2, i3, i4, i5) => f(i1, i2, i3, i4, i5)));
 
   @override
   int get length => switch (this) {
-        final _BigVector<A> bv => bv.length0,
-        _ => _prefix1.length,
-      };
+    final _BigVector<A> bv => bv.length0,
+    _ => _prefix1.length,
+  };
 
   @override
   IVector<A> appended(A elem);
@@ -188,10 +205,10 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
       super.groupMap(key, f).mapValues((a) => a.toIVector());
 
   @override
-  IVector<A> init() => slice(0, length - 1);
+  IVector<A> get init => slice(0, length - 1);
 
   @override
-  RIterator<IVector<A>> inits() => super.inits().map((a) => a.toIVector());
+  RIterator<IVector<A>> get inits => super.inits.map((a) => a.toIVector());
 
   @override
   IVector<A> intersect(RSeq<A> that) => super.intersect(that).toIVector();
@@ -260,7 +277,7 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
   IVector<A> removeFirst(Function1<A, bool> p) => super.removeFirst(p).toIVector();
 
   @override
-  IVector<A> reverse() => view().reverse().toIVector();
+  IVector<A> reverse() => view.reverse().toIVector();
 
   @override
   IVector<B> scan<B>(B z, Function2<B, A, B> op) => scanLeft(z, op);
@@ -297,10 +314,10 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
   }
 
   @override
-  IVector<A> tail() => slice(1, length);
+  IVector<A> get tail => slice(1, length);
 
   @override
-  RIterator<IVector<A>> tails() => super.tails().map((a) => a.toIVector());
+  RIterator<IVector<A>> get tails => super.tails.map((a) => a.toIVector());
 
   @override
   IVector<A> take(int n) => slice(0, n);
@@ -335,7 +352,7 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
   IVector<A> updated(int index, A elem);
 
   @override
-  IndexedSeqView<A> view() => IndexedSeqView.from(this);
+  IndexedSeqView<A> get view => IndexedSeqView.from(this);
 
   @override
   IVector<(A, B)> zip<B>(RIterableOnce<B> that) => super.zip(that).toIVector();
@@ -393,7 +410,7 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
   IVector<A> _prependedAll0(RIterableOnce<A> prefix, int k) {
     // k >= 0, k = prefix.knownSize
     final tinyAppendLimit = 4 + _vectorSliceCount;
-    if (k < tinyAppendLimit /*|| k < (this.size >>> Log2ConcatFaster)*/) {
+    if (k < tinyAppendLimit /*|| k < (this.size >>> Log2ConcatFaster)*/ ) {
       var v = this;
       final it = IndexedSeq.from(prefix).reverseIterator();
 

@@ -82,9 +82,9 @@ void main() {
     test('init', () {
       for (final n in vectorNBounds) {
         if (n > 1) {
-          expect(IVector.tabulate(n, identity).init().toList().last, n - 2);
+          expect(IVector.tabulate(n, identity).init.toList().last, n - 2);
         } else {
-          expect(IVector.tabulate(n, identity).init().toList(), isEmpty);
+          expect(IVector.tabulate(n, identity).init.toList(), isEmpty);
         }
       }
     });
@@ -108,9 +108,9 @@ void main() {
     test('tail', () {
       for (final n in vectorNBounds) {
         if (n > 1) {
-          expect(IVector.tabulate(n, identity).tail().toList().first, 1);
+          expect(IVector.tabulate(n, identity).tail.toList().first, 1);
         } else {
-          expect(IVector.tabulate(n, identity).tail().toList(), isEmpty);
+          expect(IVector.tabulate(n, identity).tail.toList(), isEmpty);
         }
       }
     });
@@ -145,7 +145,7 @@ void main() {
 
     test('view', () {
       final v0 = IVector.tabulate(5, (a) => a);
-      final v1 = v0.view().map((a) => a + 1).take(4).takeRight(3).toList();
+      final v1 = v0.view.map((a) => a + 1).take(4).takeRight(3).toList();
 
       expect(v1, [2, 3, 4]);
     });

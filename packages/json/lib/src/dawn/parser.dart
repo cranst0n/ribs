@@ -30,14 +30,14 @@ abstract class Parser {
   static Json parseUnsafe(String s) => StringParser(s).parse();
 
   static Either<ParsingFailure, Json> parseFromString(String s) => Either.catching(
-        () => parseUnsafe(s),
-        (message, _) => ParsingFailure(message.toString()),
-      );
+    () => parseUnsafe(s),
+    (message, _) => ParsingFailure(message.toString()),
+  );
 
   static Either<ParsingFailure, Json> parseFromBytes(Uint8List l) => Either.catching(
-        () => ByteDataParser(l).parse(),
-        (message, _) => ParsingFailure(message.toString()),
-      );
+    () => ByteDataParser(l).parse(),
+    (message, _) => ParsingFailure(message.toString()),
+  );
 
   String at(int i);
 
@@ -427,7 +427,7 @@ abstract class Parser {
           iState = ctxt2.isObject ? _OBJEND : _ARREND;
           iJ = i + 1;
           iContext = ctxt2;
-          iStack = iStack.tail();
+          iStack = iStack.tail;
         }
       } else if (iState == _KEY) {
         // we are in an object expecting to see a key.

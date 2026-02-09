@@ -16,14 +16,13 @@ class CompositeError extends RuntimeException {
     RuntimeException first,
     RuntimeException second, [
     IList<RuntimeException> rest = const Nil(),
-  ]) =>
-      CompositeError(first, nel(second, rest.toList()));
+  ]) => CompositeError(first, nel(second, rest.toList()));
 
   static RuntimeException fromNel(NonEmptyIList<RuntimeException> errors) =>
-      errors.tail().headOption.fold(
-            () => errors.head,
-            (second) => from(errors.head, second, errors.tail().tail()),
-          );
+      errors.tail.headOption.fold(
+        () => errors.head,
+        (second) => from(errors.head, second, errors.tail.tail),
+      );
 
   static Option<RuntimeException> fromIList(IList<RuntimeException> errors) =>
       errors.uncons((x) => x.map((a) => fromNel(NonEmptyIList(a.$1, a.$2))));
@@ -31,9 +30,8 @@ class CompositeError extends RuntimeException {
   static Either<RuntimeException, Unit> fromResults(
     Either<RuntimeException, Unit> first,
     Either<RuntimeException, Unit> second,
-  ) =>
-      first.fold(
-        (err) => Left(second.fold((err1) => from(err, err1), (_) => err)),
-        (_) => second,
-      );
+  ) => first.fold(
+    (err) => Left(second.fold((err1) => from(err, err1), (_) => err)),
+    (_) => second,
+  );
 }

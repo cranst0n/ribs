@@ -13,14 +13,14 @@ final class IMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
   static IMultiSet<A> empty<A>() => IMultiSet._(IMap.empty());
 
   static IMultiSet<A> from<A>(RIterableOnce<A> elems) => switch (elems) {
-        final IMultiSet<A> ms => ms,
-        _ => IMultiSet._(elems.toIList().groupMapReduce(identity, (_) => 1, (a, b) => a + b)),
-      };
+    final IMultiSet<A> ms => ms,
+    _ => IMultiSet._(elems.toIList().groupMapReduce(identity, (_) => 1, (a, b) => a + b)),
+  };
 
   static IMultiSet<A> fromOccurences<A>(RIterableOnce<(A, int)> elems) => switch (elems) {
-        final IMultiSet<A> ms => ms,
-        _ => from(elems.flatMap((occ) => views.Fill(occ.$2, occ.$1))),
-      };
+    final IMultiSet<A> ms => ms,
+    _ => from(elems.flatMap((occ) => views.Fill(occ.$2, occ.$1))),
+  };
 
   static IMultiSet<A> fromDartIterable<A>(Iterable<A> elems) =>
       IMultiSet.from(RIterator.fromDart(elems.iterator));
@@ -48,13 +48,15 @@ final class IMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
   @override
   IMultiSet<A> dropWhile(Function1<A, bool> p) => IMultiSet.from(super.dropWhile(p));
 
-  IMultiSet<A> excl(A elem) => IMultiSet._(_elems.updatedWith(
-        elem,
-        (n) => n.fold(
-          () => none(),
-          (n) => n > 1 ? Some(n - 1) : none(),
-        ),
-      ));
+  IMultiSet<A> excl(A elem) => IMultiSet._(
+    _elems.updatedWith(
+      elem,
+      (n) => n.fold(
+        () => none(),
+        (n) => n > 1 ? Some(n - 1) : none(),
+      ),
+    ),
+  );
 
   @override
   IMultiSet<A> filter(Function1<A, bool> p) => IMultiSet.from(super.filter(p));
@@ -73,8 +75,7 @@ final class IMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
   @override
   IMultiSet<B> flatMapOccurences<B>(
     Function1<(A, int), RIterableOnce<(B, int)>> f,
-  ) =>
-      IMultiSet.fromOccurences(views.FlatMap(occurrences, f));
+  ) => IMultiSet.fromOccurences(views.FlatMap(occurrences, f));
 
   @override
   IMap<K, IMultiSet<A>> groupBy<K>(Function1<A, K> f) => super.groupBy(f).mapValues(IMultiSet.from);
@@ -83,8 +84,7 @@ final class IMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
   IMap<K, IMultiSet<B>> groupMap<K, B>(
     Function1<A, K> key,
     Function1<A, B> f,
-  ) =>
-      super.groupMap(key, f).mapValues(IMultiSet.from);
+  ) => super.groupMap(key, f).mapValues(IMultiSet.from);
 
   @override
   RIterator<IMultiSet<A>> grouped(int size) => super.grouped(size).map(IMultiSet.from);
@@ -93,10 +93,10 @@ final class IMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
       IMultiSet._(_elems.updatedWith(elem, (n) => Some(n.fold(() => 1, (n) => n + 1))));
 
   @override
-  IMultiSet<A> init() => IMultiSet.from(super.init());
+  IMultiSet<A> get init => IMultiSet.from(super.init);
 
   @override
-  RIterator<IMultiSet<A>> inits() => super.inits().map(IMultiSet.from);
+  RIterator<IMultiSet<A>> get inits => super.inits.map(IMultiSet.from);
 
   @override
   IMultiSet<B> map<B>(covariant Function1<A, B> f) => IMultiSet.from(iterator.map(f));
@@ -142,10 +142,10 @@ final class IMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
   }
 
   @override
-  IMultiSet<A> tail() => IMultiSet.from(super.tail());
+  IMultiSet<A> get tail => IMultiSet.from(super.tail);
 
   @override
-  RIterator<IMultiSet<A>> tails() => super.tails().map(IMultiSet.from);
+  RIterator<IMultiSet<A>> get tails => super.tails.map(IMultiSet.from);
 
   @override
   IMultiSet<A> take(int n) => IMultiSet.from(super.take(n));

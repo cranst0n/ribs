@@ -66,8 +66,9 @@ final class _Vector5<A> extends _BigVector<A> {
         }
       } else if (idx >= len123) {
         final io = idx - len123;
-        return prefix4[io >>> _BITS3]![(io >>> _BITS2) & _MASK]![(io >>> _BITS) & _MASK]![
-            io & _MASK] as A;
+        return prefix4[io >>> _BITS3]![(io >>> _BITS2) & _MASK]![(io >>> _BITS) & _MASK]![io &
+                _MASK]
+            as A;
       } else if (idx >= len12) {
         final io = idx - len12;
         return prefix3[io >>> _BITS2]![(io >>> _BITS) & _MASK]![io & _MASK] as A;
@@ -110,7 +111,9 @@ final class _Vector5<A> extends _BigVector<A> {
     } else if (data5.length < _WIDTH - 2) {
       return _copy(
         data5: _copyAppend5(
-            data5, _copyAppend4(suffix4, _copyAppend3(suffix3, _copyAppend2(suffix2, suffix1)))),
+          data5,
+          _copyAppend4(suffix4, _copyAppend3(suffix3, _copyAppend2(suffix2, suffix1))),
+        ),
         suffix4: _empty4,
         suffix3: _empty3,
         suffix2: _empty2,
@@ -141,7 +144,7 @@ final class _Vector5<A> extends _BigVector<A> {
   }
 
   @override
-  IVector<A> init() {
+  IVector<A> get init {
     if (suffix1.length > 1) {
       return _copy(suffix1: _copyInit(suffix1), length0: length0 - 1);
     } else {
@@ -151,21 +154,21 @@ final class _Vector5<A> extends _BigVector<A> {
 
   @override
   IVector<B> map<B>(Function1<A, B> f) => _Vector5(
-        _mapElems1(_prefix1, f),
-        len1,
-        _mapElems2(prefix2, f),
-        len12,
-        _mapElems3(prefix3, f),
-        len123,
-        _mapElems4(prefix4, f),
-        len1234,
-        _mapElems5(data5, f),
-        _mapElems4(suffix4, f),
-        _mapElems3(suffix3, f),
-        _mapElems2(suffix2, f),
-        _mapElems1(suffix1, f),
-        length0,
-      );
+    _mapElems1(_prefix1, f),
+    len1,
+    _mapElems2(prefix2, f),
+    len12,
+    _mapElems3(prefix3, f),
+    len123,
+    _mapElems4(prefix4, f),
+    len1234,
+    _mapElems5(data5, f),
+    _mapElems4(suffix4, f),
+    _mapElems3(suffix3, f),
+    _mapElems2(suffix2, f),
+    _mapElems1(suffix1, f),
+    length0,
+  );
 
   @override
   IVector<A> prepended(A elem) {
@@ -257,7 +260,7 @@ final class _Vector5<A> extends _BigVector<A> {
   }
 
   @override
-  IVector<A> tail() {
+  IVector<A> get tail {
     if (len1 > 1) {
       return _copy(
         prefix1: _copyTail(_prefix1),
@@ -296,13 +299,20 @@ final class _Vector5<A> extends _BigVector<A> {
       } else if (index >= len123) {
         final io = index - len123;
         return _copy(
-            prefix4: _copyUpdate4(prefix4, io >>> _BITS3, (io >>> _BITS2) & _MASK,
-                (io >>> _BITS) & _MASK, io & _MASK, elem));
+          prefix4: _copyUpdate4(
+            prefix4,
+            io >>> _BITS3,
+            (io >>> _BITS2) & _MASK,
+            (io >>> _BITS) & _MASK,
+            io & _MASK,
+            elem,
+          ),
+        );
       } else if (index >= len12) {
         final io = index - len12;
         return _copy(
-            prefix3:
-                _copyUpdate3(prefix3, io >>> _BITS2, (io >>> _BITS) & _MASK, io & _MASK, elem));
+          prefix3: _copyUpdate3(prefix3, io >>> _BITS2, (io >>> _BITS) & _MASK, io & _MASK, elem),
+        );
       } else if (index >= len1) {
         final io = index - len1;
         return _copy(prefix2: _copyUpdate2(prefix2, io >>> _BITS, io & _MASK, elem));
@@ -331,17 +341,17 @@ final class _Vector5<A> extends _BigVector<A> {
 
   @override
   Array<dynamic> _vectorSlice(int idx) => switch (idx) {
-        0 => _prefix1,
-        1 => prefix2,
-        2 => prefix3,
-        3 => prefix4,
-        4 => data5,
-        5 => suffix4,
-        6 => suffix3,
-        7 => suffix2,
-        8 => suffix1,
-        _ => throw ArgumentError('Vector5.vectorSlice: $idx'),
-      };
+    0 => _prefix1,
+    1 => prefix2,
+    2 => prefix3,
+    3 => prefix4,
+    4 => data5,
+    5 => suffix4,
+    6 => suffix3,
+    7 => suffix2,
+    8 => suffix1,
+    _ => throw ArgumentError('Vector5.vectorSlice: $idx'),
+  };
 
   @override
   int get _vectorSliceCount => 9;
@@ -361,21 +371,20 @@ final class _Vector5<A> extends _BigVector<A> {
     _Arr2? suffix2,
     _Arr1? suffix1,
     int? length0,
-  }) =>
-      _Vector5(
-        prefix1 ?? _prefix1,
-        len1 ?? this.len1,
-        prefix2 ?? this.prefix2,
-        len12 ?? this.len12,
-        prefix3 ?? this.prefix3,
-        len123 ?? this.len123,
-        prefix4 ?? this.prefix4,
-        len1234 ?? this.len1234,
-        data5 ?? this.data5,
-        suffix4 ?? this.suffix4,
-        suffix3 ?? this.suffix3,
-        suffix2 ?? this.suffix2,
-        suffix1 ?? this.suffix1,
-        length0 ?? this.length0,
-      );
+  }) => _Vector5(
+    prefix1 ?? _prefix1,
+    len1 ?? this.len1,
+    prefix2 ?? this.prefix2,
+    len12 ?? this.len12,
+    prefix3 ?? this.prefix3,
+    len123 ?? this.len123,
+    prefix4 ?? this.prefix4,
+    len1234 ?? this.len1234,
+    data5 ?? this.data5,
+    suffix4 ?? this.suffix4,
+    suffix3 ?? this.suffix3,
+    suffix2 ?? this.suffix2,
+    suffix1 ?? this.suffix1,
+    length0 ?? this.length0,
+  );
 }

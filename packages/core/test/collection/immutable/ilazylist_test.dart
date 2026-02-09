@@ -46,7 +46,7 @@ void main() {
     test('toString when head and tail is evaluated', () {
       final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
       l.head;
-      l.tail();
+      l.tail;
 
       expect(l.toString(), 'ILazyList(1, <not computed>)');
     });
@@ -54,35 +54,35 @@ void main() {
     test('toString when head and tail head is evaluated', () {
       final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
       l.head;
-      l.tail().head;
+      l.tail.head;
 
       expect(l.toString(), 'ILazyList(1, 2, <not computed>)');
     });
 
     test('toString when head is not evaluated and only tail is evaluated', () {
       final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
-      l.tail();
+      l.tail;
 
       expect(l.toString(), 'ILazyList(1, <not computed>)');
     });
 
     test('toString when head is not evaluated and tail head is evaluated', () {
       final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
-      l.tail().head;
+      l.tail.head;
 
       expect(l.toString(), 'ILazyList(1, 2, <not computed>)');
     });
 
     test('toString when head is not evaluated and tail.tail is evaluated', () {
       final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
-      l.tail().tail();
+      l.tail.tail;
 
       expect(l.toString(), 'ILazyList(1, 2, <not computed>)');
     });
 
     test('toString when head is not evaluated and tail.tail.head is evaluated', () {
       final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
-      l.tail().tail().head;
+      l.tail.tail.head;
 
       expect(l.toString(), 'ILazyList(1, 2, 3, <not computed>)');
     });
@@ -119,8 +119,9 @@ void main() {
     test('toString when ILazyList has cyclic reference', () {
       late ILazyList<int> cyc;
 
-      cyc =
-          ILazyList.from(ilist([1])).appended(2).appended(3).appended(4).lazyAppendedAll(() => cyc);
+      cyc = ILazyList.from(
+        ilist([1]),
+      ).appended(2).appended(3).appended(4).lazyAppendedAll(() => cyc);
 
       final l = cyc;
       expect(l.toString(), 'ILazyList(<not computed>)');
@@ -128,19 +129,19 @@ void main() {
       l.head;
       expect(l.toString(), 'ILazyList(1, <not computed>)');
 
-      l.tail();
+      l.tail;
       expect(l.toString(), 'ILazyList(1, <not computed>)');
 
-      l.tail().head;
+      l.tail.head;
       expect(l.toString(), 'ILazyList(1, 2, <not computed>)');
 
-      l.tail().tail().head;
+      l.tail.tail.head;
       expect(l.toString(), 'ILazyList(1, 2, 3, <not computed>)');
 
-      l.tail().tail().tail().head;
+      l.tail.tail.tail.head;
       expect(l.toString(), 'ILazyList(1, 2, 3, 4, <not computed>)');
 
-      l.tail().tail().tail().tail().head;
+      l.tail.tail.tail.tail.head;
       expect(l.toString(), 'ILazyList(1, 2, 3, 4, <cycle>)');
     });
 
@@ -196,9 +197,9 @@ void main() {
     test('laziness', () {
       late ILazyList<int> fibs;
 
-      fibs = ILazyList.from(ilist([0]))
-          .appended(1)
-          .lazyAppendedAll(() => fibs.zip(fibs.tail()).map((t) => t.$1 + t.$2));
+      fibs = ILazyList.from(
+        ilist([0]),
+      ).appended(1).lazyAppendedAll(() => fibs.zip(fibs.tail).map((t) => t.$1 + t.$2));
 
       expect(fibs.take(4).toList(), [0, 1, 1, 2]);
 
@@ -240,19 +241,19 @@ void main() {
       expect(seedCounter, 1);
       expect(fCounter, 0);
 
-      xs.tail();
+      xs.tail;
       expect(seedCounter, 1);
       expect(fCounter, 0);
 
-      xs.tail().head;
+      xs.tail.head;
       expect(seedCounter, 1);
       expect(fCounter, 1);
 
-      xs.tail().tail();
+      xs.tail.tail;
       expect(seedCounter, 1);
       expect(fCounter, 1);
 
-      xs.tail().tail().head;
+      xs.tail.tail.head;
       expect(seedCounter, 1);
       expect(fCounter, 2);
 
@@ -265,9 +266,9 @@ void main() {
       final lazyList = ILazyList.ints(0).take(4);
       final list = lazyList.toIList();
 
-      lazyList
-          .indices()
-          .foreach((i) => expect(list.updated(i, -1), lazyList.updated(i, -1).toIList()));
+      lazyList.indices().foreach(
+        (i) => expect(list.updated(i, -1), lazyList.updated(i, -1).toIList()),
+      );
 
       expect(() => lazyList.updated(-1, -1), throwsRangeError);
     });

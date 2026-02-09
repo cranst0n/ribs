@@ -12,12 +12,16 @@ final class MMultiDict<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMul
   static MMultiDict<K, V> empty<K, V>() => MMultiDict._(MMap.empty());
 
   static MMultiDict<K, V> from<K, V>(RIterableOnce<(K, V)> elems) => switch (elems) {
-        final MMultiDict<K, V> md => md,
-        _ => MMultiDict._(MMap.from(elems
+    final MMultiDict<K, V> md => md,
+    _ => MMultiDict._(
+      MMap.from(
+        elems
             .toIList()
             .groupMap((kv) => kv.$1, (kv) => kv.$2)
-            .mapValues((l) => MSet.from(l.toISet())))),
-      };
+            .mapValues((l) => MSet.from(l.toISet())),
+      ),
+    ),
+  };
 
   static MMultiDict<K, V> fromDart<K, V>(Map<K, V> m) =>
       MMultiDict.fromDartIterable(m.entries.map((e) => (e.key, e.value)));
@@ -67,16 +71,15 @@ final class MMultiDict<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMul
   RIterator<MMultiDict<K, V>> grouped(int size) => super.grouped(size).map(MMultiDict.from);
 
   @override
-  MMultiDict<K, V> init() => MMultiDict.from(super.init());
+  MMultiDict<K, V> get init => MMultiDict.from(super.init);
 
   @override
-  RIterator<MMultiDict<K, V>> inits() => super.inits().map(MMultiDict.from);
+  RIterator<MMultiDict<K, V>> get inits => super.inits.map(MMultiDict.from);
 
   @override
   MMultiDict<K2, V2> mapSets<K2, V2>(
     Function1<(K, RSet<V>), (K2, RSet<V2>)> f,
-  ) =>
-      MMultiDict.from(super.mapSets(f));
+  ) => MMultiDict.from(super.mapSets(f));
 
   @override
   (MMultiDict<K, V>, MMultiDict<K, V>) partition(Function1<(K, V), bool> p) {
@@ -107,10 +110,10 @@ final class MMultiDict<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMul
   }
 
   @override
-  MMultiDict<K, V> tail() => MMultiDict.from(super.tail());
+  MMultiDict<K, V> get tail => MMultiDict.from(super.tail);
 
   @override
-  RIterator<MMultiDict<K, V>> tails() => super.tails().map(MMultiDict.from);
+  RIterator<MMultiDict<K, V>> get tails => super.tails.map(MMultiDict.from);
 
   @override
   MMultiDict<K, V> take(int n) => MMultiDict.from(super.take(n));

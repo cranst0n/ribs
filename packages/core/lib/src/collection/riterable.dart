@@ -118,11 +118,11 @@ mixin RIterable<A> on RIterableOnce<A> {
 
   /// Returns all elements from this collection **except** the last. If this
   /// collection is empty, an empty collection is returned.
-  RIterable<A> init() => dropRight(1);
+  RIterable<A> get init => dropRight(1);
 
   /// Returns an iterator of all potential tails of this collection, starting
   /// with the entire collection and ending with an empty one.
-  RIterator<RIterable<A>> inits() => _iterateUntilEmpty((a) => a.init());
+  RIterator<RIterable<A>> get inits => _iterateUntilEmpty((a) => a.init);
 
   /// Returns the last element of this collection, or throws if it is empty.
   A get last {
@@ -221,11 +221,11 @@ mixin RIterable<A> on RIterableOnce<A> {
 
   /// Returns a new collection with the first element removed. If this
   /// collection is empty, an empty collection is returned.
-  RIterable<A> tail() => drop(1);
+  RIterable<A> get tail => drop(1);
 
   /// Returns an iterator of all potential tails of this collection, starting
   /// with the entire collection and ending with an empty one.
-  RIterator<RIterable<A>> tails() => _iterateUntilEmpty((a) => a.tail());
+  RIterator<RIterable<A>> get tails => _iterateUntilEmpty((a) => a.tail);
 
   @override
   RIterable<A> take(int n) => views.Take(this, n);
@@ -240,11 +240,11 @@ mixin RIterable<A> on RIterableOnce<A> {
 
   @override
   RIterable<A> tapEach<U>(Function1<A, U> f) => views.Map(this, (a) {
-        f(a);
-        return a;
-      });
+    f(a);
+    return a;
+  });
 
-  View<A> view() => views.Id(this);
+  View<A> get view => views.Id(this);
 
   /// Returns a new collection that combines corresponding elements from this
   /// collection and [that] as a tuple. The length of the returned collection will
@@ -266,8 +266,7 @@ mixin RIterable<A> on RIterableOnce<A> {
     RIterableOnce<B> that,
     A thisElem,
     B thatElem,
-  ) =>
-      views.ZipAll(this, that, thisElem, thatElem);
+  ) => views.ZipAll(this, that, thisElem, thatElem);
 
   /// Return a new collection with each element of this collection paired with
   /// it's respective index.
@@ -298,6 +297,8 @@ mixin RIterable<A> on RIterableOnce<A> {
 }
 
 extension RibsIterableTuple2Ops<A, B> on RIterable<(A, B)> {
-  (RIterable<A>, RIterable<B>) unzip() =>
-      (views.Map(this, (a) => a.$1), views.Map(this, (a) => a.$2));
+  (RIterable<A>, RIterable<B>) unzip() => (
+    views.Map(this, (a) => a.$1),
+    views.Map(this, (a) => a.$2),
+  );
 }

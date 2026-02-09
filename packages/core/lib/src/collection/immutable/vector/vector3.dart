@@ -92,7 +92,7 @@ final class _Vector3<A> extends _BigVector<A> {
   }
 
   @override
-  IVector<A> init() {
+  IVector<A> get init {
     if (suffix1.length > 1) {
       return _copy(suffix1: _copyInit(suffix1), length0: length0 - 1);
     } else {
@@ -102,15 +102,15 @@ final class _Vector3<A> extends _BigVector<A> {
 
   @override
   IVector<B> map<B>(Function1<A, B> f) => _Vector3(
-        _mapElems1(_prefix1, f),
-        len1,
-        _mapElems2(prefix2, f),
-        len12,
-        _mapElems3(data3, f),
-        _mapElems2(suffix2, f),
-        _mapElems1(suffix1, f),
-        length0,
-      );
+    _mapElems1(_prefix1, f),
+    len1,
+    _mapElems2(prefix2, f),
+    len12,
+    _mapElems3(data3, f),
+    _mapElems2(suffix2, f),
+    _mapElems1(suffix1, f),
+    length0,
+  );
 
   @override
   IVector<A> prepended(A elem) {
@@ -123,11 +123,12 @@ final class _Vector3<A> extends _BigVector<A> {
       );
     } else if (len12 < _WIDTH2) {
       return _copy(
-          prefix1: _wrap1(elem),
-          len1: 1,
-          prefix2: _copyPrepend2(_prefix1, prefix2),
-          len12: len12 + 1,
-          length0: length0 + 1);
+        prefix1: _wrap1(elem),
+        len1: 1,
+        prefix2: _copyPrepend2(_prefix1, prefix2),
+        len12: len12 + 1,
+        length0: length0 + 1,
+      );
     } else if (data3.length < _WIDTH - 2) {
       return _copy(
         prefix1: _wrap1(elem),
@@ -155,7 +156,7 @@ final class _Vector3<A> extends _BigVector<A> {
   }
 
   @override
-  IVector<A> tail() {
+  IVector<A> get tail {
     if (len1 > 1) {
       return _copy(
         prefix1: _copyTail(_prefix1),
@@ -207,13 +208,13 @@ final class _Vector3<A> extends _BigVector<A> {
 
   @override
   Array<dynamic> _vectorSlice(int idx) => switch (idx) {
-        0 => _prefix1,
-        1 => prefix2,
-        2 => data3,
-        3 => suffix2,
-        4 => suffix1,
-        _ => throw ArgumentError('Vector3.vectorSlice: $idx'),
-      };
+    0 => _prefix1,
+    1 => prefix2,
+    2 => data3,
+    3 => suffix2,
+    4 => suffix1,
+    _ => throw ArgumentError('Vector3.vectorSlice: $idx'),
+  };
 
   @override
   int get _vectorSliceCount => 5;
@@ -227,15 +228,14 @@ final class _Vector3<A> extends _BigVector<A> {
     _Arr2? suffix2,
     _Arr1? suffix1,
     int? length0,
-  }) =>
-      _Vector3(
-        prefix1 ?? _prefix1,
-        len1 ?? this.len1,
-        prefix2 ?? this.prefix2,
-        len12 ?? this.len12,
-        data3 ?? this.data3,
-        suffix2 ?? this.suffix2,
-        suffix1 ?? this.suffix1,
-        length0 ?? this.length0,
-      );
+  }) => _Vector3(
+    prefix1 ?? _prefix1,
+    len1 ?? this.len1,
+    prefix2 ?? this.prefix2,
+    len12 ?? this.len12,
+    data3 ?? this.data3,
+    suffix2 ?? this.suffix2,
+    suffix1 ?? this.suffix1,
+    length0 ?? this.length0,
+  );
 }
