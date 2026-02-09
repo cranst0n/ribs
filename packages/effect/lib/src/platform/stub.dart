@@ -20,4 +20,7 @@ class PlatformImpl extends PlatformBase {
 
   @override
   IO<String> readLine() => throw UnimplementedError();
+
+  @override
+  void installFiberDumpSignalHandler() => throw UnimplementedError();
 }

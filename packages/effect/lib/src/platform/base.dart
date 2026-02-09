@@ -11,4 +11,6 @@ abstract class PlatformBase {
   IO<Unit> printErrLn(String message);
 
   IO<String> readLine();
+
+  void installFiberDumpSignalHandler();
 }

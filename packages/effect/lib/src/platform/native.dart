@@ -1,4 +1,4 @@
-import 'dart:io' show Stdout, stderr, stdin, stdout;
+import 'dart:io' show Platform, ProcessSignal, Stdout, stderr, stdin, stdout;
 import 'dart:isolate';
 
 import 'package:ribs_core/ribs_core.dart';
@@ -35,4 +35,33 @@ final class PlatformImpl extends PlatformBase {
 
   IO<Unit> _opAndFlush(Stdout s, Function1<Stdout, void> f) =>
       IO.exec(() => f(s)).productL(() => IO.fromFutureF(() => s.flush()));
+
+  @override
+  void installFiberDumpSignalHandler() {
+    // Windows has limited signal support.
+    if (Platform.isWindows) {
+      print("[Warn] Fiber dump signals (SIGQUIT/SIGUSR1) are not supported on Windows.");
+      return;
+    }
+
+    void handleSignal(ProcessSignal signal) {
+      print("\n[OS Signal] $signal received. Initiating Fiber Dump...");
+      IOFiber.dumpFibers();
+      print("[OS Signal] Dump complete. Resuming application...\n");
+    }
+
+    // 1. SIGQUIT (Ctrl+\) - The standard "Dump Core/Stack" signal
+    try {
+      ProcessSignal.sigquit.watch().listen(handleSignal);
+    } catch (e) {
+      print("Could not listen to SIGQUIT: $e");
+    }
+
+    // 2. SIGUSR1 (kill -SIGUSR1 <pid>) - A common custom debug signal
+    try {
+      ProcessSignal.sigusr1.watch().listen(handleSignal);
+    } catch (e) {
+      print("Could not listen to SIGUSR1: $e");
+    }
+  }
 }

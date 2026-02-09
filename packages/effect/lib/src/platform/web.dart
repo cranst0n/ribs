@@ -23,4 +23,8 @@ final class PlatformImpl extends PlatformBase {
 
   @override
   IO<String> readLine() => IO.raiseError('Unavailable: IO.readLine()');
+
+  @override
+  void installFiberDumpSignalHandler() =>
+      print('IO.dumpFibers() signal handler is not supported on web');
 }

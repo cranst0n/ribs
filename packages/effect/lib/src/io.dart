@@ -31,6 +31,8 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   static final PlatformImpl _platformImpl = PlatformImpl();
 
+  static void installFiberDumpSignalHandler() => _platformImpl.installFiberDumpSignalHandler();
+
   /// Suspends the asynchronous effect [k] within [IO]. When evaluation is
   /// completed, the callback will be invoked with the result of the [IO].
   /// If the newly created [IO] is canceled, the provided finalizer will be
@@ -770,7 +772,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
       runtime: runtime,
     );
 
-    fiber._runtime.schedule(fiber._resume);
+    fiber._run();
 
     return fiber;
   }

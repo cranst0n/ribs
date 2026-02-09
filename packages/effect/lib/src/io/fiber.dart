@@ -1,9 +1,19 @@
 part of '../io.dart';
 
+enum FiberState { running, suspended }
+
 /// A handle to a running [IO] that allows for cancelation of the [IO] or
 /// waiting for completion.
 final class IOFiber<A> {
+  static final Set<IOFiber<dynamic>> _activeFibers = {};
+  static int _idCounter = 0;
+
   final IO<A> _startIO;
+
+  // Dump related fields.
+  final int id;
+  FiberState _state = FiberState.running;
+  String _suspensionInfo = "Initializing";
 
   final _callbacks = Stack<Function1<Outcome<A>, void>>();
   final _finalizers = Stack<IO<Unit>>();
@@ -37,7 +47,8 @@ final class IOFiber<A> {
     this._startIO, {
     Function1<Outcome<A>, void>? callback,
     IORuntime? runtime,
-  }) : _runtime = runtime ?? IORuntime.defaultRuntime {
+  }) : _runtime = runtime ?? IORuntime.defaultRuntime,
+       id = _idCounter++ {
     _autoCedeN = _runtime.autoCedeN;
     if (_autoCedeN < 1) throw ArgumentError('Fiber autoCedeN must be > 0');
 
@@ -79,6 +90,8 @@ final class IOFiber<A> {
   bool _isUnmasked() => _masks == 0;
 
   void _resume() {
+    _state = FiberState.running;
+
     switch (_resumeTag) {
       case _ExecR():
         _execR();
@@ -97,6 +110,12 @@ final class IOFiber<A> {
       case _DoneR():
         break;
     }
+  }
+
+  void _run() {
+    _activeFibers.add(this); // Register
+
+    _runtime.schedule(_resume);
   }
 
   void _execR() {
@@ -242,12 +261,20 @@ final class IOFiber<A> {
           case _Sleep(:final duration):
             _resumeTag = const _CedeR();
             _runtime.scheduleAfter(duration, _resume);
+
+            _state = FiberState.suspended;
+            _suspensionInfo = "Sleep($duration)";
+
             break runLoop;
           case _Now():
             cur0 = _succeeded(_runtime.now, 0);
           case _Cede():
             _resumeTag = const _CedeR();
             _runtime.schedule(_resume);
+
+            _state = FiberState.suspended;
+            _suspensionInfo = "AutoCede";
+
             break runLoop;
           case _HandleErrorWith(:final ioa, :final f):
             _conts.push(_HandleErrorWithK(f));
@@ -290,12 +317,18 @@ final class IOFiber<A> {
                 (value) => _succeeded(value, 0),
               );
             } else {
-              // Process of registering async finalizer lands us here
+              // Process of registering async finalizer lands us here before the
+              // async callback has a chance to fill in the value, so we need to
+              // suspend until it does.
+              _state = FiberState.suspended;
+              _suspensionInfo = "Async(register: $cur0)";
+
               break runLoop;
             }
           case _Start():
             final fiber = cur0.createFiber(_runtime);
-            _runtime.schedule(fiber._resume);
+            fiber._run();
+
             cur0 = _succeeded(fiber, 0);
           case _Canceled():
             _canceled = true;
@@ -307,7 +340,7 @@ final class IOFiber<A> {
               cur0 = _succeeded(Unit(), 0);
             }
           case final _RacePair<dynamic, dynamic> rp:
-            final next = IO.async_<RacePairOutcome<dynamic, dynamic>>((cb) {
+            final next = IO._async_<RacePairOutcome<dynamic, dynamic>>((cb) {
               final fiberA = rp.createFiberA(_runtime, _autoCedeN);
               final fiberB = rp.createFiberB(_runtime, _autoCedeN);
 
@@ -317,14 +350,18 @@ final class IOFiber<A> {
                 fiberB._setCallback((_) {});
                 cb(Right(rp.aWon(oc, fiberB)));
               });
+
               fiberB._setCallback((oc) {
                 fiberA._setCallback((_) {});
                 cb(Right(rp.bWon(oc, fiberA)));
               });
 
-              _runtime.schedule(fiberA._resume);
-              _runtime.schedule(fiberB._resume);
+              fiberA._run();
+              fiberB._run();
             });
+
+            _state = FiberState.suspended;
+            _suspensionInfo = "RacePair(Waiting for children)";
 
             cur0 = next;
           case _Uncancelable(:final body):
@@ -530,6 +567,8 @@ final class IOFiber<A> {
     while (_callbacks.nonEmpty) {
       _callbacks.pop()(oc);
     }
+
+    _activeFibers.remove(this); // Deregister
   }
 
   IO<dynamic> _runTerminusSuccessK(dynamic result) {
@@ -565,4 +604,33 @@ final class IOFiber<A> {
   }
 
   IO<dynamic> _cancelationLoopFailureK(Object err) => _cancelationLoopSuccessK();
+
+  static void dumpFibers() {
+    // ignore: avoid_print
+    void doPrint(String message) => print(message);
+
+    doPrint("\n===== FIBER DUMP (${_activeFibers.length} active) ===================");
+    for (final fiber in _activeFibers) {
+      final status =
+          fiber._state == FiberState.running
+              ? "RUNNING (or scheduled)"
+              : "SUSPENDED: ${fiber._suspensionInfo}";
+
+      doPrint("Fiber #${fiber.id} [$status]");
+
+      // Print Trace (Reverse order for readability: Top of stack first)
+      final trace = fiber._traceBuffer.toList().reversed;
+
+      if (trace.isEmpty) {
+        doPrint("  (No trace)");
+      } else {
+        for (final line in trace) {
+          final char = line == trace.last ? "╰" : "├";
+          doPrint("  $char  at $line");
+        }
+      }
+      doPrint(""); // Spacer
+    }
+    doPrint("================================================\n");
+  }
 }
