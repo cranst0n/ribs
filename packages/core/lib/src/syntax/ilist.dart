@@ -30,11 +30,10 @@ extension IListOptionOps<A> on IList<Option<A>> {
 /// Operations avaiable when [IList] elements are nullable.
 extension IListNullableOps<A> on IList<A?> {
   /// Returns a new list with all null elements removed.
-  IList<A> noNulls() =>
-      foldLeft(nil(), (acc, elem) => Option(elem).fold(() => acc, (a) => acc.appended(a)));
+  IList<A> noNulls() => foldLeft(nil(), (acc, elem) => elem == null ? acc : acc.appended(elem));
 }
 
-extension IListTuple2Ops<A, B> on IList<(A, B)> {
+extension IListTuple2UnzipOps<A, B> on IList<(A, B)> {
   /// Returns 2 new lists as a tuple. The first list is all the first items
   /// from each tuple element of this list. The second list is all the second
   /// items from each tuple element of this list.
@@ -42,7 +41,7 @@ extension IListTuple2Ops<A, B> on IList<(A, B)> {
       foldLeft((nil<A>(), nil<B>()), (acc, ab) => (acc.$1.appended(ab.$1), acc.$2.appended(ab.$2)));
 }
 
-extension IListTuple3Ops<A, B, C> on IList<(A, B, C)> {
+extension IListTuple3UnzipOps<A, B, C> on IList<(A, B, C)> {
   /// Returns 3 new lists as a tuple. The first list is all the first items
   /// from each tuple element of this list. The second list is all the second
   /// items from each tuple element of this list. The third list is all the

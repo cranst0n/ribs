@@ -16,6 +16,8 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+part 'generated/ilist_tuple.dart';
+
 IList<A> ilist<A>(Iterable<A> as) => IList.fromDart(as);
 IList<A> nil<A>() => IList.empty();
 
