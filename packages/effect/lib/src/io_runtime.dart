@@ -4,6 +4,12 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
 abstract class IORuntime {
+  static const DefaultAutoCedeN = 512;
+
+  final int autoCedeN;
+
+  const IORuntime({this.autoCedeN = DefaultAutoCedeN});
+
   DateTime get now;
 
   void schedule(Function0<void> task);
@@ -13,7 +19,9 @@ abstract class IORuntime {
   static final IORuntime defaultRuntime = RealIORuntime();
 }
 
-class RealIORuntime implements IORuntime {
+class RealIORuntime extends IORuntime {
+  RealIORuntime({super.autoCedeN});
+
   @override
   DateTime get now => DateTime.now();
 
@@ -33,7 +41,7 @@ final class TestIORuntime extends IORuntime {
   int _currentMicros = 0;
   final List<_Task> _tasks = <_Task>[];
 
-  TestIORuntime();
+  TestIORuntime({super.autoCedeN});
 
   @override
   DateTime get now => DateTime(1970).copyWith(microsecond: _currentMicros);
@@ -122,21 +130,29 @@ final class _Task {
 
 final class Ticker<A> {
   final TestIORuntime _runtime;
-  final Future<Outcome<A>> _outcome;
+  final Completer<Outcome<A>> _completer;
 
-  Ticker._(this._runtime, this._outcome);
+  Ticker._(this._runtime, this._completer);
 
   static Ticker<A> ticked<A>(IO<A> io) {
     final runtime = TestIORuntime();
+    final completer = Completer<Outcome<A>>();
 
-    return Ticker._(runtime, io.unsafeRunFutureOutcome(runtime: runtime, autoCedeN: 1));
+    io.unsafeRunAsync((oc) => completer.complete(oc), runtime: runtime);
+
+    return Ticker._(runtime, completer);
   }
 
-  Future<Outcome<A>> get outcome => _outcome;
+  Future<Outcome<A>> get outcome => _completer.future;
 
   void advance(Duration amount) => _runtime.advance(amount);
 
   void advanceAndTick(Duration amount) => _runtime.advanceAndTick(amount);
+
+  bool nonTerminating() {
+    tickAll();
+    return !_completer.isCompleted;
+  }
 
   Duration nextInterval() => _runtime.nextInterval();
 

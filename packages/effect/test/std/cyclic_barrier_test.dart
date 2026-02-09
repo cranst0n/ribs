@@ -1,5 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
+import 'package:ribs_effect/src/io_runtime.dart';
 import 'package:ribs_effect/test_matchers.dart';
 import 'package:test/test.dart';
 
@@ -9,9 +10,9 @@ void main() {
 
     test('await is blocking', () {
       final test = newBarrier(2).flatMap((barrier) => barrier.await());
-
-      expect(test, ioSucceeded());
-    }, skip: 'Expected to be non-terminating');
+      final ticker = Ticker.ticked(test);
+      expect(ticker.nonTerminating(), isTrue);
+    });
 
     test('await is cancelable', () {
       final test = newBarrier(2).flatMap((barrier) => barrier.await()).timeoutTo(1.second, IO.unit);
@@ -32,16 +33,18 @@ void main() {
         return (barrier.await(), barrier.await()).parTupled.productR(() => barrier.await());
       });
 
-      expect(test, ioSucceeded());
-    }, skip: 'Expected to be non-terminating');
+      final ticker = Ticker.ticked(test);
+      expect(ticker.nonTerminating(), isTrue);
+    });
 
     test('should clean up upon cancelation of await', () {
       final test = newBarrier(2).flatMap((barrier) {
         return barrier.await().timeoutTo(1.second, IO.unit).productR(() => barrier.await());
       });
 
-      expect(test, ioSucceeded());
-    }, skip: 'Expected to be non-terminating');
+      final ticker = Ticker.ticked(test);
+      expect(ticker.nonTerminating(), isTrue);
+    });
 
     test('barrier of capacity 1 is a no op', () {
       expect(

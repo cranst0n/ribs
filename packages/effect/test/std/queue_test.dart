@@ -536,7 +536,7 @@ class QueueTests {
             final offerer1 = offer(q, 42).guaranteeCase((oc) {
               return oc.fold(
                 () => offeredR.complete(false).voided(),
-                (_) => offeredR.complete(false).voided(),
+                (_, _) => offeredR.complete(false).voided(),
                 (a) => offeredR.complete(true).voided(),
               );
             });
@@ -670,7 +670,7 @@ class QueueTests {
               final taker1 = take(q).guaranteeCase((oc) {
                 return oc.fold(
                   () => takenR.complete(none()).voided(),
-                  (err) => takenR.complete(none()).voided(),
+                  (err, _) => takenR.complete(none()).voided(),
                   (a) => takenR.complete(Some(a)).voided(),
                 );
               });

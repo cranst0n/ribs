@@ -69,7 +69,7 @@ void main() {
 
     result.fold(
       () => fail('retryable was canceled'),
-      (err) => expect(err, 'Retry giving up.'),
+      (err, _) => expect(err, 'Retry giving up.'),
       (a) => fail('retryable succeeded'),
     );
   });
@@ -89,7 +89,7 @@ void main() {
 
     result.fold(
       () => fail('retryable was canceled'),
-      (err) => fail('retryable finished with error: $err'),
+      (err, _) => fail('retryable finished with error: $err'),
       (a) {
         expect(a, 4);
         expect(attempts, 4);
@@ -108,7 +108,7 @@ void main() {
 
     result.fold(
       () => fail('retryable was canceled'),
-      (err) => expect(err, 'Retry giving up.'),
+      (err, _) => expect(err, 'Retry giving up.'),
       (a) => fail('retryable succeeded'),
     );
   });
@@ -128,7 +128,7 @@ void main() {
 
     result.fold(
       () => fail('retryable was canceled'),
-      (err) => fail('retryable finished with error: $err'),
+      (err, _) => fail('retryable finished with error: $err'),
       (a) {
         expect(a, 3);
         expect(attempts, 3);
@@ -151,7 +151,7 @@ void main() {
 
     result.fold(
       () => fail('retryable was canceled'),
-      (err) {
+      (err, _) {
         expect(err, 'Retry giving up.');
         expect(attempts, 3);
       },

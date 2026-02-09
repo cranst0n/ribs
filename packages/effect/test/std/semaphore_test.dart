@@ -1,5 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
+import 'package:ribs_effect/src/io_runtime.dart';
 import 'package:ribs_effect/test_matchers.dart';
 import 'package:test/test.dart';
 
@@ -9,8 +10,9 @@ void main() {
 
     test('execute action if permit is available for it', () {
       final test = sc(0).flatMap((sem) => sem.permit().surround(IO.unit));
-      expect(test, ioSucceeded(Unit()));
-    }, skip: 'Expected to be non-terminating');
+      final ticker = Ticker.ticked(test);
+      expect(ticker.nonTerminating(), isTrue);
+    });
 
     test('tryPermit returns true if permit is available for it', () {
       final test = sc(1).flatMap((sem) => sem.tryPermit().use(IO.pure));
@@ -82,19 +84,16 @@ void main() {
       expect(test, ioSucceeded(Unit()));
     });
 
-    test(
-      'not release permit if tryPermit completes without acquiring a permit',
-      () {
-        final test = sc(0).flatMap((sem) {
-          return sem.tryPermit().surround(IO.unit).flatMap((_) {
-            return sem.permit().surround(IO.unit);
-          });
+    test('not release permit if tryPermit completes without acquiring a permit', () {
+      final test = sc(0).flatMap((sem) {
+        return sem.tryPermit().surround(IO.unit).flatMap((_) {
+          return sem.permit().surround(IO.unit);
         });
+      });
 
-        expect(test, ioSucceeded());
-      },
-      skip: 'Expected to be non-terminating',
-    );
+      final ticker = Ticker.ticked(test);
+      expect(ticker.nonTerminating(), isTrue);
+    });
 
     test('release permit if action gets canceled', () {
       final test = sc(1).flatMap((sem) {
@@ -147,8 +146,9 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded());
-    }, skip: 'Expected to be non-terminating');
+      final ticker = Ticker.ticked(test);
+      expect(ticker.nonTerminating(), isTrue);
+    });
 
     test('acquire n synchronosly', () {
       const n = 20;

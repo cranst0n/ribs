@@ -23,6 +23,11 @@ void main() {
     s.clear();
 
     expect(s.size, 0);
+
+    s.push(42);
+    expect(s.size, 1);
+    expect(s.pop(), 42);
+    expect(s.size, 0);
   });
 
   test('peek', () {
@@ -46,5 +51,17 @@ void main() {
 
     expect(s.isEmpty, isFalse);
     expect(s.nonEmpty, isTrue);
+  });
+
+  test('grows as necessary', () {
+    final s = Stack<int>();
+
+    for (int i = 0; i < 100; i++) {
+      s.push(i);
+    }
+
+    expect(s.size, 100);
+    expect(s.pop(), 99);
+    expect(s.pop(), 98);
   });
 }

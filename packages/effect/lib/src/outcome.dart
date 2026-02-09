@@ -14,7 +14,8 @@ sealed class Outcome<A> {
   static Outcome<A> succeeded<A>(A a) => Succeeded(a);
 
   /// Creates a [Errored] cast as an [Outcome];
-  static Outcome<A> errored<A>(Object error) => Errored(error);
+  static Outcome<A> errored<A>(Object error, [StackTrace? stackTrace]) =>
+      Errored(error, stackTrace);
 
   /// Creates a [Canceled] cast as an [Outcome];
   static Outcome<A> canceled<A>() => Canceled();
@@ -24,7 +25,7 @@ sealed class Outcome<A> {
   /// successful value if the outcome is [Succeeded].
   IO<A> embed(IO<A> onCancel) => fold(
     () => onCancel,
-    (err) => IO.raiseError(err),
+    (err, stackTrace) => IO.raiseError(err, stackTrace),
     (a) => IO.pure(a),
   );
 
@@ -38,18 +39,18 @@ sealed class Outcome<A> {
   /// [succeeded] will be applied if this instance is a [Succeeded].
   B fold<B>(
     Function0<B> canceled,
-    Function1<Object, B> errored,
+    Function2<Object, StackTrace?, B> errored,
     Function1<A, B> succeeded,
   );
 
   /// Returns `true` if this instance is a [Canceled], `false` otherwise.
-  bool get isCanceled => fold(() => true, (_) => false, (_) => false);
+  bool get isCanceled => fold(() => true, (_, _) => false, (_) => false);
 
   /// Returns `true` if this instance is a [Errored], `false` otherwise.
-  bool get isError => fold(() => false, (_) => true, (_) => false);
+  bool get isError => fold(() => false, (_, _) => true, (_) => false);
 
   /// Returns `true` if this instance is a [Succeeded], `false` otherwise.
-  bool get isSuccess => fold(() => false, (_) => false, (_) => true);
+  bool get isSuccess => fold(() => false, (_, _) => false, (_) => true);
 
   /// Returns `true` if this instance is the same kind of outcome as [other].
   /// This will *not* take the wrapped values into consideration of equality.
@@ -63,7 +64,7 @@ sealed class Outcome<A> {
   @override
   String toString() => fold(
     () => 'Canceled',
-    (err) => 'Errored($err)',
+    (err, _) => 'Errored($err)',
     (value) => 'Succeeded($value)',
   );
 
@@ -84,7 +85,7 @@ final class Succeeded<A> extends Outcome<A> {
   @override
   B fold<B>(
     Function0<B> canceled,
-    Function1<Object, B> errored,
+    Function2<Object, StackTrace?, B> errored,
     Function1<A, B> succeeded,
   ) => succeeded(value);
 
@@ -100,15 +101,16 @@ final class Succeeded<A> extends Outcome<A> {
 final class Errored<A> extends Outcome<A> {
   /// The underlying error.
   final Object error;
+  final StackTrace? stackTrace;
 
-  const Errored(this.error);
+  const Errored(this.error, [this.stackTrace]);
 
   @override
   B fold<B>(
     Function0<B> canceled,
-    Function1<Object, B> errored,
+    Function2<Object, StackTrace?, B> errored,
     Function1<A, B> succeeded,
-  ) => errored(error);
+  ) => errored(error, stackTrace);
 
   @override
   bool operator ==(Object other) =>
@@ -125,7 +127,7 @@ final class Canceled<A> extends Outcome<A> {
   @override
   B fold<B>(
     Function0<B> canceled,
-    Function1<Object, B> errored,
+    Function2<Object, StackTrace?, B> errored,
     Function1<Never, B> succeeded,
   ) => canceled();
 

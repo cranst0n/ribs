@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
+import 'package:ribs_effect/src/io_runtime.dart';
 import 'package:ribs_effect/test_matchers.dart';
 import 'package:test/test.dart';
 
@@ -256,7 +257,7 @@ void main() {
         });
 
         expect(io, ioSucceeded(Unit()));
-      }, skip: 'No ticker');
+      });
 
       test('only unmask within current fiber', () async {
         var passed = false;
@@ -275,7 +276,7 @@ void main() {
         expect(passed, isTrue);
       });
 
-      test('polls from unrelated fibers are no-ops', () async {
+      test('polls from unrelated fibers are no-ops', () {
         var canceled = false;
 
         final test = IO.deferred<Poll>().flatMap((deferred) {
@@ -298,9 +299,11 @@ void main() {
           });
         });
 
-        await expectLater(test, ioErrored());
+        final ticker = Ticker.ticked(test);
+
+        expect(ticker.nonTerminating(), isTrue);
         expect(canceled, isFalse);
-      }, skip: 'Expected to be non-terminating');
+      });
 
       test('run three finalizers when an async is canceled while suspended', () {
         final results = List<int>.empty(growable: true);
@@ -366,40 +369,44 @@ void main() {
               });
             }).voided();
 
-        expect(test.timeout(5.seconds), ioErrored());
-      }, skip: 'Expected to be non-terminating');
+        final ticker = Ticker.ticked(test);
+        expect(ticker.nonTerminating(), isTrue);
+      });
 
-      test('first canceller backpressures subsequent cancellers', () {
-        var started = false;
-        var started2 = false;
+      test(
+        'first canceller backpressures subsequent cancellers',
+        () {
+          var started = false;
+          var started2 = false;
 
-        final markStarted = IO.exec(() => started = true);
-        final markStarted2 = IO.exec(() => started2 = true);
+          final markStarted = IO.exec(() => started = true);
+          final markStarted2 = IO.exec(() => started2 = true);
 
-        IO<Unit> cedeUntilStarted() => IO
-            .delay(() => started)
-            .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted()));
+          IO<Unit> cedeUntilStarted() => IO
+              .delay(() => started)
+              .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted()));
 
-        IO<Unit> cedeUntilStarted2() => IO
-            .delay(() => started2)
-            .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted2()));
+          IO<Unit> cedeUntilStarted2() => IO
+              .delay(() => started2)
+              .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted2()));
 
-        final test = markStarted
-            .productR(() => IO.never<Unit>())
-            .onCancel(IO.never())
-            .start()
-            .flatMap((first) {
-              return cedeUntilStarted()
-                  .productR(() => markStarted2)
-                  .productR(() => first.cancel())
-                  .start()
-                  .flatMap((_) {
-                    return cedeUntilStarted2().productR(() => first.cancel());
-                  });
-            });
+          final test = markStarted
+              .productR(() => IO.never<Unit>())
+              .onCancel(IO.never())
+              .start()
+              .flatMap(
+                (first) => cedeUntilStarted()
+                    .productR(() => markStarted2)
+                    .productR(() => first.cancel())
+                    .start()
+                    .productR(() => cedeUntilStarted2().productR(() => first.cancel())),
+              );
 
-        expect(test, ioErrored());
-      }, skip: 'Expected to be non-terminating');
+          final ticker = Ticker.ticked(test);
+          expect(ticker.nonTerminating(), isTrue);
+        },
+        skip: 'Expected to be non-terminating (but succeeds)',
+      );
 
       test('reliably cancel infinite IO.unit(s)', () {
         final test = IO.unit.foreverM().start().flatMap(
@@ -441,48 +448,46 @@ void main() {
             .start()
             .flatMap((f) => cedeUntilStarted().productR(() => f.cancel()));
 
-        expect(test, ioErrored());
-      }, skip: 'Expected to be non-terminating');
+        final ticker = Ticker.ticked(test);
+        expect(ticker.nonTerminating(), isTrue);
+      });
 
-      test(
-        'await cancelation of cancelation of uncancelable never',
-        () {
-          var started = false;
-          var started2 = false;
+      test('await cancelation of cancelation of uncancelable never', () {
+        var started = false;
+        var started2 = false;
 
-          final markStarted = IO.exec(() => started = true);
-          final markStarted2 = IO.exec(() => started2 = true);
+        final markStarted = IO.exec(() => started = true);
+        final markStarted2 = IO.exec(() => started2 = true);
 
-          IO<Unit> cedeUntilStarted() => IO
-              .delay(() => started)
-              .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted()));
+        IO<Unit> cedeUntilStarted() => IO
+            .delay(() => started)
+            .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted()));
 
-          IO<Unit> cedeUntilStarted2() => IO
-              .delay(() => started2)
-              .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted2()));
+        IO<Unit> cedeUntilStarted2() => IO
+            .delay(() => started2)
+            .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted2()));
 
-          final test = IO
-              .uncancelable((_) => markStarted.productR(() => IO.never<Unit>()))
-              .start()
-              .flatMap((first) {
-                return IO
-                    .uncancelable(
-                      (poll) => cedeUntilStarted()
-                          .productR(() => markStarted2)
-                          .productR(() => poll(first.cancel())),
-                    )
-                    .start()
-                    .flatMap((second) {
-                      return cedeUntilStarted2().flatMap((_) {
-                        return second.cancel();
-                      });
+        final test = IO
+            .uncancelable((_) => markStarted.productR(() => IO.never<Unit>()))
+            .start()
+            .flatMap((first) {
+              return IO
+                  .uncancelable(
+                    (poll) => cedeUntilStarted()
+                        .productR(() => markStarted2)
+                        .productR(() => poll(first.cancel())),
+                  )
+                  .start()
+                  .flatMap((second) {
+                    return cedeUntilStarted2().flatMap((_) {
+                      return second.cancel();
                     });
-              });
+                  });
+            });
 
-          expect(test, ioErrored());
-        },
-        skip: 'Expected to be non-terminating',
-      );
+        final ticker = Ticker.ticked(test);
+        expect(ticker.nonTerminating(), isTrue);
+      });
 
       test('catch stray exceptions in uncancelable', () {
         expect(
@@ -1076,7 +1081,7 @@ void main() {
 
     IO<Unit> fin(Outcome<Unit> oc) => oc.fold(
       () => IO.exec(() => count += 1),
-      (_) => IO.exec(() => count += 2),
+      (_, _) => IO.exec(() => count += 2),
       (_) => IO.exec(() => count += 3),
     );
 
@@ -1419,7 +1424,7 @@ void main() {
 
     outcome.fold(
       () => fail('racePair A wins should not cancel'),
-      (err) => fail('racePair A wins should not error: $err'),
+      (err, _) => fail('racePair A wins should not error: $err'),
       (a) => a.fold(
         (aWon) => expect(aWon.$1, const Succeeded(123)),
         (bWon) => fail('racePair A wins should not have B win: $bWon'),
@@ -1441,7 +1446,7 @@ void main() {
 
     outcome.fold(
       () => fail('racePair B wins should not cancel'),
-      (err) => fail('racePair B wins should not error: $err'),
+      (err, _) => fail('racePair B wins should not error: $err'),
       (a) => a.fold(
         (aWon) => fail('racePair B wins should not have A win: $aWon'),
         (bWon) => expect(bWon.$2, const Succeeded('abc')),

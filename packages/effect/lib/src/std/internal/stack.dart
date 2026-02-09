@@ -1,34 +1,77 @@
-/// Basic mutable stack data structure.
+/// A specialized stack designed specifically for the IO interpreter but used
+/// in other places as well.
+///
+/// This implementation avoids the overhead of standard [List.add] and
+/// [List.removeLast] by managing a fixed-size buffer and a manual index pointer.
 ///
 /// ***For internal use only***
-final class Stack<A> {
-  final _list = <A>[];
+class Stack<A> {
+  // Start with a power of 2. 64 frames is deep enough for most
+  // simple business logic, but it will grow if needed.
+  static const int _initialCapacity = 64;
 
-  /// Adds [value] to the top of this stack
-  void push(A value) => _list.add(value);
+  // The backing store.
+  List<Object?> _buffer;
 
-  /// Removes and returns the top element on this stack.
+  // The pointer to the *next* available slot.
+  // 0 means empty.
+  int _index = 0;
+
+  Stack() : _buffer = List<Object?>.filled(_initialCapacity, null);
+
+  /// Checks if stack is empty.
+  @pragma('vm:prefer-inline')
+  bool get isEmpty => _index == 0;
+  bool get nonEmpty => _index != 0;
+
+  /// Returns the number of elements currently on this stack.
+  int get size => _index;
+
+  /// Removes all elements from this stack.
+  void clear() {
+    // Null out all references to allow GC of closures.
+    for (int ix = _index; ix >= 0; ix--) {
+      _buffer[ix] = null;
+    }
+
+    _index = 0;
+  }
+
+  /// Pushes an element onto the stack.
+  @pragma('vm:prefer-inline')
+  void push(A a) {
+    if (_index == _buffer.length) _grow();
+    _buffer[_index++] = a;
+  }
+
+  /// Pops the last element on the stack..
   ///
-  /// If this stack is empty, an exception will be thrown
-  A pop() => _list.removeLast();
+  /// Note: This assumes the caller has verified [isEmpty] is false,
+  /// or that the logic guarantees a pop is safe.
+  @pragma('vm:prefer-inline')
+  A pop() {
+    // Decrement first to get the item at the top.
+    final f = _buffer[--_index] as A;
+
+    // Critical: Null out the slot to allow the closure to be Garbage Collected.
+    // If we don't do this, the stack holds references to old closures, causing leaks.
+    _buffer[_index] = null;
+
+    return f;
+  }
 
   /// Returns the top element on this stack. The stack itself is unchanged.
   ///
   /// If this stack is empty, an exception will be thrown
-  A get peek => _list.last;
+  A get peek => _buffer[_index - 1]! as A;
 
-  /// Returns true if this stack has no elements, false otherwise.
-  bool get isEmpty => _list.isEmpty;
+  /// Doubles the capacity of the buffer when full.
+  void _grow() {
+    final newCapacity = _buffer.length * 2;
+    final newBuffer = List<Object?>.filled(newCapacity, null);
 
-  /// Returns true if this stack has any elements, false otherwise.
-  bool get nonEmpty => _list.isNotEmpty;
-
-  /// Returns the number of elements currently on this stack.
-  int get size => _list.length;
-
-  /// Removes all elements from this stack.
-  void clear() => _list.clear();
-
-  @override
-  String toString() => _list.toString();
+    // Fast intrinsic copy
+    List.copyRange(newBuffer, 0, _buffer);
+    _buffer = newBuffer;
+  }
 }
