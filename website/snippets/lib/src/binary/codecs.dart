@@ -79,7 +79,7 @@ final headerCodec = Codec.product3(
   Codec.float32, // 32-bit floating point
   Codec.utf8_32, // utf8 bytes with 32bit size prefix
   Codec.int64, // 64-bit integer
-  (version, comment, numMessages) => Header(version, comment, numMessages),
+  Header.new,
   (hdr) => (hdr.version, hdr.comment, hdr.numMessages),
 );
 
