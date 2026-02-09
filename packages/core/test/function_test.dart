@@ -13,7 +13,7 @@ void main() {
     int a3(int a, int b, int c) => a + b + c;
 
     (int, int) n2(int a) => (a, a + 1);
-    (int, int, int) n3(int a) => n2(a).append(a + 2);
+    (int, int, int) n3(int a) => n2(a).appended(a + 2);
 
     forAll('identity', Gen.positiveInt, (a) {
       expect(identity(a), a);

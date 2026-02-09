@@ -1,6 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 
-class Fn0<A> {
+final class Fn0<A> {
   final Function0<A> f;
 
   const Fn0(this.f);
@@ -11,23 +11,24 @@ class Fn0<A> {
   String toString() => '() -> $A';
 }
 
-class Fn1F<A, B> extends Fn1<A, B> {
+final class Fn1<A, B> {
   final Function1<A, B> f;
 
-  Fn1F._(this.f);
+  const Fn1(this.f);
 
-  @override
   B call(A a) => f(a);
 
   @override
   String toString() => '$A -> $B';
 }
 
-abstract mixin class Fn1<A, B> {
-  static Fn1<A, B> of<A, B>(Function1<A, B> f) => Fn1F._(f);
+final class Fn2<A, B, C> {
+  final Function2<A, B, C> f;
 
-  B call(A a);
+  const Fn2(this.f);
+
+  C call(A a, B b) => f(a, b);
 
   @override
-  String toString() => '$A -> $B';
+  String toString() => '($A, $B) -> $C';
 }

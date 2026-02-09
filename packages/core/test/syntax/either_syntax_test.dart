@@ -29,7 +29,7 @@ void main() {
             20.asRight<String>(),
             21.asRight<String>(),
             22.asRight<String>(),
-          ).tupled();
+          ).tupled;
 
       // ignore: inference_failure_on_function_invocation
       expect(tupled, isRight());

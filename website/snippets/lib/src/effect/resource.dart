@@ -44,7 +44,7 @@ void snippet2() {
   /// Copy the first [n] bytes from [fromPathA] and [fromPathB], then write
   /// bytes to [toPath]
   IO<Unit> copyN(String fromPathA, String fromPathB, String toPath, int n) =>
-      (openFile(fromPathA), openFile(fromPathB), openFile(toPath)).tupled().useN(
+      (openFile(fromPathA), openFile(fromPathB), openFile(toPath)).tupled.useN(
         (fromA, fromB, to) {
           return (
             readBytes(fromA, n),

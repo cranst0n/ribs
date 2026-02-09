@@ -30,8 +30,8 @@ void main() {
         IO.pure(22),
       );
 
-      expect(tuple.tupled(), ioSucceeded());
-      expect(tuple.parTupled(), ioSucceeded());
+      expect(tuple.tupled, ioSucceeded());
+      expect(tuple.parTupled, ioSucceeded());
     });
   });
 }

@@ -21,7 +21,7 @@ void main() {
 
     test('await releases all fibers', () {
       final test = newBarrier(2).flatMap((barrier) {
-        return (barrier.await(), barrier.await()).parTupled().voided();
+        return (barrier.await(), barrier.await()).parTupled.voided();
       });
 
       expect(test, ioSucceeded());
@@ -29,7 +29,7 @@ void main() {
 
     test('should reset once full', () {
       final test = newBarrier(2).flatMap((barrier) {
-        return (barrier.await(), barrier.await()).parTupled().productR(() => barrier.await());
+        return (barrier.await(), barrier.await()).parTupled.productR(() => barrier.await());
       });
 
       expect(test, ioSucceeded());
@@ -57,7 +57,7 @@ void main() {
         return barrier.await().start().flatMap((fiber) {
           return IO.race(barrier.await(), fiber.cancel()).flatMap((result) {
             return result.fold(
-              (_) => (barrier.await(), barrier.await()).parTupled().voided(),
+              (_) => (barrier.await(), barrier.await()).parTupled.voided(),
               (_) => IO.unit,
             );
           });

@@ -61,8 +61,8 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
       });
     }).evalMap((store) {
       return IO.both(
-        allocate(ra, (f) => store.update((a) => a.bimap(f, identity))),
-        allocate(rb, (f) => store.update((a) => a.bimap(identity, f))),
+        allocate(ra, (f) => store.update((a) => (f(a.$1), a.$2))),
+        allocate(rb, (f) => store.update((a) => (a.$1, f(a.$2)))),
       );
     });
   }
@@ -150,7 +150,7 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
   Resource<A> evalTap<B>(Function1<A, IO<B>> f) => flatMap((a) => Resource.eval(f(a)).as(a));
 
   @override
-  Resource<B> flatMap<B>(covariant Function1<A, Resource<B>> f) => _Bind(this, Fn1.of(f));
+  Resource<B> flatMap<B>(covariant Function1<A, Resource<B>> f) => _Bind(this, Fn1(f));
 
   /// Intercepts any upstream errors, sequencing in the [Resource] generated
   /// by [f].

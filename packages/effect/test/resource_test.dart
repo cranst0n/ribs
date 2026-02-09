@@ -37,7 +37,7 @@ void main() {
   test('releases resource if interruption happens during use', () {
     final flag = IO.ref(false);
 
-    final test = (flag, flag).tupled().flatMapN((acquireFin, resourceFin) {
+    final test = (flag, flag).tupled.flatMapN((acquireFin, resourceFin) {
       final action = IO.sleep(1.second).onCancel(acquireFin.setValue(true));
 
       final fin = resourceFin.setValue(true);
@@ -48,7 +48,7 @@ void main() {
           .surround(IO.sleep(4.seconds))
           .timeout(2.seconds)
           .attempt()
-          .productR(() => (acquireFin.value(), resourceFin.value()).tupled());
+          .productR(() => (acquireFin.value(), resourceFin.value()).tupled);
     });
 
     expect(test, ioSucceeded((false, true)));
@@ -57,7 +57,7 @@ void main() {
   test('supports interruptible acquires', () {
     final flag = IO.ref(false);
 
-    final test = (flag, flag).tupled().flatMapN((acquireFin, resourceFin) {
+    final test = (flag, flag).tupled.flatMapN((acquireFin, resourceFin) {
       final action = IO.sleep(5.seconds).onCancel(acquireFin.setValue(true));
 
       final fin = resourceFin.setValue(true);
@@ -68,7 +68,7 @@ void main() {
           .use_()
           .timeout(1.second)
           .attempt()
-          .productR(() => (acquireFin.value(), resourceFin.value()).tupled());
+          .productR(() => (acquireFin.value(), resourceFin.value()).tupled);
     });
 
     expect(test, ioSucceeded((true, false)));
@@ -79,7 +79,7 @@ void main() {
     final sleep = IO.sleep(1.second);
     const timeout = Duration(milliseconds: 500);
 
-    final test = (flag, flag, flag, flag).tupled().flatMap((ft) {
+    final test = (flag, flag, flag, flag).tupled.flatMap((ft) {
       final (acquireFin, resourceFin, a, b) = ft;
 
       final io = IO.uncancelable(
@@ -96,7 +96,7 @@ void main() {
           .use_()
           .timeout(timeout)
           .attempt()
-          .productR(() => (a.value(), b.value(), acquireFin.value(), resourceFin.value()).tupled());
+          .productR(() => (a.value(), b.value(), acquireFin.value(), resourceFin.value()).tupled);
     });
 
     expect(test, ioSucceeded((false, true, true, false)));

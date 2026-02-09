@@ -233,7 +233,7 @@ void main() {
         return (
           permits.traverseIO_(sem.acquireN),
           permits.reverse().traverseIO_(sem.releaseN),
-        ).parTupled().productR(() => sem.count());
+        ).parTupled.productR(() => sem.count());
       });
 
       expect(test, ioSucceeded(0));
@@ -246,7 +246,7 @@ void main() {
         return (
           permits.parTraverseIO_(sem.acquireN),
           permits.reverse().parTraverseIO_(sem.releaseN),
-        ).parTupled().productR(() => sem.count());
+        ).parTupled.productR(() => sem.count());
       });
 
       expect(test, ioSucceeded(0));

@@ -208,32 +208,32 @@ void main() {
       final iC = 'invalid birthday'.invalidNel<int>();
 
       expect(
-        (vA, vB, vC).tupled(),
+        (vA, vB, vC).tupled,
         const (1, 2, 3).valid<Error>(),
       );
 
       expect(
-        (iA, vB, vC).tupled(),
+        (iA, vB, vC).tupled,
         'invalid username'.invalidNel<Value>(),
       );
 
       expect(
-        (iA, iB, vC).tupled(),
+        (iA, iB, vC).tupled,
         nel('invalid username', ['invalid password']).invalid<Value>(),
       );
 
       expect(
-        (iA, iB, iC).tupled(),
+        (iA, iB, iC).tupled,
         nel('invalid username', ['invalid password', 'invalid birthday']).invalid<Value>(),
       );
 
       expect(
-        (iA, vB, iC).tupled(),
+        (iA, vB, iC).tupled,
         nel('invalid username', ['invalid birthday']).invalid<Value>(),
       );
 
       expect(
-        (vA, vB, iC).tupled(),
+        (vA, vB, iC).tupled,
         'invalid birthday'.invalidNel<Value>(),
       );
     });

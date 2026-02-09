@@ -139,7 +139,7 @@ final class _GenericCrcBuilder extends CrcBuilder<BitVector> {
 
       final size = input.size;
       final byteAligned = size % 8 == 0;
-      final data = byteAligned ? input.bytes : input.bytes.init();
+      final data = byteAligned ? input.bytes : input.bytes.init;
 
       if (reflectInput) {
         data.foreach((inputByte) {
@@ -193,7 +193,7 @@ BitVector _goBitwise(BitVector poly, BitVector remaining, BitVector crcreg) {
       reg = shifted.xor(poly);
     }
 
-    rem = rem.tail();
+    rem = rem.tail;
   }
 
   return reg;

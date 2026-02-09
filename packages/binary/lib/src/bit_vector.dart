@@ -147,7 +147,7 @@ sealed class BitVector implements Comparable<BitVector> {
 
   factory BitVector.fromBigInt(
     BigInt value, {
-    Option<int> size = const None<int>(),
+    Option<int> size = const None(),
     Endian ordering = Endian.big,
   }) {
     final actualSize = size.getOrElse(() => value.bitLength + 1);
@@ -374,7 +374,7 @@ sealed class BitVector implements Comparable<BitVector> {
         } else if (b2.isEmpty) {
           return -1;
         } else {
-          b2 = b2.tail();
+          b2 = b2.tail;
           idx2 += 1;
         }
       }
@@ -393,10 +393,10 @@ sealed class BitVector implements Comparable<BitVector> {
   Option<bool> get headOption => lift(0);
 
   /// Returns a vector of all bits in this vector except the first bit.
-  BitVector tail() => drop(1);
+  BitVector get tail => drop(1);
 
   /// Returns a vector of all bits in this vector except the last bit.
-  BitVector init() => dropRight(1);
+  BitVector get init => dropRight(1);
 
   /// Returns the last bit in this vector or throws if vector is empty.
   bool get last => get(size - 1);
@@ -628,7 +628,7 @@ sealed class BitVector implements Comparable<BitVector> {
     if (size % 8 == 0) {
       return full;
     } else if (size % 8 <= 4) {
-      return full.init();
+      return full.init;
     } else {
       return full;
     }

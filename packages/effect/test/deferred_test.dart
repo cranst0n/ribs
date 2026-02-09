@@ -12,7 +12,7 @@ void main() {
     final writeB = d.complete(43).delayBy(150.milliseconds);
 
     expect(
-      (writeA, writeB, d.value()).parTupled(),
+      (writeA, writeB, d.value()).parTupled,
       ioSucceeded((true, false, 42)),
     );
   });

@@ -634,7 +634,7 @@ extension PullOps<O> on Pull<O, Unit> {
       case final _Terminal<O2, Unit> r:
         return r;
       default:
-        return _FlatMapOutput(this, Fn1.of(f));
+        return _FlatMapOutput(this, Fn1(f));
     }
   }
 

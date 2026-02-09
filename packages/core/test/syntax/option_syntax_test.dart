@@ -29,7 +29,7 @@ void main() {
             20.some,
             21.some,
             22.some,
-          ).tupled();
+          ).tupled;
 
       // ignore: inference_failure_on_function_invocation
       expect(tupled, isSome());

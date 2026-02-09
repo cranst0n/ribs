@@ -670,12 +670,12 @@ void main() {
     );
 
     forAll('init', byteVector, (bv) {
-      expect(bv.startsWith(bv.init()), isTrue);
+      expect(bv.startsWith(bv.init), isTrue);
 
       if (bv.nonEmpty) {
-        expect(bv.init().size, bv.size - 1);
+        expect(bv.init.size, bv.size - 1);
       } else {
-        expect(bv.init(), bv);
+        expect(bv.init, bv);
       }
     });
 

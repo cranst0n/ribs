@@ -253,12 +253,12 @@ void main() {
   );
 
   forAll('init', bitVector, (bv) {
-    expect(bv.startsWith(bv.init()), isTrue);
+    expect(bv.startsWith(bv.init), isTrue);
 
     if (bv.nonEmpty) {
-      expect(bv.init().size, bv.size - 1);
+      expect(bv.init.size, bv.size - 1);
     } else {
-      expect(bv.init(), bv);
+      expect(bv.init, bv);
     }
   });
 
@@ -385,7 +385,7 @@ void main() {
     if (bv.size % 8 == 0 || bv.size % 8 > 4) {
       expect(bv.toHex(), bv.bytes.toHex());
     } else {
-      expect(bv.toHex(), bv.bytes.toHex().init());
+      expect(bv.toHex(), bv.bytes.toHex().init);
     }
   });
 

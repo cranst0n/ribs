@@ -7,26 +7,26 @@ void main() {
     test('append', () {
       expect(
         (1, 2)
-            .append(3)
-            .append(4)
-            .append(5)
-            .append(6)
-            .append(7)
-            .append(8)
-            .append(9)
-            .append(10)
-            .append(11)
-            .append(12)
-            .append(13)
-            .append(14)
-            .append(15)
-            .append(16)
-            .append(17)
-            .append(18)
-            .append(19)
-            .append(20)
-            .append(21)
-            .append(22)
+            .appended(3)
+            .appended(4)
+            .appended(5)
+            .appended(6)
+            .appended(7)
+            .appended(8)
+            .appended(9)
+            .appended(10)
+            .appended(11)
+            .appended(12)
+            .appended(13)
+            .appended(14)
+            .appended(15)
+            .appended(16)
+            .appended(17)
+            .appended(18)
+            .appended(19)
+            .appended(20)
+            .appended(21)
+            .appended(22)
             .last,
         22,
       );
@@ -35,37 +35,37 @@ void main() {
     test('prepend', () {
       expect(
         (2, 1)
-            .prepend(3)
-            .prepend(4)
-            .prepend(5)
-            .prepend(6)
-            .prepend(7)
-            .prepend(8)
-            .prepend(9)
-            .prepend(10)
-            .prepend(11)
-            .prepend(12)
-            .prepend(13)
-            .prepend(14)
-            .prepend(15)
-            .prepend(16)
-            .prepend(17)
-            .prepend(18)
-            .prepend(19)
-            .prepend(20)
-            .prepend(21)
-            .prepend(22)
+            .prepended(3)
+            .prepended(4)
+            .prepended(5)
+            .prepended(6)
+            .prepended(7)
+            .prepended(8)
+            .prepended(9)
+            .prepended(10)
+            .prepended(11)
+            .prepended(12)
+            .prepended(13)
+            .prepended(14)
+            .prepended(15)
+            .prepended(16)
+            .prepended(17)
+            .prepended(18)
+            .prepended(19)
+            .prepended(20)
+            .prepended(21)
+            .prepended(22)
             .last,
         1,
       );
     });
 
     forAll('init', Gen.positiveInt.tuple3, (t) {
-      expect(t.init().append(t.last), t);
+      expect(t.init.appended(t.last), t);
     });
 
     forAll('tail', Gen.positiveInt.tuple3, (t) {
-      expect(t.tail().prepend(t.$1), t);
+      expect(t.tail.prepended(t.$1), t);
     });
   });
 }

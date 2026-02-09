@@ -1,6 +1,9 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// Function type alias that a [Decoder] must fulfill.
+typedef DecodeF<A> = Function1<BitVector, Either<Err, DecodeResult<A>>>;
+
 final class DecodeResult<A> {
   final A value;
   final BitVector remainder;
@@ -18,8 +21,6 @@ final class DecodeResult<A> {
   String toString() => 'DecodeResult($value, ${remainder.toHex()})';
 }
 
-typedef DecodeF<A> = Function1<BitVector, Either<Err, DecodeResult<A>>>;
-
 abstract mixin class Decoder<A> {
   Either<Err, DecodeResult<A>> decode(BitVector bv);
 
@@ -35,695 +36,756 @@ abstract mixin class Decoder<A> {
 
   static Decoder<A> instance<A>(DecodeF<A> decode) => _DecoderF(decode);
 
-  static Decoder<(A, B)> tuple2<A, B>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-  ) => _DecoderF(
-    (bv) => decodeA
+  static Decoder<(T0, T1)> tuple2<T0, T1>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+  ) => Decoder.instance(
+    (bv) => decode0
         .decode(bv)
         .flatMap(
-          (a) =>
-              decodeB.decode(a.remainder).map((b) => DecodeResult((a.value, b.value), b.remainder)),
+          (t0) => decode1
+              .decode(t0.remainder)
+              .map((t1) => DecodeResult((t0.value, t1.value), t1.remainder)),
         ),
   );
 
-  static Decoder<(A, B, C)> tuple3<A, B, C>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-  ) => _DecoderF(
-    (bv) => tuple2(decodeA, decodeB)
-        .decode(bv)
-        .flatMap(
-          (t) => decodeC
-              .decode(t.remainder)
-              .map((c) => DecodeResult(t.value.append(c.value), c.remainder)),
-        ),
-  );
+  static Decoder<(T0, T1, T2)> tuple3<T0, T1, T2>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+  ) => Decoder.instance((bv) {
+    return tuple2(decode0, decode1).decode(bv).flatMap((t) {
+      return decode2
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D)> tuple4<A, B, C, D>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-  ) => _DecoderF(
-    (bv) => tuple3(decodeA, decodeB, decodeC)
-        .decode(bv)
-        .flatMap(
-          (t) => decodeD
-              .decode(t.remainder)
-              .map((d) => DecodeResult(t.value.append(d.value), d.remainder)),
-        ),
-  );
+  static Decoder<(T0, T1, T2, T3)> tuple4<T0, T1, T2, T3>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+  ) => Decoder.instance((bv) {
+    return tuple3(decode0, decode1, decode2).decode(bv).flatMap((t) {
+      return decode3
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E)> tuple5<A, B, C, D, E>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-  ) => _DecoderF(
-    (bv) => tuple4(decodeA, decodeB, decodeC, decodeD)
-        .decode(bv)
-        .flatMap(
-          (t) => decodeE
-              .decode(t.remainder)
-              .map((e) => DecodeResult(t.value.append(e.value), e.remainder)),
-        ),
-  );
+  static Decoder<(T0, T1, T2, T3, T4)> tuple5<T0, T1, T2, T3, T4>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+  ) => Decoder.instance((bv) {
+    return tuple4(decode0, decode1, decode2, decode3).decode(bv).flatMap((t) {
+      return decode4
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E, F)> tuple6<A, B, C, D, E, F>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-  ) => _DecoderF(
-    (bv) => tuple5(decodeA, decodeB, decodeC, decodeD, decodeE)
-        .decode(bv)
-        .flatMap(
-          (t) => decodeF
-              .decode(t.remainder)
-              .map((f) => DecodeResult(t.value.append(f.value), f.remainder)),
-        ),
-  );
+  static Decoder<(T0, T1, T2, T3, T4, T5)> tuple6<T0, T1, T2, T3, T4, T5>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+  ) => Decoder.instance((bv) {
+    return tuple5(decode0, decode1, decode2, decode3, decode4).decode(bv).flatMap((t) {
+      return decode5
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E, F, G)> tuple7<A, B, C, D, E, F, G>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-    Decoder<G> decodeG,
-  ) => _DecoderF(
-    (bv) => tuple6(decodeA, decodeB, decodeC, decodeD, decodeE, decodeF)
-        .decode(bv)
-        .flatMap(
-          (t) => decodeG
-              .decode(t.remainder)
-              .map((g) => DecodeResult(t.value.append(g.value), g.remainder)),
-        ),
-  );
+  static Decoder<(T0, T1, T2, T3, T4, T5, T6)> tuple7<T0, T1, T2, T3, T4, T5, T6>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+    Decoder<T6> decode6,
+  ) => Decoder.instance((bv) {
+    return tuple6(decode0, decode1, decode2, decode3, decode4, decode5).decode(bv).flatMap((t) {
+      return decode6
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E, F, G, H)> tuple8<A, B, C, D, E, F, G, H>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-    Decoder<G> decodeG,
-    Decoder<H> decodeH,
-  ) => _DecoderF(
-    (bv) => tuple7(decodeA, decodeB, decodeC, decodeD, decodeE, decodeF, decodeG)
-        .decode(bv)
-        .flatMap(
-          (t) => decodeH
-              .decode(t.remainder)
-              .map((h) => DecodeResult(t.value.append(h.value), h.remainder)),
-        ),
-  );
+  static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7)> tuple8<T0, T1, T2, T3, T4, T5, T6, T7>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+    Decoder<T6> decode6,
+    Decoder<T7> decode7,
+  ) => Decoder.instance((bv) {
+    return tuple7(decode0, decode1, decode2, decode3, decode4, decode5, decode6).decode(bv).flatMap(
+      (t) {
+        return decode7
+            .decode(t.remainder)
+            .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+      },
+    );
+  });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I)> tuple9<A, B, C, D, E, F, G, H, I>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-    Decoder<G> decodeG,
-    Decoder<H> decodeH,
-    Decoder<I> decodeI,
-  ) => _DecoderF(
-    (bv) => tuple8(decodeA, decodeB, decodeC, decodeD, decodeE, decodeF, decodeG, decodeH)
-        .decode(bv)
-        .flatMap(
-          (t) => decodeI
-              .decode(t.remainder)
-              .map((i) => DecodeResult(t.value.append(i.value), i.remainder)),
-        ),
-  );
+  static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8)> tuple9<T0, T1, T2, T3, T4, T5, T6, T7, T8>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+    Decoder<T6> decode6,
+    Decoder<T7> decode7,
+    Decoder<T8> decode8,
+  ) => Decoder.instance((bv) {
+    return tuple8(
+      decode0,
+      decode1,
+      decode2,
+      decode3,
+      decode4,
+      decode5,
+      decode6,
+      decode7,
+    ).decode(bv).flatMap((t) {
+      return decode8
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I, J)> tuple10<A, B, C, D, E, F, G, H, I, J>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-    Decoder<G> decodeG,
-    Decoder<H> decodeH,
-    Decoder<I> decodeI,
-    Decoder<J> decodeJ,
-  ) => _DecoderF(
-    (bv) => tuple9(decodeA, decodeB, decodeC, decodeD, decodeE, decodeF, decodeG, decodeH, decodeI)
-        .decode(bv)
-        .flatMap(
-          (t) => decodeJ
-              .decode(t.remainder)
-              .map((j) => DecodeResult(t.value.append(j.value), j.remainder)),
-        ),
-  );
+  static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)>
+  tuple10<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+    Decoder<T6> decode6,
+    Decoder<T7> decode7,
+    Decoder<T8> decode8,
+    Decoder<T9> decode9,
+  ) => Decoder.instance((bv) {
+    return tuple9(
+      decode0,
+      decode1,
+      decode2,
+      decode3,
+      decode4,
+      decode5,
+      decode6,
+      decode7,
+      decode8,
+    ).decode(bv).flatMap((t) {
+      return decode9
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I, J, K)> tuple11<A, B, C, D, E, F, G, H, I, J, K>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-    Decoder<G> decodeG,
-    Decoder<H> decodeH,
-    Decoder<I> decodeI,
-    Decoder<J> decodeJ,
-    Decoder<K> decodeK,
-  ) => _DecoderF(
-    (bv) => tuple10(
-          decodeA,
-          decodeB,
-          decodeC,
-          decodeD,
-          decodeE,
-          decodeF,
-          decodeG,
-          decodeH,
-          decodeI,
-          decodeJ,
-        )
-        .decode(bv)
-        .flatMap(
-          (t) => decodeK
-              .decode(t.remainder)
-              .map((k) => DecodeResult(t.value.append(k.value), k.remainder)),
-        ),
-  );
+  static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)>
+  tuple11<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+    Decoder<T6> decode6,
+    Decoder<T7> decode7,
+    Decoder<T8> decode8,
+    Decoder<T9> decode9,
+    Decoder<T10> decode10,
+  ) => Decoder.instance((bv) {
+    return tuple10(
+      decode0,
+      decode1,
+      decode2,
+      decode3,
+      decode4,
+      decode5,
+      decode6,
+      decode7,
+      decode8,
+      decode9,
+    ).decode(bv).flatMap((t) {
+      return decode10
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L)> tuple12<A, B, C, D, E, F, G, H, I, J, K, L>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-    Decoder<G> decodeG,
-    Decoder<H> decodeH,
-    Decoder<I> decodeI,
-    Decoder<J> decodeJ,
-    Decoder<K> decodeK,
-    Decoder<L> decodeL,
-  ) => _DecoderF(
-    (bv) => tuple11(
-          decodeA,
-          decodeB,
-          decodeC,
-          decodeD,
-          decodeE,
-          decodeF,
-          decodeG,
-          decodeH,
-          decodeI,
-          decodeJ,
-          decodeK,
-        )
-        .decode(bv)
-        .flatMap(
-          (t) => decodeL
-              .decode(t.remainder)
-              .map((l) => DecodeResult(t.value.append(l.value), l.remainder)),
-        ),
-  );
+  static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)>
+  tuple12<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+    Decoder<T6> decode6,
+    Decoder<T7> decode7,
+    Decoder<T8> decode8,
+    Decoder<T9> decode9,
+    Decoder<T10> decode10,
+    Decoder<T11> decode11,
+  ) => Decoder.instance((bv) {
+    return tuple11(
+      decode0,
+      decode1,
+      decode2,
+      decode3,
+      decode4,
+      decode5,
+      decode6,
+      decode7,
+      decode8,
+      decode9,
+      decode10,
+    ).decode(bv).flatMap((t) {
+      return decode11
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M)>
-  tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-    Decoder<G> decodeG,
-    Decoder<H> decodeH,
-    Decoder<I> decodeI,
-    Decoder<J> decodeJ,
-    Decoder<K> decodeK,
-    Decoder<L> decodeL,
-    Decoder<M> decodeM,
-  ) => _DecoderF(
-    (bv) => tuple12(
-          decodeA,
-          decodeB,
-          decodeC,
-          decodeD,
-          decodeE,
-          decodeF,
-          decodeG,
-          decodeH,
-          decodeI,
-          decodeJ,
-          decodeK,
-          decodeL,
-        )
-        .decode(bv)
-        .flatMap(
-          (t) => decodeM
-              .decode(t.remainder)
-              .map((m) => DecodeResult(t.value.append(m.value), m.remainder)),
-        ),
-  );
+  static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)>
+  tuple13<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+    Decoder<T6> decode6,
+    Decoder<T7> decode7,
+    Decoder<T8> decode8,
+    Decoder<T9> decode9,
+    Decoder<T10> decode10,
+    Decoder<T11> decode11,
+    Decoder<T12> decode12,
+  ) => Decoder.instance((bv) {
+    return tuple12(
+      decode0,
+      decode1,
+      decode2,
+      decode3,
+      decode4,
+      decode5,
+      decode6,
+      decode7,
+      decode8,
+      decode9,
+      decode10,
+      decode11,
+    ).decode(bv).flatMap((t) {
+      return decode12
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N)>
-  tuple14<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-    Decoder<G> decodeG,
-    Decoder<H> decodeH,
-    Decoder<I> decodeI,
-    Decoder<J> decodeJ,
-    Decoder<K> decodeK,
-    Decoder<L> decodeL,
-    Decoder<M> decodeM,
-    Decoder<N> decodeN,
-  ) => _DecoderF(
-    (bv) => tuple13(
-          decodeA,
-          decodeB,
-          decodeC,
-          decodeD,
-          decodeE,
-          decodeF,
-          decodeG,
-          decodeH,
-          decodeI,
-          decodeJ,
-          decodeK,
-          decodeL,
-          decodeM,
-        )
-        .decode(bv)
-        .flatMap(
-          (t) => decodeN
-              .decode(t.remainder)
-              .map((n) => DecodeResult(t.value.append(n.value), n.remainder)),
-        ),
-  );
+  static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)>
+  tuple14<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+    Decoder<T6> decode6,
+    Decoder<T7> decode7,
+    Decoder<T8> decode8,
+    Decoder<T9> decode9,
+    Decoder<T10> decode10,
+    Decoder<T11> decode11,
+    Decoder<T12> decode12,
+    Decoder<T13> decode13,
+  ) => Decoder.instance((bv) {
+    return tuple13(
+      decode0,
+      decode1,
+      decode2,
+      decode3,
+      decode4,
+      decode5,
+      decode6,
+      decode7,
+      decode8,
+      decode9,
+      decode10,
+      decode11,
+      decode12,
+    ).decode(bv).flatMap((t) {
+      return decode13
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)>
-  tuple15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-    Decoder<G> decodeG,
-    Decoder<H> decodeH,
-    Decoder<I> decodeI,
-    Decoder<J> decodeJ,
-    Decoder<K> decodeK,
-    Decoder<L> decodeL,
-    Decoder<M> decodeM,
-    Decoder<N> decodeN,
-    Decoder<O> decodeO,
-  ) => _DecoderF(
-    (bv) => tuple14(
-          decodeA,
-          decodeB,
-          decodeC,
-          decodeD,
-          decodeE,
-          decodeF,
-          decodeG,
-          decodeH,
-          decodeI,
-          decodeJ,
-          decodeK,
-          decodeL,
-          decodeM,
-          decodeN,
-        )
-        .decode(bv)
-        .flatMap(
-          (t) => decodeO
-              .decode(t.remainder)
-              .map((o) => DecodeResult(t.value.append(o.value), o.remainder)),
-        ),
-  );
+  static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)>
+  tuple15<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+    Decoder<T6> decode6,
+    Decoder<T7> decode7,
+    Decoder<T8> decode8,
+    Decoder<T9> decode9,
+    Decoder<T10> decode10,
+    Decoder<T11> decode11,
+    Decoder<T12> decode12,
+    Decoder<T13> decode13,
+    Decoder<T14> decode14,
+  ) => Decoder.instance((bv) {
+    return tuple14(
+      decode0,
+      decode1,
+      decode2,
+      decode3,
+      decode4,
+      decode5,
+      decode6,
+      decode7,
+      decode8,
+      decode9,
+      decode10,
+      decode11,
+      decode12,
+      decode13,
+    ).decode(bv).flatMap((t) {
+      return decode14
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P)>
-  tuple16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-    Decoder<G> decodeG,
-    Decoder<H> decodeH,
-    Decoder<I> decodeI,
-    Decoder<J> decodeJ,
-    Decoder<K> decodeK,
-    Decoder<L> decodeL,
-    Decoder<M> decodeM,
-    Decoder<N> decodeN,
-    Decoder<O> decodeO,
-    Decoder<P> decodeP,
-  ) => _DecoderF(
-    (bv) => tuple15(
-          decodeA,
-          decodeB,
-          decodeC,
-          decodeD,
-          decodeE,
-          decodeF,
-          decodeG,
-          decodeH,
-          decodeI,
-          decodeJ,
-          decodeK,
-          decodeL,
-          decodeM,
-          decodeN,
-          decodeO,
-        )
-        .decode(bv)
-        .flatMap(
-          (t) => decodeP
-              .decode(t.remainder)
-              .map((p) => DecodeResult(t.value.append(p.value), p.remainder)),
-        ),
-  );
+  static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)>
+  tuple16<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+    Decoder<T6> decode6,
+    Decoder<T7> decode7,
+    Decoder<T8> decode8,
+    Decoder<T9> decode9,
+    Decoder<T10> decode10,
+    Decoder<T11> decode11,
+    Decoder<T12> decode12,
+    Decoder<T13> decode13,
+    Decoder<T14> decode14,
+    Decoder<T15> decode15,
+  ) => Decoder.instance((bv) {
+    return tuple15(
+      decode0,
+      decode1,
+      decode2,
+      decode3,
+      decode4,
+      decode5,
+      decode6,
+      decode7,
+      decode8,
+      decode9,
+      decode10,
+      decode11,
+      decode12,
+      decode13,
+      decode14,
+    ).decode(bv).flatMap((t) {
+      return decode15
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q)>
-  tuple17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-    Decoder<G> decodeG,
-    Decoder<H> decodeH,
-    Decoder<I> decodeI,
-    Decoder<J> decodeJ,
-    Decoder<K> decodeK,
-    Decoder<L> decodeL,
-    Decoder<M> decodeM,
-    Decoder<N> decodeN,
-    Decoder<O> decodeO,
-    Decoder<P> decodeP,
-    Decoder<Q> decodeQ,
-  ) => _DecoderF(
-    (bv) => tuple16(
-          decodeA,
-          decodeB,
-          decodeC,
-          decodeD,
-          decodeE,
-          decodeF,
-          decodeG,
-          decodeH,
-          decodeI,
-          decodeJ,
-          decodeK,
-          decodeL,
-          decodeM,
-          decodeN,
-          decodeO,
-          decodeP,
-        )
-        .decode(bv)
-        .flatMap(
-          (t) => decodeQ
-              .decode(t.remainder)
-              .map((q) => DecodeResult(t.value.append(q.value), q.remainder)),
-        ),
-  );
+  static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)>
+  tuple17<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+    Decoder<T6> decode6,
+    Decoder<T7> decode7,
+    Decoder<T8> decode8,
+    Decoder<T9> decode9,
+    Decoder<T10> decode10,
+    Decoder<T11> decode11,
+    Decoder<T12> decode12,
+    Decoder<T13> decode13,
+    Decoder<T14> decode14,
+    Decoder<T15> decode15,
+    Decoder<T16> decode16,
+  ) => Decoder.instance((bv) {
+    return tuple16(
+      decode0,
+      decode1,
+      decode2,
+      decode3,
+      decode4,
+      decode5,
+      decode6,
+      decode7,
+      decode8,
+      decode9,
+      decode10,
+      decode11,
+      decode12,
+      decode13,
+      decode14,
+      decode15,
+    ).decode(bv).flatMap((t) {
+      return decode16
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R)>
-  tuple18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-    Decoder<G> decodeG,
-    Decoder<H> decodeH,
-    Decoder<I> decodeI,
-    Decoder<J> decodeJ,
-    Decoder<K> decodeK,
-    Decoder<L> decodeL,
-    Decoder<M> decodeM,
-    Decoder<N> decodeN,
-    Decoder<O> decodeO,
-    Decoder<P> decodeP,
-    Decoder<Q> decodeQ,
-    Decoder<R> decodeR,
-  ) => _DecoderF(
-    (bv) => tuple17(
-          decodeA,
-          decodeB,
-          decodeC,
-          decodeD,
-          decodeE,
-          decodeF,
-          decodeG,
-          decodeH,
-          decodeI,
-          decodeJ,
-          decodeK,
-          decodeL,
-          decodeM,
-          decodeN,
-          decodeO,
-          decodeP,
-          decodeQ,
-        )
-        .decode(bv)
-        .flatMap(
-          (t) => decodeR
-              .decode(t.remainder)
-              .map((r) => DecodeResult(t.value.append(r.value), r.remainder)),
-        ),
-  );
+  static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)>
+  tuple18<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+    Decoder<T6> decode6,
+    Decoder<T7> decode7,
+    Decoder<T8> decode8,
+    Decoder<T9> decode9,
+    Decoder<T10> decode10,
+    Decoder<T11> decode11,
+    Decoder<T12> decode12,
+    Decoder<T13> decode13,
+    Decoder<T14> decode14,
+    Decoder<T15> decode15,
+    Decoder<T16> decode16,
+    Decoder<T17> decode17,
+  ) => Decoder.instance((bv) {
+    return tuple17(
+      decode0,
+      decode1,
+      decode2,
+      decode3,
+      decode4,
+      decode5,
+      decode6,
+      decode7,
+      decode8,
+      decode9,
+      decode10,
+      decode11,
+      decode12,
+      decode13,
+      decode14,
+      decode15,
+      decode16,
+    ).decode(bv).flatMap((t) {
+      return decode17
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)>
-  tuple19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-    Decoder<G> decodeG,
-    Decoder<H> decodeH,
-    Decoder<I> decodeI,
-    Decoder<J> decodeJ,
-    Decoder<K> decodeK,
-    Decoder<L> decodeL,
-    Decoder<M> decodeM,
-    Decoder<N> decodeN,
-    Decoder<O> decodeO,
-    Decoder<P> decodeP,
-    Decoder<Q> decodeQ,
-    Decoder<R> decodeR,
-    Decoder<S> decodeS,
-  ) => _DecoderF(
-    (bv) => tuple18(
-          decodeA,
-          decodeB,
-          decodeC,
-          decodeD,
-          decodeE,
-          decodeF,
-          decodeG,
-          decodeH,
-          decodeI,
-          decodeJ,
-          decodeK,
-          decodeL,
-          decodeM,
-          decodeN,
-          decodeO,
-          decodeP,
-          decodeQ,
-          decodeR,
-        )
-        .decode(bv)
-        .flatMap(
-          (t) => decodeS
-              .decode(t.remainder)
-              .map((s) => DecodeResult(t.value.append(s.value), s.remainder)),
-        ),
-  );
+  static Decoder<
+    (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+  >
+  tuple19<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+    Decoder<T6> decode6,
+    Decoder<T7> decode7,
+    Decoder<T8> decode8,
+    Decoder<T9> decode9,
+    Decoder<T10> decode10,
+    Decoder<T11> decode11,
+    Decoder<T12> decode12,
+    Decoder<T13> decode13,
+    Decoder<T14> decode14,
+    Decoder<T15> decode15,
+    Decoder<T16> decode16,
+    Decoder<T17> decode17,
+    Decoder<T18> decode18,
+  ) => Decoder.instance((bv) {
+    return tuple18(
+      decode0,
+      decode1,
+      decode2,
+      decode3,
+      decode4,
+      decode5,
+      decode6,
+      decode7,
+      decode8,
+      decode9,
+      decode10,
+      decode11,
+      decode12,
+      decode13,
+      decode14,
+      decode15,
+      decode16,
+      decode17,
+    ).decode(bv).flatMap((t) {
+      return decode18
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)>
-  tuple20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-    Decoder<G> decodeG,
-    Decoder<H> decodeH,
-    Decoder<I> decodeI,
-    Decoder<J> decodeJ,
-    Decoder<K> decodeK,
-    Decoder<L> decodeL,
-    Decoder<M> decodeM,
-    Decoder<N> decodeN,
-    Decoder<O> decodeO,
-    Decoder<P> decodeP,
-    Decoder<Q> decodeQ,
-    Decoder<R> decodeR,
-    Decoder<S> decodeS,
-    Decoder<T> decodeT,
-  ) => _DecoderF(
-    (bv) => tuple19(
-          decodeA,
-          decodeB,
-          decodeC,
-          decodeD,
-          decodeE,
-          decodeF,
-          decodeG,
-          decodeH,
-          decodeI,
-          decodeJ,
-          decodeK,
-          decodeL,
-          decodeM,
-          decodeN,
-          decodeO,
-          decodeP,
-          decodeQ,
-          decodeR,
-          decodeS,
-        )
-        .decode(bv)
-        .flatMap(
-          (x) => decodeT
-              .decode(x.remainder)
-              .map((t) => DecodeResult(x.value.append(t.value), t.remainder)),
-        ),
-  );
+  static Decoder<
+    (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+  >
+  tuple20<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+    Decoder<T6> decode6,
+    Decoder<T7> decode7,
+    Decoder<T8> decode8,
+    Decoder<T9> decode9,
+    Decoder<T10> decode10,
+    Decoder<T11> decode11,
+    Decoder<T12> decode12,
+    Decoder<T13> decode13,
+    Decoder<T14> decode14,
+    Decoder<T15> decode15,
+    Decoder<T16> decode16,
+    Decoder<T17> decode17,
+    Decoder<T18> decode18,
+    Decoder<T19> decode19,
+  ) => Decoder.instance((bv) {
+    return tuple19(
+      decode0,
+      decode1,
+      decode2,
+      decode3,
+      decode4,
+      decode5,
+      decode6,
+      decode7,
+      decode8,
+      decode9,
+      decode10,
+      decode11,
+      decode12,
+      decode13,
+      decode14,
+      decode15,
+      decode16,
+      decode17,
+      decode18,
+    ).decode(bv).flatMap((t) {
+      return decode19
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)>
-  tuple21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-    Decoder<G> decodeG,
-    Decoder<H> decodeH,
-    Decoder<I> decodeI,
-    Decoder<J> decodeJ,
-    Decoder<K> decodeK,
-    Decoder<L> decodeL,
-    Decoder<M> decodeM,
-    Decoder<N> decodeN,
-    Decoder<O> decodeO,
-    Decoder<P> decodeP,
-    Decoder<Q> decodeQ,
-    Decoder<R> decodeR,
-    Decoder<S> decodeS,
-    Decoder<T> decodeT,
-    Decoder<U> decodeU,
-  ) => _DecoderF(
-    (bv) => tuple20(
-          decodeA,
-          decodeB,
-          decodeC,
-          decodeD,
-          decodeE,
-          decodeF,
-          decodeG,
-          decodeH,
-          decodeI,
-          decodeJ,
-          decodeK,
-          decodeL,
-          decodeM,
-          decodeN,
-          decodeO,
-          decodeP,
-          decodeQ,
-          decodeR,
-          decodeS,
-          decodeT,
-        )
-        .decode(bv)
-        .flatMap(
-          (x) => decodeU
-              .decode(x.remainder)
-              .map((u) => DecodeResult(x.value.append(u.value), u.remainder)),
-        ),
-  );
+  static Decoder<
+    (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+  >
+  tuple21<
+    T0,
+    T1,
+    T2,
+    T3,
+    T4,
+    T5,
+    T6,
+    T7,
+    T8,
+    T9,
+    T10,
+    T11,
+    T12,
+    T13,
+    T14,
+    T15,
+    T16,
+    T17,
+    T18,
+    T19,
+    T20
+  >(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+    Decoder<T6> decode6,
+    Decoder<T7> decode7,
+    Decoder<T8> decode8,
+    Decoder<T9> decode9,
+    Decoder<T10> decode10,
+    Decoder<T11> decode11,
+    Decoder<T12> decode12,
+    Decoder<T13> decode13,
+    Decoder<T14> decode14,
+    Decoder<T15> decode15,
+    Decoder<T16> decode16,
+    Decoder<T17> decode17,
+    Decoder<T18> decode18,
+    Decoder<T19> decode19,
+    Decoder<T20> decode20,
+  ) => Decoder.instance((bv) {
+    return tuple20(
+      decode0,
+      decode1,
+      decode2,
+      decode3,
+      decode4,
+      decode5,
+      decode6,
+      decode7,
+      decode8,
+      decode9,
+      decode10,
+      decode11,
+      decode12,
+      decode13,
+      decode14,
+      decode15,
+      decode16,
+      decode17,
+      decode18,
+      decode19,
+    ).decode(bv).flatMap((t) {
+      return decode20
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 
-  static Decoder<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)>
-  tuple22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>(
-    Decoder<A> decodeA,
-    Decoder<B> decodeB,
-    Decoder<C> decodeC,
-    Decoder<D> decodeD,
-    Decoder<E> decodeE,
-    Decoder<F> decodeF,
-    Decoder<G> decodeG,
-    Decoder<H> decodeH,
-    Decoder<I> decodeI,
-    Decoder<J> decodeJ,
-    Decoder<K> decodeK,
-    Decoder<L> decodeL,
-    Decoder<M> decodeM,
-    Decoder<N> decodeN,
-    Decoder<O> decodeO,
-    Decoder<P> decodeP,
-    Decoder<Q> decodeQ,
-    Decoder<R> decodeR,
-    Decoder<S> decodeS,
-    Decoder<T> decodeT,
-    Decoder<U> decodeU,
-    Decoder<V> decodeV,
-  ) => _DecoderF(
-    (bv) => tuple21(
-          decodeA,
-          decodeB,
-          decodeC,
-          decodeD,
-          decodeE,
-          decodeF,
-          decodeG,
-          decodeH,
-          decodeI,
-          decodeJ,
-          decodeK,
-          decodeL,
-          decodeM,
-          decodeN,
-          decodeO,
-          decodeP,
-          decodeQ,
-          decodeR,
-          decodeS,
-          decodeT,
-          decodeU,
-        )
-        .decode(bv)
-        .flatMap(
-          (x) => decodeV
-              .decode(x.remainder)
-              .map((v) => DecodeResult(x.value.append(v.value), v.remainder)),
-        ),
-  );
+  static Decoder<
+    (
+      T0,
+      T1,
+      T2,
+      T3,
+      T4,
+      T5,
+      T6,
+      T7,
+      T8,
+      T9,
+      T10,
+      T11,
+      T12,
+      T13,
+      T14,
+      T15,
+      T16,
+      T17,
+      T18,
+      T19,
+      T20,
+      T21,
+    )
+  >
+  tuple22<
+    T0,
+    T1,
+    T2,
+    T3,
+    T4,
+    T5,
+    T6,
+    T7,
+    T8,
+    T9,
+    T10,
+    T11,
+    T12,
+    T13,
+    T14,
+    T15,
+    T16,
+    T17,
+    T18,
+    T19,
+    T20,
+    T21
+  >(
+    Decoder<T0> decode0,
+    Decoder<T1> decode1,
+    Decoder<T2> decode2,
+    Decoder<T3> decode3,
+    Decoder<T4> decode4,
+    Decoder<T5> decode5,
+    Decoder<T6> decode6,
+    Decoder<T7> decode7,
+    Decoder<T8> decode8,
+    Decoder<T9> decode9,
+    Decoder<T10> decode10,
+    Decoder<T11> decode11,
+    Decoder<T12> decode12,
+    Decoder<T13> decode13,
+    Decoder<T14> decode14,
+    Decoder<T15> decode15,
+    Decoder<T16> decode16,
+    Decoder<T17> decode17,
+    Decoder<T18> decode18,
+    Decoder<T19> decode19,
+    Decoder<T20> decode20,
+    Decoder<T21> decode21,
+  ) => Decoder.instance((bv) {
+    return tuple21(
+      decode0,
+      decode1,
+      decode2,
+      decode3,
+      decode4,
+      decode5,
+      decode6,
+      decode7,
+      decode8,
+      decode9,
+      decode10,
+      decode11,
+      decode12,
+      decode13,
+      decode14,
+      decode15,
+      decode16,
+      decode17,
+      decode18,
+      decode19,
+      decode20,
+    ).decode(bv).flatMap((t) {
+      return decode21
+          .decode(t.remainder)
+          .map((x) => DecodeResult(t.value.appended(x.value), x.remainder));
+    });
+  });
 }
 
 final class _DecoderF<A> extends Decoder<A> {

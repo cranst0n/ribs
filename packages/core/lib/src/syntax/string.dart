@@ -107,9 +107,9 @@ extension StringOps on String {
     return -1;
   }
 
-  String init() => !isEmpty ? substring(0, length - 1) : this;
+  String get init => !isEmpty ? substring(0, length - 1) : this;
 
-  RIterator<String> inits() => _iterateUntilEmpty((s) => s.init());
+  RIterator<String> get inits => _iterateUntilEmpty((s) => s.init);
 
   String get last => nonEmpty ? this[length - 1] : throw RangeError('.last on empty string');
 
@@ -153,9 +153,9 @@ extension StringOps on String {
   String stripSuffix(String suffix) =>
       endsWith(suffix) ? substring(0, length - suffix.length) : this;
 
-  String tail() => nonEmpty ? substring(1, length) : throw RangeError('.tail on empty string');
+  String get tail => nonEmpty ? substring(1, length) : throw RangeError('.tail on empty string');
 
-  RIterator<String> tails() => _iterateUntilEmpty((s) => s.tail());
+  RIterator<String> get tails => _iterateUntilEmpty((s) => s.tail);
 
   String take(int n) => slice(0, min(n, length));
 

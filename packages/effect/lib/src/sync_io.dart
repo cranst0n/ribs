@@ -14,16 +14,16 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
   SyncIO<Either<RuntimeException, A>> attempt() => _Attempt(this);
 
   @override
-  SyncIO<B> flatMap<B>(covariant Function1<A, SyncIO<B>> f) => _FlatMap(this, Fn1.of(f));
+  SyncIO<B> flatMap<B>(covariant Function1<A, SyncIO<B>> f) => _FlatMap(this, Fn1(f));
 
   SyncIO<A> handleError(Function1<RuntimeException, A> f) =>
       handleErrorWith((e) => SyncIO.pure(f(e)));
 
   SyncIO<A> handleErrorWith(covariant Function1<RuntimeException, SyncIO<A>> f) =>
-      _HandleErrorWith(this, Fn1.of(f));
+      _HandleErrorWith(this, Fn1(f));
 
   @override
-  SyncIO<B> map<B>(covariant Function1<A, B> f) => _Map(this, Fn1.of(f));
+  SyncIO<B> map<B>(covariant Function1<A, B> f) => _Map(this, Fn1(f));
 
   SyncIO<A> productL<B>(Function0<SyncIO<B>> that) => flatMap((a) => that().as(a));
 
@@ -89,7 +89,7 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
         // Push this function on to allow proper type tagging when running
         // the continuation
-        objectState.push(Fn1.of((x) => attempt.smartCast(x)));
+        objectState.push(Fn1((x) => attempt.smartCast(x)));
         conts.push(_Cont.Attempt);
         cur0 = cur0.ioa;
       } else {
@@ -116,7 +116,7 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
       case _Cont.RunTerminus:
         return _Success(result);
       case _Cont.Attempt:
-        final f = objectState.pop() as Fn1F;
+        final f = objectState.pop() as Fn1;
         return succeeded(
           conts,
           objectState,
@@ -146,7 +146,7 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
         objectState.pop();
         return failed(conts, objectState, error, depth);
       case _Cont.HandleErrorWith:
-        final f = objectState.pop() as Fn1F;
+        final f = objectState.pop() as Fn1;
 
         try {
           return f(error) as SyncIO<dynamic>;
@@ -157,7 +157,7 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
         return _Failure(error);
       case _Cont.Attempt:
         // TODO: pop function to get proper Either cast
-        final f = objectState.pop() as Fn1F;
+        final f = objectState.pop() as Fn1;
 
         return succeeded(
           conts,
@@ -174,7 +174,7 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
     dynamic result,
     int depth,
   ) {
-    final f = objectState.pop() as Fn1F;
+    final f = objectState.pop() as Fn1;
 
     dynamic transformed;
     RuntimeException? error;
@@ -206,7 +206,7 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
     dynamic result,
     int depth,
   ) {
-    final f = objectState.pop() as Fn1F;
+    final f = objectState.pop() as Fn1;
 
     try {
       return f(result) as SyncIO<dynamic>;
