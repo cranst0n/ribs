@@ -37,9 +37,10 @@ sealed class SourceSpecificMulticast<A extends IpAddress> extends Multicast<A> {
 
   static Option<SourceSpecificMulticastStrict<A>> fromIpAddress<A extends IpAddress>(
     A address,
-  ) =>
-      Option.when(() => address.isSourceSpecificMulticast,
-          () => _DefaultSourceSpecificMulticastStrict._(address));
+  ) => Option.when(
+    () => address.isSourceSpecificMulticast,
+    () => _DefaultSourceSpecificMulticastStrict._(address),
+  );
 
   static Option<SourceSpecificMulticast<A>> fromIpAddressLenient<A extends IpAddress>(A address) =>
       Option.when(() => address.isMulticast, () => _unsafeCreate(address));
@@ -63,9 +64,9 @@ class _DefaultMulticast<A extends IpAddress> extends Multicast<A> {
 
   @override
   bool operator ==(Object that) => switch (that) {
-        final Multicast<A> that => address == that.address,
-        _ => false,
-      };
+    final Multicast<A> that => address == that.address,
+    _ => false,
+  };
 
   @override
   int get hashCode => address.hashCode;
@@ -79,9 +80,9 @@ class _DefaultSourceSpecificMulticast<A extends IpAddress> extends SourceSpecifi
 
   @override
   bool operator ==(Object that) => switch (that) {
-        final SourceSpecificMulticast<A> that => address == that.address,
-        _ => false,
-      };
+    final SourceSpecificMulticast<A> that => address == that.address,
+    _ => false,
+  };
 
   @override
   int get hashCode => address.hashCode;
@@ -96,9 +97,9 @@ class _DefaultSourceSpecificMulticastStrict<A extends IpAddress>
 
   @override
   bool operator ==(Object that) => switch (that) {
-        final SourceSpecificMulticastStrict<A> that => address == that.address,
-        _ => false,
-      };
+    final SourceSpecificMulticastStrict<A> that => address == that.address,
+    _ => false,
+  };
 
   @override
   int get hashCode => address.hashCode;

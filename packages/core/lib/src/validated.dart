@@ -114,9 +114,9 @@ sealed class Validated<E, A> implements Functor<A> {
 
   @override
   bool operator ==(Object other) => fold(
-        (e) => other is Invalid<E, A> && other.value == e,
-        (a) => other is Valid<E, A> && other.value == a,
-      );
+    (e) => other is Invalid<E, A> && other.value == e,
+    (a) => other is Valid<E, A> && other.value == a,
+  );
 
   @override
   int get hashCode => fold((e) => e.hashCode, (a) => a.hashCode);
@@ -145,12 +145,12 @@ final class Invalid<E, A> extends Validated<E, A> {
 extension ValidatedNestedOps<E, A> on Validated<E, Validated<E, A>> {
   /// Extracts the nested [Validated] via [fold].
   Validated<E, A> flatten() => fold(
-        (e) => e.invalid(),
-        (va) => va.fold(
-          (e) => e.invalid(),
-          (a) => a.valid(),
-        ),
-      );
+    (e) => e.invalid(),
+    (va) => va.fold(
+      (e) => e.invalid(),
+      (a) => a.valid(),
+    ),
+  );
 }
 
 /// Functions that are unique to a [Validated] that has a `NonEmptyIList<E>`

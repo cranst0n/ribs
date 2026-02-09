@@ -43,21 +43,23 @@ class _ScopedResource extends ScopedResource {
 
   @override
   IO<Option<Lease>> lease() => state.modify((s) {
-        if (s.open) {
-          return (s.copy(leases: s.leases + 1), Some(_ALease(state)));
-        } else {
-          return (s, none());
-        }
-      });
+    if (s.open) {
+      return (s.copy(leases: s.leases + 1), Some(_ALease(state)));
+    } else {
+      return (s, none());
+    }
+  });
 
   @override
-  IO<Either<RuntimeException, Unit>> release(ExitCase ec) => state.modify((s) {
+  IO<Either<RuntimeException, Unit>> release(ExitCase ec) => state
+      .modify((s) {
         if (s.leases != 0) {
           return (s.copy(open: false), none<_Finalizer>());
         } else {
           return (s.copy(open: false, finalizer: none()), s.finalizer);
         }
-      }).flatMap(
+      })
+      .flatMap(
         (finalizer) => finalizer.map((ff) => ff(ec)).getOrElse(() => _pru),
       );
 }
@@ -75,12 +77,11 @@ class _ScopedResourceState {
     bool? open,
     Option<_Finalizer>? finalizer,
     int? leases,
-  }) =>
-      _ScopedResourceState(
-        open ?? this.open,
-        finalizer ?? this.finalizer,
-        leases ?? this.leases,
-      );
+  }) => _ScopedResourceState(
+    open ?? this.open,
+    finalizer ?? this.finalizer,
+    leases ?? this.leases,
+  );
 }
 
 class _ALease extends Lease {
@@ -89,15 +90,19 @@ class _ALease extends Lease {
   _ALease(this.state);
 
   @override
-  IO<Either<RuntimeException, Unit>> cancel() => state.modify((s) {
+  IO<Either<RuntimeException, Unit>> cancel() => state
+      .modify((s) {
         final now = s.copy(leases: s.leases + 1);
         return (now, now);
-      }).flatMap((now) {
+      })
+      .flatMap((now) {
         if (now.isFinished) {
-          return state.flatModify((s) => (
-                s.copy(finalizer: none()),
-                s.finalizer.fold(() => _pru, (ff) => ff(ExitCase.succeeded())),
-              ));
+          return state.flatModify(
+            (s) => (
+              s.copy(finalizer: none()),
+              s.finalizer.fold(() => _pru, (ff) => ff(ExitCase.succeeded())),
+            ),
+          );
         } else {
           return _pru;
         }

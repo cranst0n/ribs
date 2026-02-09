@@ -6,9 +6,9 @@ abstract class CountDownLatch {
     if (n < 1) {
       throw ArgumentError('Initialized with $n latches. Must be > 0');
     } else {
-      return _State.initial(n)
-          .flatMap((state) => IO.ref(state))
-          .map((ref) => _CountDownLatchImpl(ref));
+      return _State.initial(
+        n,
+      ).flatMap((state) => IO.ref(state)).map((ref) => _CountDownLatchImpl(ref));
     }
   }
 
@@ -23,18 +23,21 @@ final class _CountDownLatchImpl extends CountDownLatch {
   _CountDownLatchImpl(this.state);
 
   @override
-  IO<Unit> await() => state.value().flatMap((a) => switch (a) {
-        _Awaiting(:final signal) => signal.value(),
-        _Done _ => IO.unit,
-      });
+  IO<Unit> await() => state.value().flatMap(
+    (a) => switch (a) {
+      _Awaiting(:final signal) => signal.value(),
+      _Done _ => IO.unit,
+    },
+  );
 
   @override
   IO<Unit> release() {
     return state.flatModify((s) {
       return switch (s) {
-        _Awaiting(:final latches, :final signal) => latches > 1
-            ? (_Awaiting(latches - 1, signal), IO.unit)
-            : (_Done(), signal.complete(Unit()).voided()),
+        _Awaiting(:final latches, :final signal) =>
+          latches > 1
+              ? (_Awaiting(latches - 1, signal), IO.unit)
+              : (_Done(), signal.complete(Unit()).voided()),
         final _Done d => (d, IO.unit),
       };
     });

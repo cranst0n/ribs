@@ -217,7 +217,15 @@ _Arr5 _copyUpdate5(_Arr5 a5, int idx5, int idx4, int idx3, int idx2, int idx1, d
 }
 
 _Arr6 _copyUpdate6(
-    _Arr6 a6, int idx6, int idx5, int idx4, int idx3, int idx2, int idx1, dynamic elem) {
+  _Arr6 a6,
+  int idx6,
+  int idx5,
+  int idx4,
+  int idx3,
+  int idx2,
+  int idx1,
+  dynamic elem,
+) {
   final a6c = _clone6(a6);
   a6c[idx6] = _copyUpdate5(a6c[idx6]!, idx5, idx4, idx3, idx2, idx1, elem);
   return a6c;

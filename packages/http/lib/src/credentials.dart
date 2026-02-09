@@ -4,8 +4,7 @@ import 'package:ribs_http/ribs_http.dart';
 
 enum AuthScheme {
   basic(CIString('Basic')),
-  bearer(CIString('Bearer')),
-  ;
+  bearer(CIString('Bearer'));
 
   final CIString value;
 

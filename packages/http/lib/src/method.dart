@@ -37,8 +37,7 @@ enum Method {
   UNLOCK._idempotent('UNLOCK'),
   UPDATE._idempotent('UPDATE'),
   UPDATEREDIRECTREF._idempotent('UPDATEREDIRECTREF'),
-  VERSION_CONTROL._idempotent('VERSION-CONTROL'),
-  ;
+  VERSION_CONTROL._idempotent('VERSION-CONTROL');
 
   final String name;
   // no state change is expected on the server side
@@ -46,17 +45,11 @@ enum Method {
   // is the expected effect on the server the same with one request or multiple
   final bool isIdempotent;
 
-  const Method._(this.name)
-      : isIdempotent = false,
-        isSafe = false;
+  const Method._(this.name) : isIdempotent = false, isSafe = false;
 
-  const Method._idempotent(this.name)
-      : isIdempotent = true,
-        isSafe = false;
+  const Method._idempotent(this.name) : isIdempotent = true, isSafe = false;
 
-  const Method._safe(this.name)
-      : isIdempotent = true,
-        isSafe = true;
+  const Method._safe(this.name) : isIdempotent = true, isSafe = true;
 
   @override
   String toString() => name;

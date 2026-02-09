@@ -19,17 +19,16 @@ void forAll<T>(
   dynamic tags,
   Map<String, dynamic>? onPlatform,
   int? retry,
-}) =>
-    Prop(description, gen, testBody).run(
-      numTests: numTests,
-      seed: seed,
-      testOn: testOn,
-      timeout: timeout,
-      skip: skip,
-      tags: tags,
-      onPlatform: onPlatform,
-      retry: retry,
-    );
+}) => Prop(description, gen, testBody).run(
+  numTests: numTests,
+  seed: seed,
+  testOn: testOn,
+  timeout: timeout,
+  skip: skip,
+  tags: tags,
+  onPlatform: onPlatform,
+  retry: retry,
+);
 
 typedef TestBody<T> = Function1<T, FutureOr<void>>;
 
@@ -57,18 +56,24 @@ final class Prop<T> {
       () async {
         var count = 0;
 
-        final firstFailure =
-            await gen.stream(StatefulRandom(seedNN)).take(numTests ?? 100).asyncMap((value) {
-          count++;
-          return _runProp(value, testBody);
-        }).firstWhere((result) => result.isDefined, orElse: () => none<PropFailure<T>>());
+        final firstFailure = await gen
+            .stream(StatefulRandom(seedNN))
+            .take(numTests ?? 100)
+            .asyncMap((value) {
+              count++;
+              return _runProp(value, testBody);
+            })
+            .firstWhere((result) => result.isDefined, orElse: () => none<PropFailure<T>>());
 
-        final shrunkenFailure =
-            await firstFailure.fold(() => Future.value(firstFailure), (a) => _shrink(a, testBody));
+        final shrunkenFailure = await firstFailure.fold(
+          () => Future.value(firstFailure),
+          (a) => _shrink(a, testBody),
+        );
 
         shrunkenFailure.foreach((a) {
           throw TestFailure(
-              '${a.underlying.message} Failed after $count iterations using value <${a.value}> and initial seed of [$seedNN].');
+            '${a.underlying.message} Failed after $count iterations using value <${a.value}> and initial seed of [$seedNN].',
+          );
         });
       },
       testOn: testOn,
@@ -98,10 +103,12 @@ final class Prop<T> {
         ? Future.value(Some(original))
         : gen
             .shrink(original.value)
-            .asyncMap((value) async => (await _runProp(value, testBody)).fold(
-                  () => Future.value(Some(original)),
-                  (fail) => _shrink(fail, testBody, count: count - 1),
-                ))
+            .asyncMap(
+              (value) async => (await _runProp(value, testBody)).fold(
+                () => Future.value(Some(original)),
+                (fail) => _shrink(fail, testBody, count: count - 1),
+              ),
+            )
             .firstWhere((result) => result.isDefined, orElse: () => Some(original));
   }
 }

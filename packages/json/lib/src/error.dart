@@ -31,17 +31,16 @@ final class DecodingFailure extends Error {
   static DecodingFailure from(Reason reason, ACursor cursor) =>
       DecodingFailure(reason, cursor.history());
 
-  Option<String> get pathToRootString => PathToRoot.fromHistory(history)
-      .toOption()
-      .filterNot((a) => a == PathToRoot.empty)
-      .map((a) => a.asPathString());
+  Option<String> get pathToRootString => PathToRoot.fromHistory(
+    history,
+  ).toOption().filterNot((a) => a == PathToRoot.empty).map((a) => a.asPathString());
 
   String message() => switch (reason) {
-        final WrongTypeExpectation r =>
-          'Got value ${r.jsonValue} with wrong type. Expected ${r.expectedJsonFieldType}',
-        MissingField _ => 'Missing required field',
-        final CustomReason r => r.message,
-      };
+    final WrongTypeExpectation r =>
+      'Got value ${r.jsonValue} with wrong type. Expected ${r.expectedJsonFieldType}',
+    MissingField _ => 'Missing required field',
+    final CustomReason r => r.message,
+  };
 
   @override
   String toString() => 'DecodingFailure($reason, $pathToRootString)';

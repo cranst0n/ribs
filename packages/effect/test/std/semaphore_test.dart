@@ -30,12 +30,12 @@ void main() {
               .surround(IO.sleep(1.second).productR(() => ref.setValue(true)))
               .start()
               .flatMap((_) {
-            return IO.sleep(500.milliseconds).flatMap((_) {
-              return sem.permit().surround(IO.unit).flatMap((_) {
-                return ref.value();
+                return IO.sleep(500.milliseconds).flatMap((_) {
+                  return sem.permit().surround(IO.unit).flatMap((_) {
+                    return ref.value();
+                  });
+                });
               });
-            });
-          });
         });
       });
 
@@ -49,8 +49,8 @@ void main() {
             .surround(IO.raiseError<Unit>(RuntimeException('boom!')))
             .attempt()
             .flatMap((_) {
-          return sem.permit().surround(IO.unit);
-        });
+              return sem.permit().surround(IO.unit);
+            });
       });
 
       expect(test, ioSucceeded(Unit()));
@@ -63,8 +63,8 @@ void main() {
             .surround(IO.raiseError<Unit>(RuntimeException('boom!')))
             .attempt()
             .flatMap((_) {
-          return sem.permit().surround(IO.unit);
-        });
+              return sem.permit().surround(IO.unit);
+            });
       });
 
       expect(test, ioSucceeded(Unit()));
@@ -90,15 +90,19 @@ void main() {
       expect(test, ioSucceeded(Unit()));
     });
 
-    test('not release permit if tryPermit completes without acquiring a permit', () {
-      final test = sc(0).flatMap((sem) {
-        return sem.tryPermit().surround(IO.unit).flatMap((_) {
-          return sem.permit().surround(IO.unit);
+    test(
+      'not release permit if tryPermit completes without acquiring a permit',
+      () {
+        final test = sc(0).flatMap((sem) {
+          return sem.tryPermit().surround(IO.unit).flatMap((_) {
+            return sem.permit().surround(IO.unit);
+          });
         });
-      });
 
-      expect(test, ioSucceeded());
-    }, skip: 'Expected to be non-terminating');
+        expect(test, ioSucceeded());
+      },
+      skip: 'Expected to be non-terminating',
+    );
 
     test('release permit if action gets canceled', () {
       final test = sc(1).flatMap((sem) {
@@ -226,9 +230,10 @@ void main() {
       final permits = ilist([1, 0, 20, 4, 0, 5, 2, 1, 1, 3]);
 
       final test = sc(0).flatMap((sem) {
-        return (permits.traverseIO_(sem.acquireN), permits.reverse().traverseIO_(sem.releaseN))
-            .parTupled()
-            .productR(() => sem.count());
+        return (
+          permits.traverseIO_(sem.acquireN),
+          permits.reverse().traverseIO_(sem.releaseN),
+        ).parTupled().productR(() => sem.count());
       });
 
       expect(test, ioSucceeded(0));
@@ -240,7 +245,7 @@ void main() {
       final test = sc(0).flatMap((sem) {
         return (
           permits.parTraverseIO_(sem.acquireN),
-          permits.reverse().parTraverseIO_(sem.releaseN)
+          permits.reverse().parTraverseIO_(sem.releaseN),
         ).parTupled().productR(() => sem.count());
       });
 
@@ -254,8 +259,9 @@ void main() {
     });
 
     test('available with 0 available permits', () {
-      final test = sc(20).flatMap(
-          (sem) => sem.acquireN(20).flatMap((_) => IO.cede.productR(() => sem.available())));
+      final test = sc(
+        20,
+      ).flatMap((sem) => sem.acquireN(20).flatMap((_) => IO.cede.productR(() => sem.available())));
 
       expect(test, ioSucceeded(0));
     });
@@ -280,8 +286,11 @@ void main() {
       const n = 8;
 
       final test = sc(n).flatMap((sem) {
-        return sem.acquireN(n).productR(
-            () => sem.acquireN(n).background().use((_) => sem.count().iterateUntil((x) => x < 0)));
+        return sem
+            .acquireN(n)
+            .productR(
+              () => sem.acquireN(n).background().use((_) => sem.count().iterateUntil((x) => x < 0)),
+            );
       });
 
       expect(test, ioSucceeded(-n));

@@ -16,8 +16,9 @@ abstract class EntityDecoder<A> {
 
   static final binary = _DecoderF<List<int>>(
     (media, strict) => IO
-        .fromFutureF(() =>
-            media.body.fold(List<int>.empty(growable: true), (acc, elem) => acc..addAll(elem)))
+        .fromFutureF(
+          () => media.body.fold(List<int>.empty(growable: true), (acc, elem) => acc..addAll(elem)),
+        )
         .redeem(
           (err) => DecodeFailure(err.message).asLeft(),
           (bytes) => bytes.asRight(),
@@ -41,11 +42,12 @@ abstract class EntityDecoder<A> {
       json.flatMapR((json) => decoder.decode(json).leftMap((a) => DecodeFailure(a)));
 
   static final string = _DecoderF<String>(
-    (media, strict) =>
-        IO.fromFutureF(() => media.bodyText.fold('', (acc, elem) => acc + elem)).redeem(
-              (err) => DecodeFailure(err.message, err.stackTrace).asLeft(),
-              (str) => str.asRight(),
-            ),
+    (media, strict) => IO
+        .fromFutureF(() => media.bodyText.fold('', (acc, elem) => acc + elem))
+        .redeem(
+          (err) => DecodeFailure(err.message, err.stackTrace).asLeft(),
+          (str) => str.asRight(),
+        ),
     iset({}),
   );
 

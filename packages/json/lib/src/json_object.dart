@@ -11,7 +11,8 @@ sealed class JsonObject {
   static JsonObject fromIList(IList<(String, Json)> fields) => fromIterable(fields.toList());
 
   static JsonObject fromIterable(Iterable<(String, Json)> fields) => _LinkedHashMapJsonObject(
-      LinkedHashMap.fromIterables(fields.map((e) => e.$1), fields.map((e) => e.$2)));
+    LinkedHashMap.fromIterables(fields.map((e) => e.$1), fields.map((e) => e.$2)),
+  );
 
   JsonObject add(String key, Json value);
 
@@ -22,12 +23,14 @@ sealed class JsonObject {
   bool contains(String key);
 
   JsonObject deepMerge(JsonObject that) => toIList().foldLeft(
-        that,
-        (acc, kv) => that.get(kv.$1).fold(
-              () => acc.add(kv.$1, kv.$2),
-              (r) => acc.add(kv.$1, kv.$2.deepMerge(r)),
-            ),
-      );
+    that,
+    (acc, kv) => that
+        .get(kv.$1)
+        .fold(
+          () => acc.add(kv.$1, kv.$2),
+          (r) => acc.add(kv.$1, kv.$2.deepMerge(r)),
+        ),
+  );
 
   JsonObject filter(Function1<(String, Json), bool> p) => JsonObject.fromIList(toIList().filter(p));
 
@@ -78,7 +81,8 @@ final class _LinkedHashMapJsonObject extends JsonObject {
 
   @override
   JsonObject mapValues(Function1<Json, Json> f) => _LinkedHashMapJsonObject(
-      LinkedHashMap.from(fields.map((key, value) => MapEntry(key, f(value)))));
+    LinkedHashMap.from(fields.map((key, value) => MapEntry(key, f(value)))),
+  );
 
   @override
   JsonObject remove(String key) => _LinkedHashMapJsonObject(LinkedHashMap.of(fields)..remove(key));

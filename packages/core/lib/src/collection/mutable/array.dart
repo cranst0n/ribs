@@ -118,12 +118,11 @@ final class Array<A> {
     Array<A> dest,
     int destPos,
     int length,
-  ) =>
-      dest._list.setRange(
-        destPos,
-        destPos + length,
-        src._list.getRange(srcPos, srcPos + length),
-      );
+  ) => dest._list.setRange(
+    destPos,
+    destPos + length,
+    src._list.getRange(srcPos, srcPos + length),
+  );
 
   static Array<A> copyOf<A>(Array<A> original, int newLength) {
     final dest = Array.ofDim<A>(newLength);

@@ -92,8 +92,9 @@ void main() {
   });
 
   test('filterWithPrevious', () async {
-    final r = Rill.emits(ilist([1, 9, 5, 6, 7, 8, 9, 10]))
-        .filterWithPrevious((previous, current) => previous < current);
+    final r = Rill.emits(
+      ilist([1, 9, 5, 6, 7, 8, 9, 10]),
+    ).filterWithPrevious((previous, current) => previous < current);
 
     final result = await r.compile().toIList().unsafeRunFuture();
 
@@ -121,7 +122,8 @@ void main() {
   test('handleErrorWith', () async {
     final r = Rill.emits(ilist([1, 2, 3]))
         .flatMap(
-            (x) => x.isEven ? Rill.raiseError<int>(RuntimeException('boom')) : Rill.emit(x * 2))
+          (x) => x.isEven ? Rill.raiseError<int>(RuntimeException('boom')) : Rill.emit(x * 2),
+        )
         .handleErrorWith((e) => Rill.emits(ilist([3, 2, 1])));
 
     final result = await r.compile().toIList().unsafeRunFuture();

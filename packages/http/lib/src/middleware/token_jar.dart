@@ -12,9 +12,11 @@ class TokenJar {
           .rethrowError()
           .flatMap((x) => ref.setValue(Some(x.authToken)));
 
-      IO<Request> enrichRequest(Request req) => ref.value().map((tokenOpt) => tokenOpt
-          .map((token) => req.addHeader(Header.authorization.bearer(token)))
-          .getOrElse(() => req));
+      IO<Request> enrichRequest(Request req) => ref.value().map(
+        (tokenOpt) => tokenOpt
+            .map((token) => req.addHeader(Header.authorization.bearer(token)))
+            .getOrElse(() => req),
+      );
 
       return Client.create((request) {
         if (request.uri == Uri.parse('http://site.com/login')) {

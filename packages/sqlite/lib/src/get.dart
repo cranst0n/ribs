@@ -14,13 +14,15 @@ abstract mixin class Get<A> {
   static final Get<BigInt> bigInt = _genericGet();
   static final Get<IList<int>> blob = _genericGet<List<int>>().map(IList.fromDart);
   static final Get<bool> boolean = integer.map((i) => i != 0);
-  static final Get<DateTime> dateTime =
-      string.emap((str) => Either.catching(() => DateTime.parse(str), (err, _) => err.toString()));
+  static final Get<DateTime> dateTime = string.emap(
+    (str) => Either.catching(() => DateTime.parse(str), (err, _) => err.toString()),
+  );
   static final Get<double> dubble = _genericGet();
   static final Get<int> integer = _genericGet();
   static final Get<String> string = _genericGet();
-  static final Get<Json> json =
-      string.emap((str) => Json.parse(str).leftMap((failure) => failure.message));
+  static final Get<Json> json = string.emap(
+    (str) => Json.parse(str).leftMap((failure) => failure.message),
+  );
 
   static Get<T> _genericGet<T>() {
     return Get.instance(
@@ -70,7 +72,7 @@ final class _EmapGet<A, B> extends Get<B> {
 
   @override
   B unsafeGet(Row row, int n) => f(get.unsafeGet(row, n)).fold(
-        (err) => throw Exception(err),
-        (b) => b,
-      );
+    (err) => throw Exception(err),
+    (b) => b,
+  );
 }

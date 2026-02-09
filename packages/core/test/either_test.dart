@@ -12,13 +12,17 @@ void main() {
 
   group('Either', () {
     test('catching (value)', () {
-      expect(Either.catching(() => 1, (a, b) => fail('Either.catching value should not throw')),
-          isRight<Never, int>(1));
+      expect(
+        Either.catching(() => 1, (a, b) => fail('Either.catching value should not throw')),
+        isRight<Never, int>(1),
+      );
     });
 
     test('catching (throw)', () {
-      expect(Either.catching(() => throw Exception('boom'), (a, b) => 'OK'),
-          isLeft<String, Never>('OK'));
+      expect(
+        Either.catching(() => throw Exception('boom'), (a, b) => 'OK'),
+        isLeft<String, Never>('OK'),
+      );
     });
 
     test('cond', () {

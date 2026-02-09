@@ -31,34 +31,40 @@ final class Deferred<A> {
   /// readers will be notified and `true` will be returned.
   ///
   /// If this instance has already been completed, `false` is returned.
-  IO<bool> complete(A a) => IO.uncancelable((_) => _state.fold(
-        (a) => IO.pure(false),
-        (unset) {
-          _state = _DeferredStateSet(a);
+  IO<bool> complete(A a) => IO.uncancelable(
+    (_) => _state.fold(
+      (a) => IO.pure(false),
+      (unset) {
+        _state = _DeferredStateSet(a);
 
-          unset.readers.values.forEach((reader) => reader(a));
+        unset.readers.values.forEach((reader) => reader(a));
 
-          return IO.pure(true);
-        },
-      ));
+        return IO.pure(true);
+      },
+    ),
+  );
 
   /// Returns the completed value of this instance, if any as an [Option].
-  IO<Option<A>> tryValue() => IO.delay(() => _state.fold(
-        (a) => Some(a),
-        (_) => none(),
-      ));
+  IO<Option<A>> tryValue() => IO.delay(
+    () => _state.fold(
+      (a) => Some(a),
+      (_) => none(),
+    ),
+  );
 
   /// Returns the value of this instance, returning immediately if already
   /// completed, or returning an [IO] that will continue evaluation once this
   /// [Deferred] is completed.
   IO<A> value() => IO.defer(
-        () => _state.fold(
-          (a) => IO.pure(a),
-          (unset) => IO.async((cb) => IO
-              .delay(() => unset.addReader((a) => cb(Right(a))))
-              .map((id) => Some(IO.exec(() => unset.deleteReader(id))))),
-        ),
-      );
+    () => _state.fold(
+      (a) => IO.pure(a),
+      (unset) => IO.async(
+        (cb) => IO
+            .delay(() => unset.addReader((a) => cb(Right(a))))
+            .map((id) => Some(IO.exec(() => unset.deleteReader(id)))),
+      ),
+    ),
+  );
 }
 
 sealed class _DeferredState<A> {
@@ -77,8 +83,7 @@ class _DeferredStateSet<A> extends _DeferredState<A> {
   B fold<B>(
     Function1<A, B> ifSet,
     Function1<_DeferredStateUnset<A>, B> ifUnset,
-  ) =>
-      ifSet(value);
+  ) => ifSet(value);
 }
 
 class _DeferredStateUnset<A> extends _DeferredState<A> {
@@ -91,8 +96,7 @@ class _DeferredStateUnset<A> extends _DeferredState<A> {
   B fold<B>(
     Function1<A, B> ifSet,
     Function1<_DeferredStateUnset<A>, B> ifUnset,
-  ) =>
-      ifUnset(this);
+  ) => ifUnset(this);
 
   int addReader(Function1<A, void> reader) {
     final id = nextId;

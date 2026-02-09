@@ -13,7 +13,9 @@ final class ListCodec<A> extends Codec<List<A>> {
       if (x.isEmpty) {
         return Either.right(DecodeResult(acc, x));
       } else {
-        return limit.filterNot((l) => acc.length >= l).fold(
+        return limit
+            .filterNot((l) => acc.length >= l)
+            .fold(
               () => Either.right(DecodeResult(acc, x)),
               (limit) => codec.decode(x).flatMap((a) => go(a.remainder, acc..add(a.value))),
             );

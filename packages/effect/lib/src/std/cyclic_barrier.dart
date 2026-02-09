@@ -59,10 +59,9 @@ final class _State {
     int? awaiting,
     int? epoch,
     Deferred<Unit>? unblock,
-  }) =>
-      _State(
-        awaiting ?? this.awaiting,
-        epoch ?? this.epoch,
-        unblock ?? this.unblock,
-      );
+  }) => _State(
+    awaiting ?? this.awaiting,
+    epoch ?? this.epoch,
+    unblock ?? this.unblock,
+  );
 }

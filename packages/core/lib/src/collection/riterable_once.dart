@@ -53,10 +53,10 @@ mixin RIterableOnce<A> {
   // ///////////////////////////////////////////////////////////////////////////
 
   bool get isEmpty => switch (knownSize) {
-        -1 => iterator.hasNext,
-        0 => true,
-        _ => false,
-      };
+    -1 => iterator.hasNext,
+    0 => true,
+    _ => false,
+  };
 
   bool get isNotEmpty => !isEmpty;
 
@@ -212,9 +212,9 @@ mixin RIterableOnce<A> {
   ///
   /// If this collection is empty, [None] is returned.
   Option<A> maxOption(Order<A> order) => switch (knownSize) {
-        0 => none(),
-        _ => _reduceOptionIterator(iterator, order.max),
-      };
+    0 => none(),
+    _ => _reduceOptionIterator(iterator, order.max),
+  };
 
   /// Finds the largest element in this collection by applying [f] to each element
   /// and using the given [Order] to find the greatest.
@@ -227,9 +227,9 @@ mixin RIterableOnce<A> {
   ///
   /// If this collection is empty, [None] is returned.
   Option<A> minOption(Order<A> order) => switch (knownSize) {
-        0 => none(),
-        _ => _reduceOptionIterator(iterator, order.min),
-      };
+    0 => none(),
+    _ => _reduceOptionIterator(iterator, order.min),
+  };
 
   /// Finds the smallest element in this collection by applying [f] to each element
   /// and using the given [Order] to find the greatest.
@@ -275,35 +275,35 @@ mixin RIterableOnce<A> {
   Option<A> reduceOption(Function2<A, A, A> op) => reduceLeftOption(op);
 
   A reduceLeft(Function2<A, A, A> op) => switch (this) {
-        final IndexedSeq<A> seq when seq.length > 0 => _foldl(seq, 1, seq[0], op),
-        _ when knownSize == 0 => throw UnsupportedError('empty.reduceLeft'),
-        _ => _reduceLeftIterator(() => throw UnsupportedError('empty.reduceLeft'), op),
-      };
+    final IndexedSeq<A> seq when seq.length > 0 => _foldl(seq, 1, seq[0], op),
+    _ when knownSize == 0 => throw UnsupportedError('empty.reduceLeft'),
+    _ => _reduceLeftIterator(() => throw UnsupportedError('empty.reduceLeft'), op),
+  };
 
   /// Returns a summary values of all elements of this collection by applying
   /// [f] to each element, moving left to right.
   ///
   /// If this collection is empty, [None] will be returned.
   Option<A> reduceLeftOption(Function2<A, A, A> op) => switch (knownSize) {
-        0 => none(),
-        _ => _reduceOptionIterator(iterator, op),
-      };
+    0 => none(),
+    _ => _reduceOptionIterator(iterator, op),
+  };
 
   A reduceRight(Function2<A, A, A> op) => switch (this) {
-        final IndexedSeq<A> seq when seq.length > 0 => _foldr(seq, op),
-        _ when knownSize == 0 => throw UnsupportedError('empty.reduceLeft'),
-        _ => _reversed().reduceLeft((x, y) => op(y, x)),
-      };
+    final IndexedSeq<A> seq when seq.length > 0 => _foldr(seq, op),
+    _ when knownSize == 0 => throw UnsupportedError('empty.reduceLeft'),
+    _ => _reversed().reduceLeft((x, y) => op(y, x)),
+  };
 
   /// Returns a summary values of all elements of this collection by applying
   /// [f] to each element, moving right to left.
   ///
   /// If this collection is empty, [None] will be returned.
   Option<A> reduceRightOption(Function2<A, A, A> op) => switch (knownSize) {
-        -1 => _reduceOptionIterator(_reversed().iterator, (x, y) => op(y, x)),
-        0 => none(),
-        _ => Some(reduceRight(op)),
-      };
+    -1 => _reduceOptionIterator(_reversed().iterator, (x, y) => op(y, x)),
+    0 => none(),
+    _ => Some(reduceRight(op)),
+  };
 
   /// Returns a new collection of the accumulation of results by applying [f] to
   /// all elements of the collection, including the inital value [z]. Traversal

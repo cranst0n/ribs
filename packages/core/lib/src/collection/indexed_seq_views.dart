@@ -61,9 +61,9 @@ class Reverse<A> extends seqviews.Reverse<A> with IndexedSeq<A>, IndexedSeqView<
 
   @override
   IndexedSeq<A> reverse() => switch (underlying) {
-        final IndexedSeqView<A> x => x,
-        _ => super.reverse(),
-      };
+    final IndexedSeqView<A> x => x,
+    _ => super.reverse(),
+  };
 }
 
 class Slice<A> extends AbstractIndexedSeqView<A> {
@@ -79,8 +79,8 @@ class Slice<A> extends AbstractIndexedSeqView<A> {
     this.underlying,
     this.from,
     this.until,
-  )   : lo = max(from, 0),
-        hi = min(max(until, 0), underlying.length);
+  ) : lo = max(from, 0),
+      hi = min(max(until, 0), underlying.length);
 
   @override
   A operator [](int idx) => underlying[lo + idx];
@@ -159,9 +159,7 @@ final class IndexedSeqViewReverseIterator<A> extends RIterator<A> {
   int _remainder;
   int _pos;
 
-  IndexedSeqViewReverseIterator(this.self)
-      : _remainder = self.length,
-        _pos = self.length - 1;
+  IndexedSeqViewReverseIterator(this.self) : _remainder = self.length, _pos = self.length - 1;
 
   @override
   bool get hasNext => _remainder > 0;

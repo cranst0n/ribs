@@ -45,9 +45,9 @@ class Todo {
     ReadWrite.string.optional(),
     ReadWrite.json,
   ).tupled.xmap(
-        Todo.new.tupled,
-        (t) => (t.id, t.title, t.description, t.raw),
-      );
+    Todo.new.tupled,
+    (t) => (t.id, t.title, t.description, t.raw),
+  );
 }
 
 void main() {
@@ -63,50 +63,65 @@ void main() {
 
     await 'insert into todo values(?, ?, ?, ?)'
         .update(Todo.rw)
-        .updateMany(ilist([
-          Todo(const TodoId(1), 'Shop', Option('for groceries'), Json.arr([Json.True, Json.Null])),
-          Todo(const TodoId(2), 'Play', Option('baseball'),
-              Json.obj([("club", Json.str("Crestwood")), ("players", Json.number(4))])),
-          Todo(const TodoId(3), 'Study', none(), Json.arr([])),
-          Todo(const TodoId(10), 'Test', Option('123'), Json.obj([("one", Json.True)])),
-        ]))
+        .updateMany(
+          ilist([
+            Todo(
+              const TodoId(1),
+              'Shop',
+              Option('for groceries'),
+              Json.arr([Json.True, Json.Null]),
+            ),
+            Todo(
+              const TodoId(2),
+              'Play',
+              Option('baseball'),
+              Json.obj([("club", Json.str("Crestwood")), ("players", Json.number(4))]),
+            ),
+            Todo(const TodoId(3), 'Study', none(), Json.arr([])),
+            Todo(const TodoId(10), 'Test', Option('123'), Json.obj([("one", Json.True)])),
+          ]),
+        )
         .run(db)
         .unsafeRunFuture();
 
-    final res0 = await 'select id,title,description,raw from todo'
-        .query(Todo.rw)
-        .ilist()
-        .run(db)
-        // .flatTap((x) => x.traverseIO_((todo) => IO.println(todo.toString())))
-        .unsafeRunFuture();
+    final res0 =
+        await 'select id,title,description,raw from todo'
+            .query(Todo.rw)
+            .ilist()
+            .run(db)
+            // .flatTap((x) => x.traverseIO_((todo) => IO.println(todo.toString())))
+            .unsafeRunFuture();
 
     expect(res0.size, 5);
 
-    final res1 = await 'select id,title,description,raw from todo where id = 2'
-        .query(Todo.rw)
-        .unique()
-        .run(db)
-        .unsafeRunFuture();
+    final res1 =
+        await 'select id,title,description,raw from todo where id = 2'
+            .query(Todo.rw)
+            .unique()
+            .run(db)
+            .unsafeRunFuture();
 
     expect(res1.id, const TodoId(2));
 
-    final res2 = await 'select id,title,description,raw from todo where id = 1000'
-        .query(Todo.rw)
-        .option()
-        .run(db)
-        .unsafeRunFuture();
+    final res2 =
+        await 'select id,title,description,raw from todo where id = 1000'
+            .query(Todo.rw)
+            .option()
+            .run(db)
+            .unsafeRunFuture();
 
     expect(res2, isNone());
 
-    final res3 = await '''
+    final res3 =
+        await '''
                 insert into todo values
                   (5000, "Foo", null, '[1.23, [null, true, {}]]'),
                   (5001, "Bar", null, '[]')
                 returning id, title, raw'''
-        .query((Read.integer, Read.string).tupled)
-        .ivector()
-        .run(db)
-        .unsafeRunFuture();
+            .query((Read.integer, Read.string).tupled)
+            .ivector()
+            .run(db)
+            .unsafeRunFuture();
 
     expect(res3, ivec([(5000, 'Foo'), (5001, 'Bar')]));
 
@@ -115,19 +130,21 @@ void main() {
 
     expect(res4, isSome(5001));
 
-    final res5 = await 'select id,title,description,raw from todo where id > 0'
-        .query(Todo.rw)
-        .nel()
-        .run(db)
-        .unsafeRunFuture();
+    final res5 =
+        await 'select id,title,description,raw from todo where id > 0'
+            .query(Todo.rw)
+            .nel()
+            .run(db)
+            .unsafeRunFuture();
 
     expect(res5.size, 6);
 
-    final res6 = await 'select id,title,description,raw from todo where id < 0'
-        .query(Todo.rw)
-        .nel()
-        .run(db)
-        .unsafeRunFutureOutcome();
+    final res6 =
+        await 'select id,title,description,raw from todo where id < 0'
+            .query(Todo.rw)
+            .nel()
+            .run(db)
+            .unsafeRunFutureOutcome();
 
     expect(res6.isError, isTrue);
   });
@@ -135,23 +152,25 @@ void main() {
   test('optional', () async {
     final db = sqlite3.openInMemory();
 
-    await ilist(['create table foo (id integer, raw json, title string)'])
-        .traverseIO_((sql) => sql.update0.run(db))
-        .unsafeRunFuture();
+    await ilist([
+      'create table foo (id integer, raw json, title string)',
+    ]).traverseIO_((sql) => sql.update0.run(db)).unsafeRunFuture();
 
-    final maxId = await 'select max(id) from foo'
-        .query(Read.integer.optional())
-        .unique()
-        .run(db)
-        .unsafeRunFuture();
+    final maxId =
+        await 'select max(id) from foo'
+            .query(Read.integer.optional())
+            .unique()
+            .run(db)
+            .unsafeRunFuture();
 
     expect(maxId, isNone());
 
-    final rw = (
-      ReadWrite.integer,
-      ReadWrite.json.optional(),
-      ReadWrite.string.optional(),
-    ).tupled;
+    final rw =
+        (
+          ReadWrite.integer,
+          ReadWrite.json.optional(),
+          ReadWrite.string.optional(),
+        ).tupled;
 
     final stmt = 'insert into foo values (?,?,?)'.update(rw);
 
@@ -165,14 +184,15 @@ void main() {
   test('tupled optionals', () async {
     final db = sqlite3.openInMemory();
 
-    await ilist(['create table foo (a integer, b string, c integer, d string)'])
-        .traverseIO_((sql) => sql.update0.run(db))
-        .unsafeRunFuture();
+    await ilist([
+      'create table foo (a integer, b string, c integer, d string)',
+    ]).traverseIO_((sql) => sql.update0.run(db)).unsafeRunFuture();
 
-    final tupRW = (
-      ReadWrite.integer,
-      ReadWrite.string,
-    ).tupled.optional();
+    final tupRW =
+        (
+          ReadWrite.integer,
+          ReadWrite.string,
+        ).tupled.optional();
 
     final rw = (tupRW, tupRW).tupled;
 
@@ -193,9 +213,9 @@ void main() {
   test('blob', () async {
     final db = sqlite3.openInMemory();
 
-    await ilist(['create table foo (a integer, b blob)'])
-        .traverseIO_((sql) => sql.update0.run(db))
-        .unsafeRunFuture();
+    await ilist([
+      'create table foo (a integer, b blob)',
+    ]).traverseIO_((sql) => sql.update0.run(db)).unsafeRunFuture();
 
     final rw = (ReadWrite.integer, ReadWrite.blob).tupled;
 
@@ -226,8 +246,7 @@ void main() {
 
     final uq = '''
       insert into todo (title, description, raw) values(?, ?, ?) returning id
-    '''
-        .updateQuery(tupleW, Read.integer);
+    '''.updateQuery(tupleW, Read.integer);
 
     final res0 = await uq.update(('foo', none(), none())).run(db).unsafeRunFuture();
 
@@ -237,45 +256,53 @@ void main() {
 
     expect(res1, 2);
 
-    final res2 = await uq
-        .updateMany(ilist([
-          ('aaa', none(), none()),
-          ('bbb', none(), none()),
-          ('ccc', none(), none()),
-          ('ddd', none(), none()),
-          ('eee', none(), none()),
-        ]))
-        .run(db)
-        .unsafeRunFuture();
+    final res2 =
+        await uq
+            .updateMany(
+              ilist([
+                ('aaa', none(), none()),
+                ('bbb', none(), none()),
+                ('ccc', none(), none()),
+                ('ddd', none(), none()),
+                ('eee', none(), none()),
+              ]),
+            )
+            .run(db)
+            .unsafeRunFuture();
 
     expect(res2.toIList(), ilist([3, 4, 5, 6, 7]));
 
     final returnMultiple =
-        'insert into todo (title, description, raw) values (?,?,?) returning id, title'
-            .updateQuery(tupleW, (Read.integer, Read.string).tupled);
+        'insert into todo (title, description, raw) values (?,?,?) returning id, title'.updateQuery(
+          tupleW,
+          (Read.integer, Read.string).tupled,
+        );
 
-    final res3 = await returnMultiple
-        .updateMany(ilist([
-          ('xxx', none(), none()),
-          ('yyy', none(), none()),
-          ('zzz', none(), none()),
-        ]))
-        .run(db)
-        .unsafeRunFuture();
+    final res3 =
+        await returnMultiple
+            .updateMany(
+              ilist([
+                ('xxx', none(), none()),
+                ('yyy', none(), none()),
+                ('zzz', none(), none()),
+              ]),
+            )
+            .run(db)
+            .unsafeRunFuture();
 
     expect(
-        res3,
-        ilist([
-          (8, 'xxx'),
-          (9, 'yyy'),
-          (10, 'zzz'),
-        ]));
+      res3,
+      ilist([
+        (8, 'xxx'),
+        (9, 'yyy'),
+        (10, 'zzz'),
+      ]),
+    );
   });
 
   test('boolean', () async {
     final db = sqlite3.openInMemory();
-    await 'create table todo (id integer primary key, title text not null, done integer)'
-        .update0
+    await 'create table todo (id integer primary key, title text not null, done integer)'.update0
         .run(db)
         .unsafeRunFuture();
 
@@ -295,8 +322,7 @@ void main() {
 
   test('stream', () async {
     final db = sqlite3.openInMemory();
-    await 'create table todo (id integer primary key, title text not null, done integer)'
-        .update0
+    await 'create table todo (id integer primary key, title text not null, done integer)'.update0
         .run(db)
         .unsafeRunFuture();
 

@@ -67,7 +67,7 @@ final class Arcminutes extends AngleUnit {
 
 final class Arcseconds extends AngleUnit {
   const Arcseconds._()
-      : super('arc second', 'asec', 1 / Duration.secondsPerMinute * math.pi / 10800);
+    : super('arc second', 'asec', 1 / Duration.secondsPerMinute * math.pi / 10800);
 }
 
 extension AngleOps on num {

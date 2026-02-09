@@ -10,13 +10,15 @@ void main() {
       expect(loopbacks.length, 2);
       expect(loopbacks.contains(Ipv4Address.fromBytes(127, 0, 0, 1)), isTrue);
       expect(
-          loopbacks.contains(Ipv6Address.fromString('::1').getOrElse(() => throw 'ipv6 loopback')),
-          isTrue);
+        loopbacks.contains(Ipv6Address.fromString('::1').getOrElse(() => throw 'ipv6 loopback')),
+        isTrue,
+      );
     });
 
     test('resolve / reverse roundtrip', () async {
-      final hostname =
-          Hostname.fromString('comcast.com').getOrElse(() => throw 'Dns.resolve test failed');
+      final hostname = Hostname.fromString(
+        'comcast.com',
+      ).getOrElse(() => throw 'Dns.resolve test failed');
 
       final addresses = await Dns.resolve(hostname).unsafeRunFuture();
 

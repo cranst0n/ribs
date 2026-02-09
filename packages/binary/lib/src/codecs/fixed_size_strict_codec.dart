@@ -8,15 +8,24 @@ final class FixedSizeStrictCodec<A> extends Codec<A> {
   FixedSizeStrictCodec(this.size, this.codec);
 
   @override
-  Either<Err, DecodeResult<A>> decode(BitVector bv) => bv.size >= size
-      ? codec.decode(bv.take(size)).map((res) => DecodeResult(res.value, bv.drop(size)))
-      : Either.left(Err.insufficientBits(size, bv.size));
+  Either<Err, DecodeResult<A>> decode(BitVector bv) =>
+      bv.size >= size
+          ? codec.decode(bv.take(size)).map((res) => DecodeResult(res.value, bv.drop(size)))
+          : Either.left(Err.insufficientBits(size, bv.size));
 
   @override
-  Either<Err, BitVector> encode(A a) => codec.encode(a).flatMap((a) => a.size == size
-      ? Either.right<Err, BitVector>(a)
-      : Either.left<Err, BitVector>(
-          Err.general('$a requires ${a.size} bytes but is fixed size of exactly $size bytes')));
+  Either<Err, BitVector> encode(A a) => codec
+      .encode(a)
+      .flatMap(
+        (a) =>
+            a.size == size
+                ? Either.right<Err, BitVector>(a)
+                : Either.left<Err, BitVector>(
+                  Err.general(
+                    '$a requires ${a.size} bytes but is fixed size of exactly $size bytes',
+                  ),
+                ),
+      );
 
   @override
   String? get description => 'fixedSizeStrict($size, $codec)';

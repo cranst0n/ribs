@@ -11,7 +11,9 @@ final class EitherDecoder<A, B> extends Decoder<Either<A, B>> {
   DecodeResult<Either<A, B>> decodeC(HCursor cursor) => tryDecodeC(cursor);
 
   @override
-  DecodeResult<Either<A, B>> tryDecodeC(ACursor cursor) => decodeA.tryDecodeC(cursor).fold(
+  DecodeResult<Either<A, B>> tryDecodeC(ACursor cursor) => decodeA
+      .tryDecodeC(cursor)
+      .fold(
         (_) => decodeB
             .tryDecodeC(cursor)
             .fold((err) => err.asLeft(), (b) => b.asRight<A>().asRight<DecodingFailure>()),

@@ -42,17 +42,17 @@ sealed class ExitCase {
   /// Converts this [ExitCase] to an [Outcome], supplying [Unit] as a
   /// successful value.
   Outcome<Unit> toOutcome() => fold(
-        () => Outcome.canceled(),
-        (err) => Outcome.errored(err),
-        () => Outcome.succeeded(Unit()),
-      );
+    () => Outcome.canceled(),
+    (err) => Outcome.errored(err),
+    () => Outcome.succeeded(Unit()),
+  );
 
   /// Converts [outcome] to an [ExitCase].
   static ExitCase fromOutcome<A>(Outcome<A> outcome) => outcome.fold(
-        () => const _Canceled(),
-        (err) => _Errored(err),
-        (_) => const _Succeeded(),
-      );
+    () => const _Canceled(),
+    (err) => _Errored(err),
+    (_) => const _Succeeded(),
+  );
 }
 
 final class _Succeeded extends ExitCase {
@@ -63,8 +63,7 @@ final class _Succeeded extends ExitCase {
     Function0<B> canceled,
     Function1<RuntimeException, B> errored,
     Function0<B> succeeded,
-  ) =>
-      succeeded();
+  ) => succeeded();
 }
 
 final class _Errored extends ExitCase {
@@ -77,8 +76,7 @@ final class _Errored extends ExitCase {
     Function0<B> canceled,
     Function1<RuntimeException, B> errored,
     Function0<B> succeeded,
-  ) =>
-      errored(error);
+  ) => errored(error);
 }
 
 final class _Canceled extends ExitCase {
@@ -89,6 +87,5 @@ final class _Canceled extends ExitCase {
     Function0<B> canceled,
     Function1<RuntimeException, B> errored,
     Function0<B> succeeded,
-  ) =>
-      canceled();
+  ) => canceled();
 }

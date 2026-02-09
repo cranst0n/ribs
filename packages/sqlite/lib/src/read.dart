@@ -9,21 +9,20 @@ abstract mixin class Read<A> {
   static Read<A> instance<A>(
     IList<Get<dynamic>> gets,
     Function2<Row, int, A> unsafeGet,
-  ) =>
-      _ReadF(gets, unsafeGet);
+  ) => _ReadF(gets, unsafeGet);
 
   IList<Get<dynamic>> get gets;
 
   A unsafeGet(Row row, int n);
 
   Read<B> emap<B>(Function1<A, Either<String, B>> f) => Read.instance(gets, (row, n) {
-        final a = unsafeGet(row, n);
+    final a = unsafeGet(row, n);
 
-        return f(a).fold(
-          (err) => throw Exception('Invalid value [$a]: $err'),
-          identity,
-        );
-      });
+    return f(a).fold(
+      (err) => throw Exception('Invalid value [$a]: $err'),
+      identity,
+    );
+  });
 
   int get length => gets.length;
 
@@ -53,19 +52,19 @@ final class _ReadF<A> extends Read<A> {
 
 extension ReadOptionOps<A> on Read<A> {
   Read<Option<A>> optional() => Read.instance(
-        gets,
-        (row, n) => Option.unless(
-          () => row.columnAt(n) == null,
-          () => unsafeGet(row, n),
-        ),
-      );
+    gets,
+    (row, n) => Option.unless(
+      () => row.columnAt(n) == null,
+      () => unsafeGet(row, n),
+    ),
+  );
 }
 
 extension Tuple2ReadOps<A, B> on (Read<A>, Read<B>) {
   Read<(A, B)> get tupled => Read.instance(
-        $1.gets.concat($2.gets),
-        (row, n) => ($1.unsafeGet(row, n), $2.unsafeGet(row, n + $1.length)),
-      );
+    $1.gets.concat($2.gets),
+    (row, n) => ($1.unsafeGet(row, n), $2.unsafeGet(row, n + $1.length)),
+  );
 }
 
 extension Tuple3ReadOps<A, B, C> on (Read<A>, Read<B>, Read<C>) {
@@ -101,14 +100,8 @@ extension Tuple5ReadOps<A, B, C, D, E> on (Read<A>, Read<B>, Read<C>, Read<D>, R
   }
 }
 
-extension Tuple6ReadOps<A, B, C, D, E, F> on (
-  Read<A>,
-  Read<B>,
-  Read<C>,
-  Read<D>,
-  Read<E>,
-  Read<F>
-) {
+extension Tuple6ReadOps<A, B, C, D, E, F>
+    on (Read<A>, Read<B>, Read<C>, Read<D>, Read<E>, Read<F>) {
   Read<(A, B, C, D, E, F)> get tupled {
     final initRead = init().tupled;
 
@@ -119,15 +112,8 @@ extension Tuple6ReadOps<A, B, C, D, E, F> on (
   }
 }
 
-extension Tuple7ReadOps<A, B, C, D, E, F, G> on (
-  Read<A>,
-  Read<B>,
-  Read<C>,
-  Read<D>,
-  Read<E>,
-  Read<F>,
-  Read<G>
-) {
+extension Tuple7ReadOps<A, B, C, D, E, F, G>
+    on (Read<A>, Read<B>, Read<C>, Read<D>, Read<E>, Read<F>, Read<G>) {
   Read<(A, B, C, D, E, F, G)> get tupled {
     final initRead = init().tupled;
 
@@ -138,16 +124,8 @@ extension Tuple7ReadOps<A, B, C, D, E, F, G> on (
   }
 }
 
-extension Tuple8ReadOps<A, B, C, D, E, F, G, H> on (
-  Read<A>,
-  Read<B>,
-  Read<C>,
-  Read<D>,
-  Read<E>,
-  Read<F>,
-  Read<G>,
-  Read<H>
-) {
+extension Tuple8ReadOps<A, B, C, D, E, F, G, H>
+    on (Read<A>, Read<B>, Read<C>, Read<D>, Read<E>, Read<F>, Read<G>, Read<H>) {
   Read<(A, B, C, D, E, F, G, H)> get tupled {
     final initRead = init().tupled;
 
@@ -158,17 +136,8 @@ extension Tuple8ReadOps<A, B, C, D, E, F, G, H> on (
   }
 }
 
-extension Tuple9ReadOps<A, B, C, D, E, F, G, H, I> on (
-  Read<A>,
-  Read<B>,
-  Read<C>,
-  Read<D>,
-  Read<E>,
-  Read<F>,
-  Read<G>,
-  Read<H>,
-  Read<I>
-) {
+extension Tuple9ReadOps<A, B, C, D, E, F, G, H, I>
+    on (Read<A>, Read<B>, Read<C>, Read<D>, Read<E>, Read<F>, Read<G>, Read<H>, Read<I>) {
   Read<(A, B, C, D, E, F, G, H, I)> get tupled {
     final initRead = init().tupled;
 
@@ -179,18 +148,8 @@ extension Tuple9ReadOps<A, B, C, D, E, F, G, H, I> on (
   }
 }
 
-extension Tuple10ReadOps<A, B, C, D, E, F, G, H, I, J> on (
-  Read<A>,
-  Read<B>,
-  Read<C>,
-  Read<D>,
-  Read<E>,
-  Read<F>,
-  Read<G>,
-  Read<H>,
-  Read<I>,
-  Read<J>
-) {
+extension Tuple10ReadOps<A, B, C, D, E, F, G, H, I, J>
+    on (Read<A>, Read<B>, Read<C>, Read<D>, Read<E>, Read<F>, Read<G>, Read<H>, Read<I>, Read<J>) {
   Read<(A, B, C, D, E, F, G, H, I, J)> get tupled {
     final initRead = init().tupled;
 
@@ -201,19 +160,21 @@ extension Tuple10ReadOps<A, B, C, D, E, F, G, H, I, J> on (
   }
 }
 
-extension Tuple11ReadOps<A, B, C, D, E, F, G, H, I, J, K> on (
-  Read<A>,
-  Read<B>,
-  Read<C>,
-  Read<D>,
-  Read<E>,
-  Read<F>,
-  Read<G>,
-  Read<H>,
-  Read<I>,
-  Read<J>,
-  Read<K>
-) {
+extension Tuple11ReadOps<A, B, C, D, E, F, G, H, I, J, K>
+    on
+        (
+          Read<A>,
+          Read<B>,
+          Read<C>,
+          Read<D>,
+          Read<E>,
+          Read<F>,
+          Read<G>,
+          Read<H>,
+          Read<I>,
+          Read<J>,
+          Read<K>,
+        ) {
   Read<(A, B, C, D, E, F, G, H, I, J, K)> get tupled {
     final initRead = init().tupled;
 
@@ -224,20 +185,22 @@ extension Tuple11ReadOps<A, B, C, D, E, F, G, H, I, J, K> on (
   }
 }
 
-extension Tuple12ReadOps<A, B, C, D, E, F, G, H, I, J, K, L> on (
-  Read<A>,
-  Read<B>,
-  Read<C>,
-  Read<D>,
-  Read<E>,
-  Read<F>,
-  Read<G>,
-  Read<H>,
-  Read<I>,
-  Read<J>,
-  Read<K>,
-  Read<L>
-) {
+extension Tuple12ReadOps<A, B, C, D, E, F, G, H, I, J, K, L>
+    on
+        (
+          Read<A>,
+          Read<B>,
+          Read<C>,
+          Read<D>,
+          Read<E>,
+          Read<F>,
+          Read<G>,
+          Read<H>,
+          Read<I>,
+          Read<J>,
+          Read<K>,
+          Read<L>,
+        ) {
   Read<(A, B, C, D, E, F, G, H, I, J, K, L)> get tupled {
     final initRead = init().tupled;
 
@@ -248,21 +211,23 @@ extension Tuple12ReadOps<A, B, C, D, E, F, G, H, I, J, K, L> on (
   }
 }
 
-extension Tuple13ReadOps<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
-  Read<A>,
-  Read<B>,
-  Read<C>,
-  Read<D>,
-  Read<E>,
-  Read<F>,
-  Read<G>,
-  Read<H>,
-  Read<I>,
-  Read<J>,
-  Read<K>,
-  Read<L>,
-  Read<M>
-) {
+extension Tuple13ReadOps<A, B, C, D, E, F, G, H, I, J, K, L, M>
+    on
+        (
+          Read<A>,
+          Read<B>,
+          Read<C>,
+          Read<D>,
+          Read<E>,
+          Read<F>,
+          Read<G>,
+          Read<H>,
+          Read<I>,
+          Read<J>,
+          Read<K>,
+          Read<L>,
+          Read<M>,
+        ) {
   Read<(A, B, C, D, E, F, G, H, I, J, K, L, M)> get tupled {
     final initRead = init().tupled;
 
@@ -273,22 +238,24 @@ extension Tuple13ReadOps<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
   }
 }
 
-extension Tuple14ReadOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
-  Read<A>,
-  Read<B>,
-  Read<C>,
-  Read<D>,
-  Read<E>,
-  Read<F>,
-  Read<G>,
-  Read<H>,
-  Read<I>,
-  Read<J>,
-  Read<K>,
-  Read<L>,
-  Read<M>,
-  Read<N>
-) {
+extension Tuple14ReadOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N>
+    on
+        (
+          Read<A>,
+          Read<B>,
+          Read<C>,
+          Read<D>,
+          Read<E>,
+          Read<F>,
+          Read<G>,
+          Read<H>,
+          Read<I>,
+          Read<J>,
+          Read<K>,
+          Read<L>,
+          Read<M>,
+          Read<N>,
+        ) {
   Read<(A, B, C, D, E, F, G, H, I, J, K, L, M, N)> get tupled {
     final initRead = init().tupled;
 
@@ -299,23 +266,25 @@ extension Tuple14ReadOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
   }
 }
 
-extension Tuple15ReadOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
-  Read<A>,
-  Read<B>,
-  Read<C>,
-  Read<D>,
-  Read<E>,
-  Read<F>,
-  Read<G>,
-  Read<H>,
-  Read<I>,
-  Read<J>,
-  Read<K>,
-  Read<L>,
-  Read<M>,
-  Read<N>,
-  Read<O>
-) {
+extension Tuple15ReadOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>
+    on
+        (
+          Read<A>,
+          Read<B>,
+          Read<C>,
+          Read<D>,
+          Read<E>,
+          Read<F>,
+          Read<G>,
+          Read<H>,
+          Read<I>,
+          Read<J>,
+          Read<K>,
+          Read<L>,
+          Read<M>,
+          Read<N>,
+          Read<O>,
+        ) {
   Read<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> get tupled {
     final initRead = init().tupled;
 

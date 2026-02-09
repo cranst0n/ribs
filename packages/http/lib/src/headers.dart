@@ -23,14 +23,18 @@ final class Headers {
       final thoseNames = those.headers.map((h) => h.name);
 
       return Headers.ilist(
-          headers.filterNot((h) => thoseNames.contains(h.name)).concat(those.headers));
+        headers.filterNot((h) => thoseNames.contains(h.name)).concat(those.headers),
+      );
     }
   }
 
   Headers put(Header header) => concat(Headers([header]));
 
-  Headers redactSensitive() => transform((hdrs) => hdrs
-      .map((hdr) => sensitiveHeaders.contains(hdr.name) ? Header(hdr.name, '<REDACTED>') : hdr));
+  Headers redactSensitive() => transform(
+    (hdrs) => hdrs.map(
+      (hdr) => sensitiveHeaders.contains(hdr.name) ? Header(hdr.name, '<REDACTED>') : hdr,
+    ),
+  );
 
   Headers transform(Function1<IList<Header>, IList<Header>> f) => Headers.ilist(f(headers));
 

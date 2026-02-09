@@ -7,11 +7,13 @@ final class MapEncoder<K, V> extends Encoder<Map<K, V>> {
   MapEncoder(this.encodeK, this.encodeV);
 
   @override
-  Json encode(Map<K, V> a) => Json.fromJsonObject(a.entries.fold(
-        JsonObject.empty,
-        (acc, entry) => acc.add(
-          encodeK.encode(entry.key),
-          encodeV.encode(entry.value),
-        ),
-      ));
+  Json encode(Map<K, V> a) => Json.fromJsonObject(
+    a.entries.fold(
+      JsonObject.empty,
+      (acc, entry) => acc.add(
+        encodeK.encode(entry.key),
+        encodeV.encode(entry.value),
+      ),
+    ),
+  );
 }

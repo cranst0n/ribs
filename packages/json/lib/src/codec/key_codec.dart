@@ -5,8 +5,7 @@ abstract class KeyCodec<A> extends KeyDecoder<A> with KeyEncoder<A> {
   static KeyCodec<A> instance<A>(
     Function1<String, Option<A>> decodeK,
     Function1<A, String> encodeK,
-  ) =>
-      _KeyCodecF(KeyDecoder.instance(decodeK), KeyEncoder.instance(encodeK));
+  ) => _KeyCodecF(KeyDecoder.instance(decodeK), KeyEncoder.instance(encodeK));
 
   static final string = KeyCodec.instance<String>((a) => Some(a), identity);
 }

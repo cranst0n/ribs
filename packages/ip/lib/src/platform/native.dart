@@ -7,10 +7,13 @@ import 'package:ribs_ip/src/platform/base.dart';
 
 final class PlatformImpl extends PlatformBase {
   @override
-  IO<IList<IpAddress>> loopback() => IO.delay(() => ilist([
-        ipFromInternetAddress(InternetAddress.loopbackIPv4),
-        ipFromInternetAddress(InternetAddress.loopbackIPv6),
-      ]).unNone());
+  IO<IList<IpAddress>> loopback() => IO.delay(
+    () =>
+        ilist([
+          ipFromInternetAddress(InternetAddress.loopbackIPv4),
+          ipFromInternetAddress(InternetAddress.loopbackIPv6),
+        ]).unNone(),
+  );
 
   @override
   IO<IList<IpAddress>> resolve(Hostname hostname) => IO
@@ -21,10 +24,12 @@ final class PlatformImpl extends PlatformBase {
   IO<Hostname> reverse(IpAddress address) => IO
       .fromFutureF(() => InternetAddress(address.toString()).reverse())
       .map(hostnameFromInternetAddress)
-      .flatMap((hostnameOpt) => hostnameOpt.fold(
-            () => IO.raiseError(RuntimeException('Reverse lookup failed for: $address')),
-            (a) => IO.pure(a),
-          ));
+      .flatMap(
+        (hostnameOpt) => hostnameOpt.fold(
+          () => IO.raiseError(RuntimeException('Reverse lookup failed for: $address')),
+          (a) => IO.pure(a),
+        ),
+      );
 
   Option<IpAddress> ipFromInternetAddress(InternetAddress addr) =>
       IpAddress.fromString(addr.address);

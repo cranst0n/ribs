@@ -33,9 +33,9 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
   Gen<A> withShrinker(Shrinker<A> shrinker) => Gen(sample, shrinker: shrinker);
 
   Stream<A> stream(StatefulRandom rand) => Streams.unfold<(StatefulRandom, A)>(
-        sample.run(rand),
-        (x) => Some(sample.run(x.$1)),
-      ).map((x) => x.$2);
+    sample.run(rand),
+    (x) => Some(sample.run(x.$1)),
+  ).map((x) => x.$2);
 
   Gen<(A, A)> get tuple2 => (this, this).tupled;
 
@@ -74,8 +74,9 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
   // Instances //
   ///////////////
 
-  static Gen<String> alphaLowerChar =
-      Choose.integer.choose('a'.codeUnitAt(0), 'z'.codeUnitAt(0) + 1).map(String.fromCharCode);
+  static Gen<String> alphaLowerChar = Choose.integer
+      .choose('a'.codeUnitAt(0), 'z'.codeUnitAt(0) + 1)
+      .map(String.fromCharCode);
 
   static Gen<String> alphaLowerString([int? size]) => stringOf(alphaLowerChar, size);
 
@@ -96,8 +97,10 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
   static Gen<IList<A>> atLeastOne<A>(List<A> as) =>
       chooseInt(1, as.length - 1).flatMap((size) => ilistOfN(size, oneOf(as)));
 
-  static Gen<BigInt> bigInt =
-      Gen.listOf(Gen.chooseInt(1, 20), Gen.numChar).map((a) => BigInt.parse(a.join()));
+  static Gen<BigInt> bigInt = Gen.listOf(
+    Gen.chooseInt(1, 20),
+    Gen.numChar,
+  ).map((a) => BigInt.parse(a.join()));
 
   static Gen<String> binChar = charSample('01');
 
@@ -109,8 +112,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
     double min,
     double max, {
     IList<double> specials = const Nil(),
-  }) =>
-      chooseNum(min, max, ilist([min, max, 0.0, 1.0, -1.0]).concat(specials), Choose.dubble);
+  }) => chooseNum(min, max, ilist([min, max, 0.0, 1.0, -1.0]).concat(specials), Choose.dubble);
 
   static Gen<T> chooseEnum<T extends Enum>(List<T> enumeration) =>
       chooseInt(0, enumeration.length - 1).map((ix) => enumeration[ix]);
@@ -119,8 +121,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
     int min,
     int max, {
     IList<int> specials = const Nil(),
-  }) =>
-      chooseNum(min, max, ilist([min, max, 0, 1, -1]).concat(specials), Choose.integer);
+  }) => chooseNum(min, max, ilist([min, max, 0, 1, -1]).concat(specials), Choose.integer);
 
   static Gen<A> chooseNum<A extends num>(
     A min,
@@ -128,8 +129,9 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
     IList<A> specials,
     Choose<A> choose,
   ) {
-    final basicsAndSpecials =
-        specials.filter((x) => min <= x && x <= max).map((t) => (1, constant(t)));
+    final basicsAndSpecials = specials
+        .filter((x) => min <= x && x <= max)
+        .map((t) => (1, constant(t)));
     final others = (basicsAndSpecials.size, choose.choose(min, max));
 
     return frequency(basicsAndSpecials.appended(others).toList());
@@ -161,17 +163,20 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
     chooseInt(-59, 59),
     chooseInt(-9999, 9999),
     chooseInt(-999999, 999999),
-  ).tupled.map((t) => Duration(
-        days: t.$1,
-        hours: t.$2,
-        minutes: t.$3,
-        seconds: t.$4,
-        milliseconds: t.$5,
-        microseconds: t.$6,
-      ));
+  ).tupled.map(
+    (t) => Duration(
+      days: t.$1,
+      hours: t.$2,
+      minutes: t.$3,
+      seconds: t.$4,
+      milliseconds: t.$5,
+      microseconds: t.$6,
+    ),
+  );
 
   static Gen<Either<A, B>> either<A, B>(Gen<A> genA, Gen<B> genB) => boolean.flatMap(
-      (a) => a ? genA.map((x) => Either.left<A, B>(x)) : genB.map((x) => Either.right<A, B>(x)));
+    (a) => a ? genA.map((x) => Either.left<A, B>(x)) : genB.map((x) => Either.right<A, B>(x)),
+  );
 
   static Gen<A> frequency<A>(Iterable<(int, Gen<A>)> gs) {
     final filteredGens = ilist(gs).filter((t) => t.$1 > 0);
@@ -220,9 +225,10 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
   static Gen<Map<A, B>> mapOf<A, B>(Gen<int> sizeGen, Gen<A> keyGen, Gen<B> valueGen) =>
       sizeGen.flatMap((size) => mapOfN(size, keyGen, valueGen));
 
-  static Gen<Map<A, B>> mapOfN<A, B>(int size, Gen<A> keyGen, Gen<B> valueGen) =>
-      ilistOfN(size, (keyGen, valueGen).tupled)
-          .map((a) => Map.fromEntries(a.map((x) => MapEntry(x.$1, x.$2)).toList()));
+  static Gen<Map<A, B>> mapOfN<A, B>(int size, Gen<A> keyGen, Gen<B> valueGen) => ilistOfN(
+    size,
+    (keyGen, valueGen).tupled,
+  ).map((a) => Map.fromEntries(a.map((x) => MapEntry(x.$1, x.$2)).toList()));
 
   static Gen<String> nonEmptyAlphaNumString([int? limit]) => nonEmptyStringOf(alphaNumChar, limit);
 
@@ -236,11 +242,18 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   static Gen<String> numChar = charSample('01234567890');
 
-  static Gen<A> oneOf<A>(Iterable<A> xs) => Choose.integer.choose(0, xs.length).map(
-      (ix) => ilist(xs).lift(ix).getOrElse(() => throw Exception('oneOf called on empty list')));
+  static Gen<A> oneOf<A>(Iterable<A> xs) => Choose.integer
+      .choose(0, xs.length)
+      .map(
+        (ix) => ilist(xs).lift(ix).getOrElse(() => throw Exception('oneOf called on empty list')),
+      );
 
-  static Gen<A> oneOfGen<A>(List<Gen<A>> xs) => Choose.integer.choose(0, xs.length).flatMap(
-      (ix) => ilist(xs).lift(ix).getOrElse(() => throw Exception('oneOfGen called on empty list')));
+  static Gen<A> oneOfGen<A>(List<Gen<A>> xs) => Choose.integer
+      .choose(0, xs.length)
+      .flatMap(
+        (ix) =>
+            ilist(xs).lift(ix).getOrElse(() => throw Exception('oneOfGen called on empty list')),
+      );
 
   static Gen<Option<A>> option<A>(Gen<A> a) => frequency([(1, constant(none<A>())), (9, some(a))]);
 
@@ -249,7 +262,9 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
   static Gen<Option<A>> some<A>(Gen<A> a) => a.map((a) => Some(a));
 
   static Gen<IList<A>> sequence<A>(IList<Gen<A>> gs) => gs.foldLeft(
-      constant(nil<A>()), (acc, elem) => acc.flatMap((x) => elem.map((a) => x.appended(a))));
+    constant(nil<A>()),
+    (acc, elem) => acc.flatMap((x) => elem.map((a) => x.appended(a))),
+  );
 
   static Gen<String> stringOf(Gen<String> char, [int? limit]) =>
       listOf(Gen.chooseInt(0, limit ?? 100), char).map((a) => a.join());
@@ -295,10 +310,12 @@ final class Choose<A> {
   Choose<B> xmap<B>(Function1<A, B> from, Function1<B, A> to) =>
       Choose((B min, B max) => choose(to(min), to(max)).map(from));
 
-  static Choose<double> dubble = Choose((double min, double max) => Gen(
-        State((r) => r.nextDouble().call((rand, value) => (rand, value * (max - min) + min))),
-        shrinker: Shrinker.dubble,
-      ));
+  static Choose<double> dubble = Choose(
+    (double min, double max) => Gen(
+      State((r) => r.nextDouble().call((rand, value) => (rand, value * (max - min) + min))),
+      shrinker: Shrinker.dubble,
+    ),
+  );
 
   static Choose<int> integer = Choose((int min, int max) {
     return Gen(
@@ -328,327 +345,304 @@ extension GenTuple6Ops<A, B, C, D, E, F> on (Gen<A>, Gen<B>, Gen<C>, Gen<D>, Gen
   Gen<(A, B, C, D, E, F)> get tupled => init().tupled.flatMap((t) => last.map(t.append));
 }
 
-extension GenTuple7Ops<A, B, C, D, E, F, G> on (
-  Gen<A>,
-  Gen<B>,
-  Gen<C>,
-  Gen<D>,
-  Gen<E>,
-  Gen<F>,
-  Gen<G>
-) {
+extension GenTuple7Ops<A, B, C, D, E, F, G>
+    on (Gen<A>, Gen<B>, Gen<C>, Gen<D>, Gen<E>, Gen<F>, Gen<G>) {
   Gen<(A, B, C, D, E, F, G)> get tupled => init().tupled.flatMap((t) => last.map(t.append));
 }
 
-extension GenTuple8Ops<A, B, C, D, E, F, G, H> on (
-  Gen<A>,
-  Gen<B>,
-  Gen<C>,
-  Gen<D>,
-  Gen<E>,
-  Gen<F>,
-  Gen<G>,
-  Gen<H>
-) {
+extension GenTuple8Ops<A, B, C, D, E, F, G, H>
+    on (Gen<A>, Gen<B>, Gen<C>, Gen<D>, Gen<E>, Gen<F>, Gen<G>, Gen<H>) {
   Gen<(A, B, C, D, E, F, G, H)> get tupled => init().tupled.flatMap((t) => last.map(t.append));
 }
 
-extension GenTuple9Ops<A, B, C, D, E, F, G, H, I> on (
-  Gen<A>,
-  Gen<B>,
-  Gen<C>,
-  Gen<D>,
-  Gen<E>,
-  Gen<F>,
-  Gen<G>,
-  Gen<H>,
-  Gen<I>
-) {
+extension GenTuple9Ops<A, B, C, D, E, F, G, H, I>
+    on (Gen<A>, Gen<B>, Gen<C>, Gen<D>, Gen<E>, Gen<F>, Gen<G>, Gen<H>, Gen<I>) {
   Gen<(A, B, C, D, E, F, G, H, I)> get tupled => init().tupled.flatMap((t) => last.map(t.append));
 }
 
-extension GenTuple10Ops<A, B, C, D, E, F, G, H, I, J> on (
-  Gen<A>,
-  Gen<B>,
-  Gen<C>,
-  Gen<D>,
-  Gen<E>,
-  Gen<F>,
-  Gen<G>,
-  Gen<H>,
-  Gen<I>,
-  Gen<J>
-) {
+extension GenTuple10Ops<A, B, C, D, E, F, G, H, I, J>
+    on (Gen<A>, Gen<B>, Gen<C>, Gen<D>, Gen<E>, Gen<F>, Gen<G>, Gen<H>, Gen<I>, Gen<J>) {
   Gen<(A, B, C, D, E, F, G, H, I, J)> get tupled =>
       init().tupled.flatMap((t) => last.map(t.append));
 }
 
-extension GenTuple11Ops<A, B, C, D, E, F, G, H, I, J, K> on (
-  Gen<A>,
-  Gen<B>,
-  Gen<C>,
-  Gen<D>,
-  Gen<E>,
-  Gen<F>,
-  Gen<G>,
-  Gen<H>,
-  Gen<I>,
-  Gen<J>,
-  Gen<K>
-) {
+extension GenTuple11Ops<A, B, C, D, E, F, G, H, I, J, K>
+    on (Gen<A>, Gen<B>, Gen<C>, Gen<D>, Gen<E>, Gen<F>, Gen<G>, Gen<H>, Gen<I>, Gen<J>, Gen<K>) {
   Gen<(A, B, C, D, E, F, G, H, I, J, K)> get tupled =>
       init().tupled.flatMap((t) => last.map(t.append));
 }
 
-extension GenTuple12Ops<A, B, C, D, E, F, G, H, I, J, K, L> on (
-  Gen<A>,
-  Gen<B>,
-  Gen<C>,
-  Gen<D>,
-  Gen<E>,
-  Gen<F>,
-  Gen<G>,
-  Gen<H>,
-  Gen<I>,
-  Gen<J>,
-  Gen<K>,
-  Gen<L>
-) {
+extension GenTuple12Ops<A, B, C, D, E, F, G, H, I, J, K, L>
+    on
+        (
+          Gen<A>,
+          Gen<B>,
+          Gen<C>,
+          Gen<D>,
+          Gen<E>,
+          Gen<F>,
+          Gen<G>,
+          Gen<H>,
+          Gen<I>,
+          Gen<J>,
+          Gen<K>,
+          Gen<L>,
+        ) {
   Gen<(A, B, C, D, E, F, G, H, I, J, K, L)> get tupled =>
       init().tupled.flatMap((t) => last.map(t.append));
 }
 
-extension GenTuple13Ops<A, B, C, D, E, F, G, H, I, J, K, L, M> on (
-  Gen<A>,
-  Gen<B>,
-  Gen<C>,
-  Gen<D>,
-  Gen<E>,
-  Gen<F>,
-  Gen<G>,
-  Gen<H>,
-  Gen<I>,
-  Gen<J>,
-  Gen<K>,
-  Gen<L>,
-  Gen<M>
-) {
+extension GenTuple13Ops<A, B, C, D, E, F, G, H, I, J, K, L, M>
+    on
+        (
+          Gen<A>,
+          Gen<B>,
+          Gen<C>,
+          Gen<D>,
+          Gen<E>,
+          Gen<F>,
+          Gen<G>,
+          Gen<H>,
+          Gen<I>,
+          Gen<J>,
+          Gen<K>,
+          Gen<L>,
+          Gen<M>,
+        ) {
   Gen<(A, B, C, D, E, F, G, H, I, J, K, L, M)> get tupled =>
       init().tupled.flatMap((t) => last.map(t.append));
 }
 
-extension GenTuple14Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N> on (
-  Gen<A>,
-  Gen<B>,
-  Gen<C>,
-  Gen<D>,
-  Gen<E>,
-  Gen<F>,
-  Gen<G>,
-  Gen<H>,
-  Gen<I>,
-  Gen<J>,
-  Gen<K>,
-  Gen<L>,
-  Gen<M>,
-  Gen<N>
-) {
+extension GenTuple14Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N>
+    on
+        (
+          Gen<A>,
+          Gen<B>,
+          Gen<C>,
+          Gen<D>,
+          Gen<E>,
+          Gen<F>,
+          Gen<G>,
+          Gen<H>,
+          Gen<I>,
+          Gen<J>,
+          Gen<K>,
+          Gen<L>,
+          Gen<M>,
+          Gen<N>,
+        ) {
   Gen<(A, B, C, D, E, F, G, H, I, J, K, L, M, N)> get tupled =>
       init().tupled.flatMap((t) => last.map(t.append));
 }
 
-extension GenTuple15Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> on (
-  Gen<A>,
-  Gen<B>,
-  Gen<C>,
-  Gen<D>,
-  Gen<E>,
-  Gen<F>,
-  Gen<G>,
-  Gen<H>,
-  Gen<I>,
-  Gen<J>,
-  Gen<K>,
-  Gen<L>,
-  Gen<M>,
-  Gen<N>,
-  Gen<O>
-) {
+extension GenTuple15Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>
+    on
+        (
+          Gen<A>,
+          Gen<B>,
+          Gen<C>,
+          Gen<D>,
+          Gen<E>,
+          Gen<F>,
+          Gen<G>,
+          Gen<H>,
+          Gen<I>,
+          Gen<J>,
+          Gen<K>,
+          Gen<L>,
+          Gen<M>,
+          Gen<N>,
+          Gen<O>,
+        ) {
   Gen<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> get tupled =>
       init().tupled.flatMap((t) => last.map(t.append));
 }
 
-extension GenTuple16Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> on (
-  Gen<A>,
-  Gen<B>,
-  Gen<C>,
-  Gen<D>,
-  Gen<E>,
-  Gen<F>,
-  Gen<G>,
-  Gen<H>,
-  Gen<I>,
-  Gen<J>,
-  Gen<K>,
-  Gen<L>,
-  Gen<M>,
-  Gen<N>,
-  Gen<O>,
-  Gen<P>
-) {
+extension GenTuple16Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>
+    on
+        (
+          Gen<A>,
+          Gen<B>,
+          Gen<C>,
+          Gen<D>,
+          Gen<E>,
+          Gen<F>,
+          Gen<G>,
+          Gen<H>,
+          Gen<I>,
+          Gen<J>,
+          Gen<K>,
+          Gen<L>,
+          Gen<M>,
+          Gen<N>,
+          Gen<O>,
+          Gen<P>,
+        ) {
   Gen<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P)> get tupled =>
       init().tupled.flatMap((t) => last.map(t.append));
 }
 
-extension GenTuple17Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> on (
-  Gen<A>,
-  Gen<B>,
-  Gen<C>,
-  Gen<D>,
-  Gen<E>,
-  Gen<F>,
-  Gen<G>,
-  Gen<H>,
-  Gen<I>,
-  Gen<J>,
-  Gen<K>,
-  Gen<L>,
-  Gen<M>,
-  Gen<N>,
-  Gen<O>,
-  Gen<P>,
-  Gen<Q>
-) {
+extension GenTuple17Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>
+    on
+        (
+          Gen<A>,
+          Gen<B>,
+          Gen<C>,
+          Gen<D>,
+          Gen<E>,
+          Gen<F>,
+          Gen<G>,
+          Gen<H>,
+          Gen<I>,
+          Gen<J>,
+          Gen<K>,
+          Gen<L>,
+          Gen<M>,
+          Gen<N>,
+          Gen<O>,
+          Gen<P>,
+          Gen<Q>,
+        ) {
   Gen<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q)> get tupled =>
       init().tupled.flatMap((t) => last.map(t.append));
 }
 
-extension GenTuple18Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> on (
-  Gen<A>,
-  Gen<B>,
-  Gen<C>,
-  Gen<D>,
-  Gen<E>,
-  Gen<F>,
-  Gen<G>,
-  Gen<H>,
-  Gen<I>,
-  Gen<J>,
-  Gen<K>,
-  Gen<L>,
-  Gen<M>,
-  Gen<N>,
-  Gen<O>,
-  Gen<P>,
-  Gen<Q>,
-  Gen<R>
-) {
+extension GenTuple18Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
+    on
+        (
+          Gen<A>,
+          Gen<B>,
+          Gen<C>,
+          Gen<D>,
+          Gen<E>,
+          Gen<F>,
+          Gen<G>,
+          Gen<H>,
+          Gen<I>,
+          Gen<J>,
+          Gen<K>,
+          Gen<L>,
+          Gen<M>,
+          Gen<N>,
+          Gen<O>,
+          Gen<P>,
+          Gen<Q>,
+          Gen<R>,
+        ) {
   Gen<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R)> get tupled =>
       init().tupled.flatMap((t) => last.map(t.append));
 }
 
-extension GenTuple19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> on (
-  Gen<A>,
-  Gen<B>,
-  Gen<C>,
-  Gen<D>,
-  Gen<E>,
-  Gen<F>,
-  Gen<G>,
-  Gen<H>,
-  Gen<I>,
-  Gen<J>,
-  Gen<K>,
-  Gen<L>,
-  Gen<M>,
-  Gen<N>,
-  Gen<O>,
-  Gen<P>,
-  Gen<Q>,
-  Gen<R>,
-  Gen<S>
-) {
+extension GenTuple19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
+    on
+        (
+          Gen<A>,
+          Gen<B>,
+          Gen<C>,
+          Gen<D>,
+          Gen<E>,
+          Gen<F>,
+          Gen<G>,
+          Gen<H>,
+          Gen<I>,
+          Gen<J>,
+          Gen<K>,
+          Gen<L>,
+          Gen<M>,
+          Gen<N>,
+          Gen<O>,
+          Gen<P>,
+          Gen<Q>,
+          Gen<R>,
+          Gen<S>,
+        ) {
   Gen<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)> get tupled =>
       init().tupled.flatMap((t) => last.map(t.append));
 }
 
-extension GenTuple20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> on (
-  Gen<A>,
-  Gen<B>,
-  Gen<C>,
-  Gen<D>,
-  Gen<E>,
-  Gen<F>,
-  Gen<G>,
-  Gen<H>,
-  Gen<I>,
-  Gen<J>,
-  Gen<K>,
-  Gen<L>,
-  Gen<M>,
-  Gen<N>,
-  Gen<O>,
-  Gen<P>,
-  Gen<Q>,
-  Gen<R>,
-  Gen<S>,
-  Gen<T>
-) {
+extension GenTuple20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
+    on
+        (
+          Gen<A>,
+          Gen<B>,
+          Gen<C>,
+          Gen<D>,
+          Gen<E>,
+          Gen<F>,
+          Gen<G>,
+          Gen<H>,
+          Gen<I>,
+          Gen<J>,
+          Gen<K>,
+          Gen<L>,
+          Gen<M>,
+          Gen<N>,
+          Gen<O>,
+          Gen<P>,
+          Gen<Q>,
+          Gen<R>,
+          Gen<S>,
+          Gen<T>,
+        ) {
   Gen<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)> get tupled =>
       init().tupled.flatMap((t) => last.map(t.append));
 }
 
-extension GenTuple21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> on (
-  Gen<A>,
-  Gen<B>,
-  Gen<C>,
-  Gen<D>,
-  Gen<E>,
-  Gen<F>,
-  Gen<G>,
-  Gen<H>,
-  Gen<I>,
-  Gen<J>,
-  Gen<K>,
-  Gen<L>,
-  Gen<M>,
-  Gen<N>,
-  Gen<O>,
-  Gen<P>,
-  Gen<Q>,
-  Gen<R>,
-  Gen<S>,
-  Gen<T>,
-  Gen<U>
-) {
+extension GenTuple21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>
+    on
+        (
+          Gen<A>,
+          Gen<B>,
+          Gen<C>,
+          Gen<D>,
+          Gen<E>,
+          Gen<F>,
+          Gen<G>,
+          Gen<H>,
+          Gen<I>,
+          Gen<J>,
+          Gen<K>,
+          Gen<L>,
+          Gen<M>,
+          Gen<N>,
+          Gen<O>,
+          Gen<P>,
+          Gen<Q>,
+          Gen<R>,
+          Gen<S>,
+          Gen<T>,
+          Gen<U>,
+        ) {
   Gen<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)> get tupled =>
       init().tupled.flatMap((t) => last.map(t.append));
 }
 
-extension GenTuple22Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> on (
-  Gen<A>,
-  Gen<B>,
-  Gen<C>,
-  Gen<D>,
-  Gen<E>,
-  Gen<F>,
-  Gen<G>,
-  Gen<H>,
-  Gen<I>,
-  Gen<J>,
-  Gen<K>,
-  Gen<L>,
-  Gen<M>,
-  Gen<N>,
-  Gen<O>,
-  Gen<P>,
-  Gen<Q>,
-  Gen<R>,
-  Gen<S>,
-  Gen<T>,
-  Gen<U>,
-  Gen<V>
-) {
+extension GenTuple22Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>
+    on
+        (
+          Gen<A>,
+          Gen<B>,
+          Gen<C>,
+          Gen<D>,
+          Gen<E>,
+          Gen<F>,
+          Gen<G>,
+          Gen<H>,
+          Gen<I>,
+          Gen<J>,
+          Gen<K>,
+          Gen<L>,
+          Gen<M>,
+          Gen<N>,
+          Gen<O>,
+          Gen<P>,
+          Gen<Q>,
+          Gen<R>,
+          Gen<S>,
+          Gen<T>,
+          Gen<U>,
+          Gen<V>,
+        ) {
   Gen<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)> get tupled =>
       init().tupled.flatMap((t) => last.map(t.append));
 }

@@ -94,7 +94,7 @@ abstract class Punycode {
       // if we increase `i` as we go, then subtract off its starting
       // value at the end to obtain `delta`.
       final oldI = i;
-      for (var w = 1, k = _base;; k += _base) {
+      for (var w = 1, k = _base; ; k += _base) {
         if (index >= input.length) {
           throw PunycodeException.invalidInput();
         }
@@ -203,7 +203,7 @@ abstract class Punycode {
         if (currentValue == n) {
           // Represent delta as a generalized variable-length integer.
           var q = delta;
-          for (var k = _base; /* no condition */; k += _base) {
+          for (var k = _base; /* no condition */ ; k += _base) {
             final t = k <= bias ? _tMin : (k >= bias + _tMax ? _tMax : k - bias);
             if (q < t) {
               break;

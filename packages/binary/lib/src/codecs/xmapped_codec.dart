@@ -9,7 +9,9 @@ final class XMappedCodec<A, B> extends Codec<B> {
 
   @override
   Either<Err, DecodeResult<B>> decode(BitVector bv) {
-    return by.decode(bv).flatMap(
+    return by
+        .decode(bv)
+        .flatMap(
           (a) => cases
               .get(a.value)
               .toRight(() => Err.general('Missing xmap case for: ${a.value}'))

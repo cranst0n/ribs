@@ -75,8 +75,7 @@ abstract class RIterator<A> with RIterableOnce<A> {
   static RIterator<A> unfold<A, S>(
     S initial,
     Function1<S, Option<(A, S)>> f,
-  ) =>
-      _UnfoldIterator(initial, f);
+  ) => _UnfoldIterator(initial, f);
 
   // ///////////////////////////////////////////////////////////////////////////
 

@@ -15,9 +15,9 @@ void main() {
     );
 
     expect(
-      RetryPolicy.limitRetries(3)
-          .meet(RetryPolicy.alwaysGiveUp())
-          .decideOn(RetryStatus(3, Duration.zero, none())),
+      RetryPolicy.limitRetries(
+        3,
+      ).meet(RetryPolicy.alwaysGiveUp()).decideOn(RetryStatus(3, Duration.zero, none())),
       RetryDecision.giveUp(),
     );
 
@@ -81,8 +81,9 @@ void main() {
         .delay(() => attempts += 1)
         .flatMap((x) => x > 3 ? IO.pure(x) : IO.raiseError<int>(RuntimeException('attempts: $x')));
 
-    final retryable =
-        io.retrying(RetryPolicy.constantDelay(Duration.zero).join(RetryPolicy.limitRetries(3)));
+    final retryable = io.retrying(
+      RetryPolicy.constantDelay(Duration.zero).join(RetryPolicy.limitRetries(3)),
+    );
 
     final result = await retryable.unsafeRunFutureOutcome();
 
@@ -99,8 +100,9 @@ void main() {
   test('limitRetries (fail)', () async {
     final io = IO.raiseError<int>(RuntimeException('fail'));
 
-    final retryable =
-        io.retrying(RetryPolicy.constantDelay(Duration.zero).join(RetryPolicy.limitRetries(2)));
+    final retryable = io.retrying(
+      RetryPolicy.constantDelay(Duration.zero).join(RetryPolicy.limitRetries(2)),
+    );
 
     final result = await retryable.unsafeRunFutureOutcome();
 
@@ -118,8 +120,9 @@ void main() {
         .delay(() => attempts += 1)
         .flatMap((x) => x > 2 ? IO.pure(x) : IO.raiseError<int>(RuntimeException('attempts: $x')));
 
-    final retryable =
-        io.retrying(RetryPolicy.exponentialBackoff(1.second).giveUpAfterDelay(5.seconds));
+    final retryable = io.retrying(
+      RetryPolicy.exponentialBackoff(1.second).giveUpAfterDelay(5.seconds),
+    );
 
     final result = await retryable.unsafeRunFutureOutcome();
 
@@ -141,7 +144,8 @@ void main() {
         .flatMap((x) => x > 4 ? IO.pure(x) : IO.raiseError<int>(RuntimeException('attempts: $x')));
 
     final retryable = io.retrying(
-        RetryPolicy.exponentialBackoff(1.second).giveUpAfterDelay(2.seconds).capDelay(3.seconds));
+      RetryPolicy.exponentialBackoff(1.second).giveUpAfterDelay(2.seconds).capDelay(3.seconds),
+    );
 
     final result = await retryable.unsafeRunFutureOutcome();
 

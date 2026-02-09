@@ -14,7 +14,9 @@ final class NonEmptyIListDecoder<A> extends Decoder<NonEmptyIList<A>> {
     return decodeA.tryDecodeC(arr).fold(
       (failure) => failure.asLeft(),
       (head) {
-        return tailDecoder.tryDecodeC(arr.delete()).fold(
+        return tailDecoder
+            .tryDecodeC(arr.delete())
+            .fold(
               (failure) => failure.asLeft(),
               (tail) => NonEmptyIList(head, tail).asRight(),
             );

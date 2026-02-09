@@ -206,8 +206,8 @@ Either<String, (ByteVector, int)> fromBase32Internal(
 
     final expectedPadding =
         (((bytes.size + bitsPerChar - 1) ~/ bitsPerChar * bitsPerChar) - bytes.size) *
-            8 ~/
-            bitsPerChar;
+        8 ~/
+        bitsPerChar;
 
     return Either.cond(
       () => padding == 0 || padding == expectedPadding,

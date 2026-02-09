@@ -11,7 +11,7 @@ class PLens<S, T, A, B> extends POptional<S, T, A, B> with Fold<S, A> {
   Getter<S, C> andThenG<C>(Getter<A, C> other) => Getter((S s) => other.get(get(s)));
 
   PLens<S, T, C, D> andThenL<C, D>(PLens<A, B, C, D> other) => PLens<S, T, C, D>(
-        (s) => other.get(get(s)),
-        (d) => modify(other.replace(d)),
-      );
+    (s) => other.get(get(s)),
+    (d) => modify(other.replace(d)),
+  );
 }

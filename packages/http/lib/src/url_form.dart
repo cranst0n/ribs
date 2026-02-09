@@ -8,21 +8,23 @@ final class UrlForm {
   UrlForm.empty() : values = IMap.empty();
 
   UrlForm.single(String key, String value)
-      : values = IMap.fromDartIterable([
-          (key, ilist([value])),
-        ]);
+    : values = IMap.fromDartIterable([
+        (key, ilist([value])),
+      ]);
 
   UrlForm operator +((String, String) kv) => add(kv.$1, kv.$2);
 
   UrlForm add(String key, String value) => UrlForm(
-        values.updatedWith(
-          key,
-          (values) => Some(values.fold(
-            () => ilist([value]),
-            (existing) => existing.appended(value),
-          )),
+    values.updatedWith(
+      key,
+      (values) => Some(
+        values.fold(
+          () => ilist([value]),
+          (existing) => existing.appended(value),
         ),
-      );
+      ),
+    ),
+  );
 
   static String encodeString(UrlForm urlForm) {
     String encode(String s) => Uri.encodeQueryComponent(s);

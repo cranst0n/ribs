@@ -65,8 +65,8 @@ class _FieldNameBased extends CacheDirective {
   final IList<CIString> fieldNames;
 
   _FieldNameBased(String name, [Iterable<String> fieldNames = const []])
-      : name = CIString(name),
-        fieldNames = ilist(fieldNames.map(CIString.new));
+    : name = CIString(name),
+      fieldNames = ilist(fieldNames.map(CIString.new));
 
   @override
   String get value =>

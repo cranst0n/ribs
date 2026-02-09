@@ -18,8 +18,7 @@ void main() {
   ByteVector base32(
     String s, [
     Base32Alphabet alphabet = Alphabets.base32,
-  ]) =>
-      ByteVector.fromValidBase32(s, alphabet);
+  ]) => ByteVector.fromValidBase32(s, alphabet);
 
   ByteVector base58(String str) => ByteVector.fromValidBase58(str);
 
@@ -529,7 +528,9 @@ void main() {
         final unbuf = bs.foldLeft(b, (a, b) => a.concat(b));
 
         final buf = bs.foldLeft(
-            b.bufferBy(max(n % 50, 0) + 1), (acc, a) => a.foldLeft(acc, (x, y) => x.append(y)));
+          b.bufferBy(max(n % 50, 0) + 1),
+          (acc, a) => a.foldLeft(acc, (x, y) => x.append(y)),
+        );
 
         expect(unbuf, buf);
       },
@@ -850,33 +851,49 @@ void main() {
 final class CustomBinAlphabet extends BinaryAlphabet {
   @override
   String toChar(int index) => switch (index) {
-        0 => '0',
-        1 => '1',
-        _ => throw ArgumentError('invalid binary index: $index'),
-      };
+    0 => '0',
+    1 => '1',
+    _ => throw ArgumentError('invalid binary index: $index'),
+  };
 
   @override
   int toIndex(String c) => switch (c) {
-        '0' => 0,
-        '1' => 1,
-        r'$' => Bases.IgnoreRestOfLine,
-        _ => throw ArgumentError('Invalid binary char: $c'),
-      };
+    '0' => 0,
+    '1' => 1,
+    r'$' => Bases.IgnoreRestOfLine,
+    _ => throw ArgumentError('Invalid binary char: $c'),
+  };
 
   @override
   bool ignore(String c) => c.trim().isEmpty;
 }
 
 final class CustomHexAlphabet extends LenientHex {
-  static final chars =
-      ilist(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']);
+  static final chars = ilist([
+    '0',
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    'a',
+    'b',
+    'c',
+    'd',
+    'e',
+    'f',
+  ]);
 
   @override
   String toChar(int index) => chars[index];
 
   @override
   int toIndex(String c) => switch (c) {
-        r'$' => Bases.IgnoreRestOfLine,
-        _ => super.toIndex(c),
-      };
+    r'$' => Bases.IgnoreRestOfLine,
+    _ => super.toIndex(c),
+  };
 }

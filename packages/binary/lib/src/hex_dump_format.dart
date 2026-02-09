@@ -24,8 +24,16 @@ final class HexDumpFormat {
     this.lengthLimit,
   );
 
-  static final Default =
-      HexDumpFormat._(true, 2, 8, true, Alphabets.hexLower, true, 0, Integer.MaxValue);
+  static final Default = HexDumpFormat._(
+    true,
+    2,
+    8,
+    true,
+    Alphabets.hexLower,
+    true,
+    0,
+    Integer.MaxValue,
+  );
 
   static final NoAnsi = Default.withAnsi(false);
 
@@ -188,14 +196,15 @@ final class HexDumpFormat {
   }
 
   HexDumpFormat withAnsi(bool ansiEnabled) => HexDumpFormat._(
-      includeAddressColumn,
-      dataColumnCount,
-      dataColumnWidthInBytes,
-      includeAsciiColumn,
-      alphabet,
-      ansiEnabled,
-      addressOffset,
-      lengthLimit);
+    includeAddressColumn,
+    dataColumnCount,
+    dataColumnWidthInBytes,
+    includeAsciiColumn,
+    alphabet,
+    ansiEnabled,
+    addressOffset,
+    lengthLimit,
+  );
 }
 
 final class _Ansi {

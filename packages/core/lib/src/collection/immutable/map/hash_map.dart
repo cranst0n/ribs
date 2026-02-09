@@ -42,12 +42,14 @@ final class IHashMap<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K
   @override
   IMap<K, V> removed(K key) {
     final keyUnimprovedHash = key.hashCode;
-    return _newHashMapOrThis(_rootNode.removed(
-      key,
-      keyUnimprovedHash,
-      Hashing.improve(keyUnimprovedHash),
-      0,
-    ));
+    return _newHashMapOrThis(
+      _rootNode.removed(
+        key,
+        keyUnimprovedHash,
+        Hashing.improve(keyUnimprovedHash),
+        0,
+      ),
+    );
   }
 
   @override
@@ -56,14 +58,16 @@ final class IHashMap<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K
   @override
   IMap<K, V> updated(K key, V value) {
     final keyUnimprovedHash = key.hashCode;
-    return _newHashMapOrThis(_rootNode.updated(
-      key,
-      value,
-      keyUnimprovedHash,
-      Hashing.improve(keyUnimprovedHash),
-      0,
-      true,
-    ));
+    return _newHashMapOrThis(
+      _rootNode.updated(
+        key,
+        value,
+        keyUnimprovedHash,
+        Hashing.improve(keyUnimprovedHash),
+        0,
+        true,
+      ),
+    );
   }
 
   @override
@@ -138,7 +142,13 @@ class IHashMapBuilder<K, V> {
   }
 
   void _insertValue(
-      BitmapIndexedMapNode<K, V> bm, int bitpos, K key, int originalHash, int keyHash, V value) {
+    BitmapIndexedMapNode<K, V> bm,
+    int bitpos,
+    K key,
+    int originalHash,
+    int keyHash,
+    V value,
+  ) {
     final dataIx = bm.dataIndex(bitpos);
     final idx = MapNode.TupleLength * dataIx;
 
@@ -185,8 +195,17 @@ class IHashMapBuilder<K, V> {
           final value0 = bm.getValue(index);
           final key0Hash = Hashing.improve(key0UnimprovedHash);
 
-          final subNodeNew = bm.mergeTwoKeyValPairs(key0, value0, key0UnimprovedHash, key0Hash, key,
-              value, originalHash, keyHash, shift + Node.BitPartitionSize);
+          final subNodeNew = bm.mergeTwoKeyValPairs(
+            key0,
+            value0,
+            key0UnimprovedHash,
+            key0Hash,
+            key,
+            value,
+            originalHash,
+            keyHash,
+            shift + Node.BitPartitionSize,
+          );
 
           bm.migrateFromInlineToNodeInPlace(bitpos, key0Hash, subNodeNew);
         }

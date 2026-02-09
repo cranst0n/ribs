@@ -16,36 +16,36 @@ sealed class Host extends Ordered<Host> {
   }
 
   IO<IList<IpAddress>> resolve() => switch (this) {
-        final IpAddress ip => IO.pure(ilist([ip])),
-        final Hostname hostname => Dns.resolve(hostname),
-        final IDN idn => Dns.resolve(idn.hostname),
-      };
+    final IpAddress ip => IO.pure(ilist([ip])),
+    final Hostname hostname => Dns.resolve(hostname),
+    final IDN idn => Dns.resolve(idn.hostname),
+  };
 
   @override
   int compareTo(Host that) {
     return switch (this) {
       final Ipv4Address x => switch (that) {
-          final Ipv4Address y => IpAddress.compareBytes(x, y),
-          final Ipv6Address y => IpAddress.compareBytes(x.toCompatV6(), y),
-          _ => -1,
-        },
+        final Ipv4Address y => IpAddress.compareBytes(x, y),
+        final Ipv6Address y => IpAddress.compareBytes(x.toCompatV6(), y),
+        _ => -1,
+      },
       final Ipv6Address x => switch (that) {
-          final Ipv4Address y => IpAddress.compareBytes(x, y.toCompatV6()),
-          final Ipv6Address y => IpAddress.compareBytes(x, y),
-          _ => -1,
-        },
+        final Ipv4Address y => IpAddress.compareBytes(x, y.toCompatV6()),
+        final Ipv6Address y => IpAddress.compareBytes(x, y),
+        _ => -1,
+      },
       final Hostname x => switch (that) {
-          final Ipv4Address _ => 1,
-          final Ipv6Address _ => 1,
-          final Hostname y => x.toString().compareTo(y.toString()),
-          final IDN y => x.toString().compareTo(y.hostname.toString()),
-        },
+        final Ipv4Address _ => 1,
+        final Ipv6Address _ => 1,
+        final Hostname y => x.toString().compareTo(y.toString()),
+        final IDN y => x.toString().compareTo(y.hostname.toString()),
+      },
       final IDN x => switch (that) {
-          final Ipv4Address _ => 1,
-          final Ipv6Address _ => 1,
-          final Hostname y => x.hostname.toString().compareTo(y.toString()),
-          final IDN y => x.hostname.toString().compareTo(y.hostname.toString()),
-        },
+        final Ipv4Address _ => 1,
+        final Ipv6Address _ => 1,
+        final Hostname y => x.hostname.toString().compareTo(y.toString()),
+        final IDN y => x.hostname.toString().compareTo(y.hostname.toString()),
+      },
     };
   }
 
@@ -66,35 +66,41 @@ final class Hostname extends Host {
     } else if (_regex.hasMatch(value)) {
       final labels = value.split('.').toIList().map(HostnameLabel.new);
       return Option.when(
-          () =>
-              labels.nonEmpty &&
-              !labels.exists((lbl) =>
+        () =>
+            labels.nonEmpty &&
+            !labels.exists(
+              (lbl) =>
                   lbl.toString().length > 63 ||
                   lbl.toString().startsWith('-') ||
-                  lbl.toString().endsWith('-')),
-          () => Hostname(labels, value));
+                  lbl.toString().endsWith('-'),
+            ),
+        () => Hostname(labels, value),
+      );
     } else {
       return none();
     }
   }
 
   Hostname normalized() => Hostname(
-      labels.map((l) => HostnameLabel(l.toString().toLowerCase())), toString().toLowerCase());
+    labels.map((l) => HostnameLabel(l.toString().toLowerCase())),
+    toString().toLowerCase(),
+  );
 
   @override
   String toString() => repr;
 
   @override
   bool operator ==(Object that) => switch (that) {
-        final Hostname that => toString() == that.toString(),
-        _ => false,
-      };
+    final Hostname that => toString() == that.toString(),
+    _ => false,
+  };
 
   @override
   int get hashCode => Object.hash(toString(), 'Hostname'.hashCode);
 
   static final _regex = RegExp(
-      r'[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*');
+    r'[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*',
+  );
 }
 
 final class HostnameLabel extends Ordered<HostnameLabel> {
@@ -110,9 +116,9 @@ final class HostnameLabel extends Ordered<HostnameLabel> {
 
   @override
   bool operator ==(Object that) => switch (that) {
-        final HostnameLabel that => toString() == that.toString(),
-        _ => false,
-      };
+    final HostnameLabel that => toString() == that.toString(),
+    _ => false,
+  };
 
   @override
   int get hashCode => Object.hash(toString(), 'Label'.hashCode);
@@ -125,13 +131,13 @@ sealed class IpAddress extends Host {
 
   const IpAddress(this._bytes);
 
-  static Option<IpAddress> fromString(String value) => Ipv4Address.fromString(value)
-      .map((a) => a.asIpAddress)
-      .orElse(() => Ipv6Address.fromString(value));
+  static Option<IpAddress> fromString(String value) => Ipv4Address.fromString(
+    value,
+  ).map((a) => a.asIpAddress).orElse(() => Ipv6Address.fromString(value));
 
-  static Option<IpAddress> fromBytes(Iterable<int> bytes) => Ipv4Address.fromByteList(bytes)
-      .map((a) => a.asIpAddress)
-      .orElse(() => Ipv6Address.fromByteList(bytes));
+  static Option<IpAddress> fromBytes(Iterable<int> bytes) => Ipv4Address.fromByteList(
+    bytes,
+  ).map((a) => a.asIpAddress).orElse(() => Ipv6Address.fromByteList(bytes));
 
   static IO<IList<IpAddress>> loopback() => Dns.loopback();
 
@@ -154,13 +160,14 @@ sealed class IpAddress extends Host {
       SourceSpecificMulticast.fromIpAddressLenient(this);
 
   IpAddress collapseMappedV4() => fold(identity, (v6) {
-        if (v6.isMappedV4) {
-          return IpAddress.fromBytes(v6.toBytes().toIList().takeRight(4).toList())
-              .getOrElse(() => throw Exception('IpAddress.collapseMappedV4 failure: $v6'));
-        } else {
-          return v6;
-        }
-      });
+    if (v6.isMappedV4) {
+      return IpAddress.fromBytes(
+        v6.toBytes().toIList().takeRight(4).toList(),
+      ).getOrElse(() => throw Exception('IpAddress.collapseMappedV4 failure: $v6'));
+    } else {
+      return v6;
+    }
+  });
 
   bool get isMappedV4 => fold((_) => false, Ipv6Address.MappedV4Block.contains);
 
@@ -210,10 +217,10 @@ sealed class IpAddress extends Host {
 
   @override
   bool operator ==(Object that) => switch (that) {
-        final IpAddress that => version == that.version &&
-            ilist(_bytes).zip(ilist(that._bytes)).forall((t) => t.$1 == t.$2),
-        _ => false,
-      };
+    final IpAddress that =>
+      version == that.version && ilist(_bytes).zip(ilist(that._bytes)).forall((t) => t.$1 == t.$2),
+    _ => false,
+  };
 
   @override
   int get hashCode => Object.hashAll(_bytes);
@@ -297,8 +304,7 @@ final class Ipv4Address extends IpAddress {
   A fold<A>(
     Function1<Ipv4Address, A> v4,
     Function1<Ipv6Address, A> v6,
-  ) =>
-      v4(this);
+  ) => v4(this);
 
   Ipv4Address next() => Ipv4Address.fromInt(toInt() + 1);
 
@@ -330,8 +336,9 @@ final class Ipv4Address extends IpAddress {
     compat[14] = _bytes[2];
     compat[15] = _bytes[3];
 
-    return Ipv6Address.fromByteList(compat)
-        .getOrElse(() => throw Exception('Error converting $this to compatible IPv6'));
+    return Ipv6Address.fromByteList(
+      compat,
+    ).getOrElse(() => throw Exception('Error converting $this to compatible IPv6'));
   }
 
   Ipv6Address toMappedV6() {
@@ -344,8 +351,9 @@ final class Ipv4Address extends IpAddress {
     mapped[14] = _bytes[2];
     mapped[15] = _bytes[3];
 
-    return Ipv6Address.fromByteList(mapped)
-        .getOrElse(() => throw Exception('Error converting $this to mapped IPv6'));
+    return Ipv6Address.fromByteList(
+      mapped,
+    ).getOrElse(() => throw Exception('Error converting $this to mapped IPv6'));
   }
 
   Ipv4Address masked(Ipv4Address mask) => Ipv4Address.fromInt(toInt() & mask.toInt());
@@ -510,8 +518,9 @@ final class Ipv6Address extends IpAddress {
     int b13,
     int b14,
     int b15,
-  ) =>
-      _unsafeFromBytes(Uint8List.fromList([
+  ) => _unsafeFromBytes(
+    Uint8List.fromList(
+      [
         b0,
         b1,
         b2,
@@ -528,7 +537,9 @@ final class Ipv6Address extends IpAddress {
         b13,
         b14,
         b15,
-      ].map((b) => b & 0xff).toList()));
+      ].map((b) => b & 0xff).toList(),
+    ),
+  );
 
   static Option<Ipv6Address> fromByteList(Iterable<int> bytes) =>
       Option.when(() => bytes.length == 16, () => _unsafeFromBytes(bytes));
@@ -564,8 +575,7 @@ final class Ipv6Address extends IpAddress {
   A fold<A>(
     Function1<Ipv4Address, A> v4,
     Function1<Ipv6Address, A> v6,
-  ) =>
-      v6(this);
+  ) => v6(this);
 
   Ipv6Address next() => Ipv6Address.fromBigInt(toBigInt() + BigInt.one);
 
@@ -627,8 +637,9 @@ final class Ipv6Address extends IpAddress {
 
   String toMixedString() {
     final bytes = toBytes();
-    final v4 = Ipv4Address.fromByteList(bytes.getRange(12, 16))
-        .getOrElse(() => throw Exception('IPv6 toMixedString failure for: $this'));
+    final v4 = Ipv4Address.fromByteList(
+      bytes.getRange(12, 16),
+    ).getOrElse(() => throw Exception('IPv6 toMixedString failure for: $this'));
 
     bytes.setRange(12, 16, [0, 1, 0, 1]);
 
@@ -698,19 +709,69 @@ final class Ipv6Address extends IpAddress {
   static final MulticastRangeStart = fromBytes(255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
   /// Last IP address in the IPv6 multicast range.
-  static final MulticastRangeEnd =
-      fromBytes(255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255);
+  static final MulticastRangeEnd = fromBytes(
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+  );
 
   /// First IP address in the IPv6 source specific multicast range.
-  static final SourceSpecificMulticastRangeStart =
-      fromBytes(255, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+  static final SourceSpecificMulticastRangeStart = fromBytes(
+    255,
+    48,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+  );
 
   /// Last IP address in the IPv6 source specific multicast range.
-  static final SourceSpecificMulticastRangeEnd =
-      fromBytes(255, 63, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255);
+  static final SourceSpecificMulticastRangeEnd = fromBytes(
+    255,
+    63,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+    255,
+  );
 
-  static Cidr<Ipv6Address> MappedV4Block =
-      Cidr.of(Ipv6Address.fromBytes(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 0, 0, 0, 0), 96);
+  static Cidr<Ipv6Address> MappedV4Block = Cidr.of(
+    Ipv6Address.fromBytes(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 0, 0, 0, 0),
+    96,
+  );
 }
 
 final class IDN extends Host {
@@ -732,7 +793,8 @@ final class IDN extends Host {
       return Option(value.split(_regex).map(IDNLabel.new).toIList())
           .filter((a) => a.nonEmpty)
           .flatMap(
-              (ls) => toAscii(value).flatMap(Hostname.fromString).map((h) => IDN(ls, h, value)));
+            (ls) => toAscii(value).flatMap(Hostname.fromString).map((h) => IDN(ls, h, value)),
+          );
     }
   }
 
@@ -743,9 +805,9 @@ final class IDN extends Host {
 
   @override
   bool operator ==(Object that) => switch (that) {
-        final IDN that => toString() == that.toString(),
-        _ => false,
-      };
+    final IDN that => toString() == that.toString(),
+    _ => false,
+  };
 
   @override
   int get hashCode => Object.hash(toString(), 'IDN'.hashCode);
@@ -773,9 +835,9 @@ final class IDNLabel extends Ordered<IDNLabel> {
 
   @override
   bool operator ==(Object that) => switch (that) {
-        final IDNLabel that => toString() == that.toString(),
-        _ => false,
-      };
+    final IDNLabel that => toString() == that.toString(),
+    _ => false,
+  };
 
   @override
   int get hashCode => Object.hash(toString(), 'Label'.hashCode);

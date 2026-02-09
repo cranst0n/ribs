@@ -15,15 +15,27 @@ final class DiscriminatorCodec<A, B> extends Codec<B> {
 
   @override
   Either<Err, DecodeResult<B>> decode(BitVector bv) {
-    return by.decode(bv).flatMap((a) => cases.get(a.value).fold(
-        () => Either.left<Err, DecodeResult<B>>(Err.general('Missing typecase for: ${a.value}')),
-        (decoder) => decoder.decode(a.remainder)));
+    return by
+        .decode(bv)
+        .flatMap(
+          (a) => cases
+              .get(a.value)
+              .fold(
+                () => Either.left<Err, DecodeResult<B>>(
+                  Err.general('Missing typecase for: ${a.value}'),
+                ),
+                (decoder) => decoder.decode(a.remainder),
+              ),
+        );
   }
 
   @override
   Either<Err, BitVector> encode(B b) {
-    return cases.find((kv) => kv.$2.tag == b.runtimeType).fold(
-        () => Either.left<Err, BitVector>(Err.general('Missing typecase for: ${b.runtimeType}')),
-        (t) => (by.encode(t.$1), t.$2.encode(b)).mapN((a, b) => a.concat(b)));
+    return cases
+        .find((kv) => kv.$2.tag == b.runtimeType)
+        .fold(
+          () => Either.left<Err, BitVector>(Err.general('Missing typecase for: ${b.runtimeType}')),
+          (t) => (by.encode(t.$1), t.$2.encode(b)).mapN((a, b) => a.concat(b)),
+        );
   }
 }

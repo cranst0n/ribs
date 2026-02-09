@@ -13,12 +13,12 @@ final class Crc {
   static Function1<BitVector, BitVector> get crc32 => from(CrcParams.crc32());
 
   static Function1<BitVector, BitVector> from(CrcParams params) => Crc.of(
-        params.poly,
-        params.initial,
-        params.reflectInput,
-        params.reflectOutput,
-        params.finalXor,
-      );
+    params.poly,
+    params.initial,
+    params.reflectInput,
+    params.reflectOutput,
+    params.finalXor,
+  );
 
   static Function1<BitVector, BitVector> of(
     BitVector poly,

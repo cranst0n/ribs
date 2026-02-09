@@ -203,15 +203,18 @@ void main() {
 
     test('respect fifo order', () {
       final test = Queue.synchronous<int>().flatMap((q) {
-        return IList.range(0, 5).traverseIO_((i) {
-          final f = IO.sleep(Duration(milliseconds: i * 200)).flatMap((_) => q.offer(i)).voided();
+        return IList.range(0, 5)
+            .traverseIO_((i) {
+              final f =
+                  IO.sleep(Duration(milliseconds: i * 200)).flatMap((_) => q.offer(i)).voided();
 
-          return f.start();
-        }).flatMap((_) {
-          return IO.sleep(2.seconds).flatMap((_) {
-            return q.take().replicate(5);
-          });
-        });
+              return f.start();
+            })
+            .flatMap((_) {
+              return IO.sleep(2.seconds).flatMap((_) {
+                return q.take().replicate(5);
+              });
+            });
       });
 
       expect(test, ioSucceeded(ilist([0, 1, 2, 3, 4])));
@@ -228,29 +231,29 @@ void main() {
                 .guarantee(offererDone.setValue(true))
                 .start()
                 .flatMap((_) {
-              return latch
-                  .release()
-                  .productR(() => latch.await())
-                  .productR(() => q.take())
-                  .onCancel(IO.println('CANCELED...'))
-                  .start()
-                  .flatMap((taker) {
-                return latch.await().flatMap((_) {
-                  return taker.cancel().flatMap((_) {
-                    return taker.join().flatMap((oc) {
-                      if (oc.isCanceled) {
-                        return offererDone
-                            .value()
-                            .flatMap((b) => expectIO(b, false))
-                            .productR(() => q.take());
-                      } else {
-                        return IO.unit;
-                      }
-                    });
-                  });
+                  return latch
+                      .release()
+                      .productR(() => latch.await())
+                      .productR(() => q.take())
+                      .onCancel(IO.println('CANCELED...'))
+                      .start()
+                      .flatMap((taker) {
+                        return latch.await().flatMap((_) {
+                          return taker.cancel().flatMap((_) {
+                            return taker.join().flatMap((oc) {
+                              if (oc.isCanceled) {
+                                return offererDone
+                                    .value()
+                                    .flatMap((b) => expectIO(b, false))
+                                    .productR(() => q.take());
+                              } else {
+                                return IO.unit;
+                              }
+                            });
+                          });
+                        });
+                      });
                 });
-              });
-            });
           });
         });
       });
@@ -430,12 +433,14 @@ class QueueTests {
                   .productR(() => expected.release())
                   .start()
                   .flatMap((_) {
-                return latch.value().flatMap((_) {
-                  return tryTakeN(q, none()).flatMap((results) {
-                    return results.nonEmpty ? expected.await() : fail('did not take any results');
+                    return latch.value().flatMap((_) {
+                      return tryTakeN(q, none()).flatMap((results) {
+                        return results.nonEmpty
+                            ? expected.await()
+                            : fail('did not take any results');
+                      });
+                    });
                   });
-                });
-              });
             });
           });
         });
@@ -456,14 +461,14 @@ class QueueTests {
                   .start()
                   .replicate_(5)
                   .flatMap((_) {
-                return latch.await().flatMap((_) {
-                  return tryTakeN(q, none()).flatMap((results) {
-                    return expected.release().replicate_(5 - results.length).flatMap((_) {
-                      return expected.await();
+                    return latch.await().flatMap((_) {
+                      return tryTakeN(q, none()).flatMap((results) {
+                        return expected.release().replicate_(5 - results.length).flatMap((_) {
+                          return expected.await();
+                        });
+                      });
                     });
                   });
-                });
-              });
             });
           });
         });
@@ -564,29 +569,38 @@ class QueueTests {
   ) {
     test('ensure offerers are awakened by tryTakeN after cancelation', () {
       final test = constructor(4).flatMap((q) {
-        return IList.range(0, 4).traverseIO_((n) {
-          return offer(q, n);
-        }).flatMap((_) {
-          return IList.range(0, 4)
-              .traverseIO((n) =>
-                  IO.sleep(Duration(milliseconds: n * 10)).productR(() => offer(q, 10 + n)).start())
-              .flatMap((offerers) {
-            return IO.cede.flatMap((_) {
-              return offerers[1].cancel().flatMap((_) {
-                return offer(q, 20).delayBy(50.milliseconds).start().flatMap((_) {
-                  return IO.sleep(100.milliseconds).flatMap((_) {
-                    return tryTakeN(q, none()).flatMap((taken1) {
-                      return IList.range(0, 4).traverseIO((_) => take(q)).flatMap((taken2) {
-                        return expectIO(taken1, ilist([0, 1, 2, 3]))
-                            .productR(() => expectIO(taken2, ilist([10, 12, 13, 20])));
+        return IList.range(0, 4)
+            .traverseIO_((n) {
+              return offer(q, n);
+            })
+            .flatMap((_) {
+              return IList.range(0, 4)
+                  .traverseIO(
+                    (n) =>
+                        IO
+                            .sleep(Duration(milliseconds: n * 10))
+                            .productR(() => offer(q, 10 + n))
+                            .start(),
+                  )
+                  .flatMap((offerers) {
+                    return IO.cede.flatMap((_) {
+                      return offerers[1].cancel().flatMap((_) {
+                        return offer(q, 20).delayBy(50.milliseconds).start().flatMap((_) {
+                          return IO.sleep(100.milliseconds).flatMap((_) {
+                            return tryTakeN(q, none()).flatMap((taken1) {
+                              return IList.range(0, 4).traverseIO((_) => take(q)).flatMap((taken2) {
+                                return expectIO(
+                                  taken1,
+                                  ilist([0, 1, 2, 3]),
+                                ).productR(() => expectIO(taken2, ilist([10, 12, 13, 20])));
+                              });
+                            });
+                          });
+                        });
                       });
                     });
                   });
-                });
-              });
             });
-          });
-        });
       });
 
       expect(test, ioSucceeded());
@@ -600,16 +614,18 @@ class QueueTests {
   ) {
     test('not lose data on canceled take', () {
       final test = constructor(100).flatMap((q) {
-        return IList.range(0, 100)
-            .traverseIO_((n) => offer(q, n).productR(() => IO.cede))
-            .start()
-            .flatMap((_) {
+        return IList.range(
+          0,
+          100,
+        ).traverseIO_((n) => offer(q, n).productR(() => IO.cede)).start().flatMap((_) {
           return IO.ref(-1).flatMap((results) {
             return IO.deferred<Unit>().flatMap((latch) {
               final consumer = latch.complete(Unit()).flatMap((_) {
-                return IO.uncancelable((poll) {
-                  return poll(take(q)).flatMap((a) => results.setValue(a));
-                }).replicate_(1000);
+                return IO
+                    .uncancelable((poll) {
+                      return poll(take(q)).flatMap((a) => results.setValue(a));
+                    })
+                    .replicate_(1000);
               });
 
               return consumer.start().flatMap((consumerFiber) {
@@ -648,32 +664,33 @@ class QueueTests {
     });
 
     test('ensure takers are awakened under all circumstances', () {
-      final test = constructor(64).flatMap((q) {
-        return IO.deferred<Option<int>>().flatMap((takenR) {
-          final taker1 = take(q).guaranteeCase((oc) {
-            return oc.fold(
-              () => takenR.complete(none()).voided(),
-              (err) => takenR.complete(none()).voided(),
-              (a) => takenR.complete(Some(a)).voided(),
-            );
-          });
+      final test =
+          constructor(64).flatMap((q) {
+            return IO.deferred<Option<int>>().flatMap((takenR) {
+              final taker1 = take(q).guaranteeCase((oc) {
+                return oc.fold(
+                  () => takenR.complete(none()).voided(),
+                  (err) => takenR.complete(none()).voided(),
+                  (a) => takenR.complete(Some(a)).voided(),
+                );
+              });
 
-          return taker1.start().flatMap((take1) {
-            return take(q).start().flatMap((take2) {
-              return IO.sleep(250.milliseconds).flatMap((_) {
-                return IO.both(offer(q, 42), take1.cancel()).flatMap((_) {
-                  return takenR.value().flatMap((taken) {
-                    return taken.fold(
-                      () => take2.join(),
-                      (a) => take2.cancel(),
-                    );
+              return taker1.start().flatMap((take1) {
+                return take(q).start().flatMap((take2) {
+                  return IO.sleep(250.milliseconds).flatMap((_) {
+                    return IO.both(offer(q, 42), take1.cancel()).flatMap((_) {
+                      return takenR.value().flatMap((taken) {
+                        return taken.fold(
+                          () => take2.join(),
+                          (a) => take2.cancel(),
+                        );
+                      });
+                    });
                   });
                 });
               });
             });
-          });
-        });
-      }).voided();
+          }).voided();
 
       expect(test, ioSucceeded());
     });
@@ -700,10 +717,12 @@ class QueueTests {
 
       IO<int> consumer(Q q, int n, ListQueue<int> acc) {
         if (n > 0) {
-          return tryTake(q).flatMap((a) => a.fold(
-                () => IO.cede.productR(() => consumer(q, n, acc)),
-                (a) => consumer(q, n - 1, acc.enqueue(a)),
-              ));
+          return tryTake(q).flatMap(
+            (a) => a.fold(
+              () => IO.cede.productR(() => consumer(q, n, acc)),
+              (a) => consumer(q, n - 1, acc.enqueue(a)),
+            ),
+          );
         } else {
           return IO.pure(acc.foldLeft(0, (a, b) => a + b));
         }
@@ -800,16 +819,17 @@ class QueueTests {
             return expectIO(v1, 1).flatMap((_) {
               return IO
                   .delay(
-                      () => take(q).unsafeRunFuture().then((value) => futureValue = Option(value)))
+                    () => take(q).unsafeRunFuture().then((value) => futureValue = Option(value)),
+                  )
                   .flatMap((f) {
-                return expectIO(futureValue, isNone()).flatMap((_) {
-                  return offer(q, 2).flatMap((_) {
-                    return IO.fromFuture(IO.pure(f)).flatMap((v2) {
-                      return expectIO(v2, isSome(2));
+                    return expectIO(futureValue, isNone()).flatMap((_) {
+                      return offer(q, 2).flatMap((_) {
+                        return IO.fromFuture(IO.pure(f)).flatMap((v2) {
+                          return expectIO(v2, isSome(2));
+                        });
+                      });
                     });
                   });
-                });
-              });
             });
           });
         });
@@ -820,11 +840,13 @@ class QueueTests {
 
     test('should return the queue size when take precedes offer', () {
       final test = constructor(10).flatMap((q) {
-        return take(q).background().use((took) => IO
-            .sleep(1.second)
-            .productR(() => offer(q, 1))
-            .productR(() => took)
-            .productR(() => size(q)));
+        return take(q).background().use(
+          (took) => IO
+              .sleep(1.second)
+              .productR(() => offer(q, 1))
+              .productR(() => took)
+              .productR(() => size(q)),
+        );
       });
 
       expect(test, ioSucceeded(0));
@@ -832,11 +854,13 @@ class QueueTests {
 
     test('should return the queue size when take precedes tryOffer', () {
       final test = constructor(10).flatMap((q) {
-        return take(q).background().use((took) => IO
-            .sleep(1.second)
-            .productR(() => tryOffer(q, 1))
-            .productR(() => took)
-            .productR(() => size(q)));
+        return take(q).background().use(
+          (took) => IO
+              .sleep(1.second)
+              .productR(() => tryOffer(q, 1))
+              .productR(() => took)
+              .productR(() => size(q)),
+        );
       });
 
       expect(test, ioSucceeded(0));

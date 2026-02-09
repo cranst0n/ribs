@@ -21,25 +21,26 @@ void main() {
   forAll('tuple15', Gen.integer.tuple15, (t) => expect(t, isNotNull));
 
   forAll(
-      '15-tupled',
-      (
-        Gen.integer,
-        Gen.integer,
-        Gen.integer,
-        Gen.integer,
-        Gen.integer,
-        Gen.integer,
-        Gen.integer,
-        Gen.integer,
-        Gen.integer,
-        Gen.integer,
-        Gen.integer,
-        Gen.integer,
-        Gen.integer,
-        Gen.integer,
-        Gen.integer,
-      ).tupled,
-      (t) => expect(t, isNotNull));
+    '15-tupled',
+    (
+      Gen.integer,
+      Gen.integer,
+      Gen.integer,
+      Gen.integer,
+      Gen.integer,
+      Gen.integer,
+      Gen.integer,
+      Gen.integer,
+      Gen.integer,
+      Gen.integer,
+      Gen.integer,
+      Gen.integer,
+      Gen.integer,
+      Gen.integer,
+      Gen.integer,
+    ).tupled,
+    (t) => expect(t, isNotNull),
+  );
 
   forAll('alphaLowerChar', Gen.alphaLowerChar, (c) {
     expect(c.toLowerCase(), c);
@@ -97,11 +98,17 @@ void main() {
     expect(int.tryParse(str, radix: 16), isNotNull);
   });
 
-  forAll('imapOf', Gen.imapOf(Gen.chooseInt(1, 20), Gen.nonEmptyHexString(), Gen.positiveInt),
-      (m) => expect(m.isEmpty, isFalse));
+  forAll(
+    'imapOf',
+    Gen.imapOf(Gen.chooseInt(1, 20), Gen.nonEmptyHexString(), Gen.positiveInt),
+    (m) => expect(m.isEmpty, isFalse),
+  );
 
-  forAll('mapOf', Gen.mapOf(Gen.chooseInt(1, 20), Gen.nonEmptyHexString(), Gen.positiveInt),
-      (m) => expect(m.isEmpty, isFalse));
+  forAll(
+    'mapOf',
+    Gen.mapOf(Gen.chooseInt(1, 20), Gen.nonEmptyHexString(), Gen.positiveInt),
+    (m) => expect(m.isEmpty, isFalse),
+  );
 
   forAll('nonEmptyHexString', Gen.nonEmptyHexString(8), (str) {
     expect(int.tryParse(str, radix: 16), isNotNull);

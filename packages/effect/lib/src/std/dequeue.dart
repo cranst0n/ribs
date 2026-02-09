@@ -131,9 +131,9 @@ class _BoundedDequeue<A> extends Dequeue<A> {
 
             return (
               _State(queue, size, takers, offerers.enqueue(offerer)),
-              poll(offerer.value())
-                  .productR(() => poll(_offer(a, update)))
-                  .onCancel(cleanup.flatten()),
+              poll(
+                offerer.value(),
+              ).productR(() => poll(_offer(a, update))).onCancel(cleanup.flatten()),
             );
           }
         }).flatten();
@@ -160,24 +160,27 @@ class _BoundedDequeue<A> extends Dequeue<A> {
     });
   }
 
-  IO<IList<A>> _tryOfferN(IList<A> list, Function1<A, IO<bool>> tryOfferF) =>
-      list.uncons((hdtl) => hdtl.foldN(
-            () => IO.pure(list),
-            (hd, tl) => tryOfferF(hd).ifM(
-              () => tryOfferN(tl),
-              () => IO.pure(list),
-            ),
-          ));
+  IO<IList<A>> _tryOfferN(IList<A> list, Function1<A, IO<bool>> tryOfferF) => list.uncons(
+    (hdtl) => hdtl.foldN(
+      () => IO.pure(list),
+      (hd, tl) => tryOfferF(hd).ifM(
+        () => tryOfferN(tl),
+        () => IO.pure(list),
+      ),
+    ),
+  );
 
   IO<IList<A>> _tryTakeN(IO<Option<A>> tryTakeF, Option<int> maxN) {
     IO<IList<A>> loop(int i, int limit, IList<A> acc) {
       if (i >= limit) {
         return IO.pure(acc.reverse());
       } else {
-        return tryTakeF.flatMap((a) => a.fold(
-              () => IO.pure(acc.reverse()),
-              (a) => loop(i + 1, limit, acc.prepended(a)),
-            ));
+        return tryTakeF.flatMap(
+          (a) => a.fold(
+            () => IO.pure(acc.reverse()),
+            (a) => loop(i + 1, limit, acc.prepended(a)),
+          ),
+        );
       }
     }
 
@@ -218,10 +221,12 @@ class _BoundedDequeue<A> extends Dequeue<A> {
                 .onCancel(cleanup.flatten())
                 .productR(() => poll(_take(dequeue)).onCancel(_notifyNextTaker().flatten()));
 
-            final (fulfill, offerer2) = s.offerers.isEmpty
-                ? (awaiter, s.offerers)
-                : s.offerers.dequeue()(
-                    (release, rest) => (release.complete(Unit()).productR(() => awaiter), rest));
+            final (fulfill, offerer2) =
+                s.offerers.isEmpty
+                    ? (awaiter, s.offerers)
+                    : s.offerers.dequeue()(
+                      (release, rest) => (release.complete(Unit()).productR(() => awaiter), rest),
+                    );
 
             return (_State(s.queue, s.size, s.takers.enqueue(taker), offerer2), fulfill);
           }
@@ -279,11 +284,10 @@ final class _State<A> {
     int? size,
     ListQueue<Deferred<Unit>>? takers,
     ListQueue<Deferred<Unit>>? offerers,
-  }) =>
-      _State(
-        queue ?? this.queue,
-        size ?? this.size,
-        takers ?? this.takers,
-        offerers ?? this.offerers,
-      );
+  }) => _State(
+    queue ?? this.queue,
+    size ?? this.size,
+    takers ?? this.takers,
+    offerers ?? this.offerers,
+  );
 }

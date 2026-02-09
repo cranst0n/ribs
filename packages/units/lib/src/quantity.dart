@@ -25,20 +25,23 @@ abstract class Quantity<A extends Quantity<A>> {
   static Option<A> parse<A extends Quantity<A>>(
     String s,
     Set<UnitOfMeasure<A>> units,
-  ) =>
-      Option(_unitsRegex(units).firstMatch(s)).flatMap(
-        (match) => (
-          Option(match.group(1)).flatMap((str) => Option(num.tryParse(str))),
-          Option(match.group(2)).flatMap((str) => IList.fromDart(units.toList()).find(
-              (a) => a.unit == str.trim() || '${a.unit}s' == str.trim() || a.symbol == str.trim())),
-        ).mapN((value, unit) => unit(value)),
-      );
+  ) => Option(_unitsRegex(units).firstMatch(s)).flatMap(
+    (match) => (
+      Option(match.group(1)).flatMap((str) => Option(num.tryParse(str))),
+      Option(match.group(2)).flatMap(
+        (str) => IList.fromDart(
+          units.toList(),
+        ).find((a) => a.unit == str.trim() || '${a.unit}s' == str.trim() || a.symbol == str.trim()),
+      ),
+    ).mapN((value, unit) => unit(value)),
+  );
 
   static RegExp _unitsRegex<A extends Quantity<A>>(
     Set<UnitOfMeasure<A>> units,
   ) {
-    final unitsStr =
-        units.expand((u) => [u.unit, '${u.unit}s', u.symbol]).reduce((a, b) => '$a|$b');
+    final unitsStr = units
+        .expand((u) => [u.unit, '${u.unit}s', u.symbol])
+        .reduce((a, b) => '$a|$b');
     final regStr = '^([-+]?[0-9]*\\.?[0-9]+(?:[eE][-+]?[0-9]+)?) *($unitsStr)\$';
 
     return RegExp(regStr);

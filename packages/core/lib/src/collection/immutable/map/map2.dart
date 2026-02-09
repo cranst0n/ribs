@@ -38,10 +38,10 @@ final class _Map2<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V
 
   @override
   Option<V> get(K key) => switch (key) {
-        _ when key == key1 => Some(value1),
-        _ when key == key2 => Some(value2),
-        _ => none(),
-      };
+    _ when key == key1 => Some(value1),
+    _ when key == key2 => Some(value2),
+    _ => none(),
+  };
 
   @override
   RIterator<(K, V)> get iterator => ilist([(key1, value1), (key2, value2)]).iterator;

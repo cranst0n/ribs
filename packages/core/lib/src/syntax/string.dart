@@ -8,9 +8,9 @@ extension StringOps on String {
   String dropRight(int n) => take(length - max(n, 0));
 
   String dropWhile(Function1<String, bool> p) => switch (indexWhere((c) => !p(c))) {
-        -1 => '',
-        final x => substring(x),
-      };
+    -1 => '',
+    final x => substring(x),
+  };
 
   bool exists(Function1<String, bool> p) => indexWhere(p) != -1;
 
@@ -29,9 +29,9 @@ extension StringOps on String {
   String filterNot(Function1<String, bool> p) => filter((c) => !p(c));
 
   Option<String> find(Function1<String, bool> p) => switch (indexWhere(p)) {
-        -1 => none(),
-        final x => Some(this[x]),
-      };
+    -1 => none(),
+    final x => Some(this[x]),
+  };
 
   void foreach(Function1<String, void> f) {
     var i = 0;
@@ -144,9 +144,9 @@ extension StringOps on String {
   (String, String) splitAt(int n) => (take(n), drop(n));
 
   (String, String) span(Function1<String, bool> p) => switch (indexWhere((c) => !p(c))) {
-        -1 => (this, ''),
-        final x => (substring(0, x), substring(x)),
-      };
+    -1 => (this, ''),
+    final x => (substring(0, x), substring(x)),
+  };
 
   String stripPrefix(String prefix) => startsWith(prefix) ? substring(prefix.length) : this;
 
@@ -162,9 +162,9 @@ extension StringOps on String {
   String takeRight(int n) => drop(length - max(n, 0));
 
   String takeWhile(Function1<String, bool> p) => switch (indexWhere((c) => !p(c))) {
-        -1 => this,
-        final x => substring(0, x),
-      };
+    -1 => this,
+    final x => substring(0, x),
+  };
 
   RIterator<String> _iterateUntilEmpty(Function1<String, String> f) =>
       RIterator.iterate(this, f).takeWhile((s) => s.nonEmpty).concat(RIterator.single(''));

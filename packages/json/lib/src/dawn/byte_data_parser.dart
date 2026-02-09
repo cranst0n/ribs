@@ -14,8 +14,8 @@ final class ByteDataParser extends SyncParser with ByteBasedParser {
   int _offset = 0;
 
   ByteDataParser(this.src)
-      : _start = src.offsetInBytes,
-        _limit = src.lengthInBytes - src.offsetInBytes;
+    : _start = src.offsetInBytes,
+      _limit = src.lengthInBytes - src.offsetInBytes;
 
   @override
   String at(int i) => String.fromCharCode(src[i + _start]);

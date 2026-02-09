@@ -72,8 +72,12 @@ sealed class MapNode<K, V> extends Node<MapNode<K, V>> {
 
   MapNode<K, V> filterImpl(Function1<(K, V), bool> p, bool isFlipped);
 
-  void mergeInto(MapNode<K, V> that, IHashMapBuilder<K, V> builder, int shift,
-      Function2<(K, V), (K, V), (K, V)> mergef);
+  void mergeInto(
+    MapNode<K, V> that,
+    IHashMapBuilder<K, V> builder,
+    int shift,
+    Function2<(K, V), (K, V), (K, V)> mergef,
+  );
 
   (K, V) getTuple(K key, int originalHash, int hash, int shift);
 
@@ -116,8 +120,9 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
         noSuchKey(key);
       }
     } else if ((nodeMap & bitpos) != 0) {
-      return getNode(Node.indexFromMask(nodeMap, mask, bitpos))
-          .apply(key, originalHash, keyHash, shift + Node.BitPartitionSize);
+      return getNode(
+        Node.indexFromMask(nodeMap, mask, bitpos),
+      ).apply(key, originalHash, keyHash, shift + Node.BitPartitionSize);
     } else {
       noSuchKey(key);
     }
@@ -153,7 +158,13 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
       } else if (bm.size == 1) {
         final originalHash = bm.getHash(0);
         return updated(
-            bm.getKey(0), bm.getValue(0), originalHash, Hashing.improve(originalHash), shift, true);
+          bm.getKey(0),
+          bm.getValue(0),
+          originalHash,
+          Hashing.improve(originalHash),
+          shift,
+          true,
+        );
       }
 
       // if we go through the merge and the result does not differ from `bm`, we can just return `bm`, to improve sharing
@@ -168,8 +179,9 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
       // maximumIndex is inclusive -- it is the last index for which there is data or nodes
       // it could not be exclusive, because then upper bound in worst case (Node.BranchingFactor) would be out-of-bound
       // of int bitposition representation
-      final maximumBitPos =
-          Node.bitposFrom(Node.BranchingFactor - Integer.numberOfLeadingZeros(allMap) - 1);
+      final maximumBitPos = Node.bitposFrom(
+        Node.BranchingFactor - Integer.numberOfLeadingZeros(allMap) - 1,
+      );
 
       var leftNodeRightNode = 0;
       var leftDataRightNode = 0;
@@ -198,8 +210,9 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
                 leftDataRightDataRightOverwrites |= bitpos;
               } else {
                 leftDataRightDataMigrateToNode |= bitpos;
-                dataToNodeMigrationTargets |=
-                    Node.bitposFrom(Node.maskFrom(Hashing.improve(leftOriginalHash), shift));
+                dataToNodeMigrationTargets |= Node.bitposFrom(
+                  Node.maskFrom(Hashing.improve(leftOriginalHash), shift),
+                );
               }
               rightIdx += 1;
             } else if ((bitpos & bm.nodeMap) != 0) {
@@ -234,7 +247,8 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
 
       final newDataMap = leftDataOnly | rightDataOnly | leftDataRightDataRightOverwrites;
 
-      final newNodeMap = leftNodeRightNode |
+      final newNodeMap =
+          leftNodeRightNode |
           leftDataRightNode |
           leftNodeRightData |
           leftNodeOnly |
@@ -292,8 +306,14 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
             final leftOriginalHash = getHash(leftDataIdx);
             final leftImproved = Hashing.improve(leftOriginalHash);
 
-            final updated =
-                n.updated(leftKey, leftValue, leftOriginalHash, leftImproved, nextShift, false);
+            final updated = n.updated(
+              leftKey,
+              leftValue,
+              leftOriginalHash,
+              leftImproved,
+              nextShift,
+              false,
+            );
 
             if (updated != n) {
               anyChangesMadeSoFar = true;
@@ -408,13 +428,20 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
 
       if (anyChangesMadeSoFar) {
         return BitmapIndexedMapNode(
-            newDataMap, newNodeMap, newContent, newOriginalHashes, newSize, newCachedHashCode);
+          newDataMap,
+          newNodeMap,
+          newContent,
+          newOriginalHashes,
+          newSize,
+          newCachedHashCode,
+        );
       } else {
         return bm;
       }
     } else {
       throw UnsupportedError(
-          'Cannot concatenate a HashCollisionMapNode with a BitmapIndexedSetNode');
+        'Cannot concatenate a HashCollisionMapNode with a BitmapIndexedSetNode',
+      );
     }
   }
 
@@ -427,8 +454,9 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
       final index = Node.indexFromMask(dataMap, mask, bitpos);
       return (originalHashes[index] == originalHash) && key == getKey(index);
     } else if ((nodeMap & bitpos) != 0) {
-      return getNode(Node.indexFromMask(nodeMap, mask, bitpos))
-          .containsKey(key, originalHash, keyHash, shift + Node.BitPartitionSize);
+      return getNode(
+        Node.indexFromMask(nodeMap, mask, bitpos),
+      ).containsKey(key, originalHash, keyHash, shift + Node.BitPartitionSize);
     } else {
       return false;
     }
@@ -446,7 +474,13 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
     }
 
     return BitmapIndexedMapNode<K, V>(
-        dataMap, nodeMap, contentClone, originalHashes.clone(), size, cachedDartKeySetHashCode);
+      dataMap,
+      nodeMap,
+      contentClone,
+      originalHashes.clone(),
+      size,
+      cachedDartKeySetHashCode,
+    );
   }
 
   @override
@@ -527,7 +561,13 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
         }
 
         return BitmapIndexedMapNode(
-            newDataMap, 0, newContent, newOriginalHashCodes, newSize, newCachedHashCode);
+          newDataMap,
+          0,
+          newContent,
+          newOriginalHashCodes,
+          newSize,
+          newCachedHashCode,
+        );
       }
     } else {
       final allMap = dataMap | nodeMap;
@@ -664,7 +704,13 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
         }
 
         return BitmapIndexedMapNode<K, V>(
-            newDataMap, newNodeMap, newContent, newOriginalHashes, newSize, newCachedHashCode);
+          newDataMap,
+          newNodeMap,
+          newContent,
+          newOriginalHashes,
+          newSize,
+          newCachedHashCode,
+        );
       }
     }
   }
@@ -778,9 +824,9 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
 
   @override
   (K, V) getPayload(int index) => (
-        content[TupleLength * index] as K,
-        content[TupleLength * index + 1] as V,
-      );
+    content[TupleLength * index] as K,
+    content[TupleLength * index + 1] as V,
+  );
 
   @override
   (K, V) getTuple(K key, int originalHash, int hash, int shift) {
@@ -813,8 +859,12 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
   bool get hasPayload => dataMap != 0;
 
   @override
-  void mergeInto(MapNode<K, V> that, IHashMapBuilder<K, V> builder, int shift,
-      Function2<(K, V), (K, V), (K, V)> mergef) {
+  void mergeInto(
+    MapNode<K, V> that,
+    IHashMapBuilder<K, V> builder,
+    int shift,
+    Function2<(K, V), (K, V), (K, V)> mergef,
+  ) {
     if (that is BitmapIndexedMapNode<K, V>) {
       final bm = that;
 
@@ -862,7 +912,11 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
               final subNode = bm.getNode(bm.nodeIndex(bitpos));
               final leftImprovedHash = Hashing.improve(leftOriginalHash);
               final removed = subNode.removed(
-                  leftKey, leftOriginalHash, leftImprovedHash, shift + Node.BitPartitionSize);
+                leftKey,
+                leftOriginalHash,
+                leftImprovedHash,
+                shift + Node.BitPartitionSize,
+              );
 
               if (removed == subNode) {
                 // no overlap in leftData and rightNode, just build both children to builder
@@ -871,10 +925,17 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
               } else {
                 // there is collision, so special treatment for that key
                 removed.buildTo(builder);
-                builder.addOne(mergef(
+                builder.addOne(
+                  mergef(
                     (leftKey, leftValue),
-                    subNode.getTuple(leftKey, leftOriginalHash, leftImprovedHash,
-                        shift + Node.BitPartitionSize)));
+                    subNode.getTuple(
+                      leftKey,
+                      leftOriginalHash,
+                      leftImprovedHash,
+                      shift + Node.BitPartitionSize,
+                    ),
+                  ),
+                );
               }
             } else {
               // left data and nothing on right
@@ -891,25 +952,43 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
 
               final subNode = getNode(nodeIndex(bitpos));
               final removed = subNode.removed(
-                  rightKey, rightOriginalHash, rightImprovedHash, shift + Node.BitPartitionSize);
+                rightKey,
+                rightOriginalHash,
+                rightImprovedHash,
+                shift + Node.BitPartitionSize,
+              );
               if (removed == subNode) {
                 // no overlap in leftNode and rightData, just build both children to builder
                 subNode.buildTo(builder);
-                builder
-                    .addOneWithHashes((rightKey, rightValue), rightOriginalHash, rightImprovedHash);
+                builder.addOneWithHashes(
+                  (rightKey, rightValue),
+                  rightOriginalHash,
+                  rightImprovedHash,
+                );
               } else {
                 // there is collision, so special treatment for that key
                 removed.buildTo(builder);
-                builder.addOne(mergef(
-                    subNode.getTuple(rightKey, rightOriginalHash, rightImprovedHash,
-                        shift + Node.BitPartitionSize),
-                    (rightKey, rightValue)));
+                builder.addOne(
+                  mergef(
+                    subNode.getTuple(
+                      rightKey,
+                      rightOriginalHash,
+                      rightImprovedHash,
+                      shift + Node.BitPartitionSize,
+                    ),
+                    (rightKey, rightValue),
+                  ),
+                );
               }
               rightIdx += 1;
             } else if ((bitpos & bm.nodeMap) != 0) {
               // left node and right node
               getNode(nodeIndex(bitpos)).mergeInto(
-                  bm.getNode(bm.nodeIndex(bitpos)), builder, shift + Node.BitPartitionSize, mergef);
+                bm.getNode(bm.nodeIndex(bitpos)),
+                builder,
+                shift + Node.BitPartitionSize,
+                mergef,
+              );
             } else {
               // left node and nothing on right
               getNode(nodeIndex(bitpos)).buildTo(builder);
@@ -1058,13 +1137,25 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
       return this as BitmapIndexedMapNode<K, W>;
     } else {
       return BitmapIndexedMapNode<K, W>(
-          dataMap, nodeMap, newContent, originalHashes, size, cachedDartKeySetHashCode);
+        dataMap,
+        nodeMap,
+        newContent,
+        originalHashes,
+        size,
+        cachedDartKeySetHashCode,
+      );
     }
   }
 
   @override
   BitmapIndexedMapNode<K, V> updated(
-      K key, V value, int originalHash, int keyHash, int shift, bool replaceValue) {
+    K key,
+    V value,
+    int originalHash,
+    int keyHash,
+    int shift,
+    bool replaceValue,
+  ) {
     final mask = Node.maskFrom(keyHash, shift);
     final bitpos = Node.bitposFrom(mask);
 
@@ -1087,8 +1178,17 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
       } else {
         final value0 = getValue(index);
         final key0Hash = Hashing.improve(key0UnimprovedHash);
-        final subNodeNew = mergeTwoKeyValPairs(key0, value0, key0UnimprovedHash, key0Hash, key,
-            value, originalHash, keyHash, shift + Node.BitPartitionSize);
+        final subNodeNew = mergeTwoKeyValPairs(
+          key0,
+          value0,
+          key0UnimprovedHash,
+          key0Hash,
+          key,
+          value,
+          originalHash,
+          keyHash,
+          shift + Node.BitPartitionSize,
+        );
 
         return copyAndMigrateFromInlineToNode(bitpos, key0Hash, subNodeNew);
       }
@@ -1096,7 +1196,13 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
       final index = Node.indexFromMask(nodeMap, mask, bitpos);
       final subNode = getNode(index);
       final subNodeNew = subNode.updated(
-          key, value, originalHash, keyHash, shift + Node.BitPartitionSize, replaceValue);
+        key,
+        value,
+        originalHash,
+        keyHash,
+        shift + Node.BitPartitionSize,
+        replaceValue,
+      );
 
       if (subNodeNew == subNode) {
         return this;
@@ -1110,15 +1216,16 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
 
   @override
   bool operator ==(Object that) => switch (that) {
-        final BitmapIndexedMapNode<K, V> node => identical(this, node) ||
-            ((cachedDartKeySetHashCode == node.cachedDartKeySetHashCode) &&
-                (nodeMap == node.nodeMap) &&
-                (dataMap == node.dataMap) &&
-                (size == node.size) &&
-                Array.equals(originalHashes, node.originalHashes) &&
-                _deepContentEquality(content, node.content, content.length)),
-        _ => false,
-      };
+    final BitmapIndexedMapNode<K, V> node =>
+      identical(this, node) ||
+          ((cachedDartKeySetHashCode == node.cachedDartKeySetHashCode) &&
+              (nodeMap == node.nodeMap) &&
+              (dataMap == node.dataMap) &&
+              (size == node.size) &&
+              Array.equals(originalHashes, node.originalHashes) &&
+              _deepContentEquality(content, node.content, content.length)),
+    _ => false,
+  };
 
   bool _deepContentEquality(Array<dynamic> a1, Array<dynamic> a2, int length) {
     if (identical(a1, a2)) {
@@ -1158,11 +1265,20 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
     Array.arraycopy(src, 0, dst, 0, src.length);
     dst[idx + 1] = newValue;
     return BitmapIndexedMapNode<K, V>(
-        dataMap, nodeMap, dst, originalHashes, size, cachedDartKeySetHashCode);
+      dataMap,
+      nodeMap,
+      dst,
+      originalHashes,
+      size,
+      cachedDartKeySetHashCode,
+    );
   }
 
   BitmapIndexedMapNode<K, V> copyAndSetNode(
-      int bitpos, MapNode<K, V> oldNode, MapNode<K, V> newNode) {
+    int bitpos,
+    MapNode<K, V> oldNode,
+    MapNode<K, V> newNode,
+  ) {
     final idx = content.length - 1 - nodeIndex(bitpos);
 
     final src = content;
@@ -1173,18 +1289,24 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
     dst[idx] = newNode;
 
     return BitmapIndexedMapNode<K, V>(
-        dataMap,
-        nodeMap,
-        dst,
-        originalHashes,
-        size - oldNode.size + newNode.size,
-        cachedDartKeySetHashCode -
-            oldNode.cachedDartKeySetHashCode +
-            newNode.cachedDartKeySetHashCode);
+      dataMap,
+      nodeMap,
+      dst,
+      originalHashes,
+      size - oldNode.size + newNode.size,
+      cachedDartKeySetHashCode -
+          oldNode.cachedDartKeySetHashCode +
+          newNode.cachedDartKeySetHashCode,
+    );
   }
 
   BitmapIndexedMapNode<K, V> copyAndInsertValue(
-      int bitpos, K key, int originalHash, int keyHash, V value) {
+    int bitpos,
+    K key,
+    int originalHash,
+    int keyHash,
+    V value,
+  ) {
     final dataIx = dataIndex(bitpos);
     final idx = TupleLength * dataIx;
 
@@ -1200,7 +1322,13 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
     final dstHashes = insertElement(originalHashes, dataIx, originalHash);
 
     return BitmapIndexedMapNode<K, V>(
-        dataMap | bitpos, nodeMap, dst, dstHashes, size + 1, cachedDartKeySetHashCode + keyHash);
+      dataMap | bitpos,
+      nodeMap,
+      dst,
+      dstHashes,
+      size + 1,
+      cachedDartKeySetHashCode + keyHash,
+    );
   }
 
   BitmapIndexedMapNode<K, V> copyAndRemoveValue(int bitpos, int keyHash) {
@@ -1217,7 +1345,13 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
     final dstHashes = removeElement(originalHashes, dataIx);
 
     return BitmapIndexedMapNode<K, V>(
-        dataMap ^ bitpos, nodeMap, dst, dstHashes, size - 1, cachedDartKeySetHashCode - keyHash);
+      dataMap ^ bitpos,
+      nodeMap,
+      dst,
+      dstHashes,
+      size - 1,
+      cachedDartKeySetHashCode - keyHash,
+    );
   }
 
   /// Variant of `copyAndMigrateFromInlineToNode` which mutates `this` rather than returning a new node.
@@ -1226,7 +1360,10 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
   /// @param keyHash the improved hash of the key currently at `bitpos`
   /// @param node the node to place at `bitpos` beneath `this`
   BitmapIndexedMapNode<K, V> migrateFromInlineToNodeInPlace(
-      int bitpos, int keyHash, MapNode<K, V> node) {
+    int bitpos,
+    int keyHash,
+    MapNode<K, V> node,
+  ) {
     final dataIx = dataIndex(bitpos);
     final idxOld = TupleLength * dataIx;
     final idxNew = content.length - TupleLength - nodeIndex(bitpos);
@@ -1255,7 +1392,10 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
   }
 
   BitmapIndexedMapNode<K, V> copyAndMigrateFromInlineToNode(
-      int bitpos, int keyHash, MapNode<K, V> node) {
+    int bitpos,
+    int keyHash,
+    MapNode<K, V> node,
+  ) {
     final dataIx = dataIndex(bitpos);
     final idxOld = TupleLength * dataIx;
     final idxNew = content.length - TupleLength - nodeIndex(bitpos);
@@ -1274,17 +1414,20 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
     final dstHashes = removeElement(originalHashes, dataIx);
 
     return BitmapIndexedMapNode<K, V>(
-        dataMap = dataMap ^ bitpos,
-        nodeMap = nodeMap | bitpos,
-        content = dst,
-        originalHashes = dstHashes,
-        size = size - 1 + node.size,
-        cachedDartKeySetHashCode =
-            cachedDartKeySetHashCode - keyHash + node.cachedDartKeySetHashCode);
+      dataMap = dataMap ^ bitpos,
+      nodeMap = nodeMap | bitpos,
+      content = dst,
+      originalHashes = dstHashes,
+      size = size - 1 + node.size,
+      cachedDartKeySetHashCode = cachedDartKeySetHashCode - keyHash + node.cachedDartKeySetHashCode,
+    );
   }
 
   BitmapIndexedMapNode<K, V> copyAndMigrateFromNodeToInline(
-      int bitpos, MapNode<K, V> oldNode, MapNode<K, V> node) {
+    int bitpos,
+    MapNode<K, V> oldNode,
+    MapNode<K, V> node,
+  ) {
     final idxOld = content.length - 1 - nodeIndex(bitpos);
     final dataIxNew = dataIndex(bitpos);
     final idxNew = TupleLength * dataIxNew;
@@ -1307,23 +1450,37 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
     final dstHashes = insertElement(originalHashes, dataIxNew, hash);
 
     return BitmapIndexedMapNode<K, V>(
-        dataMap = dataMap | bitpos,
-        nodeMap = nodeMap ^ bitpos,
-        content = dst,
-        originalHashes = dstHashes,
-        size = size - oldNode.size + 1,
-        cachedDartKeySetHashCode = cachedDartKeySetHashCode -
-            oldNode.cachedDartKeySetHashCode +
-            node.cachedDartKeySetHashCode);
+      dataMap = dataMap | bitpos,
+      nodeMap = nodeMap ^ bitpos,
+      content = dst,
+      originalHashes = dstHashes,
+      size = size - oldNode.size + 1,
+      cachedDartKeySetHashCode =
+          cachedDartKeySetHashCode -
+          oldNode.cachedDartKeySetHashCode +
+          node.cachedDartKeySetHashCode,
+    );
   }
 
-  MapNode<K, V> mergeTwoKeyValPairs(K key0, V value0, int originalHash0, int keyHash0, K key1,
-      V value1, int originalHash1, int keyHash1, int shift) {
+  MapNode<K, V> mergeTwoKeyValPairs(
+    K key0,
+    V value0,
+    int originalHash0,
+    int keyHash0,
+    K key1,
+    V value1,
+    int originalHash1,
+    int keyHash1,
+    int shift,
+  ) {
     // assert(key0 != key1)
 
     if (shift >= Node.HashCodeLength) {
       return HashCollisionMapNode<K, V>(
-          originalHash0, keyHash0, ivec([(key0, value0), (key1, value1)]));
+        originalHash0,
+        keyHash0,
+        ivec([(key0, value0), (key1, value1)]),
+      );
     } else {
       final mask0 = Node.maskFrom(keyHash0, shift);
       final mask1 = Node.maskFrom(keyHash1, shift);
@@ -1334,20 +1491,47 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
         final dataMap = Node.bitposFrom(mask0) | Node.bitposFrom(mask1);
 
         if (mask0 < mask1) {
-          return BitmapIndexedMapNode<K, V>(dataMap, 0, arr([key0, value0, key1, value1]),
-              arr([originalHash0, originalHash1]), 2, newCachedHash);
+          return BitmapIndexedMapNode<K, V>(
+            dataMap,
+            0,
+            arr([key0, value0, key1, value1]),
+            arr([originalHash0, originalHash1]),
+            2,
+            newCachedHash,
+          );
         } else {
-          return BitmapIndexedMapNode<K, V>(dataMap, 0, arr([key1, value1, key0, value0]),
-              arr([originalHash1, originalHash0]), 2, newCachedHash);
+          return BitmapIndexedMapNode<K, V>(
+            dataMap,
+            0,
+            arr([key1, value1, key0, value0]),
+            arr([originalHash1, originalHash0]),
+            2,
+            newCachedHash,
+          );
         }
       } else {
         // identical prefixes, payload must be disambiguated deeper in the trie
         final nodeMap = Node.bitposFrom(mask0);
-        final node = mergeTwoKeyValPairs(key0, value0, originalHash0, keyHash0, key1, value1,
-            originalHash1, keyHash1, shift + Node.BitPartitionSize);
+        final node = mergeTwoKeyValPairs(
+          key0,
+          value0,
+          originalHash0,
+          keyHash0,
+          key1,
+          value1,
+          originalHash1,
+          keyHash1,
+          shift + Node.BitPartitionSize,
+        );
 
         return BitmapIndexedMapNode<K, V>(
-            0, nodeMap, arr([node]), Array.empty(), node.size, node.cachedDartKeySetHashCode);
+          0,
+          nodeMap,
+          arr([node]),
+          Array.empty(),
+          node.size,
+          node.cachedDartKeySetHashCode,
+        );
       }
     }
   }
@@ -1404,7 +1588,8 @@ final class HashCollisionMapNode<K, V> extends MapNode<K, V> {
       }
     } else {
       throw UnsupportedError(
-          'Cannot concatenate a HashCollisionMapNode with a BitmapIndexedMapNode');
+        'Cannot concatenate a HashCollisionMapNode with a BitmapIndexedMapNode',
+      );
     }
   }
 
@@ -1426,7 +1611,13 @@ final class HashCollisionMapNode<K, V> extends MapNode<K, V> {
     } else if (newContentLength == 1) {
       final (k, v) = newContent.head;
       return BitmapIndexedMapNode<K, V>(
-          Node.bitposFrom(Node.maskFrom(hash, 0)), 0, arr([k, v]), arr([originalHash]), 1, hash);
+        Node.bitposFrom(Node.maskFrom(hash, 0)),
+        0,
+        arr([k, v]),
+        arr([originalHash]),
+        1,
+        hash,
+      );
     } else if (newContentLength == content.length) {
       return this;
     } else {
@@ -1620,7 +1811,10 @@ final class HashCollisionMapNode<K, V> extends MapNode<K, V> {
           return this;
         } else {
           return HashCollisionMapNode<K, V>(
-              originalHash, hash, content.updated(index, (key, value)));
+            originalHash,
+            hash,
+            content.updated(index, (key, value)),
+          );
         }
       } else {
         return this;
@@ -1632,10 +1826,11 @@ final class HashCollisionMapNode<K, V> extends MapNode<K, V> {
 
   @override
   bool operator ==(Object that) => switch (that) {
-        final HashCollisionMapNode<K, V> node => identical(this, node) ||
-            (hash == node.hash) && (content.length == node.content.length) && _contentEqual(node),
-        _ => false,
-      };
+    final HashCollisionMapNode<K, V> node =>
+      identical(this, node) ||
+          (hash == node.hash) && (content.length == node.content.length) && _contentEqual(node),
+    _ => false,
+  };
 
   bool _contentEqual(HashCollisionMapNode<K, V> node) {
     final iter = content.iterator;

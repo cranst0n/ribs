@@ -21,20 +21,19 @@ class Cookie {
     RequestCookie? cookieH,
     RequestCookie? cookieI,
     RequestCookie? cookieJ,
-  ]) =>
-      Header(
-        name,
-        ilist([
-          cookieA,
-          cookieB,
-          cookieC,
-          cookieD,
-          cookieE,
-          cookieF,
-          cookieG,
-          cookieH,
-          cookieI,
-          cookieJ,
-        ]).noNulls().map((a) => a.toString()).mkString(sep: ', '),
-      );
+  ]) => Header(
+    name,
+    ilist([
+      cookieA,
+      cookieB,
+      cookieC,
+      cookieD,
+      cookieE,
+      cookieF,
+      cookieG,
+      cookieH,
+      cookieI,
+      cookieJ,
+    ]).noNulls().map((a) => a.toString()).mkString(sep: ', '),
+  );
 }

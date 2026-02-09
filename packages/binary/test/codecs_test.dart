@@ -78,11 +78,17 @@ void main() {
       Codec.cstring,
     );
 
-    testCodec('listOfN', Gen.listOfN(100, Gen.chooseInt(-100, 100)),
-        Codec.listOfN(Codec.int8, Codec.int32));
+    testCodec(
+      'listOfN',
+      Gen.listOfN(100, Gen.chooseInt(-100, 100)),
+      Codec.listOfN(Codec.int8, Codec.int32),
+    );
 
-    testCodec('ilistOfN', Gen.ilistOfN(100, Gen.chooseInt(-100, 100)),
-        Codec.ilistOfN(Codec.int8, Codec.int32));
+    testCodec(
+      'ilistOfN',
+      Gen.ilistOfN(100, Gen.chooseInt(-100, 100)),
+      Codec.ilistOfN(Codec.int8, Codec.int32),
+    );
 
     forAll('peek', Gen.stringOf(Gen.asciiChar), (str) {
       final codec = Codec.peek(Codec.ascii32);
@@ -99,8 +105,11 @@ void main() {
 
     testCodec('option', Gen.option(genInt32), Codec.int32.optional(Codec.boolean));
 
-    testCodec('either', Gen.either(genInt32, Gen.boolean),
-        Codec.either(Codec.boolean, Codec.int32, Codec.boolean));
+    testCodec(
+      'either',
+      Gen.either(genInt32, Gen.boolean),
+      Codec.either(Codec.boolean, Codec.int32, Codec.boolean),
+    );
 
     forAll('byteAligned', Gen.chooseInt(0, 8).map((a) => BitVector.low(a)), (bv) {
       final codec = Codec.byteAligned(Codec.bits);
@@ -165,15 +174,19 @@ Gen<double> genFloat32 = Gen.chooseDouble(-10000000.0, 10000000.0);
 Gen<double> genFloat64 = Gen.chooseDouble(-100000000.0, 100000000.0);
 
 Gen<(int, int)> genIntN(bool signed) => Gen.chooseInt(2, 32).flatMap((bits) {
-      return (
-        Gen.constant(bits),
-        Gen.chooseInt(signed ? -(1 << (bits - 1)) : 0, (1 << (signed ? bits - 1 : bits)) - 1),
-      ).tupled;
-    });
+  return (
+    Gen.constant(bits),
+    Gen.chooseInt(signed ? -(1 << (bits - 1)) : 0, (1 << (signed ? bits - 1 : bits)) - 1),
+  ).tupled;
+});
 
 @isTest
-void testCodec<A>(String description, Gen<A> gen, Codec<A> codec,
-    [Function1<A, Matcher>? customMatcher]) {
+void testCodec<A>(
+  String description,
+  Gen<A> gen,
+  Codec<A> codec, [
+  Function1<A, Matcher>? customMatcher,
+]) {
   forAll(description, gen, (n) {
     final result = codec.encode(n).flatMap((a) => codec.decode(a));
 

@@ -34,9 +34,10 @@ final class ObjectCursor extends HCursor {
       parent.replace(Json.fromJsonObject(obj.remove(keyValue)), this, CursorOp.deleteGoParent);
 
   @override
-  ACursor field(String key) => obj.contains(key)
-      ? ObjectCursor(obj, key, parent, changed, this, CursorOp.field(key))
-      : fail(CursorOp.field(key));
+  ACursor field(String key) =>
+      obj.contains(key)
+          ? ObjectCursor(obj, key, parent, changed, this, CursorOp.field(key))
+          : fail(CursorOp.field(key));
 
   @override
   ACursor left() => fail(CursorOp.moveLeft);
@@ -49,9 +50,10 @@ final class ObjectCursor extends HCursor {
   ACursor right() => fail(CursorOp.moveRight);
 
   @override
-  ACursor up() => changed
-      ? parent.replace(Json.fromJsonObject(obj), this, CursorOp.moveUp)
-      : parent.addOp(this, CursorOp.moveUp);
+  ACursor up() =>
+      changed
+          ? parent.replace(Json.fromJsonObject(obj), this, CursorOp.moveUp)
+          : parent.addOp(this, CursorOp.moveUp);
 
   @override
   String toString() => 'ObjectCursor($pathString, $focus)';

@@ -24,14 +24,13 @@ final class Request extends Message {
     Headers? headers,
     HttpVersion? version,
     EntityBody? body,
-  }) =>
-      Request(
-        method: method ?? this.method,
-        uri: uri ?? this.uri,
-        headers: headers ?? this.headers,
-        version: version ?? this.version,
-        body: body ?? this.body,
-      );
+  }) => Request(
+    method: method ?? this.method,
+    uri: uri ?? this.uri,
+    headers: headers ?? this.headers,
+    version: version ?? this.version,
+    body: body ?? this.body,
+  );
 
   Request withMethod(Method method) => copy(method: method);
   Request withUri(Uri uri) => copy(uri: uri);

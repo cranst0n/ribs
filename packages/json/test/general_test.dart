@@ -22,9 +22,9 @@ void main() {
         Json.arr([
           Json.str('string'),
           Json.obj([
-            ('b', Json.obj([('c', Json.False)]))
-          ])
-        ])
+            ('b', Json.obj([('c', Json.False)])),
+          ]),
+        ]),
       ),
       ('c', Json.True),
     ]);
@@ -37,20 +37,23 @@ void main() {
 
     expect(
       cursor.pathToRoot(),
-      PathToRoot(ilist([
-        PathElem.objectKey('a'),
-        PathElem.arrayIndex(1),
-        PathElem.objectKey('b'),
-        PathElem.objectKey('c'),
-      ])),
+      PathToRoot(
+        ilist([
+          PathElem.objectKey('a'),
+          PathElem.arrayIndex(1),
+          PathElem.objectKey('b'),
+          PathElem.objectKey('c'),
+        ]),
+      ),
     );
 
     expect(cursor.pathString, '.a[1].b.c');
   });
 
   test('Json.cursor B', () {
-    final json = Json.parse('[{"foo": [1, 2,3]}, {"bar": null, "baz": "qux"}]')
-        .getOrElse(() => fail('parse2 failed'));
+    final json = Json.parse(
+      '[{"foo": [1, 2,3]}, {"bar": null, "baz": "qux"}]',
+    ).getOrElse(() => fail('parse2 failed'));
 
     expect(
       json.hcursor.downN(1).focus(),
@@ -69,8 +72,9 @@ void main() {
   });
 
   test('Codec.parse3', () {
-    final json = Json.parse('{"foo": 1, "bar": "hello", "baz": 32}')
-        .getOrElse(() => fail('parse3.parse fail'));
+    final json = Json.parse(
+      '{"foo": 1, "bar": "hello", "baz": 32}',
+    ).getOrElse(() => fail('parse3.parse fail'));
 
     final decoded = Parse3.codec.decode(json);
 
@@ -107,8 +111,9 @@ void main() {
   });
 
   test('Decoder.mapOf', () {
-    final json =
-        Json.parse('{"3": "1", "2": "2", "1": "3"}').getOrElse(() => fail('parse3.map fail'));
+    final json = Json.parse(
+      '{"3": "1", "2": "2", "1": "3"}',
+    ).getOrElse(() => fail('parse3.map fail'));
 
     final decoded = Decoder.mapOf(MapKey.keyDecoder, Decoder.string).decode(json);
 
@@ -124,7 +129,9 @@ void main() {
 
   test('Encoder.mapOf', () {
     final encoder = Encoder.mapOf(
-        KeyEncoder.instance<bool>((a) => a.toString().length.toString()), Encoder.integer);
+      KeyEncoder.instance<bool>((a) => a.toString().length.toString()),
+      Encoder.integer,
+    );
 
     final encoded = encoder.encode({true: 1, false: 2});
 
@@ -150,7 +157,9 @@ void main() {
 
     expect(codec.encode(value), Json.arr([JNumber(1), JBoolean(false)]));
 
-    codec.decode(codec.encode(value)).fold(
+    codec
+        .decode(codec.encode(value))
+        .fold(
           (err) => fail('Codec.tuple failed: $err'),
           (value) => expect(value, value),
         );
@@ -163,8 +172,8 @@ void main() {
 
   test('json.print', () {
     final json = Json.parse(
-            '{"foo": "bar", "baz": [0, 1, 2], "qux": {"aaa": true, "bbb": 3.14, "ccc": "hello world!", "ddd": ["0", "1", "2", "3", "4"] } }')
-        .getOrElse(() => fail('print parse failed.'));
+      '{"foo": "bar", "baz": [0, 1, 2], "qux": {"aaa": true, "bbb": 3.14, "ccc": "hello world!", "ddd": ["0", "1", "2", "3", "4"] } }',
+    ).getOrElse(() => fail('print parse failed.'));
 
     expect(
       Printer.noSpaces.print(json),
@@ -229,11 +238,15 @@ void main() {
   test('Decoder.either', () {
     final json = Json.parse('{"1": 3.14}').getOrElse(() => fail('lal'));
 
-    final eitherNumOrBool =
-        Decoder.mapOf(KeyDecoder.string, Decoder.number.either(Decoder.boolean));
+    final eitherNumOrBool = Decoder.mapOf(
+      KeyDecoder.string,
+      Decoder.number.either(Decoder.boolean),
+    );
 
-    final eitherBoolOrNum =
-        Decoder.mapOf(KeyDecoder.string, Decoder.boolean.either(Decoder.number));
+    final eitherBoolOrNum = Decoder.mapOf(
+      KeyDecoder.string,
+      Decoder.boolean.either(Decoder.number),
+    );
 
     expect(eitherNumOrBool.decode(json).isRight, isTrue);
     expect(eitherBoolOrNum.decode(json).isRight, isTrue);
@@ -245,8 +258,9 @@ class MapKey {
 
   const MapKey(this.k);
 
-  static final KeyDecoder<MapKey> keyDecoder =
-      KeyDecoder.lift((a) => Option(int.tryParse(a)).map(MapKey.new));
+  static final KeyDecoder<MapKey> keyDecoder = KeyDecoder.lift(
+    (a) => Option(int.tryParse(a)).map(MapKey.new),
+  );
 
   @override
   String toString() => 'MK($k)';
