@@ -117,7 +117,7 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   IQueue<A> filterNot(Function1<A, bool> p) => from(super.filterNot(p));
 
   @override
-  IQueue<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) {
+  IQueue<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) {
     var result = empty<B>();
     final it = iterator;
 
@@ -177,7 +177,7 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   int get length => _in.length + _out.length;
 
   @override
-  IQueue<B> map<B>(covariant Function1<A, B> f) => IQueue._(_in.map(f), _out.map(f));
+  IQueue<B> map<B>(Function1<A, B> f) => IQueue._(_in.map(f), _out.map(f));
 
   @override
   IQueue<A> padTo(int len, A elem) => from(super.padTo(len, elem));

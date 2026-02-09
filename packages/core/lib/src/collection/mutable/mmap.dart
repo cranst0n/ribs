@@ -35,7 +35,7 @@ mixin MMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
   void clear();
 
   @override
-  MMap<K, V> concat(covariant RIterableOnce<(K, V)> suffix) => MMap.from(super.concat(suffix));
+  MMap<K, V> concat(RIterableOnce<(K, V)> suffix) => MMap.from(super.concat(suffix));
 
   @override
   MMap<K, V> drop(int n) => MMap.from(super.drop(n));

@@ -41,7 +41,7 @@ final class MHashMap<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K
   }
 
   @override
-  MHashMap<K, V> concat(covariant RIterableOnce<(K, V)> suffix) {
+  MHashMap<K, V> concat(RIterableOnce<(K, V)> suffix) {
     suffix.foreach((elem) => put(elem.$1, elem.$2));
     return this;
   }

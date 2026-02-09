@@ -150,7 +150,7 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
   Resource<A> evalTap<B>(Function1<A, IO<B>> f) => flatMap((a) => Resource.eval(f(a)).as(a));
 
   @override
-  Resource<B> flatMap<B>(covariant Function1<A, Resource<B>> f) => _Bind(this, Fn1(f));
+  Resource<B> flatMap<B>(Function1<A, Resource<B>> f) => _Bind(this, Fn1(f));
 
   /// Intercepts any upstream errors, sequencing in the [Resource] generated
   /// by [f].

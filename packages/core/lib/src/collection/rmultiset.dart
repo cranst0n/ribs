@@ -28,7 +28,7 @@ mixin RMultiSet<A> on RIterableOnce<A>, RIterable<A> {
   );
 
   @override
-  RMultiSet<A> concat(covariant RIterableOnce<A> suffix) => RMultiSet.from(super.concat(suffix));
+  RMultiSet<A> concat(RIterableOnce<A> suffix) => RMultiSet.from(super.concat(suffix));
 
   RMultiSet<A> concatOccurences(RIterable<(A, int)> that) => RMultiSet.fromOccurences(that);
 
@@ -53,8 +53,7 @@ mixin RMultiSet<A> on RIterableOnce<A>, RIterable<A> {
       RMultiSet.fromOccurences(views.Filter(occurrences, p, false));
 
   @override
-  RMultiSet<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) =>
-      RMultiSet.from(super.flatMap(f));
+  RMultiSet<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) => RMultiSet.from(super.flatMap(f));
 
   RMultiSet<B> flatMapOccurences<B>(
     Function1<(A, int), RIterableOnce<(B, int)>> f,
@@ -84,7 +83,7 @@ mixin RMultiSet<A> on RIterableOnce<A>, RIterable<A> {
   RIterator<A> get iterator => occurrences.iterator.flatMap((kv) => views.Fill(kv.$2, kv.$1));
 
   @override
-  RMultiSet<B> map<B>(covariant Function1<A, B> f) => RMultiSet.from(super.map(f));
+  RMultiSet<B> map<B>(Function1<A, B> f) => RMultiSet.from(super.map(f));
 
   RMultiSet<B> mapOccurences<B>(Function1<(A, int), (B, int)> f) =>
       RMultiSet.fromOccurences(views.Map<(A, int), (B, int)>(occurrences, f));

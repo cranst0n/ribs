@@ -33,8 +33,7 @@ final class IMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
   IMultiSet<B> collect<B>(Function1<A, Option<B>> f) => IMultiSet.from(super.collect(f));
 
   @override
-  IMultiSet<A> concat(covariant RIterableOnce<A> suffix) =>
-      IMultiSet.from(iterator.concat(suffix.iterator));
+  IMultiSet<A> concat(RIterableOnce<A> suffix) => IMultiSet.from(iterator.concat(suffix.iterator));
 
   @override
   IMultiSet<A> concatOccurences(RIterable<(A, int)> that) => IMultiSet.fromOccurences(that);
@@ -69,8 +68,7 @@ final class IMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
       IMultiSet.fromOccurences(views.Filter(occurrences, p, false));
 
   @override
-  IMultiSet<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) =>
-      IMultiSet.from(super.flatMap(f));
+  IMultiSet<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) => IMultiSet.from(super.flatMap(f));
 
   @override
   IMultiSet<B> flatMapOccurences<B>(
@@ -99,7 +97,7 @@ final class IMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
   RIterator<IMultiSet<A>> get inits => super.inits.map(IMultiSet.from);
 
   @override
-  IMultiSet<B> map<B>(covariant Function1<A, B> f) => IMultiSet.from(iterator.map(f));
+  IMultiSet<B> map<B>(Function1<A, B> f) => IMultiSet.from(iterator.map(f));
 
   @override
   IMultiSet<B> mapOccurences<B>(Function1<(A, int), (B, int)> f) =>

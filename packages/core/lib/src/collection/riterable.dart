@@ -47,7 +47,7 @@ mixin RIterable<A> on RIterableOnce<A> {
   RIterable<A> filterNot(Function1<A, bool> p) => views.Filter(this, p, true);
 
   @override
-  RIterable<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) => views.FlatMap(this, f);
+  RIterable<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) => views.FlatMap(this, f);
 
   /// {@macro iterable_once_foldLeft}
   A fold(A init, Function2<A, A, A> op) => foldLeft(init, op);
@@ -154,7 +154,7 @@ mixin RIterable<A> on RIterableOnce<A> {
   }
 
   @override
-  RIterable<B> map<B>(covariant Function1<A, B> f) => views.Map(this, f);
+  RIterable<B> map<B>(Function1<A, B> f) => views.Map(this, f);
 
   /// {@template iterable_partition}
   /// Returns 2 collections as a tuple where the first tuple element will be a

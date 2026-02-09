@@ -8,7 +8,7 @@ abstract class KeyDecoder<A> {
 
   Option<A> decode(String key);
 
-  KeyDecoder<B> flatMap<B>(covariant Function1<A, KeyDecoder<B>> f) =>
+  KeyDecoder<B> flatMap<B>(Function1<A, KeyDecoder<B>> f) =>
       KeyDecoder.instance((k) => decode(k).flatMap((a) => f(a).decode(k)));
 
   KeyDecoder<B> map<B>(Function1<A, B> f) => KeyDecoder.instance((k) => decode(k).map(f));

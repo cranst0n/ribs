@@ -27,7 +27,7 @@ abstract mixin class Decoder<A> {
   Decoder<B> map<B>(Function1<A, B> f) =>
       instance<B>((bv) => decode(bv).map((a) => DecodeResult(f(a.value), a.remainder)));
 
-  Decoder<B> flatMap<B>(covariant Function1<A, Decoder<B>> f) =>
+  Decoder<B> flatMap<B>(Function1<A, Decoder<B>> f) =>
       instance((bv) => decode(bv).flatMap((a) => f(a.value).decode(a.remainder)));
 
   Decoder<B> emap<B>(Function1<A, Either<Err, B>> f) => instance(

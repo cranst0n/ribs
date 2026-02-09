@@ -164,7 +164,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   RIterator<ILazyList<A>> combinations(int n) => super.combinations(n).map(ILazyList.from);
 
   @override
-  ILazyList<A> concat(covariant RIterableOnce<A> suffix) => appendedAll(suffix);
+  ILazyList<A> concat(RIterableOnce<A> suffix) => appendedAll(suffix);
 
   @override
   ILazyList<A> diff(RSeq<A> that) {
@@ -320,7 +320,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  ILazyList<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) =>
+  ILazyList<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) =>
       knownIsEmpty ? empty() : _flatMapImpl(this, f);
 
   ILazyList<B> _flatMapImpl<B>(
@@ -500,7 +500,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  ILazyList<B> map<B>(covariant Function1<A, B> f) {
+  ILazyList<B> map<B>(Function1<A, B> f) {
     if (knownIsEmpty) {
       return empty();
     } else {
@@ -508,7 +508,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     }
   }
 
-  ILazyList<B> _mapImpl<B>(covariant Function1<A, B> f) =>
+  ILazyList<B> _mapImpl<B>(Function1<A, B> f) =>
       newLL(() => isEmpty ? _Empty() : sCons(f(head), tail._mapImpl(f)));
 
   @override

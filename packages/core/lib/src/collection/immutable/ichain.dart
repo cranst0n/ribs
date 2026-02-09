@@ -73,7 +73,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       foldLeft(empty<B>(), (acc, elem) => f(elem).fold(() => acc, (a) => acc.appended(a)));
 
   @override
-  IChain<A> concat(covariant RIterableOnce<A> suffix) {
+  IChain<A> concat(RIterableOnce<A> suffix) {
     final thatChain = from(suffix);
 
     return switch (this) {
@@ -114,7 +114,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   IChain<A> filterNot(Function1<A, bool> p) => filter((a) => !p(a));
 
   @override
-  IChain<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) {
+  IChain<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) {
     var result = empty<B>();
     final it = iterator;
 
@@ -230,7 +230,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  IChain<B> map<B>(covariant Function1<A, B> f) {
+  IChain<B> map<B>(Function1<A, B> f) {
     return switch (this) {
       _Wrap(:final seq) => _Wrap(seq.map(f)),
       _ => fromSeq(iterator.map(f).toIVector()),

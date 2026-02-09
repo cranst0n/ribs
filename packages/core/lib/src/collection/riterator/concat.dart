@@ -88,7 +88,7 @@ final class _ConcatIterator<A> extends RIterator<A> {
   }
 
   @override
-  RIterator<A> concat(covariant RIterableOnce<A> that) {
+  RIterator<A> concat(RIterableOnce<A> that) {
     final c = _ConcatIteratorCell(that, null);
 
     if (tailCell == null) {

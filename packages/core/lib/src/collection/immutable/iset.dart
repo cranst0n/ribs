@@ -54,7 +54,7 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
   ISet<B> collect<B>(Function1<A, Option<B>> f) => super.collect(f).toISet();
 
   @override
-  ISet<A> concat(covariant RIterableOnce<A> suffix) {
+  ISet<A> concat(RIterableOnce<A> suffix) {
     var result = this;
     final it = suffix.iterator;
 
@@ -86,7 +86,7 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
   ISet<A> filterNot(Function1<A, bool> p) => super.filterNot(p).toISet();
 
   @override
-  ISet<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) => views.FlatMap(this, f).toISet();
+  ISet<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) => views.FlatMap(this, f).toISet();
 
   @override
   RIterator<ISet<A>> grouped(int size) => super.grouped(size).map((a) => a.toISet());
@@ -111,7 +111,7 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
   ISet<A> intersect(ISet<A> that) => filter(that.contains).toISet();
 
   @override
-  ISet<B> map<B>(covariant Function1<A, B> f) => views.Map(this, f).toISet();
+  ISet<B> map<B>(Function1<A, B> f) => views.Map(this, f).toISet();
 
   @override
   (ISet<A>, ISet<A>) partition(Function1<A, bool> p) {

@@ -41,8 +41,7 @@ mixin IndexedSeq<A> on RIterable<A>, RSeq<A> {
       super.combinations(n).map((a) => a.toIndexedSeq());
 
   @override
-  IndexedSeq<A> concat(covariant RIterableOnce<A> suffix) =>
-      iseqviews.Concat(this, suffix.toIndexedSeq());
+  IndexedSeq<A> concat(RIterableOnce<A> suffix) => iseqviews.Concat(this, suffix.toIndexedSeq());
 
   @override
   IndexedSeq<A> diff(RSeq<A> that) => super.diff(that).toIndexedSeq();
@@ -66,8 +65,7 @@ mixin IndexedSeq<A> on RIterable<A>, RSeq<A> {
   IndexedSeq<A> filterNot(Function1<A, bool> p) => super.filterNot(p).toIndexedSeq();
 
   @override
-  IndexedSeq<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) =>
-      super.flatMap(f).toIndexedSeq();
+  IndexedSeq<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) => super.flatMap(f).toIndexedSeq();
 
   @override
   IMap<K, IndexedSeq<A>> groupBy<K>(Function1<A, K> f) =>

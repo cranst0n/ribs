@@ -144,7 +144,7 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
   }
 
   @override
-  IVector<A> concat(covariant RIterableOnce<A> suffix) => appendedAll(suffix);
+  IVector<A> concat(RIterableOnce<A> suffix) => appendedAll(suffix);
 
   @override
   IVector<B> collect<B>(Function1<A, Option<B>> f) => super.collect(f).toIVector();
@@ -191,7 +191,7 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
   }
 
   @override
-  IVector<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) => super.flatMap(f).toIVector();
+  IVector<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) => super.flatMap(f).toIVector();
 
   @override
   IMap<K, IVector<A>> groupBy<K>(Function1<A, K> f) =>

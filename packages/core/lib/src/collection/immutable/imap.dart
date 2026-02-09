@@ -62,7 +62,7 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
   Function1<A, Option<V>> compose<A>(Function1<A, K> f) => (a) => get(f(a));
 
   @override
-  IMap<K, V> concat(covariant RIterableOnce<(K, V)> suffix) => IMap.from(super.concat(suffix));
+  IMap<K, V> concat(RIterableOnce<(K, V)> suffix) => IMap.from(super.concat(suffix));
 
   @override
   bool contains(K key) => get(key).isDefined;

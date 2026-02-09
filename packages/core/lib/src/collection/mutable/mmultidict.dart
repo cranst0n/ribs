@@ -38,8 +38,7 @@ final class MMultiDict<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMul
   }
 
   @override
-  MMultiDict<K, V> concat(covariant RIterableOnce<(K, V)> suffix) =>
-      MMultiDict.from(super.concat(suffix));
+  MMultiDict<K, V> concat(RIterableOnce<(K, V)> suffix) => MMultiDict.from(super.concat(suffix));
 
   @override
   MMultiDict<K, V> drop(int n) => MMultiDict.from(super.drop(n));

@@ -13,15 +13,14 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
   SyncIO<Either<Object, A>> attempt() => _Attempt(this);
 
   @override
-  SyncIO<B> flatMap<B>(covariant Function1<A, SyncIO<B>> f) => _FlatMap(this, Fn1(f));
+  SyncIO<B> flatMap<B>(Function1<A, SyncIO<B>> f) => _FlatMap(this, Fn1(f));
 
   SyncIO<A> handleError(Function1<Object, A> f) => handleErrorWith((e) => SyncIO.pure(f(e)));
 
-  SyncIO<A> handleErrorWith(covariant Function1<Object, SyncIO<A>> f) =>
-      _HandleErrorWith(this, Fn1(f));
+  SyncIO<A> handleErrorWith(Function1<Object, SyncIO<A>> f) => _HandleErrorWith(this, Fn1(f));
 
   @override
-  SyncIO<B> map<B>(covariant Function1<A, B> f) => _Map(this, Fn1(f));
+  SyncIO<B> map<B>(Function1<A, B> f) => _Map(this, Fn1(f));
 
   SyncIO<A> productL<B>(Function0<SyncIO<B>> that) => flatMap((a) => that().as(a));
 

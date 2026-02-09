@@ -45,7 +45,7 @@ abstract mixin class Decoder<A> {
     (c) => decodeC(c).filterOrElse(p, () => DecodingFailure.fromString(message(), c)),
   );
 
-  Decoder<B> flatMap<B>(covariant Function1<A, Decoder<B>> f) => FlatMapDecoder(this, f);
+  Decoder<B> flatMap<B>(Function1<A, Decoder<B>> f) => FlatMapDecoder(this, f);
 
   Decoder<A> handleError(Function1<DecodingFailure, A> f) =>
       handleErrorWith((err) => Decoder.instance((_) => f(err).asRight()));

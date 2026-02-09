@@ -63,7 +63,7 @@ sealed class Option<A> with RIterableOnce<A> {
   Option<A> filterNot(Function1<A, bool> p) => filter((a) => !p(a));
 
   @override
-  Option<B> flatMap<B>(covariant Function1<A, Option<B>> f) => fold(() => none<B>(), f);
+  Option<B> flatMap<B>(Function1<A, Option<B>> f) => fold(() => none<B>(), f);
 
   /// Returns the value if this is a [Some] or the value returned from
   /// evaluating [ifEmpty].

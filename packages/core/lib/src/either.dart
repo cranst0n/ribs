@@ -84,7 +84,7 @@ sealed class Either<A, B> implements Monad<B> {
   /// Applies [f] to this value is this is a [Right]. If this is a [Left], then
   /// the original value is returned.
   @override
-  Either<A, C> flatMap<C>(covariant Function1<B, Either<A, C>> f) => fold(left<A, C>, f);
+  Either<A, C> flatMap<C>(Function1<B, Either<A, C>> f) => fold(left<A, C>, f);
 
   /// Applies [op] to [init] and this value if this is a [Right]. If this is
   /// a [Left], [init] is returned.

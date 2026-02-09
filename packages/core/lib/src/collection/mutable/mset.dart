@@ -32,7 +32,7 @@ mixin MSet<A> on RIterable<A>, RSet<A> {
   bool add(A elem);
 
   @override
-  MSet<A> concat(covariant RIterableOnce<A> suffix);
+  MSet<A> concat(RIterableOnce<A> suffix);
 
   MSet<A> diff(MSet<A> that) => foldLeft(
     MSet.empty<A>(),

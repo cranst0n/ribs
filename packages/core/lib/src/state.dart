@@ -17,7 +17,7 @@ final class State<S, A> with Functor<A>, Applicative<A>, Monad<A> {
   State<S, B> ap<B>(State<S, Function1<A, B>> f) => flatMap((a) => f.map((f) => f(a)));
 
   @override
-  State<S, B> flatMap<B>(covariant State<S, B> Function(A a) f) =>
+  State<S, B> flatMap<B>(State<S, B> Function(A a) f) =>
       State((s) => _run(s)((s0, b) => f(b)._run(s0)));
 
   @override

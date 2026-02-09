@@ -38,7 +38,7 @@ final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   IHashSet<A> operator -(A a) => excl(a);
 
   @override
-  IHashSet<A> concat(covariant RIterableOnce<A> that) {
+  IHashSet<A> concat(RIterableOnce<A> that) {
     if (that is IHashSet<A>) {
       if (isEmpty) {
         return that;

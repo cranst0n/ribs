@@ -149,7 +149,7 @@ abstract class Range with RIterableOnce<int>, RIterable<int>, RSeq<int>, Indexed
   int get length => _numRangeElements;
 
   @override
-  IndexedSeq<B> map<B>(covariant Function1<int, B> f) {
+  IndexedSeq<B> map<B>(Function1<int, B> f) {
     _validateMaxLength();
     return super.map(f).toIndexedSeq();
   }

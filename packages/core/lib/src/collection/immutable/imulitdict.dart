@@ -37,8 +37,7 @@ final class IMultiDict<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMul
   );
 
   @override
-  IMultiDict<K, V> concat(covariant RIterableOnce<(K, V)> suffix) =>
-      IMultiDict.from(super.concat(suffix));
+  IMultiDict<K, V> concat(RIterableOnce<(K, V)> suffix) => IMultiDict.from(super.concat(suffix));
 
   @override
   IMultiDict<K, V> drop(int n) => IMultiDict.from(super.drop(n));

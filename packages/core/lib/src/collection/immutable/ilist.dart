@@ -141,7 +141,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   RIterator<IList<A>> combinations(int n) => super.combinations(n).map((a) => a.toIList());
 
   @override
-  IList<A> concat(covariant RIterableOnce<A> suffix) => appendedAll(suffix);
+  IList<A> concat(RIterableOnce<A> suffix) => appendedAll(suffix);
 
   @override
   bool contains(A elem) {
@@ -270,7 +270,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  IList<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) {
+  IList<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) {
     var rest = this;
     Cons<B>? h;
     Cons<B>? t;
@@ -402,7 +402,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  IList<B> map<B>(covariant Function1<A, B> f) {
+  IList<B> map<B>(Function1<A, B> f) {
     final nilB = Nil<B>();
 
     if (this is Nil) {

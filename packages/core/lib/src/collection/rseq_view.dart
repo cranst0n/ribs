@@ -24,7 +24,7 @@ mixin SeqView<A> on RIterableOnce<A>, RIterable<A>, RSeq<A>, View<A> {
   RSeq<A> appendedAll(RIterableOnce<A> suffix) => seqview.Concat(this, suffix.toSeq());
 
   @override
-  RSeq<A> concat(covariant RIterableOnce<A> suffix) => seqview.Concat(this, suffix.toSeq());
+  RSeq<A> concat(RIterableOnce<A> suffix) => seqview.Concat(this, suffix.toSeq());
 
   @override
   RSeq<A> drop(int n) => seqview.Drop(this, n);

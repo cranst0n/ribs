@@ -108,7 +108,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   IList<A> dropWhile(Function1<A, bool> p) => toIList().dropWhile(p);
 
   @override
-  NonEmptyIList<B> flatMap<B>(covariant Function1<A, NonEmptyIList<B>> f) =>
+  NonEmptyIList<B> flatMap<B>(Function1<A, NonEmptyIList<B>> f) =>
       f(head).concat(_tail.flatMap((a) => f(a).toIList()));
 
   @override

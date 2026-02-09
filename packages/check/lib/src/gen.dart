@@ -11,7 +11,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
   Gen(this.sample, {this.shrinker});
 
   @override
-  Gen<B> flatMap<B>(covariant Function1<A, Gen<B>> f) => Gen(sample.flatMap((t) => f(t).sample));
+  Gen<B> flatMap<B>(Function1<A, Gen<B>> f) => Gen(sample.flatMap((t) => f(t).sample));
 
   @override
   Gen<B> map<B>(Function1<A, B> f) => flatMap((a) => Gen(sample.map(f)));

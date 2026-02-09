@@ -4,5 +4,5 @@ import 'package:ribs_core/ribs_core.dart';
 /// in an Applicative context.
 mixin Applicative<A> on Functor<A> {
   /// Apply [f] to the value of this [Applicative].
-  Applicative<B> ap<B>(covariant Applicative<Function1<A, B>> f);
+  Applicative<B> ap<B>(Applicative<Function1<A, B>> f);
 }

@@ -89,8 +89,7 @@ final class Array<A> {
 
   int get length => _list.length;
 
-  Array<B> map<B>(covariant Function1<A, B> f) =>
-      Array.tabulate(length, (idx) => f(this[idx] as A));
+  Array<B> map<B>(Function1<A, B> f) => Array.tabulate(length, (idx) => f(this[idx] as A));
 
   bool get nonEmpty => _list.isNotEmpty;
 

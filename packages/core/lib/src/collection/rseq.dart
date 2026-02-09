@@ -317,7 +317,7 @@ mixin RSeq<A> on RIterable<A> {
   Option<A> lift(int ix) => Option.when(() => isDefinedAt(ix), () => this[ix]);
 
   @override
-  RSeq<B> map<B>(covariant Function1<A, B> f) => seqviews.Map(this, f).toSeq();
+  RSeq<B> map<B>(Function1<A, B> f) => seqviews.Map(this, f).toSeq();
 
   /// Returns a new collection with a length of at least [len].
   ///

@@ -19,7 +19,7 @@ mixin View<A> on RIterable<A> {
   RIterable<B> collect<B>(Function1<A, Option<B>> f) => views.Collect(this, f);
 
   @override
-  RIterable<A> concat(covariant RIterableOnce<A> suffix) => views.Concat(this, suffix);
+  RIterable<A> concat(RIterableOnce<A> suffix) => views.Concat(this, suffix);
 
   @override
   RIterable<A> drop(int n) => views.Drop(this, n);
@@ -37,10 +37,10 @@ mixin View<A> on RIterable<A> {
   RIterable<A> filterNot(Function1<A, bool> p) => views.Filter(this, p, true);
 
   @override
-  RIterable<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f) => views.FlatMap(this, f);
+  RIterable<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) => views.FlatMap(this, f);
 
   @override
-  RIterable<B> map<B>(covariant Function1<A, B> f) => views.Map(this, f);
+  RIterable<B> map<B>(Function1<A, B> f) => views.Map(this, f);
 
   @override
   RIterable<B> scanLeft<B>(B z, Function2<B, A, B> op) => views.ScanLeft(this, z, op);

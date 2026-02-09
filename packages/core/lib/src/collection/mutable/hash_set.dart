@@ -48,7 +48,7 @@ final class MHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, MSet<A> {
   }
 
   @override
-  MHashSet<A> concat(covariant RIterableOnce<A> suffix) {
+  MHashSet<A> concat(RIterableOnce<A> suffix) {
     if (suffix is MHashSet<A>) {
       final iter = suffix._nodeIterator;
 
