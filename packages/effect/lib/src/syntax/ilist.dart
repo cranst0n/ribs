@@ -99,3 +99,14 @@ extension IOIListOps<A> on IList<A> {
     ),
   );
 }
+
+extension IListConcurrencyOps<A> on IList<A> {
+  /// Maps [f] over the list in parallel, running at most [n] tasks simultaneously.
+  IO<IList<B>> parTraverseN<B>(int n, IO<B> Function(A) f) {
+    if (n <= 0) throw ArgumentError("Concurrency limit 'n' must be > 0");
+
+    return Semaphore.permits(
+      n,
+    ).flatMap((sem) => parTraverseIO((a) => sem.permit().use((_) => f(a))));
+  }
+}
