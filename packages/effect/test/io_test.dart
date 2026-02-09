@@ -1533,7 +1533,7 @@ void main() {
 
   test('whileM', () {
     final start = DateTime.now();
-    final cond = IO.delay(() => DateTime.now().difference(start).inSeconds < 1);
+    final cond = IO.now.map((now) => now.difference(start).inSeconds < 1);
     final test = IO.pure(1).delayBy(200.milliseconds).whilelM(cond);
 
     expect(test, ioSucceeded(IList.fill(5, 1)));
