@@ -134,7 +134,19 @@ void forAll2<T0, T1>(
   dynamic tags,
   Map<String, dynamic>? onPlatform,
   int? retry,
-}) => forAll(description, (gen0, gen1).tupled, testBody.tupled);
+}) => forAll(
+  description,
+  (gen0, gen1).tupled,
+  testBody.tupled,
+  numTests: numTests,
+  seed: seed,
+  testOn: testOn,
+  timeout: timeout,
+  skip: skip,
+  tags: tags,
+  onPlatform: onPlatform,
+  retry: retry,
+);
 
 @isTest
 void forAll3<T0, T1, T2>(
@@ -151,7 +163,19 @@ void forAll3<T0, T1, T2>(
   dynamic tags,
   Map<String, dynamic>? onPlatform,
   int? retry,
-}) => forAll(description, (gen0, gen1, gen2).tupled, testBody.tupled);
+}) => forAll(
+  description,
+  (gen0, gen1, gen2).tupled,
+  testBody.tupled,
+  numTests: numTests,
+  seed: seed,
+  testOn: testOn,
+  timeout: timeout,
+  skip: skip,
+  tags: tags,
+  onPlatform: onPlatform,
+  retry: retry,
+);
 
 @isTest
 void forAll4<T0, T1, T2, T3>(
@@ -169,7 +193,19 @@ void forAll4<T0, T1, T2, T3>(
   dynamic tags,
   Map<String, dynamic>? onPlatform,
   int? retry,
-}) => forAll(description, (gen0, gen1, gen2, gen3).tupled, testBody.tupled);
+}) => forAll(
+  description,
+  (gen0, gen1, gen2, gen3).tupled,
+  testBody.tupled,
+  numTests: numTests,
+  seed: seed,
+  testOn: testOn,
+  timeout: timeout,
+  skip: skip,
+  tags: tags,
+  onPlatform: onPlatform,
+  retry: retry,
+);
 
 @isTest
 void forAll5<T0, T1, T2, T3, T4>(
@@ -188,4 +224,16 @@ void forAll5<T0, T1, T2, T3, T4>(
   dynamic tags,
   Map<String, dynamic>? onPlatform,
   int? retry,
-}) => forAll(description, (gen0, gen1, gen2, gen3, gen4).tupled, testBody.tupled);
+}) => forAll(
+  description,
+  (gen0, gen1, gen2, gen3, gen4).tupled,
+  testBody.tupled,
+  numTests: numTests,
+  seed: seed,
+  testOn: testOn,
+  timeout: timeout,
+  skip: skip,
+  tags: tags,
+  onPlatform: onPlatform,
+  retry: retry,
+);
