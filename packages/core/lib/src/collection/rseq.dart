@@ -184,31 +184,33 @@ mixin RSeq<A> on RIterable<A> {
     if (that.isEmpty && from == 0) {
       return const Some(0);
     } else {
-      final l = knownSize;
-      final tl = that.knownSize;
+      // TODO: Bug in kmpSeach somewhere, surfaces with Chunk with knownSizes 3,1
 
-      if (l >= 0 && tl >= 0) {
-        final clippedFrom = max(0, from);
-        if (from > l) {
-          return none();
-        } else if (tl < 1) {
-          return Some(clippedFrom);
-        } else if (l < tl) {
-          return none();
-        } else {
-          return _kmpSearch(this, clippedFrom, l, that, 0, tl, true);
-        }
-      } else {
-        var i = from;
-        var s = drop(i);
-        while (s.nonEmpty) {
-          if (s.startsWith(that)) return Some(i);
+      // final l = knownSize;
+      // final tl = that.knownSize;
 
-          i += 1;
-          s = s.tail;
-        }
-        return none();
+      // if (l >= 0 && tl >= 0) {
+      //   final clippedFrom = max(0, from);
+      //   if (from > l) {
+      //     return none();
+      //   } else if (tl < 1) {
+      //     return Some(clippedFrom);
+      //   } else if (l < tl) {
+      //     return none();
+      //   } else {
+      //     return _kmpSearch(this, clippedFrom, l, that, 0, tl, true);
+      //   }
+      // } else {
+      var i = from;
+      var s = drop(i);
+      while (s.nonEmpty) {
+        if (s.startsWith(that)) return Some(i);
+
+        i += 1;
+        s = s.tail;
       }
+      return none();
+      // }
     }
   }
 
