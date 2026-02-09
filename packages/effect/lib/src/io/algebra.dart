@@ -1,33 +1,5 @@
 part of '../io.dart';
 
-final class _Pure<A> extends IO<A> {
-  final A value;
-
-  const _Pure(this.value);
-
-  @override
-  String toString() => 'Pure($value)';
-}
-
-final class _Error<A> extends IO<A> {
-  final Object error;
-  final StackTrace? stackTrace;
-
-  const _Error(this.error, [this.stackTrace]);
-
-  @override
-  String toString() => 'Error($error)';
-}
-
-final class _Delay<A> extends IO<A> {
-  final Fn0<A> thunk;
-
-  const _Delay(this.thunk);
-
-  @override
-  String toString() => 'Delay($thunk)';
-}
-
 final class _Async<A> extends IO<A> {
   final AsyncBodyWithFin<A> body;
 
@@ -48,26 +20,6 @@ final class _AsyncGet<A> extends IO<A> {
   String toString() => 'AsyncGet($value)';
 }
 
-final class _Map<A, B> extends IO<B> {
-  final IO<A> ioa;
-  final Fn1<A, B> f;
-
-  const _Map(this.ioa, this.f);
-
-  @override
-  String toString() => 'Map($ioa, $f)';
-}
-
-final class _FlatMap<A, B> extends IO<B> {
-  final IO<A> ioa;
-  final Fn1<A, IO<B>> f;
-
-  const _FlatMap(this.ioa, this.f);
-
-  @override
-  String toString() => 'FlatMap($ioa, $f)';
-}
-
 final class _Attempt<A> extends IO<Either<Object, A>> {
   final IO<A> ioa;
 
@@ -80,20 +32,11 @@ final class _Attempt<A> extends IO<Either<Object, A>> {
   String toString() => 'Attempt($ioa)';
 }
 
-final class _Now extends IO<DateTime> {
-  const _Now();
+final class _Canceled extends IO<Unit> {
+  const _Canceled();
 
   @override
-  String toString() => '_Now';
-}
-
-final class _Sleep extends IO<Unit> {
-  final Duration duration;
-
-  const _Sleep(this.duration);
-
-  @override
-  String toString() => 'Sleep($duration)';
+  String toString() => 'Canceled';
 }
 
 final class _Cede extends IO<Unit> {
@@ -103,15 +46,40 @@ final class _Cede extends IO<Unit> {
   String toString() => 'Cede';
 }
 
-final class _Start<A> extends IO<IOFiber<A>> {
-  final IO<A> ioa;
+final class _Delay<A> extends IO<A> {
+  final Fn0<A> thunk;
 
-  const _Start(this.ioa);
-
-  IOFiber<A> createFiber(IORuntime runtime) => IOFiber(ioa, runtime: runtime);
+  const _Delay(this.thunk);
 
   @override
-  String toString() => 'Start($ioa)';
+  String toString() => 'Delay($thunk)';
+}
+
+final class _EndFiber extends IO<dynamic> {
+  const _EndFiber();
+
+  @override
+  String toString() => 'EndFiber';
+}
+
+final class _Error<A> extends IO<A> {
+  final Object error;
+  final StackTrace? stackTrace;
+
+  const _Error(this.error, [this.stackTrace]);
+
+  @override
+  String toString() => 'Error($error)';
+}
+
+final class _FlatMap<A, B> extends IO<B> {
+  final IO<A> ioa;
+  final Fn1<A, IO<B>> f;
+
+  const _FlatMap(this.ioa, this.f);
+
+  @override
+  String toString() => 'FlatMap($ioa, $f)';
 }
 
 final class _HandleErrorWith<A> extends IO<A> {
@@ -124,6 +92,23 @@ final class _HandleErrorWith<A> extends IO<A> {
   String toString() => 'HandleErrorWith($ioa, $f)';
 }
 
+final class _Map<A, B> extends IO<B> {
+  final IO<A> ioa;
+  final Fn1<A, B> f;
+
+  const _Map(this.ioa, this.f);
+
+  @override
+  String toString() => 'Map($ioa, $f)';
+}
+
+final class _Now extends IO<DateTime> {
+  const _Now();
+
+  @override
+  String toString() => 'Now';
+}
+
 final class _OnCancel<A> extends IO<A> {
   final IO<A> ioa;
   final IO<Unit> fin;
@@ -134,11 +119,13 @@ final class _OnCancel<A> extends IO<A> {
   String toString() => 'OnCancel($ioa, $fin)';
 }
 
-final class _Canceled extends IO<Unit> {
-  const _Canceled();
+final class _Pure<A> extends IO<A> {
+  final A value;
+
+  const _Pure(this.value);
 
   @override
-  String toString() => 'Canceled';
+  String toString() => 'Pure($value)';
 }
 
 final class _RacePair<A, B> extends IO<RacePairOutcome<A, B>> {
@@ -164,6 +151,39 @@ final class _RacePair<A, B> extends IO<RacePairOutcome<A, B>> {
   String toString() => 'RacePair<$A, $B>($ioa, $iob)';
 }
 
+final class _Sleep extends IO<Unit> {
+  final Duration duration;
+
+  const _Sleep(this.duration);
+
+  @override
+  String toString() => 'Sleep($duration)';
+}
+
+final class _Start<A> extends IO<IOFiber<A>> {
+  final IO<A> ioa;
+
+  const _Start(this.ioa);
+
+  IOFiber<A> createFiber(IORuntime runtime) => IOFiber(ioa, runtime: runtime);
+
+  @override
+  String toString() => 'Start($ioa)';
+}
+
+final class _Traced<A> extends IO<A> {
+  final IO<A> ioa;
+  final String label;
+  final StackTrace? location;
+
+  final int? depth;
+
+  _Traced(this.ioa, this.label, [this.depth]) : location = StackTrace.current;
+
+  @override
+  String toString() => 'Traced($label)';
+}
+
 final class _Uncancelable<A> extends IO<A> {
   final Function1<Poll, IO<A>> body;
 
@@ -182,24 +202,4 @@ final class _UnmaskRunLoop<A> extends IO<A> {
 
   @override
   String toString() => 'UnmaskRunLoop<$A>($ioa, $id)';
-}
-
-final class _EndFiber extends IO<dynamic> {
-  const _EndFiber();
-
-  @override
-  String toString() => 'EndFiber';
-}
-
-final class _Traced<A> extends IO<A> {
-  final IO<A> ioa;
-  final String label;
-  final StackTrace? location;
-
-  final int? depth;
-
-  _Traced(this.ioa, this.label, [this.depth]) : location = StackTrace.current;
-
-  @override
-  String toString() => 'Traced($label)';
 }

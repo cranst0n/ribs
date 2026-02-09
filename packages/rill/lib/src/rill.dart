@@ -9,20 +9,6 @@ part 'compiler.dart';
 part 'pull.dart';
 part 'to_pull.dart';
 
-// TODO:
-// [ ] Add to Rill:
-//   [ ] Rill.resource
-//   [ ] parZip (?)
-// [-] Comprehensive unit tests
-// [ ] Fiber Dumps
-// [ ] Re-implement Resource
-// [ ] Investigate None extends Option<Never>
-// [ ] Implement SignallingRef
-// [ ] Create ribs_db as generic ribs_sqlite
-//   [ ] ConnectionIO
-//   [ ] transactions
-//   [ ] generic database support
-
 typedef Pipe<I, O> = Function1<Rill<I>, Rill<O>>;
 
 class Rill<O> {
