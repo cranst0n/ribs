@@ -1,7 +1,9 @@
-export 'src/composite_error.dart';
-export 'src/interrupt_context.dart';
-export 'src/lease.dart';
-export 'src/pull.dart';
+export 'src/channel.dart';
+export 'src/chunk.dart';
+export 'src/extensions/boolean.dart';
+export 'src/extensions/chunk.dart';
+export 'src/extensions/option.dart';
+export 'src/extensions/par_join.dart';
+export 'src/extensions/rethrow.dart';
+export 'src/extensions/to_stream.dart';
 export 'src/rill.dart';
-export 'src/scope.dart';
-export 'src/scoped_resource.dart';

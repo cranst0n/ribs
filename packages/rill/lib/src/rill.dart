@@ -1,355 +1,1550 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
-final class Rill<O> {
-  final Pull<O, Unit> _underlying;
+part 'compiler.dart';
+part 'pull.dart';
+part 'to_pull.dart';
 
-  Rill(this._underlying);
+// TODO:
+// [ ] Add to Rill:
+//   [ ] Rill.resource
+//   [ ] parZip (?)
+// [-] Comprehensive unit tests
+// [ ] Fiber Dumps
+// [ ] Re-implement Resource
+// [ ] Investigate None extends Option<Never>
+// [ ] Implement SignallingRef
+// [ ] Create ribs_db as generic ribs_sqlite
+//   [ ] ConnectionIO
+//   [ ] transactions
+//   [ ] generic database support
 
-  static Rill<O> chunk<O>(IList<O> os) => Pull.output(os).rillNoScope();
+typedef Pipe<I, O> = Function1<Rill<I>, Rill<O>>;
 
-  static Rill<O> emit<O>(O o) => Pull.output1(o).rillNoScope();
+class Rill<O> {
+  final Pull<O, Unit> underlying;
 
-  static Rill<O> emits<O>(IList<O> os) => Pull.output(os).rillNoScope();
+  Rill(this.underlying);
 
-  static Rill<O> empty<O>() => Pull.done().rillNoScope();
+  static Rill<Duration> awakeEvery(Duration period, {bool dampen = true}) {
+    return Rill.eval(IO.now).flatMap((start) {
+      return _fixedRate(
+        period,
+        start,
+        dampen,
+      ).flatMap((_) => Rill.eval(IO.now.map((now) => now.difference(start))));
+    });
+  }
 
-  static Rill<O> eval<O>(IO<O> io) => Pull.eval(io).flatMap((a) => Pull.output1(a)).rillNoScope();
+  static Rill<R> bracket<R>(IO<R> acquire, Function1<R, IO<Unit>> release) =>
+      bracketFull((_) => acquire, (r, _) => release(r));
 
-  static Rill<O> raiseError<O>(RuntimeException err) => Pull.raiseError(err).rillNoScope();
+  static Rill<R> bracketCase<R>(IO<R> acquire, Function2<R, ExitCase, IO<Unit>> release) =>
+      bracketFull((_) => acquire, release);
+
+  static Rill<R> bracketFull<R>(
+    Function1<Poll, IO<R>> acquire,
+    Function2<R, ExitCase, IO<Unit>> release,
+  ) {
+    return Rill.eval(IO.uncancelable((poll) => acquire(poll))).flatMap((r) {
+      return Rill.pure(r).onFinalizeCase((ec) => release(r, ec));
+    });
+  }
+
+  static Rill<O> constant<O>(O o, {int chunkSize = 256}) =>
+      chunkSize > 0 ? emits(Chunk.fill(chunkSize, o)).repeat() : Rill.empty();
+
+  static Rill<Duration> duration() =>
+      Rill.eval(IO.now).flatMap((t0) => Rill.repeatEval(IO.now.map((now) => now.difference(t0))));
+
+  static Rill<O> emit<O>(O value) => Rill(Pull.output1(value));
+
+  static Rill<O> emits<O>(Chunk<O> values) =>
+      values.nonEmpty ? Rill(Pull.output(values)) : Rill.empty();
+
+  static Rill<O> eval<O>(IO<O> io) => Pull.eval(io).flatMap(Pull.output1).rill;
+
+  static Rill<O> exec<O>(IO<Unit> io) => Rill(Pull.eval(io).flatMap((_) => Pull.done));
+
+  static Rill<O> empty<O>() => Rill(Pull.done);
+
+  static Rill<Unit> fixedDelay(Duration period) => sleep(period).repeat();
+
+  static Rill<Unit> fixedRate(Duration period, {bool dampen = true}) =>
+      Rill.eval(IO.now).flatMap((t) => _fixedRate(period, t, dampen));
+
+  static Rill<Unit> fixedRateStartImmediately(Duration period, {bool dampen = true}) =>
+      Rill.eval(IO.now).flatMap((t) => Rill.unit.append(() => _fixedRate(period, t, dampen)));
+
+  static Rill<Unit> _fixedRate(
+    Duration period,
+    DateTime lastAwakeAt,
+    bool dampen,
+  ) {
+    if (period.inMicroseconds == 0) {
+      return Rill.unit.repeat();
+    } else {
+      return Rill.eval(IO.now).flatMap((now) {
+        final next = lastAwakeAt.add(period);
+
+        if (next.isAfter(now)) {
+          return Rill.sleep(next.difference(now)).append(() => _fixedRate(period, next, dampen));
+        } else {
+          final ticks =
+              (now.microsecondsSinceEpoch - lastAwakeAt.microsecondsSinceEpoch - 1) ~/
+              period.inMicroseconds;
+
+          final Rill<Unit> step = switch (ticks) {
+            final count when count < 0 => Rill.empty(),
+            final count when count == 0 || dampen => Rill.unit,
+            final count => Rill.unit.repeatN(count),
+          };
+
+          return step.append(() => _fixedRate(period, lastAwakeAt.add(period * ticks), dampen));
+        }
+      });
+    }
+  }
+
+  static Rill<O> force<O>(IO<Rill<O>> io) => Rill.eval(io).flatMap(identity);
+
+  static Rill<O> fromEither<E extends Object, O>(Either<E, O> either) =>
+      either.fold((err) => Rill.raiseError(err), (o) => Rill.emit(o));
+
+  static Rill<O> fromOption<E extends Object, O>(Option<O> option) =>
+      option.fold(() => Rill.empty(), (o) => Rill.emit(o));
+
+  static Rill<O> fromStream<O>(Stream<O> stream) {
+    return Rill.eval(Queue.unbounded<Either<Object, Option<O>>>()).flatMap((queue) {
+      Rill<O> consumeStreamQueue() {
+        return Rill.eval(queue.take()).flatMap((event) {
+          return event.fold(
+            (err) => Rill.raiseError(err),
+            (opt) => opt.fold(
+              () => Rill.empty(),
+              (o) => Rill.emit(o).append(() => consumeStreamQueue()),
+            ),
+          );
+        });
+      }
+
+      final acquire = IO.delay(() {
+        return stream.listen(
+          (data) => queue.offer(Right(Some(data))).unsafeRunAndForget(),
+          onError: (Object err) => queue.offer(Left(err)).unsafeRunAndForget(),
+          onDone: () => queue.offer(Right(none())).unsafeRunAndForget(),
+          cancelOnError: false, // handle manually
+        );
+      });
+
+      IO<Unit> release(StreamSubscription<O> sub) => IO.fromFutureF(() => sub.cancel()).voided();
+
+      return Rill.bracket(acquire, release).flatMap((_) => consumeStreamQueue());
+    });
+  }
+
+  static Rill<O> iterate<O>(O start, Function1<O, O> f) =>
+      Rill.emit(start).append(() => iterate(f(start), f));
+
+  static Rill<O> iterateEval<O>(O start, Function1<O, IO<O>> f) =>
+      Rill.emit(start).append(() => Rill.eval(f(start)).flatMap((o) => iterateEval(o, f)));
+
+  static final Rill<Never> never = Rill.eval(IO.never());
+
+  static Rill<O> pure<O>(O value) => Rill(Pull.output1(value));
+
+  static Rill<O> raiseError<O>(Object error, [StackTrace? stackTrace]) =>
+      Pull.raiseError(error, stackTrace).rill;
 
   static Rill<int> range(int start, int stopExclusive, {int step = 1}) {
-    Rill<int> go(int o) {
-      if ((step > 0 && o < stopExclusive && start < stopExclusive) ||
-          (step < 0 && o > stopExclusive && start > stopExclusive)) {
-        return Rill.emit(o).append(() => go(o + step));
+    Rill<int> go(int n) {
+      if ((step > 0 && n < stopExclusive && start < stopExclusive) ||
+          (step < 0 && n > stopExclusive && start > stopExclusive)) {
+        return emit(n).append(() => go(n + step));
       } else {
-        return Rill.empty();
+        return empty();
       }
     }
 
     return go(start);
   }
 
-  Rill<O> append(Function0<Rill<O>> that) =>
-      _underlying.append(() => that()._underlying).rillNoScope();
+  static Rill<O> repeatEval<O>(IO<O> fo) => Rill.eval(fo).repeat();
 
-  RillCompiled<O> compile() => RillCompiled(_underlying);
+  static Rill<O> retry<O>(
+    IO<O> fo,
+    Duration delay,
+    Function1<Duration, Duration> nextDelay,
+    int maxAttempts, {
+    Function1<Object, bool>? retriable,
+  }) {
+    final delays = Rill.unfold(delay, (d) => Some((d, nextDelay(d))));
+    final canRetry = retriable ?? (_) => true;
 
-  Rill<O> cons(IList<O> l) => l.isEmpty ? this : Rill.chunk(l).append(() => this);
+    return Rill.eval(fo)
+        .attempts(delays)
+        .take(maxAttempts)
+        .takeThrough((r) => r.fold((err) => canRetry(err), (_) => false))
+        .last
+        .unNone
+        .rethrowError;
+  }
 
-  Rill<Never> drain() => _underlying.unconsFlatMap((_) => Pull.done()).rill();
+  static Rill<Unit> sleep(Duration duration) => Rill.eval(IO.sleep(duration));
+
+  static Rill<O> sleep_<O>(Duration duration) => Rill.exec(IO.sleep(duration));
+
+  static Rill<IOFiber<O>> supervise<O>(IO<O> fo) =>
+      Rill.bracket(fo.start(), (fiber) => fiber.cancel());
+
+  static Rill<O> suspend<O>(Function0<Rill<O>> f) => Pull.suspend(() => f().underlying).rill;
+
+  static Rill<O> unfold<S, O>(S s, Function1<S, Option<(O, S)>> f) {
+    Rill<O> go(S s) {
+      return f(s).foldN(
+        () => Rill.empty(),
+        (o, s) => emit(o).append(() => go(s)),
+      );
+    }
+
+    return suspend(() => go(s));
+  }
+
+  static final Rill<Unit> unit = Pull.outUnit.rill;
+
+  Rill<O> operator +(Rill<O> other) => Rill(underlying.flatMap((_) => other.underlying));
+
+  Rill<O> andWait(Duration duration) => append(() => Rill.sleep_<O>(duration));
+
+  Rill<O> append(Function0<Rill<O>> s2) => underlying.append(() => s2().underlying).rill;
+
+  Rill<O2> as<O2>(O2 o2) => map((_) => o2);
+
+  Rill<Either<Object, O>> attempt() =>
+      map((o) => o.asRight<Object>()).handleErrorWith((err) => Rill.emit(Left(err)));
+
+  Rill<Either<Object, O>> attempts(Rill<Duration> delays) => attempt().append(
+    () => delays.flatMap((delay) => Rill.sleep(delay).flatMap((_) => attempt())),
+  );
+
+  Rill<O> buffer(int n) {
+    if (n <= 0) {
+      return this;
+    } else {
+      return repeatPull((tp) {
+        return tp.unconsN(n, allowFewer: true).flatMap((hdtl) {
+          return hdtl.foldN(
+            () => Pull.pure(none()),
+            (hd, tl) => Pull.output(hd).as(Some(tl)),
+          );
+        });
+      });
+    }
+  }
+
+  Rill<O> changes() => filterWithPrevious((a, b) => a != b);
+
+  Rill<O> changesBy<O2>(Function1<O, O2> f) => filterWithPrevious((a, b) => f(a) != f(b));
+
+  Rill<O> changesWith(Function2<O, O, bool> f) => filterWithPrevious((a, b) => f(a, b));
+
+  Rill<Chunk<O>> chunkAll() {
+    Pull<Chunk<O>, Unit> loop(Rill<O> s, Chunk<O> acc) {
+      return s.pull.uncons.flatMap((hdtl) {
+        return hdtl.foldN(
+          () => Pull.output1(acc),
+          (hd, tl) => loop(tl, acc.concat(hd)),
+        );
+      });
+    }
+
+    return loop(this, Chunk.empty()).rill;
+  }
+
+  Rill<Chunk<O>> chunks() => underlying.unconsFlatMap(Pull.output1).rill;
+
+  Rill<Chunk<O>> chunkLimit(int n) {
+    Pull<Chunk<O>, Unit> breakup(Chunk<O> ch) {
+      if (ch.size <= n) {
+        return Pull.output1(ch);
+      } else {
+        final (pre, rest) = ch.splitAt(n);
+        return Pull.output1(pre).append(() => breakup(rest));
+      }
+    }
+
+    return underlying.unconsFlatMap(breakup).rill;
+  }
+
+  Rill<Chunk<O>> chunkMin(int n, {bool allowFewerTotal = true}) => repeatPull((p) {
+    return p.unconsMin(n, allowFewerTotal: allowFewerTotal).flatMap((hdtl) {
+      return hdtl.foldN(
+        () => Pull.pure(none()),
+        (hd, tl) => Pull.output1(hd).as(Some(tl)),
+      );
+    });
+  });
+
+  Rill<Chunk<O>> chunkN(int n, {bool allowFewer = true}) => repeatPull((tp) {
+    return tp.unconsN(n, allowFewer: allowFewer).flatMap((hdtl) {
+      return hdtl.foldN(
+        () => Pull.pure(none()),
+        (hd, tl) => Pull.output1(hd).as(Some(tl)),
+      );
+    });
+  });
+
+  Rill<O> concurrently<O2>(Rill<O2> that) {
+    final daemon = that.drain().flatMap((_) => Rill.never);
+    return mergeHaltBoth(daemon);
+  }
+
+  Rill<O> cons(Chunk<O> c) => c.isEmpty ? this : Rill.emits(c).append(() => this);
+
+  Rill<O2> collect<O2>(Function1<O, Option<O2>> f) => mapChunks((c) => c.collect(f));
+
+  Rill<O2> collectFirst<O2>(Function1<O, Option<O2>> f) => collect(f).take(1);
+
+  Rill<O2> collectWhile<O2>(Function1<O, Option<O2>> f) =>
+      map(f).takeWhile((b) => b.isDefined).unNone;
+
+  Rill<O> debounce(Duration d) => switchMap((o) => Rill.sleep(d).as(o));
+
+  Rill<O> delayBy(Duration duration) => Rill.sleep_<O>(duration).append(() => this);
+
+  Rill<O> delete(Function1<O, bool> p) =>
+      pull
+          .takeWhile((o) => !p(o))
+          .flatMap((r) => r.fold(() => Pull.done, (s) => s.drop(1).pull.echo))
+          .rill;
+
+  /// WARN: For long streams and/or large elements, this can be a memory hog.
+  ///   Use with caution;
+  Rill<O> get distinct {
+    return scanChunksOpt(ISet.empty<O>(), (seen) {
+      return Some((chunk) {
+        return (seen.concat(chunk), chunk);
+      });
+    });
+  }
+
+  Rill<Never> drain() => underlying.unconsFlatMap((_) => Pull.done).rill;
 
   Rill<O> drop(int n) =>
-      pull().drop(n).flatMap((tl) => tl.fold(() => Pull.done(), (tl) => tl.pull().echo())).rill();
+      Rill(pull.drop(n).flatMap((opt) => opt.fold(() => Pull.done, (rest) => rest.pull.echo)));
+
+  Rill<O> get dropLast => dropLastIf((_) => true);
+
+  Rill<O> dropLastIf(Function1<O, bool> p) {
+    Pull<O, Unit> go(Chunk<O> last, Rill<O> s) {
+      return s.pull.uncons.flatMap((hdtl) {
+        return hdtl.foldN(
+          () {
+            final o = last[last.size - 1];
+
+            if (p(o)) {
+              final (prefix, _) = last.splitAt(last.size - 1);
+              return Pull.output(prefix);
+            } else {
+              return Pull.output(last);
+            }
+          },
+          (hd, tl) => Pull.output(last).append(() => go(hd, tl)),
+        );
+      });
+    }
+
+    return pull.uncons.flatMap((hdtl) {
+      return hdtl.foldN(
+        () => Pull.done,
+        (hd, tl) => go(hd, tl),
+      );
+    }).rill;
+  }
+
+  Rill<O> dropRight(int n) {
+    if (n <= 0) {
+      return this;
+    } else {
+      Pull<O, Unit> go(Chunk<O> acc, Rill<O> s) {
+        return s.pull.uncons.flatMap((hdtl) {
+          return hdtl.foldN(
+            () => Pull.done,
+            (hd, tl) {
+              final all = acc.concat(hd);
+              return Pull.output(all.dropRight(n)).append(() => go(all.takeRight(n), tl));
+            },
+          );
+        });
+      }
+
+      return go(Chunk.empty(), this).rill;
+    }
+  }
 
   Rill<O> dropThrough(Function1<O, bool> p) =>
-      pull()
+      pull
           .dropThrough(p)
-          .flatMap((a) => a.fold(() => Pull.done(), (a) => a.pull().echo()))
-          .rill();
+          .flatMap((tl) => tl.map((tl) => tl.pull.echo).getOrElse(() => Pull.done))
+          .rill;
 
   Rill<O> dropWhile(Function1<O, bool> p) =>
-      pull().dropWhile(p).flatMap((a) => a.fold(() => Pull.done(), (a) => a.pull().echo())).rill();
+      pull
+          .dropWhile(p)
+          .flatMap((tl) => tl.map((tl) => tl.pull.echo).getOrElse(() => Pull.done))
+          .rill;
 
-  Rill<O2> evalMap<O2>(Function1<O, IO<O2>> f) =>
-      _underlying.flatMapOutput((o) => Pull.eval(f(o)).flatMap(Pull.output1)).rillNoScope();
+  Rill<Either<O, O2>> either<O2>(Rill<O2> that) =>
+      map((o) => o.asLeft<O2>()).merge(that.map((o2) => o2.asRight<O>()));
 
-  Rill<O> evalTap<O2>(Function1<O, IO<O2>> f) => evalMap((o) => f(o).as(o));
+  Rill<O> evalFilter(Function1<O, IO<bool>> p) =>
+      flatMap((o) => Rill.eval(p(o)).ifM(() => Rill.emit(o), () => Rill.empty()));
+
+  Rill<O> evalFilterNot(Function1<O, IO<bool>> p) =>
+      flatMap((o) => Rill.eval(p(o)).ifM(() => Rill.empty(), () => Rill.emit(o)));
+
+  Rill<O2> evalFold<O2>(O2 z, Function2<O2, O, IO<O2>> f) {
+    Pull<O2, Unit> go(O2 z, Rill<O> r) {
+      return r.pull.uncons1.flatMap((hdtl) {
+        return hdtl.foldN(
+          () => Pull.output1(z),
+          (hd, tl) => Pull.eval(f(z, hd)).flatMap((ns) => go(ns, tl)),
+        );
+      });
+    }
+
+    return go(z, this).rill;
+  }
+
+  Rill<O2> evalMap<O2>(Function1<O, IO<O2>> f) => flatMap((o) => Rill.eval(f(o)));
+
+  Rill<O> evalMapFilter(Function1<O, IO<Option<O>>> f) =>
+      underlying
+          .flatMapOutput((o) => Pull.eval(f(o)).flatMap((opt) => Pull.outputOption1(opt)))
+          .rill;
+
+  Rill<O2> evalScan<O2>(O2 z, Function2<O2, O, IO<O2>> f) {
+    Pull<O2, Unit> go(O2 z, Rill<O> s) {
+      return s.pull.uncons1.flatMap((hdtl) {
+        return hdtl.foldN(
+          () => Pull.done,
+          (hd, tl) => Pull.eval(f(z, hd)).flatMap((o) => Pull.output1(o).append(() => go(o, tl))),
+        );
+      });
+    }
+
+    return Pull.output1(z).append(() => go(z, this)).rill;
+  }
+
+  Rill<O> evalTap<O2>(Function1<O, IO<O2>> f) =>
+      underlying.flatMapOutput((o) => Pull.eval(f(o)).flatMap((_) => Pull.output1(o))).rill;
 
   Rill<bool> exists(Function1<O, bool> p) =>
-      pull().forall((a) => !p(a)).flatMap((r) => Pull.output1(!r)).rill();
-
-  Rill<O> find(Function1<O, bool> f) =>
-      pull().find(f).flatMap((a) => a.fold(() => Pull.done(), (a) => Pull.output1(a.$1))).rill();
+      pull.forall((o) => !p(o)).flatMap((r) => Pull.output1(!r)).rill;
 
   Rill<O> filter(Function1<O, bool> p) => mapChunks((c) => c.filter(p));
 
-  Rill<O> filterWithPrevious(Function2<O, O, bool> f) {
+  Rill<O> filterNot(Function1<O, bool> p) => mapChunks((c) => c.filterNot(p));
+
+  Rill<O> filterWithPrevious(Function2<O, O, bool> p) {
     Pull<O, Unit> go(O last, Rill<O> s) {
-      return s.pull().uncons().flatMap(
-        (a) => a.fold(
-          () => Pull.done(),
-          (a) => a((hd, tl) {
-            final (allPass, newLast) = hd.foldLeft<(bool, O)>((true, last), (accLast, o) {
-              final (acc, last) = accLast;
-              return (acc && f(last, o), o);
-            });
+      return s.pull.uncons.flatMap((hdtl) {
+        return hdtl.foldN(
+          () => Pull.done,
+          (hd, tl) {
+            // can it be emitted unmodified?
+            final (allPass, newLast) = hd.foldLeft((
+              true,
+              last,
+            ), (acc, a) => (acc.$1 && p(acc.$2, a), a));
 
             if (allPass) {
               return Pull.output(hd).append(() => go(newLast, tl));
             } else {
-              final (acc, newLast) = hd.foldLeft<(IList<O>, O)>((IList.empty<O>(), last), (
-                accLast,
-                o,
-              ) {
-                final (acc, last) = accLast;
-
-                if (f(last, o)) {
-                  return (acc.appended(o), o);
+              final (acc, newLast) = hd.foldLeft((IVector.empty<O>(), last), (acc, a) {
+                if (p(acc.$2, a)) {
+                  return (acc.$1.appended(a), a);
                 } else {
-                  return (acc, last);
+                  return (acc.$1, acc.$2);
                 }
               });
 
-              return Pull.output(acc).append(() => go(newLast, tl));
-            }
-          }),
-        ),
-      );
-    }
-
-    return pull()
-        .uncons1()
-        .flatMap(
-          (a) => a.fold(
-            () => Pull.done(),
-            (a) => a(
-              (hd, tl) => Pull.output1(hd).append(() => go(hd, tl)),
-            ),
-          ),
-        )
-        .rill();
-  }
-
-  Rill<O2> flatMap<O2>(covariant Function1<O, Rill<O2>> f) =>
-      _underlying.flatMapOutput((o) => f(o)._underlying).rillNoScope();
-
-  Rill<O2> fold<O2>(O2 initial, Function2<O2, O, O2> f) =>
-      pull().fold(initial, f).flatMap((x) => Pull.output1(x)).rill();
-
-  Rill<O> handleErrorWith(Function1<RuntimeException, Rill<O>> handler) =>
-      Pull.scope(_underlying).handleErrorWith((e) => handler(e)._underlying).rillNoScope();
-
-  Rill<O2> map<O2>(Function1<O, O2> f) => Pull.mapOutput(this, f).rillNoScope();
-
-  // Rill<O2> _mapNoScope<O2>(Function1<O, O2> f) =>
-  //     Pull.mapOutputNoScope(this, f).rillNoScope();
-
-  Rill<O2> mapChunks<O2>(Function1<IList<O>, IList<O2>> f) =>
-      _underlying.unconsFlatMap((hd) => Pull.output(f(hd))).rill();
-
-  Rill<O> onComplete(Function0<Rill<O>> s2) =>
-      handleErrorWith((e) => s2().append(() => Rill(Pull.fail(e)))).append(s2);
-
-  ToPull<O> pull() => ToPull(this);
-}
-
-extension RillNestedOps<O> on Rill<Rill<O>> {
-  Rill<O> flatten() => flatMap(identity);
-}
-
-final class StepLeg<O> {
-  final IList<O> head;
-
-  final UniqueToken scopeId;
-  final Pull<O, Unit> next;
-
-  StepLeg(this.head, this.scopeId, this.next);
-}
-
-class RillCompiled<O> {
-  final Pull<O, Unit> _pull;
-
-  const RillCompiled(this._pull);
-
-  IO<int> count() => foldChunks(0, (acc, chunk) => acc + chunk.size);
-
-  IO<Unit> drain() => foldChunks(Unit(), (a, _) => a);
-
-  IO<A> fold<A>(A init, Function2<A, O, A> f) =>
-      foldChunks(init, (acc, chunk) => chunk.foldLeft(acc, f));
-
-  IO<A> foldChunks<A>(
-    A init,
-    Function2<A, IList<O>, A> fold,
-  ) => Resource.makeCase(
-    Scope.newRoot(),
-    (scope, ec) => scope.close(ec).rethrowError(),
-  ).use((scope) => Pull.compile(_pull, scope, false, init, fold));
-
-  IO<Option<O>> last() => foldChunks(none(), (acc, elem) => elem.lastOption.orElse(() => acc));
-
-  IO<IList<O>> toIList() => foldChunks(IList.empty(), (acc, chunk) => acc.concat(chunk));
-}
-
-class ToPull<O> {
-  final Rill<O> self;
-
-  const ToPull(this.self);
-
-  Pull<O, Option<Rill<O>>> drop(int n) {
-    if (n <= 0) {
-      return Pull.pure(Some(self));
-    } else {
-      return uncons().flatMap(
-        (a) => a.fold(
-          () => Pull.pure(none()),
-          (a) {
-            final (hd, tl) = a;
-
-            if (hd.size < n) {
-              return tl.pull().drop(n - hd.size);
-            } else if (hd.size == n) {
-              return Pull.pure(Some(tl));
-            } else {
-              return Pull.pure(Some(tl.cons(hd.drop(n))));
-            }
-          },
-        ),
-      );
-    }
-  }
-
-  Pull<O, Option<Rill<O>>> dropThrough(Function1<O, bool> p) => _dropWhile_(p, true);
-
-  Pull<O, Option<Rill<O>>> dropWhile(Function1<O, bool> p) => _dropWhile_(p, false);
-
-  Pull<O, Option<Rill<O>>> _dropWhile_(
-    Function1<O, bool> p,
-    bool dropFailure,
-  ) => uncons().flatMap(
-    (a) => a.fold(
-      () => Pull.pure(none()),
-      (a) => a(
-        (hd, tl) {
-          return hd.indexWhere((o) => !p(o)).fold(
-            () => tl.pull()._dropWhile_(p, dropFailure),
-            (idx) {
-              final toDrop = dropFailure ? idx + 1 : idx;
-              return Pull.pure(Some(tl.cons(hd.drop(toDrop))));
-            },
-          );
-        },
-      ),
-    ),
-  );
-
-  Pull<O, Unit> echo() => self._underlying;
-
-  Pull<O, Option<(O, Rill<O>)>> find(Function1<O, bool> f) => uncons().flatMap(
-    (a) => a.fold(
-      () => Pull.pure(none()),
-      (a) => a((hd, tl) {
-        return hd.indexWhere(f).fold(
-          () => tl.pull().find(f),
-          (idx) {
-            if (idx + 1 < hd.size) {
-              final rem = hd.drop(idx + 1);
-              return Pull.pure(Some((hd[idx], tl.cons(rem))));
-            } else {
-              return Pull.pure(Some((hd[idx], tl)));
-            }
-          },
-        );
-      }),
-    ),
-  );
-
-  Pull<O, O2> fold<O2>(O2 init, Function2<O2, O, O2> f) => uncons().flatMap(
-    (a) => a.fold(
-      () => Pull.pure(init),
-      (a) => a(
-        (hd, tl) {
-          final acc = hd.foldLeft(init, f);
-          return tl.pull().fold(acc, f);
-        },
-      ),
-    ),
-  );
-
-  Pull<O, bool> forall(Function1<O, bool> p) => uncons().flatMap(
-    (a) => a.foldN(
-      () => Pull.pure<O, bool>(true),
-      (hd, tl) => hd.forall(p) ? tl.pull().forall(p) : Pull.pure<O, bool>(false),
-    ),
-  );
-
-  Pull<O, Option<(IList<O>, Rill<O>)>> uncons() =>
-      self._underlying.uncons().map((a) => a.map((a) => a((hd, tl) => (hd, tl.rillNoScope()))));
-
-  Pull<O, Option<(O, Rill<O>)>> uncons1() => uncons().flatMap(
-    (a) => a.fold(() => Pull.pure(none()), (x) {
-      final (hd, tl) = x;
-      final ntl = hd.size == 1 ? tl : tl.cons(hd.drop(1));
-      return Pull.pure(Some((hd[0], ntl)));
-    }),
-  );
-
-  Pull<O, Option<(IList<O>, Rill<O>)>> unconsLimit(int n) {
-    if (n <= 0) {
-      return Pull.pure(Some((IList.empty(), self)));
-    } else {
-      return uncons().flatMap((a) {
-        return a.fold(
-          () => Pull.pure(none()),
-          (x) {
-            final (hd, tl) = x;
-
-            if (hd.size < n) {
-              return Pull.pure(Some((hd, tl)));
-            } else {
-              final (out, rem) = hd.splitAt(n);
-              return Pull.pure(Some((out, tl.cons(rem))));
+              return Pull.output(Chunk.from(acc)).append(() => go(newLast, tl));
             }
           },
         );
       });
     }
+
+    return pull.uncons1.flatMap((hdtl) {
+      return hdtl.foldN(
+        () => Pull.done,
+        (hd, tl) => Pull.output1(hd).append(() => go(hd, tl)),
+      );
+    }).rill;
   }
 
-  Pull<O, Option<(IList<O>, Rill<O>)>> unconsMin(
-    int n, {
-    bool allowFewerTotal = false,
-  }) {
-    Pull<O, Option<(IList<O>, Rill<O>)>> go(
-      IList<O> acc,
-      int n,
-      Rill<O> s,
-    ) => s.pull().uncons().flatMap(
-      (a) => a.fold(
-        () {
-          if (allowFewerTotal && acc.nonEmpty) {
-            return Pull.pure(Some((acc, Rill.empty<O>())));
-          } else {
-            return Pull.pure(none());
-          }
-        },
-        (x) {
-          final (hd, tl) = x;
+  Rill<O2> flatMap<O2>(Function1<O, Rill<O2>> f) {
+    return Rill(underlying.flatMapOutput((o) => f(o).underlying));
+  }
 
-          if (hd.size < n) {
-            return go(acc.concat(hd), n - hd.size, tl);
-          } else {
-            return Pull.pure(Some((acc.concat(hd), tl)));
-          }
-        },
-      ),
-    );
+  Rill<O2> fold<O2>(O2 z, Function2<O2, O, O2> f) => pull.fold(z, f).flatMap(Pull.output1).rill;
 
-    if (n <= 0) {
-      return Pull.pure(Some((IList.empty(), self)));
-    } else {
-      return go(IList.empty(), n, self);
+  Rill<O> fold1(Function2<O, O, O> f) =>
+      pull.fold1(f).flatMap((opt) => opt.map(Pull.output1).getOrElse(() => Pull.done)).rill;
+
+  Rill<bool> forall(Function1<O, bool> p) =>
+      Rill(pull.forall(p).flatMap((res) => Pull.output1(res)));
+
+  Rill<Never> foreach(Function1<O, IO<Unit>> f) =>
+      underlying.flatMapOutput((o) => Pull.eval(f(o))).rill;
+
+  Rill<(O2, Chunk<O>)> groupAdjacentBy<O2>(Function1<O, O2> f) =>
+      groupAdjacentByLimit(Integer.MaxValue, f);
+
+  Rill<(O2, Chunk<O>)> groupAdjacentByLimit<O2>(int limit, Function1<O, O2> f) {
+    Pull<(O2, Chunk<O>), Unit> go(Option<(O2, Chunk<O>)> current, Rill<O> s) {
+      Pull<(O2, Chunk<O>), Unit> doChunk(
+        Chunk<O> chunk,
+        Rill<O> s,
+        O2 k1,
+        Chunk<O> out,
+        IQueue<(O2, Chunk<O>)> acc,
+      ) {
+        final differsAt = chunk.indexWhere((v) => f(v) != k1).getOrElse(() => -1);
+
+        if (differsAt == -1) {
+          // whole chunk matches the current key, add this chunk to the accumulated output
+          if (out.size + chunk.size < limit) {
+            final newCurrent = Some((k1, out.concat(chunk)));
+            return Pull.output(Chunk.from(acc)).append(() => go(newCurrent, s));
+          } else {
+            final (prefix, suffix) = chunk.splitAt(limit - out.size);
+            return Pull.output(
+              Chunk.from(acc.appended((k1, out.concat(prefix)))),
+            ).append(() => go(Some((k1, suffix)), s));
+          }
+        } else {
+          // at least part of this chunk does not match the current key, need to group and retain chunkiness
+          // split the chunk into the bit where the keys match and the bit where they don't
+          final matching = chunk.take(differsAt);
+
+          late IQueue<(O2, Chunk<O>)> newAcc;
+
+          final newOutSize = out.size + matching.size;
+
+          if (newOutSize == 0) {
+            newAcc = acc;
+          } else if (newOutSize > limit) {
+            final (prefix, suffix) = matching.splitAt(limit - out.size);
+            newAcc = acc.appended((k1, out.concat(prefix))).appended((k1, suffix));
+          } else {
+            newAcc = acc.appended((k1, out.concat(matching)));
+          }
+
+          final nonMatching = chunk.drop(differsAt);
+
+          // nonMatching is guaranteed to be non-empty here, because we know the last element of the chunk doesn't have
+          // the same key as the first
+          final k2 = f(nonMatching[0]);
+
+          return doChunk(nonMatching, s, k2, Chunk.empty(), newAcc);
+        }
+      }
+
+      return s.pull.unconsLimit(limit).flatMap((hdtl) {
+        return hdtl.foldN(
+          () => current
+              .mapN((k1, out) => out.size == 0 ? Pull.done : Pull.output1((k1, out)))
+              .getOrElse(() => Pull.done),
+          (hd, tl) {
+            final (k1, out) = current.getOrElse(() => (f(hd[0]), Chunk.empty()));
+            return doChunk(hd, tl, k1, out, IQueue.empty());
+          },
+        );
+      });
     }
+
+    return go(none(), this).rill;
   }
 
-  Pull<O, Option<(IList<O>, Rill<O>)>> unconsN(
-    int n, {
-    bool allowFewerTotal = false,
-  }) {
-    if (n <= 0) {
-      return Pull.pure(Some((IList.empty(), self)));
-    } else {
-      return unconsMin(n, allowFewerTotal: allowFewerTotal).map(
-        (x) => x.map(
-          (a) => a((hd, tl) {
-            final (pfx, sfx) = hd.splitAt(n);
-            return (pfx, tl.cons(sfx));
-          }),
+  Rill<Chunk<O>> groupWithin(int chunkSize, Duration timeout) {
+    if (chunkSize <= 0) throw ArgumentError('Rill.groupWithin: chunkSize must be > 0');
+
+    return Rill.eval(Queue.unbounded<Option<Chunk<O>>>()).flatMap((queue) {
+      // Producer: runs in background pushing chunks to the queue
+      final producer = chunks()
+          .map((c) => Some(c))
+          .evalMap(queue.offer)
+          .compile
+          .drain
+          .guarantee(queue.offer(const None()));
+
+      // Consumer: buffers data and races agaist timeout
+      //
+      // [deadline]: Monotonic time (micros) the current buffer MUST be emitted or null for empty buffer
+      Pull<Chunk<O>, Unit> consumeLoop(Chunk<O> buffer, int? deadline) {
+        if (buffer.size >= chunkSize) {
+          final (toEmit, remainder) = buffer.splitAt(chunkSize);
+
+          if (remainder.isEmpty) {
+            return Pull.output1(toEmit).append(() => consumeLoop(Chunk.empty(), null));
+          } else {
+            // set new deadline
+            return Pull.eval(IO.now).flatMap((now) {
+              return Pull.output1(toEmit).append(() {
+                return consumeLoop(remainder, now.microsecondsSinceEpoch + timeout.inMicroseconds);
+              });
+            });
+          }
+        } else {
+          // Buffer isn't full so wait for data or timeout
+          if (buffer.isEmpty) {
+            // no buffered data, don't care about time. wait for next chunk
+            return Pull.eval(queue.take()).flatMap((opt) {
+              return opt.fold(
+                () => Pull.done,
+                (chunk) {
+                  // data has arrived, start the clock
+                  return Pull.eval(IO.now).flatMap((now) {
+                    return consumeLoop(chunk, now.microsecondsSinceEpoch + timeout.inMicroseconds);
+                  });
+                },
+              );
+            });
+          } else {
+            // buffer has data, race queue againt the clock
+            return Pull.eval(IO.now).flatMap((now) {
+              final remainingMicros = deadline! - now.microsecondsSinceEpoch;
+
+              if (remainingMicros <= 0) {
+                // timeout reached, emit whatever is buffered
+                return Pull.output1(buffer).append(() => consumeLoop(Chunk.empty(), null));
+              } else {
+                final waitOp = IO.sleep(Duration(microseconds: remainingMicros));
+                final takeOp = queue.take();
+
+                return Pull.eval(IO.race(takeOp, waitOp)).flatMap((raceResult) {
+                  return raceResult.fold(
+                    (takeResult) {
+                      return takeResult.fold(
+                        () => Pull.output1(buffer), // producer finished
+                        (newChunk) => consumeLoop(buffer.concat(newChunk), deadline),
+                      );
+                    },
+                    (_) => Pull.output1(buffer).append(() => consumeLoop(Chunk.empty(), null)),
+                  );
+                });
+              }
+            });
+          }
+        }
+      }
+
+      return Rill.bracket(
+        producer.start(),
+        (fiber) => fiber.cancel(),
+      ).flatMap((_) => consumeLoop(Chunk.empty(), null).rill);
+    });
+
+    // return Rill.force(
+    //   Semaphore.permits(chunkSize).flatMap((demand) {
+    //     return Semaphore.permits(0).flatMap((supply) {
+    //       return Ref.of(_JunctionBuffer<O>.initial()).map((buffer) {
+    //         IO<bool> enqueue(O t) {
+    //           return demand.acquire().flatMap((_) {
+    //             return buffer
+    //                 .modify((buf) => (buf.copy(data: buf.data.appended(t)), buf))
+    //                 .flatMap(
+    //                   (buf) => supply.release().as(buf.endOfDemand.isEmpty),
+    //                 );
+    //           });
+    //         }
+
+    //         final IO<Option<IVector<O>>> dequeueNextOutput = IO.defer(() {
+    //           final waitSupply = supply.acquireN(chunkSize).guaranteeCase((oc) {
+    //             return oc.fold(
+    //               () => IO.unit,
+    //               (_) => IO.unit,
+    //               (_) => supply.releaseN(chunkSize),
+    //             );
+    //           });
+
+    //           final onTimeout = supply.acquire().flatMap((_) {
+    //             return supply.available().flatMap((m) {
+    //               final k = min(m, chunkSize - 1);
+    //               return supply.tryAcquireN(k).map((b) {
+    //                 return b ? k + 1 : 1;
+    //               });
+    //             });
+    //           });
+
+    //           final IO<Option<IVector<O>>> foo = IO.race(IO.sleep(timeout), waitSupply).flatMap((
+    //             winner,
+    //           ) {
+    //             return winner
+    //                 .fold(
+    //                   (_) => onTimeout,
+    //                   (_) => supply.acquireN(chunkSize).as(chunkSize),
+    //                 )
+    //                 .flatMap((acq) {
+    //                   return buffer.modify((buf) => buf.splitAt(acq)).flatMap((buf) {
+    //                     return demand.releaseN(buf.data.size).flatMap((_) {
+    //                       return buf.endOfDemand.fold(
+    //                         () => IO.pure(Some(buf.data)),
+    //                         (eos) {
+    //                           return eos.fold(
+    //                             (err) => IO.raiseError(err),
+    //                             (_) => buf.data.isEmpty ? IO.pure(none()) : IO.pure(Some(buf.data)),
+    //                           );
+    //                         },
+    //                       );
+    //                     });
+    //                   });
+    //                 });
+    //           });
+
+    //           return foo;
+    //         });
+
+    //         IO<Unit> endSupply(Either<Object, Unit> result) => buffer
+    //             .update((buf) => buf.copy(endOfSupply: Some(result)))
+    //             .productR(
+    //               () => supply.releaseN(
+    //                 // enough supply for 2 iterations of the race loop in case of upstream
+    //                 // interruption: so that downstream can terminate immediately
+    //                 chunkSize * 2,
+    //               ),
+    //             );
+
+    //         IO<Unit> endDemand(Either<Object, Unit> result) => buffer
+    //             .update((buf) => buf.copy(endOfDemand: Some(result)))
+    //             .productR(() => demand.releaseN(Integer.MaxValue));
+
+    //         Either<Object, Unit> toEnding(ExitCase ec) => ec.fold(
+    //           () => Right(Unit()),
+    //           (err) => Left(err),
+    //           () => Right(Unit()),
+    //         );
+
+    //         final enqueueAsync =
+    //             evalMap(enqueue)
+    //                 .forall(identity)
+    //                 .onFinalizeCase((ec) => endSupply(toEnding(ec)))
+    //                 .compile
+    //                 .drain
+    //                 .start();
+
+    //         final outputStream = Rill.eval(
+    //           dequeueNextOutput,
+    //         ).repeat().collectWhile((opt) => opt.map((vec) => Chunk.from(vec)));
+
+    //         return Rill.bracketCase(
+    //           enqueueAsync,
+    //           (upstream, exitCase) =>
+    //               endDemand(toEnding(exitCase)).productR(() => upstream.cancel()),
+    //         ).flatMap((_) => outputStream);
+    //       });
+    //     });
+    //   }),
+    // );
+  }
+
+  Rill<O> handleErrorWith(Function1<Object, Rill<O>> f) =>
+      Rill(underlying.handleErrorWith((err) => f(err).underlying));
+
+  Rill<O> get head => take(1);
+
+  Rill<O> ifEmpty(Function0<Rill<O>> fallback) =>
+      pull.uncons.flatMap((hdtl) {
+        return hdtl.foldN(
+          () => fallback().underlying,
+          (hd, tl) => Pull.output(hd).append(() => tl.underlying),
+        );
+      }).rill;
+
+  Rill<O> ifEmptyEmit(Function0<O> o) => ifEmpty(() => Rill.emit(o()));
+
+  Rill<O> interleave(Rill<O> that) => zip(that).flatMap((t) => Rill.emits(chunk([t.$1, t.$2])));
+
+  Rill<O> interleaveAll(Rill<O> that) => map(
+    (o) => Option(o),
+  ).zipAll<Option<O>>(that.map((o) => Option(o)), none(), none()).flatMap((t) {
+    final (thisOpt, thatOpt) = t;
+    return Rill.emits(Chunk.from(thisOpt).concat(Chunk.from(thatOpt)));
+  });
+
+  Rill<O> intersperse(O separator) {
+    Chunk<O> doChunk(Chunk<O> hd, bool isFirst) {
+      final bldr = <O>[];
+
+      final iter = hd.iterator;
+
+      if (isFirst) bldr.add(iter.next());
+
+      iter.foreach((o) {
+        bldr.add(separator);
+        bldr.add(o);
+      });
+
+      return chunk(bldr);
+    }
+
+    Pull<O, Unit> go(Rill<O> str) {
+      return str.pull.uncons.flatMap((hdtl) {
+        return hdtl.foldN(
+          () => Pull.done,
+          (hd, tl) => Pull.output(doChunk(hd, false)).append(() => go(tl)),
+        );
+      });
+    }
+
+    return pull.uncons.flatMap((hdtl) {
+      return hdtl.foldN(
+        () => Pull.done,
+        (hd, tl) => Pull.output(doChunk(hd, true)).append(() => go(tl)),
+      );
+    }).rill;
+  }
+
+  Rill<O> interruptAfter(Duration duration) => interruptWhen(IO.sleep(duration));
+
+  Rill<O> interruptWhen<B>(IO<B> signal) {
+    return Rill.eval(IO.deferred<Unit>()).flatMap((stopEvent) {
+      final startSignalFiber = signal.attempt().flatMap((_) => stopEvent.complete(Unit())).start();
+
+      return Rill.eval(startSignalFiber).flatMap((fiber) {
+        return Rill(
+          _interruptibleLoop(underlying, stopEvent.value()),
+        ).onFinalize(fiber.cancel());
+      });
+    });
+  }
+
+  Rill<O> interruptWhenTrue(Rill<bool> signal) {
+    final trigger = signal
+        .exists(identity)
+        .take(1)
+        .compile
+        .last
+        .flatMap(
+          (lastOpt) => lastOpt.fold(
+            () => IO.never<Unit>(),
+            (_) => IO.unit,
+          ),
+        );
+
+    return interruptWhen(trigger);
+  }
+
+  static Pull<O, Unit> _interruptibleLoop<O>(Pull<O, Unit> original, IO<Unit> barrier) {
+    return Pull.eval(IO.race(barrier, stepPull(original))).flatMap((either) {
+      return either.fold(
+        (signalWon) => Pull.done,
+        (stepWon) {
+          if (stepWon is _StepDone) return Pull.done;
+          if (stepWon is _StepOut<O, Unit>) {
+            return Pull.output(
+              stepWon.head,
+            ).flatMap((_) => _interruptibleLoop(stepWon.next, barrier));
+          }
+          return Pull.raiseError('Invalid Step state: $stepWon');
+        },
+      );
+    });
+  }
+
+  Rill<O> keepAlive(Duration maxIdle, IO<O> heartbeat) {
+    return Rill.eval(Queue.unbounded<Option<Chunk<O>>>()).flatMap((queue) {
+      final producer = chunks()
+          .map((c) => Some(c))
+          .evalMap(queue.offer)
+          .compile
+          .drain
+          .guarantee(queue.offer(none()));
+
+      Pull<O, Unit> consumeLoop() {
+        final takeOp = queue.take();
+        final timerOp = IO.sleep(maxIdle);
+
+        return Pull.eval(IO.race(takeOp, timerOp)).flatMap((raceResult) {
+          return raceResult.fold(
+            (queueResult) => queueResult.fold(
+              () => Pull.done,
+              (chunk) => Pull.output(chunk).append(consumeLoop),
+            ),
+            (_) => Pull.eval(heartbeat).flatMap((o) => Pull.output1(o)).append(consumeLoop),
+          );
+        });
+      }
+
+      return Rill.bracket(
+        producer.start(),
+        (fiber) => fiber.cancel(),
+      ).flatMap((_) => consumeLoop().rill);
+    });
+  }
+
+  Rill<Option<O>> get last => pull.last.flatMap(Pull.output1).rill;
+
+  Rill<O> lastOr(Function0<O> fallback) =>
+      pull.last.flatMap((o) => o.fold(() => Pull.output1(fallback()), (o) => Pull.output1(o))).rill;
+
+  Rill<O2> map<O2>(Function1<O, O2> f) => flatMap((o) => Rill.pure(f(o)));
+
+  Rill<(S, O2)> mapAccumulate<S, O2>(S initial, Function2<S, O, (S, O2)> f) {
+    (S, (S, O2)) go(S s, O a) {
+      final (newS, newO) = f(s, a);
+      return (newS, (newS, newO));
+    }
+
+    return scanChunks(initial, (acc, c) => c.mapAccumulate(acc, go));
+  }
+
+  /// Alias for [parEvalMap].
+  Rill<O2> mapAsync<O2>(int maxConcurrent, Function1<O, IO<O2>> f) => parEvalMap(maxConcurrent, f);
+
+  /// Alias for [parEvalMapUnordered].
+  Rill<O2> mapAsyncUnordered<O2>(int maxConcurrent, Function1<O, IO<O2>> f) =>
+      parEvalMapUnordered(maxConcurrent, f);
+
+  Rill<O2> mapChunks<O2>(Function1<Chunk<O>, Chunk<O2>> f) =>
+      underlying.unconsFlatMap((hd) => Pull.output(f(hd))).rill;
+
+  Rill<O> get mask => handleErrorWith((_) => Rill.empty());
+
+  Rill<O> merge(Rill<O> that) {
+    Rill<O> consumeMergeQueue(Queue<Either<Object, Option<O>>> q) {
+      return Rill.eval(q.take()).flatMap((event) {
+        return event.fold(
+          (err) => Rill.raiseError(err),
+          (eventOpt) => eventOpt.fold(
+            () => Rill.empty(),
+            (element) => Rill.pure(element).append(() => consumeMergeQueue(q)),
+          ),
+        );
+      });
+    }
+
+    return Rill.eval(Queue.unbounded<Either<Object, Option<O>>>()).flatMap((queue) {
+      return Rill.eval(Ref.of(2)).flatMap((activeCount) {
+        IO<Unit> run(Rill<O> s) {
+          return s
+              .map((o) => Some(o).asRight<Object>())
+              .evalMap(queue.offer)
+              .compile
+              .drain
+              .handleErrorWith(
+                (err) => queue.offer(err.asLeft()),
+              )
+              .guarantee(
+                activeCount.updateAndGet((n) => n - 1).flatMap((n) {
+                  return n == 0 ? queue.offer(none<O>().asRight()) : IO.unit;
+                }),
+              );
+        }
+
+        final runBoth = (run(this).start(), run(that).start()).tupled;
+        IO<Unit> cleanup((IOFiber<Unit>, IOFiber<Unit>) fibers) =>
+            fibers.$1.cancel().product(fibers.$2.cancel()).voided();
+
+        return Rill.bracket(runBoth, cleanup).flatMap((_) {
+          return consumeMergeQueue(queue);
+        });
+      });
+    });
+  }
+
+  Rill<O> mergeHaltBoth(Rill<O> that) {
+    // return noneTerminate().merge(that.noneTerminate()).unNoneTerminate;
+    return Rill.eval(Queue.unbounded<Option<O>>()).flatMap((queue) {
+      IO<Unit> run(Rill<O> s) {
+        return s.map((o) => o.some).evalMap(queue.offer).compile.drain;
+      }
+
+      Rill<O> dequeueLoop(Queue<Option<O>> q) {
+        return Rill.eval(q.take()).flatMap((opt) {
+          return opt.fold(
+            () => Rill.empty(),
+            (item) => Rill.pure(item) + dequeueLoop(q),
+          );
+        });
+      }
+
+      final driver = IO.race(run(this), run(that)).guarantee(queue.offer(none()));
+
+      return Rill.bracket(
+        driver.start(),
+        (fiber) => fiber.cancel(),
+      ).flatMap((_) => dequeueLoop(queue));
+    });
+  }
+
+  Rill<O> mergeHaltL(Rill<O> that) =>
+      noneTerminate().merge(that.map((o) => Option(o))).unNoneTerminate;
+
+  Rill<O> mergeHaltR(Rill<O> that) => that.mergeHaltL(this);
+
+  Rill<O> metered(Duration rate) => Rill.fixedRate(rate).zipRight(this);
+
+  Rill<O> meteredStartImmediately(Duration rate) =>
+      Rill.fixedRateStartImmediately(rate).zipRight(this);
+
+  Rill<Option<O>> noneTerminate() => map((o) => Option(o)).append(() => Rill.emit(none()));
+
+  Rill<O> onComplete(Function0<Rill<O>> s2) =>
+      handleErrorWith((e) => s2().append(() => Pull.fail(e).rill)).append(() => s2());
+
+  Rill<O> onFinalize(IO<Unit> finalizer) => Rill(underlying.onFinalize(finalizer));
+
+  Rill<O> onFinalizeCase(Function1<ExitCase, IO<Unit>> finalizer) =>
+      Rill(underlying.onFinalizeCase(finalizer));
+
+  Rill<O2> parEvalMap<O2>(int maxConcurrent, Function1<O, IO<O2>> f) {
+    return Rill.eval(Queue.unbounded<Either<Object, Option<IOFiber<O2>>>>()).flatMap((queue) {
+      return Rill.eval(Semaphore.permits(maxConcurrent)).flatMap((sem) {
+        final backgroundProducer = evalMap((o) {
+              return sem.acquire().flatMap((_) {
+                return f(o).guarantee(sem.release()).start();
+              });
+            })
+            .map((fiber) => Right<Object, Option<IOFiber<O2>>>(Some(fiber)))
+            .evalMap(queue.offer)
+            .compile
+            .drain
+            .handleErrorWith((err) => queue.offer(Left(err)))
+            .guarantee(queue.offer(Right(none())));
+
+        // Read fibers from queue and joins in order
+        Rill<O2> consume() {
+          return Rill.eval(queue.take()).flatMap((event) {
+            return event.fold(
+              (err) => Rill.raiseError(err),
+              (opt) => opt.fold(
+                () => Rill.empty(),
+                (fiber) {
+                  // join the fiber, maintaining order
+                  return Rill.eval(fiber.join()).flatMap((outcome) {
+                    return outcome.fold(
+                      () => Rill.raiseError('Inner task canceled'),
+                      (err, stackTrace) => Rill.raiseError(err, stackTrace),
+                      (result) => Rill.emit(result).append(() => consume()),
+                    );
+                  });
+                },
+              ),
+            );
+          });
+        }
+
+        return Rill.bracket(
+          backgroundProducer.start(),
+          (fiber) => fiber.cancel(),
+        ).flatMap((_) => consume());
+      });
+    });
+  }
+
+  Rill<O2> parEvalMapUnbounded<O2>(int maxConcurrent, Function1<O, IO<O2>> f) =>
+      parEvalMapUnordered(Integer.MaxValue, f);
+
+  Rill<O2> parEvalMapUnordered<O2>(int maxConcurrent, Function1<O, IO<O2>> f) =>
+      map((o) => Rill.eval(f(o))).parJoin(maxConcurrent);
+
+  Rill<O2> parEvalMapUnorderedUnbounded<O2>(Function1<O, IO<O2>> f) =>
+      parEvalMapUnordered(Integer.MaxValue, f);
+
+  /// Access the Pull API for this Rill.
+  ToPull<O> get pull => ToPull(this);
+
+  Rill<O> rechunkRandomly({double minFactor = 0.1, double maxFactor = 2.0, int? seed}) {
+    if (minFactor <= 0 || maxFactor < minFactor) {
+      throw ArgumentError('Invalid rechunk factors. Ensure 0 < minFactor <= maxFactor');
+    }
+
+    return Rill.suspend(() {
+      final rng = Random(seed);
+
+      Pull<O, Unit> loop(Rill<O> s) {
+        return s.pull.uncons.flatMap((hdtl) {
+          return hdtl.foldN(
+            () => Pull.done,
+            (hd, tl) {
+              if (hd.isEmpty) {
+                return loop(tl);
+              } else {
+                final factor = minFactor + (rng.nextDouble() * (maxFactor - minFactor));
+                final nextSize = max(hd.size * factor, 1).round();
+
+                if (hd.size == nextSize) {
+                  return Pull.output(hd).append(() => loop(tl));
+                } else if (hd.size > nextSize) {
+                  final (toEmit, remainder) = hd.splitAt(nextSize);
+                  return Pull.output(toEmit).append(() => loop(tl.cons(remainder)));
+                } else {
+                  final needed = nextSize - hd.size;
+
+                  return tl.pull.unconsN(needed).flatMap((hdtl) {
+                    return hdtl.foldN(
+                      () => Pull.output(hd),
+                      (nextHd, tl) {
+                        return Pull.output(hd.concat(nextHd)).append(() => loop(tl));
+                      },
+                    );
+                  });
+                }
+              }
+            },
+          );
+        });
+      }
+
+      return loop(this).rill;
+    });
+  }
+
+  Rill<O> pauseWhen(Rill<bool> signal) {
+    return Rill.eval(Semaphore.permits(1)).flatMap((gate) {
+      return Rill.eval(Ref.of(false)).flatMap((pausedState) {
+        final signalProcessor =
+            signal
+                .evalMap((shouldPause) {
+                  return pausedState.value().flatMap((isPaused) {
+                    if (isPaused == shouldPause) {
+                      return IO.unit;
+                    } else {
+                      return pausedState.setValue(shouldPause).flatMap((_) {
+                        // If pausing: drain the permit
+                        // If resuming: acquire the permit
+                        return shouldPause ? gate.acquire() : gate.release();
+                      });
+                    }
+                  });
+                })
+                .compile
+                .drain;
+
+        final gatedStream = chunks().flatMap((chunk) {
+          final wait = gate.acquire().flatMap((_) => gate.release());
+          return Rill.eval(wait).flatMap((_) => Rill.emits(chunk));
+        });
+
+        return Rill.bracket(
+          signalProcessor.start(),
+          (fiber) => fiber.cancel(),
+        ).flatMap((_) => gatedStream);
+      });
+    });
+  }
+
+  Rill<O> reduce(Function2<O, O, O> f) => fold1(f);
+
+  Rill<O> repeat() => append(repeat);
+
+  Rill<O> repeatN(int n) => n > 0 ? append(() => repeatN(n - 1)) : Rill.empty();
+
+  Rill<O2> repeatPull<O2>(Function1<ToPull<O>, Pull<O2, Option<Rill<O>>>> f) {
+    Pull<O2, Unit> go(ToPull<O> tp) {
+      return f(tp).flatMap((tail) {
+        return tail.fold(() => Pull.done, (tail) => go(tail.pull));
+      });
+    }
+
+    return go(pull).rill;
+  }
+
+  Rill<O2> scan<O2>(O2 z, Function2<O2, O, O2> f) => Pull.output1(z).append(() => _scan(z, f)).rill;
+
+  Rill<O> scan1(Function2<O, O, O> f) =>
+      pull.uncons.flatMap((hdtl) {
+        return hdtl.foldN(
+          () => Pull.done,
+          (hd, tl) {
+            final (pre, post) = hd.splitAt(1);
+            return Pull.output(pre).append(() => tl.cons(post)._scan(pre[0], f));
+          },
+        );
+      }).rill;
+
+  Pull<O2, Unit> _scan<O2>(O2 z, Function2<O2, O, O2> f) => pull.uncons.flatMap((hdtl) {
+    return hdtl.foldN(
+      () => Pull.done,
+      (hd, tl) {
+        final (out, carry) = hd.scanLeftCarry(z, f);
+        return Pull.output(out).append(() => tl._scan(carry, f));
+      },
+    );
+  });
+
+  Rill<O2> scanChunks<S, O2>(S initial, Function2<S, Chunk<O>, (S, Chunk<O2>)> f) =>
+      scanChunksOpt(initial, (s) => Some((c) => f(s, c)));
+
+  Rill<O2> scanChunksOpt<S, O2>(
+    S initial,
+    Function1<S, Option<Function1<Chunk<O>, (S, Chunk<O2>)>>> f,
+  ) => pull.scanChunksOpt(initial, f).voided.rill;
+
+  Rill<Chunk<O>> sliding(int size, {int step = 1}) {
+    Pull<Chunk<O>, Unit> stepNotSmallerThanSize(Rill<O> s, Chunk<O> prev) {
+      return s.pull.uncons.flatMap(
+        (hdtl) => hdtl.foldN(
+          () => prev.isEmpty ? Pull.done : Pull.output1(prev.take(size)),
+          (hd, tl) {
+            final bldr = <Chunk<O>>[];
+
+            var current = prev.concat(hd);
+
+            while (current.size >= step) {
+              final (nHeads, nTails) = current.splitAt(step);
+              bldr.add(nHeads.take(size));
+              current = nTails;
+            }
+
+            return Pull.output(chunk(bldr)).append(() => stepNotSmallerThanSize(tl, current));
+          },
         ),
       );
     }
+
+    Pull<Chunk<O>, Unit> stepSmallerThanSize(Rill<O> s, Chunk<O> window, Chunk<O> prev) {
+      return s.pull.uncons.flatMap(
+        (hdtl) => hdtl.foldN(
+          () => prev.isEmpty ? Pull.done : Pull.output1(window.concat(prev).take(size)),
+          (hd, tl) {
+            final bldr = <Chunk<O>>[];
+
+            var w = window;
+            var current = prev.concat(hd);
+
+            while (current.size >= step) {
+              final (head, tail) = current.splitAt(step);
+              final wind = w.concat(head);
+
+              bldr.add(wind);
+              w = wind.drop(step);
+
+              current = tail;
+            }
+
+            return Pull.output(chunk(bldr)).append(() => stepSmallerThanSize(tl, w, current));
+          },
+        ),
+      );
+    }
+
+    if (step < size) {
+      return pull
+          .unconsN(size, allowFewer: true)
+          .flatMap(
+            (hdtl) => hdtl.foldN(
+              () => Pull.done,
+              (hd, tl) => Pull.output1(
+                hd,
+              ).append(() => stepSmallerThanSize(tl, hd.drop(step), Chunk.empty())),
+            ),
+          )
+          .rill;
+    } else {
+      return stepNotSmallerThanSize(this, Chunk.empty()).rill;
+    }
   }
+
+  Rill<O> spaced(Duration delay, {bool startImmediately = true}) {
+    // TODO: _Pure, and other Pull ADT nodes probably can't use Never type
+    final start = startImmediately ? Rill.unit : Rill.unit.drop(1);
+    return start.append(() => Rill.fixedDelay(delay)).zipRight(this);
+  }
+
+  Rill<Chunk<O>> split(Function1<O, bool> p) {
+    Pull<Chunk<O>, Unit> go(Chunk<O> buffer, Rill<O> s) {
+      return s.pull.uncons.flatMap((hdtl) {
+        return hdtl.foldN(
+          () => buffer.nonEmpty ? Pull.output1(buffer) : Pull.done,
+          (hd, tl) {
+            return hd.indexWhere(p).fold(
+              () => go(buffer.concat(hd), tl),
+              (idx) {
+                final pfx = hd.take(idx);
+                final b2 = buffer.concat(pfx);
+
+                return Pull.output1(b2).append(() => go(Chunk.empty(), tl.cons(hd.drop(idx + 1))));
+              },
+            );
+          },
+        );
+      });
+    }
+
+    return go(Chunk.empty(), this).rill;
+  }
+
+  Rill<O2> switchMap<O2>(Function1<O, Rill<O2>> f) {
+    return Rill.eval(Queue.unbounded<Either<Object, Option<O2>>>()).flatMap((queue) {
+      // track currently running fiber
+      return Rill.eval(Ref.of<Option<IOFiber<Unit>>>(none())).flatMap((activeFiber) {
+        IO<Unit> runInner(O element) {
+          return f(element)
+              .map((o2) => Right<Object, Option<O2>>(Some(o2)))
+              .evalMap(queue.offer)
+              .compile
+              .drain
+              .handleErrorWith((err) => queue.offer(Left(err)));
+        }
+
+        // outer consume / driver
+        final driver = evalMap((element) {
+              return activeFiber.value().flatMap((optFiber) {
+                final cancelPrevious = optFiber.fold(() => IO.unit, (fiber) => fiber.cancel());
+
+                return cancelPrevious.flatMap((_) {
+                  return runInner(element).start().flatMap((newFiber) {
+                    return activeFiber.setValue(Some(newFiber));
+                  });
+                });
+              });
+            }).compile.drain
+            .flatMap((_) {
+              // when outer finishes, wait for final inner to complete
+
+              return activeFiber.value().flatMap((optFiber) {
+                return optFiber.fold(
+                  () => IO.unit,
+                  (fiber) => fiber.join().voided(),
+                );
+              });
+            })
+            .handleErrorWith((err) => queue.offer(Left(err)))
+            .guarantee(queue.offer(Right(none())));
+
+        final cleanupInner = activeFiber.value().flatMap((optFiber) {
+          return optFiber.fold(() => IO.unit, (fiber) => fiber.cancel());
+        });
+
+        Rill<O2> consumeSwitchMap() {
+          return Rill.eval(queue.take()).flatMap((event) {
+            return event.fold(
+              (err) => Rill.raiseError(err),
+              (opt) => opt.fold(
+                () => Rill.empty(),
+                (o2) => Rill.emit(o2).append(consumeSwitchMap),
+              ),
+            );
+          });
+        }
+
+        return Rill.bracket(
+          driver.start(),
+          (driverFiber) => driverFiber.cancel().productL(() => cleanupInner),
+        ).flatMap((_) => consumeSwitchMap());
+      });
+    });
+  }
+
+  Rill<O> get tail => drop(1);
+
+  Rill<O> take(int n) => pull.take(n).rill;
+
+  Rill<O> takeRight(int n) => pull.takeRight(n).flatMap(Pull.output).rill;
+
+  Rill<O> takeThrough(Function1<O, bool> p) => pull.takeThrough(p).voided.rill;
+
+  Rill<O> takeWhile(Function1<O, bool> p, {bool takeFailure = false}) =>
+      pull.takeWhile(p, takeFailure: takeFailure).voided.rill;
+
+  Rill<O2> through<O2>(Pipe<O, O2> f) => f(this);
+
+  Rill<O> timeout(Duration timeout) => interruptWhen(IO.sleep(timeout));
+
+  Rill<(O, O2)> zip<O2>(Rill<O2> that) => zipWith(that, (o, o2) => (o, o2));
+
+  Rill<O> zipLeft<O2>(Rill<O2> other) => zipWith(other, (a, _) => a);
+
+  Rill<O2> zipRight<O2>(Rill<O2> other) => zipWith(other, (_, b) => b);
+
+  Rill<O3> zipWith<O2, O3>(Rill<O2> that, Function2<O, O2, O3> f) {
+    Pull<O3, Unit> loop(Rill<O> s1, Rill<O2> s2) {
+      return s1.pull.uncons.flatMap((hdtl1) {
+        return hdtl1.foldN(
+          () => Pull.done,
+          (hd1, tl1) {
+            return s2.pull.uncons.flatMap((hdtl2) {
+              return hdtl2.foldN(
+                () => Pull.done,
+                (hd2, tl2) {
+                  final len = min(hd1.size, hd2.size);
+
+                  final nextS1 = tl1.cons(hd1.drop(len));
+                  final nextS2 = tl2.cons(hd2.drop(len));
+
+                  return Pull.output(
+                    hd1.zip(hd2).map((t) => f(t.$1, t.$2)),
+                  ).flatMap((_) => loop(nextS1, nextS2));
+                },
+              );
+            });
+          },
+        );
+      });
+    }
+
+    return loop(this, that).rill;
+  }
+
+  Rill<(O, O2)> zipAll<O2>(Rill<O2> that, O padLeft, O2 padRight) =>
+      zipAllWith(that, padLeft, padRight, (o, o2) => (o, o2));
+
+  Rill<O3> zipAllWith<O2, O3>(Rill<O2> that, O padLeft, O2 padRight, Function2<O, O2, O3> f) {
+    Pull<O3, Unit> loop(Rill<O> s1, Rill<O2> s2) {
+      return s1.pull.uncons.flatMap((hdtl1) {
+        return hdtl1.foldN(
+          () => s2.map((o2) => f(padLeft, o2)).pull.echo,
+          (hd1, tl1) {
+            return s2.pull.uncons.flatMap((hdtl2) {
+              return hdtl2.foldN(
+                () {
+                  final zippedChunk = hd1.map((o) => f(o, padRight));
+                  return Pull.output(zippedChunk).flatMap((_) {
+                    return tl1.map((o) => f(o, padRight)).pull.echo;
+                  });
+                },
+                (hd2, tl2) {
+                  final len = min(hd1.size, hd2.size);
+
+                  final nextS1 = tl1.cons(hd1.drop(len));
+                  final nextS2 = tl2.cons(hd2.drop(len));
+
+                  return Pull.output(
+                    hd1.zip(hd2).map((t) => f(t.$1, t.$2)),
+                  ).flatMap((_) => loop(nextS1, nextS2));
+                },
+              );
+            });
+          },
+        );
+      });
+    }
+
+    return loop(this, that).rill;
+  }
+
+  Rill<(O, O2)> zipLatest<O2>(Rill<O2> that) => zipLatestWith(that, (o, o2) => (o, o2));
+
+  Rill<O3> zipLatestWith<O2, O3>(Rill<O2> that, Function2<O, O2, O3> f) {
+    return Rill.eval(Queue.unbounded<Either<Object, Option<O3>>>()).flatMap((queue) {
+      return Rill.eval(Ref.of<Option<O>>(none())).flatMap((refLeft) {
+        return Rill.eval(Ref.of<Option<O2>>(none())).flatMap((refRight) {
+          IO<Unit> tryEmit() {
+            return refLeft.value().flatMap((optL) {
+              return refRight.value().flatMap((optR) {
+                return optL.fold(
+                  () => IO.unit,
+                  (l) => optR.fold(
+                    () => IO.unit,
+                    (r) => queue.offer(Right(Some(f(l, r)))),
+                  ),
+                );
+              });
+            });
+          }
+
+          IO<Unit> runLeft() => evalMap(
+            (o) => refLeft.setValue(Some(o)).productL(tryEmit),
+          ).compile.drain.handleErrorWith((err) => queue.offer(Left(err)));
+
+          IO<Unit> runRight() => that
+              .evalMap((o2) => refRight.setValue(Some(o2)).productL(tryEmit))
+              .compile
+              .drain
+              .handleErrorWith((err) => queue.offer(Left(err)));
+
+          Rill<O3> consumeQueue() {
+            return Rill.eval(queue.take()).flatMap((event) {
+              return event.fold(
+                (err) => Rill.raiseError(err),
+                (opt) => opt.fold(
+                  () => Rill.empty(),
+                  (o3) => Rill.emit(o3).append(() => consumeQueue()),
+                ),
+              );
+            });
+          }
+
+          final driver = IO.both(runLeft(), runRight()).guarantee(queue.offer(Right(none())));
+
+          return Rill.bracket(
+            driver.start(),
+            (fiber) => fiber.cancel(),
+          ).flatMap((_) => consumeQueue());
+        });
+      });
+    });
+  }
+
+  Rill<(O, int)> zipWithIndex() => scanChunks(0, (index, c) {
+    var idx = index;
+
+    final out = c.map((o) {
+      final r = (o, idx);
+      idx += 1;
+      return r;
+    });
+
+    return (idx, out);
+  });
+
+  Rill<(O, Option<O>)> zipWithNext() {
+    Pull<(O, Option<O>), Unit> go(O last, Rill<O> s) {
+      return s.pull.uncons.flatMap((hdtl) {
+        return hdtl.foldN(
+          () => Pull.output1((last, none())),
+          (hd, tl) {
+            final (newLast, out) = hd.mapAccumulate(last, (prev, next) {
+              return (next, (prev, Option(next)));
+            });
+
+            return Pull.output(out).append(() => go(newLast, tl));
+          },
+        );
+      });
+    }
+
+    return pull.uncons1.flatMap((hdtl) {
+      return hdtl.foldN(
+        () => Pull.done,
+        (hd, tl) => go(hd, tl),
+      );
+    }).rill;
+  }
+
+  Rill<(Option<O>, O)> zipWithPrevious() =>
+      mapAccumulate(none<O>(), (prev, next) => (Option(next), (prev, next))).map((x) => x.$2);
+
+  Rill<(Option<O>, O, Option<O>)> zipWithPreviousAndNext() =>
+      zipWithPrevious().zipWithNext().map((tuple) {
+        final ((prev, curr), next) = tuple;
+
+        return next.foldN(
+          () => (prev, curr, const None()),
+          (_, next) => (prev, curr, Some(next)),
+        );
+      });
+
+  Rill<(O, O2)> zipWithScan<O2>(O2 z, Function2<O2, O, O2> f) => mapAccumulate(
+    z,
+    (s, o) => (f(s, o), (o, s)),
+  ).map((t) => t.$2);
+
+  Rill<(O, O2)> zipWithScan1<O2>(O2 z, Function2<O2, O, O2> f) => mapAccumulate(
+    z,
+    (s, o) {
+      final s2 = f(s, o);
+      return (s2, (o, s2));
+    },
+  ).map((t) => t.$2);
+
+  RillCompile<O> get compile => RillCompile(underlying);
 }
