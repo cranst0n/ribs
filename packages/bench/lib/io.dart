@@ -226,53 +226,6 @@ class RibsAttemptSadBenchmark extends AsyncBenchmarkBase {
   Future<void> run() => io.unsafeRunFuture();
 }
 
-class DartzBothBenchmark extends AsyncBenchmarkBase {
-  DartzBothBenchmark() : super('');
-
-  @override
-  Future<void> run() =>
-      dartz.Task.value(
-        0,
-      ).delayBy(15.milliseconds).both(dartz.Task.value(1).delayBy(30.milliseconds)).run();
-}
-
-class FpdartBothBenchmark extends AsyncBenchmarkBase {
-  FpdartBothBenchmark() : super('');
-
-  @override
-  Future<void> run() =>
-      fpdart.Task.traverseListWithIndex(
-        [
-          15.milliseconds,
-          30.milliseconds,
-        ],
-        (delay, ix) => fpdart.Task.of(ix).delay(delay),
-      ).run();
-}
-
-class FutureBothBenchmark extends AsyncBenchmarkBase {
-  FutureBothBenchmark() : super('');
-
-  @override
-  Future<void> run() => Future.wait([
-    Future.delayed(15.milliseconds, () => 0),
-    Future.delayed(30.milliseconds, () => 1),
-  ]);
-}
-
-class RibsBothBenchmark extends AsyncBenchmarkBase {
-  RibsBothBenchmark() : super('');
-
-  @override
-  Future<void> run() =>
-      IO
-          .both(
-            IO.pure(0).delayBy(15.milliseconds),
-            IO.pure(1).delayBy(30.milliseconds),
-          )
-          .unsafeRunFuture();
-}
-
 const sep = '  |  ';
 
 void main(List<String> args) async {
@@ -320,12 +273,6 @@ void main(List<String> args) async {
     futureAttemptSad,
     ribsAttemptSad,
   );
-
-  final dartzBoth = await attemptBenchmark(DartzBothBenchmark());
-  final fpdartBoth = await attemptBenchmark(FpdartBothBenchmark());
-  final futureBoth = await attemptBenchmark(FutureBothBenchmark());
-  final ribsBoth = await attemptBenchmark(RibsBothBenchmark());
-  reportMeasurements('both', dartzBoth, fpdartBoth, futureBoth, ribsBoth);
 }
 
 Future<double> attemptBenchmark(AsyncBenchmarkBase b) {
