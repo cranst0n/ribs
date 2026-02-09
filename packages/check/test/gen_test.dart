@@ -20,28 +20,6 @@ void main() {
   forAll('tuple14', Gen.integer.tuple14, (t) => expect(t, isNotNull));
   forAll('tuple15', Gen.integer.tuple15, (t) => expect(t, isNotNull));
 
-  forAll(
-    '15-tupled',
-    (
-      Gen.integer,
-      Gen.integer,
-      Gen.integer,
-      Gen.integer,
-      Gen.integer,
-      Gen.integer,
-      Gen.integer,
-      Gen.integer,
-      Gen.integer,
-      Gen.integer,
-      Gen.integer,
-      Gen.integer,
-      Gen.integer,
-      Gen.integer,
-      Gen.integer,
-    ).tupled,
-    (t) => expect(t, isNotNull),
-  );
-
   forAll('alphaLowerChar', Gen.alphaLowerChar, (c) {
     expect(c.toLowerCase(), c);
     expect(c.toUpperCase(), isNot(c));

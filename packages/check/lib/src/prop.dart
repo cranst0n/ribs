@@ -119,3 +119,73 @@ class PropFailure<T> {
 
   const PropFailure(this.value, this.underlying);
 }
+
+@isTest
+void forAll2<T0, T1>(
+  String description,
+  Gen<T0> gen0,
+  Gen<T1> gen1,
+  Function2<T0, T1, FutureOr<void>> testBody, {
+  int? numTests,
+  int? seed,
+  String? testOn,
+  Timeout? timeout,
+  dynamic skip,
+  dynamic tags,
+  Map<String, dynamic>? onPlatform,
+  int? retry,
+}) => forAll(description, (gen0, gen1).tupled, testBody.tupled);
+
+@isTest
+void forAll3<T0, T1, T2>(
+  String description,
+  Gen<T0> gen0,
+  Gen<T1> gen1,
+  Gen<T2> gen2,
+  Function3<T0, T1, T2, FutureOr<void>> testBody, {
+  int? numTests,
+  int? seed,
+  String? testOn,
+  Timeout? timeout,
+  dynamic skip,
+  dynamic tags,
+  Map<String, dynamic>? onPlatform,
+  int? retry,
+}) => forAll(description, (gen0, gen1, gen2).tupled, testBody.tupled);
+
+@isTest
+void forAll4<T0, T1, T2, T3>(
+  String description,
+  Gen<T0> gen0,
+  Gen<T1> gen1,
+  Gen<T2> gen2,
+  Gen<T3> gen3,
+  Function4<T0, T1, T2, T3, FutureOr<void>> testBody, {
+  int? numTests,
+  int? seed,
+  String? testOn,
+  Timeout? timeout,
+  dynamic skip,
+  dynamic tags,
+  Map<String, dynamic>? onPlatform,
+  int? retry,
+}) => forAll(description, (gen0, gen1, gen2, gen3).tupled, testBody.tupled);
+
+@isTest
+void forAll5<T0, T1, T2, T3, T4>(
+  String description,
+  Gen<T0> gen0,
+  Gen<T1> gen1,
+  Gen<T2> gen2,
+  Gen<T3> gen3,
+  Gen<T4> gen4,
+  Function5<T0, T1, T2, T3, T4, FutureOr<void>> testBody, {
+  int? numTests,
+  int? seed,
+  String? testOn,
+  Timeout? timeout,
+  dynamic skip,
+  dynamic tags,
+  Map<String, dynamic>? onPlatform,
+  int? retry,
+}) => forAll(description, (gen0, gen1, gen2, gen3, gen4).tupled, testBody.tupled);

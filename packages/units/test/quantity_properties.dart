@@ -21,25 +21,19 @@ class QuantityProperties {
     Gen<A> gen,
     Gen<B> genUnit,
   ) {
-    forAll(
-      'equivalentTo',
-      (gen, genUnit).tupled,
-      (tuple) {
-        final (original, otherUnit) = tuple;
-        expect(
-          otherUnit(original.to(otherUnit)).equivalentTo(original),
-          isTrue,
-        );
-      },
-    );
+    forAll2('equivalentTo', gen, genUnit, (original, otherUnit) {
+      expect(
+        otherUnit(original.to(otherUnit)).equivalentTo(original),
+        isTrue,
+      );
+    });
   }
 
   static void roundtrip<A extends Quantity<A>>(
     Gen<A> gen,
     Iterable<Function1<A, A>> roundTrips,
   ) {
-    forAll('roundtrip', (gen, Gen.oneOf(roundTrips)).tupled, (tuple) {
-      final (original, roundTrip) = tuple;
+    forAll2('roundtrip', gen, Gen.oneOf(roundTrips), (original, roundTrip) {
       final actual = roundTrip(original);
 
       expect(original.value, closeTo(actual.value, 1e-6));

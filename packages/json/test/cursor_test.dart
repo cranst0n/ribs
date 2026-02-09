@@ -102,12 +102,11 @@ void main() {
       expect(result.flatMap((a) => a.top()), isSome(j4));
     });
 
-    forAll(
+    forAll2(
       'delete should remove a value from an array',
-      (genJson, Gen.ilistOf(Gen.chooseInt(0, 5), genJson)).tupled,
-      (tup) {
-        final (h, t) = tup;
-
+      genJson,
+      Gen.ilistOf(Gen.chooseInt(0, 5), genJson),
+      (h, t) {
         final result = HCursor.fromJson(
           Json.arrI(t.prepended(h)),
         ).downArray().success().flatMap((f) => f.delete().success());
@@ -203,8 +202,7 @@ void main() {
     expect(result.flatMap((a) => a.focus()), isSome(Json.number(200.2)));
   });
 
-  forAll('field should fail at the top', (genJson, Gen.nonEmptyAlphaNumString(10)).tupled, (tup) {
-    final (json, key) = tup;
+  forAll2('field should fail at the top', genJson, Gen.nonEmptyAlphaNumString(10), (json, key) {
     final result = HCursor.fromJson(json).field(key);
 
     expect(result.failed, isTrue);

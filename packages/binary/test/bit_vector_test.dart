@@ -13,9 +13,7 @@ void main() {
   BitVector bin(String str) => BitVector.fromValidBin(str);
   BitVector hex(String str) => BitVector.fromValidHex(str);
 
-  forAll('hashCode / equality', (bitVector, bitVector, Gen.integer).tupled, (t) {
-    final (b, b2, n) = t;
-
+  forAll3('hashCode / equality', bitVector, bitVector, Gen.integer, (b, b2, n) {
     expect(b.take(n).concat(b.drop(n)), b);
 
     expect(b.take(n).concat(b.drop(n)).hashCode, b.hashCode);
@@ -183,9 +181,7 @@ void main() {
     );
   });
 
-  forAll('drop (2)', (bitVector, Gen.integer).tupled, (t) {
-    final (x, n) = t;
-
+  forAll2('drop (2)', bitVector, Gen.integer, (x, n) {
     final m = x.nonEmpty ? n % x.size : 0;
     expect(x.drop(m).take(4), x.drop(m).take(4));
   });
@@ -203,9 +199,7 @@ void main() {
     }
   });
 
-  forAll('endsWith', (bitVector, Gen.integer).tupled, (tuple) {
-    final (bv, n0) = tuple;
-
+  forAll2('endsWith', bitVector, Gen.integer, (bv, n0) {
     final n = bv.nonEmpty ? (n0 % bv.size).abs() : 0;
     final slice = bv.takeRight(n);
 
@@ -228,12 +222,12 @@ void main() {
     expect(BitVector.highByte.toBin(), '11111111');
   });
 
-  forAll(
+  forAll3(
     'indexOfSlice / containsSlice / startsWith',
-    (bitVector, Gen.integer, Gen.integer).tupled,
-    (tuple) {
-      final (bv, m0, n0) = tuple;
-
+    bitVector,
+    Gen.integer,
+    Gen.integer,
+    (bv, m0, n0) {
       final m = bv.nonEmpty ? (m0 % bv.size).abs() : 0;
       final n = bv.nonEmpty ? (n0 % bv.size).abs() : 0;
       final slice = bv.slice(min(m, n), max(m, n));
@@ -293,9 +287,7 @@ void main() {
     expect(bv.padTo(bv.size + 10), bv.padRight(bv.size + 10));
   });
 
-  forAll('patch', (bitVector, bitVector, Gen.integer).tupled, (t) {
-    final (x, y, n0) = t;
-
+  forAll3('patch', bitVector, bitVector, Gen.integer, (x, y, n0) {
     final n = x.nonEmpty ? (n0 % x.size).abs() : 0;
     expect(x.patch(n, x.slice(n, n)), x);
     expect(x.patch(n, y), x.take(n).concat(y).concat(x.drop(n + y.size)));
@@ -324,9 +316,7 @@ void main() {
     );
   });
 
-  forAll('rotations (2)', (bitVector, Gen.integer).tupled, (t) {
-    final (b, n) = t;
-
+  forAll2('rotations (2)', bitVector, Gen.integer, (b, n) {
     expect(b.rotateLeft(b.size), b);
     expect(b.rotateRight(b.size), b);
 
@@ -346,36 +336,26 @@ void main() {
     expect(hex('001122334455').slice(-21, -5), hex(''));
   });
 
-  forAll('splice', (bitVector, bitVector, Gen.integer).tupled, (t) {
-    final (x, y, n0) = t;
-
+  forAll3('splice', bitVector, bitVector, Gen.integer, (x, y, n0) {
     final n = x.nonEmpty ? (n0 % x.size).abs() : 0;
     expect(x.splice(n, BitVector.empty), x);
     expect(x.splice(n, y), x.take(n).concat(y).concat(x.drop(n)));
   });
 
-  forAll('sliding', (bitVector, Gen.integer).tupled, (tuple) {
-    final (b, n0) = tuple;
-
+  forAll2('sliding', bitVector, Gen.integer, (b, n0) {
     final n = (b.nonEmpty ? n0 % b.size.abs() : 0) + 1;
     final expected = b.toBin().sliding(n).map(BitVector.fromValidBin).toIList();
 
     expect(b.sliding(n).toIList(), expected);
   });
 
-  forAll(
-    'sliding with step',
-    (bitVector, Gen.integer).tupled,
-    (tuple) {
-      final (b, n0) = tuple;
+  forAll2('sliding with step', bitVector, Gen.integer, (b, n0) {
+    final n = (b.nonEmpty ? n0 % b.size.abs() : 0) + 1;
 
-      final n = (b.nonEmpty ? n0 % b.size.abs() : 0) + 1;
+    final expected = b.toBin().sliding(n, n).map(BitVector.fromValidBin).toIList();
 
-      final expected = b.toBin().sliding(n, n).map(BitVector.fromValidBin).toIList();
-
-      expect(b.sliding(n, n).toIList(), expected);
-    },
-  );
+    expect(b.sliding(n, n).toIList(), expected);
+  });
 
   forAll('toBin / fromBin roundtrip', bitVector, (bv) {
     expect(BitVector.fromBin(bv.toBin()), isSome(bv));
