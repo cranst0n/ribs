@@ -22,5 +22,5 @@ final class PlatformImpl extends PlatformBase {
   IO<Unit> printErrLn(String message) => IO.exec(() => web.console.log(message.toJS));
 
   @override
-  IO<String> readLine() => IO.raiseError(RuntimeException('Unavailable: IO.readLine()'));
+  IO<String> readLine() => IO.raiseError('Unavailable: IO.readLine()');
 }

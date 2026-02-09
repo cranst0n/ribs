@@ -13,8 +13,8 @@ void main() {
 
   test('raiseError', () {
     expect(
-      () => SyncIO.raiseError<int>(RuntimeException('boom!')).unsafeRunSync(),
-      throwsException,
+      () => SyncIO.raiseError<int>('boom!').unsafeRunSync(),
+      throwsA('boom!'),
     );
   });
 
@@ -35,7 +35,7 @@ void main() {
 
   test('handleError', () {
     expect(
-      SyncIO.raiseError<int>(RuntimeException('boom!')).handleError((a) => 42).unsafeRunSync(),
+      SyncIO.raiseError<int>('boom!').handleError((a) => 42).unsafeRunSync(),
       42,
     );
   });
@@ -43,7 +43,7 @@ void main() {
   test('handleErrorWith', () {
     expect(
       SyncIO.raiseError<int>(
-        RuntimeException('boom!'),
+        'boom!',
       ).handleErrorWith((a) => SyncIO.pure(42)).unsafeRunSync(),
       42,
     );
@@ -61,9 +61,7 @@ void main() {
     expect(SyncIO.pure(42).redeem((_) => 'bad', (_) => 'good').unsafeRunSync(), 'good');
 
     expect(
-      SyncIO.raiseError<int>(
-        RuntimeException('boom'),
-      ).redeem((_) => 'bad', (_) => 'good').unsafeRunSync(),
+      SyncIO.raiseError<int>('boom').redeem((_) => 'bad', (_) => 'good').unsafeRunSync(),
       'bad',
     );
   });
@@ -80,7 +78,7 @@ void main() {
     );
 
     expect(
-      SyncIO.raiseError<int>(RuntimeException('boom'))
+      SyncIO.raiseError<int>('boom')
           .redeemWith(
             (_) => SyncIO.pure('bad'),
             (_) => SyncIO.pure('good'),
@@ -93,13 +91,13 @@ void main() {
   test('attempt (success)', () {
     expect(
       SyncIO.pure(42).attempt().unsafeRunSync(),
-      42.asRight<RuntimeException>(),
+      42.asRight<Object>(),
     );
   });
 
   test('attempt (failure)', () {
     expect(
-      SyncIO.raiseError<int>(RuntimeException('boom!')).attempt().unsafeRunSync().isLeft,
+      SyncIO.raiseError<int>('boom!').attempt().unsafeRunSync().isLeft,
       isTrue,
     );
   });

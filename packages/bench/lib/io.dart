@@ -209,13 +209,13 @@ class FutureAttemptSadBenchmark extends AsyncBenchmarkBase {
 }
 
 class RibsAttemptSadBenchmark extends AsyncBenchmarkBase {
-  late IO<Either<RuntimeException, int>> io;
+  late IO<Either<Object, int>> io;
 
   RibsAttemptSadBenchmark() : super('') {
     IO<int> x = IO.pure(0);
     for (int i = 0; i < n; i++) {
       x = x.flatMap(
-        (a) => (i == n ~/ 2) ? IO.raiseError(RuntimeException('boom')) : IO.pure(a + 1),
+        (a) => (i == n ~/ 2) ? IO.raiseError('boom') : IO.pure(a + 1),
       );
     }
 

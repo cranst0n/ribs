@@ -63,13 +63,13 @@ void main() {
   });
 
   test('alwaysGiveUp', () async {
-    final io = IO.raiseError<int>(RuntimeException('fail'));
+    final io = IO.raiseError<int>('fail');
     final retryable = io.retrying(RetryPolicy.alwaysGiveUp());
     final result = await retryable.unsafeRunFutureOutcome();
 
     result.fold(
       () => fail('retryable was canceled'),
-      (err) => expect(err.message, 'Retry giving up.'),
+      (err) => expect(err, 'Retry giving up.'),
       (a) => fail('retryable succeeded'),
     );
   });
@@ -79,7 +79,7 @@ void main() {
 
     final io = IO
         .delay(() => attempts += 1)
-        .flatMap((x) => x > 3 ? IO.pure(x) : IO.raiseError<int>(RuntimeException('attempts: $x')));
+        .flatMap((x) => x > 3 ? IO.pure(x) : IO.raiseError<int>('attempts: $x'));
 
     final retryable = io.retrying(
       RetryPolicy.constantDelay(Duration.zero).join(RetryPolicy.limitRetries(3)),
@@ -98,7 +98,7 @@ void main() {
   });
 
   test('limitRetries (fail)', () async {
-    final io = IO.raiseError<int>(RuntimeException('fail'));
+    final io = IO.raiseError<int>('fail');
 
     final retryable = io.retrying(
       RetryPolicy.constantDelay(Duration.zero).join(RetryPolicy.limitRetries(2)),
@@ -108,7 +108,7 @@ void main() {
 
     result.fold(
       () => fail('retryable was canceled'),
-      (err) => expect(err.message, 'Retry giving up.'),
+      (err) => expect(err, 'Retry giving up.'),
       (a) => fail('retryable succeeded'),
     );
   });
@@ -118,7 +118,7 @@ void main() {
 
     final io = IO
         .delay(() => attempts += 1)
-        .flatMap((x) => x > 2 ? IO.pure(x) : IO.raiseError<int>(RuntimeException('attempts: $x')));
+        .flatMap((x) => x > 2 ? IO.pure(x) : IO.raiseError<int>('attempts: $x'));
 
     final retryable = io.retrying(
       RetryPolicy.exponentialBackoff(1.second).giveUpAfterDelay(5.seconds),
@@ -141,7 +141,7 @@ void main() {
 
     final io = IO
         .delay(() => attempts += 1)
-        .flatMap((x) => x > 4 ? IO.pure(x) : IO.raiseError<int>(RuntimeException('attempts: $x')));
+        .flatMap((x) => x > 4 ? IO.pure(x) : IO.raiseError<int>('attempts: $x'));
 
     final retryable = io.retrying(
       RetryPolicy.exponentialBackoff(1.second).giveUpAfterDelay(2.seconds).capDelay(3.seconds),
@@ -152,7 +152,7 @@ void main() {
     result.fold(
       () => fail('retryable was canceled'),
       (err) {
-        expect(err.message, 'Retry giving up.');
+        expect(err, 'Retry giving up.');
         expect(attempts, 3);
       },
       (a) => fail('retryable succeeded'),

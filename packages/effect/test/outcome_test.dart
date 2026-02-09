@@ -12,9 +12,9 @@ void main() {
     });
 
     test('errored', () {
-      expect(Outcome.errored<Unit>(RuntimeException('')).isSuccess, isFalse);
-      expect(Outcome.errored<Unit>(RuntimeException('')).isError, isTrue);
-      expect(Outcome.errored<Unit>(RuntimeException('')).isCanceled, isFalse);
+      expect(Outcome.errored<Unit>('').isSuccess, isFalse);
+      expect(Outcome.errored<Unit>('').isError, isTrue);
+      expect(Outcome.errored<Unit>('').isCanceled, isFalse);
     });
 
     test('canceled', () {
@@ -30,7 +30,7 @@ void main() {
       expect(Outcome.succeeded<Object>(Unit()) == Outcome.succeeded<Object>(42), isFalse);
 
       expect(
-        Outcome.succeeded(Unit()) == Outcome.errored<Unit>(RuntimeException('')),
+        Outcome.succeeded(Unit()) == Outcome.errored<Unit>(''),
         isFalse,
       );
 
@@ -38,19 +38,11 @@ void main() {
     });
 
     test('errored', () {
-      final err = Outcome.errored<Unit>(RuntimeException(''));
+      final err = Outcome.errored<Unit>('');
 
       expect(err == err, isTrue);
-
-      expect(
-        err == Outcome.errored<Unit>(RuntimeException('')),
-        isFalse,
-      );
-
-      expect(
-        Outcome.errored<Unit>(RuntimeException('')) == Outcome.canceled<Unit>(),
-        isFalse,
-      );
+      expect(err == Outcome.errored<Unit>(''), isTrue);
+      expect(Outcome.errored<Unit>('') == Outcome.canceled<Unit>(), isFalse);
     });
 
     test('canceled', () {
@@ -58,7 +50,7 @@ void main() {
     });
 
     test('isSameType', () {
-      final err = RuntimeException('boom');
+      const err = 'boom';
 
       expect(Outcome.succeeded('a').isSameType(Outcome.succeeded(42)), isTrue);
       expect(Outcome.errored<int>(err).isSameType(Outcome.errored<Unit>(err)), isTrue);
@@ -76,7 +68,7 @@ void main() {
     });
 
     test('errored', () {
-      final test = Outcome.errored<int>(RuntimeException('')).embed(IO.pure(0));
+      final test = Outcome.errored<int>('').embed(IO.pure(0));
       expect(test, ioErrored());
     });
 

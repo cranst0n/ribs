@@ -20,7 +20,7 @@ abstract class EntityDecoder<A> {
           () => media.body.fold(List<int>.empty(growable: true), (acc, elem) => acc..addAll(elem)),
         )
         .redeem(
-          (err) => DecodeFailure(err.message).asLeft(),
+          (err) => DecodeFailure(err).asLeft(),
           (bytes) => bytes.asRight(),
         ),
     iset({MediaRange.all}),
@@ -32,7 +32,7 @@ abstract class EntityDecoder<A> {
           () => media.body.transform(JsonTransformer.bytes(AsyncParserMode.singleValue)).first,
         )
         .redeem(
-          (err) => DecodeFailure(err.message).asLeft(),
+          (err) => DecodeFailure(err).asLeft(),
           (j) => j.asRight(),
         ),
     iset({MediaRange.text}),
@@ -45,7 +45,7 @@ abstract class EntityDecoder<A> {
     (media, strict) => IO
         .fromFutureF(() => media.bodyText.fold('', (acc, elem) => acc + elem))
         .redeem(
-          (err) => DecodeFailure(err.message, err.stackTrace).asLeft(),
+          (err) => DecodeFailure(err).asLeft(),
           (str) => str.asRight(),
         ),
     iset({}),

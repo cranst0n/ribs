@@ -26,7 +26,7 @@ final class PlatformImpl extends PlatformBase {
   IO<String> readLine() => IO
       .delay(() => stdin.readLineSync())
       .flatMap(
-        (l) => Option(l).fold(() => IO.raiseError(RuntimeException('stdin line ended')), IO.pure),
+        (l) => Option(l).fold(() => IO.raiseError('stdin line ended'), IO.pure),
       );
 
   IO<Unit> _printTo(Stdout s, String message) => _opAndFlush(s, (std) => std.write(message));

@@ -44,13 +44,9 @@ void main() {
 
     test('release permit if permit errors', () {
       final test = sc(1).flatMap((sem) {
-        return sem
-            .permit()
-            .surround(IO.raiseError<Unit>(RuntimeException('boom!')))
-            .attempt()
-            .flatMap((_) {
-              return sem.permit().surround(IO.unit);
-            });
+        return sem.permit().surround(IO.raiseError<Unit>('boom')).attempt().flatMap((_) {
+          return sem.permit().surround(IO.unit);
+        });
       });
 
       expect(test, ioSucceeded(Unit()));
@@ -58,13 +54,9 @@ void main() {
 
     test('release permit if tryPermit errors', () {
       final test = sc(1).flatMap((sem) {
-        return sem
-            .tryPermit()
-            .surround(IO.raiseError<Unit>(RuntimeException('boom!')))
-            .attempt()
-            .flatMap((_) {
-              return sem.permit().surround(IO.unit);
-            });
+        return sem.tryPermit().surround(IO.raiseError<Unit>('boom')).attempt().flatMap((_) {
+          return sem.permit().surround(IO.unit);
+        });
       });
 
       expect(test, ioSucceeded(Unit()));

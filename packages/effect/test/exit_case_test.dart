@@ -11,9 +11,9 @@ void main() {
     });
 
     test('errored', () {
-      expect(ExitCase.errored(RuntimeException('')).isSuccess, isFalse);
-      expect(ExitCase.errored(RuntimeException('')).isError, isTrue);
-      expect(ExitCase.errored(RuntimeException('')).isCanceled, isFalse);
+      expect(ExitCase.errored('BOOM').isSuccess, isFalse);
+      expect(ExitCase.errored('BOOM').isError, isTrue);
+      expect(ExitCase.errored('BOOM').isCanceled, isFalse);
     });
 
     test('canceled', () {
@@ -29,7 +29,7 @@ void main() {
     });
 
     test('errored', () {
-      final err = RuntimeException('');
+      const err = 'BOOM';
       expect(ExitCase.errored(err).toOutcome(), Outcome.errored<Unit>(err));
     });
 

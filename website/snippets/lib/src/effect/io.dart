@@ -47,7 +47,7 @@ Future<void> asyncSnippet1() async {
     IO.async_<A>((cb) {
       fut().then(
         (a) => cb(Right(a)),
-        onError: (Object err, StackTrace st) => cb(Left(RuntimeException(err, st))),
+        onError: (Object err, StackTrace st) => cb(Left(err)),
       );
     });
 
@@ -68,7 +68,7 @@ Future<void> errorHandlingSnippet1() async {
     if (b != 0) {
       return IO.pure(a / b);
     } else {
-      return IO.raiseError(RuntimeException('cannot divide by 0!'));
+      return IO.raiseError('cannot divide by 0!');
     }
   });
 

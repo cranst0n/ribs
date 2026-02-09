@@ -1,5 +1,4 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/src/std/internal/stack.dart';
 
 sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
@@ -7,19 +6,18 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   static SyncIO<A> pure<A>(A a) => _Pure(a);
 
-  static SyncIO<A> raiseError<A>(RuntimeException error) => _Error(error);
+  static SyncIO<A> raiseError<A>(Object error) => _Error(error);
 
   SyncIO<B> as<B>(B b) => map((_) => b);
 
-  SyncIO<Either<RuntimeException, A>> attempt() => _Attempt(this);
+  SyncIO<Either<Object, A>> attempt() => _Attempt(this);
 
   @override
   SyncIO<B> flatMap<B>(covariant Function1<A, SyncIO<B>> f) => _FlatMap(this, Fn1(f));
 
-  SyncIO<A> handleError(Function1<RuntimeException, A> f) =>
-      handleErrorWith((e) => SyncIO.pure(f(e)));
+  SyncIO<A> handleError(Function1<Object, A> f) => handleErrorWith((e) => SyncIO.pure(f(e)));
 
-  SyncIO<A> handleErrorWith(covariant Function1<RuntimeException, SyncIO<A>> f) =>
+  SyncIO<A> handleErrorWith(covariant Function1<Object, SyncIO<A>> f) =>
       _HandleErrorWith(this, Fn1(f));
 
   @override
@@ -29,11 +27,11 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   SyncIO<B> productR<B>(Function0<SyncIO<B>> that) => flatMap((_) => that());
 
-  SyncIO<B> redeem<B>(Function1<RuntimeException, B> recover, Function1<A, B> map) =>
+  SyncIO<B> redeem<B>(Function1<Object, B> recover, Function1<A, B> map) =>
       attempt().map((a) => a.fold(recover, map));
 
   SyncIO<B> redeemWith<B>(
-    Function1<RuntimeException, SyncIO<B>> recover,
+    Function1<Object, SyncIO<B>> recover,
     Function1<A, SyncIO<B>> bind,
   ) => attempt().flatMap((a) => a.fold(recover, bind));
 
@@ -54,12 +52,12 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
         cur0 = succeeded(conts, objectState, cur0.value, 0);
       } else if (cur0 is _Suspend) {
         dynamic result;
-        RuntimeException? error;
+        Object? error;
 
         try {
           result = cur0.thunk();
-        } catch (e, s) {
-          error = RuntimeException(e, s);
+        } catch (e) {
+          error = e;
         }
 
         cur0 =
@@ -129,7 +127,7 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
   SyncIO<dynamic> failed(
     Stack<_Cont> conts,
     Stack<dynamic> objectState,
-    RuntimeException error,
+    Object error,
     int depth,
   ) {
     var cont = conts.pop();
@@ -150,8 +148,8 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
         try {
           return f(error) as SyncIO<dynamic>;
-        } catch (e, s) {
-          return failed(conts, objectState, RuntimeException(e, s), depth + 1);
+        } catch (e) {
+          return failed(conts, objectState, e, depth + 1);
         }
       case _Cont.RunTerminus:
         return _Failure(error);
@@ -177,12 +175,12 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
     final f = objectState.pop() as Fn1;
 
     dynamic transformed;
-    RuntimeException? error;
+    Object? error;
 
     try {
       transformed = f(result);
-    } catch (e, s) {
-      error = RuntimeException(e, s);
+    } catch (e) {
+      error = e;
     }
 
     if (depth > _DefaultMaxStackDepth) {
@@ -210,8 +208,8 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
     try {
       return f(result) as SyncIO<dynamic>;
-    } catch (e, s) {
-      return failed(conts, objectState, RuntimeException(e, s), depth + 1);
+    } catch (e) {
+      return failed(conts, objectState, e, depth + 1);
     }
   }
 
@@ -225,7 +223,7 @@ final class _Pure<A> extends SyncIO<A> {
 }
 
 final class _Error<A> extends SyncIO<A> {
-  final RuntimeException value;
+  final Object value;
 
   _Error(this.value);
 }
@@ -250,11 +248,11 @@ final class _FlatMap<A, B> extends SyncIO<B> {
   _FlatMap(this.ioa, this.f);
 }
 
-final class _Attempt<A> extends SyncIO<Either<RuntimeException, A>> {
+final class _Attempt<A> extends SyncIO<Either<Object, A>> {
   final SyncIO<A> ioa;
 
-  Either<RuntimeException, A> smartCast(dynamic value) =>
-      value is RuntimeException ? value.asLeft() : (value as A).asRight();
+  Either<Object, A> smartCast(dynamic value) =>
+      value is A ? value.asRight() : (value as Object).asLeft();
 
   _Attempt(this.ioa);
 
@@ -264,7 +262,7 @@ final class _Attempt<A> extends SyncIO<Either<RuntimeException, A>> {
 
 final class _HandleErrorWith<A> extends SyncIO<A> {
   final SyncIO<A> ioa;
-  final Fn1<RuntimeException, SyncIO<A>> f;
+  final Fn1<Object, SyncIO<A>> f;
 
   _HandleErrorWith(this.ioa, this.f);
 
@@ -279,7 +277,7 @@ final class _Success<A> extends SyncIO<A> {
 }
 
 final class _Failure<A> extends SyncIO<A> {
-  final RuntimeException ex;
+  final Object ex;
 
   _Failure(this.ex);
 }

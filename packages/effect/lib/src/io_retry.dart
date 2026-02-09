@@ -309,8 +309,8 @@ extension RetryOps<A> on IO<A> {
   IO<A> retrying(
     RetryPolicy policy, {
     Function1<A, bool>? wasSuccessful,
-    Function1<RuntimeException, bool>? isWorthRetrying,
-    Function2<RuntimeException, RetryDetails, IO<Unit>>? onError,
+    Function1<Object, bool>? isWorthRetrying,
+    Function2<Object, RetryDetails, IO<Unit>>? onError,
     Function2<A, RetryDetails, IO<Unit>>? onFailure,
   }) => _retryingImpl(
     policy,
@@ -325,8 +325,8 @@ extension RetryOps<A> on IO<A> {
   IO<A> _retryingImpl(
     RetryPolicy policy,
     Function1<A, bool> wasSuccessful,
-    Function1<RuntimeException, bool> isWorthRetrying,
-    Function2<RuntimeException, RetryDetails, IO<Unit>> onError,
+    Function1<Object, bool> isWorthRetrying,
+    Function2<Object, RetryDetails, IO<Unit>> onError,
     Function2<A, RetryDetails, IO<Unit>> onFailure,
     RetryStatus status,
     IO<A> action,
@@ -345,7 +345,7 @@ extension RetryOps<A> on IO<A> {
                   action,
                   (details) => onError(err, details),
                 )
-                : IO.raiseError(RuntimeException(err.toString())),
+                : IO.raiseError(err),
         (a) =>
             wasSuccessful(a)
                 ? IO.pure(a)
@@ -366,8 +366,8 @@ extension RetryOps<A> on IO<A> {
   IO<A> _onFailureOrError(
     RetryPolicy policy,
     Function1<A, bool> wasSuccessful,
-    Function1<RuntimeException, bool> isWorthRetrying,
-    Function2<RuntimeException, RetryDetails, IO<Unit>> onError,
+    Function1<Object, bool> isWorthRetrying,
+    Function2<Object, RetryDetails, IO<Unit>> onError,
     Function2<A, RetryDetails, IO<Unit>> onFailure,
     RetryStatus status,
     IO<A> action,
@@ -380,7 +380,7 @@ extension RetryOps<A> on IO<A> {
     return IO
         .pure(decision.isGivingUp)
         .ifM(
-          () => IO.raiseError(RuntimeException('Retry giving up.')),
+          () => IO.raiseError('Retry giving up.'),
           () => beforeRecurse(details)
               .productR(() => IO.sleep(decision.delay))
               .productR(

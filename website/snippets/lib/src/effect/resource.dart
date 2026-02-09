@@ -20,7 +20,7 @@ Future<void> snippet1() async {
 
   (await program.unsafeRunFutureOutcome()).fold(
     () => print('Program canceled.'),
-    (err) => print('Error: ${err.message}. But the file was still closed!'),
+    (err) => print('Error: $err. But the file was still closed!'),
     (bytes) => print('Read ${bytes.length} bytes from file.'),
   );
 

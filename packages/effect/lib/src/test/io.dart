@@ -13,7 +13,7 @@ IO<Unit> expectIO(
 
 Matcher ioSucceeded([Object? matcher]) => _Succeeded(matcher ?? anyOf(isNotNull, isNull));
 
-Matcher ioErrored([Object? matcher]) => _Errored(matcher ?? isA<RuntimeException>());
+Matcher ioErrored([Object? matcher]) => _Errored(matcher);
 
 Matcher ioCanceled() => _Canceled();
 
@@ -42,7 +42,7 @@ class _Succeeded extends AsyncMatcher {
 }
 
 class _Errored extends AsyncMatcher {
-  final Object _matcher;
+  final Object? _matcher;
 
   _Errored(this._matcher);
 
@@ -60,7 +60,9 @@ class _Errored extends AsyncMatcher {
     return item.unsafeRunFutureOutcome().then((outcome) {
       return outcome.fold(
         () => fail('IO was canceled'),
-        (err) => expect(err, _matcher),
+        (err) {
+          if (_matcher != null) expect(err, _matcher);
+        },
         (a) => fail('IO did not error, but succeeded as: $a'),
       );
     });

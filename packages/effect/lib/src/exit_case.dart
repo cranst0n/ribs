@@ -14,7 +14,7 @@ sealed class ExitCase {
   factory ExitCase.succeeded() => const _Succeeded();
 
   /// Creates an [ExitCase] to signal an error was encountered.
-  factory ExitCase.errored(RuntimeException error) => _Errored(error);
+  factory ExitCase.errored(Object error) => _Errored(error);
 
   /// Creates an [ExitCase] to signal a cancelation.
   factory ExitCase.canceled() => const _Canceled();
@@ -26,7 +26,7 @@ sealed class ExitCase {
   /// [succeeded] will be applied if this instance signals success.
   B fold<B>(
     Function0<B> canceled,
-    Function1<RuntimeException, B> errored,
+    Function1<Object, B> errored,
     Function0<B> succeeded,
   );
 
@@ -61,20 +61,20 @@ final class _Succeeded extends ExitCase {
   @override
   B fold<B>(
     Function0<B> canceled,
-    Function1<RuntimeException, B> errored,
+    Function1<Object, B> errored,
     Function0<B> succeeded,
   ) => succeeded();
 }
 
 final class _Errored extends ExitCase {
-  final RuntimeException error;
+  final Object error;
 
   const _Errored(this.error);
 
   @override
   B fold<B>(
     Function0<B> canceled,
-    Function1<RuntimeException, B> errored,
+    Function1<Object, B> errored,
     Function0<B> succeeded,
   ) => errored(error);
 
@@ -88,7 +88,7 @@ final class _Canceled extends ExitCase {
   @override
   B fold<B>(
     Function0<B> canceled,
-    Function1<RuntimeException, B> errored,
+    Function1<Object, B> errored,
     Function0<B> succeeded,
   ) => canceled();
 }

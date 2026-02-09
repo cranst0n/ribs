@@ -29,7 +29,7 @@ void retrySimple() {
   final IO<Json> customRetry = flakyOp().retrying(
     RetryPolicy.constantDelay(5.seconds),
     wasSuccessful: (json) => json.isObject,
-    isWorthRetrying: (error) => error.message.toString().contains('oops'),
+    isWorthRetrying: (error) => error.toString().contains('oops'),
     onError: (error, details) => IO.println('Attempt ${details.retriesSoFar}.'),
     onFailure: (json, details) => IO.println('$json failed [$details]'),
   );

@@ -20,7 +20,7 @@ void main() {
       });
 
       test('fail if lhs fails', () {
-        final err = RuntimeException('boom');
+        const err = 'boom';
         expect(
           IO
               .race(
@@ -33,7 +33,7 @@ void main() {
       });
 
       test('fail if rhs fails', () {
-        final err = RuntimeException('boom');
+        const err = 'boom';
         expect(
           IO
               .race(
@@ -46,7 +46,7 @@ void main() {
       });
 
       test('fail if lhs fails and rhs never completes', () {
-        final err = RuntimeException('boom');
+        const err = 'boom';
         expect(
           IO.race(IO.raiseError<int>(err), IO.never<int>()).voided(),
           ioErrored(err),
@@ -54,7 +54,7 @@ void main() {
       });
 
       test('fail if rhs fails and lhs never completes', () {
-        final err = RuntimeException('boom');
+        const err = 'boom';
         expect(
           IO.race(IO.never<int>(), IO.raiseError<int>(err)).voided(),
           ioErrored(err),
@@ -107,7 +107,7 @@ void main() {
       });
 
       test('cancel if lhs cancels and rhs fails', () {
-        final err = RuntimeException('boom');
+        const err = 'boom';
         expect(
           IO
               .race(
@@ -120,7 +120,7 @@ void main() {
       });
 
       test('cancel if rhs cancels and lhs fails', () {
-        final err = RuntimeException('boom');
+        const err = 'boom';
         expect(
           IO
               .race(
@@ -486,7 +486,7 @@ void main() {
 
       test('catch stray exceptions in uncancelable', () {
         expect(
-          IO.uncancelable<Unit>((_) => throw RuntimeException('boom')).voidError(),
+          IO.uncancelable<Unit>((_) => throw 'boom').voidError(),
           ioSucceeded(Unit()),
         );
       });
@@ -494,7 +494,7 @@ void main() {
       test('unmask following stray exceptions in uncancelable', () {
         expect(
           IO
-              .uncancelable<Unit>((_) => throw RuntimeException('boom'))
+              .uncancelable<Unit>((_) => throw 'boom')
               .handleErrorWith((_) => IO.canceled.productR(() => IO.never())),
           ioCanceled(),
         );
@@ -570,7 +570,7 @@ void main() {
       });
 
       test('hold onto errors through multiple finalizers', () {
-        final err = RuntimeException('boom');
+        const err = 'boom';
 
         expect(
           IO.raiseError<int>(err).guarantee(IO.unit).guarantee(IO.unit),
@@ -585,7 +585,7 @@ void main() {
       });
 
       test('ensure async callback is suppressed during suspension of async finalizers', () {
-        Function1<Either<RuntimeException, Unit>, void>? cb;
+        Function1<Either<Object, Unit>, void>? cb;
 
         final subject = IO.async<Unit>((cb0) {
           return IO.delay(() {
@@ -617,7 +617,7 @@ void main() {
       });
 
       test('not finalize after uncancelable with suppressed cancelation (errored)', () async {
-        final err = RuntimeException('boom');
+        const err = 'boom';
 
         var finalized = false;
 
@@ -706,7 +706,7 @@ void main() {
   });
 
   test('raiseError', () {
-    expect(IO.raiseError<int>(RuntimeException('boom')), ioErrored());
+    expect(IO.raiseError<int>('boom'), ioErrored());
   });
 
   test('delay', () {
@@ -724,7 +724,7 @@ void main() {
       IO.delay(() => Future<int>.delayed(250.milliseconds, () => Future.error('boom'))),
     );
 
-    expect(io, ioErrored((RuntimeException ex) => ex.message == 'boom'));
+    expect(io, ioErrored('boom'));
   });
 
   test('fromCancelableOperation success', () {
@@ -776,7 +776,7 @@ void main() {
   });
 
   test('bothOutcome', () {
-    final err = RuntimeException('boom');
+    const err = 'boom';
 
     expect(
       IO.bothOutcome(IO.canceled, IO.raiseError<Unit>(err)),
@@ -850,7 +850,7 @@ void main() {
   test('map error', () {
     expect(
       IO.pure(42).map((a) => a ~/ 0),
-      ioErrored((RuntimeException ex) => ex.message is UnsupportedError),
+      ioErrored(isA<UnsupportedError>()),
     );
   });
 
@@ -860,9 +860,9 @@ void main() {
   });
 
   test('flatMap error', () {
-    final io = IO.pure(42).flatMap((i) => IO.raiseError<String>(RuntimeException('boom')));
+    final io = IO.pure(42).flatMap((i) => IO.raiseError<String>('boom'));
 
-    expect(io, ioErrored((RuntimeException ex) => ex.message == 'boom'));
+    expect(io, ioErrored('boom'));
   });
 
   test('flatMap delay', () {
@@ -872,22 +872,22 @@ void main() {
 
   test('attempt pure', () {
     final io = IO.pure(42).attempt();
-    expect(io, ioSucceeded(42.asRight<RuntimeException>()));
+    expect(io, ioSucceeded(42.asRight<Object>()));
   });
 
   test('attempt error', () {
-    final io = IO.raiseError<int>(RuntimeException('boom')).attempt();
-    expect(io, ioSucceeded((Either<RuntimeException, int> e) => e.isLeft));
+    final io = IO.raiseError<int>('boom').attempt();
+    expect(io, ioSucceeded((Either<Object, int> e) => e.isLeft));
   });
 
   test('attempt delay success', () {
     final io = IO.delay(() => 42).attempt();
-    expect(io, ioSucceeded(42.asRight<RuntimeException>()));
+    expect(io, ioSucceeded(42.asRight<Object>()));
   });
 
   test('attempt delay error', () {
     final io = IO.delay(() => 42 ~/ 0).attempt();
-    expect(io, ioSucceeded((Either<RuntimeException, int> e) => e.isLeft));
+    expect(io, ioSucceeded((Either<Object, int> e) => e.isLeft));
   });
 
   test('attempt and map', () {
@@ -945,7 +945,7 @@ void main() {
 
   test('unsafeRunFuture success', () async {
     expect(await IO.pure(42).unsafeRunFuture(), 42);
-    expect(IO.raiseError<int>(RuntimeException('boom')).unsafeRunFuture(), throwsA('boom'));
+    expect(IO.raiseError<int>('boom').unsafeRunFuture(), throwsA('boom'));
   });
 
   test('start simple', () async {
@@ -1090,7 +1090,7 @@ void main() {
     count = 0;
 
     await expectLater(
-      IO.raiseError<Unit>(RuntimeException('boom')).guaranteeCase(fin),
+      IO.raiseError<Unit>('boom').guaranteeCase(fin),
       ioErrored(),
     );
 
@@ -1150,8 +1150,7 @@ void main() {
       IO
           .pure(41)
           .bracket(
-            (a) =>
-                IO.delay(() => a + 1).productR(() => IO.raiseError<int>(RuntimeException('boom'))),
+            (a) => IO.delay(() => a + 1).productR(() => IO.raiseError<int>('boom')),
             (_) => IO.exec(() => count += 1),
           ),
       ioErrored(),
@@ -1183,24 +1182,24 @@ void main() {
 
   test('option', () {
     expect(IO.pure(42).option(), ioSucceeded(const Some(42)));
-    expect(IO.raiseError<int>(RuntimeException('boom')).option(), ioSucceeded(none<int>()));
+    expect(IO.raiseError<int>('boom').option(), ioSucceeded(none<int>()));
     expect(IO.canceled.option(), ioCanceled());
   });
 
   test('orElse', () {
     expect(IO.pure(42).orElse(() => IO.pure(0)), ioSucceeded(42));
-    expect(IO.raiseError<int>(RuntimeException('boom')).orElse(() => IO.pure(0)), ioSucceeded(0));
+    expect(IO.raiseError<int>('boom').orElse(() => IO.pure(0)), ioSucceeded(0));
     expect(IO.canceled.orElse(() => IO.pure(Unit())), ioCanceled());
   });
 
   test('raiseUnless', () {
-    expect(IO.raiseUnless(false, () => RuntimeException('boom')), ioErrored());
-    expect(IO.raiseUnless(true, () => RuntimeException('boom')), ioSucceeded());
+    expect(IO.raiseUnless(false, () => 'boom'), ioErrored());
+    expect(IO.raiseUnless(true, () => 'boom'), ioSucceeded());
   });
 
   test('raiseWhen', () {
-    expect(IO.raiseWhen(true, () => RuntimeException('boom')), ioErrored());
-    expect(IO.raiseWhen(false, () => RuntimeException('boom')), ioSucceeded());
+    expect(IO.raiseWhen(true, () => 'boom'), ioErrored());
+    expect(IO.raiseWhen(false, () => 'boom'), ioSucceeded());
   });
 
   test('redeem', () {
@@ -1210,7 +1209,7 @@ void main() {
     );
 
     expect(
-      IO.raiseError<int>(RuntimeException('boom')).redeem((err) => 'a', (a) => a.toString()),
+      IO.raiseError<int>('boom').redeem((err) => 'a', (a) => a.toString()),
       ioSucceeded('a'),
     );
   });
@@ -1222,9 +1221,7 @@ void main() {
     );
 
     expect(
-      IO
-          .raiseError<int>(RuntimeException('boom'))
-          .redeemWith((err) => IO.pure('a'), (a) => IO.pure(a.toString())),
+      IO.raiseError<int>('boom').redeemWith((err) => IO.pure('a'), (a) => IO.pure(a.toString())),
       ioSucceeded('a'),
     );
   });
@@ -1292,7 +1289,7 @@ void main() {
 
     expect(
       io,
-      ioErrored((RuntimeException ex) => ex.message is TimeoutException),
+      ioErrored(isA<TimeoutException>()),
     );
   });
 
@@ -1477,10 +1474,7 @@ void main() {
   });
 
   test('both error', () {
-    final ioa = IO
-        .pure(0)
-        .delayBy(200.milliseconds)
-        .productR(() => IO.raiseError<int>(RuntimeException('boom')));
+    final ioa = IO.pure(0).delayBy(200.milliseconds).productR(() => IO.raiseError<int>('boom'));
 
     final iob = IO.pure(1).delayBy(100.milliseconds);
 
