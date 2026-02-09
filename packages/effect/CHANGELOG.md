@@ -1,3 +1,7 @@
+## 1.0.0-dev.3
+
+- Update dependencies.
+
 ## 1.0.0-dev.2
 
 - Additions: Semaphore, CyclicBarrier, Backpressure

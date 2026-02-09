@@ -1,5 +1,5 @@
 name: ribs_core
-version: 1.0.0-dev.13
+version: 1.0.0-dev.14
 homepage: https://cranst0n.github.io/ribs/
 repository: https://github.com/cranst0n/ribs
 description: >
@@ -19,4 +19,4 @@ dependencies:
 
 dev_dependencies:
   lint:       ^2.8.0
-  ribs_check: ^1.0.0-dev.7
+  ribs_check: ^1.0.0-dev.8

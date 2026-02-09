@@ -1,3 +1,8 @@
+## 1.0.0-dev.10
+
+- Revamp BitVector and ByteVector implementations
+- Add CRC calcuations
+
 ## 1.0.0-dev.9
 
 - Increase Codec/Encoder/Decoder arity to 22

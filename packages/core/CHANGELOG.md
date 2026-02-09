@@ -1,3 +1,8 @@
+## 1.0.0-dev.14
+
+- Breaking API changes in collections.
+- Update dependencies.
+
 ## 1.0.0-dev.13
 
 - Fix IMap equality
