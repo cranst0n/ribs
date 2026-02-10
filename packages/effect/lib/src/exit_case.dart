@@ -64,6 +64,12 @@ final class _Succeeded extends ExitCase {
     Function2<Object, StackTrace?, B> errored,
     Function0<B> succeeded,
   ) => succeeded();
+
+  @override
+  bool operator ==(Object other) => identical(this, other) || (other is Succeeded);
+
+  @override
+  int get hashCode => 1;
 }
 
 final class _Errored extends ExitCase {
@@ -81,6 +87,13 @@ final class _Errored extends ExitCase {
 
   @override
   String toString() => 'Errored: $error';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || (other is _Errored && other.error == error);
+
+  @override
+  int get hashCode => 2;
 }
 
 final class _Canceled extends ExitCase {
@@ -92,4 +105,10 @@ final class _Canceled extends ExitCase {
     Function2<Object, StackTrace?, B> errored,
     Function0<B> succeeded,
   ) => canceled();
+
+  @override
+  bool operator ==(Object other) => identical(this, other) || (other is _Canceled);
+
+  @override
+  int get hashCode => 3;
 }
