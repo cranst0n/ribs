@@ -75,7 +75,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
   // Instances //
   ///////////////
 
-  static Gen<String> alphaLowerChar = Choose.integer
+  static final Gen<String> alphaLowerChar = Choose.integer
       .choose('a'.codeUnitAt(0), 'z'.codeUnitAt(0) + 1)
       .map(String.fromCharCode);
 
@@ -89,25 +89,25 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   static Gen<String> alphaNumString([int? limit]) => stringOf(alphaNumChar, limit);
 
-  static Gen<String> alphaUpperChar = alphaLowerChar.map((c) => c.toUpperCase());
+  static final Gen<String> alphaUpperChar = alphaLowerChar.map((c) => c.toUpperCase());
 
   static Gen<String> alphaUpperString([int? size]) => stringOf(alphaUpperChar, size);
 
-  static Gen<String> asciiChar = chooseInt(0, 127).map(String.fromCharCode);
+  static final Gen<String> asciiChar = chooseInt(0, 127).map(String.fromCharCode);
 
   static Gen<IList<A>> atLeastOne<A>(List<A> as) =>
       chooseInt(1, as.length - 1).flatMap((size) => ilistOfN(size, oneOf(as)));
 
-  static Gen<BigInt> bigInt = Gen.listOf(
+  static final Gen<BigInt> bigInt = Gen.listOf(
     Gen.chooseInt(1, 20),
     Gen.numChar,
   ).map((a) => BigInt.parse(a.join()));
 
-  static Gen<String> binChar = charSample('01');
+  static final Gen<String> binChar = charSample('01');
 
-  static Gen<bool> boolean = Gen(State((r) => r.nextBool()));
+  static final Gen<bool> boolean = Gen(State((r) => r.nextBool()));
 
-  static Gen<int> byte = chooseInt(0, 255);
+  static final Gen<int> byte = chooseInt(0, 255);
 
   static Gen<double> chooseDouble(
     double min,
@@ -140,13 +140,13 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   static Gen<A> constant<A>(A a) => Gen(State.pure(a));
 
-  static Gen<DateTime> date = (
+  static final Gen<DateTime> date = (
     chooseInt(1970, DateTime.now().year + 100),
     chooseInt(DateTime.january, DateTime.december),
     chooseInt(0, 30),
   ).tupled.map((t) => DateTime(t.$1, t.$2, t.$3));
 
-  static Gen<DateTime> dateTime = (
+  static final Gen<DateTime> dateTime = (
     chooseInt(1970, DateTime.now().year + 100),
     chooseInt(DateTime.january, DateTime.december),
     chooseInt(0, 30),
@@ -200,7 +200,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
     );
   }
 
-  static Gen<String> hexChar = charSample('01234567890abcdefABCDEF');
+  static final Gen<String> hexChar = charSample('01234567890abcdefABCDEF');
 
   static Gen<String> hexString([int? size]) => stringOf(hexChar, size);
 
@@ -215,7 +215,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   static Gen<IList<A>> ilistOfN<A>(int size, Gen<A> gen) => sequence(IList.fill(size, gen));
 
-  static Gen<int> integer = Gen.chooseInt(-2147483648, 2147483647);
+  static final Gen<int> integer = Gen.chooseInt(-2147483648, 2147483647);
 
   static Gen<List<A>> listOf<A>(Gen<int> sizeGen, Gen<A> gen) =>
       sizeGen.flatMap((size) => listOfN(size, gen));
@@ -239,9 +239,9 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
       .choose(1, limit ?? 1000)
       .flatMap((size) => Gen.ilistOfN(size, gen).map(NonEmptyIList.unsafe));
 
-  static Gen<int> nonNegativeInt = chooseInt(0, Integer.MaxValue);
+  static final Gen<int> nonNegativeInt = chooseInt(0, Integer.MaxValue);
 
-  static Gen<String> numChar = charSample('01234567890');
+  static final Gen<String> numChar = charSample('01234567890');
 
   static Gen<A> oneOf<A>(Iterable<A> xs) => Choose.integer
       .choose(0, xs.length)
@@ -258,7 +258,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   static Gen<Option<A>> option<A>(Gen<A> a) => frequency([(1, constant(none<A>())), (9, some(a))]);
 
-  static Gen<int> positiveInt = chooseInt(1, Integer.MaxValue);
+  static final Gen<int> positiveInt = chooseInt(1, Integer.MaxValue);
 
   static Gen<Option<A>> some<A>(Gen<A> a) => a.map((a) => Some(a));
 
@@ -274,6 +274,8 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
       listOf(Gen.chooseInt(1, limit ?? 100), char).map((a) => a.join());
 
   static Gen<String> charSample(String chars) => oneOf(chars.split(''));
+
+  static final Gen<Unit> unit = Gen.constant(Unit());
 }
 
 final class Streams {
