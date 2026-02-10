@@ -368,7 +368,7 @@ final class IOFiber<A> {
             _masks += 1;
             final id = _masks;
 
-            final poll = Poll._(id, this);
+            final poll = _RuntimePoll(id, this);
 
             try {
               cur0 = body(poll);

@@ -807,13 +807,18 @@ extension IOExceptionOps<A> on IO<Either<Object, A>> {
 }
 
 /// Utility class to create unmasked blocks within an uncancelable [IO] region.
-final class Poll {
+abstract class Poll {
+  IO<A> call<A>(IO<A> ioa);
+}
+
+class _RuntimePoll extends Poll {
   final int _id;
   final IOFiber<dynamic> _fiber;
 
-  Poll._(this._id, this._fiber);
+  _RuntimePoll(this._id, this._fiber);
 
   /// Creates an IO that allows cancelation within the scope of [ioa].
+  @override
   IO<A> call<A>(IO<A> ioa) => _UnmaskRunLoop(ioa, _id, _fiber);
 }
 
