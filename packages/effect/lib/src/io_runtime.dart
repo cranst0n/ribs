@@ -55,7 +55,8 @@ final class TestIORuntime extends IORuntime {
   Function0<void> scheduleAfter(Duration delay, Function0<void> onWake) {
     final newId = _currentID++;
     final clock = _currentMicros;
-    final runsAt = Duration(microseconds: clock) + delay >= Duration.zero ? delay : Duration.zero;
+    final offset = delay >= Duration.zero ? delay : Duration.zero;
+    final runsAt = Duration(microseconds: clock) + offset;
 
     final task = _Task(newId, onWake, runsAt);
     return _addTask(task);
