@@ -15,8 +15,8 @@ final class IOFiber<A> {
   FiberState _state = FiberState.running;
   String _suspensionInfo = "Initializing";
 
-  final _callbacks = Stack<Function1<Outcome<A>, void>>();
-  final _finalizers = Stack<IO<Unit>>();
+  final _callbacks = Stack<Function1<Outcome<A>, void>>(2);
+  final _finalizers = Stack<IO<Unit>>(2);
 
   _Resumption _resumeTag = const _ExecR();
   IO<dynamic>? _resumeIO;

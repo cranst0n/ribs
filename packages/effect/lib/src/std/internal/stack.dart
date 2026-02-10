@@ -6,10 +6,6 @@
 ///
 /// ***For internal use only***
 class Stack<A> {
-  // Start with a power of 2. 64 frames is deep enough for most
-  // simple business logic, but it will grow if needed.
-  static const int _initialCapacity = 64;
-
   // The backing store.
   List<Object?> _buffer;
 
@@ -17,7 +13,7 @@ class Stack<A> {
   // 0 means empty.
   int _index = 0;
 
-  Stack() : _buffer = List<Object?>.filled(_initialCapacity, null);
+  Stack([int initialCapacity = 16]) : _buffer = List<Object?>.filled(initialCapacity, null);
 
   /// Checks if stack is empty.
   @pragma('vm:prefer-inline')
@@ -29,11 +25,7 @@ class Stack<A> {
 
   /// Removes all elements from this stack.
   void clear() {
-    // Null out all references to allow GC of closures.
-    for (int ix = _index; ix >= 0; ix--) {
-      _buffer[ix] = null;
-    }
-
+    _buffer.fillRange(0, _index, null); // Null out all references to allow GC of elements.
     _index = 0;
   }
 
@@ -53,8 +45,7 @@ class Stack<A> {
     // Decrement first to get the item at the top.
     final f = _buffer[--_index] as A;
 
-    // Critical: Null out the slot to allow the closure to be Garbage Collected.
-    // If we don't do this, the stack holds references to old closures, causing leaks.
+    // Null out the slot to allow the element to be Garbage Collected.
     _buffer[_index] = null;
 
     return f;
