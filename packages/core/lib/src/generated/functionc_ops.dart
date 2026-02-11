@@ -3,22 +3,19 @@ part of '../function.dart';
 /// Provides additional functions on curried functions with 2 parameters.
 extension Function2COps<T0, T1, T2> on Function2C<T0, T1, T2> {
   /// Return the uncurried form of this function.
-  Function2<T0, T1, T2> get uncurried =>
-      (t0, t1) => this(t0)(t1);
+  Function2<T0, T1, T2> get uncurried => (t0, t1) => this(t0)(t1);
 }
 
 /// Provides additional functions on curried functions with 3 parameters.
 extension Function3COps<T0, T1, T2, T3> on Function3C<T0, T1, T2, T3> {
   /// Return the uncurried form of this function.
-  Function3<T0, T1, T2, T3> get uncurried =>
-      (t0, t1, t2) => this(t0)(t1)(t2);
+  Function3<T0, T1, T2, T3> get uncurried => (t0, t1, t2) => this(t0)(t1)(t2);
 }
 
 /// Provides additional functions on curried functions with 4 parameters.
 extension Function4COps<T0, T1, T2, T3, T4> on Function4C<T0, T1, T2, T3, T4> {
   /// Return the uncurried form of this function.
-  Function4<T0, T1, T2, T3, T4> get uncurried =>
-      (t0, t1, t2, t3) => this(t0)(t1)(t2)(t3);
+  Function4<T0, T1, T2, T3, T4> get uncurried => (t0, t1, t2, t3) => this(t0)(t1)(t2)(t3);
 }
 
 /// Provides additional functions on curried functions with 5 parameters.

@@ -3,39 +3,31 @@ part of '../function.dart';
 /// Provides additional functions on functions with 0 parameters.
 extension Function0Ops<T0> on Function0<T0> {
   /// Composes this function with the provided function, this function being applied first.
-  Function0<T1> andThen<T1>(Function1<T0, T1> fn) =>
-      () => fn(this());
+  Function0<T1> andThen<T1>(Function1<T0, T1> fn) => () => fn(this());
 }
 
 /// Provides additional functions on functions with 1 parameters.
 extension Function1Ops<T0, T1> on Function1<T0, T1> {
   /// Composes this function with the provided function, this function being applied first.
-  Function1<T0, T2> andThen<T2>(Function1<T1, T2> fn) =>
-      (t0) => fn(this(t0));
+  Function1<T0, T2> andThen<T2>(Function1<T1, T2> fn) => (t0) => fn(this(t0));
 
   /// Composes this function with the provided function, this function being applied first.
-  Function1<T2, T1> compose<T2>(Function1<T2, T0> fn) =>
-      (t2) => this(fn(t2));
+  Function1<T2, T1> compose<T2>(Function1<T2, T0> fn) => (t2) => this(fn(t2));
 }
 
 /// Provides additional functions on functions with 2 parameters.
 extension Function2Ops<T0, T1, T2> on Function2<T0, T1, T2> {
   /// Composes this function with the provided function, this function being applied first.
-  Function2<T0, T1, T3> andThen<T3>(Function1<T2, T3> fn) =>
-      (t0, t1) => fn(this(t0, t1));
+  Function2<T0, T1, T3> andThen<T3>(Function1<T2, T3> fn) => (t0, t1) => fn(this(t0, t1));
 
   /// Composes this function with the provided function, this function being applied first.
-  Function1<T3, T2> compose<T3>(Function1<T3, (T0, T1)> fn) =>
-      (t3) => tupled(fn(t3));
+  Function1<T3, T2> compose<T3>(Function1<T3, (T0, T1)> fn) => (t3) => tupled(fn(t3));
 
   /// Return the curried form of this function.
-  Function2C<T0, T1, T2> get curried =>
-      (t0) =>
-          (t1) => this(t0, t1);
+  Function2C<T0, T1, T2> get curried => (t0) => (t1) => this(t0, t1);
 
   /// Returns a function that takes a tuple of parameters rather than individual parameters.
-  Function1<(T0, T1), T2> get tupled =>
-      (t) => t(this);
+  Function1<(T0, T1), T2> get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 3 parameters.
@@ -45,18 +37,13 @@ extension Function3Ops<T0, T1, T2, T3> on Function3<T0, T1, T2, T3> {
       (t0, t1, t2) => fn(this(t0, t1, t2));
 
   /// Composes this function with the provided function, this function being applied first.
-  Function1<T4, T3> compose<T4>(Function1<T4, (T0, T1, T2)> fn) =>
-      (t4) => tupled(fn(t4));
+  Function1<T4, T3> compose<T4>(Function1<T4, (T0, T1, T2)> fn) => (t4) => tupled(fn(t4));
 
   /// Return the curried form of this function.
-  Function3C<T0, T1, T2, T3> get curried =>
-      (t0) =>
-          (t1) =>
-              (t2) => this(t0, t1, t2);
+  Function3C<T0, T1, T2, T3> get curried => (t0) => (t1) => (t2) => this(t0, t1, t2);
 
   /// Returns a function that takes a tuple of parameters rather than individual parameters.
-  Function1<(T0, T1, T2), T3> get tupled =>
-      (t) => t(this);
+  Function1<(T0, T1, T2), T3> get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 4 parameters.
@@ -66,19 +53,14 @@ extension Function4Ops<T0, T1, T2, T3, T4> on Function4<T0, T1, T2, T3, T4> {
       (t0, t1, t2, t3) => fn(this(t0, t1, t2, t3));
 
   /// Composes this function with the provided function, this function being applied first.
-  Function1<T5, T4> compose<T5>(Function1<T5, (T0, T1, T2, T3)> fn) =>
-      (t5) => tupled(fn(t5));
+  Function1<T5, T4> compose<T5>(Function1<T5, (T0, T1, T2, T3)> fn) => (t5) => tupled(fn(t5));
 
   /// Return the curried form of this function.
   Function4C<T0, T1, T2, T3, T4> get curried =>
-      (t0) =>
-          (t1) =>
-              (t2) =>
-                  (t3) => this(t0, t1, t2, t3);
+      (t0) => (t1) => (t2) => (t3) => this(t0, t1, t2, t3);
 
   /// Returns a function that takes a tuple of parameters rather than individual parameters.
-  Function1<(T0, T1, T2, T3), T4> get tupled =>
-      (t) => t(this);
+  Function1<(T0, T1, T2, T3), T4> get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 5 parameters.
@@ -88,20 +70,14 @@ extension Function5Ops<T0, T1, T2, T3, T4, T5> on Function5<T0, T1, T2, T3, T4, 
       (t0, t1, t2, t3, t4) => fn(this(t0, t1, t2, t3, t4));
 
   /// Composes this function with the provided function, this function being applied first.
-  Function1<T6, T5> compose<T6>(Function1<T6, (T0, T1, T2, T3, T4)> fn) =>
-      (t6) => tupled(fn(t6));
+  Function1<T6, T5> compose<T6>(Function1<T6, (T0, T1, T2, T3, T4)> fn) => (t6) => tupled(fn(t6));
 
   /// Return the curried form of this function.
   Function5C<T0, T1, T2, T3, T4, T5> get curried =>
-      (t0) =>
-          (t1) =>
-              (t2) =>
-                  (t3) =>
-                      (t4) => this(t0, t1, t2, t3, t4);
+      (t0) => (t1) => (t2) => (t3) => (t4) => this(t0, t1, t2, t3, t4);
 
   /// Returns a function that takes a tuple of parameters rather than individual parameters.
-  Function1<(T0, T1, T2, T3, T4), T5> get tupled =>
-      (t) => t(this);
+  Function1<(T0, T1, T2, T3, T4), T5> get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 6 parameters.
@@ -116,16 +92,10 @@ extension Function6Ops<T0, T1, T2, T3, T4, T5, T6> on Function6<T0, T1, T2, T3, 
 
   /// Return the curried form of this function.
   Function6C<T0, T1, T2, T3, T4, T5, T6> get curried =>
-      (t0) =>
-          (t1) =>
-              (t2) =>
-                  (t3) =>
-                      (t4) =>
-                          (t5) => this(t0, t1, t2, t3, t4, t5);
+      (t0) => (t1) => (t2) => (t3) => (t4) => (t5) => this(t0, t1, t2, t3, t4, t5);
 
   /// Returns a function that takes a tuple of parameters rather than individual parameters.
-  Function1<(T0, T1, T2, T3, T4, T5), T6> get tupled =>
-      (t) => t(this);
+  Function1<(T0, T1, T2, T3, T4, T5), T6> get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 7 parameters.
@@ -141,17 +111,10 @@ extension Function7Ops<T0, T1, T2, T3, T4, T5, T6, T7>
 
   /// Return the curried form of this function.
   Function7C<T0, T1, T2, T3, T4, T5, T6, T7> get curried =>
-      (t0) =>
-          (t1) =>
-              (t2) =>
-                  (t3) =>
-                      (t4) =>
-                          (t5) =>
-                              (t6) => this(t0, t1, t2, t3, t4, t5, t6);
+      (t0) => (t1) => (t2) => (t3) => (t4) => (t5) => (t6) => this(t0, t1, t2, t3, t4, t5, t6);
 
   /// Returns a function that takes a tuple of parameters rather than individual parameters.
-  Function1<(T0, T1, T2, T3, T4, T5, T6), T7> get tupled =>
-      (t) => t(this);
+  Function1<(T0, T1, T2, T3, T4, T5, T6), T7> get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 8 parameters.
@@ -169,16 +132,10 @@ extension Function8Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8>
   Function8C<T0, T1, T2, T3, T4, T5, T6, T7, T8> get curried =>
       (t0) =>
           (t1) =>
-              (t2) =>
-                  (t3) =>
-                      (t4) =>
-                          (t5) =>
-                              (t6) =>
-                                  (t7) => this(t0, t1, t2, t3, t4, t5, t6, t7);
+              (t2) => (t3) => (t4) => (t5) => (t6) => (t7) => this(t0, t1, t2, t3, t4, t5, t6, t7);
 
   /// Returns a function that takes a tuple of parameters rather than individual parameters.
-  Function1<(T0, T1, T2, T3, T4, T5, T6, T7), T8> get tupled =>
-      (t) => t(this);
+  Function1<(T0, T1, T2, T3, T4, T5, T6, T7), T8> get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 9 parameters.
@@ -199,14 +156,10 @@ extension Function9Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
               (t2) =>
                   (t3) =>
                       (t4) =>
-                          (t5) =>
-                              (t6) =>
-                                  (t7) =>
-                                      (t8) => this(t0, t1, t2, t3, t4, t5, t6, t7, t8);
+                          (t5) => (t6) => (t7) => (t8) => this(t0, t1, t2, t3, t4, t5, t6, t7, t8);
 
   /// Returns a function that takes a tuple of parameters rather than individual parameters.
-  Function1<(T0, T1, T2, T3, T4, T5, T6, T7, T8), T9> get tupled =>
-      (t) => t(this);
+  Function1<(T0, T1, T2, T3, T4, T5, T6, T7, T8), T9> get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 10 parameters.
@@ -230,12 +183,10 @@ extension Function10Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
                           (t5) =>
                               (t6) =>
                                   (t7) =>
-                                      (t8) =>
-                                          (t9) => this(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9);
+                                      (t8) => (t9) => this(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9);
 
   /// Returns a function that takes a tuple of parameters rather than individual parameters.
-  Function1<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9), T10> get tupled =>
-      (t) => t(this);
+  Function1<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9), T10> get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 11 parameters.
@@ -251,8 +202,7 @@ extension Function11Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
   /// Composes this function with the provided function, this function being applied first.
   Function1<T12, T11> compose<T12>(
     Function1<T12, (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)> fn,
-  ) =>
-      (t12) => tupled(fn(t12));
+  ) => (t12) => tupled(fn(t12));
 
   /// Return the curried form of this function.
   Function11C<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> get curried =>
@@ -270,8 +220,7 @@ extension Function11Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
                                                   this(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10);
 
   /// Returns a function that takes a tuple of parameters rather than individual parameters.
-  Function1<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10), T11> get tupled =>
-      (t) => t(this);
+  Function1<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10), T11> get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 12 parameters.
@@ -287,8 +236,7 @@ extension Function12Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
   /// Composes this function with the provided function, this function being applied first.
   Function1<T13, T12> compose<T13>(
     Function1<T13, (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)> fn,
-  ) =>
-      (t13) => tupled(fn(t13));
+  ) => (t13) => tupled(fn(t13));
 
   /// Return the curried form of this function.
   Function12C<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> get curried =>
@@ -319,8 +267,7 @@ extension Function12Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
                                                   );
 
   /// Returns a function that takes a tuple of parameters rather than individual parameters.
-  Function1<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11), T12> get tupled =>
-      (t) => t(this);
+  Function1<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11), T12> get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 13 parameters.
@@ -336,8 +283,7 @@ extension Function13Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T
   /// Composes this function with the provided function, this function being applied first.
   Function1<T14, T13> compose<T14>(
     Function1<T14, (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)> fn,
-  ) =>
-      (t14) => tupled(fn(t14));
+  ) => (t14) => tupled(fn(t14));
 
   /// Return the curried form of this function.
   Function13C<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> get curried =>
@@ -387,8 +333,7 @@ extension Function14Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T
   /// Composes this function with the provided function, this function being applied first.
   Function1<T15, T14> compose<T15>(
     Function1<T15, (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)> fn,
-  ) =>
-      (t15) => tupled(fn(t15));
+  ) => (t15) => tupled(fn(t15));
 
   /// Return the curried form of this function.
   Function14C<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> get curried =>
@@ -440,8 +385,7 @@ extension Function15Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T
   /// Composes this function with the provided function, this function being applied first.
   Function1<T16, T15> compose<T16>(
     Function1<T16, (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)> fn,
-  ) =>
-      (t16) => tupled(fn(t16));
+  ) => (t16) => tupled(fn(t16));
 
   /// Return the curried form of this function.
   Function15C<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> get curried =>
@@ -494,8 +438,7 @@ extension Function16Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T
   /// Composes this function with the provided function, this function being applied first.
   Function1<T17, T16> compose<T17>(
     Function1<T17, (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)> fn,
-  ) =>
-      (t17) => tupled(fn(t17));
+  ) => (t17) => tupled(fn(t17));
 
   /// Return the curried form of this function.
   Function16C<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>
@@ -536,8 +479,7 @@ extension Function16Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T
 
   /// Returns a function that takes a tuple of parameters rather than individual parameters.
   Function1<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15), T16>
-  get tupled =>
-      (t) => t(this);
+  get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 17 parameters.
@@ -571,8 +513,7 @@ extension Function17Ops<
   /// Composes this function with the provided function, this function being applied first.
   Function1<T18, T17> compose<T18>(
     Function1<T18, (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)> fn,
-  ) =>
-      (t18) => tupled(fn(t18));
+  ) => (t18) => tupled(fn(t18));
 
   /// Return the curried form of this function.
   Function17C<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>
@@ -615,8 +556,7 @@ extension Function17Ops<
 
   /// Returns a function that takes a tuple of parameters rather than individual parameters.
   Function1<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16), T17>
-  get tupled =>
-      (t) => t(this);
+  get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 18 parameters.
@@ -673,8 +613,7 @@ extension Function18Ops<
   Function1<T19, T18> compose<T19>(
     Function1<T19, (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)>
     fn,
-  ) =>
-      (t19) => tupled(fn(t19));
+  ) => (t19) => tupled(fn(t19));
 
   /// Return the curried form of this function.
   Function18C<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>
@@ -719,8 +658,7 @@ extension Function18Ops<
 
   /// Returns a function that takes a tuple of parameters rather than individual parameters.
   Function1<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17), T18>
-  get tupled =>
-      (t) => t(this);
+  get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 19 parameters.
@@ -804,8 +742,7 @@ extension Function19Ops<
       (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
     >
     fn,
-  ) =>
-      (t20) => tupled(fn(t20));
+  ) => (t20) => tupled(fn(t20));
 
   /// Return the curried form of this function.
   Function19C<
@@ -876,8 +813,7 @@ extension Function19Ops<
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18),
     T19
   >
-  get tupled =>
-      (t) => t(this);
+  get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 20 parameters.
@@ -986,8 +922,7 @@ extension Function20Ops<
       (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
     >
     fn,
-  ) =>
-      (t21) => tupled(fn(t21));
+  ) => (t21) => tupled(fn(t21));
 
   /// Return the curried form of this function.
   Function20C<
@@ -1061,8 +996,7 @@ extension Function20Ops<
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19),
     T20
   >
-  get tupled =>
-      (t) => t(this);
+  get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 21 parameters.
@@ -1218,8 +1152,7 @@ extension Function21Ops<
       )
     >
     fn,
-  ) =>
-      (t22) => tupled(fn(t22));
+  ) => (t22) => tupled(fn(t22));
 
   /// Return the curried form of this function.
   Function21C<
@@ -1296,8 +1229,7 @@ extension Function21Ops<
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20),
     T21
   >
-  get tupled =>
-      (t) => t(this);
+  get tupled => (t) => t(this);
 }
 
 /// Provides additional functions on functions with 22 parameters.
@@ -1459,8 +1391,7 @@ extension Function22Ops<
       )
     >
     fn,
-  ) =>
-      (t23) => tupled(fn(t23));
+  ) => (t23) => tupled(fn(t23));
 
   /// Return the curried form of this function.
   Function22C<
@@ -1564,6 +1495,5 @@ extension Function22Ops<
     ),
     T22
   >
-  get tupled =>
-      (t) => t(this);
+  get tupled => (t) => t(this);
 }

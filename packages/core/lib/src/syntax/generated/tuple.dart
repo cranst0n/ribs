@@ -245,8 +245,18 @@ extension Tuple8Ops<T1, T2, T3, T4, T5, T6, T7, T8> on (T1, T2, T3, T4, T5, T6, 
 // Provides additional functions on tuple/record with 9 elements.
 extension Tuple9Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9> on (T1, T2, T3, T4, T5, T6, T7, T8, T9) {
   // Returns a new tuple with [$10] appended to the end.
-  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) appended<T10>(T10 $10) =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) appended<T10>(T10 $10) => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+  );
 
   // Applies each element of this tuple to the function [f].
   T10 call<T10>(Function9<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> f) =>
@@ -285,8 +295,18 @@ extension Tuple9Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9> on (T1, T2, T3, T4, T5, 
   T9 get last => $9;
 
   // Returns a new tuple with [$10] prepended to the beginning.
-  (T10, T1, T2, T3, T4, T5, T6, T7, T8, T9) prepended<T10>(T10 $10) =>
-      ($10, $1, $2, $3, $4, $5, $6, $7, $8, $9);
+  (T10, T1, T2, T3, T4, T5, T6, T7, T8, T9) prepended<T10>(T10 $10) => (
+    $10,
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+  );
 
   // Returns a new tuple with all elements from this tuple except the first.
   (T2, T3, T4, T5, T6, T7, T8, T9) get tail => ($2, $3, $4, $5, $6, $7, $8, $9);
@@ -296,8 +316,19 @@ extension Tuple9Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9> on (T1, T2, T3, T4, T5, 
 extension Tuple10Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
     on (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) {
   // Returns a new tuple with [$11] appended to the end.
-  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) appended<T11>(T11 $11) =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
+  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) appended<T11>(T11 $11) => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+  );
 
   // Applies each element of this tuple to the function [f].
   T11 call<T11>(Function10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> f) =>
@@ -338,8 +369,19 @@ extension Tuple10Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
   T10 get last => $10;
 
   // Returns a new tuple with [$11] prepended to the beginning.
-  (T11, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) prepended<T11>(T11 $11) =>
-      ($11, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+  (T11, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) prepended<T11>(T11 $11) => (
+    $11,
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+  );
 
   // Returns a new tuple with all elements from this tuple except the first.
   (T2, T3, T4, T5, T6, T7, T8, T9, T10) get tail => ($2, $3, $4, $5, $6, $7, $8, $9, $10);
@@ -349,8 +391,20 @@ extension Tuple10Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
 extension Tuple11Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
     on (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) {
   // Returns a new tuple with [$12] appended to the end.
-  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) appended<T12>(T12 $12) =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
+  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) appended<T12>(T12 $12) => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+  );
 
   // Applies each element of this tuple to the function [f].
   T12 call<T12>(Function11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> f) =>
@@ -393,8 +447,20 @@ extension Tuple11Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
   T11 get last => $11;
 
   // Returns a new tuple with [$12] prepended to the beginning.
-  (T12, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) prepended<T12>(T12 $12) =>
-      ($12, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
+  (T12, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) prepended<T12>(T12 $12) => (
+    $12,
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+  );
 
   // Returns a new tuple with all elements from this tuple except the first.
   (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) get tail => ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
@@ -404,8 +470,21 @@ extension Tuple11Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
 extension Tuple12Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
     on (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) {
   // Returns a new tuple with [$13] appended to the end.
-  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) appended<T13>(T13 $13) =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);
+  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) appended<T13>(T13 $13) => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+  );
 
   // Applies each element of this tuple to the function [f].
   T13 call<T13>(Function12<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> f) =>
@@ -444,27 +523,76 @@ extension Tuple12Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
   T1 get head => $1;
 
   // Returns a new tuple with all elements from this tuple except the last.
-  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) get init =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
+  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) get init => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+  );
 
   // Returns the last element of the tuple.
   T12 get last => $12;
 
   // Returns a new tuple with [$13] prepended to the beginning.
-  (T13, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) prepended<T13>(T13 $13) =>
-      ($13, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
+  (T13, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) prepended<T13>(T13 $13) => (
+    $13,
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+  );
 
   // Returns a new tuple with all elements from this tuple except the first.
-  (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) get tail =>
-      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
+  (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) get tail => (
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+  );
 }
 
 // Provides additional functions on tuple/record with 13 elements.
 extension Tuple13Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>
     on (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) {
   // Returns a new tuple with [$14] appended to the end.
-  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) appended<T14>(T14 $14) =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);
+  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) appended<T14>(T14 $14) => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+  );
 
   // Applies each element of this tuple to the function [f].
   T14 call<T14>(Function13<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> f) =>
@@ -505,27 +633,80 @@ extension Tuple13Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>
   T1 get head => $1;
 
   // Returns a new tuple with all elements from this tuple except the last.
-  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) get init =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
+  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) get init => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+  );
 
   // Returns the last element of the tuple.
   T13 get last => $13;
 
   // Returns a new tuple with [$14] prepended to the beginning.
-  (T14, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) prepended<T14>(T14 $14) =>
-      ($14, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);
+  (T14, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) prepended<T14>(T14 $14) => (
+    $14,
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+  );
 
   // Returns a new tuple with all elements from this tuple except the first.
-  (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) get tail =>
-      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);
+  (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) get tail => (
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+  );
 }
 
 // Provides additional functions on tuple/record with 14 elements.
 extension Tuple14Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>
     on (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) {
   // Returns a new tuple with [$15] appended to the end.
-  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) appended<T15>(T15 $15) =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);
+  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) appended<T15>(T15 $15) => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+  );
 
   // Applies each element of this tuple to the function [f].
   T15 call<T15>(Function14<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> f) =>
@@ -568,19 +749,60 @@ extension Tuple14Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14
   T1 get head => $1;
 
   // Returns a new tuple with all elements from this tuple except the last.
-  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) get init =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);
+  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) get init => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+  );
 
   // Returns the last element of the tuple.
   T14 get last => $14;
 
   // Returns a new tuple with [$15] prepended to the beginning.
-  (T15, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) prepended<T15>(T15 $15) =>
-      ($15, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);
+  (T15, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) prepended<T15>(T15 $15) => (
+    $15,
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+  );
 
   // Returns a new tuple with all elements from this tuple except the first.
-  (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) get tail =>
-      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);
+  (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) get tail => (
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+  );
 }
 
 // Provides additional functions on tuple/record with 15 elements.
@@ -634,8 +856,22 @@ extension Tuple15Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14
   T1 get head => $1;
 
   // Returns a new tuple with all elements from this tuple except the last.
-  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) get init =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);
+  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) get init => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+  );
 
   // Returns the last element of the tuple.
   T15 get last => $15;
@@ -645,8 +881,22 @@ extension Tuple15Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14
       ($16, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);
 
   // Returns a new tuple with all elements from this tuple except the first.
-  (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) get tail =>
-      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);
+  (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) get tail => (
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+  );
 }
 
 // Provides additional functions on tuple/record with 16 elements.
@@ -703,8 +953,23 @@ extension Tuple16Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14
   T1 get head => $1;
 
   // Returns a new tuple with all elements from this tuple except the last.
-  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) get init =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);
+  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) get init => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+  );
 
   // Returns the last element of the tuple.
   T16 get last => $16;
@@ -715,8 +980,23 @@ extension Tuple16Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14
   ) => ($17, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16);
 
   // Returns a new tuple with all elements from this tuple except the first.
-  (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) get tail =>
-      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16);
+  (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) get tail => (
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+  );
 }
 
 // Provides additional functions on tuple/record with 17 elements.
@@ -775,8 +1055,24 @@ extension Tuple17Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14
   T1 get head => $1;
 
   // Returns a new tuple with all elements from this tuple except the last.
-  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) get init =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16);
+  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) get init => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+  );
 
   // Returns the last element of the tuple.
   T17 get last => $17;
@@ -787,8 +1083,24 @@ extension Tuple17Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14
   ) => ($18, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17);
 
   // Returns a new tuple with all elements from this tuple except the first.
-  (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) get tail =>
-      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17);
+  (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) get tail => (
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17,
+  );
 }
 
 // Provides additional functions on tuple/record with 18 elements.
@@ -815,8 +1127,27 @@ extension Tuple18Ops<
     on (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) {
   // Returns a new tuple with [$19] appended to the end.
   (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
-  appended<T19>(T19 $19) =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19);
+  appended<T19>(T19 $19) => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17,
+    $18,
+    $19,
+  );
 
   // Applies each element of this tuple to the function [f].
   T19 call<T19>(
@@ -869,20 +1200,73 @@ extension Tuple18Ops<
   T1 get head => $1;
 
   // Returns a new tuple with all elements from this tuple except the last.
-  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) get init =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17);
+  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) get init => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17,
+  );
 
   // Returns the last element of the tuple.
   T18 get last => $18;
 
   // Returns a new tuple with [$19] prepended to the beginning.
   (T19, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
-  prepended<T19>(T19 $19) =>
-      ($19, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18);
+  prepended<T19>(T19 $19) => (
+    $19,
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17,
+    $18,
+  );
 
   // Returns a new tuple with all elements from this tuple except the first.
-  (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) get tail =>
-      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18);
+  (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) get tail => (
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17,
+    $18,
+  );
 }
 
 // Provides additional functions on tuple/record with 19 elements.
@@ -910,8 +1294,28 @@ extension Tuple19Ops<
     on (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) {
   // Returns a new tuple with [$20] appended to the end.
   (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
-  appended<T20>(T20 $20) =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20);
+  appended<T20>(T20 $20) => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17,
+    $18,
+    $19,
+    $20,
+  );
 
   // Applies each element of this tuple to the function [f].
   T20 call<T20>(
@@ -987,20 +1391,76 @@ extension Tuple19Ops<
   T1 get head => $1;
 
   // Returns a new tuple with all elements from this tuple except the last.
-  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) get init =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18);
+  (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) get init => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17,
+    $18,
+  );
 
   // Returns the last element of the tuple.
   T19 get last => $19;
 
   // Returns a new tuple with [$20] prepended to the beginning.
   (T20, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
-  prepended<T20>(T20 $20) =>
-      ($20, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19);
+  prepended<T20>(T20 $20) => (
+    $20,
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17,
+    $18,
+    $19,
+  );
 
   // Returns a new tuple with all elements from this tuple except the first.
-  (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) get tail =>
-      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19);
+  (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) get tail => (
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17,
+    $18,
+    $19,
+  );
 }
 
 // Provides additional functions on tuple/record with 20 elements.
@@ -1164,8 +1624,27 @@ extension Tuple20Ops<
 
   // Returns a new tuple with all elements from this tuple except the first.
   (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
-  get tail =>
-      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20);
+  get tail => (
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17,
+    $18,
+    $19,
+    $20,
+  );
 }
 
 // Provides additional functions on tuple/record with 21 elements.
@@ -1370,8 +1849,28 @@ extension Tuple21Ops<
 
   // Returns a new tuple with all elements from this tuple except the last.
   (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
-  get init =>
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20);
+  get init => (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17,
+    $18,
+    $19,
+    $20,
+  );
 
   // Returns the last element of the tuple.
   T21 get last => $21;
@@ -1428,8 +1927,28 @@ extension Tuple21Ops<
 
   // Returns a new tuple with all elements from this tuple except the first.
   (T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
-  get tail =>
-      ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21);
+  get tail => (
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17,
+    $18,
+    $19,
+    $20,
+    $21,
+  );
 }
 
 // Provides additional functions on tuple/record with 22 elements.
