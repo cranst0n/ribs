@@ -56,7 +56,7 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   @override
   IQueue<A> appendedAll(RIterableOnce<A> suffix) {
-    late IList<A> newIn;
+    final IList<A> newIn;
 
     if (suffix is IQueue<A>) {
       newIn = suffix._in.concat(suffix._out.reverse().prependedAll(_in));

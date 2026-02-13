@@ -69,8 +69,8 @@ final class _SemaphoreImpl extends Semaphore {
       return IO.uncancelable((poll) {
         return _newRequest().flatMap((req) {
           return state.modify((currentState) {
-            late _State newState;
-            late _Action decision;
+            final _State newState;
+            final _Action decision;
 
             if (currentState.waiting.nonEmpty) {
               newState = _State(0, currentState.waiting.enqueue(req.of(n)));

@@ -23,7 +23,7 @@ Either<String, (ByteVector, int)> fromBinInternal(
     while (idx < withoutPrefix.length) {
       final c = withoutPrefix[idx];
 
-      late int bit;
+      final int bit;
 
       if (c == '_' || c.trim().isEmpty) {
         bit = Bases.IgnoreChar;
@@ -93,7 +93,7 @@ Either<String, (ByteVector, int)> fromHexInternal(
       final c = withoutPrefix[idx];
 
       if (!alphabet.ignore(c)) {
-        late int nibble;
+        final int nibble;
 
         if (c == '_' || c.trim().isEmpty) {
           nibble = Bases.IgnoreChar;
