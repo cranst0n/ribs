@@ -147,6 +147,8 @@ sealed class ByteVector {
     Endian ordering = Endian.big,
   }) => BitVector.fromBigInt(value, size: size.map((s) => s * 8), ordering: ordering).bytes;
 
+  int operator [](int idx) => _getImpl(idx);
+
   ByteVector operator &(ByteVector other) => and(other);
 
   ByteVector operator ~() => not;

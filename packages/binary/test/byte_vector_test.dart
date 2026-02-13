@@ -700,7 +700,7 @@ void main() {
 
     forAll2('last', byteVector, Gen.byte, (bv, byte) {
       if (bv.nonEmpty) {
-        expect(bv.last, bv.get(bv.size - 1));
+        expect(bv.last, bv[bv.size - 1]);
       }
 
       expect(bv.append(byte).last, byte);
