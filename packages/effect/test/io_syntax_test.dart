@@ -1,5 +1,5 @@
 import 'package:ribs_effect/ribs_effect.dart';
-import 'package:ribs_effect/test_matchers.dart';
+import 'package:ribs_effect/test.dart';
 import 'package:test/test.dart';
 
 void main() {

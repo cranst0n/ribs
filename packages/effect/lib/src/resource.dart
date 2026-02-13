@@ -417,8 +417,6 @@ IO<B> _interpretUse<A, B>(
       (tuple) => useFn(tuple.$1),
       (a, oc) {
         final (_, release) = a;
-
-        // return a.$2(ExitCase.fromOutcome(oc));
         return onRelease(release, ExitCase.fromOutcome(oc));
       },
     ),

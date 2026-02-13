@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
-import 'package:ribs_effect/src/io_runtime.dart';
 import 'package:ribs_effect/src/platform/stub.dart'
     if (dart.library.js_interop) 'platform/web.dart'
     if (dart.library.io) 'platform/native.dart';
@@ -477,6 +476,10 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   IO<A> iterateWhile(Function1<A, bool> p) => _iterateWhile(p).traced('iterateWhile');
   IO<A> _iterateWhile(Function1<A, bool> p) =>
       _flatMap((a) => p(a) ? _iterateWhile(p) : IO.pure(a));
+
+  IO<A> iterateWhileM(Function1<A, IO<bool>> p) => _iterateWhileM(p).traced('iterateWhileM');
+  IO<A> _iterateWhileM(Function1<A, IO<bool>> p) =>
+      _flatMap((a) => p(a).flatMap((b) => b ? _iterateWhileM(p) : IO.pure(a)));
 
   /// Applies [f] to the value of this IO, returning the result.
   @override

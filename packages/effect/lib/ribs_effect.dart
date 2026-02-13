@@ -2,6 +2,7 @@ export 'src/deferred.dart';
 export 'src/exit_case.dart';
 export 'src/io.dart';
 export 'src/io_retry.dart';
+export 'src/io_runtime.dart';
 export 'src/outcome.dart';
 export 'src/ref.dart';
 export 'src/resource.dart';

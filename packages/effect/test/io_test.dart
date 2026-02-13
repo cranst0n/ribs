@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
-import 'package:ribs_effect/src/io_runtime.dart';
-import 'package:ribs_effect/test_matchers.dart';
+import 'package:ribs_effect/test.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -299,9 +298,7 @@ void main() {
           });
         });
 
-        final ticker = Ticker.ticked(test);
-
-        expect(ticker.nonTerminating(), isTrue);
+        expect(test.ticked.nonTerminating(), isTrue);
         expect(canceled, isFalse);
       });
 
@@ -369,8 +366,7 @@ void main() {
               });
             }).voided();
 
-        final ticker = Ticker.ticked(test);
-        expect(ticker.nonTerminating(), isTrue);
+        expect(test.ticked.nonTerminating(), isTrue);
       });
 
       test(
@@ -402,8 +398,7 @@ void main() {
                     .productR(() => cedeUntilStarted2().productR(() => first.cancel())),
               );
 
-          final ticker = Ticker.ticked(test);
-          expect(ticker.nonTerminating(), isTrue);
+          expect(test.ticked.nonTerminating(), isTrue);
         },
         skip: 'Expected to be non-terminating (but succeeds)',
       );
@@ -448,8 +443,7 @@ void main() {
             .start()
             .flatMap((f) => cedeUntilStarted().productR(() => f.cancel()));
 
-        final ticker = Ticker.ticked(test);
-        expect(ticker.nonTerminating(), isTrue);
+        expect(test.ticked.nonTerminating(), isTrue);
       });
 
       test('await cancelation of cancelation of uncancelable never', () {
@@ -485,8 +479,7 @@ void main() {
                   });
             });
 
-        final ticker = Ticker.ticked(test);
-        expect(ticker.nonTerminating(), isTrue);
+        expect(test.ticked.nonTerminating(), isTrue);
       });
 
       test('catch stray exceptions in uncancelable', () {
@@ -1463,7 +1456,6 @@ void main() {
     bool bCanceled = false;
 
     final ioa = IO.pure(42).delayBy(100.milliseconds).onCancel(IO.exec(() => aCanceled = true));
-
     final iob = IO.pure('B').delayBy(200.milliseconds).onCancel(IO.exec(() => bCanceled = true));
 
     await expectLater(IO.race(ioa, iob), ioSucceeded(42.asLeft<String>()));
@@ -1480,7 +1472,6 @@ void main() {
 
   test('both error', () {
     final ioa = IO.pure(0).delayBy(200.milliseconds).productR(() => IO.raiseError<int>('boom'));
-
     final iob = IO.pure(1).delayBy(100.milliseconds);
 
     expect(IO.both(ioa, iob), ioErrored());
@@ -1488,7 +1479,6 @@ void main() {
 
   test('both (A canceled)', () {
     final ioa = IO.pure(0).productR(() => IO.canceled).delayBy(100.milliseconds);
-
     final iob = IO.pure(1).delayBy(200.milliseconds);
 
     expect(IO.both(ioa, iob), ioCanceled());
@@ -1496,7 +1486,6 @@ void main() {
 
   test('both (B canceled)', () {
     final ioa = IO.pure(0).delayBy(200.milliseconds);
-
     final iob = IO.pure(1).productR(() => IO.canceled).delayBy(100.milliseconds);
 
     expect(IO.both(ioa, iob), ioCanceled());
@@ -1513,8 +1502,9 @@ void main() {
         .onCancel(IO.exec(() => canceled = true));
 
     final test = tinyTask.background().surround(IO.sleep(1.second));
+    final ticker = test.ticked..tickAll();
 
-    await expectLater(test, ioSucceeded());
+    await expectLater(ticker.outcome, completion(Outcome.succeeded(Unit())));
     expect(count, 5);
     expect(canceled, isFalse);
   });
@@ -1530,8 +1520,9 @@ void main() {
         .onCancel(IO.exec(() => canceled = true));
 
     final test = foreverTask.background().use((_) => IO.sleep(1.second));
+    final ticker = test.ticked..tickAll();
 
-    await expectLater(test, ioSucceeded());
+    await expectLater(ticker.outcome, completion(Outcome.succeeded(Unit())));
     expect(count, 19);
     expect(canceled, isTrue);
   });

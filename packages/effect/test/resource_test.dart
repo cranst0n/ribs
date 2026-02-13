@@ -1,8 +1,7 @@
 import 'package:ribs_check/ribs_check.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
-import 'package:ribs_effect/src/io_runtime.dart';
-import 'package:ribs_effect/test_matchers.dart';
+import 'package:ribs_effect/test.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -61,7 +60,7 @@ void main() {
       ).use_().timeout(1.second).attempt().productR(() => interrupted.value());
     });
 
-    final ticker = Ticker.ticked(test);
+    final ticker = test.ticked;
     ticker.tickAll();
 
     expect(
@@ -82,8 +81,7 @@ void main() {
       ).use_().timeout(1.second).attempt().productR(() => interrupted.value());
     });
 
-    final ticker = Ticker.ticked(test);
-    ticker.tickAll();
+    final ticker = test.ticked..tickAll();
 
     expect(
       ticker.outcome,
@@ -108,8 +106,7 @@ void main() {
           .productR(() => (acquireFin.value(), resourceFin.value()).tupled);
     });
 
-    final ticker = Ticker.ticked(test);
-    ticker.tickAll();
+    final ticker = test.ticked..tickAll();
 
     expect(
       ticker.outcome,
@@ -134,8 +131,7 @@ void main() {
           .productR(() => (acquireFin.value(), resourceFin.value()).tupled);
     });
 
-    final ticker = Ticker.ticked(test);
-    ticker.tickAll();
+    final ticker = test.ticked..tickAll();
 
     expect(
       ticker.outcome,
@@ -168,8 +164,7 @@ void main() {
           .productR(() => (a.value(), b.value(), acquireFin.value(), resourceFin.value()).tupled);
     });
 
-    final ticker = Ticker.ticked(test);
-    ticker.tickAll();
+    final ticker = test.ticked..tickAll();
 
     expect(
       ticker.outcome,
@@ -195,8 +190,7 @@ void main() {
           .productR(() => releaseComplete.value());
     });
 
-    final ticker = Ticker.ticked(test);
-    ticker.tickAll();
+    final ticker = test.ticked..tickAll();
 
     expect(
       ticker.outcome,
@@ -279,8 +273,7 @@ void main() {
 
       final test = r.use_().attempt().voided();
 
-      final ticker = Ticker.ticked(test);
-      ticker.tickAll();
+      final ticker = test.ticked..tickAll();
 
       expect(ticker.outcome, completion(Outcome.succeeded(Unit())));
       expect(released, as.map((t) => t.$1));
@@ -354,8 +347,7 @@ void main() {
         final p = rhs ? Resource.both(r, Resource.unit) : Resource.both(Resource.unit, r);
         final test = p.use_().attempt().voided();
 
-        final ticker = Ticker.ticked(test);
-        ticker.tickAll();
+        final ticker = test.ticked..tickAll();
 
         expect(ticker.outcome, completion(Outcome.succeeded(Unit())));
         expect(released, as.map((t) => t.$1));
@@ -388,7 +380,7 @@ void main() {
             .productR(() => IO.exec(() => rightReleased = true)),
       );
 
-      final ticker = Ticker.ticked(Resource.both(lhs, rhs).use((_) => wait));
+      final ticker = Resource.both(lhs, rhs).use((_) => wait).ticked;
 
       ticker.tick();
       ticker.advanceAndTick(1.second);
@@ -438,7 +430,7 @@ void main() {
             .productR(() => IO.exec(() => rightReleased = true)),
       ).flatMap((_) => Resource.eval(wait(2)));
 
-      final ticker = Ticker.ticked(Resource.both(lhs, rhs).use_().handleError((_) => Unit()));
+      final ticker = Resource.both(lhs, rhs).use_().handleError((_) => Unit()).ticked;
 
       ticker.tick();
       ticker.advanceAndTick(1.second);
