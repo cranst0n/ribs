@@ -5,18 +5,19 @@ import 'package:ribs_rill/ribs_rill.dart';
 final _streamSize = Gen.chooseInt(0, 100);
 
 final intRill = rillOf(Gen.integer);
+final stringRill = rillOf(Gen.stringOf(Gen.alphaNumChar, 10));
 
 Gen<Rill<A>> rillOf<A>(Gen<A> gen) => Gen.frequency([
   (
     10,
-    Gen.ilistOf(_streamSize, gen).map((l) => Rill.emits(Chunk.from(l)).take(10)),
+    Gen.listOf(_streamSize, gen).map((l) => Rill.emits(l).take(10)),
   ),
   (
     10,
-    Gen.ilistOf(
+    Gen.listOf(
       _streamSize,
       gen,
-    ).map((l) => Rill.emits(Chunk.from(l)).take(10).chunkLimit(1).unchunks),
+    ).map((l) => Rill.emits(l).take(10).chunkLimit(1).unchunks),
   ),
   (
     5,
@@ -26,7 +27,7 @@ Gen<Rill<A>> rillOf<A>(Gen<A> gen) => Gen.frequency([
     ).map(
       (l) => Rill.eval(
         l.traverseIO((n) => IO.pure(n)),
-      ).flatMap((l) => Rill.emits(Chunk.from(l)).rechunkRandomly(maxFactor: 10.0)),
+      ).flatMap((l) => Rill.chunk(Chunk.from(l)).rechunkRandomly(maxFactor: 10.0)),
     ),
   ),
 ]);

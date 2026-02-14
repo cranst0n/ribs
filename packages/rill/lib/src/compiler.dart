@@ -13,18 +13,22 @@ class RillCompile<O> {
       foldChunks(init, (acc, chunk) => chunk.foldLeft(acc, f));
 
   IO<B> foldChunks<B>(B init, Function2<B, Chunk<O>, B> f) {
-    IO<B> go(Pull<O, Unit> currentPull, B currentAcc) {
-      return stepPull(currentPull).flatMap((step) {
-        if (step is _StepDone) return IO.pure(currentAcc);
-        if (step is _StepOut<O, Unit>) {
-          final newAcc = f(currentAcc, step.head);
-          return go(step.next, newAcc);
-        }
-        return IO.raiseError('Invalid compilation state');
+    IO<B> go(Pull<O, Unit> currentPull, B currentAcc, Scope scope) {
+      return _stepPull(currentPull, scope).flatMap((step) {
+        return switch (step) {
+          _StepDone<dynamic, dynamic> _ => IO.pure(currentAcc),
+          _StepOut<O, Unit> _ => go(step.next, f(currentAcc, step.head), scope),
+          final _StepError<dynamic, dynamic> step => IO.raiseError(step.error, step.stackTrace),
+        };
       });
     }
 
-    return go(_pull, init);
+    return Resource.makeCase(
+      Scope.create(),
+      (scope, ec) {
+        return scope.close(ec).rethrowError();
+      },
+    ).use((scope) => go(_pull, init, scope));
   }
 
   IO<Option<O>> get last => foldChunks(none(), (acc, chunk) => chunk.lastOption.orElse(() => acc));

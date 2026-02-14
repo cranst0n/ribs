@@ -194,7 +194,7 @@ class ToPull<O> {
   Pull<Never, Option<(Chunk<O>, Rill<O>)>> get uncons {
     return self.underlying.uncons.map((opt) {
       return opt.mapN((chunk, rest) {
-        return (chunk, Rill(rest));
+        return (chunk, rest.rillNoScope);
       });
     });
   }

@@ -1,7 +1,7 @@
 import 'package:ribs_check/ribs_check.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
-import 'package:ribs_effect/test_matchers.dart';
+import 'package:ribs_effect/test.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 import 'package:test/test.dart';
 
@@ -15,9 +15,111 @@ extension<A> on Rill<A> {
 }
 
 void main() {
+  test('stack safety', () {
+    final test =
+        Rill.chunk(Chunk.fill(50000, Unit())).flatMap((_) => Rill.empty<Unit>()).compile.toList;
+
+    expect(test, ioSucceeded(nil<Unit>()));
+  });
+
+  group('bracket', () {
+    test('basic', () async {
+      final buffer = StringBuffer();
+
+      final test = Rill.bracket(
+            IO.exec(() => buffer.writeln('Acquired')),
+            (_) {
+              buffer.writeln('ReleaseInvoked');
+              return IO.exec(() => buffer.writeln('Released'));
+            },
+          )
+          .flatMap((_) {
+            buffer.writeln('Used');
+            return Rill.emit(Unit());
+          })
+          .flatMap((s) {
+            buffer.writeln('FlatMapped');
+            return Rill.emit(s);
+          });
+
+      await expectLater(test.compile.drain, ioSucceeded(Unit()));
+      expect(buffer.toString().split('\n').where((l) => l.isNotEmpty), [
+        'Acquired',
+        'Used',
+        'FlatMapped',
+        'ReleaseInvoked',
+        'Released',
+      ]);
+    });
+
+    test('brackets in sequence', () {
+      final test = Counter.create().flatMap((counter) {
+        return Rill.range(0, 10000)
+            .flatMap((_) {
+              return Rill.bracket(
+                counter.increment,
+                (_) => counter.decrement,
+              ).flatMap((_) => Rill.emit(1));
+            })
+            .compile
+            .drain
+            .flatMap((_) => counter.count);
+      });
+
+      expect(test, ioSucceeded(0));
+    });
+
+    group('finalizer are run in LIFO order', () {
+      test('explicit release', () {
+        final test = IO.ref(nil<int>()).flatMap((track) {
+          return IList.range(0, 10)
+              .foldLeft(
+                Rill.emit(0),
+                (acc, i) => Rill.bracket(
+                  IO.pure(i),
+                  (i) => track.update((l) => l.appended(i)),
+                ).flatMap((_) => acc),
+              )
+              .compile
+              .drain
+              .flatMap((_) => track.value());
+        });
+
+        expect(test, ioSucceeded(ilist([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])));
+      });
+
+      test('scope closure', () {
+        final test = IO.ref(nil<int>()).flatMap((track) {
+          return IList.range(0, 10)
+              .foldLeft(
+                Rill.emit(1).map((_) => throw 'BOOM'),
+                (acc, i) => Rill.bracket(
+                  IO.pure(i),
+                  (i) => track.update((l) => l.appended(i)),
+                ).flatMap((_) => acc),
+              )
+              .attempt()
+              .compile
+              .drain
+              .flatMap((_) => track.value());
+        });
+
+        expect(test, ioSucceeded(ilist([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])));
+      });
+    });
+
+    test('propogate error from closing the root scope', () {
+      final s1 = Rill.bracket(IO.pure(1), (_) => IO.unit);
+      final s2 = Rill.bracket(IO.pure('a'), (_) => IO.raiseError('BOOM'));
+
+      expect(s1.zip(s2).compile.drain, ioErrored('BOOM'));
+      expect(s2.zip(s1).compile.drain, ioErrored('BOOM'));
+    });
+  });
+
   test('append', () {
-    final rillA = Rill.emits(chunk([1, 2]));
-    final rillB = Rill.emits(chunk([3, 4]));
+    final rillA = Rill.emits([1, 2]);
+    final rillB = Rill.emits([3, 4]);
 
     expect(rillA.append(() => rillB), producesInOrder([1, 2, 3, 4]));
   });
@@ -30,21 +132,21 @@ void main() {
 
   test('changes', () {
     expect(Rill.empty<int>().changes(), producesNothing());
-    expect(Rill.emits(chunk([1, 2, 3, 4])).changes(), producesInOrder([1, 2, 3, 4]));
-    expect(Rill.emits(chunk([1, 2, 2, 1, 1, 1, 3])).changes(), producesInOrder([1, 2, 1, 3]));
+    expect(Rill.emits([1, 2, 3, 4]).changes(), producesInOrder([1, 2, 3, 4]));
+    expect(Rill.emits([1, 2, 2, 1, 1, 1, 3]).changes(), producesInOrder([1, 2, 1, 3]));
     expect(
-      Rill.emits(chunk(['1', '2', '33', '44', '5', '66'])).changesBy((s) => s.length),
+      Rill.emits(['1', '2', '33', '44', '5', '66']).changesBy((s) => s.length),
       producesInOrder(['1', '33', '5', '66']),
     );
   });
 
   test('chunk', () {
-    final rill = Rill.emits(chunk([1, 2]));
+    final rill = Rill.emits([1, 2]);
     expect(rill, producesInOrder([1, 2]));
   });
 
   test('chunkLimit', () {
-    final rill = Rill.emits(chunk([1, 2, 3, 4, 5])).chunkLimit(2);
+    final rill = Rill.emits([1, 2, 3, 4, 5]).chunkLimit(2);
 
     expect(
       rill,
@@ -121,16 +223,20 @@ void main() {
   test('concurrently', () async {
     final buffer = StringBuffer();
 
-    final rillA = Rill.range(0, 5).evalMap((n) => IO.pure(n).delayBy(100.milliseconds));
-
-    final rillB = Rill.emits(
-          chunk(['a', 'b', 'c']),
-        )
-        .repeat()
-        .evalTap((c) => IO.exec(() => buffer.write(c)).delayBy(200.milliseconds))
+    final rillA = Rill.range(0, 5)
+        .evalMap((n) => IO.pure(n).delayBy(100.milliseconds))
         .onFinalize(IO.exec(() => buffer.write('!')));
 
-    await expectLater(rillA.concurrently(rillB), producesInOrder([0, 1, 2, 3, 4]));
+    final rillB = Rill.emits([
+      'a',
+      'b',
+      'c',
+    ]).repeat().evalTap((c) => IO.exec(() => buffer.write(c)).delayBy(250.milliseconds));
+
+    final test = rillA.concurrently(rillB).compile.toList;
+    final ticker = test.ticked..tickAll();
+
+    await expectLater(ticker.outcome, completion(Outcome.succeeded(ilist([0, 1, 2, 3, 4]))));
     expect(buffer.toString(), 'ab!');
   });
 
@@ -159,10 +265,10 @@ void main() {
   test('debounce', () {
     final delay = 200.milliseconds;
 
-    final rill = Rill.emits(chunk([1, 2, 3]))
+    final rill = Rill.emits([1, 2, 3])
         .andWait(delay * 2)
         .append(() => Rill.empty())
-        .append(() => Rill.emits(chunk([4, 5])))
+        .append(() => Rill.emits([4, 5]))
         .andWait(delay * 0.5)
         .append(() => Rill.emit(6));
 
@@ -327,12 +433,12 @@ void main() {
   });
 
   test('flatMap', () {
-    final rill = Rill.emits(chunk([1, 2, 3])).flatMap((x) => Rill.emits(chunk([x - 1, x, x + 1])));
+    final rill = Rill.emits([1, 2, 3]).flatMap((x) => Rill.emits([x - 1, x, x + 1]));
     expect(rill, producesInOrder([0, 1, 2, 1, 2, 3, 2, 3, 4]));
   });
 
   test('flatMap (2)', () {
-    final rill = Rill.emits(chunk([1, 2, 3])).flatMap((x) => Rill.emits(Chunk.fill(x, '$x')));
+    final rill = Rill.emits([1, 2, 3]).flatMap((x) => Rill.chunk(Chunk.fill(x, '$x')));
     expect(rill, producesInOrder(['1', '2', '2', '3', '3', '3']));
   });
 
@@ -349,7 +455,7 @@ void main() {
   });
 
   test('forall', () {
-    final s = Rill.emits(Chunk.from(IList.range(0, 5)));
+    final s = Rill.chunk(Chunk.from(IList.range(0, 5)));
 
     expect(s.forall((n) => n.isEven), producesOnly(false));
     expect(s.forall((n) => n < 4), producesOnly(false));
@@ -414,7 +520,7 @@ void main() {
       groupSize,
     ) {
       expect(
-        s.evalTap(sleep).groupWithin(groupSize, timeout).flatMap(Rill.emits),
+        s.evalTap(sleep).groupWithin(groupSize, timeout).flatMap(Rill.chunk),
         producesSameAs(s),
       );
     });
@@ -446,11 +552,11 @@ void main() {
 
     forAll(
       'giant group size emits single chunk',
-      Gen.ilistOf(Gen.chooseInt(1, 1000), Gen.integer),
+      Gen.listOf(Gen.chooseInt(1, 1000), Gen.integer),
       (list) {
         expect(
-          Rill.emits(Chunk.from(list)).groupWithin(list.size, 1.day),
-          producesOnly(Chunk.from(list)),
+          Rill.emits(list).groupWithin(list.length, 1.day),
+          producesOnly(chunk(list)),
         );
       },
     );
@@ -479,9 +585,9 @@ void main() {
   });
 
   test('handleErrorWith', () {
-    final rillA = Rill.emits(chunk([1, 2]));
+    final rillA = Rill.emits([1, 2]);
     final rillB = Rill.raiseError<int>('BOOM');
-    final rillC = Rill.emits(chunk([4]));
+    final rillC = Rill.emit(4);
 
     final rill = rillA.append(() => rillB).append(() => rillC);
 
@@ -501,7 +607,7 @@ void main() {
   group('interleave', () {
     test('interleave left/right side infinite', () {
       final ones = Rill.constant('1');
-      final r = Rill.emits(chunk(['A', 'B', 'C']));
+      final r = Rill.emits(['A', 'B', 'C']);
 
       expect(ones.interleave(r), producesInOrder(['1', 'A', '1', 'B', '1', 'C']));
       expect(r.interleave(ones), producesInOrder(['A', '1', 'B', '1', 'C', '1']));
@@ -517,7 +623,7 @@ void main() {
 
     test('interleaveAll left/right side infinite', () {
       final ones = Rill.constant('1');
-      final r = Rill.emits(chunk(['A', 'B', 'C']));
+      final r = Rill.emits(['A', 'B', 'C']);
 
       expect(
         ones.interleaveAll(r).take(9),
@@ -593,9 +699,9 @@ void main() {
   });
 
   test('keepAlive', () {
-    final irregularRill = Rill.emits(chunk([1, 2]))
+    final irregularRill = Rill.emits([1, 2])
         .andWait(250.milliseconds)
-        .append(() => Rill.emits(chunk([3, 4])))
+        .append(() => Rill.emits([3, 4]))
         .andWait(500.milliseconds)
         .append(() => Rill.emit(5))
         .andWait(50.milliseconds)
@@ -620,7 +726,7 @@ void main() {
   });
 
   test('map', () {
-    final rill = Rill.emits(chunk([1, 2, 3, 4, 5])).map((x) => x * 2);
+    final rill = Rill.emits([1, 2, 3, 4, 5]).map((x) => x * 2);
     expect(rill, producesInOrder([2, 4, 6, 8, 10]));
   });
 
@@ -657,23 +763,31 @@ void main() {
 
   test('mapAsyncUnordered', () {
     expect(
-      Rill.emits(
-        chunk([1, 5, 2, 0, 7, 3]),
-      ).parEvalMap(2, (n) => IO.sleep((n * 100).milliseconds).as(n)),
+      Rill.emits([1, 5, 2, 0, 7, 3]).parEvalMap(2, (n) => IO.sleep((n * 100).milliseconds).as(n)),
       producesInOrder([1, 5, 2, 0, 7, 3]),
     );
 
     expect(
-      Rill.emits(
-        chunk([1, 5, 2, 0, 7, 3]),
-      ).parEvalMapUnordered(1, (n) => IO.sleep((n * 100).milliseconds).as(n)),
+      Rill.emits([
+        1,
+        5,
+        2,
+        0,
+        7,
+        3,
+      ]).parEvalMapUnordered(1, (n) => IO.sleep((n * 100).milliseconds).as(n)),
       producesInOrder([1, 5, 2, 0, 7, 3]),
     );
 
     expect(
-      Rill.emits(
-        chunk([1, 5, 2, 0, 7, 3]),
-      ).parEvalMapUnordered(10, (n) => IO.sleep((n * 100).milliseconds).as(n)),
+      Rill.emits([
+        1,
+        5,
+        2,
+        0,
+        7,
+        3,
+      ]).parEvalMapUnordered(10, (n) => IO.sleep((n * 100).milliseconds).as(n)),
       producesInOrder([0, 1, 2, 3, 5, 7]),
     );
   });
@@ -790,10 +904,36 @@ void main() {
     );
   });
 
+  test('onFinalize', () {
+    final expected = ilist([
+      "rill - start",
+      "rill - done",
+      "io - done",
+      "io - start",
+    ]);
+
+    final test = Ref.of(nil<String>()).flatMap((st) {
+      IO<Unit> record(String s) => st.update((st) => st.appended(s));
+
+      final rill =
+          Rill.emit(
+            'rill - start',
+          ).onFinalize(record('rill - done')).evalMap((x) => record(x)).compile.lastOrError;
+
+      final io = Rill.emit(
+        'io - start',
+      ).onFinalize(record('io - done')).compile.lastOrError.flatMap((x) => record(x));
+
+      return rill.flatMap((_) => io).flatMap((_) => st.value());
+    });
+
+    expect(test, ioSucceeded(expected));
+  });
+
   test('onlyOrError', () {
     final a = Rill.empty<int>();
     final b = Rill.emit(1);
-    final c = Rill.emits(chunk([1, 2]));
+    final c = Rill.emits([1, 2]);
 
     expect(a.compile.onlyOrError, ioErrored());
     expect(b.compile.onlyOrError, ioSucceeded(1));
@@ -801,13 +941,11 @@ void main() {
   });
 
   test('parJoin', () async {
-    final rill = Rill.emits(
-      chunk([
-        Rill.range(0, 5).evalMap((n) => IO.pure(n).delayBy((n * 100).milliseconds)),
-        Rill.range(5, 10).evalMap((n) => IO.pure(n).delayBy((n * 10).milliseconds)),
-        Rill.range(10, 15).evalMap((n) => IO.pure(n).delayBy((n * 1).milliseconds)),
-      ]),
-    );
+    final rill = Rill.emits([
+      Rill.range(0, 5).evalMap((n) => IO.pure(n).delayBy((n * 100).milliseconds)),
+      Rill.range(5, 10).evalMap((n) => IO.pure(n).delayBy((n * 10).milliseconds)),
+      Rill.range(10, 15).evalMap((n) => IO.pure(n).delayBy((n * 1).milliseconds)),
+    ]);
 
     final result = await rill.parJoin(3).compile.toList.unsafeRunFuture();
 
@@ -990,7 +1128,7 @@ void main() {
 
   test('split', () {
     expect(
-      Rill.emits(chunk([0, 1, 2, 2, 2, 3, 5, 6, 6, 8, 8, 9, 10])).split((n) => n.isOdd),
+      Rill.emits([0, 1, 2, 2, 2, 3, 5, 6, 6, 8, 8, 9, 10]).split((n) => n.isOdd),
       producesInOrder([
         chunk([0]),
         chunk([2, 2, 2]),
@@ -1002,12 +1140,12 @@ void main() {
   });
 
   test('take', () {
-    final s = Rill.emits(Chunk.from(IList.range(0, 5)));
+    final s = Rill.chunk(Chunk.from(IList.range(0, 5)));
     expect(s.take(2), producesInOrder([0, 1]));
   });
 
   test('takeRight', () {
-    final rill = Rill.emits(chunk([1, 2, 3, 4, 5]));
+    final rill = Rill.emits([1, 2, 3, 4, 5]);
 
     expect(rill.takeRight(0), producesInOrder([]));
     expect(rill.takeRight(1), producesInOrder([5]));
@@ -1016,7 +1154,7 @@ void main() {
   });
 
   test('takeWhile', () {
-    final rill = Rill.emits(chunk([1, 2, 3, 4, 5]));
+    final rill = Rill.emits([1, 2, 3, 4, 5]);
 
     expect(rill.takeWhile((n) => n < 10), producesInOrder([1, 2, 3, 4, 5]));
     expect(rill.takeWhile((n) => n > 10), producesInOrder([]));
@@ -1025,7 +1163,7 @@ void main() {
 
   test('zip', () {
     final rillA = Rill.range(0, 5);
-    final rillB = Rill.emits(chunk(['a', 'b', 'c', 'd', 'e']));
+    final rillB = Rill.emits(['a', 'b', 'c', 'd', 'e']);
 
     expect(
       rillA.zip(rillB),
@@ -1050,7 +1188,7 @@ void main() {
 
   test('zip left/right side infinite', () {
     final ones = Rill.constant('1');
-    final s = Rill.emits(chunk(['A', 'B', 'C']));
+    final s = Rill.emits(['A', 'B', 'C']);
 
     expect(ones.zip(s), producesInOrder([('1', 'A'), ('1', 'B'), ('1', 'C')]));
     expect(s.zip(ones), producesInOrder([('A', '1'), ('B', '1'), ('C', '1')]));
@@ -1066,7 +1204,7 @@ void main() {
 
   test('zipAll', () {
     final rillA = Rill.range(0, 5);
-    final rillB = Rill.emits(chunk(['a', 'b', 'c', 'd', 'e'])).chunkLimit(1).unchunks;
+    final rillB = Rill.emits(['a', 'b', 'c', 'd', 'e']).chunkLimit(1).unchunks;
 
     expect(
       rillA.zipAllWith(rillB, 42, '?', (a, b) => (a, b)),
@@ -1085,8 +1223,8 @@ void main() {
   });
 
   test('zipLatest', () {
-    final xs = Rill.emits(chunk([1, 2, 3, 4]));
-    final as = Rill.emits(chunk(['a', 'b', 'c']));
+    final xs = Rill.emits([1, 2, 3, 4]);
+    final as = Rill.emits(['a', 'b', 'c']);
 
     IO<A> pureAndCede<A>(A a) => IO.pure(a).productL(() => IO.cede);
 
@@ -1107,7 +1245,7 @@ void main() {
 
   test('zipWith left/right side infinite', () {
     final ones = Rill.constant('1');
-    final s = Rill.emits(chunk(['A', 'B', 'C']));
+    final s = Rill.emits(['A', 'B', 'C']);
 
     expect(ones.zipWith(s, (a, b) => a + b), producesInOrder(['1A', '1B', '1C']));
     expect(s.zipWith(ones, (a, b) => a + b), producesInOrder(['A1', 'B1', 'C1']));
@@ -1123,7 +1261,7 @@ void main() {
 
   test('zipAllWith left/right side infinite', () {
     final ones = Rill.constant('1');
-    final s = Rill.emits(chunk(['A', 'B', 'C']));
+    final s = Rill.emits(['A', 'B', 'C']);
 
     expect(
       ones.zipAllWith(s, '2', 'Z', (a, b) => a + b).take(5),
@@ -1154,7 +1292,7 @@ void main() {
     expect(Rill.empty<int>().zipWithNext(), producesNothing());
     expect(Rill.emit(0).zipWithNext(), producesOnly((0, none<int>())));
     expect(
-      Rill.emits(chunk([0, 1, 2])).zipWithNext(),
+      Rill.emits([0, 1, 2]).zipWithNext(),
       producesInOrder([(0, const Some(1)), (1, const Some(2)), (2, none<int>())]),
     );
   });
@@ -1172,7 +1310,7 @@ void main() {
     expect(Rill.empty<int>().zipWithPrevious(), producesNothing());
     expect(Rill.emit(0).zipWithPrevious(), producesOnly((none<int>(), 0)));
     expect(
-      Rill.emits(chunk([0, 1, 2])).zipWithPrevious(),
+      Rill.emits([0, 1, 2]).zipWithPrevious(),
       producesInOrder([(none<int>(), 0), (const Some(0), 1), (const Some(1), 2)]),
     );
   });
@@ -1195,7 +1333,7 @@ void main() {
     expect(Rill.empty<int>().zipWithPreviousAndNext(), producesNothing());
     expect(Rill.emit(0).zipWithPreviousAndNext(), producesOnly((none<int>(), 0, none<int>())));
     expect(
-      Rill.emits(chunk([0, 1, 2])).zipWithPreviousAndNext(),
+      Rill.emits([0, 1, 2]).zipWithPreviousAndNext(),
       producesInOrder([
         (none<int>(), 0, const Some(1)),
         (const Some(0), 1, const Some(2)),
@@ -1206,9 +1344,7 @@ void main() {
 
   test('zipWithScan', () {
     expect(
-      Rill.emits(
-        chunk(['uno', 'dos', 'tres', 'cuatro']),
-      ).zipWithScan(0, (acc, o) => acc + o.length),
+      Rill.emits(['uno', 'dos', 'tres', 'cuatro']).zipWithScan(0, (acc, o) => acc + o.length),
       producesInOrder([('uno', 0), ('dos', 3), ('tres', 6), ('cuatro', 10)]),
     );
 
@@ -1217,9 +1353,7 @@ void main() {
 
   test('zipWithScan1', () {
     expect(
-      Rill.emits(
-        chunk(['uno', 'dos', 'tres', 'cuatro']),
-      ).zipWithScan1(0, (acc, o) => acc + o.length),
+      Rill.emits(['uno', 'dos', 'tres', 'cuatro']).zipWithScan1(0, (acc, o) => acc + o.length),
       producesInOrder([('uno', 3), ('dos', 6), ('tres', 10), ('cuatro', 16)]),
     );
 

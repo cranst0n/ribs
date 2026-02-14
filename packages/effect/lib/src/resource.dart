@@ -39,7 +39,7 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// finalizer, which can discriminate the [ExitCase] of the evaluation.
   static Resource<A> applyFull<A>(
     Function1<Poll, IO<(A, Function1<ExitCase, IO<Unit>>)>> resource,
-  ) => _Allocate(Fn1(resource));
+  ) => Allocate(Fn1(resource));
 
   /// Allocated both resources asynchronously, and combines the result from
   /// each into a tuple.
@@ -78,7 +78,7 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
   static Resource<Unit> get cede => Resource.eval(IO.cede);
 
   /// Lifts the given [IO] [a] into a Resource, providing no finalizer.
-  static Resource<A> eval<A>(IO<A> a) => _Eval(a);
+  static Resource<A> eval<A>(IO<A> a) => Eval(a);
 
   /// Creates a Resource using the allocation [acquire] and the finalizer
   /// [release].
@@ -107,7 +107,7 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
   static Resource<A> never<A>() => Resource.eval(IO.never());
 
   /// Lifts the pure value [a] into [Resource].
-  static Resource<A> pure<A>(A a) => _Pure(a);
+  static Resource<A> pure<A>(A a) => Pure(a);
 
   static Resource<Either<A, B>> race<A, B>(Resource<A> ra, Resource<B> rb) {
     return Resource.applyFull((poll) {
@@ -203,7 +203,7 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
     final current = _rotateBinds(this);
 
     return switch (current) {
-      final _Allocate<A> a => Resource.applyFull(
+      final Allocate<A> a => Resource.applyFull(
         (poll) => a
             .resource(poll)
             .attempt()
@@ -214,7 +214,7 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
               ),
             ),
       ),
-      final _Bind<dynamic, A> b => Resource.unit
+      final Bind<dynamic, A> b => Resource.unit
           .flatMap((_) => b.source.attempt())
           .flatMap(
             (att) => att.fold(
@@ -222,8 +222,8 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
               (s) => b.f(s).attempt(),
             ),
           ),
-      final _Pure<A> p => Resource.pure(p.value.asRight()),
-      final _Eval<A> e => Resource.eval(e.task.attempt()),
+      final Pure<A> p => Resource.pure(p.value.asRight()),
+      final Eval<A> e => Resource.eval(e.task.attempt()),
       _ => throw UnimplementedError(),
     };
   }
@@ -237,7 +237,7 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
   Resource<A> evalTap<B>(Function1<A, IO<B>> f) => flatMap((a) => Resource.eval(f(a)).as(a));
 
   @override
-  Resource<B> flatMap<B>(Function1<A, Resource<B>> f) => _Bind(this, Fn1(f));
+  Resource<B> flatMap<B>(Function1<A, Resource<B>> f) => Bind(this, Fn1(f));
 
   Resource<A> guaranteeCase(Function1<Outcome<A>, Resource<Unit>> fin) {
     return Resource.applyFull((poll) {
@@ -301,29 +301,29 @@ extension ResourceIOOps<A> on Resource<IO<A>> {
   IO<A> useEval() => use(identity);
 }
 
-class _Pure<A> extends Resource<A> {
+class Pure<A> extends Resource<A> {
   final A value;
 
-  const _Pure(this.value);
+  const Pure(this.value);
 }
 
-class _Eval<A> extends Resource<A> {
+class Eval<A> extends Resource<A> {
   final IO<A> task;
 
-  const _Eval(this.task);
+  const Eval(this.task);
 }
 
-class _Allocate<A> extends Resource<A> {
+class Allocate<A> extends Resource<A> {
   final Fn1<Poll, IO<(A, Function1<ExitCase, IO<Unit>>)>> resource;
 
-  const _Allocate(this.resource);
+  const Allocate(this.resource);
 }
 
-class _Bind<S, A> extends Resource<A> {
+class Bind<S, A> extends Resource<A> {
   final Resource<S> source;
   final Fn1<S, Resource<A>> f;
 
-  const _Bind(this.source, this.f);
+  const Bind(this.source, this.f);
 }
 
 /// Interpreter for `allocatedCase`.
@@ -336,13 +336,13 @@ IO<(A, Function1<ExitCase, IO<Unit>>)> _interpretAllocatedCase<A>(
 
   return switch (current) {
     // 1. Pure: Release does nothing.
-    _Pure(value: final v) => IO.pure((v, release)),
+    Pure(value: final v) => IO.pure((v, release)),
 
     // 2. Eval: Release does nothing.
-    _Eval(task: final task) => task.map((a) => (a, release)),
+    Eval(task: final task) => task.map((a) => (a, release)),
 
     // 3. AllocateCase: Uses the provided release logic directly.
-    _Allocate(:final resource) => IO.uncancelable((poll) {
+    Allocate(:final resource) => IO.uncancelable((poll) {
       return resource(poll).map((tuple) {
         final (b, rel) = tuple;
 
@@ -354,7 +354,7 @@ IO<(A, Function1<ExitCase, IO<Unit>>)> _interpretAllocatedCase<A>(
     }),
 
     // 4. Bind: Composition logic.
-    _Bind<dynamic, dynamic>(:final source, :final f) => _interpretAllocatedCase(
+    Bind<dynamic, dynamic>(:final source, :final f) => _interpretAllocatedCase(
       source,
       release,
     ).flatMap(
@@ -405,14 +405,14 @@ IO<B> _interpretUse<A, B>(
 
   return switch (current) {
     // 1. Pure: Just run the function.
-    _Pure(:final value) => useFn(value),
+    Pure(:final value) => useFn(value),
 
     // 2. Eval: Run the effect, then the function.
-    _Eval(:final task) => task.flatMap(useFn),
+    Eval(:final task) => task.flatMap(useFn),
 
     // 3. AllocateCase: Use bracketCase.
     // This provides the ExitCase (Success, Error, Canceled) to the release function.
-    _Allocate(:final resource) => IO.bracketFull(
+    Allocate(:final resource) => IO.bracketFull(
       resource.call,
       (tuple) => useFn(tuple.$1),
       (a, oc) {
@@ -424,7 +424,7 @@ IO<B> _interpretUse<A, B>(
     // 4. Bind: Recursive composition.
     // We interpret the 'source' resource first.
     // Its "usage" block becomes the interpretation of the 'next' resource.
-    _Bind<dynamic, dynamic>(:final source, :final f) => _interpretUse(source, (s) {
+    Bind<dynamic, dynamic>(:final source, :final f) => _interpretUse(source, (s) {
       Resource<A> nextRes;
 
       try {
@@ -449,17 +449,17 @@ Resource<A> _rotateBinds<A>(Resource<A> res) {
   while (true) {
     // rotate left nested binds to right nested for stack safety
     // note this will not work with _Binds that don't match the type parameters
-    if (current is _Bind<dynamic, A>) {
+    if (current is Bind<dynamic, A>) {
       final bind = current;
 
-      if (bind.source is _Bind) {
-        final sourceBind = bind.source as _Bind;
+      if (bind.source is Bind) {
+        final sourceBind = bind.source as Bind;
 
         final s = sourceBind.source;
         final f = sourceBind.f;
         final g = bind.f;
 
-        current = _Bind(s, Fn1((x) => f(x).flatMap(g.call)));
+        current = Bind(s, Fn1((x) => f(x).flatMap(g.call)));
 
         continue;
       }

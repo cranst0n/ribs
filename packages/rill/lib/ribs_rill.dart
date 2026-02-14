@@ -6,4 +6,6 @@ export 'src/extensions/option.dart';
 export 'src/extensions/par_join.dart';
 export 'src/extensions/rethrow.dart';
 export 'src/extensions/to_stream.dart';
+export 'src/pipes.dart';
 export 'src/rill.dart';
+export 'src/scope.dart';

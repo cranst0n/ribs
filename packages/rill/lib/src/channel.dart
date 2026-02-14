@@ -9,28 +9,20 @@ mixin Channel<A> {
 
   static IO<Channel<A>> unbounded<A>() => bounded(Integer.MaxValue);
 
-  // def sendAll: Pipe[F, A, Nothing]
   Pipe<A, Never> get sendAll;
 
-  // def send(a: A): F[Either[Channel.Closed, Unit]]
   IO<Either<ChannelClosed, Unit>> send(A a);
 
-  // def trySend(a: A): F[Either[Channel.Closed, Boolean]]
   IO<Either<ChannelClosed, bool>> trySend(A a);
 
-  // def stream: Stream[F, A]
   Rill<A> get stream;
 
-  // def close: F[Either[Channel.Closed, Unit]]
   IO<Either<ChannelClosed, Unit>> close();
 
-  // def closeWithElement(a: A): F[Either[Channel.Closed, Unit]]
   IO<Either<ChannelClosed, Unit>> closeWithElement(A a);
 
-  // def isClosed: F[Boolean]
   IO<bool> get isClosed;
 
-  // def closed: F[Unit]
   IO<Unit> get closed;
 }
 
@@ -211,7 +203,9 @@ final class _BoundedChannel<A> with Channel<A> {
                   return unblock.as(Pull.output(toEmit).append(() => consumeLoop()));
                 } else {
                   return IO.pure(
-                    s.closed ? Pull.done : Pull.eval(waiting.value()).flatMap((_) => consumeLoop()),
+                    s.closed
+                        ? Pull.done<A>()
+                        : Pull.eval(waiting.value()).flatMap((_) => consumeLoop()),
                   );
                 }
               }),
