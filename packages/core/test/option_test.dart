@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 
 void main() {
   const testSome = Some(1);
-  const testNone = None<int>();
+  const Option<int> testNone = None();
 
   group('Option', () {
     test('constructor', () {

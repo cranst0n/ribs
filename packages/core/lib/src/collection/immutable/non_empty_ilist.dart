@@ -45,7 +45,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   ///
   /// ```dart main
   /// assert(NonEmptyIList.fromDart([1, 2, 3]) == Some(nel(1, [2, 3])));
-  /// assert(NonEmptyIList.fromDart([]) == None<NonEmptyIList<int>>());
+  /// assert(NonEmptyIList.fromDart([]) == None());
   /// ```
   static Option<NonEmptyIList<A>> fromDart<A>(Iterable<A> as) => Option.when(
     () => as.isNotEmpty,

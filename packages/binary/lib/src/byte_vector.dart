@@ -143,7 +143,7 @@ sealed class ByteVector {
 
   factory ByteVector.fromBigInt(
     BigInt value, {
-    Option<int> size = const None<int>(),
+    Option<int> size = const None(),
     Endian ordering = Endian.big,
   }) => BitVector.fromBigInt(value, size: size.map((s) => s * 8), ordering: ordering).bytes;
 

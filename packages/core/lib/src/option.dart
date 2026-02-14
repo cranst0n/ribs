@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 
 /// Creates a [None] with the given type parameter.
-Option<A> none<A>() => None<A>();
+Option<A> none<A>() => const None();
 
 /// Represents optional values.
 ///
@@ -26,17 +26,15 @@ sealed class Option<A> with RIterableOnce<A> {
   /// Evaluates the given condition and returns [None] when the condition
   /// is true, or a [Some] with a value of the result of given function.
   factory Option.unless(Function0<bool> condition, Function0<A> a) =>
-      condition() ? None<A>() : Some(a());
+      condition() ? const None() : Some(a());
 
   /// Evaluates the given condition and returns [None] when the condition
   /// is false, or a [Some] with a value of the result of given function.
   factory Option.when(Function0<bool> condition, Function0<A> a) =>
-      condition() ? Some(a()) : None<A>();
+      condition() ? Some(a()) : const None();
 
   @override
   Option<B> collect<B>(Function1<A, Option<B>> f) => flatMap(f);
-
-  bool contains(A elem) => fold(() => false, (value) => value == elem);
 
   @override
   Option<A> drop(int n) => filter((_) => n <= 0);
@@ -65,19 +63,11 @@ sealed class Option<A> with RIterableOnce<A> {
   @override
   Option<B> flatMap<B>(Function1<A, Option<B>> f) => fold(() => none<B>(), f);
 
-  /// Returns the value if this is a [Some] or the value returned from
-  /// evaluating [ifEmpty].
-  A getOrElse(Function0<A> ifEmpty) => fold(() => ifEmpty(), identity);
-
   @override
   Option<B> map<B>(Function1<A, B> f) => flatMap((a) => Some(f(a)));
 
   @override
   bool get nonEmpty => this is Some;
-
-  /// If this is a [Some], this is returned, otherwise the result of evaluating
-  /// [orElse] is returned.
-  Option<A> orElse(Function0<Option<A>> orElse) => fold(() => orElse(), (_) => this);
 
   @override
   RIterableOnce<B> scanLeft<B>(B z, Function2<B, A, B> op) => toIList().scanLeft(z, op);
@@ -132,15 +122,27 @@ final class Some<A> extends Option<A> {
 }
 
 /// An [Option] that signifies the absence of a value.
-final class None<A> extends Option<A> {
+final class None extends Option<Never> {
   const None() : super._();
 
   @override
-  B fold<B>(Function0<B> ifEmpty, Function1<A, B> f) => ifEmpty();
+  B fold<B>(Function0<B> ifEmpty, Function1<Never, B> f) => ifEmpty();
 }
 
 /// Additional functions that can be called on a nested [Option].
 extension OptionNestedOps<A> on Option<Option<A>> {
   /// If this is a [Some], the value is returned, otherwise [None] is returned.
   Option<A> flatten() => fold(() => none<A>(), identity);
+}
+
+extension OptionOps<A> on Option<A> {
+  bool contains(A elem) => fold(() => false, (value) => value == elem);
+
+  /// Returns the value if this is a [Some] or the value returned from
+  /// evaluating [ifEmpty].
+  A getOrElse(Function0<A> ifEmpty) => fold(() => ifEmpty(), identity);
+
+  /// If this is a [Some], this is returned, otherwise the result of evaluating
+  /// [orElse] is returned.
+  Option<A> orElse(Function0<Option<A>> orElse) => fold(() => orElse(), (_) => this);
 }

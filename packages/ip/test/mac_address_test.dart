@@ -1,4 +1,5 @@
 import 'package:ribs_check/ribs_check.dart';
+import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/test_matchers.dart';
 import 'package:ribs_ip/src/mac_address.dart';
 import 'package:test/test.dart';
