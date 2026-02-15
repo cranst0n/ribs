@@ -3,11 +3,11 @@
 ///
 /// See also: https://medium.com/flutter-community/the-curious-case-of-void-in-dart-f0535705e529
 final class Unit {
-  static final Unit _singleton = Unit._();
+  static const Unit instance = Unit._();
 
-  factory Unit() => _singleton;
+  factory Unit() => instance;
 
-  Unit._();
+  const Unit._();
 
   @override
   String toString() => '()';
