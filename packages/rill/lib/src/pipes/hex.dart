@@ -47,7 +47,7 @@ final class HexPipes {
     Pull<int, Unit> go(Rill<String> s, int hi, bool midByte) {
       return s.pull.uncons1.flatMap((hdtl) {
         return hdtl.foldN(
-          () => midByte ? Pull.raiseError('Nibble left over') : Pull.done(),
+          () => midByte ? Pull.raiseError('Nibble left over') : Pull.done,
           (hd, tl) {
             final (out, newHi, newMidByte) = decode1(hd, hi, midByte);
             return Pull.output(out).append(() => go(tl, newHi, newMidByte));
@@ -59,7 +59,7 @@ final class HexPipes {
     Pull<int, Unit> dropPrefix(Rill<String> s, String acc) {
       return s.pull.uncons1.flatMap((hdtl) {
         return hdtl.foldN(
-          () => Pull.done(),
+          () => Pull.done,
           (hd, tl) {
             if (acc.length + hd.length < 2) {
               return dropPrefix(tl, acc + hd);

@@ -168,7 +168,7 @@ final class Base64Pipes {
           () {
             switch (carry.size) {
               case 0:
-                return Pull.done();
+                return Pull.done;
               case 1:
                 var buffer = (carry[0] & 0xff) << 4;
                 final second = buffer & 0x3f;

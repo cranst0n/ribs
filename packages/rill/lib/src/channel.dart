@@ -203,9 +203,7 @@ final class _BoundedChannel<A> with Channel<A> {
                   return unblock.as(Pull.output(toEmit).append(() => consumeLoop()));
                 } else {
                   return IO.pure(
-                    s.closed
-                        ? Pull.done<A>()
-                        : Pull.eval(waiting.value()).flatMap((_) => consumeLoop()),
+                    s.closed ? Pull.done : Pull.eval(waiting.value()).flatMap((_) => consumeLoop()),
                   );
                 }
               }),

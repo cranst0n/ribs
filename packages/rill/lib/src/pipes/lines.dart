@@ -74,7 +74,7 @@ final class LinesPipes {
         return hdtl.foldN(
           () {
             if (first) {
-              return Pull.done();
+              return Pull.done;
             } else {
               final result = stringBuffer.toString();
 

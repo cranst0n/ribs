@@ -11,12 +11,12 @@ extension RillOptionOps<A> on Rill<Option<A>> {
     Pull<A, Unit> loop(Pull<Option<A>, Unit> p) {
       return p.uncons.flatMap((hdtl) {
         return hdtl.foldN(
-          () => Pull.done(),
+          () => Pull.done,
           (hd, tl) => hd
               .indexWhere((opt) => opt.isEmpty)
               .fold(
                 () => Pull.output(hd.map(getopt)).append(() => loop(tl)),
-                (idx) => idx == 0 ? Pull.done() : Pull.output(hd.take(idx).map(getopt)),
+                (idx) => idx == 0 ? Pull.done : Pull.output(hd.take(idx).map(getopt)),
               ),
         );
       });

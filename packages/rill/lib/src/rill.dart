@@ -56,9 +56,9 @@ class Rill<O> {
 
   static Rill<O> eval<O>(IO<O> io) => Pull.eval(io).flatMap(Pull.output1).rill;
 
-  static Rill<O> exec<O>(IO<Unit> io) => Rill._noScope(Pull.eval(io).flatMap((_) => Pull.done()));
+  static Rill<O> exec<O>(IO<Unit> io) => Rill._noScope(Pull.eval(io).flatMap((_) => Pull.done));
 
-  static Rill<O> empty<O>() => Rill._noScope(Pull.done());
+  static Rill<O> empty<O>() => Rill._noScope(Pull.done);
 
   static Rill<Unit> fixedDelay(Duration period) => sleep(period).repeat();
 
@@ -323,7 +323,7 @@ class Rill<O> {
   Rill<O> delete(Function1<O, bool> p) =>
       pull
           .takeWhile((o) => !p(o))
-          .flatMap((r) => r.fold(() => Pull.done<O>(), (s) => s.drop(1).pull.echo))
+          .flatMap((r) => r.fold(() => Pull.done, (s) => s.drop(1).pull.echo))
           .rill;
 
   /// WARN: For long streams and/or large elements, this can be a memory hog.
@@ -336,10 +336,10 @@ class Rill<O> {
     });
   }
 
-  Rill<Never> drain() => underlying.unconsFlatMap((_) => Pull.done<Never>()).rill;
+  Rill<Never> drain() => underlying.unconsFlatMap((_) => Pull.done).rill;
 
   Rill<O> drop(int n) =>
-      pull.drop(n).flatMap((opt) => opt.fold(() => Pull.done<O>(), (rest) => rest.pull.echo)).rill;
+      pull.drop(n).flatMap((opt) => opt.fold(() => Pull.done, (rest) => rest.pull.echo)).rill;
 
   Rill<O> get dropLast => dropLastIf((_) => true);
 
@@ -364,7 +364,7 @@ class Rill<O> {
 
     return pull.uncons.flatMap((hdtl) {
       return hdtl.foldN(
-        () => Pull.done<O>(),
+        () => Pull.done,
         (hd, tl) => go(hd, tl),
       );
     }).rill;
@@ -377,7 +377,7 @@ class Rill<O> {
       Pull<O, Unit> go(Chunk<O> acc, Rill<O> s) {
         return s.pull.uncons.flatMap((hdtl) {
           return hdtl.foldN(
-            () => Pull.done(),
+            () => Pull.done,
             (hd, tl) {
               final all = acc.concat(hd);
               return Pull.output(all.dropRight(n)).append(() => go(all.takeRight(n), tl));
@@ -393,13 +393,13 @@ class Rill<O> {
   Rill<O> dropThrough(Function1<O, bool> p) =>
       pull
           .dropThrough(p)
-          .flatMap((tl) => tl.map((tl) => tl.pull.echo).getOrElse(() => Pull.done()))
+          .flatMap((tl) => tl.map((tl) => tl.pull.echo).getOrElse(() => Pull.done))
           .rill;
 
   Rill<O> dropWhile(Function1<O, bool> p) =>
       pull
           .dropWhile(p)
-          .flatMap((tl) => tl.map((tl) => tl.pull.echo).getOrElse(() => Pull.done()))
+          .flatMap((tl) => tl.map((tl) => tl.pull.echo).getOrElse(() => Pull.done))
           .rill;
 
   Rill<Either<O, O2>> either<O2>(Rill<O2> that) =>
@@ -408,7 +408,7 @@ class Rill<O> {
   Rill<O> evalFilter(Function1<O, IO<bool>> p) =>
       underlying
           .flatMapOutput(
-            (o) => Pull.eval(p(o)).flatMap((pass) => pass ? Pull.output1(o) : Pull.done<O>()),
+            (o) => Pull.eval(p(o)).flatMap((pass) => pass ? Pull.output1(o) : Pull.done),
           )
           .rillNoScope;
 
@@ -440,7 +440,7 @@ class Rill<O> {
     Pull<O2, Unit> go(O2 z, Rill<O> s) {
       return s.pull.uncons1.flatMap((hdtl) {
         return hdtl.foldN(
-          () => Pull.done(),
+          () => Pull.done,
           (hd, tl) => Pull.eval(f(z, hd)).flatMap((o) => Pull.output1(o).append(() => go(o, tl))),
         );
       });
@@ -463,7 +463,7 @@ class Rill<O> {
     Pull<O, Unit> go(O last, Rill<O> s) {
       return s.pull.uncons.flatMap((hdtl) {
         return hdtl.foldN(
-          () => Pull.done(),
+          () => Pull.done,
           (hd, tl) {
             // can it be emitted unmodified?
             final (allPass, newLast) = hd.foldLeft((
@@ -491,7 +491,7 @@ class Rill<O> {
 
     return pull.uncons1.flatMap((hdtl) {
       return hdtl.foldN(
-        () => Pull.done<O>(),
+        () => Pull.done,
         (hd, tl) => Pull.output1(hd).append(() => go(hd, tl)),
       );
     }).rill;
@@ -502,9 +502,9 @@ class Rill<O> {
     Pull<O2, Unit> loop(Rill<O> rill) {
       return rill.pull.uncons.flatMap((hdtl) {
         return hdtl.foldN(
-          () => Pull.done<O2>(),
+          () => Pull.done,
           (hd, tl) {
-            final chunkPull = hd.foldLeft(Pull.done<O2>(), (acc, element) {
+            final chunkPull = hd.foldLeft<Pull<O2, Unit>>(Pull.done, (acc, element) {
               return acc.flatMap((_) => f(element).pull.echo);
             });
 
@@ -520,7 +520,7 @@ class Rill<O> {
   Rill<O2> fold<O2>(O2 z, Function2<O2, O, O2> f) => pull.fold(z, f).flatMap(Pull.output1).rill;
 
   Rill<O> fold1(Function2<O, O, O> f) =>
-      pull.fold1(f).flatMap((opt) => opt.map(Pull.output1).getOrElse(() => Pull.done())).rill;
+      pull.fold1(f).flatMap((opt) => opt.map(Pull.output1).getOrElse(() => Pull.done)).rill;
 
   Rill<bool> forall(Function1<O, bool> p) =>
       pull.forall(p).flatMap((res) => Pull.output1(res)).rill;
@@ -585,9 +585,9 @@ class Rill<O> {
         return hdtl.foldN(
           () => current
               .mapN(
-                (k1, out) => out.size == 0 ? Pull.done<(O2, Chunk<O>)>() : Pull.output1((k1, out)),
+                (k1, out) => out.size == 0 ? Pull.done : Pull.output1((k1, out)),
               )
-              .getOrElse(() => Pull.done()),
+              .getOrElse(() => Pull.done),
           (hd, tl) {
             final (k1, out) = current.getOrElse(() => (f(hd[0]), Chunk.empty()));
             return doChunk(hd, tl, k1, out, IQueue.empty());
@@ -634,7 +634,7 @@ class Rill<O> {
             // no buffered data, don't care about time. wait for next chunk
             return Pull.eval(queue.take()).flatMap((opt) {
               return opt.fold(
-                () => Pull.done(),
+                () => Pull.done,
                 (chunk) {
                   // data has arrived, start the clock
                   return Pull.eval(IO.now).flatMap((now) {
@@ -722,7 +722,7 @@ class Rill<O> {
     Pull<O, Unit> go(Rill<O> str) {
       return str.pull.uncons.flatMap((hdtl) {
         return hdtl.foldN(
-          () => Pull.done(),
+          () => Pull.done,
           (hd, tl) => Pull.output(doChunk(hd, false)).append(() => go(tl)),
         );
       });
@@ -730,7 +730,7 @@ class Rill<O> {
 
     return pull.uncons.flatMap((hdtl) {
       return hdtl.foldN(
-        () => Pull.done<O>(),
+        () => Pull.done,
         (hd, tl) => Pull.output(doChunk(hd, true)).append(() => go(tl)),
       );
     }).rill;
@@ -770,10 +770,10 @@ class Rill<O> {
     return Pull.getScope.flatMap((scope) {
       return Pull.eval(IO.race(barrier, _stepPull(original, scope))).flatMap((either) {
         return either.fold(
-          (signalWon) => Pull.done(),
+          (signalWon) => Pull.done,
           (stepWon) {
             return switch (stepWon) {
-              final _StepDone<dynamic, dynamic> _ => Pull.done(),
+              final _StepDone<dynamic, dynamic> _ => Pull.done,
               final _StepOut<O, Unit> so => Pull.output(
                 so.head,
               ).flatMap((_) => _interruptibleLoop(so.next, barrier)),
@@ -801,7 +801,7 @@ class Rill<O> {
         return Pull.eval(IO.race(takeOp, timerOp)).flatMap((raceResult) {
           return raceResult.fold(
             (queueResult) => queueResult.fold(
-              () => Pull.done(),
+              () => Pull.done,
               (chunk) => Pull.output(chunk).append(consumeLoop),
             ),
             (_) => Pull.eval(heartbeat).flatMap((o) => Pull.output1(o)).append(consumeLoop),
@@ -1001,7 +1001,7 @@ class Rill<O> {
       Pull<O, Unit> loop(Rill<O> s) {
         return s.pull.uncons.flatMap((hdtl) {
           return hdtl.foldN(
-            () => Pull.done(),
+            () => Pull.done,
             (hd, tl) {
               if (hd.isEmpty) {
                 return loop(tl);
@@ -1079,7 +1079,7 @@ class Rill<O> {
   Rill<O2> repeatPull<O2>(Function1<ToPull<O>, Pull<O2, Option<Rill<O>>>> f) {
     Pull<O2, Unit> go(ToPull<O> tp) {
       return f(tp).flatMap((tail) {
-        return tail.fold(() => Pull.done(), (tail) => go(tail.pull));
+        return tail.fold(() => Pull.done, (tail) => go(tail.pull));
       });
     }
 
@@ -1091,7 +1091,7 @@ class Rill<O> {
   Rill<O> scan1(Function2<O, O, O> f) =>
       pull.uncons.flatMap((hdtl) {
         return hdtl.foldN(
-          () => Pull.done<O>(),
+          () => Pull.done,
           (hd, tl) {
             final (pre, post) = hd.splitAt(1);
             return Pull.output(pre).append(() => tl.cons(post)._scan(pre[0], f));
@@ -1101,7 +1101,7 @@ class Rill<O> {
 
   Pull<O2, Unit> _scan<O2>(O2 z, Function2<O2, O, O2> f) => pull.uncons.flatMap((hdtl) {
     return hdtl.foldN(
-      () => Pull.done(),
+      () => Pull.done,
       (hd, tl) {
         final (out, carry) = hd.scanLeftCarry(z, f);
         return Pull.output(out).append(() => tl._scan(carry, f));
@@ -1123,7 +1123,7 @@ class Rill<O> {
     Pull<Chunk<O>, Unit> stepNotSmallerThanSize(Rill<O> s, Chunk<O> prev) {
       return s.pull.uncons.flatMap(
         (hdtl) => hdtl.foldN(
-          () => prev.isEmpty ? Pull.done() : Pull.output1(prev.take(size)),
+          () => prev.isEmpty ? Pull.done : Pull.output1(prev.take(size)),
           (hd, tl) {
             final bldr = <Chunk<O>>[];
 
@@ -1146,7 +1146,7 @@ class Rill<O> {
     Pull<Chunk<O>, Unit> stepSmallerThanSize(Rill<O> s, Chunk<O> window, Chunk<O> prev) {
       return s.pull.uncons.flatMap(
         (hdtl) => hdtl.foldN(
-          () => prev.isEmpty ? Pull.done() : Pull.output1(window.concat(prev).take(size)),
+          () => prev.isEmpty ? Pull.done : Pull.output1(window.concat(prev).take(size)),
           (hd, tl) {
             final bldr = <Chunk<O>>[];
 
@@ -1176,7 +1176,7 @@ class Rill<O> {
           .unconsN(size, allowFewer: true)
           .flatMap(
             (hdtl) => hdtl.foldN(
-              () => Pull.done<Chunk<O>>(),
+              () => Pull.done,
               (hd, tl) => Pull.output1(
                 hd,
               ).append(() => stepSmallerThanSize(tl, hd.drop(step), Chunk.empty())),
@@ -1198,7 +1198,7 @@ class Rill<O> {
     Pull<Chunk<O>, Unit> go(Chunk<O> buffer, Rill<O> s) {
       return s.pull.uncons.flatMap((hdtl) {
         return hdtl.foldN(
-          () => buffer.nonEmpty ? Pull.output1(buffer) : Pull.done(),
+          () => buffer.nonEmpty ? Pull.output1(buffer) : Pull.done,
           (hd, tl) {
             return hd.indexWhere(p).fold(
               () => go(buffer.concat(hd), tl),
@@ -1304,11 +1304,11 @@ class Rill<O> {
     Pull<O3, Unit> loop(Rill<O> s1, Rill<O2> s2) {
       return s1.pull.uncons.flatMap((hdtl1) {
         return hdtl1.foldN(
-          () => Pull.done(),
+          () => Pull.done,
           (hd1, tl1) {
             return s2.pull.uncons.flatMap((hdtl2) {
               return hdtl2.foldN(
-                () => Pull.done(),
+                () => Pull.done,
                 (hd2, tl2) {
                   final len = min(hd1.size, hd2.size);
 
@@ -1449,7 +1449,7 @@ class Rill<O> {
 
     return pull.uncons1.flatMap((hdtl) {
       return hdtl.foldN(
-        () => Pull.done<(O, Option<O>)>(),
+        () => Pull.done,
         (hd, tl) => go(hd, tl),
       );
     }).rill;

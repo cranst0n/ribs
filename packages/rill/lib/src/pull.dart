@@ -13,8 +13,7 @@ sealed class Pull<O, R> {
     Function2<R, ExitCase, IO<Unit>> release,
   ) => _Acquire(IO.uncancelable(acquire), Fn2(release), cancelable: true);
 
-  static Pull<O, Unit> done<O>() => _Done();
-  // static final Pull<Never, Unit> done = unit;
+  static final Pull<Never, Unit> done = unit;
 
   static Pull<Never, R> eval<R>(IO<R> io) => _Eval(io);
 
@@ -27,7 +26,7 @@ sealed class Pull<O, R> {
   static Pull<O, Unit> output1<O>(O value) => _Output(chunk([value]));
 
   static Pull<O, Unit> outputOption1<O>(Option<O> opt) =>
-      opt.map(output1).getOrElse(() => Pull.done());
+      opt.map(output1).getOrElse(() => Pull.done);
 
   static final Pull<Unit, Unit> outUnit = _Output(Chunk.unit);
 
@@ -49,11 +48,15 @@ sealed class Pull<O, R> {
 
   static Pull<O, R> suspend<O, R>(Function0<Pull<O, R>> f) => Pull.unit.flatMap((_) => f());
 
-  static final Pull<Never, Unit> unit = _Pure(Unit());
+  static Pull<Never, Unit> unit = _Pure(Unit());
 
   const Pull();
 
-  Pull<O, R2> append<R2>(Function0<Pull<O, R2>> next) => flatMap((_) => next());
+  /// **Unsafe Cast Warning**:
+  ///
+  /// This method performs an unsafe cast (`this as Pull<O2, R>`) to allow type widening.
+  /// If [O] is not a subtype of [O2], this function will throw a [TypeError] at runtime.
+  Pull<O2, R2> append<O2, R2>(Function0<Pull<O2, R2>> next) => flatMap((_) => next());
 
   Pull<O, R2> as<R2>(R2 s) => map((_) => s);
 
@@ -61,27 +64,23 @@ sealed class Pull<O, R> {
   ///
   /// [f] is a function that receives the result of this pull and returns the next step.
   ///
-  /// ### Type Safety Warning:
+  /// **Unsafe Cast Warning**:
   ///
   /// This method performs an unsafe cast (`this as Pull<O2, R>`) to allow type widening.
-  ///
-  /// **The original type [O] ***MUST*** be a subtype of the new output type [O2].**
-  ///
-  /// * **Safe (Widening):** `Pull<Never, int>` to `Pull<String, int>` (Pure effect)
-  /// * **Safe (Upcasting):** `Pull<String, Unit>` to `Pull<Object, Unit>`
-  /// * **Unsafe (Downcasting):** `Pull<Object, Unit>` to `Pull<String, Unit>`
-  ///
-  /// If [O] is not a subtype of [O2], this function will throw a [TypeError].
-  ///
-  /// If Dart implements [Lower Type Bounds][https://github.com/dart-lang/language/issues/1674],
-  /// this could be used to make this function compile-time safe.
+  /// If [O] is not a subtype of [O2], this function will throw a [TypeError] at runtime.
   Pull<O2, R2> flatMap<O2, R2>(Function1<R, Pull<O2, R2>> f) => _Bind(this as Pull<O2, R>, Fn1(f));
 
   /// Maps the result type.
   Pull<O, R2> map<R2>(Function1<R, R2> f) => flatMap((r) => Pull.pure(f(r)));
 
   /// Handles errors raised in this Pull.
-  Pull<O, R> handleErrorWith(Function1<Object, Pull<O, R>> f) => _Handle(this, Fn1(f));
+  ///
+  /// **Unsafe Cast Warning**:
+  ///
+  /// This method performs an unsafe cast (`this as Pull<O2, R>`) to allow type widening.
+  /// If [O] is not a subtype of [O2], this function will throw a [TypeError] at runtime.
+  Pull<O2, R> handleErrorWith<O2>(Function1<Object, Pull<O2, R>> f) =>
+      _Handle(this as Pull<O2, R>, Fn1(f));
 
   Pull<O, Unit> get voided => as(Unit());
 }
@@ -109,7 +108,7 @@ extension PullOps<O> on Pull<O, Unit> {
 
             Pull<O2, Unit> runChunk(Chunk<O> chunk) {
               if (chunk.isEmpty) {
-                return Pull.done();
+                return Pull.done;
               } else {
                 return f(chunk.head).flatMap((_) => runChunk(chunk.tail));
               }
@@ -143,14 +142,12 @@ extension PullOps<O> on Pull<O, Unit> {
   Pull<O2, Unit> unconsFlatMap<O2>(Function1<Chunk<O>, Pull<O2, Unit>> f) {
     return uncons.flatMap((hdtl) {
       return hdtl.foldN(
-        () => Pull.done(),
+        () => Pull.done,
         (hd, tl) => f(hd).append(() => tl.unconsFlatMap(f)),
       );
     });
   }
 }
-
-class _Done<O, R> extends Pull<O, R> {}
 
 class _Pure<R> extends Pull<Never, R> {
   final R value;
@@ -259,7 +256,7 @@ IO<_Step<O, R>> _stepPull<O, R>(Pull<O, R> pull, Scope scope) {
       final _OpenScope<O> _ => Scope.create(scope).map((s) => _StepDone(s as R)),
       final _CloseScope<O> p => _stepCloseScope(p),
       final _RunInScope<O, R> _ => _stepRunInScope(pull),
-      final _Done<O, R> _ => IO.pure(_StepDone(Unit() as R)),
+
       _ => IO.raiseError('Pull.stepPull: Unknown Pull type: $pull'),
     };
   });
