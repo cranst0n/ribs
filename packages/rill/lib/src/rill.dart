@@ -106,8 +106,17 @@ class Rill<O> {
   static Rill<O> fromOption<E extends Object, O>(Option<O> option) =>
       option.fold(() => Rill.empty(), (o) => Rill.emit(o));
 
-  static Rill<O> fromStream<O>(Stream<O> stream) {
-    return Rill.eval(Queue.unbounded<Either<Object, Option<O>>>()).flatMap((queue) {
+  static Rill<O> fromStream<O>(
+    Stream<O> stream, {
+    OverflowStrategy strategy = const _DropOldest(100),
+  }) {
+    final IO<Queue<Either<Object, Option<O>>>> createQueue = switch (strategy) {
+      _DropNewest(:final bufferSize) => Queue.dropping(bufferSize),
+      _DropOldest(:final bufferSize) => Queue.circularBuffer(bufferSize),
+      _Unbounded() => Queue.unbounded(),
+    };
+
+    return Rill.eval(createQueue).flatMap((queue) {
       Rill<O> consumeStreamQueue() {
         return Rill.eval(queue.take()).flatMap((event) {
           return event.fold(
@@ -1482,4 +1491,29 @@ class Rill<O> {
   ).map((t) => t.$2);
 
   RillCompile<O> get compile => RillCompile(underlying);
+
+}
+
+sealed class OverflowStrategy {
+  const OverflowStrategy();
+
+  factory OverflowStrategy.dropOldest(int bufferSize) => _DropOldest(bufferSize);
+  factory OverflowStrategy.dropNewest(int bufferSize) => _DropNewest(bufferSize);
+  factory OverflowStrategy.unbounded() => const _Unbounded();
+}
+
+class _DropOldest extends OverflowStrategy {
+  final int bufferSize;
+
+  const _DropOldest(this.bufferSize);
+}
+
+class _DropNewest extends OverflowStrategy {
+  final int bufferSize;
+
+  const _DropNewest(this.bufferSize);
+}
+
+class _Unbounded extends OverflowStrategy {
+  const _Unbounded();
 }
