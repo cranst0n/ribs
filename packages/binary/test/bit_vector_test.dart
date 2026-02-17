@@ -93,7 +93,7 @@ void main() {
   forAll('BigInt conversions - verify sign handling', Gen.integer, (n) {
     expect(
       BitVector.fromInt(n).toBigInt(signed: false),
-      n >= 0 ? BigInt.from(n) : (BigInt.from(n >>> 1) << 1) + BigInt.from(n & 1),
+      n >= 0 ? BigInt.from(n) : BigInt.from(n).toUnsigned(Integer.Size),
     );
   });
 
@@ -101,7 +101,7 @@ void main() {
     final bits = hex('01 ffff ffff ffff ffff');
     expect(
       bits.toBigInt(),
-      ((BigInt.from(-1 >>> 1) << 1) + BigInt.one) * BigInt.two + BigInt.one,
+      BigInt.parse('1FFFFFFFFFFFFFFFF', radix: 16),
     );
   });
 
@@ -269,7 +269,7 @@ void main() {
         n,
       );
     }
-  });
+  }, testOn: '!browser');
 
   forAll('padLeft', bitVector, (bv) {
     expect(bv.padLeft(0), bv);

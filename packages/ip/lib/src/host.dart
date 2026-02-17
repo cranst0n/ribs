@@ -297,7 +297,9 @@ final class Ipv4Address extends IpAddress {
 
   static Ipv4Address mask(int bits) {
     final b = bits.clamp(0, 32);
-    return Ipv4Address.fromInt(b == 32 ? -1 : ~(0xffffffff >> b));
+    if (b == 0) return Ipv4Address.fromInt(0);
+    final val = (BigInt.one << 32) - (BigInt.one << (32 - b));
+    return Ipv4Address.fromInt(val.toInt());
   }
 
   @override
@@ -562,13 +564,12 @@ final class Ipv6Address extends IpAddress {
   static Ipv6Address mask(int bits) {
     final b = bits.clamp(0, 128);
 
-    final bi = switch (b) {
-      _ when b == 128 => BigInt.from(-1) << 64 | BigInt.from(-1),
-      _ when b < 64 => BigInt.from(~(-1 >>> b)) << 64,
-      _ => (BigInt.from(-1) << 64) | BigInt.from(~(-1 >>> (b - 64))),
-    };
-
-    return Ipv6Address.fromBigInt(bi);
+    if (b == 0) {
+      return Ipv6Address.fromBigInt(BigInt.zero);
+    } else {
+      final mask = (BigInt.one << 128) - (BigInt.one << (128 - b));
+      return Ipv6Address.fromBigInt(mask);
+    }
   }
 
   @override

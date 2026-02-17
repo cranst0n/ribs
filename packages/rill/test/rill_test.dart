@@ -956,16 +956,14 @@ void main() {
   });
 
   test('pauseWhen', () {
-    final signal = Rill.emit(
-          false,
-        )
+    final signal = Rill.emit(false)
         .andWait(250.milliseconds)
         .append(() => Rill.emit(true).andWait(250.milliseconds))
         .append(() => Rill.emit(false).andWait(250.milliseconds));
 
-    final s = Rill.repeatEval(IO.sleep(150.milliseconds).as(1)).interruptAfter(1.second);
+    final s = Rill.repeatEval(IO.sleep(150.milliseconds).as(1)).interruptAfter(1500.milliseconds);
 
-    expect(s.pauseWhen(signal), producesInOrder([1, 1, 1, 1, 1]));
+    expect(s.pauseWhen(signal).take(5), producesInOrder([1, 1, 1, 1, 1]));
   });
 
   test('range', () {

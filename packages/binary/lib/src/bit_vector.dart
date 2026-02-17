@@ -135,12 +135,23 @@ sealed class BitVector implements Comparable<BitVector> {
 
   factory BitVector.fromInt(
     int i, {
-    int size = 64,
+    int? size,
     Endian ordering = Endian.big,
   }) {
-    // TODO: Unsupported on web
-    final bytes = Uint8List(8)..buffer.asByteData().setInt64(0, i);
-    final relevantBits = ByteVector(bytes).bits.shiftLeft(64 - size).take(size);
+    final nBits = size ?? Integer.Size;
+
+    final Uint8List bytes;
+
+    if (!kIsWeb) {
+      bytes = Uint8List(8)..buffer.asByteData().setInt64(0, i);
+    } else {
+      bytes = Uint8List(8);
+      final view = bytes.buffer.asByteData();
+      view.setInt32(0, (i / 4294967296).floor());
+      view.setInt32(4, i.toInt() & 0xFFFFFFFF);
+    }
+
+    final relevantBits = ByteVector(bytes).bits.shiftLeft(64 - nBits).take(nBits);
 
     return ordering == Endian.big ? relevantBits : relevantBits.reverseByteOrder();
   }
@@ -1597,3 +1608,5 @@ final _bitReversalTable = arr([
   0x7f,
   0xff,
 ]);
+
+const bool kIsWeb = bool.fromEnvironment('dart.library.js_util');

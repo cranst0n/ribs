@@ -12,7 +12,7 @@ sealed class Integer {
 
   static int bitCount(int i) => _platformImpl.bitCount(i);
 
-  static int highestOneBit(int i) => i & (MinValue >>> numberOfLeadingZeros(i));
+  static int highestOneBit(int i) => _platformImpl.highestOneBit(i);
 
   static int numberOfLeadingZeros(int i) => _platformImpl.numberOfLeadingZeros(i);
 

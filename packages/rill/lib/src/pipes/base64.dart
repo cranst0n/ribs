@@ -80,7 +80,6 @@ final class Base64Pipes {
 
       final paddingInBuffer = mod == 0 ? padding : 0;
 
-      // TODO: Chunk.byteVector API?
       final out = Chunk.fromList(acc.toIList().take(bidx - paddingInBuffer).toList());
       final carry = _State(buffer, mod, padding);
 

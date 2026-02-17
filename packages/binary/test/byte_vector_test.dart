@@ -533,6 +533,7 @@ void main() {
 
         expect(unbuf, buf);
       },
+      testOn: '!browser',
     );
 
     forAll3(
@@ -817,7 +818,7 @@ void main() {
     });
 
     test('very large vectors', () {
-      final huge = ByteVector.fill(4611686018427387903, 0);
+      final huge = ByteVector.fill(0x1FFFFFFFFFFFFF - 4, 0);
       final huge2 = huge.concat(hex('deadbeef'));
 
       expect(huge2.takeRight(2), hex('beef'));

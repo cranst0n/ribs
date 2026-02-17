@@ -5,6 +5,7 @@ abstract class IntegerBase {
   int get MinValue;
 
   int bitCount(int i);
+  int highestOneBit(int i);
   int numberOfLeadingZeros(int i);
   int numberOfTrailingZeros(int i);
 }

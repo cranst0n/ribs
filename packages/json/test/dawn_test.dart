@@ -6,6 +6,9 @@ import 'package:ribs_json/ribs_json.dart';
 import 'package:test/test.dart';
 
 void main() {
+  // File I/O is not supported in the browser
+  if (const bool.fromEnvironment('dart.library.js_util')) return;
+
   final dir = Directory('test_resources');
 
   _testGroup('Success', dir, 'y_', (res) => expect(res.isRight, isTrue));

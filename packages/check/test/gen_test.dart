@@ -92,6 +92,10 @@ void main() {
     expect(int.tryParse(str, radix: 16), isNotNull);
   });
 
+  forAll('nonNegativeInt', Gen.nonNegativeInt, (i) {
+    expect(i >= 0, isTrue);
+  });
+
   forAll('oneOf', Gen.oneOf([1, 2, 3]), (x) {
     expect(x, anyOf(1, 2, 3));
   });
@@ -102,6 +106,10 @@ void main() {
 
   forAll('option', Gen.option(Gen.positiveInt), (i) {
     expect(i.filter((a) => a > 0), i);
+  });
+
+  forAll('positiveInt', Gen.positiveInt, (i) {
+    expect(i, isPositive);
   });
 
   forAll('some', Gen.some(Gen.positiveInt), (i) {

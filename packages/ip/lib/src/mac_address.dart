@@ -32,7 +32,7 @@ final class MacAddress extends Ordered<MacAddress> {
 
     Range.inclusive(-5, 0, -1).foreach((i) {
       bytes[i] = rem & 0x0ff;
-      rem = rem >> 8;
+      rem = (rem / 256).floor();
     });
 
     return MacAddress._(bytes);
@@ -69,9 +69,9 @@ final class MacAddress extends Ordered<MacAddress> {
   int toInt() {
     var result = 0;
 
-    Iterable<int>.generate(
-      _bytes.length,
-    ).forEach((i) => result = (result << 8) | (0x0ff & _bytes[i]));
+    for (final b in _bytes) {
+      result = (result * 256) + (0x0ff & b);
+    }
 
     return result;
   }

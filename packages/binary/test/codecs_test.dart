@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_check/ribs_check.dart';
@@ -27,14 +28,14 @@ void main() {
     testCodec('int16', genInt16, Codec.int16);
     testCodec('int24', genInt24, Codec.int24);
     testCodec('int32', genInt32, Codec.int32);
-    testCodec('int64', genInt64, Codec.int64);
+    testCodec('int64', genInt64, Codec.int64, testOn: '!browser');
 
     testCodec('int4L', genInt4, Codec.int4L);
     testCodec('int8L', genInt8, Codec.int8L);
     testCodec('int16L', genInt16, Codec.int16L);
     testCodec('int24L', genInt24, Codec.int24L);
     testCodec('int32L', genInt32, Codec.int32L);
-    testCodec('int64L', genInt64, Codec.int64L);
+    testCodec('int64L', genInt64, Codec.int64L, testOn: '!browser');
 
     testCodec('uint4', genUint4, Codec.uint4);
     testCodec('uint8', genUint8, Codec.uint8);
@@ -54,11 +55,11 @@ void main() {
     testVariableInt('uinteger', genIntN(false), (bits) => Codec.uinteger(bits));
     testVariableInt('uintegerL', genIntN(false), (bits) => Codec.uintegerL(bits));
 
-    testCodec('float32', genFloat32, Codec.float32, (f) => closeTo(f, 1));
-    testCodec('float64', genFloat64, Codec.float64, (f) => closeTo(f, 1));
+    testCodec('float32', genFloat32, Codec.float32, customMatcher: (f) => closeTo(f, 1));
+    testCodec('float64', genFloat64, Codec.float64, customMatcher: (f) => closeTo(f, 1));
 
-    testCodec('float32L', genFloat32, Codec.float32L, (f) => closeTo(f, 1));
-    testCodec('float64L', genFloat64, Codec.float64L, (f) => closeTo(f, 1));
+    testCodec('float32L', genFloat32, Codec.float32L, customMatcher: (f) => closeTo(f, 1));
+    testCodec('float64L', genFloat64, Codec.float64L, customMatcher: (f) => closeTo(f, 1));
 
     testCodec('ascii', Gen.stringOf(Gen.asciiChar), Codec.ascii);
     testCodec('ascii32', Gen.stringOf(Gen.asciiChar), Codec.ascii32);
@@ -163,20 +164,22 @@ Gen<int> genInt64 = Gen.chooseInt(
   kIsWeb ? 2147483647 : 4.611686e18.round(),
 );
 
-Gen<int> genUint4 = Gen.chooseInt(0, 2 ^ 4);
-Gen<int> genUint8 = Gen.chooseInt(0, 2 ^ 8);
-Gen<int> genUint16 = Gen.chooseInt(0, 2 ^ 16);
-Gen<int> genUint24 = Gen.chooseInt(0, 2 ^ 24);
-Gen<int> genUint32 = Gen.chooseInt(0, 2 ^ 32);
+Gen<int> genUint4 = Gen.chooseInt(0, 15);
+Gen<int> genUint8 = Gen.chooseInt(0, 255);
+Gen<int> genUint16 = Gen.chooseInt(0, 65535);
+Gen<int> genUint24 = Gen.chooseInt(0, 16777215);
+Gen<int> genUint32 = Gen.chooseInt(0, 4294967295);
 
 // floating point math FTW
 Gen<double> genFloat32 = Gen.chooseDouble(-10000000.0, 10000000.0);
 Gen<double> genFloat64 = Gen.chooseDouble(-100000000.0, 100000000.0);
 
 Gen<(int, int)> genIntN(bool signed) => Gen.chooseInt(2, 32).flatMap((bits) {
+  final min = signed ? -pow(2, bits - 1).toInt() : 0;
+  final max = (pow(2, signed ? bits - 1 : bits).toInt()) - 1;
   return (
     Gen.constant(bits),
-    Gen.chooseInt(signed ? -(1 << (bits - 1)) : 0, (1 << (signed ? bits - 1 : bits)) - 1),
+    Gen.chooseInt(min, max),
   ).tupled;
 });
 
@@ -184,9 +187,10 @@ Gen<(int, int)> genIntN(bool signed) => Gen.chooseInt(2, 32).flatMap((bits) {
 void testCodec<A>(
   String description,
   Gen<A> gen,
-  Codec<A> codec, [
+  Codec<A> codec, {
   Function1<A, Matcher>? customMatcher,
-]) {
+  String? testOn,
+}) {
   forAll(description, gen, (n) {
     final result = codec.encode(n).flatMap((a) => codec.decode(a));
 
@@ -197,7 +201,7 @@ void testCodec<A>(
         expect(result.remainder.isEmpty, isTrue);
       },
     );
-  });
+  }, testOn: testOn);
 }
 
 @isTest

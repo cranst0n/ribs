@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:ribs_binary/ribs_binary.dart';
@@ -12,8 +13,8 @@ final class IntCodec extends Codec<int> {
   final int maxValue;
 
   IntCodec(this.bits, this.signed, this.ordering)
-    : minValue = signed ? -(1 << (bits - 1)) : 0,
-      maxValue = (1 << (signed ? bits - 1 : bits)) - 1;
+    : minValue = signed ? -pow(2, bits - 1).toInt() : 0,
+      maxValue = (pow(2, signed ? bits - 1 : bits).toInt()) - 1;
 
   @override
   Either<Err, DecodeResult<int>> decode(BitVector bv) {

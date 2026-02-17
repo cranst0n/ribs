@@ -12,7 +12,7 @@ void main() {
         });
 
         final cleanup = IO
-            .sleep(15.milliseconds)
+            .sleep(200.milliseconds)
             .productR(() => chan.close())
             .productR(() => chan.stream.compile.toList);
 

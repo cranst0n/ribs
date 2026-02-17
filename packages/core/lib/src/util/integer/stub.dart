@@ -16,6 +16,11 @@ class IntegerImpl extends IntegerBase {
   }
 
   @override
+  int highestOneBit(int i) {
+    throw UnimplementedError();
+  }
+
+  @override
   int numberOfLeadingZeros(int i) {
     throw UnimplementedError();
   }

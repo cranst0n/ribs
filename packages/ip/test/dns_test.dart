@@ -14,7 +14,7 @@ void main() {
         loopbacks.contains(Ipv6Address.fromString('::1').getOrElse(() => throw 'ipv6 loopback')),
         isTrue,
       );
-    });
+    }, testOn: 'vm');
 
     test('resolve / reverse roundtrip', () async {
       final hostname = Hostname.fromString(
@@ -28,13 +28,13 @@ void main() {
       final reversedAddresses = await hostnames.flatTraverseIO(Dns.resolve).unsafeRunFuture();
 
       expect(addresses.toISet(), reversedAddresses.toISet());
-    });
+    }, testOn: 'vm');
 
     test('unknown host', () {
       expect(
         () => Dns.reverse(Ipv4Address.fromBytes(240, 0, 0, 0)).unsafeRunFuture(),
         throwsException,
       );
-    });
+    }, testOn: 'vm');
   });
 }

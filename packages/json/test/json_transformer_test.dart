@@ -7,6 +7,9 @@ import 'package:ribs_json/ribs_json.dart';
 import 'package:test/test.dart';
 
 void main() {
+  // File I/O is not supported in the browser
+  if (const bool.fromEnvironment('dart.library.js_util')) return;
+
   test('JsonTransformer.unwrapArray (bytes)', () async {
     final stream = File(
       'test_resources/streaming/large-array.json',

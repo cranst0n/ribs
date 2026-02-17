@@ -355,11 +355,15 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   @override
   B foldLeft<B>(B z, Function2<B, A, B> op) {
-    if (isEmpty) {
-      return z;
-    } else {
-      return tail.foldLeft(op(z, head), op);
+    var result = z;
+    var these = this;
+
+    while (!these.isEmpty) {
+      result = op(result, these.head);
+      these = these.tail;
     }
+
+    return result;
   }
 
   ILazyList<A> force() {
@@ -384,9 +388,10 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   @override
   void foreach<U>(Function1<A, U> f) {
-    if (!isEmpty) {
-      f(head);
-      tail.foreach(f);
+    var these = this;
+    while (!these.isEmpty) {
+      f(these.head);
+      these = these.tail;
     }
   }
 
