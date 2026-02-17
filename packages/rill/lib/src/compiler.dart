@@ -81,6 +81,11 @@ extension RillCompilerStringOps on RillCompile<String> {
   ).map((buf) => buf.toString());
 }
 
+extension RillCompilerIntOps on RillCompile<int> {
+  IO<ByteVector> get toByteVector =>
+      foldChunks(ByteVector.empty, (acc, chunk) => acc.concat(ByteVector.view(chunk.asUint8List)));
+}
+
 class RillResourceCompile<O> {
   final Pull<O, Unit> _pull;
 

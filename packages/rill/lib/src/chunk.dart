@@ -321,6 +321,17 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
   }
 }
 
+extension ChunkByteOps on Chunk<int> {
+  Uint8List get asUint8List {
+    return switch (this) {
+      final _ByteVectorChunk bv => bv.asUint8List,
+      final _Uint8ListChunk ch => ch.asUint8List,
+      final _BoxedChunk<int> boxed => Uint8List.fromList(boxed._values),
+      _ => Uint8List.fromList(toDartList()),
+    };
+  }
+}
+
 class _EmptyChunk<O> extends Chunk<O> {
   const _EmptyChunk();
 
