@@ -3,6 +3,8 @@ import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
+// ignore: implementation_imports
+import 'package:ribs_effect/src/resource.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
 part 'compiler.dart';
@@ -177,14 +179,13 @@ class Rill<O> {
       Pure(:final value) => Rill.emit(value),
       Eval(:final task) => Rill.eval(task),
       Bind(:final source, :final f) => Rill.resource(source).flatMap((o) => Rill.resource(f(o))),
-      Allocate(:final resource) => Rill.bracketFull((poll) => resource(poll), (foo, bar) {
-        throw UnimplementedError();
-      })._mapNoScope((x) => x.$1),
+      Allocate(:final resource) => Rill.bracketFull(
+        (poll) => resource(poll),
+        (resAndRelease, exitCase) => resAndRelease.$2(exitCase),
+      )._mapNoScope((x) => x.$1),
       _ => throw StateError('Unhandled Resource ADT: $r'),
-    };
+    }.scope;
   }
-
-  Rill<O2> _mapNoScope<O2>(Function1<O, O2> f) => throw UnimplementedError();
 
   static Rill<O> retry<O>(
     IO<O> fo,
@@ -1492,6 +1493,7 @@ class Rill<O> {
 
   RillCompile<O> get compile => RillCompile(underlying);
 
+  Rill<O2> _mapNoScope<O2>(Function1<O, O2> f) => Pull.mapOutputNoScope(this, f).rillNoScope;
 }
 
 sealed class OverflowStrategy {

@@ -148,7 +148,7 @@ sealed class BitVector implements Comparable<BitVector> {
       bytes = Uint8List(8);
       final view = bytes.buffer.asByteData();
       view.setInt32(0, (i / 4294967296).floor());
-      view.setInt32(4, i.toInt() & 0xFFFFFFFF);
+      view.setInt32(4, i & 0xFFFFFFFF);
     }
 
     final relevantBits = ByteVector(bytes).bits.shiftLeft(64 - nBits).take(nBits);

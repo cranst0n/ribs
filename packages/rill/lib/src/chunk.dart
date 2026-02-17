@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
 Chunk<O> chunk<O>(Iterable<O> as) => Chunk.fromDart(as);
@@ -13,6 +14,8 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
   /// Creates a [Chunk<int>] backed by a Uint8List.
   static Chunk<int> bytes(Uint8List bytes) =>
       bytes.isEmpty ? Chunk.empty() : _Uint8ListChunk(bytes);
+
+  static Chunk<int> byteVector(ByteVector bv) => _ByteVectorChunk(bv);
 
   /// Creates a chunk of [n] copies of [a].
   static Chunk<O> constant<O>(int n, O a) => n <= 0 ? Chunk.empty() : _ConstantChunk(a, n);
@@ -398,6 +401,43 @@ class _Uint8ListChunk extends Chunk<int> {
   List<int> toDartList() => _bytes.toList();
 
   Uint8List get asUint8List => _bytes;
+}
+
+class _ByteVectorChunk extends Chunk<int> {
+  final ByteVector bv;
+
+  const _ByteVectorChunk(this.bv);
+
+  @override
+  int operator [](int idx) => bv[idx];
+
+  @override
+  Chunk<int> drop(int n) {
+    if (n <= 0) {
+      return this;
+    } else if (n >= size) {
+      return Chunk.empty();
+    } else {
+      return _ByteVectorChunk(bv.drop(n));
+    }
+  }
+
+  @override
+  int get size => bv.size;
+
+  @override
+  Chunk<int> take(int n) {
+    if (n <= 0) {
+      return Chunk.empty();
+    } else if (n >= size) {
+      return this;
+    } else {
+      return _ByteVectorChunk(bv.take(n));
+    }
+  }
+
+  @override
+  List<int> toDartList() => bv.toByteArray();
 }
 
 /// A view into another chunk, avoiding copy during slicing.

@@ -1003,6 +1003,63 @@ void main() {
     expect(rill, producesInOrder([42, 42, 42, 42, 42]));
   });
 
+  group('resource', () {
+    test('basic', () {
+      final test = Ref.of(nil<String>()).flatMap((st) {
+        IO<Unit> record(String s) => st.update((l) => l.appended(s));
+        Resource<Unit> mkRes(String s) =>
+            Resource.make(record('acquire $s'), (_) => record('release $s'));
+
+        // We aim to trigger all the possible cases, and make sure all of them
+        // introduce scopes.
+
+        // Allocate
+        final res1 = mkRes("1");
+        // Bind
+        final res2 = mkRes("21").flatMap((_) => mkRes('22'));
+        // Suspend
+        final res3 = Resource.suspend(record("suspend").as(mkRes("3")));
+
+        return ilist([
+              res1,
+              res2,
+              res3,
+            ])
+            .foldLeft(Rill.empty<Unit>(), (acc, res) => acc.append(() => Rill.resource(res)))
+            .evalTap((_) => record('use'))
+            .append(() => Rill.exec(record('done')))
+            .compile
+            .drain
+            .flatMap((_) => st.value());
+      });
+
+      final expected = ilist([
+        'acquire 1',
+        'use',
+        'release 1',
+        'acquire 21',
+        'acquire 22',
+        'use',
+        'release 22',
+        'release 21',
+        'suspend',
+        'acquire 3',
+        'use',
+        'release 3',
+        'done',
+      ]);
+
+      expect(test, ioSucceeded(expected));
+    });
+
+    test('append', () {
+      final res1 = Resource.make(IO.pure('start'), (_) => IO.unit);
+      final rill = Rill.resource(res1).append(() => Rill.emit('done'));
+
+      expect(rill, producesInOrder(['start', 'done']));
+    });
+  });
+
   group('retry', () {
     test('immediate success', () {
       final program = Counter.create().flatMap((attempts) {
@@ -1377,5 +1434,44 @@ void main() {
     final stream = rill.toDartStream();
 
     expect(stream, emitsInOrder([0, 1, 2, 3, 4]));
+  });
+
+  group('compile', () {
+    group('resource', () {
+      test('onFinalize', () {
+        final test = Ref.of(nil<String>()).flatMap((st) {
+          IO<Unit> record(String s) => st.update((st) => st.appended(s));
+
+          final rill =
+              Rill.emit(
+                'rill - start',
+              ).onFinalize(record('rill - done')).evalMap((x) => record(x)).compile.lastOrError;
+
+          final io = Rill.emit(
+            'io - start',
+          ).onFinalize(record('io - done')).compile.lastOrError.flatMap(record);
+
+          final resource = Rill.emit(
+            'resource - start',
+          ).onFinalize(record('resource - done')).compile.resource.lastOrError.use(record);
+
+          return rill.productR(() => io).productR(() => resource).productR(() => st.value());
+        });
+
+        expect(
+          test,
+          ioSucceeded(
+            ilist([
+              'rill - start',
+              'rill - done',
+              'io - done',
+              'io - start',
+              'resource - start',
+              'resource - done',
+            ]),
+          ),
+        );
+      });
+    });
   });
 }
