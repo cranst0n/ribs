@@ -1,13 +1,17 @@
-import 'package:ribs_ip/src/punycode/punycode.dart';
+import 'package:punycoder/punycoder.dart';
+import 'package:ribs_ip/ribs_ip.dart';
 import 'package:test/test.dart';
 
 void main() {
+  const domainCodec = PunycodeCodec();
+  const codec = PunycodeCodec.simple();
+
   group('Punycode', () {
     group('string', () {
       for (final testCase in testStrings) {
         test(testCase.name, () {
-          expect(Punycode.encode(testCase.decoded), testCase.encoded);
-          expect(Punycode.decode(testCase.encoded), testCase.decoded);
+          expect(codec.encode(testCase.decoded), testCase.encoded);
+          expect(codec.decode(testCase.encoded), testCase.decoded);
         });
       }
     });
@@ -15,8 +19,8 @@ void main() {
     group('domain', () {
       for (final testCase in testDomains) {
         test(testCase.name, () {
-          expect(Punycode.domainEncode(testCase.decoded), testCase.encoded);
-          expect(Punycode.domainDecode(testCase.encoded), testCase.decoded);
+          expect(domainCodec.encode(testCase.decoded), testCase.encoded);
+          expect(domainCodec.decode(testCase.encoded), testCase.decoded);
         });
       }
     });
@@ -24,7 +28,7 @@ void main() {
     group('separator', () {
       for (final testCase in testSeparators) {
         test(testCase.name, () {
-          expect(Punycode.domainEncode(testCase.decoded), testCase.encoded);
+          expect(domainCodec.encode(testCase.decoded), testCase.encoded);
         });
       }
     });
@@ -32,8 +36,8 @@ void main() {
     group('uri', () {
       for (final testCase in testUris) {
         test(testCase.name, () {
-          expect(Punycode.uriEncode(testCase.decoded), testCase.encoded);
-          expect(Punycode.uriDecode(testCase.encoded), testCase.decoded);
+          expect(IDN.uriEncode(testCase.decoded), testCase.encoded);
+          expect(IDN.uriDecode(testCase.encoded), testCase.decoded);
         });
       }
     });

@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
+import 'package:punycoder/punycoder.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_ip/ribs_ip.dart';
-import 'package:ribs_ip/src/punycode/punycode.dart';
 
 sealed class Host extends Ordered<Host> {
   const Host();
@@ -813,9 +813,16 @@ final class IDN extends Host {
   @override
   int get hashCode => Object.hash(toString(), 'IDN'.hashCode);
 
-  static String toUnicode(String s) => Punycode.domainDecode(s);
+  static const domainCodec = PunycodeCodec();
+
+  static Uri uriDecode(Uri uri) => uri.replace(host: domainCodec.decode(uri.host));
+
+  static Uri uriEncode(Uri uri) =>
+      uri.replace(host: domainCodec.encode(Uri.decodeComponent(uri.host)));
+
+  static String toUnicode(String s) => domainCodec.decode(s);
   static Option<String> toAscii(String s) =>
-      Either.catching(() => Punycode.domainEncode(s), (err, _) => err).toOption();
+      Either.catching(() => domainCodec.encode(s), (err, _) => err).toOption();
 
   @override
   String toString() => _toStringF;
