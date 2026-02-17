@@ -479,7 +479,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   IO<A> iterateWhileM(Function1<A, IO<bool>> p) => _iterateWhileM(p).traced('iterateWhileM');
   IO<A> _iterateWhileM(Function1<A, IO<bool>> p) =>
-      _flatMap((a) => p(a).flatMap((b) => b ? _iterateWhileM(p) : IO.pure(a)));
+      _flatMap((a) => p(a)._flatMap((b) => b ? _iterateWhileM(p) : IO.pure(a)));
 
   /// Applies [f] to the value of this IO, returning the result.
   @override
