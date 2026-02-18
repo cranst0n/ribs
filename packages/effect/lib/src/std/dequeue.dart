@@ -7,7 +7,7 @@ abstract class Dequeue<A> extends Queue<A> {
   static IO<Dequeue<A>> bounded<A>(int capacity) =>
       Ref.of(_State.empty<A>()).map((s) => _BoundedDequeue(capacity, s));
 
-  static IO<Dequeue<A>> unbounded<A>() => bounded(9007199254740991);
+  static IO<Dequeue<A>> unbounded<A>() => bounded(Integer.MaxValue);
 
   @override
   IO<Unit> offer(A a) => offerBack(a);
@@ -184,7 +184,7 @@ class _BoundedDequeue<A> extends Dequeue<A> {
       }
     }
 
-    return loop(0, maxN.getOrElse(() => 9007199254740991), nil());
+    return loop(0, maxN.getOrElse(() => Integer.MaxValue), nil());
   }
 
   IO<A> _take(Function1<BankersQueue<A>, (BankersQueue<A>, Option<A>)> dequeue) {

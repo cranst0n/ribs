@@ -19,7 +19,7 @@ abstract class Queue<A> {
 
   static IO<Queue<A>> synchronous<A>() => Ref.of(_SyncState.empty<A>()).map(_SyncQueue.new);
 
-  static IO<Queue<A>> unbounded<A>() => bounded(9007199254740991);
+  static IO<Queue<A>> unbounded<A>() => bounded(Integer.MaxValue);
 
   IO<int> size();
 
@@ -53,7 +53,7 @@ abstract class Queue<A> {
       }
     }
 
-    return loop(0, maxN.getOrElse(() => 9007199254740991), nil());
+    return loop(0, maxN.getOrElse(() => Integer.MaxValue), nil());
   }
 }
 
