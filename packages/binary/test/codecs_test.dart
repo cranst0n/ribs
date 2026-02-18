@@ -79,6 +79,31 @@ void main() {
       Codec.cstring,
     );
 
+    test('choice', () {
+      final codec = Codec.choice([Codec.uint4, Codec.int32]);
+
+      codec
+          .encode(1)
+          .fold(
+            (err) => fail('choice codec should not fail: $err'),
+            (result) => expect(result.length, 4),
+          );
+
+      codec
+          .encode(16)
+          .fold(
+            (err) => fail('choice codec should not fail: $err'),
+            (result) => expect(result.length, 32),
+          );
+
+      codec
+          .encode(1024)
+          .fold(
+            (err) => fail('choice codec should not fail: $err'),
+            (result) => expect(result.length, 32),
+          );
+    });
+
     testCodec(
       'listOfN',
       Gen.listOfN(100, Gen.chooseInt(-100, 100)),

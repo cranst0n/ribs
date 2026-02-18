@@ -58,6 +58,8 @@ abstract class Codec<A> extends Encoder<A> with Decoder<A> {
 
   static Codec<ByteVector> bytesStrict(int size) => FixedSizeStrictCodec(size * 8, bytes);
 
+  static Codec<A> choice<A>(List<Codec<A>> choices) => ChoiceCodec(choices.toIList());
+
   static Codec<Unit> constant(BitVector bytes) => ConstantCodec(bytes);
   static Codec<A> provide<A>(A value) => ProvideCodec(value);
 

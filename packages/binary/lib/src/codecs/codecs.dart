@@ -1,5 +1,6 @@
 export 'boolean_codec.dart';
 export 'byte_aligned_codec.dart';
+export 'choice_codec.dart';
 export 'constant_codec.dart';
 export 'discriminated_codec.dart';
 export 'fixed_size_codec.dart';
