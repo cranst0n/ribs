@@ -31,7 +31,7 @@ sealed class ByteVector {
   factory ByteVector.view(Uint8List bytes) =>
       _Chunk(_View(At.array(Uint8List.view(bytes.buffer)), 0, bytes.length));
 
-  factory ByteVector._viewAt(At at, int size) => _Chunk(_View(at, 0, size));
+  factory ByteVector.viewAt(At at, int size) => _Chunk(_View(at, 0, size));
 
   factory ByteVector.concatAll(IList<ByteVector> bvs) =>
       bvs.foldLeft(ByteVector.empty, (acc, bv) => acc.concat(bv));
@@ -348,7 +348,7 @@ sealed class ByteVector {
     return _Chunk(_View(At.array(arr), 0, sz));
   }
 
-  ByteVector get reverse => ByteVector._viewAt(At((i) => get(size - i - 1)), size);
+  ByteVector get reverse => ByteVector.viewAt(At((i) => get(size - i - 1)), size);
 
   ByteVector get not => _mapS((b) => ~b);
 
@@ -366,7 +366,7 @@ sealed class ByteVector {
 
   ByteVector rotateRight(int n) => bits.rotateRight(n).bytes;
 
-  ByteVector map(Function1<int, int> f) => ByteVector._viewAt(At((i) => f(get(i))), size);
+  ByteVector map(Function1<int, int> f) => ByteVector.viewAt(At((i) => f(get(i))), size);
 
   bool startsWith(ByteVector b) => take(b.size) == b;
 
@@ -687,7 +687,7 @@ sealed class ByteVector {
     }
   }
 
-  ByteVector _mapS(Function1<int, int> f) => ByteVector._viewAt(At((i) => f(get(i))), size);
+  ByteVector _mapS(Function1<int, int> f) => ByteVector.viewAt(At((i) => f(get(i))), size);
 
   ByteVector _zipWithS(ByteVector other, Function2<int, int, int> f) {
     return _Chunk(

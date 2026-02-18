@@ -5,7 +5,7 @@ export 'src/io_retry.dart';
 export 'src/io_runtime.dart';
 export 'src/outcome.dart';
 export 'src/ref.dart';
-export 'src/resource.dart' hide Allocate, Bind, Eval, Pure;
+export 'src/resource.dart' show Resource, ResourceIOOps;
 export 'src/std/backpressure.dart';
 export 'src/std/count_down_latch.dart';
 export 'src/std/cyclic_barrier.dart';

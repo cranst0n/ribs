@@ -322,6 +322,10 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
 }
 
 extension ChunkByteOps on Chunk<int> {
+  BitVector get toBitVector => toByteVector.bits;
+
+  ByteVector get toByteVector => ByteVector.viewAt(At((i) => this[i]), size);
+
   Uint8List get asUint8List {
     return switch (this) {
       final _ByteVectorChunk bv => bv.asUint8List,

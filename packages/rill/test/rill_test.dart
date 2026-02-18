@@ -480,6 +480,25 @@ void main() {
     );
   });
 
+  group('fromQueue', () {
+    test('noneTerminated', () {
+      final test = Queue.unbounded<Option<int>>().flatMap((q1) {
+        final s1 = Rill.fromQueueNoneUnterminated(q1);
+
+        return ilist([
+              chunk([1, 2]),
+              Chunk.empty<int>(),
+              chunk([3, 4, 5]),
+            ])
+            .traverseIO((chunk) => q1.tryOfferN(chunk.toIList().map((n) => n.some)))
+            .flatMap((_) => q1.offer(none()))
+            .flatMap((_) => s1.compile.toList);
+      });
+
+      expect(test, ioSucceeded(ilist([1, 2, 3, 4, 5])));
+    });
+  });
+
   forAll2('groupAdjacentBy', intRill, Gen.integer, (s, n0) async {
     final n = (n0 % 20).abs() + 1;
     int f(int i) => i % n;
@@ -685,7 +704,7 @@ void main() {
   });
 
   test('iterate', () {
-    const n = 100;
+    const n = 50000;
     final r = Rill.iterate(0, (o) => o + 1).take(n);
 
     expect(r, producesInOrder(List.generate(n, (i) => i)));
@@ -1143,7 +1162,7 @@ void main() {
 
   test('scanChunks', () {
     expect(
-      Rill.range(0, 5).scanChunks(100, (s, hd) => (s + s, hd.map((n) => n + s))),
+      Rill.range(0, 5, chunkSize: 1).scanChunks(100, (s, hd) => (s + s, hd.map((n) => n + s))),
       producesInOrder([100, 201, 402, 803, 1604]),
     );
   });
@@ -1214,6 +1233,15 @@ void main() {
     expect(rill.takeWhile((n) => n < 10), producesInOrder([1, 2, 3, 4, 5]));
     expect(rill.takeWhile((n) => n > 10), producesInOrder([]));
     expect(rill.takeWhile((n) => n < 4), producesInOrder([1, 2, 3]));
+  });
+
+  test('unfold', () {
+    final test = Rill.unfold((0, 1), (state) {
+      final (current, next) = state;
+      return Option.when(() => current < 50000, () => (current, (next, next + 1)));
+    }).takeRight(2);
+
+    expect(test, producesInOrder([49998, 49999]));
   });
 
   test('zip', () {

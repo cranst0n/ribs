@@ -24,7 +24,7 @@ sealed class Pull<O, R> {
   static Pull<P, Unit> mapOutputNoScope<O, P>(Rill<O> s, Function1<O, P> f) =>
       s.pull.echo.unconsFlatMap((hd) => Pull.output(hd.map(f)));
 
-  static Pull<O, Unit> output<O>(Chunk<O> chunk) => _Output(chunk);
+  static Pull<O, Unit> output<O>(Chunk<O> chunk) => chunk.isEmpty ? Pull.done : _Output(chunk);
 
   static Pull<O, Unit> output1<O>(O value) => _Output(chunk([value]));
 
