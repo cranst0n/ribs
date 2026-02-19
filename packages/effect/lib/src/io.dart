@@ -10,7 +10,6 @@ import 'package:ribs_effect/src/platform/stub.dart'
 import 'package:ribs_effect/src/std/internal/stack.dart';
 
 part 'io/algebra.dart';
-part 'io/continuation.dart';
 part 'io/fiber.dart';
 part 'io/resumption.dart';
 part 'io/tracing.dart';

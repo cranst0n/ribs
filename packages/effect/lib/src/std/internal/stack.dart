@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 /// A specialized stack designed specifically for the IO interpreter but used
 /// in other places as well.
 ///
@@ -65,4 +67,68 @@ class Stack<A> {
     List.copyRange(newBuffer, 0, _buffer);
     _buffer = newBuffer;
   }
+}
+
+/// A specialized stack designed specifically for the IO interpreter to store
+/// byte opcodes.
+///
+/// This uses a [Uint8List] as a buffer so it's assumed all values pushed onto
+/// the stack are in the range [0, 255].
+///
+/// ***For internal use only***
+class ByteStack {
+  // The backing store.
+  Uint8List _buffer;
+
+  // The pointer to the *next* available slot.
+  // 0 means empty.
+  int _index = 0;
+
+  ByteStack([int initialCapacity = 16]) : _buffer = Uint8List(initialCapacity);
+
+  /// Checks if stack is empty.
+  @pragma('vm:prefer-inline')
+  bool get isEmpty => _index == 0;
+  bool get nonEmpty => _index != 0;
+
+  /// Returns the number of elements currently on this stack.
+  int get size => _index;
+
+  /// Removes all elements from this stack.
+  void clear() {
+    _index = 0;
+  }
+
+  /// Pushes an element onto the stack.
+  @pragma('vm:prefer-inline')
+  void push(int a) {
+    if (_index == _buffer.length) _grow();
+    _buffer[_index++] = a;
+  }
+
+  /// Pops the last element on the stack..
+  ///
+  /// Note: This assumes the caller has verified [isEmpty] is false,
+  /// or that the logic guarantees a pop is safe.
+  @pragma('vm:prefer-inline')
+  int pop() {
+    return _buffer[--_index];
+  }
+
+  /// Returns the top element on this stack. The stack itself is unchanged.
+  ///
+  /// If this stack is empty, an exception will be thrown
+  int get peek => _buffer[_index - 1];
+
+  /// Doubles the capacity of the buffer when full.
+  void _grow() {
+    final newCapacity = _buffer.length * 2;
+    final newBuffer = Uint8List(newCapacity);
+
+    // Fast intrinsic copy
+    List.copyRange(newBuffer, 0, _buffer);
+    _buffer = newBuffer;
+  }
+
+  static int maxSize = 16;
 }

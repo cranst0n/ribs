@@ -21,7 +21,8 @@ final class IOFiber<A> {
   _Resumption _resumeTag = const _ExecR();
   IO<dynamic>? _resumeIO;
 
-  final _conts = Stack<_Continuation>();
+  final _conts = ByteStack();
+  final _contData = Stack<Object>();
 
   Fn1<Either<Object, Unit>, void>? _cancelationFinalizer;
 
@@ -37,8 +38,6 @@ final class IOFiber<A> {
   bool _canceled = false;
   int _masks = 0;
   bool _finalizing = false;
-
-  static const int _DefaultMaxStackDepth = 512;
 
   final IORuntime _runtime;
   late final int _autoCedeN;
@@ -123,7 +122,9 @@ final class IOFiber<A> {
       _done(Canceled());
     } else {
       _conts.clear();
-      _conts.push(const _RunTerminusK());
+      _contData.clear();
+
+      _conts.push(_RunTerminusK);
 
       _finalizers.clear();
 
@@ -134,9 +135,9 @@ final class IOFiber<A> {
     }
   }
 
-  void _asyncContinueSuccessfulR(dynamic value) => _runLoop(_succeeded(value, 0), _autoCedeN);
+  void _asyncContinueSuccessfulR(dynamic value) => _runLoop(_succeeded(value), _autoCedeN);
 
-  void _asyncContinueFailedR(Object error) => _runLoop(_failed(error, 0), _autoCedeN);
+  void _asyncContinueFailedR(Object error) => _runLoop(_failed(error), _autoCedeN);
 
   void _asyncContinueCanceledR() {
     final fin = _prepareFiberForCancelation();
@@ -149,7 +150,7 @@ final class IOFiber<A> {
     _runLoop(fin, _autoCedeN);
   }
 
-  void _cedeR() => _runLoop(_succeeded(Unit(), 0), _autoCedeN);
+  void _cedeR() => _runLoop(_succeeded(Unit()), _autoCedeN);
 
   void _autoCedeR() {
     final io = _resumeIO;
@@ -179,84 +180,78 @@ final class IOFiber<A> {
       } else {
         switch (cur0) {
           case _Pure(:final value):
-            cur0 = _succeeded(value, 0);
+            cur0 = _succeeded(value);
           case _Error(:final error):
-            cur0 = _failed(error, 0);
+            cur0 = _failed(error);
           case _Delay(:final thunk):
-            cur0 = Either.catching(
-              () => thunk(),
-              (a, b) => (a, b),
-            ).fold<IO<dynamic>>(
-              (err) => _failed(err.$1, 0),
-              (v) => _succeeded(v, 0),
-            );
+            try {
+              cur0 = _succeeded(thunk());
+            } catch (e) {
+              cur0 = _failed(e);
+            }
           case _Map(:final ioa, :final f):
-            IO<dynamic> next(Function0<dynamic> value) =>
-                Either.catching(() => f(value()), (a, b) => (a, b)).fold<IO<dynamic>>(
-                  (err) => _failed(err.$1, 0),
-                  (v) => _succeeded(v, 0),
-                );
-
             switch (ioa) {
               case _Pure(:final value):
-                cur0 = next(() => value);
+                try {
+                  cur0 = _succeeded(f(value));
+                } catch (e) {
+                  cur0 = _failed(e);
+                }
               case _Error(:final error):
-                cur0 = _failed(error, 0);
+                cur0 = _failed(error);
               case _Delay(:final thunk):
-                cur0 = next(thunk.call);
+                try {
+                  cur0 = _succeeded(f(thunk()));
+                } catch (e) {
+                  cur0 = _failed(e);
+                }
               default:
-                _conts.push(_MapK(f));
+                _conts.push(_MapK);
+                _contData.push(f);
                 cur0 = ioa;
             }
           case _FlatMap(:final ioa, :final f):
-            IO<dynamic> next(Function0<dynamic> value) => Either.catching(
-              () => f(value()),
-              (a, b) => (a, b),
-            ).fold((err) => _failed(err.$1, 0), identity);
-
             switch (ioa) {
               case _Pure(:final value):
-                cur0 = next(() => value);
+                try {
+                  cur0 = f(value);
+                } catch (e) {
+                  cur0 = _failed(e);
+                }
               case _Error(:final error):
-                cur0 = _failed(error, 0);
+                cur0 = _failed(error);
               case _Delay(:final thunk):
-                cur0 = next(thunk.call);
+                try {
+                  cur0 = f(thunk());
+                } catch (e) {
+                  cur0 = _failed(e);
+                }
               default:
-                _conts.push(_FlatMapK(f));
+                _conts.push(_FlatMapK);
+                _contData.push(f);
                 cur0 = ioa;
             }
-          case _Attempt(:final ioa):
-            switch (ioa) {
+          case final _Attempt<dynamic> attempt:
+            switch (attempt.ioa) {
               case _Pure(:final value):
-                cur0 = _succeeded(cur0.right(value), 0);
+                cur0 = _succeeded(attempt.right(value));
               case _Error(:final error):
-                cur0 = _succeeded(cur0.left(error), 0);
+                cur0 = _succeeded(attempt.left(error));
               case _Delay(:final thunk):
-                dynamic result;
-                Object? error;
-
                 try {
-                  result = thunk();
+                  cur0 = _succeeded(attempt.right(thunk()));
                 } catch (e) {
-                  error = e;
+                  cur0 = _succeeded(attempt.left(e));
                 }
-
-                cur0 =
-                    error == null
-                        ? _succeeded(cur0.right(result), 0)
-                        : _succeeded(cur0.left(error), 0);
               default:
-                final attempt = cur0;
-                // Push this function on to allow proper type tagging when running
-                // the continuation
-                _conts.push(
-                  _AttemptK(
-                    Fn1((x) => attempt.right(x)),
-                    Fn1((x) => attempt.left(x)),
-                  ),
-                );
+                _conts.push(_AttemptK);
 
-                cur0 = ioa;
+                // Push these functions on for proper type tagging when
+                // running the continuation
+                _contData.push(Fn1<dynamic, Either<Object, dynamic>>((x) => attempt.right(x)));
+                _contData.push(Fn1<Object, Either<Object, dynamic>>((x) => attempt.left(x)));
+
+                cur0 = attempt.ioa;
             }
           case _Sleep(:final duration):
             _resumeTag = const _CedeR();
@@ -267,7 +262,7 @@ final class IOFiber<A> {
 
             break runLoop;
           case _Now():
-            cur0 = _succeeded(_runtime.now, 0);
+            cur0 = _succeeded(_runtime.now);
           case _Cede():
             _resumeTag = const _CedeR();
             _runtime.schedule(_resume);
@@ -277,11 +272,12 @@ final class IOFiber<A> {
 
             break runLoop;
           case _HandleErrorWith(:final ioa, :final f):
-            _conts.push(_HandleErrorWithK(f));
+            _conts.push(_HandleErrorWithK);
+            _contData.push(f);
             cur0 = ioa;
           case _OnCancel(:final ioa, :final fin):
             _finalizers.push(fin);
-            _conts.push(const _OnCancelK());
+            _conts.push(_OnCancelK);
             cur0 = ioa;
           case _Async(:final body):
             final resultF = cur0.getter();
@@ -313,8 +309,8 @@ final class IOFiber<A> {
           case _AsyncGet():
             if (cur0.value != null) {
               cur0 = cur0.value!.fold<IO<dynamic>>(
-                (err) => _failed(err, 0),
-                (value) => _succeeded(value, 0),
+                (err) => _failed(err),
+                (value) => _succeeded(value),
               );
             } else {
               // Process of registering async finalizer lands us here before the
@@ -328,8 +324,7 @@ final class IOFiber<A> {
           case _Start():
             final fiber = cur0.createFiber(_runtime);
             fiber._run();
-
-            cur0 = _succeeded(fiber, 0);
+            cur0 = _succeeded(fiber);
           case _Canceled():
             _canceled = true;
 
@@ -337,7 +332,7 @@ final class IOFiber<A> {
               final fin = _prepareFiberForCancelation();
               cur0 = fin;
             } else {
-              cur0 = _succeeded(Unit(), 0);
+              cur0 = _succeeded(Unit());
             }
           case final _RacePair<dynamic, dynamic> rp:
             final next = IO._async_<RacePairOutcome<dynamic, dynamic>>((cb) {
@@ -376,11 +371,11 @@ final class IOFiber<A> {
               cur0 = IO._raiseError(e, stackTrace);
             }
 
-            _conts.push(const _UncancelableK());
+            _conts.push(_UncancelableK);
           case _UnmaskRunLoop(:final ioa, :final id, :final self):
             if (_masks == id && this == self) {
               _masks -= 1;
-              _conts.push(const _UnmaskK());
+              _conts.push(_UnmaskK);
             }
 
             cur0 = ioa;
@@ -434,7 +429,9 @@ final class IOFiber<A> {
         _finalizing = true;
 
         _conts.clear();
-        _conts.push(const _CancelationLoopK());
+        _contData.clear();
+
+        _conts.push(_CancelationLoopK);
 
         _cancelationFinalizer = cb;
 
@@ -453,103 +450,95 @@ final class IOFiber<A> {
     }
   }
 
-  IO<dynamic> _succeeded(dynamic result, int depth) {
-    final kont = _conts.pop();
+  IO<dynamic> _succeeded(dynamic initialResult) {
+    var result = initialResult;
 
-    switch (kont) {
-      case _RunTerminusK():
-        return _runTerminusSuccessK(result);
-      case _MapK<dynamic, dynamic>(:final fn):
-        {
-          dynamic transformed;
-          Object? error;
+    while (true) {
+      final op = _conts.pop();
 
-          try {
-            transformed = fn(result);
-          } catch (e) {
-            error = e;
+      switch (op) {
+        case _RunTerminusK:
+          return _runTerminusSuccessK(result);
+        case _MapK:
+          {
+            final fn = _contData.pop() as Fn1;
+            Object? error;
+
+            try {
+              result = fn(result);
+            } catch (e) {
+              error = e;
+            }
+
+            if (error != null) {
+              return _failed(error);
+            }
           }
+        case _FlatMapK:
+          {
+            final fn = _contData.pop() as Fn1;
+            dynamic transformed;
+            Object? error;
 
-          if (depth > _DefaultMaxStackDepth) {
-            return error == null ? _Pure(transformed) : _Error(error);
-          } else {
-            return error == null ? _succeeded(transformed, depth + 1) : _failed(error, depth + 1);
+            try {
+              transformed = fn(result);
+            } catch (e) {
+              error = e;
+            }
+
+            return error == null ? transformed as IO<dynamic> : _failed(error);
           }
-        }
-      case _FlatMapK<dynamic, dynamic>(:final fn):
-        {
-          dynamic transformed;
-          Object? error;
-
-          try {
-            transformed = fn(result);
-          } catch (e) {
-            error = e;
-          }
-
-          return error == null ? transformed as IO<dynamic> : _failed(error, depth + 1);
-        }
-      case _CancelationLoopK():
-        return _cancelationLoopSuccessK();
-      case _HandleErrorWithK():
-        return _succeeded(result, depth);
-      case _OnCancelK():
-        _finalizers.pop();
-        return _succeeded(result, depth + 1);
-      case _UncancelableK():
-        _masks -= 1;
-        return _succeeded(result, depth + 1);
-      case _UnmaskK():
-        _masks += 1;
-        return _succeeded(result, depth + 1);
-      case _AttemptK(:final right):
-        return _succeeded(right(result), depth);
+        case _CancelationLoopK:
+          return _cancelationLoopSuccessK();
+        case _HandleErrorWithK:
+          _contData.pop(); // Discard handler
+        case _OnCancelK:
+          _finalizers.pop();
+        case _UncancelableK:
+          _masks -= 1;
+        case _UnmaskK:
+          _masks += 1;
+        case _AttemptK:
+          _contData.pop(); // Discard left
+          final right = _contData.pop() as Fn1<dynamic, Either<Object, dynamic>>;
+          return _succeeded(right(result));
+      }
     }
   }
 
-  IO<dynamic> _failed(Object error, int depth) {
-    var kont = _conts.pop();
+  IO<dynamic> _failed(Object initialError) {
+    var error = initialError;
 
-    RemoveNodesLoop:
     while (true) {
-      switch (kont) {
-        case _MapK() || _FlatMapK():
-          kont = _conts.pop();
-        default:
-          break RemoveNodesLoop;
+      final op = _conts.pop();
+
+      switch (op) {
+        case _RunTerminusK:
+          return _runTerminusFailureK(error);
+        case _MapK:
+          _contData.pop(); // Discard function
+        case _FlatMapK:
+          _contData.pop(); // Discard function
+        case _CancelationLoopK:
+          return _cancelationLoopFailureK(error);
+        case _HandleErrorWithK:
+          final fn = _contData.pop() as Fn1<Object, IO<dynamic>>;
+          try {
+            return fn(error);
+          } catch (e) {
+            error = e;
+          }
+        case _OnCancelK:
+          _finalizers.pop();
+        case _UncancelableK:
+          _masks -= 1;
+        case _UnmaskK:
+          _masks += 1;
+        case _AttemptK:
+          final left = _contData.pop() as Fn1;
+          _contData.pop(); // Discard right
+          return _succeeded(left(error));
       }
-    }
-
-    switch (kont) {
-      case _MapK<dynamic, dynamic>():
-      case _FlatMapK<dynamic, dynamic>():
-        return _failed(error, depth);
-      case _RunTerminusK():
-        return _runTerminusFailureK(error);
-      case _CancelationLoopK():
-        return _cancelationLoopFailureK(error);
-      case _HandleErrorWithK(:final fn):
-        dynamic recovered;
-        Object? err;
-
-        try {
-          recovered = fn(error);
-        } catch (e) {
-          err = e;
-        }
-
-        return err == null ? recovered as IO<dynamic> : _failed(err, depth + 1);
-      case _OnCancelK():
-        _finalizers.pop();
-        return _failed(error, depth + 1);
-      case _UncancelableK():
-        _masks -= 1;
-        return _failed(error, depth);
-      case _UnmaskK():
-        _masks += 1;
-        return _failed(error, depth);
-      case _AttemptK(:final left):
-        return _succeeded(left(error), depth);
     }
   }
 
@@ -591,7 +580,7 @@ final class IOFiber<A> {
   IO<dynamic> _cancelationLoopSuccessK() {
     if (_finalizers.nonEmpty) {
       // still more finalizers to execute
-      _conts.push(const _CancelationLoopK());
+      _conts.push(_CancelationLoopK);
       return _finalizers.pop();
     } else {
       // last finalizer has finished running...
@@ -634,3 +623,13 @@ final class IOFiber<A> {
     doPrint("================================================\n");
   }
 }
+
+const int _RunTerminusK = 0;
+const int _MapK = 1;
+const int _FlatMapK = 2;
+const int _CancelationLoopK = 3;
+const int _HandleErrorWithK = 4;
+const int _OnCancelK = 5;
+const int _UncancelableK = 6;
+const int _UnmaskK = 7;
+const int _AttemptK = 8;
