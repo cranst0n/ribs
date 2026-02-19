@@ -23,6 +23,7 @@ dependencies:
   kt_dart:                    ^1.1.0
   ribs_core:                  ^1.0.0-dev.14
   ribs_effect:                ^1.0.0-dev.3
+  ribs_rill:                  ^1.0.0-dev.1
 
 dev_dependencies:
   lint: ^2.8.0

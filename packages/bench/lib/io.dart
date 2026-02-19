@@ -226,11 +226,74 @@ class RibsAttemptSadBenchmark extends AsyncBenchmarkBase {
   Future<void> run() => io.unsafeRunFuture();
 }
 
+// ping pong
+
+class DartzPingPongBenchmark extends AsyncBenchmarkBase {
+  DartzPingPongBenchmark() : super('');
+
+  @override
+  Future<void> run() => _pingPong(n).run();
+
+  dartz.Task<void> _pingPong(int n) {
+    if (n <= 0) {
+      return dartz.Task.unit;
+    } else {
+      return dartz.Task<void>(() async => await Future(() {})).andThen(_pingPong(n - 1));
+    }
+  }
+}
+
+class FpdartPingPongBenchmark extends AsyncBenchmarkBase {
+  FpdartPingPongBenchmark() : super('');
+
+  @override
+  Future<fpdart.Unit> run() => _pingPong(n).run();
+
+  fpdart.Task<fpdart.Unit> _pingPong(int n) {
+    if (n <= 0) {
+      return fpdart.Task.of(fpdart.unit);
+    } else {
+      return fpdart.Task(() async => await Future(() {})).andThen(() => _pingPong(n - 1));
+    }
+  }
+}
+
+class FuturePingPongBenchmark extends AsyncBenchmarkBase {
+  FuturePingPongBenchmark() : super('');
+
+  @override
+  Future<void> run() async => await _pingPong(n);
+
+  Future<void> _pingPong(int n) async {
+    if (n <= 0) {
+      return;
+    } else {
+      await Future(() {});
+      return _pingPong(n - 1);
+    }
+  }
+}
+
+class RibsPingPongBenchmark extends AsyncBenchmarkBase {
+  RibsPingPongBenchmark() : super('');
+
+  @override
+  Future<void> run() async => await _pingPong(n).unsafeRunFuture();
+
+  IO<Unit> _pingPong(int n) {
+    if (n <= 0) {
+      return IO.unit;
+    } else {
+      return IO.cede.productR(() => _pingPong(n - 1));
+    }
+  }
+}
+
 const sep = '  |  ';
 
 void main(List<String> args) async {
   print(
-    (' ' * 17) +
+    (' ' * 20) +
         sep +
         'dartz'.padLeft(10) +
         sep +
@@ -242,7 +305,7 @@ void main(List<String> args) async {
         sep,
   );
 
-  print('-' * 80);
+  print('-' * 83);
 
   final dartzMap = await attemptBenchmark(DartzMapBenchmark());
   final fpdartMap = await attemptBenchmark(FpdartMapBenchmark());
@@ -273,6 +336,12 @@ void main(List<String> args) async {
     futureAttemptSad,
     ribsAttemptSad,
   );
+
+  final dartzPingPong = await attemptBenchmark(DartzPingPongBenchmark());
+  final fpdartPingPong = await attemptBenchmark(FpdartPingPongBenchmark());
+  final futurePingPong = await attemptBenchmark(FuturePingPongBenchmark());
+  final ribsPingPong = await attemptBenchmark(RibsPingPongBenchmark());
+  reportMeasurements('ping pong', dartzPingPong, fpdartPingPong, futurePingPong, ribsPingPong);
 }
 
 Future<double> attemptBenchmark(AsyncBenchmarkBase b) {
@@ -314,7 +383,7 @@ void reportMeasurements(
     }
   }
 
-  print('- ${label.padRight(15)}$sep${mus(dartz)}${mus(fpdart)}${mus(future)}${mus(ribs)}');
+  print('- ${label.padRight(18)}$sep${mus(dartz)}${mus(fpdart)}${mus(future)}${mus(ribs)}');
 }
 
 extension DartzTaskOps<A> on dartz.Task<A> {
