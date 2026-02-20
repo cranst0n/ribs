@@ -30,8 +30,8 @@ void retrySimple() {
     RetryPolicy.constantDelay(5.seconds),
     wasSuccessful: (json) => json.isObject,
     isWorthRetrying: (error) => error.toString().contains('oops'),
-    onError: (error, details) => IO.println('Attempt ${details.retriesSoFar}.'),
-    onFailure: (json, details) => IO.println('$json failed [$details]'),
+    onError: (error, details) => IO.print('Attempt ${details.retriesSoFar}.'),
+    onFailure: (json, details) => IO.print('$json failed [$details]'),
   );
   // custom-retrying
 }

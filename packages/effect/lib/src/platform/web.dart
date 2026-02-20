@@ -13,18 +13,9 @@ final class PlatformImpl extends PlatformBase {
   IO<Unit> print(String message) => IO.exec(() => web.console.log(message.toJS));
 
   @override
-  IO<Unit> println(String message) => IO.exec(() => web.console.log(message.toJS));
-
-  @override
-  IO<Unit> printErr(String message) => IO.exec(() => web.console.log(message.toJS));
-
-  @override
-  IO<Unit> printErrLn(String message) => IO.exec(() => web.console.log(message.toJS));
-
-  @override
   IO<String> readLine() => IO.raiseError('Unavailable: IO.readLine()');
 
   @override
   void installFiberDumpSignalHandler() =>
-      print('IO.dumpFibers() signal handler is not supported on web');
+      web.console.log('IO.dumpFibers() signal handler is not supported on web'.toJS);
 }

@@ -235,7 +235,7 @@ void main() {
                       .release()
                       .productR(() => latch.await())
                       .productR(() => q.take())
-                      .onCancel(IO.println('CANCELED...'))
+                      .onCancel(IO.print('CANCELED...'))
                       .start()
                       .flatMap((taker) {
                         return latch.await().flatMap((_) {

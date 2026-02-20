@@ -200,20 +200,9 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// Returns the current [DateTime] when evaluation occurs.
   static const IO<DateTime> now = _Now();
 
-  /// Writes [message] to stdout, delaying the effect until evaluation.
-  static IO<Unit> print(String message) => _platformImpl.print(message).traced('print');
-
   /// Writes [message] with a newline to stdout, delaying the effect until
   /// evaluation.
-  static IO<Unit> println(String message) => _platformImpl.println(message).traced('println');
-
-  /// Writes [message] to stderr, delaying the effect until evaluation.
-  static IO<Unit> printErr(String message) => _platformImpl.printErr(message).traced('printErr');
-
-  /// Writes [message] with a newline to stderr, delaying the effect until
-  /// evaluation.
-  static IO<Unit> printErrLn(String message) =>
-      _platformImpl.printErrLn(message).traced('printErrLn');
+  static IO<Unit> print(String message) => _platformImpl.print(message).traced('println');
 
   /// Lifts a pure value into [IO].
   static IO<A> pure<A>(A a) => _Pure(a);
@@ -406,9 +395,9 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// Prints the result of this IO (value, error or canceled) to stdout
   IO<A> debug({String prefix = 'DEBUG'}) => _guaranteeCase(
     (outcome) => outcome.fold(
-      () => _platformImpl.println('$prefix: Canceled'),
-      (err, _) => _platformImpl.println('$prefix: Errored: $err'),
-      (a) => _platformImpl.println('$prefix: Succeeded: $a'),
+      () => _platformImpl.print('$prefix: Canceled'),
+      (err, _) => _platformImpl.print('$prefix: Errored: $err'),
+      (a) => _platformImpl.print('$prefix: Succeeded: $a'),
     ),
   ).traced('debug');
 

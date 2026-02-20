@@ -10,15 +10,6 @@ class PlatformImpl extends PlatformBase {
   IO<Unit> print(String message) => throw UnimplementedError();
 
   @override
-  IO<Unit> printErr(String message) => throw UnimplementedError();
-
-  @override
-  IO<Unit> printErrLn(String message) => throw UnimplementedError();
-
-  @override
-  IO<Unit> println(String message) => throw UnimplementedError();
-
-  @override
   IO<String> readLine() => throw UnimplementedError();
 
   @override

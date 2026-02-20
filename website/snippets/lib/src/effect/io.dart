@@ -35,7 +35,7 @@ Future<void> snippet3() async {
   final rng = IO.delay(() => Random.secure().nextInt(1000));
 
   // x and y are different! (probably)
-  await rng.flatMap((x) => rng.flatMap((y) => IO.println('x: $x / y: $y'))).unsafeRunFuture();
+  await rng.flatMap((x) => rng.flatMap((y) => IO.print('x: $x / y: $y'))).unsafeRunFuture();
 
   // io-3
 }
