@@ -112,7 +112,15 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
   static Resource<Either<A, B>> race<A, B>(Resource<A> ra, Resource<B> rb) {
     return Resource.applyFull((poll) {
       IO<Unit> cancelLoser<C>(IOFiber<(C, Function1<ExitCase, IO<Unit>>)> f) {
-        throw UnimplementedError();
+        return f.cancel().productR(
+          () => f.join().flatMap(
+            (ec) => ec.fold(
+              () => IO.unit,
+              (_, _) => IO.unit,
+              (x) => x.$2(ExitCase.canceled()),
+            ),
+          ),
+        );
       }
 
       return poll(IO.racePair(ra.allocatedCase(), rb.allocatedCase())).flatMap((either) {
@@ -224,7 +232,7 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
           ),
       final Pure<A> p => Resource.pure(p.value.asRight()),
       final Eval<A> e => Resource.eval(e.task.attempt()),
-      _ => throw UnimplementedError(),
+      _ => throw UnimplementedError('Resource.attempt unhandled node: $current'),
     };
   }
 
@@ -238,6 +246,8 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   @override
   Resource<B> flatMap<B>(Function1<A, Resource<B>> f) => Bind(this, Fn1(f));
+
+  Resource<A> flatTap<B>(Function1<A, Resource<B>> f) => flatMap((a) => f(a).as(a));
 
   Resource<A> guaranteeCase(Function1<Outcome<A>, Resource<Unit>> fin) {
     return Resource.applyFull((poll) {
