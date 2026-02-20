@@ -128,7 +128,7 @@ final class _BoundedChannel<A> with Channel<A> {
   }
 
   @override
-  Rill<A> get stream => consumeLoop().rill;
+  Rill<A> get stream => consumeLoop().rillNoScope;
 
   @override
   IO<Either<ChannelClosed, bool>> trySend(A a) {

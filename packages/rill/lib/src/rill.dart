@@ -52,11 +52,11 @@ class Rill<O> {
   static Rill<Duration> duration() =>
       Rill.eval(IO.now).flatMap((t0) => Rill.repeatEval(IO.now.map((now) => now.difference(t0))));
 
-  static Rill<O> emit<O>(O value) => Pull.output1(value).rill;
+  static Rill<O> emit<O>(O value) => Pull.output1(value).rillNoScope;
 
   static Rill<O> emits<O>(List<O> values) => Rill.chunk(Chunk.fromList(values));
 
-  static Rill<O> eval<O>(IO<O> io) => Pull.eval(io).flatMap(Pull.output1).rill;
+  static Rill<O> eval<O>(IO<O> io) => Pull.eval(io).flatMap(Pull.output1).rillNoScope;
 
   static Rill<O> exec<O>(IO<Unit> io) => Rill._noScope(Pull.eval(io).flatMap((_) => Pull.done));
 
@@ -501,7 +501,7 @@ class Rill<O> {
     }
   }
 
-  Rill<O> changes() => filterWithPrevious((a, b) => a != b);
+  Rill<O> changes({Function2<O, O, bool>? eq}) => filterWithPrevious(eq ?? (a, b) => a != b);
 
   Rill<O> changesBy<O2>(Function1<O, O2> f) => filterWithPrevious((a, b) => f(a) != f(b));
 
@@ -517,10 +517,10 @@ class Rill<O> {
       });
     }
 
-    return loop(this, Chunk.empty()).rill;
+    return loop(this, Chunk.empty()).rillNoScope;
   }
 
-  Rill<Chunk<O>> chunks() => underlying.unconsFlatMap(Pull.output1).rill;
+  Rill<Chunk<O>> chunks() => underlying.unconsFlatMap(Pull.output1).rillNoScope;
 
   Rill<Chunk<O>> chunkLimit(int n) {
     Pull<Chunk<O>, Unit> breakup(Chunk<O> ch) {
@@ -532,7 +532,7 @@ class Rill<O> {
       }
     }
 
-    return underlying.unconsFlatMap(breakup).rill;
+    return underlying.unconsFlatMap(breakup).rillNoScope;
   }
 
   Rill<Chunk<O>> chunkMin(int n, {bool allowFewerTotal = true}) => repeatPull((p) {
@@ -577,7 +577,7 @@ class Rill<O> {
       pull
           .takeWhile((o) => !p(o))
           .flatMap((r) => r.fold(() => Pull.done, (s) => s.drop(1).pull.echo))
-          .rill;
+          .rillNoScope;
 
   /// WARN: For long streams and/or large elements, this can be a memory hog.
   ///   Use with caution;
@@ -589,10 +589,13 @@ class Rill<O> {
     });
   }
 
-  Rill<Never> drain() => underlying.unconsFlatMap((_) => Pull.done).rill;
+  Rill<Never> drain() => underlying.unconsFlatMap((_) => Pull.done).rillNoScope;
 
   Rill<O> drop(int n) =>
-      pull.drop(n).flatMap((opt) => opt.fold(() => Pull.done, (rest) => rest.pull.echo)).rill;
+      pull
+          .drop(n)
+          .flatMap((opt) => opt.fold(() => Pull.done, (rest) => rest.pull.echo))
+          .rillNoScope;
 
   Rill<O> get dropLast => dropLastIf((_) => true);
 
@@ -620,7 +623,7 @@ class Rill<O> {
         () => Pull.done,
         (hd, tl) => go(hd, tl),
       );
-    }).rill;
+    }).rillNoScope;
   }
 
   Rill<O> dropRight(int n) {
@@ -639,7 +642,7 @@ class Rill<O> {
         });
       }
 
-      return go(Chunk.empty(), this).rill;
+      return go(Chunk.empty(), this).rillNoScope;
     }
   }
 
@@ -647,13 +650,13 @@ class Rill<O> {
       pull
           .dropThrough(p)
           .flatMap((tl) => tl.map((tl) => tl.pull.echo).getOrElse(() => Pull.done))
-          .rill;
+          .rillNoScope;
 
   Rill<O> dropWhile(Function1<O, bool> p) =>
       pull
           .dropWhile(p)
           .flatMap((tl) => tl.map((tl) => tl.pull.echo).getOrElse(() => Pull.done))
-          .rill;
+          .rillNoScope;
 
   Rill<Either<O, O2>> either<O2>(Rill<O2> that) =>
       map((o) => o.asLeft<O2>()).merge(that.map((o2) => o2.asRight<O>()));
@@ -678,7 +681,7 @@ class Rill<O> {
       });
     }
 
-    return go(z, this).rill;
+    return go(z, this).rillNoScope;
   }
 
   Rill<O2> evalMap<O2>(Function1<O, IO<O2>> f) =>
@@ -699,14 +702,14 @@ class Rill<O> {
       });
     }
 
-    return Pull.output1(z).append(() => go(z, this)).rill;
+    return Pull.output1(z).append(() => go(z, this)).rillNoScope;
   }
 
   Rill<O> evalTap<O2>(Function1<O, IO<O2>> f) =>
       underlying.flatMapOutput((o) => Pull.eval(f(o)).flatMap((_) => Pull.output1(o))).rillNoScope;
 
   Rill<bool> exists(Function1<O, bool> p) =>
-      pull.forall((o) => !p(o)).flatMap((r) => Pull.output1(!r)).rill;
+      pull.forall((o) => !p(o)).flatMap((r) => Pull.output1(!r)).rillNoScope;
 
   Rill<O> filter(Function1<O, bool> p) => mapChunks((c) => c.filter(p));
 
@@ -747,7 +750,7 @@ class Rill<O> {
         () => Pull.done,
         (hd, tl) => Pull.output1(hd).append(() => go(hd, tl)),
       );
-    }).rill;
+    }).rillNoScope;
   }
 
   Rill<O2> flatMap<O2>(Function1<O, Rill<O2>> f) => Rill.suspend(() {
@@ -770,13 +773,14 @@ class Rill<O> {
     return loop(this).rillNoScope;
   });
 
-  Rill<O2> fold<O2>(O2 z, Function2<O2, O, O2> f) => pull.fold(z, f).flatMap(Pull.output1).rill;
+  Rill<O2> fold<O2>(O2 z, Function2<O2, O, O2> f) =>
+      pull.fold(z, f).flatMap(Pull.output1).rillNoScope;
 
   Rill<O> fold1(Function2<O, O, O> f) =>
-      pull.fold1(f).flatMap((opt) => opt.map(Pull.output1).getOrElse(() => Pull.done)).rill;
+      pull.fold1(f).flatMap((opt) => opt.map(Pull.output1).getOrElse(() => Pull.done)).rillNoScope;
 
   Rill<bool> forall(Function1<O, bool> p) =>
-      pull.forall(p).flatMap((res) => Pull.output1(res)).rill;
+      pull.forall(p).flatMap((res) => Pull.output1(res)).rillNoScope;
 
   Rill<Never> foreach(Function1<O, IO<Unit>> f) =>
       underlying.flatMapOutput((o) => Pull.eval(f(o))).rillNoScope;
@@ -849,7 +853,7 @@ class Rill<O> {
       });
     }
 
-    return go(none(), this).rill;
+    return go(none(), this).rillNoScope;
   }
 
   Rill<Chunk<O>> groupWithin(int chunkSize, Duration timeout) {
@@ -943,7 +947,7 @@ class Rill<O> {
           () => fallback().underlying,
           (hd, tl) => Pull.output(hd).append(() => tl.underlying),
         );
-      }).rill;
+      }).rillNoScope;
 
   Rill<O> ifEmptyEmit(Function0<O> o) => ifEmpty(() => Rill.emit(o()));
 
@@ -986,7 +990,7 @@ class Rill<O> {
         () => Pull.done,
         (hd, tl) => Pull.output(doChunk(hd, true)).append(() => go(tl)),
       );
-    }).rill;
+    }).rillNoScope;
   }
 
   Rill<O> interruptAfter(Duration duration) => interruptWhen(IO.sleep(duration));
@@ -1065,14 +1069,16 @@ class Rill<O> {
       return Rill.bracket(
         producer.start(),
         (fiber) => fiber.cancel(),
-      ).flatMap((_) => consumeLoop().rill);
+      ).flatMap((_) => consumeLoop().rillNoScope);
     });
   }
 
-  Rill<Option<O>> get last => pull.last.flatMap(Pull.output1).rill;
+  Rill<Option<O>> get last => pull.last.flatMap(Pull.output1).rillNoScope;
 
   Rill<O> lastOr(Function0<O> fallback) =>
-      pull.last.flatMap((o) => o.fold(() => Pull.output1(fallback()), (o) => Pull.output1(o))).rill;
+      pull.last
+          .flatMap((o) => o.fold(() => Pull.output1(fallback()), (o) => Pull.output1(o)))
+          .rillNoScope;
 
   Rill<O2> map<O2>(Function1<O, O2> f) =>
       pull.echo.unconsFlatMap((hd) => Pull.output(hd.map(f))).rillNoScope;
@@ -1094,7 +1100,7 @@ class Rill<O> {
       parEvalMapUnordered(maxConcurrent, f);
 
   Rill<O2> mapChunks<O2>(Function1<Chunk<O>, Chunk<O2>> f) =>
-      underlying.unconsFlatMap((hd) => Pull.output(f(hd))).rill;
+      underlying.unconsFlatMap((hd) => Pull.output(f(hd))).rillNoScope;
 
   Rill<O> get mask => handleErrorWith((_) => Rill.empty());
 
@@ -1177,7 +1183,7 @@ class Rill<O> {
   Rill<Option<O>> noneTerminate() => map((o) => Option(o)).append(() => Rill.emit(none()));
 
   Rill<O> onComplete(Function0<Rill<O>> s2) =>
-      handleErrorWith((e) => s2().append(() => Pull.fail(e).rill)).append(() => s2());
+      handleErrorWith((e) => s2().append(() => Pull.fail(e).rillNoScope)).append(() => s2());
 
   Rill<O> onFinalize(IO<Unit> finalizer) => onFinalizeCase((_) => finalizer);
 
@@ -1317,7 +1323,7 @@ class Rill<O> {
         });
       }
 
-      return loop(this).rill;
+      return loop(this).rillNoScope;
     });
   }
 
@@ -1334,10 +1340,11 @@ class Rill<O> {
       });
     }
 
-    return go(pull).rill;
+    return go(pull).rillNoScope;
   }
 
-  Rill<O2> scan<O2>(O2 z, Function2<O2, O, O2> f) => Pull.output1(z).append(() => _scan(z, f)).rill;
+  Rill<O2> scan<O2>(O2 z, Function2<O2, O, O2> f) =>
+      Pull.output1(z).append(() => _scan(z, f)).rillNoScope;
 
   Rill<O> scan1(Function2<O, O, O> f) =>
       pull.uncons.flatMap((hdtl) {
@@ -1348,7 +1355,7 @@ class Rill<O> {
             return Pull.output(pre).append(() => tl.cons(post)._scan(pre[0], f));
           },
         );
-      }).rill;
+      }).rillNoScope;
 
   Pull<O2, Unit> _scan<O2>(O2 z, Function2<O2, O, O2> f) => pull.uncons.flatMap((hdtl) {
     return hdtl.foldN(
@@ -1366,7 +1373,7 @@ class Rill<O> {
   Rill<O2> scanChunksOpt<S, O2>(
     S initial,
     Function1<S, Option<Function1<Chunk<O>, (S, Chunk<O2>)>>> f,
-  ) => pull.scanChunksOpt(initial, f).voided.rill;
+  ) => pull.scanChunksOpt(initial, f).voided.rillNoScope;
 
   Rill<O> get scope => Pull.scope(underlying).rillNoScope;
 
@@ -1433,9 +1440,9 @@ class Rill<O> {
               ).append(() => stepSmallerThanSize(tl, hd.drop(step), Chunk.empty())),
             ),
           )
-          .rill;
+          .rillNoScope;
     } else {
-      return stepNotSmallerThanSize(this, Chunk.empty()).rill;
+      return stepNotSmallerThanSize(this, Chunk.empty()).rillNoScope;
     }
   }
 
@@ -1465,7 +1472,7 @@ class Rill<O> {
       });
     }
 
-    return go(Chunk.empty(), this).rill;
+    return go(Chunk.empty(), this).rillNoScope;
   }
 
   Rill<O2> switchMap<O2>(Function1<O, Rill<O2>> f) {
@@ -1532,14 +1539,14 @@ class Rill<O> {
 
   Rill<O> get tail => drop(1);
 
-  Rill<O> take(int n) => pull.take(n).voided.rill;
+  Rill<O> take(int n) => pull.take(n).voided.rillNoScope;
 
-  Rill<O> takeRight(int n) => pull.takeRight(n).flatMap(Pull.output).rill;
+  Rill<O> takeRight(int n) => pull.takeRight(n).flatMap(Pull.output).rillNoScope;
 
-  Rill<O> takeThrough(Function1<O, bool> p) => pull.takeThrough(p).voided.rill;
+  Rill<O> takeThrough(Function1<O, bool> p) => pull.takeThrough(p).voided.rillNoScope;
 
   Rill<O> takeWhile(Function1<O, bool> p, {bool takeFailure = false}) =>
-      pull.takeWhile(p, takeFailure: takeFailure).voided.rill;
+      pull.takeWhile(p, takeFailure: takeFailure).voided.rillNoScope;
 
   Rill<O2> through<O2>(Pipe<O, O2> f) => f(this);
 
@@ -1614,7 +1621,7 @@ class Rill<O> {
       });
     }
 
-    return loop(this, that).rill;
+    return loop(this, that).rillNoScope;
   }
 
   Rill<(O, O2)> zipLatest<O2>(Rill<O2> that) => zipLatestWith(that, (o, o2) => (o, o2));
@@ -1703,7 +1710,7 @@ class Rill<O> {
         () => Pull.done,
         (hd, tl) => go(hd, tl),
       );
-    }).rill;
+    }).rillNoScope;
   }
 
   Rill<(Option<O>, O)> zipWithPrevious() =>

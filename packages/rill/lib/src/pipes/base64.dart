@@ -119,7 +119,7 @@ final class Base64Pipes {
       });
     }
 
-    return (rill) => go(_State(0, 0, 0), rill).rill;
+    return (rill) => go(_State(0, 0, 0), rill).rillNoScope;
   }
 
   Pipe<int, String> encodeWithAlphabet(Base64Alphabet alphabet) {
@@ -206,7 +206,7 @@ final class Base64Pipes {
       });
     }
 
-    return (rill) => go(ByteVector.empty, rill).rill;
+    return (rill) => go(ByteVector.empty, rill).rillNoScope;
   }
 }
 

@@ -107,7 +107,8 @@ final class LinesPipes {
       });
     }
 
-    return (rill) => Rill.suspend(() => go(rill, StringBuffer(), _BoolWrapper(false), true).rill);
+    return (rill) =>
+        Rill.suspend(() => go(rill, StringBuffer(), _BoolWrapper(false), true).rillNoScope);
   }
 
   @pragma('vm:prefer-inline')

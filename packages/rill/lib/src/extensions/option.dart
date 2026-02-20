@@ -22,6 +22,6 @@ extension RillOptionOps<A> on Rill<Option<A>> {
       });
     }
 
-    return loop(underlying).rill;
+    return loop(underlying).rillNoScope;
   }
 }

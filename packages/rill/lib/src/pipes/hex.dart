@@ -75,7 +75,7 @@ final class HexPipes {
       });
     }
 
-    return (rill) => dropPrefix(rill, '').rill;
+    return (rill) => dropPrefix(rill, '').rillNoScope;
   }
 
   Pipe<int, String> encodeWithAlphabet(HexAlphabet alphabet) =>

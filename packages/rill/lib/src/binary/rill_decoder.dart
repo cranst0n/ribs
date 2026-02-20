@@ -61,7 +61,7 @@ class RillDecoder<A> {
   Pipe<int, A> get toPipeByte =>
       (rill) => rill.chunks().map((chunk) => chunk.toBitVector).through(toPipe);
 
-  Rill<A> decode(Rill<BitVector> rill) => this(rill).voided.rill;
+  Rill<A> decode(Rill<BitVector> rill) => this(rill).voided.rillNoScope;
 
   Pull<A, Option<Rill<BitVector>>> call(Rill<BitVector> r) {
     switch (_step) {

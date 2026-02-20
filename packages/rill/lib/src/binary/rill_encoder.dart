@@ -52,7 +52,7 @@ class RillEncoder<A> {
     (r) => _step(r).map((nextOpt) => nextOpt.mapN((s, next) => (s, next.or(that())))),
   );
 
-  Rill<BitVector> encode(Rill<A> rill) => _apply(rill).voided.rill;
+  Rill<BitVector> encode(Rill<A> rill) => _apply(rill).voided.rillNoScope;
 
   RillEncoder<A> or(RillEncoder<A> other) {
     return RillEncoder._((r) {
