@@ -941,6 +941,10 @@ class Rill<O> {
 
   Rill<O> get head => take(1);
 
+  Resource<Signal<O>> holdResource(O initial) => Resource.eval(
+    SignallingRef.of(initial),
+  ).flatTap((sig) => foreach((n) => sig.setValue(n)).compile.drain.background());
+
   Rill<O> ifEmpty(Function0<Rill<O>> fallback) =>
       pull.uncons.flatMap((hdtl) {
         return hdtl.foldN(
