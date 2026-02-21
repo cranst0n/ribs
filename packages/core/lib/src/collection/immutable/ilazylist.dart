@@ -638,13 +638,18 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   @override
   ILazyList<A> reverse() => _reverseOnto(empty());
 
-  // TODO: tailrec
   ILazyList<A> _reverseOnto(ILazyList<A> tl) {
-    if (isEmpty) {
-      return tl;
-    } else {
-      return tail._reverseOnto(newLL(() => sCons(head, tl)));
+    var result = tl;
+    var current = this;
+
+    while (!current.isEmpty) {
+      final h = current.head;
+      final t = result;
+      result = newLL(() => sCons(h, t));
+      current = current.tail;
     }
+
+    return result;
   }
 
   @override
