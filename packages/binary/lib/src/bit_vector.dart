@@ -550,21 +550,31 @@ sealed class BitVector implements Comparable<BitVector> {
       throw ArgumentError('cannot compact bit vector of size ${size.toDouble() / 8 / 1e9} GB');
     }
 
-    // TODO: tailrec
     IVector<_Bytes> go(IList<BitVector> b, IVector<_Bytes> acc) {
-      if (b.nonEmpty) {
-        final rem = b.tail;
+      var currentB = b;
+      var currentAcc = acc;
 
-        return switch (b.head) {
-          final _Suspend s => go(rem.prepended(s.underlying), acc),
-          final _Bytes b => go(rem, acc.appended(b)),
-          final _Drop d => go(rem, acc.appended(d.interpretDrop())),
-          _Append(left: final l, right: final r) => go(rem.prepended(r).prepended(l), acc),
-          final _Chunks c => go(rem.prepended(c.chunks.right).prepended(c.chunks.left), acc),
-        };
-      } else {
-        return acc;
+      while (currentB.nonEmpty) {
+        final head = currentB.head;
+        final rem = currentB.tail;
+
+        switch (head) {
+          case final _Suspend s:
+            currentB = rem.prepended(s.underlying);
+          case final _Bytes bytesNode:
+            currentB = rem;
+            currentAcc = currentAcc.appended(bytesNode);
+          case final _Drop d:
+            currentB = rem;
+            currentAcc = currentAcc.appended(d.interpretDrop());
+          case _Append(left: final l, right: final r):
+            currentB = rem.prepended(r).prepended(l);
+          case final _Chunks c:
+            currentB = rem.prepended(c.chunks.right).prepended(c.chunks.left);
+        }
       }
+
+      return currentAcc;
     }
 
     switch (this) {
@@ -601,22 +611,28 @@ sealed class BitVector implements Comparable<BitVector> {
 
   /// Forces any `Suspend` nodes in this `BitVector` and ensures the tree is balanced.
   BitVector force() {
-    // TODO: tailrec
     BitVector go(IVector<BitVector> cont) {
-      if (cont.nonEmpty) {
-        final cur = cont.head;
-        final tail = cont.tail;
+      var currentCont = cont;
 
-        return switch (cur) {
-          final _Bytes b => tail.foldLeft(b, (a, b) => a.concat(b)),
-          _Append(left: final l, right: final r) => go(tail.prepended(r).prepended(l)),
-          final _Drop d => tail.foldLeft(d, (a, b) => a.concat(b)),
-          final _Suspend s => go(tail.prepended(s.underlying)),
-          final _Chunks c => go(tail.prepended(c.chunks)),
-        };
-      } else {
-        return cont.foldLeft(BitVector.empty, (a, b) => a.concat(b));
+      while (currentCont.nonEmpty) {
+        final cur = currentCont.head;
+        final tail = currentCont.tail;
+
+        switch (cur) {
+          case final _Bytes b:
+            return tail.foldLeft(b, (a, b) => a.concat(b));
+          case _Append(left: final l, right: final r):
+            currentCont = tail.prepended(r).prepended(l);
+          case final _Drop d:
+            return tail.foldLeft(d, (a, b) => a.concat(b));
+          case final _Suspend s:
+            currentCont = tail.prepended(s.underlying);
+          case final _Chunks c:
+            currentCont = tail.prepended(c.chunks);
+        }
       }
+
+      return currentCont.foldLeft(BitVector.empty, (a, b) => a.concat(b));
     }
 
     return go(ivec([this]));
@@ -894,26 +910,28 @@ final class _Append extends BitVector {
     if (_knownSize != -1) {
       return _knownSize;
     } else {
-      // TODO: tailrec
       int go(IList<BitVector> rem, int acc) {
-        if (rem.nonEmpty) {
-          final tl = rem.tail;
+        var currentRem = rem;
+        var currentAcc = acc;
 
-          return switch (rem.head) {
-            _Append(left: final left, right: final right) => go(
-              tl.prepended(right).prepended(left),
-              acc,
-            ),
-            _Chunks(chunks: final chunks) => go(
-              tl.prepended(chunks.right).prepended(chunks.left),
-              acc,
-            ),
-            final _Suspend s => go(tl.prepended(s.underlying), acc),
-            final h => go(tl, acc + h.size),
-          };
-        } else {
-          return acc;
+        while (currentRem.nonEmpty) {
+          final head = currentRem.head;
+          final tl = currentRem.tail;
+
+          switch (head) {
+            case _Append(left: final left, right: final right):
+              currentRem = tl.prepended(right).prepended(left);
+            case _Chunks(chunks: final chunks):
+              currentRem = tl.prepended(chunks.right).prepended(chunks.left);
+            case final _Suspend s:
+              currentRem = tl.prepended(s.underlying);
+            default:
+              currentRem = tl;
+              currentAcc += head.size;
+          }
         }
+
+        return currentAcc;
       }
 
       final sz = go(ilist([left, right]), 0);
@@ -932,16 +950,27 @@ final class _Append extends BitVector {
     } else if (npos <= left.size) {
       return left.take(npos);
     } else {
-      // TODO: tailrec
       BitVector go(BitVector accL, BitVector cur, int n) {
-        return switch (cur) {
-          _Append(left: final left, right: final right) =>
-            n <= left.size
-                ? accL.concat(left.take(n))
-                : go(accL.concat(left), right, n - left.size),
-          final _Suspend s => go(accL, s.underlying, n),
-          _ => accL.concat(cur.take(n)),
-        };
+        var currentAccL = accL;
+        var currentCur = cur;
+        var currentN = n;
+
+        while (true) {
+          switch (currentCur) {
+            case _Append(left: final left, right: final right):
+              if (currentN <= left.size) {
+                return currentAccL.concat(left.take(currentN));
+              } else {
+                currentAccL = currentAccL.concat(left);
+                currentCur = right;
+                currentN -= left.size;
+              }
+            case final _Suspend s:
+              currentCur = s.underlying;
+            default:
+              return currentAccL.concat(currentCur.take(currentN));
+          }
+        }
       }
 
       return go(left, right, npos - left.size);
@@ -955,14 +984,25 @@ final class _Append extends BitVector {
     if (npos == 0) {
       return this;
     } else {
-      // TODO: tailrec
       BitVector go(BitVector cur, int n) {
-        return switch (cur) {
-          _Append(left: final left, right: final right) =>
-            n >= left.size ? go(right, n - left.size) : _Append(left.drop(n), right),
-          final _Suspend s => go(s.underlying, n),
-          _ => cur.drop(n),
-        };
+        var currentCur = cur;
+        var currentN = n;
+
+        while (true) {
+          switch (currentCur) {
+            case _Append(left: final left, right: final right):
+              if (currentN >= left.size) {
+                currentCur = right;
+                currentN -= left.size;
+              } else {
+                return _Append(left.drop(currentN), right);
+              }
+            case final _Suspend s:
+              currentCur = s.underlying;
+            default:
+              return currentCur.drop(currentN);
+          }
+        }
       }
 
       if (npos >= left.size) {
@@ -980,21 +1020,28 @@ final class _Append extends BitVector {
     } else if (_sizeLowerBound >= n) {
       return false;
     } else {
-      // TODO: tailrec
       bool go(BitVector cur, int n, int seen) {
-        switch (cur) {
-          case _Append(left: final l, right: final r):
-            if (l.size >= n) {
-              _sizeLowerBound = max(seen + l.size, _sizeLowerBound);
-              return false;
-            } else {
-              return go(r, n - l.size, seen + l.size);
-            }
-          case final _Suspend s:
-            return go(s.underlying, n, seen);
-          default:
-            _sizeLowerBound = max(seen, _sizeLowerBound);
-            return cur.size < n;
+        var currentCur = cur;
+        var currentN = n;
+        var currentSeen = seen;
+
+        while (true) {
+          switch (currentCur) {
+            case _Append(left: final l, right: final r):
+              if (l.size >= currentN) {
+                _sizeLowerBound = max(currentSeen + l.size, _sizeLowerBound);
+                return false;
+              } else {
+                currentCur = r;
+                currentN -= l.size;
+                currentSeen += l.size;
+              }
+            case final _Suspend s:
+              currentCur = s.underlying;
+            default:
+              _sizeLowerBound = max(currentSeen, _sizeLowerBound);
+              return currentCur.size < currentN;
+          }
         }
       }
 
@@ -1325,20 +1372,21 @@ A _reduceBalanced<A>(
   Function1<A, int> size,
   Function2<A, A, A> f,
 ) {
-  // TODO: tailrec
   IList<(A, int)> fixup(IList<(A, int)> stack) {
-    if (stack.size >= 2) {
-      final (h2, n) = stack[0];
-      final (h, m) = stack[1];
+    var currentStack = stack;
+
+    while (currentStack.size >= 2) {
+      final (h2, n) = currentStack[0];
+      final (h, m) = currentStack[1];
 
       if (n > m / 2) {
-        return fixup(stack.drop(2).prepended((f(h, h2), m + n)));
+        currentStack = currentStack.drop(2).prepended((f(h, h2), m + n));
       } else {
-        return stack;
+        return currentStack;
       }
-    } else {
-      return stack;
     }
+
+    return currentStack;
   }
 
   return v
