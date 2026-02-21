@@ -257,7 +257,7 @@ void main() {
     'allocated releases resources in reverse order of acquisition',
     Gen.ilistOf(
       Gen.chooseInt(0, 20),
-      (Gen.integer, Gen.either(Gen.constant('boom'), Gen.unit)).tupled,
+      (Gen.integer, Gen.either<Object, Unit>(Gen.constant('boom'), Gen.constant(Unit()))).tupled,
     ),
     (as) {
       var released = nil<int>();
@@ -328,7 +328,7 @@ void main() {
       'releases resources in rever order of acquisition',
       Gen.ilistOf(
         Gen.chooseInt(0, 20),
-        (Gen.integer, Gen.either(Gen.constant('boom'), Gen.unit)).tupled,
+        (Gen.integer, Gen.either<Object, Unit>(Gen.constant('boom'), Gen.constant(Unit()))).tupled,
       ),
       Gen.boolean,
       (as, rhs) {

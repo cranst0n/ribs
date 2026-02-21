@@ -55,15 +55,18 @@ final class Prop<T> {
       description,
       () async {
         var count = 0;
+        Option<PropFailure<T>> firstFailure = none();
 
-        final firstFailure = await gen
-            .stream(StatefulRandom(seedNN))
-            .take(numTests ?? 100)
-            .asyncMap((value) {
-              count++;
-              return _runProp(value, testBody);
-            })
-            .firstWhere((result) => result.isDefined, orElse: () => none<PropFailure<T>>());
+        final iterator = gen.stream(StatefulRandom(seedNN)).take(numTests ?? 100).iterator;
+        while (iterator.hasNext) {
+          final value = iterator.next();
+          count++;
+          final result = await _runProp(value, testBody);
+          if (result.isDefined) {
+            firstFailure = result;
+            break;
+          }
+        }
 
         final shrunkenFailure = await firstFailure.fold(
           () => Future.value(firstFailure),
@@ -98,18 +101,23 @@ final class Prop<T> {
     PropFailure<T> original,
     TestBody<T> testBody, {
     int count = 50,
-  }) {
-    return count <= 0
-        ? Future.value(Some(original))
-        : gen
-            .shrink(original.value)
-            .asyncMap(
-              (value) async => (await _runProp(value, testBody)).fold(
-                () => Future.value(Some(original)),
-                (fail) => _shrink(fail, testBody, count: count - 1),
-              ),
-            )
-            .firstWhere((result) => result.isDefined, orElse: () => Some(original));
+  }) async {
+    if (count <= 0) return Some(original);
+
+    final iterator = gen.shrink(original.value).iterator;
+    while (iterator.hasNext) {
+      final value = iterator.next();
+      final result = await _runProp(value, testBody);
+      final shrunkResult = await result.fold(
+        () => Future.value(Some(original)),
+        (fail) => _shrink(fail, testBody, count: count - 1),
+      );
+      if (shrunkResult.isDefined) {
+        return shrunkResult;
+      }
+    }
+
+    return Some(original);
   }
 }
 

@@ -28,7 +28,7 @@ final genPort = Gen.chooseInt(
 ).map((i) => Port.fromInt(i).getOrElse(() => throw Exception('genPort failed: $i')));
 
 final genSocketAddress = (
-  Gen.oneOfGen([genIp, genHostname]),
+  Gen.oneOfGen<Host>([genIp, genHostname]),
   genPort,
 ).tupled.map((tup) => SocketAddress<Host>(tup.$1, tup.$2));
 

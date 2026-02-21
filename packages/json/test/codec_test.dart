@@ -97,7 +97,7 @@ void main() {
 
     testCodec(
       'oneOf',
-      Gen.oneOfGen([Dog.gen, Cat.gen, HermitCrab.gen]),
+      Gen.oneOfGen<Animal>([Dog.gen, Cat.gen, HermitCrab.gen]),
       Animal.codec,
     );
 
