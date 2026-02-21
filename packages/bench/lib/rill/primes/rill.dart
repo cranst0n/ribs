@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_rill/ribs_rill.dart';
