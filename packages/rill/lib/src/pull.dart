@@ -235,6 +235,7 @@ class _StepDone<O, R> extends _Step<O, R> {
 class _StepOut<O, R> extends _Step<O, R> {
   final Chunk<O> head;
   final Pull<O, R> next;
+
   _StepOut(this.head, this.next);
 }
 
@@ -246,53 +247,66 @@ class _StepError<O, R> extends _Step<O, R> {
 }
 
 IO<_Step<O, R>> _stepPull<O, R>(Pull<O, R> pull, Scope scope) {
-  return IO.defer(() {
-    return switch (pull) {
-      final _Pure<R> _ => IO.pure(_StepDone(pull.value)),
-      final _Fail _ => IO.pure(_StepError(pull.error)), // IO.raiseError(pull.error),
-      final _Output<O> p => IO.pure(_StepOut(p.chunk, Pull.pure(Unit() as R))),
-      final _Eval<R> _ => pull.action.redeem((err) => _StepError(err), (r) => _StepDone(r)),
-      final _Bind<O, dynamic, R> _ => _stepBind(pull, scope),
-      final _Handle<O, R> _ => _stepHandle(pull, scope),
-      final _Acquire<R> _ => _stepAcquire(pull, scope),
-      final _GetScope<O> _ => IO.pure(_StepDone(scope as R)),
-      final _OpenScope<O> _ => Scope.create(scope).map((s) => _StepDone(s as R)),
-      final _CloseScope<O> p => _stepCloseScope(p),
-      final _RunInScope<O, R> _ => _stepRunInScope(pull),
+  var current = pull;
 
-      _ => IO.raiseError('Pull.stepPull: Unknown Pull type: $pull'),
-    };
-  });
-}
+  while (true) {
+    switch (current) {
+      case final _Pure<R> p:
+        return IO.pure(_StepDone(p.value));
+      case final _Fail f:
+        return IO.pure(_StepError(f.error, f.stackTrace));
+      case final _Output<O> p:
+        return IO.pure(_StepOut(p.chunk, Pull.done as Pull<O, R>));
+      case final _Eval<R> e:
+        return e.action.redeem((err) => _StepError(err), (r) => _StepDone(r));
+      case final _Acquire<R> a:
+        return _stepAcquire(a, scope);
+      case final _GetScope<O> _:
+        return IO.pure(_StepDone(scope as R));
+      case final _OpenScope<O> _:
+        return Scope.create(scope).map((s) => _StepDone(s as R));
+      case final _CloseScope<O> p:
+        return _stepCloseScope(p);
+      case final _Bind<O, dynamic, R> bind:
+        // Re-associate left-nested binds: _Bind(_Bind(s, k1), k2) => _Bind(s, x => _Bind(k1(x), k2))
+        Pull<O, dynamic> source = bind.source;
+        Fn1<dynamic, Pull<O, R>> k = bind.k;
 
-IO<_Step<O, R>> _stepBind<O, X, R>(_Bind<O, X, R> bind, Scope scope) {
-  final foo = _stepPull(bind.source, scope).flatMap((step) {
-    return switch (step) {
-      final _StepDone<O, X> _ => _stepPull(bind.k(step.result), scope),
-      final _StepOut<O, X> _ => IO.pure(_StepOut(step.head, step.next.flatMap((x) => bind.k(x)))),
-      final _StepError<O, X> step => IO.pure(_StepError<O, R>(step.error)),
-    };
-  });
+        while (source is _Bind<O, dynamic, dynamic>) {
+          final inner = source;
+          final outerK = k;
+          final innerK = inner.k;
+          k = Fn1((x) => _Bind<O, dynamic, R>(innerK(x), outerK));
+          source = inner.source;
+        }
 
-  // final bar = stepPull(bind.source, scope).flatMap((step) {
-  //   switch (step) {
-  //     case final _StepDone<O, X> done:
-  //       try {
-  //         final nextPull = bind.k(done.result);
-  //         return IO.defer(() => stepPull(nextPull, scope));
-  //       } catch (e, st) {
-  //         return IO.pure(_StepError<O, R>(e, st));
-  //       }
-  //     case _StepOut<O, X> _:
-  //       return IO.pure(_StepOut(step.head, step.next.flatMap((x) => bind.k(x))));
-  //     case final _StepError<O, X> err:
-  //       return IO.pure(_StepError<O, R>(e, err.stackTrace));
-  //   }
-  // });
-
-  return foo;
-  // return IO.defer(() => foo);
-  // throw UnimplementedError();
+        switch (source) {
+          case final _Pure<dynamic> pure:
+            current = k(pure.value);
+            continue;
+          case final _Output<O> output:
+            return IO.pure(
+              _StepOut(output.chunk, Pull.done.flatMap((x) => k(x))),
+            );
+          default:
+            return _stepPull(source, scope).flatMap((step) {
+              return switch (step) {
+                final _StepDone<O, dynamic> d => _stepPull(k(d.result), scope),
+                final _StepOut<O, dynamic> o => IO.pure(
+                  _StepOut(o.head, o.next.flatMap((x) => k(x))),
+                ),
+                final _StepError<O, dynamic> e => IO.pure(_StepError<O, R>(e.error, e.stackTrace)),
+              };
+            });
+        }
+      case final _Handle<O, R> h:
+        return _stepHandle(h, scope);
+      case final _RunInScope<O, R> r:
+        return _stepRunInScope(r);
+      default:
+        return IO.raiseError('Pull.stepPull: Unknown Pull type: $current');
+    }
+  }
 }
 
 IO<_Step<O, R>> _stepHandle<O, R>(_Handle<O, R> pull, Scope scope) {
@@ -349,29 +363,3 @@ IO<_Step<O, R>> _stepCloseScope<O, R>(_CloseScope<O> pull) {
     );
   });
 }
-
-// _Bind<O, X, R> _rotateBinds<O, X, R>(_Bind<O, X, R> res) {
-//   var current = res;
-
-//   while (true) {
-//     // rotate left nested binds to right nested for stack safety
-//     // note this will not work with _Binds that don't match the type parameters
-//     if (current is _Bind<O, dynamic, R>) {
-//       final bind = current;
-
-//       if (bind.source is _Bind) {
-//         final sourceBind = bind.source as _Bind;
-
-//         final s = sourceBind.source;
-//         final f = sourceBind.k;
-//         final g = bind.k;
-
-//         current = _Bind(s, Fn1((x) => f(x).flatMap((y) => g.call(y as X))));
-
-//         continue;
-//       }
-//     }
-
-//     return current;
-//   }
-// }

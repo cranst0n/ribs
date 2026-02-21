@@ -15,11 +15,16 @@ extension<A> on Rill<A> {
 }
 
 void main() {
-  test('stack safety', () {
-    final test =
-        Rill.chunk(Chunk.fill(50000, Unit())).flatMap((_) => Rill.empty<Unit>()).compile.toList;
+  test('stack safety - stepPull deeply nested flatMap', () {
+    const n = 100000;
+    final test = Rill.chunk(Chunk.fill(n, 0)).flatMap((x) => Rill.emit(x + 1)).compile.drain;
+    expect(test, ioSucceeded(Unit()));
+  });
 
-    expect(test, ioSucceeded(nil<Unit>()));
+  test('stack safety - stepPull deeply nested flatMap with type change', () {
+    const n = 100000;
+    final test = Rill.chunk(Chunk.fill(n, 42)).flatMap((x) => Rill.emit('v=$x')).compile.count;
+    expect(test, ioSucceeded(n));
   });
 
   group('bracket', () {
