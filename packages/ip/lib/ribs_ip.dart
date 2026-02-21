@@ -3,5 +3,7 @@ export 'src/dns.dart';
 export 'src/host.dart';
 export 'src/mac_address.dart';
 export 'src/multicast.dart';
+export 'src/network_interface.dart';
+export 'src/network_interfaces.dart';
 export 'src/port.dart';
 export 'src/socket_address.dart';

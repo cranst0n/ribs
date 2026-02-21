@@ -1,0 +1,27 @@
+name: ribs_rill_io
+version: 1.0.0-dev.1
+homepage: https://cranst0n.github.io/ribs/
+repository: https://github.com/cranst0n/ribs
+description: >
+  Provides Rill I/O constructors and pipes using dart:io.
+
+publish_to: none
+
+resolution: workspace
+environment:
+  sdk: ">=3.7.0 <4.0.0"
+
+dependencies:
+  async:       ^2.13.0
+  meta:        ^1.10.0
+  path:        ^1.9.1
+  ribs_core:   ^1.0.0-dev.14
+  ribs_effect: ^1.0.0-dev.3
+  ribs_ip:     ^1.0.0-dev.4
+  ribs_rill:   ^1.0.0-dev.1
+
+dev_dependencies:
+  lint:       ^2.8.0
+  matcher:    ^0.12.18
+  ribs_check: ^1.0.0-dev.8
+  test:       ^1.0.0

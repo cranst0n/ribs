@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_ip/ribs_ip.dart';
-import 'package:ribs_ip/src/platform/base.dart';
+import 'package:ribs_ip/src/dns_platform/dns_platform.dart';
 
-final class PlatformImpl extends PlatformBase {
+final class DnsPlatformImpl implements DnsPlatform {
   @override
   IO<IList<IpAddress>> loopback() => IO.delay(
     () =>
@@ -30,6 +30,10 @@ final class PlatformImpl extends PlatformBase {
           (a) => IO.pure(a),
         ),
       );
+
+  @override
+  IO<Option<Hostname>> reverseOption(IpAddress address) =>
+      reverse(address).redeem((_) => none(), (hostname) => Some(hostname));
 
   Option<IpAddress> ipFromInternetAddress(InternetAddress addr) =>
       IpAddress.fromString(addr.address);

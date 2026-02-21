@@ -15,6 +15,7 @@ workspace:
   - packages/optics
   - packages/postgres
   - packages/rill
+  - packages/rill_io
   - packages/sql
   - packages/sqlite
   - packages/units

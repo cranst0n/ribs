@@ -1,0 +1,334 @@
+import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/ribs_effect.dart';
+import 'package:ribs_effect/test.dart';
+import 'package:ribs_rill/ribs_rill.dart';
+import 'package:ribs_rill_io/ribs_rill_io.dart';
+import 'package:test/test.dart';
+
+/// Temp directory resource that cleans up recursively (including any files
+/// created inside during the test).
+Resource<Path> tempDir() => Resource.make(
+  Files.createTempDirectory(),
+  (p) => Files.deleteRecursively(p).voided(),
+);
+
+void main() {
+  group('Files', () {
+    group('read / write round-trip', () {
+      test(
+        'writeAll + readAll round-trips bytes',
+        () {
+          const bytes = [1, 2, 3, 4, 5];
+
+          final result = Files.tempFile.use((path) {
+            return Rill.emits(bytes)
+                .through(Files.writeAll(path))
+                .compile
+                .drain
+                .productR(() => Files.readAll(path).compile.toIList);
+          });
+
+          expect(result, ioSucceeded(ilist(bytes)));
+        },
+        testOn: 'vm',
+      );
+
+      test(
+        'writeUtf8 + readUtf8 round-trips a string',
+        () {
+          const text = 'foo, bar, baz!';
+
+          final result = Files.tempFile.use((path) {
+            return Rill.emit(text)
+                .through(Files.writeUtf8(path))
+                .compile
+                .drain
+                .productR(
+                  () => Files.readUtf8(path).compile.toIList.map(
+                    (chunks) => chunks.toList().join(),
+                  ),
+                );
+          });
+
+          expect(result, ioSucceeded(text));
+        },
+        testOn: 'vm',
+      );
+
+      test(
+        'writeUtf8Lines + readUtf8Lines round-trips lines',
+        () {
+          const lines = ['alpha', 'beta', 'gamma'];
+
+          final result = Files.tempFile.use((path) {
+            return Rill.emits(lines)
+                .through(Files.writeUtf8Lines(path))
+                .compile
+                .drain
+                .productR(
+                  () => Files.readUtf8Lines(path).filter((line) => line.isNotEmpty).compile.toIList,
+                );
+          });
+
+          expect(result, ioSucceeded(ilist(lines)));
+        },
+        testOn: 'vm',
+      );
+    });
+
+    group('append', () {
+      test(
+        'Flags.Append appends to existing content',
+        () {
+          const first = [1, 2, 3];
+          const second = [4, 5, 6];
+
+          final result = Files.tempFile.use((path) {
+            return Rill.emits(first)
+                .through(Files.writeAll(path))
+                .compile
+                .drain
+                .productR(
+                  () =>
+                      Rill.emits(
+                        second,
+                      ).through(Files.writeAll(path, flags: Flags.Append)).compile.drain,
+                )
+                .productR(() => Files.readAll(path).compile.toIList);
+          });
+
+          expect(result, ioSucceeded(ilist([...first, ...second])));
+        },
+        testOn: 'vm',
+      );
+    });
+
+    group('metadata', () {
+      test(
+        'exists returns false for a non-existent path',
+        () {
+          expect(
+            tempDir().use((dir) => Files.exists(dir / 'ghost.txt')),
+            ioSucceeded(false),
+          );
+        },
+        testOn: 'vm',
+      );
+
+      test(
+        'exists returns true for a created file',
+        () {
+          expect(
+            Files.tempFile.use(Files.exists),
+            ioSucceeded(true),
+          );
+        },
+        testOn: 'vm',
+      );
+
+      test('size returns the number of bytes written', () {
+        const bytes = [10, 20, 30, 40, 50];
+
+        final result = Files.tempFile.use(
+          (path) => Rill.emits(
+            bytes,
+          ).through(Files.writeAll(path)).compile.drain.productR(() => Files.size(path)),
+        );
+
+        expect(result, ioSucceeded(5));
+      }, testOn: 'vm');
+
+      test(
+        'isRegularFile is true for a file and false for a directory',
+        () {
+          final result = Files.tempFile.use((filePath) {
+            return tempDir().use((dirPath) {
+              return Files.isRegularFile(filePath).product(Files.isRegularFile(dirPath));
+            });
+          });
+
+          expect(result, ioSucceeded((true, false)));
+        },
+        testOn: 'vm',
+      );
+
+      test(
+        'isDirectory is true for a directory and false for a file',
+        () {
+          final result = tempDir().use((dirPath) {
+            return Files.tempFile.use((filePath) {
+              return Files.isDirectory(dirPath).product(Files.isDirectory(filePath));
+            });
+          });
+
+          expect(result, ioSucceeded((true, false)));
+        },
+        testOn: 'vm',
+      );
+    });
+
+    group('file operations', () {
+      test(
+        'copy duplicates file content',
+        () {
+          const bytes = [7, 8, 9];
+
+          final result = tempDir().use((dir) {
+            final src = dir / 'src.bin';
+            final dst = dir / 'dst.bin';
+
+            return Rill.emits(bytes)
+                .through(Files.writeAll(src))
+                .compile
+                .drain
+                .productR(() => Files.copy(src, dst))
+                .productR(() => Files.readAll(dst).compile.toIList);
+          });
+
+          expect(result, ioSucceeded(ilist(bytes)));
+        },
+        testOn: 'vm',
+      );
+
+      test(
+        'move relocates file; source is absent, target has content',
+        () {
+          const bytes = [1, 2, 3];
+
+          final result = tempDir().use((dir) {
+            final src = dir / 'src.bin';
+            final dst = dir / 'dst.bin';
+
+            return Rill.emits(bytes)
+                .through(Files.writeAll(src))
+                .compile
+                .drain
+                .productR(() => Files.move(src, dst))
+                .productR<(bool, IList<int>)>(
+                  () => Files.exists(src).product(Files.readAll(dst).compile.toIList),
+                );
+          });
+
+          expect(result, ioSucceeded((false, ilist(bytes))));
+        },
+        testOn: 'vm',
+      );
+
+      test(
+        'delete removes the file',
+        () {
+          final result = tempDir().use((dir) {
+            final file = dir / 'to-delete.txt';
+            return Files.createFile(
+              file,
+            ).productR(() => Files.delete(file)).productR(() => Files.exists(file));
+          });
+
+          expect(result, ioSucceeded(false));
+        },
+        testOn: 'vm',
+      );
+
+      test(
+        'deleteIfExists returns false when file does not exist',
+        () {
+          expect(
+            tempDir().use((dir) => Files.deleteIfExists(dir / 'nobody.txt')),
+            ioSucceeded(false),
+          );
+        },
+        testOn: 'vm',
+      );
+    });
+
+    group('directories', () {
+      test('createDirectory creates a directory', () {
+        final result = tempDir().use((parent) {
+          final newDir = parent / 'subdir';
+          return Files.createDirectory(newDir).productR(() => Files.isDirectory(newDir));
+        });
+
+        expect(result, ioSucceeded(true));
+      }, testOn: 'vm');
+
+      test(
+        'createDirectory with recursive creates nested directories',
+        () {
+          final result = tempDir().use((parent) {
+            final nested = parent / 'a' / 'b' / 'c';
+
+            return Files.createDirectory(
+              nested,
+              recursive: true,
+            ).productR(() => Files.isDirectory(nested));
+          });
+
+          expect(result, ioSucceeded(true));
+        },
+        testOn: 'vm',
+      );
+
+      test(
+        'list returns all entries in a directory',
+        () {
+          final result = tempDir()
+              .use((dir) {
+                return Files.createFile(dir / 'a.txt')
+                    .productR(() => Files.createFile(dir / 'b.txt'))
+                    .productR(() => Files.createFile(dir / 'c.txt'))
+                    .productR(() => Files.list(dir).compile.toIList);
+              })
+              .map((list) => list.length);
+
+          expect(result, ioSucceeded(3));
+        },
+        testOn: 'vm',
+      );
+    });
+
+    group('range read', () {
+      test('readRange reads the specified byte slice', () {
+        const bytes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+        final result = Files.tempFile.use((path) {
+          return Rill.emits(bytes)
+              .through(Files.writeAll(path))
+              .compile
+              .drain
+              .productR(
+                () => Files.readRange(path, start: 2, end: 6).compile.toIList,
+              );
+        });
+
+        expect(result, ioSucceeded(ilist([2, 3, 4, 5])));
+      }, testOn: 'vm');
+    });
+
+    group('cursors', () {
+      test(
+        'writeCursor and readCursor seek to the correct offset',
+        () {
+          final first = Chunk.fromList([10, 20, 30]);
+          final second = Chunk.fromList([40, 50, 60]);
+
+          final result = Files.tempFile
+              .use((path) {
+                return Files.writeCursor(path, Flags.Write)
+                    .use((cursor) {
+                      return cursor.write(first).flatMap((c2) => c2.write(second));
+                    })
+                    .productR(() {
+                      return Files.readCursor(path, Flags.Read).use((cursor) {
+                        return cursor.seek(3).read(3);
+                      });
+                    });
+              })
+              .map((opt) => opt.map((tuple) => tuple.$2));
+
+          expect(result, ioSucceeded(Some(second)));
+        },
+        testOn: 'vm',
+      );
+    });
+  });
+}

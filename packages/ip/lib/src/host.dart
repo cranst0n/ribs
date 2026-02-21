@@ -248,6 +248,9 @@ sealed class IpAddress extends Host {
 final class Ipv4Address extends IpAddress {
   Ipv4Address._(super._bytes);
 
+  static IO<IList<IpAddress>> loopback() =>
+      IpAddress.loopback().map((ifaces) => ifaces.filter((iface) => iface.version == IpVersion.v4));
+
   static Option<Ipv4Address> fromString(String value) {
     final trimmed = value.trim();
     final fields = trimmed.split('.');
@@ -392,6 +395,9 @@ final class Ipv4Address extends IpAddress {
 ///
 final class Ipv6Address extends IpAddress {
   const Ipv6Address._(super._bytes);
+
+  static IO<IList<IpAddress>> loopback() =>
+      IpAddress.loopback().map((ifaces) => ifaces.filter((iface) => iface.version == IpVersion.v6));
 
   static Option<Ipv6Address> fromString(String value) =>
       _fromNonMixedString(value).orElse(() => _fromMixedString(value));

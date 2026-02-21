@@ -1,12 +1,10 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
+import 'package:ribs_ip/src/dns_platform/dns_platform.dart';
 import 'package:ribs_ip/src/host.dart';
-import 'package:ribs_ip/src/platform/stub.dart'
-    if (dart.library.html) 'platform/web.dart'
-    if (dart.library.io) 'platform/native.dart';
 
 final class Dns {
-  static final PlatformImpl _platformImpl = PlatformImpl();
+  static final _platformImpl = DnsPlatform();
 
   static IO<IList<IpAddress>> loopback() => _platformImpl.loopback();
 
