@@ -233,23 +233,42 @@ sealed class ByteVector {
     } else if (n1 == 0) {
       return this;
     } else {
-      // TODO: tailrec
-      ByteVector go(ByteVector cur, int n1, IList<ByteVector> accR) {
-        switch (cur) {
-          case _Chunk(bytes: final bs):
-            return accR.foldLeft(_Chunk(bs.drop(n1)), (a, b) => a.concat(b).unbuffer());
-          case _Append(left: final l, right: final r):
-            return n1 > l.size ? go(r, n1 - l.size, accR) : go(l, n1, accR.prepended(r));
-          case final _Buffer b:
-            return n1 > b.hd.size
-                ? go(b.lastBytes, n1 - b.hd.size, accR)
-                : go(b.hd, n1, accR.prepended(b.lastBytes));
-          case final _Chunks c:
-            return go(c.chunks, n1, accR);
+      ByteVector go(ByteVector cur, int n1) {
+        var currentCur = cur;
+        var currentN1 = n1;
+        final stack = <ByteVector>[];
+
+        while (true) {
+          switch (currentCur) {
+            case _Chunk(bytes: final bs):
+              var result = _Chunk(bs.drop(currentN1)) as ByteVector;
+              for (int i = stack.length - 1; i >= 0; i--) {
+                result = result.concat(stack[i]).unbuffer();
+              }
+              return result;
+            case _Append(left: final l, right: final r):
+              if (currentN1 > l.size) {
+                currentCur = r;
+                currentN1 -= l.size;
+              } else {
+                currentCur = l;
+                stack.add(r);
+              }
+            case final _Buffer b:
+              if (currentN1 > b.hd.size) {
+                currentCur = b.lastBytes;
+                currentN1 -= b.hd.size;
+              } else {
+                currentCur = b.hd;
+                stack.add(b.lastBytes);
+              }
+            case final _Chunks c:
+              currentCur = c.chunks;
+          }
         }
       }
 
-      return go(this, n1, nil());
+      return go(this, n1);
     }
   }
 
@@ -274,21 +293,28 @@ sealed class ByteVector {
     } else if (n1 == 0) {
       return ByteVector.empty;
     } else {
-      // TODO: tailrec
       ByteVector go(ByteVector accL, ByteVector cur, int n1) {
-        switch (cur) {
-          case _Chunk(bytes: final bs):
-            return accL.concat(_Chunk(bs.take(n1)));
-          case _Append(left: final l, right: final r):
-            if (n1 > l.size) {
-              return go(accL.concat(l), r, n1 - l.size);
-            } else {
-              return go(accL, l, n1);
-            }
-          case final _Chunks c:
-            return go(accL, c.chunks, n1);
-          case final _Buffer b:
-            return go(accL, b.unbuffer(), n1);
+        var currentAccL = accL;
+        var currentCur = cur;
+        var currentN1 = n1;
+
+        while (true) {
+          switch (currentCur) {
+            case _Chunk(bytes: final bs):
+              return currentAccL.concat(_Chunk(bs.take(currentN1)));
+            case _Append(left: final l, right: final r):
+              if (currentN1 > l.size) {
+                currentAccL = currentAccL.concat(l);
+                currentCur = r;
+                currentN1 -= l.size;
+              } else {
+                currentCur = l;
+              }
+            case final _Chunks c:
+              currentCur = c.chunks;
+            case final _Buffer b:
+              currentCur = b.unbuffer();
+          }
         }
       }
 
@@ -802,18 +828,24 @@ final class _Chunks extends ByteVector {
     } else if (isEmpty) {
       return other;
     } else {
-      // TODO: tailrec
       ByteVector go(_Append chunks, ByteVector last) {
-        final lastN = last.size;
+        var currentChunks = chunks;
+        var currentLast = last;
 
-        if (lastN >= chunks.size || lastN * 2 <= chunks.right.size) {
-          return _Chunks(_Append(chunks, last));
-        } else {
-          switch (chunks.left) {
-            case final _Append left:
-              return go(left, _Append(chunks.right, last));
-            default:
-              return _Chunks(_Append(chunks, last));
+        while (true) {
+          final lastN = currentLast.size;
+
+          if (lastN >= currentChunks.size || lastN * 2 <= currentChunks.right.size) {
+            return _Chunks(_Append(currentChunks, currentLast));
+          } else {
+            switch (currentChunks.left) {
+              case final _Append left:
+                final right = currentChunks.right;
+                currentChunks = left;
+                currentLast = _Append(right, currentLast);
+              default:
+                return _Chunks(_Append(currentChunks, currentLast));
+            }
           }
         }
       }
