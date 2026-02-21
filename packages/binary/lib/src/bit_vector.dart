@@ -571,6 +571,9 @@ sealed class BitVector implements Comparable<BitVector> {
             currentB = rem.prepended(r).prepended(l);
           case final _Chunks c:
             currentB = rem.prepended(c.chunks.right).prepended(c.chunks.left);
+          case final _Buffer b:
+            currentB = rem;
+            currentAcc = currentAcc.appended(b.unbuffer().align());
         }
       }
 
@@ -629,6 +632,8 @@ sealed class BitVector implements Comparable<BitVector> {
             currentCont = tail.prepended(s.underlying);
           case final _Chunks c:
             currentCont = tail.prepended(c.chunks);
+          case final _Buffer b:
+            currentCont = tail.prepended(b.unbuffer());
         }
       }
 
@@ -637,6 +642,21 @@ sealed class BitVector implements Comparable<BitVector> {
 
     return go(ivec([this]));
   }
+
+  BitVector bufferBy([int chunkSizeInBits = 8192]) {
+    switch (this) {
+      case final _Buffer b:
+        if (b.lastChunk.length * 8 >= chunkSizeInBits) {
+          return b;
+        } else {
+          return b.rebuffer(chunkSizeInBits);
+        }
+      default:
+        return _Buffer(this, Uint8List((chunkSizeInBits + 7) ~/ 8), 0);
+    }
+  }
+
+  BitVector unbuffer() => this;
 
   Uint8List toByteArray() => bytes.toByteArray();
 
@@ -859,6 +879,7 @@ sealed class BitVector implements Comparable<BitVector> {
       final _Drop d => _Drop(d.underlying._mapBytes(f).compact(), d.offset),
       final _Suspend s => _Suspend(() => s.underlying._mapBytes(f)),
       final _Chunks c => _Chunks(_Append(c.chunks.left._mapBytes(f), c.chunks.right._mapBytes(f))),
+      final _Buffer b => b.unbuffer()._mapBytes(f),
     };
   }
 
@@ -1211,6 +1232,141 @@ final class _Chunks extends BitVector {
 
   @override
   int getByte(int n) => chunks.getByte(n);
+}
+
+final class _Buffer extends BitVector {
+  final BitVector hd;
+  final Uint8List lastChunk;
+  final int lastSize; // in bits
+
+  _Buffer(this.hd, this.lastChunk, this.lastSize);
+
+  @override
+  bool get(int index) {
+    if (index < hd.size) {
+      return hd.get(index);
+    } else {
+      final off = index - hd.size;
+      final byteIndex = off ~/ 8;
+      final bitIndex = off % 8;
+      return (lastChunk[byteIndex] & (1 << (7 - bitIndex))) != 0;
+    }
+  }
+
+  @override
+  int getByte(int n) {
+    if (n < hd.size ~/ 8) {
+      return hd.getByte(n);
+    } else if (hd.size % 8 == 0 && n >= hd.size ~/ 8 && n < (hd.size + lastSize) ~/ 8) {
+      return lastChunk[n - hd.size ~/ 8];
+    } else {
+      return drop(n * 8).take(8).align().getByte(0);
+    }
+  }
+
+  @override
+  int get size => hd.size + lastSize;
+
+  @override
+  bool sizeLessThan(int n) => size < n;
+
+  @override
+  BitVector take(int n) => n <= hd.size ? hd.take(n) : hd.concat(lastBytes.take(n - hd.size));
+
+  @override
+  BitVector drop(int n) =>
+      n <= hd.size
+          ? _Buffer(hd.drop(n), lastChunk, lastSize)
+          : unbuffer().drop(n).bufferBy(lastChunk.length * 8);
+
+  @override
+  BitVector append(bool high) {
+    if (lastSize < lastChunk.length * 8) {
+      final byteIndex = lastSize ~/ 8;
+      final bitIndex = lastSize % 8;
+      if (high) {
+        lastChunk[byteIndex] |= 1 << (7 - bitIndex);
+      } else {
+        lastChunk[byteIndex] &= ~(1 << (7 - bitIndex));
+      }
+      return _Buffer(hd, lastChunk, lastSize + 1);
+    } else {
+      return _Buffer(unbuffer(), Uint8List(lastChunk.length), 0).append(high);
+    }
+  }
+
+  @override
+  BitVector concat(BitVector other) {
+    if (other.isEmpty) return this;
+    if (isEmpty) return other;
+
+    if (lastSize + other.size <= lastChunk.length * 8) {
+      if (lastSize % 8 == 0 && other.size % 8 == 0) {
+        other.bytes.copyToArray(lastChunk, lastSize ~/ 8);
+        return _Buffer(hd, lastChunk, lastSize + other.size);
+      } else {
+        var ls = lastSize;
+        for (var i = 0; i < other.size; i++) {
+          final bit = other.get(i);
+          final byteIndex = ls ~/ 8;
+          final bitIndex = ls % 8;
+          if (bit) {
+            lastChunk[byteIndex] |= 1 << (7 - bitIndex);
+          } else {
+            lastChunk[byteIndex] &= ~(1 << (7 - bitIndex));
+          }
+          ls += 1;
+        }
+        return _Buffer(hd, lastChunk, ls);
+      }
+    } else if (lastSize == 0) {
+      return _Buffer(hd.concat(other).unbuffer(), lastChunk, lastSize);
+    } else {
+      return _Buffer(unbuffer(), Uint8List(lastChunk.length), 0).concat(other);
+    }
+  }
+
+  BitVector get lastBytes => BitVector.view(lastChunk).take(lastSize);
+
+  @override
+  BitVector unbuffer() {
+    if (lastSize == 0) return hd;
+    if (lastSize * 2 < lastChunk.length * 8) {
+      return hd.concat(lastBytes.copy());
+    } else {
+      return hd.concat(lastBytes);
+    }
+  }
+
+  _Buffer rebuffer(int chunkSizeInBits) {
+    final bytesNeeded = (chunkSizeInBits + 7) ~/ 8;
+    assert(bytesNeeded > lastChunk.length);
+    final lastChunk2 = Uint8List(bytesNeeded);
+    lastChunk2.setRange(0, lastChunk.length, lastChunk);
+    return _Buffer(hd, lastChunk2, lastSize);
+  }
+
+  @override
+  _Bytes align() => unbuffer().align();
+
+  @override
+  BitVector update(int n, bool high) {
+    if (n < hd.size) {
+      return _Buffer(hd.update(n, high), lastChunk, lastSize);
+    } else {
+      final off = n - hd.size;
+      final byteIndex = off ~/ 8;
+      final bitIndex = off % 8;
+
+      final newChunk = Uint8List.fromList(lastChunk);
+      if (high) {
+        newChunk[byteIndex] |= 1 << (7 - bitIndex);
+      } else {
+        newChunk[byteIndex] &= ~(1 << (7 - bitIndex));
+      }
+      return _Buffer(hd, newChunk, lastSize);
+    }
+  }
 }
 
 final class _Drop extends BitVector {
