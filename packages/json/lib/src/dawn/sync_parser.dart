@@ -8,13 +8,13 @@ abstract class SyncParser extends Parser {
     int j = i;
 
     while (!atEof(j)) {
-      switch (at(j)) {
-        case '\n':
+      switch (atCodeUnit(j)) {
+        case 10: // '\n'
           newline(j);
           j += 1;
-        case ' ':
-        case '\t':
-        case '\r':
+        case 32: // ' '
+        case 9: // '\t'
+        case 13: // '\r'
           j += 1;
         default:
           die(j, 'expected whitespace or eof');

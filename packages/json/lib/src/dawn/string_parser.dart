@@ -14,6 +14,9 @@ class StringParser extends SyncParser with StringBasedParser {
   String at(int i) => s.substring(i, i + 1);
 
   @override
+  int atCodeUnit(int i) => s.codeUnitAt(i);
+
+  @override
   bool atEof(int i) => i == s.length;
 
   @override

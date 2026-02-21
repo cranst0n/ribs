@@ -21,6 +21,9 @@ final class ByteDataParser extends SyncParser with ByteBasedParser {
   String at(int i) => String.fromCharCode(src[i + _start]);
 
   @override
+  int atCodeUnit(int i) => src[i + _start];
+
+  @override
   bool atEof(int i) => i >= _limit;
 
   @override

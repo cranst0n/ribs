@@ -41,6 +41,8 @@ abstract class Parser {
 
   String at(int i);
 
+  int atCodeUnit(int i);
+
   String atRange(int i, int j);
 
   bool atEof(int i);
@@ -105,56 +107,62 @@ abstract class Parser {
 
   int _parseNum(int i, FContext ctxt) {
     int j = i;
-    String c = at(j);
+    int c = atCodeUnit(j);
     int decIndex = -1;
     int expIndex = -1;
 
-    if (c == '-') {
+    if (c == 45) {
+      // '-'
       j += 1;
-      c = at(j);
+      c = atCodeUnit(j);
     }
 
-    if (c == '0') {
+    if (c == 48) {
+      // '0'
       j += 1;
-      c = at(j);
-    } else if ('1' <= c && c <= '9') {
+      c = atCodeUnit(j);
+    } else if (49 <= c && c <= 57) {
+      // '1' - '9'
       do {
         j += 1;
-        c = at(j);
-      } while ('0' <= c && c <= '9');
+        c = atCodeUnit(j);
+      } while (48 <= c && c <= 57);
     } else {
       die(i, 'expected digit');
     }
 
-    if (c == '.') {
+    if (c == 46) {
+      // '.'
       decIndex = j - i;
       j += 1;
-      c = at(j);
+      c = atCodeUnit(j);
 
-      if ('0' <= c && c <= '9') {
+      if (48 <= c && c <= 57) {
         do {
           j += 1;
-          c = at(j);
-        } while ('0' <= c && c <= '9');
+          c = atCodeUnit(j);
+        } while (48 <= c && c <= 57);
       } else {
         die(i, 'expected digit');
       }
     }
 
-    if (c == 'e' || c == 'E') {
+    if (c == 101 || c == 69) {
+      // 'e' or 'E'
       expIndex = j - i;
       j += 1;
-      c = at(j);
+      c = atCodeUnit(j);
 
-      if (c == '+' || c == '-') {
+      if (c == 43 || c == 45) {
+        // '+' or '-'
         j += 1;
-        c = at(j);
+        c = atCodeUnit(j);
       }
-      if ('0' <= c && c <= '9') {
+      if (48 <= c && c <= 57) {
         do {
           j += 1;
-          c = at(j);
-        } while ('0' <= c && c <= '9');
+          c = atCodeUnit(j);
+        } while (48 <= c && c <= 57);
       } else {
         die(i, 'expected digit');
       }
@@ -167,24 +175,27 @@ abstract class Parser {
 
   int _parseNumSlow(int i, FContext ctxt) {
     int j = i;
-    String c = at(j);
+    int c = atCodeUnit(j);
     int decIndex = -1;
     int expIndex = -1;
 
-    if (c == '-') {
+    if (c == 45) {
+      // '-'
       // any valid input will require at least one digit after -
       j += 1;
-      c = at(j);
+      c = atCodeUnit(j);
     }
 
-    if (c == '0') {
+    if (c == 48) {
+      // '0'
       j += 1;
       if (atEof(j)) {
         ctxt.addValueAt(_jnum(atRange(i, j), decIndex, expIndex), i);
         return j;
       }
-      c = at(j);
-    } else if ('1' <= c && c <= '9') {
+      c = atCodeUnit(j);
+    } else if (49 <= c && c <= 57) {
+      // '1' - '9'
       do {
         j += 1;
 
@@ -193,19 +204,20 @@ abstract class Parser {
           return j;
         }
 
-        c = at(j);
-      } while ('0' <= c && c <= '9');
+        c = atCodeUnit(j);
+      } while (48 <= c && c <= 57);
     } else {
       die(i, 'expected digit');
     }
 
-    if (c == '.') {
+    if (c == 46) {
+      // '.'
       // any valid input will require at least one digit after .
       decIndex = j - i;
       j += 1;
-      c = at(j);
+      c = atCodeUnit(j);
 
-      if ('0' <= c && c <= '9') {
+      if (48 <= c && c <= 57) {
         do {
           j += 1;
 
@@ -213,25 +225,27 @@ abstract class Parser {
             ctxt.addValueAt(_jnum(atRange(i, j), decIndex, expIndex), i);
             return j;
           }
-          c = at(j);
-        } while ('0' <= c && c <= '9');
+          c = atCodeUnit(j);
+        } while (48 <= c && c <= 57);
       } else {
         die(i, 'expected digit');
       }
     }
 
-    if (c == 'e' || c == 'E') {
+    if (c == 101 || c == 69) {
+      // 'e' or 'E'
       // any valid input will require at least one digit after e, e+, etc
       expIndex = j - i;
       j += 1;
-      c = at(j);
+      c = atCodeUnit(j);
 
-      if (c == '+' || c == '-') {
+      if (c == 43 || c == 45) {
+        // '+' or '-'
         j += 1;
-        c = at(j);
+        c = atCodeUnit(j);
       }
 
-      if ('0' <= c && c <= '9') {
+      if (48 <= c && c <= 57) {
         do {
           j += 1;
 
@@ -239,8 +253,8 @@ abstract class Parser {
             ctxt.addValueAt(_jnum(atRange(i, j), decIndex, expIndex), i);
             return j;
           }
-          c = at(j);
-        } while ('0' <= c && c <= '9');
+          c = atCodeUnit(j);
+        } while (48 <= c && c <= 57);
       } else {
         die(i, 'expected digit');
       }
@@ -272,7 +286,9 @@ abstract class Parser {
   int parseString(int i, FContext ctxt);
 
   Json _parseTrue(int i) {
-    if (at(i + 1) == 'r' && at(i + 2) == 'u' && at(i + 3) == 'e') {
+    if (atCodeUnit(i + 1) == 114 /* r */ &&
+        atCodeUnit(i + 2) == 117 /* u */ &&
+        atCodeUnit(i + 3) == 101 /* e */ ) {
       return Json.True;
     } else {
       die(i, 'expected true');
@@ -280,7 +296,10 @@ abstract class Parser {
   }
 
   Json _parseFalse(int i) {
-    if (at(i + 1) == 'a' && at(i + 2) == 'l' && at(i + 3) == 's' && at(i + 4) == 'e') {
+    if (atCodeUnit(i + 1) == 97 /* a */ &&
+        atCodeUnit(i + 2) == 108 /* l */ &&
+        atCodeUnit(i + 3) == 115 /* s */ &&
+        atCodeUnit(i + 4) == 101 /* e */ ) {
       return Json.False;
     } else {
       die(i, 'expected false');
@@ -288,7 +307,9 @@ abstract class Parser {
   }
 
   Json _parseNull(int i) {
-    if (at(i + 1) == 'u' && at(i + 2) == 'l' && at(i + 3) == 'l') {
+    if (atCodeUnit(i + 1) == 117 /* u */ &&
+        atCodeUnit(i + 2) == 108 /* l */ &&
+        atCodeUnit(i + 3) == 108 /* l */ ) {
       return Json.Null;
     } else {
       die(i, 'expected null');
@@ -308,45 +329,45 @@ abstract class Parser {
     int n = i;
 
     while (true) {
-      switch (at(n)) {
-        case ' ':
-        case '\t':
-        case '\r':
+      switch (atCodeUnit(n)) {
+        case 32: // ' '
+        case 9: // '\t'
+        case 13: // '\r'
           n += 1;
-        case '\n':
+        case 10: // '\n'
           newline(i);
           n += 1;
-        case '[':
+        case 91: // '['
           return iparse(_ARRBEG, n + 1, FContext.array(n), nil());
-        case '{':
+        case 123: // '{'
           return iparse(_OBJBEG, n + 1, FContext.object(n), nil());
-        case '-':
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
+        case 45: // '-'
+        case 48: // '0'
+        case 49: // '1'
+        case 50: // '2'
+        case 51: // '3'
+        case 52: // '4'
+        case 53: // '5'
+        case 54: // '6'
+        case 55: // '7'
+        case 56: // '8'
+        case 57: // '9'
           {
             final ctxt = FContext.single(n);
             final j = _parseNumSlow(n, ctxt);
             return (ctxt.finishAt(n), j);
           }
-        case '"':
+        case 34: // '"'
           {
             final ctxt = FContext.single(n);
             final j = parseString(n, ctxt);
             return (ctxt.finishAt(n), j);
           }
-        case 't':
+        case 116: // 't'
           return (_parseTrue(n), n + 4);
-        case 'f':
+        case 102: // 'f'
           return (_parseFalse(n), n + 5);
-        case 'n':
+        case 110: // 'n'
           return (_parseNull(n), n + 4);
         default:
           die(n, 'expected json value');
@@ -370,52 +391,62 @@ abstract class Parser {
       final i = reset(iJ);
       checkpoint(iState, i, iContext, iStack);
 
-      final c = at(i);
+      final c = atCodeUnit(i);
 
       if (iStack.size > _MaxDepth) {
         die(i, 'JSON max depth ($_MaxDepth) exceeded');
       }
 
-      if (c == '\n') {
+      if (c == 10) {
+        // '\n'
         newline(i);
         iJ = i + 1;
-      } else if (c == ' ' || c == '\t' || c == '\r') {
+      } else if (c == 32 || c == 9 || c == 13) {
+        // ' ', '\t', '\r'
         iJ = i + 1;
       } else if (iState == _DATA) {
         // we are inside an object or array expecting to see data
-        if (c == '[') {
+        if (c == 91) {
+          // '['
           iState = _ARRBEG;
           iJ = i + 1;
           iStack = iStack.prepended(iContext);
           iContext = FContext.array(i);
-        } else if (c == '{') {
+        } else if (c == 123) {
+          // '{'
           iState = _OBJBEG;
           iJ = i + 1;
           iStack = iStack.prepended(iContext);
           iContext = FContext.object(i);
-        } else if ((c >= '0' && c <= '9') || c == '-') {
+        } else if ((c >= 48 && c <= 57) || c == 45) {
+          // '0'-'9' or '-'
           iJ = _parseNum(i, iContext);
           iState = iContext.isObject ? _OBJEND : _ARREND;
-        } else if (c == '"') {
+        } else if (c == 34) {
+          // '"'
           iJ = parseString(i, iContext);
           iState = iContext.isObject ? _OBJEND : _ARREND;
-        } else if (c == 't') {
+        } else if (c == 116) {
+          // 't'
           iContext.addValueAt(_parseTrue(i), i);
           iState = iContext.isObject ? _OBJEND : _ARREND;
           iJ = i + 4;
-        } else if (c == 'f') {
+        } else if (c == 102) {
+          // 'f'
           iContext.addValueAt(_parseFalse(i), i);
           iState = iContext.isObject ? _OBJEND : _ARREND;
           iJ = i + 5;
-        } else if (c == 'n') {
+        } else if (c == 110) {
+          // 'n'
           iContext.addValueAt(_parseNull(i), i);
           iState = iContext.isObject ? _OBJEND : _ARREND;
           iJ = i + 4;
         } else {
           die(i, 'expected json value');
         }
-      } else if ((c == ']' && (iState == _ARREND || iState == _ARRBEG)) ||
-          (c == '}' && (iState == _OBJEND || iState == _OBJBEG))) {
+      } else if ((c == 93 && (iState == _ARREND || iState == _ARRBEG)) || // ']'
+          (c == 125 && (iState == _OBJEND || iState == _OBJBEG))) {
+        // '}'
         // we are inside an array or object and have seen a key or a closing
         // brace, respectively.
         if (iStack.isEmpty) {
@@ -431,7 +462,8 @@ abstract class Parser {
         }
       } else if (iState == _KEY) {
         // we are in an object expecting to see a key.
-        if (c == '"') {
+        if (c == 34) {
+          // '"'
           iJ = parseString(i, iContext);
           iState = _SEP;
         } else {
@@ -439,7 +471,8 @@ abstract class Parser {
         }
       } else if (iState == _SEP) {
         // we are in an object just after a key, expecting to see a colon.
-        if (c == ':') {
+        if (c == 58) {
+          // ':'
           iState = _DATA;
           iJ = i + 1;
         } else {
@@ -447,7 +480,8 @@ abstract class Parser {
         }
       } else if (iState == _ARREND) {
         // we are in an array, expecting to see a comma (before more data).
-        if (c == ',') {
+        if (c == 44) {
+          // ','
           iState = _DATA;
           iJ = i + 1;
         } else {
@@ -455,7 +489,8 @@ abstract class Parser {
         }
       } else if (iState == _OBJEND) {
         // we are in an object, expecting to see a comma (before more data).
-        if (c == ',') {
+        if (c == 44) {
+          // ','
           iState = _KEY;
           iJ = i + 1;
         } else {

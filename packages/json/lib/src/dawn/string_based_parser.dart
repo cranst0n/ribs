@@ -18,17 +18,19 @@ mixin StringBasedParser on Parser {
 
   int _parseStringSimple(int i, FContext ctxt) {
     var j = i;
-    var c = at(j);
+    var c = atCodeUnit(j);
 
-    while (c != '"') {
-      if (c < ' ') {
-        die(j, 'control char (${c.codeUnitAt(0)}) in string', chars: 1);
+    while (c != 34) {
+      // '"'
+      if (c < 32) {
+        // ' '
+        die(j, 'control char ($c) in string', chars: 1);
       }
 
-      if (c == '\\') return -1;
+      if (c == 92) return -1; // '\\'
 
       j += 1;
-      c = at(j);
+      c = atCodeUnit(j);
     }
 
     return j + 1;
@@ -41,39 +43,42 @@ mixin StringBasedParser on Parser {
 
     sb.clear();
 
-    var c = at(j);
+    var c = atCodeUnit(j);
 
-    while (c != '"') {
-      if (c < ' ') {
-        die(j, "control char (${c.codeUnitAt(0)}) in string", chars: 1);
-      } else if (c == '\\') {
-        switch (at(j + 1)) {
-          case 'b':
+    while (c != 34) {
+      // '"'
+      if (c < 32) {
+        // ' '
+        die(j, "control char ($c) in string", chars: 1);
+      } else if (c == 92) {
+        // '\\'
+        switch (atCodeUnit(j + 1)) {
+          case 98: // 'b'
             sb.write('\b');
             j += 2;
-          case 'f':
+          case 102: // 'f'
             sb.write('\f');
             j += 2;
-          case 'n':
+          case 110: // 'n'
             sb.write('\n');
             j += 2;
-          case 'r':
+          case 114: // 'r'
             sb.write('\r');
             j += 2;
-          case 't':
+          case 116: // 't'
             sb.write('\t');
             j += 2;
-          case '"':
+          case 34: // '"'
             sb.write('"');
             j += 2;
-          case '/':
+          case 47: // '/'
             sb.write('/');
             j += 2;
-          case '\\':
+          case 92: // '\\'
             sb.write('\\');
             j += 2;
           // if there's a problem then descape will explode
-          case 'u':
+          case 117: // 'u'
             final jj = j + 2;
             sb.write(descape(jj, atRange(jj, jj + 4)));
             j += 6;
@@ -86,12 +91,12 @@ mixin StringBasedParser on Parser {
         // we don't have to worry about surrogate pairs, since those
         // will all be in the ranges D800–DBFF (high surrogates) or
         // DC00–DFFF (low surrogates).
-        sb.write(c);
+        sb.writeCharCode(c);
         j += 1;
       }
 
       j = reset(j);
-      c = at(j);
+      c = atCodeUnit(j);
     }
 
     j += 1;

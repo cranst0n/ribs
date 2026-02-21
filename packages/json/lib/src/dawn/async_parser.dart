@@ -86,6 +86,9 @@ final class AsyncParser extends Parser with ByteBasedParser {
   String at(int i) => String.fromCharCode(byte(i));
 
   @override
+  int atCodeUnit(int i) => byte(i);
+
+  @override
   bool atEof(int i) => _done && i >= _len;
 
   @override
@@ -159,17 +162,17 @@ final class AsyncParser extends Parser with ByteBasedParser {
     try {
       while (true) {
         if (_state < 0) {
-          final b = at(_offset);
+          final b = atCodeUnit(_offset);
 
           switch (b) {
-            case '\n':
+            case 10: // '\n'
               newline(_offset);
               _offset += 1;
-            case ' ':
-            case '\t':
-            case '\r':
+            case 32: // ' '
+            case 9: // '\t'
+            case 13: // '\r'
               _offset += 1;
-            case '[':
+            case 91: // '['
               if (_state == _ASYNC_PRESTART) {
                 _offset += 1;
                 _state = _ASYNC_START;
@@ -185,7 +188,7 @@ final class AsyncParser extends Parser with ByteBasedParser {
               } else {
                 _state = 0;
               }
-            case ',':
+            case 44: // ','
               if (_state == _ASYNC_POSTVAL) {
                 _offset += 1;
                 _state = _ASYNC_PREVAL;
@@ -194,7 +197,7 @@ final class AsyncParser extends Parser with ByteBasedParser {
               } else {
                 die(_offset, 'expected json value');
               }
-            case ']':
+            case 93: // ']'
               if (_state == _ASYNC_POSTVAL || _state == _ASYNC_START) {
                 if (_streamMode > 0) {
                   _offset += 1;
