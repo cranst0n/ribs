@@ -857,48 +857,52 @@ void main() {
     expect(r, producesUnordered(sList.map(f)));
   });
 
-  test('merge', () {
-    final rillA = Rill.range(0, 5);
-    final rillB = Rill.range(5, 10);
+  group('merge', () {
+    test('delayed', () async {
+      final rillA = Rill.range(0, 5, chunkSize: 1).evalTap((_) => IO.sleep(75.milliseconds));
+      final rillB = Rill.range(5, 10, chunkSize: 1).evalTap((_) => IO.sleep(200.milliseconds));
 
-    expect(
-      rillA.merge(rillB).take(10),
-      producesInOrder([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),
-    );
+      final test = Ticker.ticked(rillA.merge(rillB).compile.toList)..tickAll();
 
-    expect(
-      rillA.drop(2).merge(rillB.take(3)).take(10),
-      producesInOrder([2, 3, 4, 5, 6, 7]),
-    );
+      expect(await test.outcome, Outcome.succeeded(ilist([0, 1, 5, 2, 3, 4, 6, 7, 8, 9])));
+    });
 
-    expect(
-      rillA.drop(1).merge(rillB.drop(2)).drop(3),
-      producesInOrder([4, 7, 8, 9]),
-    );
-  });
+    test('merge - error propogation (right)', () async {
+      final failure = Rill.pure(42).delayBy(200.milliseconds).append(() => Rill.raiseError('BOOM'));
+      final infinite = Rill.repeatEval(IO.pure(0).delayBy(50.milliseconds));
 
-  test('merge - error propogation', () async {
-    final failure = Rill.pure(42).delayBy(200.milliseconds).append(() => Rill.raiseError('BOOM'));
-    final infinite = Rill.repeatEval(IO.pure(0).delayBy(50.milliseconds));
+      final rightFailure = await failure.merge(infinite).compile.drain.unsafeRunFutureOutcome();
 
-    final outcome = await failure.merge(infinite).compile.drain.unsafeRunFutureOutcome();
+      rightFailure.fold(
+        () => fail('merge should end in error'),
+        (err, _) => expect(err, 'BOOM'),
+        (_) => fail('merge should end in error'),
+      );
+    });
 
-    outcome.fold(
-      () => fail('merge should end in error'),
-      (err, _) => expect(err, 'BOOM'),
-      (_) => fail('merge should end in error'),
-    );
-  });
+    test('merge - error propogation (left)', () async {
+      final failure = Rill.pure(42).delayBy(200.milliseconds).append(() => Rill.raiseError('BOOM'));
+      final infinite = Rill.repeatEval(IO.pure(0).delayBy(50.milliseconds));
 
-  test('merge - hangs', () {
-    final full = Rill.constant(42).evalTap((_) => IO.cede);
+      final leftFailure = await infinite.merge(failure).compile.drain.unsafeRunFutureOutcome();
 
-    final hang = Rill.repeatEval(IO.never<int>());
-    final hang2 = full.drain();
+      leftFailure.fold(
+        () => fail('merge should end in error'),
+        (err, _) => expect(err, 'BOOM'),
+        (_) => fail('merge should end in error'),
+      );
+    });
 
-    expect(full.merge(hang).take(1), producesOnly(42));
-    expect(full.merge(hang2).take(1), producesOnly(42));
-    expect(hang.merge(full).take(1), producesOnly(42));
+    test('merge - hangs', () {
+      final full = Rill.constant(42).evalTap((_) => IO.cede);
+
+      final hang = Rill.repeatEval(IO.never<int>());
+      final hang2 = full.drain();
+
+      expect(full.merge(hang).take(1), producesOnly(42));
+      expect(full.merge(hang2).take(1), producesOnly(42));
+      expect(hang.merge(full).take(1), producesOnly(42));
+    });
   });
 
   test('mergeHaltBoth', () {
@@ -1020,7 +1024,7 @@ void main() {
 
     final s = Rill.repeatEval(IO.sleep(150.milliseconds).as(1)).interruptAfter(1500.milliseconds);
 
-    expect(s.pauseWhen(signal).take(5), producesInOrder([1, 1, 1, 1, 1]));
+    expect(s.pauseWhen(signal), producesInOrder([1, 1, 1]));
   });
 
   test('range', () {
@@ -1249,6 +1253,44 @@ void main() {
         chunk([10]),
       ]),
     );
+  });
+
+  group('switchMap', () {
+    test('basic', () async {
+      Rill<String> inner(int n) =>
+          Rill.awakeEvery(250.milliseconds).zipWithIndex().map((t) => '$n-${t.$2}').take(5);
+
+      final outer = Rill.awakeEvery(1.second).zipWithIndex().map((t) => t.$2).take(5);
+
+      final ticked = Ticker.ticked(outer.switchMap(inner).compile.toList)..tickAll();
+      final result = await ticked.outcome;
+
+      final expected = ilist([
+        '0-0',
+        '0-1',
+        '0-2',
+        '0-3',
+        '1-0',
+        '1-1',
+        '1-2',
+        '1-3',
+        '2-0',
+        '2-1',
+        '2-2',
+        '2-3',
+        '3-0',
+        '3-1',
+        '3-2',
+        '3-3',
+        '4-0',
+        '4-1',
+        '4-2',
+        '4-3',
+        '4-4',
+      ]);
+
+      expect(result, Outcome.succeeded(expected));
+    });
   });
 
   test('take', () {

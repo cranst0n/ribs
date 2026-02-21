@@ -15,7 +15,7 @@ mixin Channel<A> {
 
   IO<Either<ChannelClosed, bool>> trySend(A a);
 
-  Rill<A> get stream;
+  Rill<A> get rill;
 
   IO<Either<ChannelClosed, Unit>> close();
 
@@ -128,7 +128,7 @@ final class _BoundedChannel<A> with Channel<A> {
   }
 
   @override
-  Rill<A> get stream => consumeLoop().rillNoScope;
+  Rill<A> get rill => consumeLoop().rillNoScope;
 
   @override
   IO<Either<ChannelClosed, bool>> trySend(A a) {

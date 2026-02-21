@@ -1011,20 +1011,40 @@ class Rill<O> {
     });
   }
 
-  Rill<O> interruptWhenTrue(Rill<bool> signal) {
-    final trigger = signal
-        .exists(identity)
-        .take(1)
-        .compile
-        .last
-        .flatMap(
-          (lastOpt) => lastOpt.fold(
-            () => IO.never<Unit>(),
-            (_) => IO.unit,
-          ),
-        );
+  Rill<O> interruptWhenTrue(Rill<bool> haltWhenTrue) {
+    final rillF = (
+      IO.deferred<Unit>(),
+      IO.deferred<Unit>(),
+      IO.deferred<Either<Object, Unit>>(),
+    ).mapN((
+      interruptL,
+      interruptR,
+      backResult,
+    ) {
+      final watch =
+          haltWhenTrue.exists((x) => x).interruptWhen(interruptR.value().attempt()).compile.drain;
 
-    return interruptWhen(trigger);
+      final wakeWatch =
+          watch.guaranteeCase((oc) {
+            final Either<Object, Unit> r = oc.fold(
+              () => Unit().asRight(),
+              (err, _) => err.asLeft(),
+              (_) => Unit().asRight(),
+            );
+
+            return backResult.complete(r).productR(() => interruptL.complete(Unit()).voided());
+          }).voidError();
+
+      final stopWatch = interruptR
+          .complete(Unit())
+          .productR(() => backResult.value().flatMap(IO.fromEither));
+
+      final backWatch = Rill.bracket(wakeWatch.start(), (_) => stopWatch);
+
+      return backWatch.flatMap((_) => interruptWhen(interruptL.value().attempt()));
+    });
+
+    return Rill.force(rillF);
   }
 
   static Pull<O, Unit> _interruptibleLoop<O>(Pull<O, Unit> original, IO<Unit> barrier) {
@@ -1108,71 +1128,95 @@ class Rill<O> {
 
   Rill<O> get mask => handleErrorWith((_) => Rill.empty());
 
-  Rill<O> merge(Rill<O> that) {
-    Rill<O> consumeMergeQueue(Queue<Either<Object, Option<O>>> q) {
-      return Rill.eval(q.take()).flatMap((event) {
-        return event.fold(
-          (err) => Rill.raiseError(err),
-          (eventOpt) => eventOpt.fold(
-            () => Rill.empty(),
-            (element) => Rill.pure(element).append(() => consumeMergeQueue(q)),
-          ),
-        );
-      });
-    }
+  Rill<O> merge(Rill<O> that) => _merge(that, (s, fin) => Rill.exec<O>(fin).append(() => s));
 
-    return Rill.eval(Queue.unbounded<Either<Object, Option<O>>>()).flatMap((queue) {
-      return Rill.eval(Ref.of(2)).flatMap((activeCount) {
-        IO<Unit> run(Rill<O> s) {
-          return s
-              .map((o) => Some(o).asRight<Object>())
-              .evalMap(queue.offer)
+  Rill<O> mergeAndAwaitDownstream(Rill<O> that) => _merge(that, (s, fin) => s.onFinalize(fin));
+
+  Rill<O> _merge(
+    Rill<O> that,
+    Function2<Rill<O>, IO<Unit>, Rill<O>> f,
+  ) {
+    final rillF = SignallingRef.of<(MergeState, MergeState)>((none(), none())).flatMap((
+      bothStates,
+    ) {
+      return Channel.synchronous<Rill<O>>().flatMap((output) {
+        return IO.deferred<Unit>().map((stopDef) {
+          final signalStop = stopDef.complete(Unit()).voided();
+          final stop = stopDef.value().as(Unit().asRight<Object>());
+
+          IO<Unit> complete(Either<Object, Unit> result) {
+            return bothStates.update((current) {
+              return switch (current) {
+                (None(), None()) => (Some(result), none()),
+                (Some(:final value), None()) => (Option(value), Option(result)),
+                _ => throw 'Rill.merge_: impossible',
+              };
+            });
+          }
+
+          Option<Either<Object, Unit>> bothStopped((MergeState, MergeState) state) {
+            return switch (state) {
+              (Some(value: final r1), Some(value: final r2)) => Some(
+                r1.fold(
+                  (err1) => err1.asLeft(),
+                  (_) => r2.fold(
+                    (err2) => err2.asLeft(),
+                    (u) => u.asRight(),
+                  ),
+                ),
+              ),
+              _ => none(),
+            };
+          }
+
+          IO<Unit> run(Rill<O> s) {
+            return Semaphore.permits(1).flatMap((guard) {
+              IO<Unit> sendChunk(Chunk<O> chunk) => output
+                  .send(f(Rill.chunk(chunk), guard.release()))
+                  .productR(() => guard.acquire());
+
+              return Rill.exec<Unit>(guard.acquire())
+                  .append(() => s.chunks().foreach(sendChunk))
+                  .interruptWhen(stop)
+                  .compile
+                  .drain
+                  .attempt()
+                  .flatMap((r) {
+                    return r.fold(
+                      (_) => complete(r).productR(() => signalStop),
+                      (_) => complete(r),
+                    );
+                  });
+            });
+          }
+
+          final waitForBoth = bothStates.discrete
+              .collect(bothStopped)
+              .head
+              .rethrowError
               .compile
               .drain
-              .handleErrorWith(
-                (err) => queue.offer(err.asLeft()),
-              )
-              .guarantee(
-                activeCount.updateAndGet((n) => n - 1).flatMap((n) {
-                  return n == 0 ? queue.offer(none<O>().asRight()) : IO.unit;
-                }),
-              );
-        }
+              .guarantee(output.close().voided());
 
-        final runBoth = (run(this).start(), run(that).start()).tupled;
-        IO<Unit> cleanup((IOFiber<Unit>, IOFiber<Unit>) fibers) =>
-            fibers.$1.cancel().product(fibers.$2.cancel()).voided();
+          final setup = run(
+            this,
+          ).start().productR(() => run(that).start()).productR(() => waitForBoth.start());
 
-        return Rill.bracket(runBoth, cleanup).flatMap((_) {
-          return consumeMergeQueue(queue);
+          return Rill.bracket(
+            setup,
+            (wfb) => signalStop.productR(() => wfb.joinWithUnit()),
+          ).flatMap((_) {
+            return output.rill.flatten().interruptWhen(stop);
+          });
         });
       });
     });
+
+    return Rill.force(rillF);
   }
 
-  Rill<O> mergeHaltBoth(Rill<O> that) {
-    return Rill.eval(Queue.unbounded<Option<O>>()).flatMap((queue) {
-      IO<Unit> run(Rill<O> s) {
-        return s.map((o) => o.some).evalMap(queue.offer).compile.drain;
-      }
-
-      Rill<O> dequeueLoop(Queue<Option<O>> q) {
-        return Rill.eval(q.take()).flatMap((opt) {
-          return opt.fold(
-            () => Rill.empty(),
-            (item) => Rill.pure(item) + dequeueLoop(q),
-          );
-        });
-      }
-
-      final driver = IO.race(run(this), run(that)).guarantee(queue.offer(none()));
-
-      return Rill.bracket(
-        driver.start(),
-        (fiber) => fiber.cancel(),
-      ).flatMap((_) => dequeueLoop(queue));
-    });
-  }
+  Rill<O> mergeHaltBoth(Rill<O> that) =>
+      noneTerminate().merge(that.noneTerminate()).unNoneTerminate;
 
   Rill<O> mergeHaltL(Rill<O> that) =>
       noneTerminate().merge(that.map((o) => Option(o))).unNoneTerminate;
@@ -1248,38 +1292,25 @@ class Rill<O> {
   Rill<O2> parEvalMapUnorderedUnbounded<O2>(Function1<O, IO<O2>> f) =>
       parEvalMapUnordered(Integer.MaxValue, f);
 
-  Rill<O> pauseWhen(Rill<bool> signal) {
-    return Rill.eval(Semaphore.permits(1)).flatMap((gate) {
-      return Rill.eval(Ref.of(false)).flatMap((pausedState) {
-        final signalProcessor =
-            signal
-                .evalMap((shouldPause) {
-                  return pausedState.value().flatMap((isPaused) {
-                    if (isPaused == shouldPause) {
-                      return IO.unit;
-                    } else {
-                      return pausedState.setValue(shouldPause).flatMap((_) {
-                        // If pausing: drain the permit
-                        // If resuming: acquire the permit
-                        return shouldPause ? gate.acquire() : gate.release();
-                      });
-                    }
-                  });
-                })
-                .compile
-                .drain;
-
-        final gatedStream = chunks().flatMap((chunk) {
-          final wait = gate.acquire().flatMap((_) => gate.release());
-          return Rill.eval(wait).flatMap((_) => Rill.chunk(chunk));
-        });
-
-        return Rill.bracket(
-          signalProcessor.start(),
-          (fiber) => fiber.cancel(),
-        ).flatMap((_) => gatedStream);
-      });
+  Rill<O> pauseWhen(Rill<bool> pauseWhenTrue) {
+    return Rill.eval(SignallingRef.of(false)).flatMap((pauseSignal) {
+      return pauseWhenSignal(
+        pauseSignal,
+      ).mergeHaltBoth(pauseWhenTrue.foreach(pauseSignal.setValue));
     });
+  }
+
+  Rill<O> pauseWhenSignal(Signal<bool> pauseWhneTrue) {
+    final waitToResume = pauseWhneTrue.waitUntil((x) => !x);
+    final pauseIfNeeded = Rill.exec<O>(
+      pauseWhneTrue.value().flatMap((paused) => IO.whenA(paused, () => waitToResume)),
+    );
+
+    return pauseIfNeeded.append(
+      () => chunks().flatMap((chunk) {
+        return Rill.chunk(chunk).append(() => pauseIfNeeded);
+      }),
+    );
   }
 
   /// Access the Pull API for this Rill.
@@ -1480,65 +1511,36 @@ class Rill<O> {
   }
 
   Rill<O2> switchMap<O2>(Function1<O, Rill<O2>> f) {
-    return Rill.eval(Queue.unbounded<Either<Object, Option<O2>>>()).flatMap((queue) {
-      // track currently running fiber
-      return Rill.eval(Ref.of<Option<IOFiber<Unit>>>(none())).flatMap((activeFiber) {
-        IO<Unit> runInner(O element) {
-          return f(element)
-              .map((o2) => Right<Object, Option<O2>>(Some(o2)))
-              .evalMap(queue.offer)
-              .compile
-              .drain
-              .handleErrorWith((err) => queue.offer(Left(err)));
+    final IO<Rill<O2>> rillF = Semaphore.permits(1).flatMap((guard) {
+      return IO.ref(none<Deferred<Unit>>()).map((haltRef) {
+        Rill<O2> runInner(O o, Deferred<Unit> halt) {
+          return Rill.bracketFull(
+            (poll) => poll(guard.acquire()), // guard against parallel rills
+            (_, ec) {
+              return ec.fold(
+                () => guard.release(),
+                (_, _) => IO.unit, // on error don't start next stream
+                () => guard.release(),
+              );
+            },
+          ).flatMap((_) => f(o).interruptWhen(halt.value().attempt()));
         }
 
-        // outer consume / driver
-        final driver = evalMap((element) {
-              return activeFiber.value().flatMap((optFiber) {
-                final cancelPrevious = optFiber.fold(() => IO.unit, (fiber) => fiber.cancel());
-
-                return cancelPrevious.flatMap((_) {
-                  return runInner(element).start().flatMap((newFiber) {
-                    return activeFiber.setValue(Some(newFiber));
-                  });
-                });
-              });
-            }).compile.drain
-            .flatMap((_) {
-              // when outer finishes, wait for final inner to complete
-
-              return activeFiber.value().flatMap((optFiber) {
-                return optFiber.fold(
-                  () => IO.unit,
-                  (fiber) => fiber.join().voided(),
-                );
-              });
-            })
-            .handleErrorWith((err) => queue.offer(Left(err)))
-            .guarantee(queue.offer(Right(none())));
-
-        final cleanupInner = activeFiber.value().flatMap((optFiber) {
-          return optFiber.fold(() => IO.unit, (fiber) => fiber.cancel());
-        });
-
-        Rill<O2> consumeSwitchMap() {
-          return Rill.eval(queue.take()).flatMap((event) {
-            return event.fold(
-              (err) => Rill.raiseError(err),
-              (opt) => opt.fold(
-                () => Rill.empty(),
-                (o2) => Rill.emit(o2).append(consumeSwitchMap),
-              ),
-            );
+        IO<Rill<O2>> haltedF(O o) {
+          return IO.deferred<Unit>().flatMap((halt) {
+            return haltRef.getAndSet(halt.some).flatMap((prev) {
+              return prev
+                  .fold(() => IO.unit, (prev) => prev.complete(Unit()))
+                  .map((_) => runInner(o, halt));
+            });
           });
         }
 
-        return Rill.bracket(
-          driver.start(),
-          (driverFiber) => driverFiber.cancel().productL(() => cleanupInner),
-        ).flatMap((_) => consumeSwitchMap());
+        return evalMap(haltedF).parJoin(2);
       });
     });
+
+    return Rill.force(rillF);
   }
 
   Rill<O> get tail => drop(1);
@@ -1771,3 +1773,5 @@ class _DropNewest extends OverflowStrategy {
 class _Unbounded extends OverflowStrategy {
   const _Unbounded();
 }
+
+typedef MergeState = Option<Either<Object, Unit>>;
