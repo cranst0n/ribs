@@ -133,27 +133,31 @@ final class _SemaphoreImpl extends Semaphore {
 
   @override
   IO<Unit> releaseN(int n) {
-    // TODO: tailrec
-    (int, IQueue<_Request>, IQueue<_Request>) fulfil(
+    (int, IQueue<_Request>, IQueue<_Request>) fulfill(
       int n,
       IQueue<_Request> requests,
       IQueue<_Request> wakeup,
     ) {
-      final (req, tail) = requests.dequeue();
+      var currentN = n;
+      var currentRequests = requests;
+      var currentWakeup = wakeup;
 
-      if (n < req.n) {
-        // partially fulfil one request
-        // return (0, req.of(req.n - n) +: tail, wakeup);
-        return (0, tail.prepended(req.of(req.n - n)), wakeup);
-      } else {
-        // fulfil as many requests as `n` allows
-        final newN = n - req.n;
-        final newWakeup = wakeup.enqueue(req);
+      while (true) {
+        final (req, tail) = currentRequests.dequeue();
 
-        if (tail.isEmpty || newN == 0) {
-          return (newN, tail, newWakeup);
+        if (currentN < req.n) {
+          // partially fulfil one request
+          return (0, tail.prepended(req.of(req.n - currentN)), currentWakeup);
         } else {
-          return fulfil(newN, tail, newWakeup);
+          // fulfil as many requests as `n` allows
+          currentN = currentN - req.n;
+          currentWakeup = currentWakeup.enqueue(req);
+
+          if (tail.isEmpty || currentN == 0) {
+            return (currentN, tail, currentWakeup);
+          } else {
+            currentRequests = tail;
+          }
         }
       }
     }
@@ -165,7 +169,7 @@ final class _SemaphoreImpl extends Semaphore {
         if (currentState.waiting.isEmpty) {
           return (_State(currentState.permits + n, currentState.waiting), IO.unit);
         } else {
-          final (newN, waitingNow, wakeup) = fulfil(n, currentState.waiting, IQueue.empty());
+          final (newN, waitingNow, wakeup) = fulfill(n, currentState.waiting, IQueue.empty());
 
           return (_State(newN, waitingNow), wakeup.toIList().traverseIO_((req) => req.complete()));
         }
