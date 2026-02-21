@@ -80,15 +80,13 @@ abstract class HCursor extends ACursor {
   ACursor fail(CursorOp op) => FailedCursor(this, op);
 
   ACursor find(Function1<Json, bool> p) {
-    ACursor go(ACursor c) {
-      if (c is HCursor) {
-        return p(c.value) ? c : go(c.right());
-      } else {
-        return c;
-      }
-    }
+    var current = this as ACursor;
 
-    return go(this);
+    while (current is HCursor) {
+      if (p(current.value)) return current;
+      current = current.right();
+    }
+    return current;
   }
 
   @override
