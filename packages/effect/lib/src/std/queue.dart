@@ -39,21 +39,27 @@ abstract class Queue<A> {
   IO<Option<A>> tryTake();
 
   IO<IList<A>> tryTakeN(Option<int> maxN) {
-    // todo: tailrec
-    IO<IList<A>> loop(int i, int limit, IList<A> acc) {
-      if (i >= limit) {
-        return IO.pure(acc.reverse());
-      } else {
-        return tryTake().flatMap(
-          (a) => a.fold(
-            () => IO.pure(acc.reverse()),
-            (a) => loop(i + 1, limit, acc.prepended(a)),
-          ),
-        );
-      }
-    }
+    return IO.defer(() {
+      final limit = maxN.getOrElse(() => Integer.MaxValue);
+      if (limit <= 0) return IO.pure(nil());
 
-    return loop(0, maxN.getOrElse(() => Integer.MaxValue), nil());
+      var count = 0;
+      var acc = nil<A>();
+
+      return tryTake()
+          .flatMap((oa) {
+            return oa.fold(
+              () => IO.pure(false),
+              (a) {
+                acc = acc.prepended(a);
+                count++;
+                return IO.pure(count < limit);
+              },
+            );
+          })
+          .iterateWhile((b) => b)
+          .map((_) => acc.reverse());
+    });
   }
 }
 
