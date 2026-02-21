@@ -47,7 +47,7 @@ final class _Cede extends IO<Unit> {
 }
 
 final class _Delay<A> extends IO<A> {
-  final Fn0<A> thunk;
+  final Function0<A> thunk;
 
   const _Delay(this.thunk);
 

@@ -132,11 +132,11 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   /// Suspends the synchronous evaluation of [thunk] in [IO].
   static IO<A> delay<A>(Function0<A> thunk) => _delay(thunk).traced('delay');
-  static IO<A> _delay<A>(Function0<A> thunk) => _Delay(Fn0(thunk));
+  static IO<A> _delay<A>(Function0<A> thunk) => _Delay(thunk);
 
   /// Executes the given function, discarding any result.
   static IO<Unit> exec<A>(Function0<A> thunk) => _exec(thunk).traced('exec');
-  static IO<Unit> _exec<A>(Function0<A> thunk) => _Delay(Fn0(thunk))._voided();
+  static IO<Unit> _exec<A>(Function0<A> thunk) => _Delay(thunk)._voided();
 
   /// Creates an [IO] that returns the value or error of the underlying
   /// [CancelableOperation]. If new [IO] is canceled, the cancelation request

@@ -245,11 +245,7 @@ final class IOFiber<A> {
                 }
               default:
                 _conts.push(_AttemptK);
-
-                // Push these functions on for proper type tagging when
-                // running the continuation
-                _contData.push(Fn1<dynamic, Either<Object, dynamic>>((x) => attempt.right(x)));
-                _contData.push(Fn1<Object, Either<Object, dynamic>>((x) => attempt.left(x)));
+                _contData.push(attempt);
 
                 cur0 = attempt.ioa;
             }
@@ -460,33 +456,20 @@ final class IOFiber<A> {
         case _RunTerminusK:
           return _runTerminusSuccessK(result);
         case _MapK:
-          {
-            final fn = _contData.pop() as Fn1;
-            Object? error;
+          final fn = _contData.pop() as Fn1;
 
-            try {
-              result = fn(result);
-            } catch (e) {
-              error = e;
-            }
-
-            if (error != null) {
-              return _failed(error);
-            }
+          try {
+            result = fn(result);
+          } catch (e) {
+            return _failed(e);
           }
         case _FlatMapK:
-          {
-            final fn = _contData.pop() as Fn1;
-            dynamic transformed;
-            Object? error;
+          final fn = _contData.pop() as Fn1;
 
-            try {
-              transformed = fn(result);
-            } catch (e) {
-              error = e;
-            }
-
-            return error == null ? transformed as IO<dynamic> : _failed(error);
+          try {
+            return fn(result) as IO<dynamic>;
+          } catch (e) {
+            return _failed(e);
           }
         case _CancelationLoopK:
           return _cancelationLoopSuccessK();
@@ -499,9 +482,8 @@ final class IOFiber<A> {
         case _UnmaskK:
           _masks += 1;
         case _AttemptK:
-          _contData.pop(); // Discard left
-          final right = _contData.pop() as Fn1<dynamic, Either<Object, dynamic>>;
-          return _succeeded(right(result));
+          final attempt = _contData.pop() as _Attempt<dynamic>;
+          return _succeeded(attempt.right(result));
       }
     }
   }
@@ -535,9 +517,8 @@ final class IOFiber<A> {
         case _UnmaskK:
           _masks += 1;
         case _AttemptK:
-          final left = _contData.pop() as Fn1;
-          _contData.pop(); // Discard right
-          return _succeeded(left(error));
+          final attempt = _contData.pop() as _Attempt<dynamic>;
+          return _succeeded(attempt.left(error));
       }
     }
   }
@@ -622,6 +603,10 @@ final class IOFiber<A> {
     }
     doPrint("================================================\n");
   }
+}
+
+extension JoinWithUnitOps on IOFiber<Unit> {
+  IO<Unit> joinWithUnit() => joinWith(IO.unit);
 }
 
 const int _RunTerminusK = 0;
