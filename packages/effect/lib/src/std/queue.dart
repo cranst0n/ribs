@@ -112,22 +112,25 @@ final class _SyncQueue<A> extends Queue<A> {
             return (_SyncState(tail, st.takers), offerer.complete(true).as(value));
           } else {
             final removeListener = stateR.modify((st) {
-              // todo: tailrec
               (bool, ListQueue<Z>) filterFound<Z>(
                 ListQueue<Z> ins,
                 ListQueue<Z> outs,
               ) {
-                if (ins.isEmpty) {
-                  return (false, outs);
-                } else {
-                  final (head, tail) = ins.dequeue();
+                var currentIns = ins;
+                var currentOuts = outs;
+
+                while (currentIns.nonEmpty) {
+                  final (head, tail) = currentIns.dequeue();
 
                   if (head == latch) {
-                    return (true, outs.concat(tail));
+                    return (true, currentOuts.concat(tail));
                   } else {
-                    return filterFound(tail, outs.enqueue(head));
+                    currentIns = tail;
+                    currentOuts = currentOuts.enqueue(head);
                   }
                 }
+
+                return (false, currentOuts);
               }
 
               final (found, takers2) = filterFound(
