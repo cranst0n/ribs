@@ -214,13 +214,34 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   @override
   int get length {
-    int loop(_NonEmpty<A> head, IList<_NonEmpty<A>> tail, int acc) {
-      return switch (head) {
-        _Append(:final leftNE, :final rightNE) => loop(leftNE, tail.prepended(rightNE), acc),
-        final _Singleton<A> _ => tail.nonEmpty ? loop(tail.head, tail.tail, acc + 1) : acc + 1,
-        _Wrap<A>(:final seq) =>
-          tail.nonEmpty ? loop(tail.head, tail.tail, acc + seq.length) : acc + seq.length,
-      };
+    int loop(_NonEmpty<A> hd, IList<_NonEmpty<A>> tl, int acc) {
+      var currentHD = hd;
+      var currentTL = tl;
+      var currentAcc = acc;
+
+      while (true) {
+        switch (currentHD) {
+          case _Append(:final leftNE, :final rightNE):
+            currentHD = leftNE;
+            currentTL = currentTL.prepended(rightNE);
+          case final _Singleton<A> _:
+            currentAcc += 1;
+            if (currentTL.nonEmpty) {
+              currentHD = currentTL.head;
+              currentTL = currentTL.tail;
+            } else {
+              return currentAcc;
+            }
+          case _Wrap<A>(:final seq):
+            currentAcc += seq.length;
+            if (currentTL.nonEmpty) {
+              currentHD = currentTL.head;
+              currentTL = currentTL.tail;
+            } else {
+              return currentAcc;
+            }
+        }
+      }
     }
 
     return switch (this) {
