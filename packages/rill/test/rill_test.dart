@@ -16,13 +16,13 @@ extension<A> on Rill<A> {
 
 void main() {
   test('stack safety - stepPull deeply nested flatMap', () {
-    const n = 100000;
+    const n = 2000000;
     final test = Rill.chunk(Chunk.fill(n, 0)).flatMap((x) => Rill.emit(x + 1)).compile.drain;
     expect(test, ioSucceeded(Unit()));
   });
 
   test('stack safety - stepPull deeply nested flatMap with type change', () {
-    const n = 100000;
+    const n = 2000000;
     final test = Rill.chunk(Chunk.fill(n, 42)).flatMap((x) => Rill.emit('v=$x')).compile.count;
     expect(test, ioSucceeded(n));
   });
@@ -445,6 +445,15 @@ void main() {
   test('flatMap (2)', () {
     final rill = Rill.emits([1, 2, 3]).flatMap((x) => Rill.chunk(Chunk.fill(x, '$x')));
     expect(rill, producesInOrder(['1', '2', '2', '3', '3', '3']));
+  });
+
+  test('flatMap - huge chunk', () async {
+    final rill = Rill.chunk(
+      Chunk.fromList(List.generate(50000, (i) => i)),
+    ).flatMap((i) => Rill.emit(i));
+
+    final count = await rill.compile.count.unsafeRunFuture();
+    expect(count, 50000);
   });
 
   forAll('fold1', intRill, (r) async {

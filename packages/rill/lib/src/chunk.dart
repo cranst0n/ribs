@@ -427,15 +427,11 @@ class _ByteVectorChunk extends Chunk<int> {
   int operator [](int idx) => bv[idx];
 
   @override
-  Chunk<int> drop(int n) {
-    if (n <= 0) {
-      return this;
-    } else if (n >= size) {
-      return Chunk.empty();
-    } else {
-      return _ByteVectorChunk(bv.drop(n));
-    }
-  }
+  Chunk<int> drop(int n) => switch (n) {
+    final n when n <= 0 => this,
+    final n when n >= size => Chunk.empty(),
+    _ => _ByteVectorChunk(bv.drop(n)),
+  };
 
   @override
   int get size => bv.size;
@@ -470,10 +466,24 @@ class _SliceChunk<A> extends Chunk<A> {
   }
 
   @override
+  Chunk<A> drop(int n) => switch (n) {
+    final n when n <= 0 => this,
+    final n when n >= size => Chunk.empty(),
+    _ => _SliceChunk(underlying, offset + n, size - n),
+  };
+
+  @override
   int get size => _length;
 
   @override
   bool get isCompact => false;
+
+  @override
+  Chunk<A> take(int n) => switch (n) {
+    final n when n <= 0 => Chunk.empty(),
+    final n when n >= size => this,
+    _ => _SliceChunk(underlying, offset, n),
+  };
 
   @override
   List<A> toDartList() {

@@ -753,25 +753,8 @@ class Rill<O> {
     }).rillNoScope;
   }
 
-  Rill<O2> flatMap<O2>(Function1<O, Rill<O2>> f) => Rill.suspend(() {
-    // Implemented this way for stack safety
-    Pull<O2, Unit> loop(Rill<O> rill) {
-      return rill.pull.uncons.flatMap((hdtl) {
-        return hdtl.foldN(
-          () => Pull.done,
-          (hd, tl) {
-            final chunkPull = hd.foldLeft<Pull<O2, Unit>>(Pull.done, (acc, element) {
-              return acc.flatMap((_) => f(element).pull.echo);
-            });
-
-            return chunkPull.append(() => loop(tl));
-          },
-        );
-      });
-    }
-
-    return loop(this).rillNoScope;
-  });
+  Rill<O2> flatMap<O2>(Function1<O, Rill<O2>> f) =>
+      underlying.flatMapOutput((o) => f(o).underlying).rillNoScope;
 
   Rill<O2> fold<O2>(O2 z, Function2<O2, O, O2> f) =>
       pull.fold(z, f).flatMap(Pull.output1).rillNoScope;
