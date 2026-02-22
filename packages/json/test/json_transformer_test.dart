@@ -136,4 +136,16 @@ void main() {
           });
         });
   });
+
+  test('JsonTransformer instance can be reused across multiple streams', () async {
+    final transformer = JsonTransformer.strings(AsyncParserMode.unwrapArray);
+
+    final stream1 = Stream.fromIterable(['[1,2,3]']);
+    final res1 = await stream1.transform(transformer).toList();
+    expect(res1.length, 3);
+
+    final stream2 = Stream.fromIterable(['[4,5]']);
+    final res2 = await stream2.transform(transformer).toList();
+    expect(res2.length, 2);
+  });
 }
