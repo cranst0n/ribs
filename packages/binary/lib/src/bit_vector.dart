@@ -649,10 +649,10 @@ sealed class BitVector implements Comparable<BitVector> {
         if (b.lastChunk.length * 8 >= chunkSizeInBits) {
           return b;
         } else {
-          return b.rebuffer(chunkSizeInBits);
+          return b.unbuffer().bufferBy(chunkSizeInBits);
         }
       default:
-        return _Buffer(this, Uint8List((chunkSizeInBits + 7) ~/ 8), 0);
+        return _Buffer(this, Uint8List((chunkSizeInBits + 7) ~/ 8), 0, _BufferState(0));
     }
   }
 
@@ -1238,8 +1238,9 @@ final class _Buffer extends BitVector {
   final BitVector hd;
   final Uint8List lastChunk;
   final int lastSize; // in bits
+  final _BufferState state;
 
-  _Buffer(this.hd, this.lastChunk, this.lastSize);
+  _Buffer(this.hd, this.lastChunk, this.lastSize, this.state);
 
   @override
   bool get(int index) {
@@ -1276,12 +1277,13 @@ final class _Buffer extends BitVector {
   @override
   BitVector drop(int n) =>
       n <= hd.size
-          ? _Buffer(hd.drop(n), lastChunk, lastSize)
+          ? _Buffer(hd.drop(n), lastChunk, lastSize, state)
           : unbuffer().drop(n).bufferBy(lastChunk.length * 8);
 
   @override
   BitVector append(bool high) {
-    if (lastSize < lastChunk.length * 8) {
+    // Do we own the last chunk? Guard against double mutation.
+    if (lastSize == state.frontierSize && lastSize < lastChunk.length * 8) {
       final byteIndex = lastSize ~/ 8;
       final bitIndex = lastSize % 8;
       if (high) {
@@ -1289,9 +1291,10 @@ final class _Buffer extends BitVector {
       } else {
         lastChunk[byteIndex] &= ~(1 << (7 - bitIndex));
       }
-      return _Buffer(hd, lastChunk, lastSize + 1);
+      state.frontierSize += 1;
+      return _Buffer(hd, lastChunk, lastSize + 1, state);
     } else {
-      return _Buffer(unbuffer(), Uint8List(lastChunk.length), 0).append(high);
+      return _Buffer(unbuffer(), Uint8List(lastChunk.length), 0, _BufferState(0)).append(high);
     }
   }
 
@@ -1300,10 +1303,12 @@ final class _Buffer extends BitVector {
     if (other.isEmpty) return this;
     if (isEmpty) return other;
 
-    if (lastSize + other.size <= lastChunk.length * 8) {
+    // Do we own the last chunk? Guard against double mutation.
+    if (lastSize == state.frontierSize && lastSize + other.size <= lastChunk.length * 8) {
       if (lastSize % 8 == 0 && other.size % 8 == 0) {
         other.bytes.copyToArray(lastChunk, lastSize ~/ 8);
-        return _Buffer(hd, lastChunk, lastSize + other.size);
+        state.frontierSize += other.size;
+        return _Buffer(hd, lastChunk, lastSize + other.size, state);
       } else {
         var ls = lastSize;
         for (var i = 0; i < other.size; i++) {
@@ -1317,12 +1322,13 @@ final class _Buffer extends BitVector {
           }
           ls += 1;
         }
-        return _Buffer(hd, lastChunk, ls);
+        state.frontierSize += other.size;
+        return _Buffer(hd, lastChunk, ls, state);
       }
     } else if (lastSize == 0) {
-      return _Buffer(hd.concat(other).unbuffer(), lastChunk, lastSize);
+      return _Buffer(hd.concat(other).unbuffer(), lastChunk, lastSize, state);
     } else {
-      return _Buffer(unbuffer(), Uint8List(lastChunk.length), 0).concat(other);
+      return _Buffer(unbuffer(), Uint8List(lastChunk.length), 0, _BufferState(0)).concat(other);
     }
   }
 
@@ -1338,21 +1344,13 @@ final class _Buffer extends BitVector {
     }
   }
 
-  _Buffer rebuffer(int chunkSizeInBits) {
-    final bytesNeeded = (chunkSizeInBits + 7) ~/ 8;
-    assert(bytesNeeded > lastChunk.length);
-    final lastChunk2 = Uint8List(bytesNeeded);
-    lastChunk2.setRange(0, lastChunk.length, lastChunk);
-    return _Buffer(hd, lastChunk2, lastSize);
-  }
-
   @override
   _Bytes align() => unbuffer().align();
 
   @override
   BitVector update(int n, bool high) {
     if (n < hd.size) {
-      return _Buffer(hd.update(n, high), lastChunk, lastSize);
+      return _Buffer(hd.update(n, high), lastChunk, lastSize, state);
     } else {
       final off = n - hd.size;
       final byteIndex = off ~/ 8;
@@ -1364,7 +1362,7 @@ final class _Buffer extends BitVector {
       } else {
         newChunk[byteIndex] &= ~(1 << (7 - bitIndex));
       }
-      return _Buffer(hd, newChunk, lastSize);
+      return _Buffer(hd, newChunk, lastSize, _BufferState(lastSize));
     }
   }
 }
@@ -1812,5 +1810,10 @@ final _bitReversalTable = arr([
   0x7f,
   0xff,
 ]);
-
 const bool kIsWeb = bool.fromEnvironment('dart.library.js_util');
+
+class _BufferState {
+  int frontierSize;
+
+  _BufferState(this.frontierSize);
+}

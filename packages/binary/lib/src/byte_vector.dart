@@ -452,10 +452,10 @@ sealed class ByteVector {
         if (b.lastChunk.length >= chunkSize) {
           return b;
         } else {
-          return b.rebuffer(chunkSize);
+          return b.unbuffer().bufferBy(chunkSize);
         }
       default:
-        return _Buffer(this, Uint8List(chunkSize), 0);
+        return _Buffer(this, Uint8List(chunkSize), 0, _BufferState(0));
     }
   }
 
@@ -859,8 +859,9 @@ final class _Buffer extends ByteVector {
   final ByteVector hd;
   final Uint8List lastChunk;
   final int lastSize;
+  final _BufferState state;
 
-  _Buffer(this.hd, this.lastChunk, this.lastSize) : super._();
+  _Buffer(this.hd, this.lastChunk, this.lastSize, this.state) : super._();
 
   @override
   int _getImpl(int index) =>
@@ -875,16 +876,18 @@ final class _Buffer extends ByteVector {
   @override
   ByteVector drop(int n) =>
       n <= hd.size
-          ? _Buffer(hd.drop(n), lastChunk, lastSize)
+          ? _Buffer(hd.drop(n), lastChunk, lastSize, state)
           : unbuffer().drop(n).bufferBy(lastChunk.length);
 
   @override
   ByteVector append(int byte) {
-    if (lastSize < lastChunk.length) {
+    // Do we own the last chunk? Guard against double mutation.
+    if (lastSize == state.frontierSize && lastSize < lastChunk.length) {
       lastChunk[lastSize] = byte;
-      return _Buffer(hd, lastChunk, lastSize + 1);
+      state.frontierSize += 1;
+      return _Buffer(hd, lastChunk, lastSize + 1, state);
     } else {
-      return _Buffer(unbuffer(), Uint8List(lastChunk.length), 0).append(byte);
+      return _Buffer(unbuffer(), Uint8List(lastChunk.length), 0, _BufferState(0)).append(byte);
     }
   }
 
@@ -895,13 +898,15 @@ final class _Buffer extends ByteVector {
     } else if (isEmpty) {
       return other;
     } else {
-      if (lastChunk.length - lastSize > other.size) {
+      // Do we own the last chunk? Guard against double mutation.
+      if (lastSize == state.frontierSize && lastChunk.length - lastSize > other.size) {
         other.copyToArray(lastChunk, lastSize);
-        return _Buffer(hd, lastChunk, lastSize + other.size);
+        state.frontierSize += other.size;
+        return _Buffer(hd, lastChunk, lastSize + other.size, state);
       } else if (lastSize == 0) {
-        return _Buffer(hd.concat(other).unbuffer(), lastChunk, lastSize);
+        return _Buffer(hd.concat(other).unbuffer(), lastChunk, lastSize, state);
       } else {
-        return _Buffer(unbuffer(), Uint8List(lastChunk.length), 0).concat(other);
+        return _Buffer(unbuffer(), Uint8List(lastChunk.length), 0, _BufferState(0)).concat(other);
       }
     }
   }
@@ -915,16 +920,6 @@ final class _Buffer extends ByteVector {
     } else {
       return hd.concat(lastBytes);
     }
-  }
-
-  ByteVector rebuffer(int chunkSize) {
-    assert(chunkSize > lastChunk.length);
-
-    final lastChunk2 = Uint8List(chunkSize);
-    lastChunk2.setRange(0, lastChunk.length, lastChunk);
-
-    // TODO: scala implementation has bug?
-    return _Buffer(hd, lastChunk2, lastSize);
   }
 }
 
@@ -948,4 +943,10 @@ int _bitsAtOffset(Uint8List bytes, int bitIndex, int length) {
 
     return full >>> (8 - length);
   }
+}
+
+class _BufferState {
+  int frontierSize;
+
+  _BufferState(this.frontierSize);
 }
