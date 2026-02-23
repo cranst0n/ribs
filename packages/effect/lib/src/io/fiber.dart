@@ -24,6 +24,9 @@ final class IOFiber<A> {
   /// Any associated data to be used when the fiber is resumed.
   Object? _resumeData;
 
+  /// Associated stack trace to be used when the fiber is resumed.
+  StackTrace? _resumeStackTrace;
+
   /// The IO to run when the fiber is resumed.
   IO<dynamic>? _resumeIO;
 
@@ -126,7 +129,10 @@ final class IOFiber<A> {
     _state = FiberState.running;
 
     final data = _resumeData;
+    final stackTrace = _resumeStackTrace;
+
     _resumeData = null;
+    _resumeStackTrace = null;
 
     switch (_resumeTag) {
       case _ExecR:
@@ -134,7 +140,7 @@ final class IOFiber<A> {
       case _AsyncContinueSuccessfulR:
         _asyncContinueSuccessfulR(data);
       case _AsyncContinueFailedR:
-        _asyncContinueFailedR(data!);
+        _asyncContinueFailedR(data!, stackTrace);
       case _AsyncContinueCanceledR:
         _asyncContinueCanceledR();
       case _AsyncContinueCanceledWithFinalizerR:
@@ -177,7 +183,8 @@ final class IOFiber<A> {
 
   void _asyncContinueSuccessfulR(dynamic value) => _runLoop(_succeeded(value), _autoCedeN);
 
-  void _asyncContinueFailedR(Object error) => _runLoop(_failed(error), _autoCedeN);
+  void _asyncContinueFailedR(Object error, [StackTrace? stackTrace]) =>
+      _runLoop(_failed(error, stackTrace), _autoCedeN);
 
   void _asyncContinueCanceledR() {
     final fin = _prepareFiberForCancelation();
@@ -226,29 +233,29 @@ final class IOFiber<A> {
         switch (cur0) {
           case _Pure(:final value):
             cur0 = _succeeded(value);
-          case _Error(:final error):
-            cur0 = _failed(error);
+          case _Error(:final error, :final stackTrace):
+            cur0 = _failed(error, stackTrace);
           case _Delay(:final thunk):
             try {
               cur0 = _succeeded(thunk());
-            } catch (e) {
-              cur0 = _failed(e);
+            } catch (e, s) {
+              cur0 = _failed(e, s);
             }
           case _Map(:final ioa, :final f):
             switch (ioa) {
               case _Pure(:final value):
                 try {
                   cur0 = _succeeded(f(value));
-                } catch (e) {
-                  cur0 = _failed(e);
+                } catch (e, s) {
+                  cur0 = _failed(e, s);
                 }
               case _Error(:final error):
                 cur0 = _failed(error);
               case _Delay(:final thunk):
                 try {
                   cur0 = _succeeded(f(thunk()));
-                } catch (e) {
-                  cur0 = _failed(e);
+                } catch (e, s) {
+                  cur0 = _failed(e, s);
                 }
               default:
                 _conts.push(_MapK);
@@ -260,16 +267,16 @@ final class IOFiber<A> {
               case _Pure(:final value):
                 try {
                   cur0 = f(value);
-                } catch (e) {
-                  cur0 = _failed(e);
+                } catch (e, s) {
+                  cur0 = _failed(e, s);
                 }
               case _Error(:final error):
                 cur0 = _failed(error);
               case _Delay(:final thunk):
                 try {
                   cur0 = f(thunk());
-                } catch (e) {
-                  cur0 = _failed(e);
+                } catch (e, s) {
+                  cur0 = _failed(e, s);
                 }
               default:
                 _conts.push(_FlatMapK);
@@ -345,6 +352,7 @@ final class IOFiber<A> {
                         (err) {
                           _resumeTag = _AsyncContinueFailedR;
                           _resumeData = err;
+                          _resumeStackTrace = null;
                         },
                         (a) {
                           _resumeTag = _AsyncContinueSuccessfulR;
@@ -360,12 +368,12 @@ final class IOFiber<A> {
                   }
                 }
               });
-            } catch (e) {
+            } catch (e, s) {
               // The async body threw synchronously before ever calling `cb`.
               // Restore generation so any stale scheduled callbacks are ignored,
               // then drive the fiber into the failure path.
               ++_resumeGeneration;
-              cur0 = _failed(e);
+              cur0 = _failed(e, s);
               break;
             }
 
@@ -541,16 +549,16 @@ final class IOFiber<A> {
 
           try {
             result = fn(result);
-          } catch (e) {
-            return _failed(e);
+          } catch (e, s) {
+            return _failed(e, s);
           }
         case _FlatMapK:
           final fn = _contData.pop() as Fn1;
 
           try {
             return fn(result) as IO<dynamic>;
-          } catch (e) {
-            return _failed(e);
+          } catch (e, s) {
+            return _failed(e, s);
           }
         case _CancelationLoopK:
           return _cancelationLoopSuccessK();
@@ -569,27 +577,29 @@ final class IOFiber<A> {
     }
   }
 
-  IO<dynamic> _failed(Object initialError) {
+  IO<dynamic> _failed(Object initialError, [StackTrace? initialStackTrace]) {
     var error = initialError;
+    var stackTrace = initialStackTrace;
 
     while (true) {
       final op = _conts.pop();
 
       switch (op) {
         case _RunTerminusK:
-          return _runTerminusFailureK(error);
+          return _runTerminusFailureK(error, stackTrace);
         case _MapK:
           _contData.pop(); // Discard function
         case _FlatMapK:
           _contData.pop(); // Discard function
         case _CancelationLoopK:
-          return _cancelationLoopFailureK(error);
+          return _cancelationLoopFailureK(error, stackTrace);
         case _HandleErrorWithK:
           final fn = _contData.pop() as Fn1<Object, IO<dynamic>>;
           try {
             return fn(error);
-          } catch (e) {
+          } catch (e, s) {
             error = e;
+            stackTrace = s;
           }
         case _OnCancelK:
           _finalizers.pop();
@@ -627,14 +637,14 @@ final class IOFiber<A> {
     return const _EndFiber();
   }
 
-  IO<dynamic> _runTerminusFailureK(Object error) {
+  IO<dynamic> _runTerminusFailureK(Object error, [StackTrace? stackTrace]) {
     Object finalError = error;
 
     if (IOTracingConfig.tracingEnabled) {
       finalError = IOTracedException(error, _traceBuffer.toList());
     }
 
-    _done(Errored(finalError));
+    _done(Errored(finalError, stackTrace));
 
     return const _EndFiber();
   }
@@ -654,7 +664,7 @@ final class IOFiber<A> {
     }
   }
 
-  IO<dynamic> _cancelationLoopFailureK(Object err) => _cancelationLoopSuccessK();
+  IO<dynamic> _cancelationLoopFailureK(Object err, [StackTrace? st]) => _cancelationLoopSuccessK();
 
   static void dumpFibers() {
     // ignore: avoid_print

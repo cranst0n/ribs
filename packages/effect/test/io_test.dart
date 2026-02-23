@@ -1761,4 +1761,32 @@ void main() {
     expect(canceledA, isTrue, reason: 'fiberA should be canceled');
     expect(canceledB, isTrue, reason: 'fiberB should be canceled');
   });
+
+  test('stack trace is preserved through IO.raiseError', () async {
+    final st = StackTrace.fromString('custom stack trace');
+    final out = await IO.raiseError<int>(Exception('boom'), st).unsafeRunFutureOutcome();
+
+    final capturedSt = out.fold(
+      () => null,
+      (err, s) => s,
+      (a) => null,
+    );
+
+    expect(capturedSt.toString(), contains('custom stack trace'));
+  });
+
+  test('stack trace is captured in IO.delay', () async {
+    IOTracingConfig.tracingEnabled = true;
+
+    final out = await IO.delay<int>(() => throw Exception('boom')).unsafeRunFutureOutcome();
+
+    final capturedSt = out.fold(
+      () => null,
+      (err, s) => s,
+      (a) => null,
+    );
+
+    expect(capturedSt, isNotNull);
+    expect(capturedSt.toString(), contains('main'));
+  });
 }
