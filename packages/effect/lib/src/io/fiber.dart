@@ -19,7 +19,10 @@ final class IOFiber<A> {
   final _finalizers = Stack<IO<Unit>>(2);
 
   /// State to resume fiber when it's next scheduled.
-  _Resumption _resumeTag = const _ExecR();
+  int _resumeTag = ExecR;
+
+  /// Any associated data to be used when the fiber is resumed.
+  Object? _resumeData;
 
   /// The IO to run when the fiber is resumed.
   IO<dynamic>? _resumeIO;
@@ -51,18 +54,6 @@ final class IOFiber<A> {
   int _masks = 0;
   bool _finalizing = false;
 
-  void _scheduleResume(int expectedGen) {
-    _runtime.schedule(() {
-      if (_resumeGeneration == expectedGen) _resume();
-    });
-  }
-
-  void _scheduleResumeAfter(Duration duration, int expectedGen) {
-    _runtime.scheduleAfter(duration, () {
-      if (_resumeGeneration == expectedGen) _resume();
-    });
-  }
-
   final IORuntime _runtime;
   late final int _autoCedeN;
 
@@ -86,7 +77,9 @@ final class IOFiber<A> {
 
       if (_isUnmasked()) {
         return IO._async_((fin) {
-          _resumeTag = _AsyncContinueCanceledWithFinalizerR(Fn1(fin));
+          _resumeTag = AsyncContinueCanceledWithFinalizerR;
+          _resumeData = Fn1(fin);
+
           final expectedGen = ++_resumeGeneration;
           _scheduleResume(expectedGen);
         });
@@ -113,25 +106,40 @@ final class IOFiber<A> {
   bool _shouldFinalize() => _canceled && _isUnmasked();
   bool _isUnmasked() => _masks == 0;
 
+  void _scheduleResume(int expectedGen) {
+    _runtime.schedule(() {
+      if (_resumeGeneration == expectedGen) _resume();
+    });
+  }
+
+  void _scheduleResumeAfter(Duration duration, int expectedGen) {
+    _runtime.scheduleAfter(duration, () {
+      if (_resumeGeneration == expectedGen) _resume();
+    });
+  }
+
   void _resume() {
     _state = FiberState.running;
 
+    final data = _resumeData;
+    _resumeData = null;
+
     switch (_resumeTag) {
-      case _ExecR():
+      case ExecR:
         _execR();
-      case _AsyncContinueSuccessfulR(:final value):
-        _asyncContinueSuccessfulR(value);
-      case _AsyncContinueFailedR(:final error):
-        _asyncContinueFailedR(error);
-      case _AsyncContinueCanceledR():
+      case AsyncContinueSuccessfulR:
+        _asyncContinueSuccessfulR(data);
+      case AsyncContinueFailedR:
+        _asyncContinueFailedR(data!);
+      case AsyncContinueCanceledR:
         _asyncContinueCanceledR();
-      case _AsyncContinueCanceledWithFinalizerR(:final fin):
-        _asyncContinueCanceledWithFinalizerR(fin);
-      case _CedeR():
+      case AsyncContinueCanceledWithFinalizerR:
+        _asyncContinueCanceledWithFinalizerR(data! as Fn1<Either<Object, Unit>, void>);
+      case CedeR:
         _cedeR();
-      case _AutoCedeR():
+      case AutoCedeR:
         _autoCedeR();
-      case _DoneR():
+      case DoneR:
         break;
     }
   }
@@ -197,7 +205,7 @@ final class IOFiber<A> {
       if (cur0 is _EndFiber) break runLoop;
 
       if (nextCede <= 0) {
-        _resumeTag = const _AutoCedeR();
+        _resumeTag = AutoCedeR;
         _resumeIO = cur0;
         final expectedGen = ++_resumeGeneration;
         _scheduleResume(expectedGen);
@@ -277,7 +285,7 @@ final class IOFiber<A> {
                 cur0 = attempt.ioa;
             }
           case _Sleep(:final duration):
-            _resumeTag = const _CedeR();
+            _resumeTag = CedeR;
             final expectedGen = ++_resumeGeneration;
             _scheduleResumeAfter(duration, expectedGen);
 
@@ -288,7 +296,7 @@ final class IOFiber<A> {
           case _Now():
             cur0 = _succeeded(_runtime.now);
           case _Cede():
-            _resumeTag = const _CedeR();
+            _resumeTag = CedeR;
             final expectedGen = ++_resumeGeneration;
             _scheduleResume(expectedGen);
 
@@ -316,11 +324,17 @@ final class IOFiber<A> {
 
               if (!_shouldFinalize()) {
                 result.fold(
-                  (err) => _resumeTag = _AsyncContinueFailedR(err),
-                  (a) => _resumeTag = _AsyncContinueSuccessfulR(a),
+                  (err) {
+                    _resumeTag = AsyncContinueFailedR;
+                    _resumeData = err;
+                  },
+                  (a) {
+                    _resumeTag = AsyncContinueSuccessfulR;
+                    _resumeData = a;
+                  },
                 );
               } else {
-                _resumeTag = const _AsyncContinueCanceledR();
+                _resumeTag = AsyncContinueCanceledR;
               }
 
               _scheduleResume(nextGen);
@@ -564,7 +578,7 @@ final class IOFiber<A> {
 
     _masks = 0;
 
-    _resumeTag = const _DoneR();
+    _resumeTag = DoneR;
     _resumeIO = null;
 
     while (_callbacks.nonEmpty) {
@@ -641,6 +655,16 @@ final class IOFiber<A> {
 extension JoinWithUnitOps on IOFiber<Unit> {
   IO<Unit> joinWithUnit() => joinWith(IO.unit);
 }
+
+const ExecR = 0;
+const AsyncContinueSuccessfulR = 1;
+const AsyncContinueFailedR = 2;
+const AsyncContinueCanceledR = 3;
+const AsyncContinueCanceledWithFinalizerR = 4;
+const BlockingR = 5;
+const CedeR = 6;
+const AutoCedeR = 7;
+const DoneR = 8;
 
 const int _RunTerminusK = 0;
 const int _MapK = 1;

@@ -11,7 +11,6 @@ import 'package:ribs_effect/src/std/internal/stack.dart';
 
 part 'io/algebra.dart';
 part 'io/fiber.dart';
-part 'io/resumption.dart';
 part 'io/tracing.dart';
 
 typedef AsyncCallback<A> = Function1<Either<Object, A>, void>;
