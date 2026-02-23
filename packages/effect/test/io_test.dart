@@ -1032,7 +1032,7 @@ void main() {
       });
 
       expect(test, ioSucceeded(true));
-    }, skip: 'Hangs');
+    });
   });
 
   test('unsafeRunFuture success', () async {

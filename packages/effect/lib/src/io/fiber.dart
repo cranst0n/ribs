@@ -19,7 +19,7 @@ final class IOFiber<A> {
   final _finalizers = Stack<IO<Unit>>(2);
 
   /// State to resume fiber when it's next scheduled.
-  int _resumeTag = ExecR;
+  int _resumeTag = _ExecR;
 
   /// Any associated data to be used when the fiber is resumed.
   Object? _resumeData;
@@ -80,7 +80,7 @@ final class IOFiber<A> {
 
         if (_isUnmasked()) {
           return IO._async_((fin) {
-            _resumeTag = AsyncContinueCanceledWithFinalizerR;
+            _resumeTag = _AsyncContinueCanceledWithFinalizerR;
             _resumeData = Fn1(fin);
 
             final expectedGen = ++_resumeGeneration;
@@ -129,21 +129,23 @@ final class IOFiber<A> {
     _resumeData = null;
 
     switch (_resumeTag) {
-      case ExecR:
+      case _ExecR:
         _execR();
-      case AsyncContinueSuccessfulR:
+      case _AsyncContinueSuccessfulR:
         _asyncContinueSuccessfulR(data);
-      case AsyncContinueFailedR:
+      case _AsyncContinueFailedR:
         _asyncContinueFailedR(data!);
-      case AsyncContinueCanceledR:
+      case _AsyncContinueCanceledR:
         _asyncContinueCanceledR();
-      case AsyncContinueCanceledWithFinalizerR:
+      case _AsyncContinueCanceledWithFinalizerR:
         _asyncContinueCanceledWithFinalizerR(data! as Fn1<Either<Object, Unit>, void>);
-      case CedeR:
+      case _CedeR:
         _cedeR();
-      case AutoCedeR:
+      case _AutoCedeR:
         _autoCedeR();
-      case DoneR:
+      case _AsyncGetR:
+        _asyncGetR(data! as _AsyncGet);
+      case _DoneR:
         break;
     }
   }
@@ -197,6 +199,10 @@ final class IOFiber<A> {
     _runLoop(io!, _autoCedeN);
   }
 
+  void _asyncGetR(_AsyncGet<dynamic> asyncGet) {
+    _runLoop(asyncGet, _autoCedeN);
+  }
+
   void _runLoop(
     IO<dynamic> initial,
     int cedeIterations,
@@ -209,7 +215,7 @@ final class IOFiber<A> {
       if (cur0 is _EndFiber) break runLoop;
 
       if (nextCede <= 0) {
-        _resumeTag = AutoCedeR;
+        _resumeTag = _AutoCedeR;
         _resumeIO = cur0;
         final expectedGen = ++_resumeGeneration;
         _scheduleResume(expectedGen);
@@ -289,7 +295,7 @@ final class IOFiber<A> {
                 cur0 = attempt.ioa;
             }
           case _Sleep(:final duration):
-            _resumeTag = CedeR;
+            _resumeTag = _CedeR;
             final expectedGen = ++_resumeGeneration;
             _scheduleResumeAfter(duration, expectedGen);
 
@@ -300,7 +306,7 @@ final class IOFiber<A> {
           case _Now():
             cur0 = _succeeded(_runtime.now);
           case _Cede():
-            _resumeTag = CedeR;
+            _resumeTag = _CedeR;
             final expectedGen = ++_resumeGeneration;
             _scheduleResume(expectedGen);
 
@@ -320,39 +326,39 @@ final class IOFiber<A> {
             final resultF = cur0.getter();
 
             // captured when this async node is registered; used to detect stale callbacks
-            final expectedGen = ++_resumeGeneration;
+            ++_resumeGeneration;
 
             IO<Option<IO<Unit>>> finF;
 
             try {
               finF = body((result) {
-                // A generation mismatch means the fiber has moved on since this
-                // async callback was registered — e.g. the fiber was canceled
-                // and rescheduled, or the _Async node was abandoned due to
-                // autoCede. Invoking the callback now would resume the wrong
-                // logical state, so we discard it.
-                if (_resumeGeneration != expectedGen) return;
+                if (resultF.value == null) {
+                  resultF.value = result;
 
-                final nextGen = ++_resumeGeneration;
+                  // Only resume the fiber if it's currently suspended and waiting
+                  // specifically for this async result to be completed.
+                  if (_resumeTag == _AsyncGetR && _resumeData == resultF) {
+                    final nextGen = ++_resumeGeneration;
 
-                resultF.value = result;
+                    if (!_shouldFinalize()) {
+                      result.fold(
+                        (err) {
+                          _resumeTag = _AsyncContinueFailedR;
+                          _resumeData = err;
+                        },
+                        (a) {
+                          _resumeTag = _AsyncContinueSuccessfulR;
+                          _resumeData = a;
+                        },
+                      );
+                    } else {
+                      _resumeTag = _AsyncContinueCanceledR;
+                      _resumeData = null;
+                    }
 
-                if (!_shouldFinalize()) {
-                  result.fold(
-                    (err) {
-                      _resumeTag = AsyncContinueFailedR;
-                      _resumeData = err;
-                    },
-                    (a) {
-                      _resumeTag = AsyncContinueSuccessfulR;
-                      _resumeData = a;
-                    },
-                  );
-                } else {
-                  _resumeTag = AsyncContinueCanceledR;
+                    _scheduleResume(nextGen);
+                  }
                 }
-
-                _scheduleResume(nextGen);
               });
             } catch (e) {
               // The async body threw synchronously before ever calling `cb`.
@@ -382,8 +388,11 @@ final class IOFiber<A> {
               // Process of registering async finalizer lands us here before the
               // async callback has a chance to fill in the value, so we need to
               // suspend until it does.
+              _resumeTag = _AsyncGetR;
+              _resumeData = cur0;
+
               _state = FiberState.suspended;
-              _suspensionInfo = "Async(register: $cur0)";
+              _suspensionInfo = "Async(waiting for callback)";
 
               break runLoop;
             }
@@ -601,7 +610,7 @@ final class IOFiber<A> {
 
     _masks = 0;
 
-    _resumeTag = DoneR;
+    _resumeTag = _DoneR;
     _resumeIO = null;
 
     while (_callbacks.nonEmpty) {
@@ -679,15 +688,15 @@ extension JoinWithUnitOps on IOFiber<Unit> {
   IO<Unit> joinWithUnit() => joinWith(IO.unit);
 }
 
-const ExecR = 0;
-const AsyncContinueSuccessfulR = 1;
-const AsyncContinueFailedR = 2;
-const AsyncContinueCanceledR = 3;
-const AsyncContinueCanceledWithFinalizerR = 4;
-const BlockingR = 5;
-const CedeR = 6;
-const AutoCedeR = 7;
-const DoneR = 8;
+const int _ExecR = 0;
+const int _AsyncContinueSuccessfulR = 1;
+const int _AsyncContinueFailedR = 2;
+const int _AsyncContinueCanceledR = 3;
+const int _AsyncContinueCanceledWithFinalizerR = 4;
+const int _CedeR = 5;
+const int _AutoCedeR = 6;
+const int _AsyncGetR = 7;
+const int _DoneR = 8;
 
 const int _RunTerminusK = 0;
 const int _MapK = 1;
