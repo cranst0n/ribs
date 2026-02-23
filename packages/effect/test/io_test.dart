@@ -497,6 +497,19 @@ void main() {
           ioCanceled(),
         );
       });
+
+      test('cancel after completion does not alter outcome', () {
+        final test = IO.sleep(10.milliseconds).as(42).start().flatMap((fiber) {
+          final cancelOp = fiber.cancel();
+          return fiber.join().flatMap((_) {
+            return cancelOp.flatMap((_) {
+              return fiber.join();
+            });
+          });
+        });
+
+        expect(test, ioSucceeded(Outcome.succeeded(42)));
+      });
     });
 
     group('finalization', () {

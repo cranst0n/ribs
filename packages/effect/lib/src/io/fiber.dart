@@ -73,18 +73,22 @@ final class IOFiber<A> {
     }
 
     _cancel = IO._uncancelable((_) {
-      _canceled = true;
-
-      if (_isUnmasked()) {
-        return IO._async_((fin) {
-          _resumeTag = AsyncContinueCanceledWithFinalizerR;
-          _resumeData = Fn1(fin);
-
-          final expectedGen = ++_resumeGeneration;
-          _scheduleResume(expectedGen);
-        });
+      if (_outcome != null) {
+        return IO.unit;
       } else {
-        return join()._voided();
+        _canceled = true;
+
+        if (_isUnmasked()) {
+          return IO._async_((fin) {
+            _resumeTag = AsyncContinueCanceledWithFinalizerR;
+            _resumeData = Fn1(fin);
+
+            final expectedGen = ++_resumeGeneration;
+            _scheduleResume(expectedGen);
+          });
+        } else {
+          return join()._voided();
+        }
       }
     });
 
