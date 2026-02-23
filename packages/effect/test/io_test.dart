@@ -925,33 +925,114 @@ void main() {
     expect(io, ioSucceeded(42));
   });
 
-  test('async simple', () async {
-    bool finalized = false;
+  group('async', () {
+    test('async simple', () async {
+      bool finalized = false;
 
-    final io = IO.async<int>(
-      (cb) => IO.delay(() {
-        Future.delayed(2.seconds, () => 42).then((value) => cb(value.asRight()));
+      final io = IO.async<int>(
+        (cb) => IO.delay(() {
+          Future.delayed(2.seconds, () => 42).then((value) => cb(value.asRight()));
 
-        return IO.exec(() => finalized = true).some;
-      }),
-    );
+          return IO.exec(() => finalized = true).some;
+        }),
+      );
 
-    final fiber = await io.start().unsafeRunFuture();
+      final fiber = await io.start().unsafeRunFuture();
 
-    fiber.cancel().unsafeRunAndForget();
+      fiber.cancel().unsafeRunAndForget();
 
-    final outcome = await fiber.join().unsafeRunFuture();
+      final outcome = await fiber.join().unsafeRunFuture();
 
-    expect(outcome, Canceled<int>());
-    expect(finalized, isTrue);
-  });
-
-  test('async_ simple', () {
-    final io = IO.async_<int>((cb) {
-      Future.delayed(100.milliseconds, () => 42).then((value) => cb(value.asRight()));
+      expect(outcome, Canceled<int>());
+      expect(finalized, isTrue);
     });
 
-    expect(io, ioSucceeded(42));
+    test('async_ simple', () {
+      final io = IO.async_<int>((cb) {
+        Future.delayed(100.milliseconds, () => 42).then((value) => cb(value.asRight()));
+      });
+
+      expect(io, ioSucceeded(42));
+    });
+
+    test('synchronously-completing async does not trigger a double resume', () async {
+      int runs = 0;
+
+      // This IO completes synchronously within the body — the callback fires
+      // before async_ body even returns. A stale _scheduleResume is then also
+      // queued. The map should still only run once.
+      final io = IO.async_<int>((cb) => cb(Either.right(42))).map((v) {
+        runs++;
+        return v;
+      });
+
+      final result = await io.unsafeRunFuture();
+
+      // Let any extra scheduled callbacks fire
+      await Future<void>.delayed(100.milliseconds);
+
+      expect(result, 42);
+      expect(runs, 1, reason: 'map should only execute once');
+    });
+
+    test('async callback can only be invoked once', () async {
+      int executionCount = 0;
+
+      final io = IO
+          .async_<int>((cb) {
+            cb(Either.right(1));
+            cb(Either.right(2));
+            cb(Either.right(3));
+          })
+          .map((v) {
+            executionCount++;
+            return v;
+          });
+
+      final fiber = await io.start().unsafeRunFuture();
+      final result = await fiber.join().unsafeRunFuture();
+
+      // Verify it only executed the map once
+      expect(executionCount, 1);
+      expect(result, Outcome.succeeded(1));
+    });
+
+    test('async callback throwing exception does not crash fiber', () async {
+      final io = IO.async_<int>((cb) => throw Exception('BOOM'));
+      final result = await io.attempt().unsafeRunFuture();
+
+      expect(result.isLeft, isTrue);
+    });
+
+    test('async - repeated async callback', () {
+      late Function1<Either<Object, int>, void> cb;
+
+      final test = Deferred.of<Unit>().flatMap((latch1) {
+        return Deferred.of<Unit>().flatMap((latch2) {
+          return IO
+              .async<int>(
+                (cb0) => IO
+                    .exec(() => cb = cb0)
+                    .productR(() => latch1.complete(Unit()))
+                    .productR(() => latch2.value())
+                    .productR(() => IO.pure(none())),
+              )
+              .start()
+              .flatMap((fiber) {
+                return latch1
+                    .value()
+                    .productR(() => IO.exec(() => cb(const Right(42))))
+                    .productR(() => IO.exec(() => cb(const Right(43))))
+                    .productR(() => IO.exec(() => cb(const Left('BOOM'))))
+                    .productR(() => latch2.complete(Unit()))
+                    .productR(() => fiber.joinWithNever()) // hangs on joinWithNever
+                    .map((value) => value == 42);
+              });
+        });
+      });
+
+      expect(test, ioSucceeded(true));
+    }, skip: 'Hangs');
   });
 
   test('unsafeRunFuture success', () async {

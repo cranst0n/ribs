@@ -318,31 +318,50 @@ final class IOFiber<A> {
             cur0 = ioa;
           case _Async(:final body):
             final resultF = cur0.getter();
+
+            // captured when this async node is registered; used to detect stale callbacks
             final expectedGen = ++_resumeGeneration;
 
-            final finF = body((result) {
-              if (_resumeGeneration != expectedGen) return;
-              final nextGen = ++_resumeGeneration;
+            IO<Option<IO<Unit>>> finF;
 
-              resultF.value = result;
+            try {
+              finF = body((result) {
+                // A generation mismatch means the fiber has moved on since this
+                // async callback was registered — e.g. the fiber was canceled
+                // and rescheduled, or the _Async node was abandoned due to
+                // autoCede. Invoking the callback now would resume the wrong
+                // logical state, so we discard it.
+                if (_resumeGeneration != expectedGen) return;
 
-              if (!_shouldFinalize()) {
-                result.fold(
-                  (err) {
-                    _resumeTag = AsyncContinueFailedR;
-                    _resumeData = err;
-                  },
-                  (a) {
-                    _resumeTag = AsyncContinueSuccessfulR;
-                    _resumeData = a;
-                  },
-                );
-              } else {
-                _resumeTag = AsyncContinueCanceledR;
-              }
+                final nextGen = ++_resumeGeneration;
 
-              _scheduleResume(nextGen);
-            });
+                resultF.value = result;
+
+                if (!_shouldFinalize()) {
+                  result.fold(
+                    (err) {
+                      _resumeTag = AsyncContinueFailedR;
+                      _resumeData = err;
+                    },
+                    (a) {
+                      _resumeTag = AsyncContinueSuccessfulR;
+                      _resumeData = a;
+                    },
+                  );
+                } else {
+                  _resumeTag = AsyncContinueCanceledR;
+                }
+
+                _scheduleResume(nextGen);
+              });
+            } catch (e) {
+              // The async body threw synchronously before ever calling `cb`.
+              // Restore generation so any stale scheduled callbacks are ignored,
+              // then drive the fiber into the failure path.
+              ++_resumeGeneration;
+              cur0 = _failed(e);
+              break;
+            }
 
             // Ensure we don't cede and potentially miss finalizer registration
             if (nextCede <= 1) nextCede++;
