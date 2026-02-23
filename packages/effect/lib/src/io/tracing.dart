@@ -46,13 +46,8 @@ class _TraceRingBuffer {
     int index = (_count < _buffer.length) ? 0 : _head;
 
     for (int i = 0; i < _count; i++) {
-      final tuple = _buffer[index];
-      if (tuple != null) {
-        final (label, trace) = tuple;
-
-        final frameStr = '${label.padLeft(maxLabelLen)} @ $trace';
-
-        list.add(frameStr);
+      if (_buffer[index] case (final label, final trace)) {
+        list.add('${label.padLeft(maxLabelLen)} @ $trace');
       }
       index = (index + 1) % _buffer.length;
     }
