@@ -1743,4 +1743,22 @@ void main() {
     await expectLater(io, ioSucceeded(isA<Canceled<Unit>>()));
     await expectLater(finalizerFinished.future, completes);
   });
+
+  test('racePair cancels children when canceled', () async {
+    var canceledA = false;
+    var canceledB = false;
+
+    final ioa = IO.never<Unit>().onCancel(IO.exec(() => canceledA = true));
+    final iob = IO.never<Unit>().onCancel(IO.exec(() => canceledB = true));
+
+    final fiber = await IO.racePair(ioa, iob).start().unsafeRunFuture();
+
+    // Give them time to start
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+
+    await fiber.cancel().unsafeRunFuture();
+
+    expect(canceledA, isTrue, reason: 'fiberA should be canceled');
+    expect(canceledB, isTrue, reason: 'fiberB should be canceled');
+  });
 }

@@ -410,12 +410,10 @@ final class IOFiber<A> {
               cur0 = _succeeded(Unit());
             }
           case final _RacePair<dynamic, dynamic> rp:
-            final next = IO._async_<RacePairOutcome<dynamic, dynamic>>((cb) {
+            cur0 = IO._async<RacePairOutcome<dynamic, dynamic>>((cb) {
               final fiberA = rp.createFiberA(_runtime, _autoCedeN);
               final fiberB = rp.createFiberB(_runtime, _autoCedeN);
 
-              // callback should be called exactly once, so when one fiber
-              // finishes, remove the callback from the other
               fiberA._setCallback((oc) {
                 fiberB._setCallback((_) {});
                 cb(Right(rp.aWon(oc, fiberB)));
@@ -428,12 +426,16 @@ final class IOFiber<A> {
 
               fiberA._run();
               fiberB._run();
+
+              return IO.pure(
+                Some(
+                  IO.bothOutcome(fiberA.cancel(), fiberB.cancel())._voided(),
+                ),
+              );
             });
 
             _state = FiberState.suspended;
             _suspensionInfo = "RacePair(Waiting for children)";
-
-            cur0 = next;
           case _Uncancelable(:final body):
             _masks += 1;
             final id = _masks;
