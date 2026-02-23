@@ -1569,4 +1569,84 @@ void main() {
       (syncIO) => expect(syncIO, 42),
     );
   });
+
+  test('stale Sleep timer triggers NPE during unassociated AutoCede suspension', () async {
+    // This test reproduces a NullPointerException where a stale Sleep timer
+    // fires while the fiber is suspended for an AutoCede (yielding control).
+    //
+    // 1. Fiber starts a Sleep.
+    // 2. Fiber is canceled, and starts running its finalizers.
+    // 3. One finalizer runs long enough to trigger an AutoCede (yielding).
+    // 4. The stale Sleep timer fires, sees the fiber is suspended, and
+    //    incorrectly resumes it, consuming the `_resumeIO`.
+    // 5. The legitimate AutoCede resumption fires later and finds `_resumeIO`
+    //    is null, causing the crash.
+    final cedeN = IORuntime.defaultRuntime.autoCedeN;
+    final finalizerFinished = Completer<void>();
+
+    IO<Unit> loop(int n) {
+      if (n <= 0) {
+        return IO.async((cb) {
+          Future.delayed(250.milliseconds, () {
+            cb(Right(Unit()));
+            finalizerFinished.complete();
+          });
+
+          return IO.pure(none());
+        });
+      } else {
+        return IO.unit.flatMap((_) => loop(n - 1));
+      }
+    }
+
+    final f = IO.sleep(100.milliseconds).onCancel(loop(cedeN + 10)).start();
+
+    final io = f.flatMap((fiber) {
+      return IO.sleep(10.milliseconds).productR(() => fiber.cancel()).productR(() => fiber.join());
+    });
+
+    await expectLater(io, ioSucceeded(isA<Canceled<Unit>>()));
+    await expectLater(finalizerFinished.future, completes);
+  });
+
+  test('stale Sleep timer triggers continuation type miscast during Async suspension', () async {
+    // This test reproduces a TypeError where a stale Sleep timer fires while
+    // the fiber is suspended in an Async block.
+    //
+    // 1. Fiber starts a Sleep.
+    // 2. Fiber is canceled.
+    // 3. Finalizer starts an Async operation and suspends.
+    // 4. The stale Sleep timer fires and injects a `Unit` value into the
+    //    continuation stack.
+    // 5. If the continuation stack was expecting a different type (e.g., String),
+    //    the `Unit` injection causes a TypeError when the next continuation
+    //    is invoked.
+    final finalizerFinished = Completer<void>();
+
+    final finalizer =
+        IO
+            .sleep(200.milliseconds)
+            .flatMap(
+              (_) => IO
+                  .async<int>((cb) {
+                    Future.delayed(350.milliseconds, () => cb(const Right(42)));
+                    return IO.pure(none());
+                  })
+                  .map((int x) => x + 1),
+            )
+            .flatMap((x) {
+              if (x == 43) finalizerFinished.complete();
+              return IO.unit;
+            })
+            .voided();
+
+    final f = IO.sleep(100.milliseconds).onCancel(finalizer).start();
+
+    final io = f.flatMap((fiber) {
+      return IO.sleep(10.milliseconds).productR(() => fiber.cancel()).productR(() => fiber.join());
+    });
+
+    await expectLater(io, ioSucceeded(isA<Canceled<Unit>>()));
+    await expectLater(finalizerFinished.future, completes);
+  });
 }

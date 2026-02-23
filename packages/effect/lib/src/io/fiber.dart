@@ -18,8 +18,20 @@ final class IOFiber<A> {
   final _callbacks = Stack<Function1<Outcome<A>, void>>(2);
   final _finalizers = Stack<IO<Unit>>(2);
 
+  /// State to resume fiber when it's next scheduled.
   _Resumption _resumeTag = const _ExecR();
+
+  /// The IO to run when the fiber is resumed.
   IO<dynamic>? _resumeIO;
+
+  /// Tracks the current "generation" of the fiber's execution state.
+  ///
+  /// This is used to ensure that stale asynchronous resumptions (e.g., from a
+  /// delayed Sleep or an Async callback that fires after the fiber has already
+  /// been canceled or moved on) are ignored. Each time the fiber suspends or
+  /// yields, the generation is incremented, and only callbacks that match the
+  /// current generation are permitted to wake the fiber.
+  int _resumeGeneration = 0;
 
   final _conts = ByteStack();
   final _contData = Stack<Object>();
@@ -38,6 +50,18 @@ final class IOFiber<A> {
   bool _canceled = false;
   int _masks = 0;
   bool _finalizing = false;
+
+  void _scheduleResume(int expectedGen) {
+    _runtime.schedule(() {
+      if (_resumeGeneration == expectedGen) _resume();
+    });
+  }
+
+  void _scheduleResumeAfter(Duration duration, int expectedGen) {
+    _runtime.scheduleAfter(duration, () {
+      if (_resumeGeneration == expectedGen) _resume();
+    });
+  }
 
   final IORuntime _runtime;
   late final int _autoCedeN;
@@ -63,7 +87,8 @@ final class IOFiber<A> {
       if (_isUnmasked()) {
         return IO._async_((fin) {
           _resumeTag = _AsyncContinueCanceledWithFinalizerR(Fn1(fin));
-          _runtime.schedule(_resume);
+          final expectedGen = ++_resumeGeneration;
+          _scheduleResume(expectedGen);
         });
       } else {
         return join()._voided();
@@ -114,7 +139,8 @@ final class IOFiber<A> {
   void _run() {
     _activeFibers.add(this); // Register
 
-    _runtime.schedule(_resume);
+    final expectedGen = ++_resumeGeneration;
+    _scheduleResume(expectedGen);
   }
 
   void _execR() {
@@ -173,7 +199,8 @@ final class IOFiber<A> {
       if (nextCede <= 0) {
         _resumeTag = const _AutoCedeR();
         _resumeIO = cur0;
-        _runtime.schedule(_resume);
+        final expectedGen = ++_resumeGeneration;
+        _scheduleResume(expectedGen);
         break runLoop;
       } else if (_shouldFinalize()) {
         cur0 = _prepareFiberForCancelation();
@@ -251,7 +278,8 @@ final class IOFiber<A> {
             }
           case _Sleep(:final duration):
             _resumeTag = const _CedeR();
-            _runtime.scheduleAfter(duration, _resume);
+            final expectedGen = ++_resumeGeneration;
+            _scheduleResumeAfter(duration, expectedGen);
 
             _state = FiberState.suspended;
             _suspensionInfo = "Sleep($duration)";
@@ -261,7 +289,8 @@ final class IOFiber<A> {
             cur0 = _succeeded(_runtime.now);
           case _Cede():
             _resumeTag = const _CedeR();
-            _runtime.schedule(_resume);
+            final expectedGen = ++_resumeGeneration;
+            _scheduleResume(expectedGen);
 
             _state = FiberState.suspended;
             _suspensionInfo = "AutoCede";
@@ -277,8 +306,12 @@ final class IOFiber<A> {
             cur0 = ioa;
           case _Async(:final body):
             final resultF = cur0.getter();
+            final expectedGen = ++_resumeGeneration;
 
             final finF = body((result) {
+              if (_resumeGeneration != expectedGen) return;
+              final nextGen = ++_resumeGeneration;
+
               resultF.value = result;
 
               if (!_shouldFinalize()) {
@@ -290,7 +323,7 @@ final class IOFiber<A> {
                 _resumeTag = const _AsyncContinueCanceledR();
               }
 
-              _runtime.schedule(_resume);
+              _scheduleResume(nextGen);
             });
 
             // Ensure we don't cede and potentially miss finalizer registration
