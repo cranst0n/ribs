@@ -5,23 +5,19 @@ class IOTracingConfig {
   static int traceBufferSize = 64;
 }
 
-class IOTracedException implements Exception {
-  final Object originalError;
+class IOFiberTrace implements StackTrace {
   final List<String> trace;
 
-  IOTracedException(this.originalError, this.trace);
+  IOFiberTrace(this.trace);
 
   @override
-  String toString() =>
-      "IOTracedException: $originalError\n${trace.reversed.map((l) => '  $l').join('\n')}";
+  String toString() => "IOFiberTrace: ${trace.reversed.map((l) => '  $l').join('\n')}";
 }
 
 extension IOTracingOps<A> on IO<A> {
   IO<A> traced(String label, [int? depth]) {
     if (!IOTracingConfig.tracingEnabled) {
       return this;
-    } else if (this is _Traced<A>) {
-      return _Traced((this as _Traced<A>).ioa, label, depth);
     } else {
       return _Traced(this, label, depth);
     }

@@ -5,7 +5,7 @@ enum FiberState { running, suspended }
 /// A handle to a running [IO] that allows for cancelation of the [IO] or
 /// waiting for completion.
 final class IOFiber<A> {
-  static final Set<IOFiber<dynamic>> _activeFibers = {};
+  static final Set<WeakReference<IOFiber<dynamic>>> _activeFibers = {};
   static int _idCounter = 0;
 
   final IO<A> _startIO;
@@ -47,6 +47,8 @@ final class IOFiber<A> {
   late final _TraceRingBuffer _traceBuffer = _TraceRingBuffer(
     IOTracingConfig.traceBufferSize,
   );
+
+  late final _selfRef = WeakReference(this);
 
   late IO<Unit> _cancel;
   late IO<Outcome<A>> _join;
@@ -157,7 +159,7 @@ final class IOFiber<A> {
   }
 
   void _run() {
-    _activeFibers.add(this); // Register
+    _activeFibers.add(_selfRef); // Register
 
     final expectedGen = ++_resumeGeneration;
     _scheduleResume(expectedGen);
@@ -629,7 +631,7 @@ final class IOFiber<A> {
       _callbacks.pop()(oc);
     }
 
-    _activeFibers.remove(this); // Deregister
+    _activeFibers.remove(_selfRef); // Deregister
   }
 
   IO<dynamic> _runTerminusSuccessK(dynamic result) {
@@ -638,13 +640,12 @@ final class IOFiber<A> {
   }
 
   IO<dynamic> _runTerminusFailureK(Object error, [StackTrace? stackTrace]) {
-    Object finalError = error;
-
-    if (IOTracingConfig.tracingEnabled) {
-      finalError = IOTracedException(error, _traceBuffer.toList());
-    }
-
-    _done(Errored(finalError, stackTrace));
+    _done(
+      Errored(
+        error,
+        IOTracingConfig.tracingEnabled ? IOFiberTrace(_traceBuffer.toList()) : stackTrace,
+      ),
+    );
 
     return const _EndFiber();
   }
@@ -670,28 +671,42 @@ final class IOFiber<A> {
     // ignore: avoid_print
     void doPrint(String message) => print(message);
 
+    final deadRefs = <WeakReference<IOFiber<dynamic>>>[];
+
     doPrint("\n===== FIBER DUMP (${_activeFibers.length} active) ===================");
-    for (final fiber in _activeFibers) {
-      final status =
-          fiber._state == FiberState.running
-              ? "RUNNING (or scheduled)"
-              : "SUSPENDED: ${fiber._suspensionInfo}";
 
-      doPrint("Fiber #${fiber.id} [$status]");
+    for (final ref in _activeFibers) {
+      final fiber = ref.target;
 
-      // Print Trace (Reverse order for readability: Top of stack first)
-      final trace = fiber._traceBuffer.toList().reversed;
+      if (fiber != null) {
+        final status =
+            fiber._state == FiberState.running
+                ? "RUNNING (or scheduled)"
+                : "SUSPENDED: ${fiber._suspensionInfo}";
 
-      if (trace.isEmpty) {
-        doPrint("  (No trace)");
-      } else {
-        for (final line in trace) {
-          final char = line == trace.last ? "╰" : "├";
-          doPrint("  $char  at $line");
+        doPrint("Fiber #${fiber.id} [$status]");
+
+        // Print Trace (Reverse order for readability: Top of stack first)
+        final trace = fiber._traceBuffer.toList().reversed;
+
+        if (trace.isEmpty) {
+          doPrint("  (No trace)");
+        } else {
+          for (final line in trace) {
+            final char = line == trace.last ? "╰" : "├";
+            doPrint("  $char  at $line");
+          }
         }
+        doPrint(""); // Spacer
+      } else {
+        deadRefs.add(ref);
       }
-      doPrint(""); // Spacer
     }
+
+    for (final ref in deadRefs) {
+      _activeFibers.remove(ref);
+    }
+
     doPrint("================================================\n");
   }
 }
