@@ -574,7 +574,7 @@ final class IOFiber<A> {
           _masks += 1;
         case _AttemptK:
           final attempt = _contData.pop() as _Attempt<dynamic>;
-          return _succeeded(attempt.right(result));
+          result = attempt.right(result);
       }
     }
   }
