@@ -6,7 +6,7 @@ import 'package:built_collection/built_collection.dart' as built_list;
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart' as fic;
 import 'package:kt_dart/collection.dart' as kt;
-import 'package:ribs_bench/comparative_benchmark.dart';
+import 'package:ribs_bench/collection/comparative_benchmark.dart';
 import 'package:ribs_core/ribs_core.dart' as ribs;
 
 void main(List<String> args) {
@@ -39,11 +39,8 @@ void main(List<String> args) {
 
   const ns = [
     10,
-    100,
     1000,
-    10000,
     100000,
-    1000000,
   ];
 
   ns.forEach((n) {

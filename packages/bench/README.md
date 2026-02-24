@@ -1,3 +1,12 @@
+# Quick usage
+
+```
+dart pub global activate benchmark_harness
+dart pub global run benchmark_harness:bench
+
+dart run benchmark_harness:bench --flavor aot --target packages/bench/lib/io.dart
+dart run benchmark_harness:bench --flavor aot --target packages/bench/lib/rill.dart
+```
 
 # Example execution time / memory quick look
 
