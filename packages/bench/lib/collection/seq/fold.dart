@@ -3,7 +3,6 @@ import 'package:built_collection/built_collection.dart' as built_list;
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart' as fic;
 import 'package:kt_dart/collection.dart' as kt;
-import 'package:ribs_bench/benchmark_emitter.dart';
 import 'package:ribs_bench/collection/utils.dart';
 import 'package:ribs_core/ribs_core.dart' as ribs;
 
@@ -11,7 +10,7 @@ class DartListFoldBenchmark extends BenchmarkBase {
   final int n;
   late List<int> l;
 
-  DartListFoldBenchmark(this.n) : super('dart-list-fold-$n', emitter: RibsBenchmarkEmitter());
+  DartListFoldBenchmark(this.n) : super('dart-list-fold-$n');
 
   @override
   void setup() => l = genDartList(n);
@@ -24,7 +23,7 @@ class BuiltListFoldBenchmark extends BenchmarkBase {
   final int n;
   late built_list.BuiltList<int> l;
 
-  BuiltListFoldBenchmark(this.n) : super('built-list-fold-$n', emitter: RibsBenchmarkEmitter());
+  BuiltListFoldBenchmark(this.n) : super('built-list-fold-$n');
 
   @override
   void setup() => l = genBuiltList(n);
@@ -37,7 +36,7 @@ class DartzIListFoldBenchmark extends BenchmarkBase {
   final int n;
   late dartz.IList<int> l;
 
-  DartzIListFoldBenchmark(this.n) : super('dartz-ilist-fold-$n', emitter: RibsBenchmarkEmitter());
+  DartzIListFoldBenchmark(this.n) : super('dartz-ilist-fold-$n');
 
   @override
   void setup() => l = genDartzList(n);
@@ -50,7 +49,7 @@ class FICIListFoldBenchmark extends BenchmarkBase {
   final int n;
   late fic.IList<int> l;
 
-  FICIListFoldBenchmark(this.n) : super('fic-ilist-fold-$n', emitter: RibsBenchmarkEmitter());
+  FICIListFoldBenchmark(this.n) : super('fic-ilist-fold-$n');
 
   @override
   void setup() => l = genFicList(n);
@@ -63,7 +62,7 @@ class KtListFoldBenchmark extends BenchmarkBase {
   final int n;
   late kt.KtList<int> l;
 
-  KtListFoldBenchmark(this.n) : super('kt-list-fold-$n', emitter: RibsBenchmarkEmitter());
+  KtListFoldBenchmark(this.n) : super('kt-list-fold-$n');
 
   @override
   void setup() => l = genKtList(n);
@@ -76,7 +75,7 @@ class RibsIChainFoldBenchmark extends BenchmarkBase {
   final int n;
   late ribs.IChain<int> l;
 
-  RibsIChainFoldBenchmark(this.n) : super('ribs-ichain-fold-$n', emitter: RibsBenchmarkEmitter());
+  RibsIChainFoldBenchmark(this.n) : super('ribs-ichain-fold-$n');
 
   @override
   void setup() => l = genRibsIChain(n);
@@ -89,7 +88,7 @@ class RibsIListFoldBenchmark extends BenchmarkBase {
   final int n;
   late ribs.IList<int> l;
 
-  RibsIListFoldBenchmark(this.n) : super('ribs-ilist-fold-$n', emitter: RibsBenchmarkEmitter());
+  RibsIListFoldBenchmark(this.n) : super('ribs-ilist-fold-$n');
 
   @override
   void setup() => l = genRibsIList(n);
@@ -102,7 +101,7 @@ class RibsIVectorFoldBenchmark extends BenchmarkBase {
   final int n;
   late ribs.IVector<int> l;
 
-  RibsIVectorFoldBenchmark(this.n) : super('ribs-ivector-fold-$n', emitter: RibsBenchmarkEmitter());
+  RibsIVectorFoldBenchmark(this.n) : super('ribs-ivector-fold-$n');
 
   @override
   void setup() => l = genRibsIVector(n);

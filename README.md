@@ -70,6 +70,23 @@ that you won't find here.
 * [fpdart](https://github.com/SandroMaglione/fpdart)
 * [FIC](https://pub.dev/packages/fast_immutable_collections)
 
+### Benchmarks
+
+There are a number of benchmarks in `packages/bench` that compare the
+performance of the different libraries.
+
+```bash
+dart pub global activate benchmark_harness
+dart pub global run benchmark_harness:bench
+
+dart run benchmark_harness:bench --flavor aot --target packages/bench/bin/io.dart
+dart run benchmark_harness:bench --flavor aot --target packages/bench/bin/rill.dart
+
+dart run benchmark_harness:bench --flavor aot --target packages/bench/bin/collection/map.dart
+dart run benchmark_harness:bench --flavor aot --target packages/bench/bin/collection/seq.dart
+dart run benchmark_harness:bench --flavor aot --target packages/bench/bin/collection/set.dart
+```
+
 ### Credits
 
 Much of the design and functionality in this repository is closely derived from

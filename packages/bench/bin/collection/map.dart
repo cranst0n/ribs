@@ -4,42 +4,50 @@ import 'package:ribs_bench/collection/map/get.dart';
 import 'package:ribs_bench/collection/map/put.dart';
 import 'package:ribs_bench/collection/map/remove_absent.dart';
 import 'package:ribs_bench/collection/map/remove_present.dart';
+import 'package:ribs_bench/ribs_benchmark.dart';
 
 void main(List<String> args) {
   const ns = [10, 1000, 100000];
 
   for (final n in ns) {
-    DartMapPutBenchmark(n).report();
-    FICIMapPutBenchmark(n).report();
-    RibsIMapPutBenchmark(n).report();
-    RibsMMapPutBenchmark(n).report();
-    DartzIMapPutBenchmark(n).report();
-    BuiltMapPutBenchmark(n).report();
-    KtMapPutBenchmark(n).report();
-    print('-' * 80);
-    DartMapGetBenchmark(n).report();
-    FICIMapGetBenchmark(n).report();
-    RibsIMapGetBenchmark(n).report();
-    RibsMMapGetBenchmark(n).report();
-    DartzIMapGetBenchmark(n).report();
-    BuiltMapGetBenchmark(n).report();
-    KtMapGetBenchmark(n).report();
-    print('-' * 80);
-    DartMapRemovePresentBenchmark(n).report();
-    FICIMapRemovePresentBenchmark(n).report();
-    RibsIMapRemovePresentBenchmark(n).report();
-    RibsMMapRemovePresentBenchmark(n).report();
-    DartzIMapRemovePresentBenchmark(n).report();
-    BuiltMapRemovePresentBenchmark(n).report();
-    KtMapRemovePresentBenchmark(n).report();
-    print('-' * 80);
-    DartMapRemoveAbsentBenchmark(n).report();
-    FICIMapRemoveAbsentBenchmark(n).report();
-    RibsIMapRemoveAbsentBenchmark(n).report();
-    RibsMMapRemoveAbsentBenchmark(n).report();
-    DartzIMapRemoveAbsentBenchmark(n).report();
-    BuiltMapRemoveAbsentBenchmark(n).report();
-    KtMapRemoveAbsentBenchmark(n).report();
-    print('-' * 80);
+    RibsBenchmark.runAndReport([
+      DartMapPutBenchmark(n),
+      FICIMapPutBenchmark(n),
+      RibsIMapPutBenchmark(n),
+      RibsMMapPutBenchmark(n),
+      DartzIMapPutBenchmark(n),
+      BuiltMapPutBenchmark(n),
+      KtMapPutBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartMapGetBenchmark(n),
+      FICIMapGetBenchmark(n),
+      RibsIMapGetBenchmark(n),
+      RibsMMapGetBenchmark(n),
+      DartzIMapGetBenchmark(n),
+      BuiltMapGetBenchmark(n),
+      KtMapGetBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartMapRemovePresentBenchmark(n),
+      FICIMapRemovePresentBenchmark(n),
+      RibsIMapRemovePresentBenchmark(n),
+      RibsMMapRemovePresentBenchmark(n),
+      DartzIMapRemovePresentBenchmark(n),
+      BuiltMapRemovePresentBenchmark(n),
+      KtMapRemovePresentBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartMapRemoveAbsentBenchmark(n),
+      FICIMapRemoveAbsentBenchmark(n),
+      RibsIMapRemoveAbsentBenchmark(n),
+      RibsMMapRemoveAbsentBenchmark(n),
+      DartzIMapRemoveAbsentBenchmark(n),
+      BuiltMapRemoveAbsentBenchmark(n),
+      KtMapRemoveAbsentBenchmark(n),
+    ]);
   }
 }

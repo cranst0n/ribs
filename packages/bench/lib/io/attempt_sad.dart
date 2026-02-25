@@ -1,11 +1,12 @@
 import 'package:benchmark_harness/benchmark_harness.dart';
-import 'package:ribs_bench/benchmark_emitter.dart';
+import 'package:fpdart/fpdart.dart' as fpdart;
 import 'package:ribs_effect/ribs_effect.dart';
 
-const int attemptSadN = 10000;
+// fpdart Task is not stack safe. Keep this number lower
+const int attemptSadN = 5000;
 
 class FutureAttemptSadBenchmark extends AsyncBenchmarkBase {
-  FutureAttemptSadBenchmark() : super('future-attempt-sad', emitter: RibsBenchmarkEmitter());
+  FutureAttemptSadBenchmark() : super('future-attempt-sad');
 
   @override
   Future<void> run() {
@@ -20,7 +21,7 @@ class FutureAttemptSadBenchmark extends AsyncBenchmarkBase {
 }
 
 class RibsAttemptSadBenchmark extends AsyncBenchmarkBase {
-  RibsAttemptSadBenchmark() : super('ribs-attempt-sad', emitter: RibsBenchmarkEmitter());
+  RibsAttemptSadBenchmark() : super('io-attempt-sad');
 
   @override
   Future<void> run() {
@@ -34,4 +35,23 @@ class RibsAttemptSadBenchmark extends AsyncBenchmarkBase {
 
     return x.attempt().unsafeRunFuture();
   }
+}
+
+class FpdartAttemptSadBenchmark extends AsyncBenchmarkBase {
+  late fpdart.TaskEither<Object, int> task;
+
+  FpdartAttemptSadBenchmark() : super('fpdart-attempt-sad') {
+    fpdart.TaskEither<Object, int> x = fpdart.TaskEither.of(0);
+    for (int i = 0; i < attemptSadN; i++) {
+      x = x.flatMap(
+        (a) =>
+            (i == attemptSadN ~/ 2) ? fpdart.TaskEither.left('boom') : fpdart.TaskEither.of(a + 1),
+      );
+    }
+
+    task = x;
+  }
+
+  @override
+  Future<void> run() => task.run();
 }

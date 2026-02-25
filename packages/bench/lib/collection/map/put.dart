@@ -4,7 +4,6 @@ import 'package:dartz/dartz.dart' as dartz;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart' as fic;
 import 'package:kt_dart/collection.dart' as kt;
 import 'package:kt_dart/kt.dart';
-import 'package:ribs_bench/benchmark_emitter.dart';
 import 'package:ribs_bench/collection/utils.dart';
 import 'package:ribs_core/ribs_core.dart' as ribs;
 
@@ -12,7 +11,7 @@ class DartMapPutBenchmark extends BenchmarkBase {
   final int n;
   late Map<int, String> m;
 
-  DartMapPutBenchmark(this.n) : super('dart-map-put-$n', emitter: RibsBenchmarkEmitter());
+  DartMapPutBenchmark(this.n) : super('dart-map-put-$n');
 
   @override
   void setup() => m = genDartMap(n);
@@ -25,7 +24,7 @@ class FICIMapPutBenchmark extends BenchmarkBase {
   final int n;
   late fic.IMap<int, String> m;
 
-  FICIMapPutBenchmark(this.n) : super('fic-imap-put-$n', emitter: RibsBenchmarkEmitter());
+  FICIMapPutBenchmark(this.n) : super('fic-imap-put-$n');
 
   @override
   void setup() => m = genFicIMap(n);
@@ -38,7 +37,7 @@ class RibsIMapPutBenchmark extends BenchmarkBase {
   final int n;
   late ribs.IMap<int, String> m;
 
-  RibsIMapPutBenchmark(this.n) : super('ribs-imap-put-$n', emitter: RibsBenchmarkEmitter());
+  RibsIMapPutBenchmark(this.n) : super('ribs-imap-put-$n');
 
   @override
   void setup() => m = genRibsIMap(n);
@@ -51,7 +50,7 @@ class RibsMMapPutBenchmark extends BenchmarkBase {
   final int n;
   late ribs.MMap<int, String> m;
 
-  RibsMMapPutBenchmark(this.n) : super('ribs-mmap-put-$n', emitter: RibsBenchmarkEmitter());
+  RibsMMapPutBenchmark(this.n) : super('ribs-mmap-put-$n');
 
   @override
   void setup() => m = genRibsMMap(n);
@@ -64,7 +63,7 @@ class DartzIMapPutBenchmark extends BenchmarkBase {
   final int n;
   late dartz.IMap<int, String> m;
 
-  DartzIMapPutBenchmark(this.n) : super('dartz-imap-put-$n', emitter: RibsBenchmarkEmitter());
+  DartzIMapPutBenchmark(this.n) : super('dartz-imap-put-$n');
 
   @override
   void setup() => m = genDartzIMap(n);
@@ -77,7 +76,7 @@ class BuiltMapPutBenchmark extends BenchmarkBase {
   final int n;
   late built_list.BuiltMap<int, String> m;
 
-  BuiltMapPutBenchmark(this.n) : super('built-map-put-$n', emitter: RibsBenchmarkEmitter());
+  BuiltMapPutBenchmark(this.n) : super('built-map-put-$n');
 
   @override
   void setup() => m = genBuiltMap(n);
@@ -90,7 +89,7 @@ class KtMapPutBenchmark extends BenchmarkBase {
   final int n;
   late kt.KtMap<int, String> m;
 
-  KtMapPutBenchmark(this.n) : super('kt-map-put-$n', emitter: RibsBenchmarkEmitter());
+  KtMapPutBenchmark(this.n) : super('kt-map-put-$n');
 
   @override
   void setup() => m = genKtMap(n);

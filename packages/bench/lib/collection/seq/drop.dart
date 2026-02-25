@@ -2,7 +2,6 @@ import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:built_collection/built_collection.dart' as built_list;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart' as fic;
 import 'package:kt_dart/collection.dart' as kt;
-import 'package:ribs_bench/benchmark_emitter.dart';
 import 'package:ribs_bench/collection/utils.dart';
 import 'package:ribs_core/ribs_core.dart' as ribs;
 
@@ -10,7 +9,7 @@ class DartListDropBenchmark extends BenchmarkBase {
   final int n;
   late List<int> l;
 
-  DartListDropBenchmark(this.n) : super('dart-list-drop-$n', emitter: RibsBenchmarkEmitter());
+  DartListDropBenchmark(this.n) : super('dart-list-drop-$n');
 
   @override
   void setup() => l = genDartList(n);
@@ -23,7 +22,7 @@ class BuiltListDropBenchmark extends BenchmarkBase {
   final int n;
   late built_list.BuiltList<int> l;
 
-  BuiltListDropBenchmark(this.n) : super('built-list-drop-$n', emitter: RibsBenchmarkEmitter());
+  BuiltListDropBenchmark(this.n) : super('built-list-drop-$n');
 
   @override
   void setup() => l = genBuiltList(n);
@@ -36,7 +35,7 @@ class FICIListDropBenchmark extends BenchmarkBase {
   final int n;
   late fic.IList<int> l;
 
-  FICIListDropBenchmark(this.n) : super('fic-ilist-drop-$n', emitter: RibsBenchmarkEmitter());
+  FICIListDropBenchmark(this.n) : super('fic-ilist-drop-$n');
 
   @override
   void setup() => l = genFicList(n);
@@ -49,7 +48,7 @@ class KtListDropBenchmark extends BenchmarkBase {
   final int n;
   late kt.KtList<int> l;
 
-  KtListDropBenchmark(this.n) : super('kt-list-drop-$n', emitter: RibsBenchmarkEmitter());
+  KtListDropBenchmark(this.n) : super('kt-list-drop-$n');
 
   @override
   void setup() => l = genKtList(n);
@@ -62,7 +61,7 @@ class RibsIListDropBenchmark extends BenchmarkBase {
   final int n;
   late ribs.IList<int> l;
 
-  RibsIListDropBenchmark(this.n) : super('ribs-ilist-drop-$n', emitter: RibsBenchmarkEmitter());
+  RibsIListDropBenchmark(this.n) : super('ribs-ilist-drop-$n');
 
   @override
   void setup() => l = genRibsIList(n);
@@ -75,7 +74,7 @@ class RibsIVectorDropBenchmark extends BenchmarkBase {
   final int n;
   late ribs.IVector<int> l;
 
-  RibsIVectorDropBenchmark(this.n) : super('ribs-ivector-drop-$n', emitter: RibsBenchmarkEmitter());
+  RibsIVectorDropBenchmark(this.n) : super('ribs-ivector-drop-$n');
 
   @override
   void setup() => l = genRibsIVector(n);

@@ -3,7 +3,6 @@ import 'package:built_collection/built_collection.dart' as built_list;
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart' as fic;
 import 'package:kt_dart/collection.dart' as kt;
-import 'package:ribs_bench/benchmark_emitter.dart';
 import 'package:ribs_bench/collection/utils.dart';
 import 'package:ribs_core/ribs_core.dart' as ribs;
 
@@ -11,7 +10,7 @@ class DartListConcatBenchmark extends BenchmarkBase {
   final int n;
   late List<int> l;
 
-  DartListConcatBenchmark(this.n) : super('dart-list-concat-$n', emitter: RibsBenchmarkEmitter());
+  DartListConcatBenchmark(this.n) : super('dart-list-concat-$n');
 
   @override
   void setup() => l = genDartList(n);
@@ -24,7 +23,7 @@ class BuiltListConcatBenchmark extends BenchmarkBase {
   final int n;
   late built_list.BuiltList<int> l;
 
-  BuiltListConcatBenchmark(this.n) : super('built-list-concat-$n', emitter: RibsBenchmarkEmitter());
+  BuiltListConcatBenchmark(this.n) : super('built-list-concat-$n');
 
   @override
   void setup() => l = genBuiltList(n);
@@ -37,8 +36,7 @@ class DartzIListConcatBenchmark extends BenchmarkBase {
   final int n;
   late dartz.IList<int> l;
 
-  DartzIListConcatBenchmark(this.n)
-    : super('dartz-ilist-concat-$n', emitter: RibsBenchmarkEmitter());
+  DartzIListConcatBenchmark(this.n) : super('dartz-ilist-concat-$n');
 
   @override
   void setup() => l = genDartzList(n);
@@ -51,7 +49,7 @@ class FICIListConcatBenchmark extends BenchmarkBase {
   final int n;
   late fic.IList<int> l;
 
-  FICIListConcatBenchmark(this.n) : super('fic-ilist-concat-$n', emitter: RibsBenchmarkEmitter());
+  FICIListConcatBenchmark(this.n) : super('fic-ilist-concat-$n');
 
   @override
   void setup() => l = genFicList(n);
@@ -64,7 +62,7 @@ class KtListConcatBenchmark extends BenchmarkBase {
   final int n;
   late kt.KtList<int> l;
 
-  KtListConcatBenchmark(this.n) : super('kt-list-concat-$n', emitter: RibsBenchmarkEmitter());
+  KtListConcatBenchmark(this.n) : super('kt-list-concat-$n');
 
   @override
   void setup() => l = genKtList(n);
@@ -77,8 +75,7 @@ class RibsIChainConcatBenchmark extends BenchmarkBase {
   final int n;
   late ribs.IChain<int> l;
 
-  RibsIChainConcatBenchmark(this.n)
-    : super('ribs-ichain-concat-$n', emitter: RibsBenchmarkEmitter());
+  RibsIChainConcatBenchmark(this.n) : super('ribs-ichain-concat-$n');
 
   @override
   void setup() => l = genRibsIChain(n);
@@ -91,7 +88,7 @@ class RibsIListConcatBenchmark extends BenchmarkBase {
   final int n;
   late ribs.IList<int> l;
 
-  RibsIListConcatBenchmark(this.n) : super('ribs-ilist-concat-$n', emitter: RibsBenchmarkEmitter());
+  RibsIListConcatBenchmark(this.n) : super('ribs-ilist-concat-$n');
 
   @override
   void setup() => l = genRibsIList(n);
@@ -104,8 +101,7 @@ class RibsIVectorConcatBenchmark extends BenchmarkBase {
   final int n;
   late ribs.IVector<int> l;
 
-  RibsIVectorConcatBenchmark(this.n)
-    : super('ribs-ivector-concat-$n', emitter: RibsBenchmarkEmitter());
+  RibsIVectorConcatBenchmark(this.n) : super('ribs-ivector-concat-$n');
 
   @override
   void setup() => l = genRibsIVector(n);

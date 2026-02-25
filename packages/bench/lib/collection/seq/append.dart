@@ -3,7 +3,6 @@ import 'package:built_collection/built_collection.dart' as built_list;
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart' as fic;
 import 'package:kt_dart/collection.dart' as kt;
-import 'package:ribs_bench/benchmark_emitter.dart';
 import 'package:ribs_bench/collection/utils.dart';
 import 'package:ribs_core/ribs_core.dart' as ribs;
 
@@ -11,7 +10,7 @@ class DartListAppendBenchmark extends BenchmarkBase {
   final int n;
   late List<int> l;
 
-  DartListAppendBenchmark(this.n) : super('dart-list-append-$n', emitter: RibsBenchmarkEmitter());
+  DartListAppendBenchmark(this.n) : super('dart-list-append-$n');
 
   @override
   void setup() => l = genDartList(n);
@@ -24,7 +23,7 @@ class BuiltListAppendBenchmark extends BenchmarkBase {
   final int n;
   late built_list.BuiltList<int> l;
 
-  BuiltListAppendBenchmark(this.n) : super('built-list-append-$n', emitter: RibsBenchmarkEmitter());
+  BuiltListAppendBenchmark(this.n) : super('built-list-append-$n');
 
   @override
   void setup() => l = genBuiltList(n);
@@ -37,8 +36,7 @@ class DartzIListAppendBenchmark extends BenchmarkBase {
   final int n;
   late dartz.IList<int> l;
 
-  DartzIListAppendBenchmark(this.n)
-    : super('dartz-ilist-append-$n', emitter: RibsBenchmarkEmitter());
+  DartzIListAppendBenchmark(this.n) : super('dartz-ilist-append-$n');
 
   @override
   void setup() => l = genDartzList(n);
@@ -51,7 +49,7 @@ class FICIListAppendBenchmark extends BenchmarkBase {
   final int n;
   late fic.IList<int> l;
 
-  FICIListAppendBenchmark(this.n) : super('fic-ilist-append-$n', emitter: RibsBenchmarkEmitter());
+  FICIListAppendBenchmark(this.n) : super('fic-ilist-append-$n');
 
   @override
   void setup() => l = genFicList(n);
@@ -64,7 +62,7 @@ class KtListAppendBenchmark extends BenchmarkBase {
   final int n;
   late kt.KtList<int> l;
 
-  KtListAppendBenchmark(this.n) : super('kt-list-append-$n', emitter: RibsBenchmarkEmitter());
+  KtListAppendBenchmark(this.n) : super('kt-list-append-$n');
 
   @override
   void setup() => l = genKtList(n);
@@ -77,8 +75,7 @@ class RibsIChainAppendBenchmark extends BenchmarkBase {
   final int n;
   late ribs.IChain<int> l;
 
-  RibsIChainAppendBenchmark(this.n)
-    : super('ribs-ichain-append-$n', emitter: RibsBenchmarkEmitter());
+  RibsIChainAppendBenchmark(this.n) : super('ribs-ichain-append-$n');
 
   @override
   void setup() => l = genRibsIChain(n);
@@ -91,7 +88,7 @@ class RibsIListAppendBenchmark extends BenchmarkBase {
   final int n;
   late ribs.IList<int> l;
 
-  RibsIListAppendBenchmark(this.n) : super('ribs-ilist-append-$n', emitter: RibsBenchmarkEmitter());
+  RibsIListAppendBenchmark(this.n) : super('ribs-ilist-append-$n');
 
   @override
   void setup() => l = genRibsIList(n);
@@ -104,8 +101,7 @@ class RibsIVectorAppendBenchmark extends BenchmarkBase {
   final int n;
   late ribs.IVector<int> l;
 
-  RibsIVectorAppendBenchmark(this.n)
-    : super('ribs-ivector-append-$n', emitter: RibsBenchmarkEmitter());
+  RibsIVectorAppendBenchmark(this.n) : super('ribs-ivector-append-$n');
 
   @override
   void setup() => l = genRibsIVector(n);
@@ -118,8 +114,7 @@ class RibsListBufferAppendBenchmark extends BenchmarkBase {
   final int n;
   late ribs.ListBuffer<int> l;
 
-  RibsListBufferAppendBenchmark(this.n)
-    : super('ribs-listbuffer-append-$n', emitter: RibsBenchmarkEmitter());
+  RibsListBufferAppendBenchmark(this.n) : super('ribs-listbuffer-append-$n');
 
   @override
   void setup() => l = genRibsListBuffer(n);

@@ -1,11 +1,10 @@
 import 'package:benchmark_harness/benchmark_harness.dart';
-import 'package:ribs_bench/benchmark_emitter.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
 const basicN = 1000000;
 
 class StreamBasicBenchmark extends AsyncBenchmarkBase {
-  StreamBasicBenchmark() : super('stream-basic', emitter: RibsBenchmarkEmitter());
+  StreamBasicBenchmark() : super('stream-basic');
 
   @override
   Future<void> run() async {
@@ -18,7 +17,7 @@ class StreamBasicBenchmark extends AsyncBenchmarkBase {
 }
 
 class RillBasicBenchmark extends AsyncBenchmarkBase {
-  RillBasicBenchmark() : super('rill-basic', emitter: RibsBenchmarkEmitter());
+  RillBasicBenchmark() : super('rill-basic');
 
   @override
   Future<void> run() async {

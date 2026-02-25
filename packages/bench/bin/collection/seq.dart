@@ -15,140 +15,171 @@ import 'package:ribs_bench/collection/seq/reverse.dart';
 import 'package:ribs_bench/collection/seq/tail.dart';
 import 'package:ribs_bench/collection/seq/take.dart';
 import 'package:ribs_bench/collection/seq/update.dart';
+import 'package:ribs_bench/ribs_benchmark.dart';
 
 void main(List<String> args) {
   const ns = [10, 1000, 100000];
 
   for (final n in ns) {
-    // DartListAppendBenchmark(n).report();
-    BuiltListAppendBenchmark(n).report();
-    DartzIListAppendBenchmark(n).report();
-    FICIListAppendBenchmark(n).report();
-    KtListAppendBenchmark(n).report();
-    RibsIChainAppendBenchmark(n).report();
-    RibsIListAppendBenchmark(n).report();
-    RibsIVectorAppendBenchmark(n).report();
-    RibsListBufferAppendBenchmark(n).report();
-    print('-' * 80);
-    DartListPrependBenchmark(n).report();
-    BuiltListPrependBenchmark(n).report();
-    DartzIListPrependBenchmark(n).report();
-    FICIListPrependBenchmark(n).report();
-    RibsIChainPrependBenchmark(n).report();
-    RibsIListPrependBenchmark(n).report();
-    RibsIVectorPrependBenchmark(n).report();
-    RibsListBufferPrependBenchmark(n).report();
-    print('-' * 80);
-    DartListApplyBenchmark(n).report();
-    BuiltListApplyBenchmark(n).report();
-    FICIListApplyBenchmark(n).report();
-    KtListApplyBenchmark(n).report();
-    RibsIChainApplyBenchmark(n).report();
-    RibsIListApplyBenchmark(n).report();
-    RibsIVectorApplyBenchmark(n).report();
-    RibsListBufferApplyBenchmark(n).report();
-    print('-' * 80);
-    DartListHeadBenchmark(n).report();
-    BuiltListHeadBenchmark(n).report();
-    FICIListHeadBenchmark(n).report();
-    KtListHeadBenchmark(n).report();
-    RibsIChainHeadBenchmark(n).report();
-    RibsIListHeadBenchmark(n).report();
-    RibsIVectorHeadBenchmark(n).report();
-    RibsListBufferHeadBenchmark(n).report();
-    print('-' * 80);
-    DartListUpdateBenchmark(n).report();
-    BuiltListUpdateBenchmark(n).report();
-    FICIListUpdateBenchmark(n).report();
-    RibsIListUpdateBenchmark(n).report();
-    RibsIVectorUpdateBenchmark(n).report();
-    RibsListBufferUpdateBenchmark(n).report();
-    print('-' * 80);
-    DartListMapBenchmark(n).report();
-    BuiltListMapBenchmark(n).report();
-    DartzIListMapBenchmark(n).report();
-    FICIListMapBenchmark(n).report();
-    KtListMapBenchmark(n).report();
-    RibsIChainMapBenchmark(n).report();
-    RibsIListMapBenchmark(n).report();
-    RibsIVectorMapBenchmark(n).report();
-    RibsListBufferMapBenchmark(n).report();
-    print('-' * 80);
-    DartListFilterBenchmark(n).report();
-    BuiltListFilterBenchmark(n).report();
-    DartzIListFilterBenchmark(n).report();
-    FICIListFilterBenchmark(n).report();
-    KtListFilterBenchmark(n).report();
-    RibsIChainFilterBenchmark(n).report();
-    RibsIListFilterBenchmark(n).report();
-    RibsIVectorFilterBenchmark(n).report();
-    RibsListBufferFilterBenchmark(n).report();
-    print('-' * 80);
-    DartListInitBenchmark(n).report();
-    BuiltListInitBenchmark(n).report();
-    FICIListInitBenchmark(n).report();
-    KtListInitBenchmark(n).report();
-    RibsIChainInitBenchmark(n).report();
-    RibsIListInitBenchmark(n).report();
-    RibsIVectorInitBenchmark(n).report();
-    print('-' * 80);
-    DartListTailBenchmark(n).report();
-    BuiltListTailBenchmark(n).report();
-    DartzIListTailBenchmark(n).report();
-    FICIListTailBenchmark(n).report();
-    KtListTailBenchmark(n).report();
-    RibsIChainTailBenchmark(n).report();
-    RibsIListTailBenchmark(n).report();
-    RibsIVectorTailBenchmark(n).report();
-    print('-' * 80);
-    DartListDropBenchmark(n).report();
-    BuiltListDropBenchmark(n).report();
-    FICIListDropBenchmark(n).report();
-    KtListDropBenchmark(n).report();
-    RibsIListDropBenchmark(n).report();
-    RibsIVectorDropBenchmark(n).report();
-    print('-' * 80);
-    DartListTakeBenchmark(n).report();
-    BuiltListTakeBenchmark(n).report();
-    FICIListTakeBenchmark(n).report();
-    KtListTakeBenchmark(n).report();
-    RibsIListTakeBenchmark(n).report();
-    RibsIVectorTakeBenchmark(n).report();
-    print('-' * 80);
-    DartListFoldBenchmark(n).report();
-    BuiltListFoldBenchmark(n).report();
-    DartzIListFoldBenchmark(n).report();
-    FICIListFoldBenchmark(n).report();
-    KtListFoldBenchmark(n).report();
-    RibsIChainFoldBenchmark(n).report();
-    RibsIListFoldBenchmark(n).report();
-    RibsIVectorFoldBenchmark(n).report();
-    print('-' * 80);
-    DartListReverseBenchmark(n).report();
-    BuiltListReverseBenchmark(n).report();
-    DartzIListReverseBenchmark(n).report();
-    FICIListReverseBenchmark(n).report();
-    KtListReverseBenchmark(n).report();
-    RibsIChainReverseBenchmark(n).report();
-    RibsIListReverseBenchmark(n).report();
-    RibsIVectorReverseBenchmark(n).report();
-    print('-' * 80);
-    DartListContainsBenchmark(n).report();
-    BuiltListContainsBenchmark(n).report();
-    DartzIListContainsBenchmark(n).report();
-    FICIListContainsBenchmark(n).report();
-    KtListContainsBenchmark(n).report();
-    RibsIListContainsBenchmark(n).report();
-    RibsIVectorContainsBenchmark(n).report();
-    print('-' * 80);
-    DartListConcatBenchmark(n).report();
-    BuiltListConcatBenchmark(n).report();
-    DartzIListConcatBenchmark(n).report();
-    FICIListConcatBenchmark(n).report();
-    KtListConcatBenchmark(n).report();
-    RibsIChainConcatBenchmark(n).report();
-    RibsIListConcatBenchmark(n).report();
-    RibsIVectorConcatBenchmark(n).report();
-    print('-' * 80);
+    RibsBenchmark.runAndReport([
+      // This often crashes the benchmark?
+      // DartListAppendBenchmark(n),
+      BuiltListAppendBenchmark(n),
+      DartzIListAppendBenchmark(n),
+      FICIListAppendBenchmark(n),
+      KtListAppendBenchmark(n),
+      RibsIChainAppendBenchmark(n),
+      RibsIListAppendBenchmark(n),
+      RibsIVectorAppendBenchmark(n),
+      RibsListBufferAppendBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartListPrependBenchmark(n),
+      BuiltListPrependBenchmark(n),
+      DartzIListPrependBenchmark(n),
+      FICIListPrependBenchmark(n),
+      RibsIChainPrependBenchmark(n),
+      RibsIListPrependBenchmark(n),
+      RibsIVectorPrependBenchmark(n),
+      RibsListBufferPrependBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartListApplyBenchmark(n),
+      BuiltListApplyBenchmark(n),
+      FICIListApplyBenchmark(n),
+      KtListApplyBenchmark(n),
+      RibsIChainApplyBenchmark(n),
+      RibsIListApplyBenchmark(n),
+      RibsIVectorApplyBenchmark(n),
+      RibsListBufferApplyBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartListHeadBenchmark(n),
+      BuiltListHeadBenchmark(n),
+      FICIListHeadBenchmark(n),
+      KtListHeadBenchmark(n),
+      RibsIChainHeadBenchmark(n),
+      RibsIListHeadBenchmark(n),
+      RibsIVectorHeadBenchmark(n),
+      RibsListBufferHeadBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartListUpdateBenchmark(n),
+      BuiltListUpdateBenchmark(n),
+      FICIListUpdateBenchmark(n),
+      RibsIListUpdateBenchmark(n),
+      RibsIVectorUpdateBenchmark(n),
+      RibsListBufferUpdateBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartListMapBenchmark(n),
+      BuiltListMapBenchmark(n),
+      DartzIListMapBenchmark(n),
+      FICIListMapBenchmark(n),
+      KtListMapBenchmark(n),
+      RibsIChainMapBenchmark(n),
+      RibsIListMapBenchmark(n),
+      RibsIVectorMapBenchmark(n),
+      RibsListBufferMapBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartListFilterBenchmark(n),
+      BuiltListFilterBenchmark(n),
+      DartzIListFilterBenchmark(n),
+      FICIListFilterBenchmark(n),
+      KtListFilterBenchmark(n),
+      RibsIChainFilterBenchmark(n),
+      RibsIListFilterBenchmark(n),
+      RibsIVectorFilterBenchmark(n),
+      RibsListBufferFilterBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartListInitBenchmark(n),
+      BuiltListInitBenchmark(n),
+      FICIListInitBenchmark(n),
+      KtListInitBenchmark(n),
+      RibsIChainInitBenchmark(n),
+      RibsIListInitBenchmark(n),
+      RibsIVectorInitBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartListTailBenchmark(n),
+      BuiltListTailBenchmark(n),
+      DartzIListTailBenchmark(n),
+      FICIListTailBenchmark(n),
+      KtListTailBenchmark(n),
+      RibsIChainTailBenchmark(n),
+      RibsIListTailBenchmark(n),
+      RibsIVectorTailBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartListDropBenchmark(n),
+      BuiltListDropBenchmark(n),
+      FICIListDropBenchmark(n),
+      KtListDropBenchmark(n),
+      RibsIListDropBenchmark(n),
+      RibsIVectorDropBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartListTakeBenchmark(n),
+      BuiltListTakeBenchmark(n),
+      FICIListTakeBenchmark(n),
+      KtListTakeBenchmark(n),
+      RibsIListTakeBenchmark(n),
+      RibsIVectorTakeBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartListFoldBenchmark(n),
+      BuiltListFoldBenchmark(n),
+      DartzIListFoldBenchmark(n),
+      FICIListFoldBenchmark(n),
+      KtListFoldBenchmark(n),
+      RibsIChainFoldBenchmark(n),
+      RibsIListFoldBenchmark(n),
+      RibsIVectorFoldBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartListReverseBenchmark(n),
+      BuiltListReverseBenchmark(n),
+      DartzIListReverseBenchmark(n),
+      FICIListReverseBenchmark(n),
+      KtListReverseBenchmark(n),
+      RibsIChainReverseBenchmark(n),
+      RibsIListReverseBenchmark(n),
+      RibsIVectorReverseBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartListContainsBenchmark(n),
+      BuiltListContainsBenchmark(n),
+      DartzIListContainsBenchmark(n),
+      FICIListContainsBenchmark(n),
+      KtListContainsBenchmark(n),
+      RibsIListContainsBenchmark(n),
+      RibsIVectorContainsBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      DartListConcatBenchmark(n),
+      BuiltListConcatBenchmark(n),
+      DartzIListConcatBenchmark(n),
+      FICIListConcatBenchmark(n),
+      KtListConcatBenchmark(n),
+      RibsIChainConcatBenchmark(n),
+      RibsIListConcatBenchmark(n),
+      RibsIVectorConcatBenchmark(n),
+    ]);
   }
 }
