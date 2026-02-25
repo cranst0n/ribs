@@ -84,7 +84,7 @@ sealed class Either<A, B> implements Monad<B> {
   /// Applies [f] to this value is this is a [Right]. If this is a [Left], then
   /// the original value is returned.
   @override
-  Either<A, C> flatMap<C>(Function1<B, Either<A, C>> f) => fold(left<A, C>, f);
+  Either<A, C> flatMap<C>(Function1<B, Either<A, C>> f);
 
   /// Applies [op] to [init] and this value if this is a [Right]. If this is
   /// a [Left], [init] is returned.
@@ -104,7 +104,7 @@ sealed class Either<A, B> implements Monad<B> {
   B getOrElse(Function0<B> orElse) => fold((_) => orElse(), identity);
 
   /// Returns true if this is a [Left], otherwise false is returned.
-  bool get isLeft => fold((_) => true, (_) => false);
+  bool get isLeft;
 
   /// Returns true if this is a [Right], otherwise false is returned.
   bool get isRight => !isLeft;
@@ -117,7 +117,7 @@ sealed class Either<A, B> implements Monad<B> {
   /// Returns a new Either by applying [f] to the value of this instance if
   /// it is a [Right].
   @override
-  Either<A, C> map<C>(Function1<B, C> f) => fold(left<A, C>, (r) => Right(f(r)));
+  Either<A, C> map<C>(Function1<B, C> f);
 
   /// If this instance is a [Right], this is returned. Otherwise, the result of
   /// evaluating [orElse] is returned.
@@ -163,7 +163,16 @@ final class Left<A, B> extends Either<A, B> {
   const Left(this.a);
 
   @override
+  Either<A, C> flatMap<C>(Function1<B, Either<A, C>> f) => Either.left<A, C>(a);
+
+  @override
   C fold<C>(Function1<A, C> fa, Function1<B, C> fb) => fa(a);
+
+  @override
+  bool get isLeft => true;
+
+  @override
+  Either<A, C> map<C>(Function1<B, C> f) => Either.left<A, C>(a);
 }
 
 /// One of two possible instances of [Either], generally used to indicate
@@ -174,7 +183,16 @@ final class Right<A, B> extends Either<A, B> {
   const Right(this.b);
 
   @override
+  Either<A, C> flatMap<C>(Function1<B, Either<A, C>> f) => f(b);
+
+  @override
   C fold<C>(Function1<A, C> fa, Function1<B, C> fb) => fb(b);
+
+  @override
+  bool get isLeft => false;
+
+  @override
+  Either<A, C> map<C>(Function1<B, C> f) => Right(f(b));
 }
 
 extension EitherNestedOps<A, B> on Either<A, Either<A, B>> {

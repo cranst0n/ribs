@@ -40,31 +40,31 @@ sealed class Option<A> with RIterableOnce<A> {
   Option<A> drop(int n) => filter((_) => n <= 0);
 
   @override
-  RIterableOnce<A> dropWhile(Function1<A, bool> p) => filterNot(p);
+  Option<A> dropWhile(Function1<A, bool> p) => filterNot(p);
 
   @override
-  RIterator<A> get iterator => fold(() => RIterator.empty(), RIterator.single);
+  RIterator<A> get iterator;
 
   /// Returns the result of applying `f` to this [Option] value if non-empty.
   B fold<B>(Function0<B> ifEmpty, Function1<A, B> f);
 
   /// Returns true if this Option is a [Some], false if it's a [None].
-  bool get isDefined => fold(() => false, (_) => true);
+  bool get isDefined => this is Some;
 
   @override
   bool get isEmpty => this is None;
 
   @override
-  Option<A> filter(Function1<A, bool> p) => fold(() => this, (a) => p(a) ? this : none<A>());
+  Option<A> filter(Function1<A, bool> p);
 
   @override
   Option<A> filterNot(Function1<A, bool> p) => filter((a) => !p(a));
 
   @override
-  Option<B> flatMap<B>(Function1<A, Option<B>> f) => fold(() => none<B>(), f);
+  Option<B> flatMap<B>(Function1<A, Option<B>> f);
 
   @override
-  Option<B> map<B>(Function1<A, B> f) => flatMap((a) => Some(f(a)));
+  Option<B> map<B>(Function1<A, B> f);
 
   @override
   bool get nonEmpty => this is Some;
@@ -86,29 +86,24 @@ sealed class Option<A> with RIterableOnce<A> {
 
   /// If this is a [Some] a [Left] is returned with the value. It this is a
   /// [None], a [Right] is returned with the result of evaluating [ifEmpty].
-  Either<A, X> toLeft<X>(Function0<X> ifEmpty) =>
-      fold(() => Either.right<A, X>(ifEmpty()), (x) => Either.left<A, X>(x));
+  Either<A, X> toLeft<X>(Function0<X> ifEmpty);
 
   /// If this is a [Some] a [Right] is returned with the value. It this is a
   /// [None], a [Left] is returned with the result of evaluating [ifEmpty].
-  Either<X, A> toRight<X>(Function0<X> ifEmpty) =>
-      fold(() => Either.left<X, A>(ifEmpty()), (x) => Either.right<X, A>(x));
+  Either<X, A> toRight<X>(Function0<X> ifEmpty);
 
   /// Returns a nullable value, which is the value itself if this is a [Some],
   /// or null if this is a [None].
-  A? toNullable() => fold(() => null, identity);
+  A? toNullable();
 
   @override
   String toString() => fold(() => 'None', (a) => 'Some($a)');
 
   @override
-  bool operator ==(Object other) => fold(
-    () => other is None,
-    (value) => other is Some<A> && value == other.value,
-  );
+  bool operator ==(Object other);
 
   @override
-  int get hashCode => fold(() => 0, (a) => a.hashCode);
+  int get hashCode;
 }
 
 /// An [Option] that signifies the presence of a value.
@@ -118,7 +113,34 @@ final class Some<A> extends Option<A> {
   const Some(this.value) : super._();
 
   @override
+  Option<A> filter(Function1<A, bool> p) => p(value) ? this : const None();
+
+  @override
+  Option<B> flatMap<B>(Function1<A, Option<B>> f) => f(value);
+
+  @override
   B fold<B>(Function0<B> ifEmpty, Function1<A, B> f) => f(value);
+
+  @override
+  RIterator<A> get iterator => RIterator.single(value);
+
+  @override
+  Option<B> map<B>(Function1<A, B> f) => Some(f(value));
+
+  @override
+  Either<A, X> toLeft<X>(Function0<X> ifEmpty) => Either.left(value);
+
+  @override
+  Either<X, A> toRight<X>(Function0<X> ifEmpty) => Either.right(value);
+
+  @override
+  A? toNullable() => value;
+
+  @override
+  bool operator ==(Object other) => other is Some && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
 }
 
 /// An [Option] that signifies the absence of a value.
@@ -126,7 +148,34 @@ final class None extends Option<Never> {
   const None() : super._();
 
   @override
+  Option<Never> filter(Function1<Never, bool> p) => this;
+
+  @override
+  Option<B> flatMap<B>(Function1<Never, Option<B>> f) => this;
+
+  @override
   B fold<B>(Function0<B> ifEmpty, Function1<Never, B> f) => ifEmpty();
+
+  @override
+  RIterator<Never> get iterator => RIterator.empty();
+
+  @override
+  Option<B> map<B>(Function1<Never, B> f) => this;
+
+  @override
+  Either<Never, X> toLeft<X>(Function0<X> ifEmpty) => Either.right(ifEmpty());
+
+  @override
+  Either<X, Never> toRight<X>(Function0<X> ifEmpty) => Either.left(ifEmpty());
+
+  @override
+  Never? toNullable() => null;
+
+  @override
+  bool operator ==(Object other) => other is None;
+
+  @override
+  int get hashCode => 0;
 }
 
 /// Additional functions that can be called on a nested [Option].
@@ -140,9 +189,9 @@ extension OptionOps<A> on Option<A> {
 
   /// Returns the value if this is a [Some] or the value returned from
   /// evaluating [ifEmpty].
-  A getOrElse(Function0<A> ifEmpty) => fold(() => ifEmpty(), identity);
+  A getOrElse(Function0<A> ifEmpty) => fold(ifEmpty, identity);
 
   /// If this is a [Some], this is returned, otherwise the result of evaluating
   /// [orElse] is returned.
-  Option<A> orElse(Function0<Option<A>> orElse) => fold(() => orElse(), (_) => this);
+  Option<A> orElse(Function0<Option<A>> orElse) => fold(orElse, (_) => this);
 }

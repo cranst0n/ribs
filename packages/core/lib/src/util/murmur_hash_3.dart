@@ -37,13 +37,17 @@ sealed class MurmurHash3 {
 
       var h = mapSeed;
 
-      xs.foreach((kv) {
+      final it = xs.iterator;
+
+      while (it.hasNext) {
+        final kv = it.next();
         final h = _tuple2Hash(kv.$1, kv.$2);
+
         a += h;
         b ^= h;
         c *= h | 1;
         n += 1;
-      });
+      }
 
       h = _impl.mix(h, a);
       h = _impl.mix(h, b);

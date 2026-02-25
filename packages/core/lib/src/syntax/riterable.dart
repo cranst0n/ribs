@@ -1,19 +1,55 @@
 import 'package:ribs_core/ribs_core.dart';
 
-extension RIterableIntOps on RIterable<int> {
+extension RIterableIntOps on RIterableOnce<int> {
   /// Returns the sum of all elements in this list
-  int sum() => foldLeft(0, (a, b) => a + b);
+  int sum() {
+    var s = 0;
+    final it = iterator;
+
+    while (it.hasNext) {
+      s += it.next();
+    }
+
+    return s;
+  }
 
   /// Returns the product of all elements in this list
-  int product() => foldLeft(1, (a, b) => a * b);
+  int product() {
+    var p = 1;
+    final it = iterator;
+
+    while (it.hasNext) {
+      p *= it.next();
+    }
+
+    return p;
+  }
 }
 
-extension RIterableDoubleOps on RIterable<double> {
+extension RIterableDoubleOps on RIterableOnce<double> {
   /// Returns the sum of all elements in this list
-  double sum() => foldLeft(0, (a, b) => a + b);
+  double sum() {
+    var s = 0.0;
+    final it = iterator;
+
+    while (it.hasNext) {
+      s += it.next();
+    }
+
+    return s;
+  }
 
   /// Returns the product of all elements in this list
-  double product() => foldLeft(1, (a, b) => a * b);
+  double product() {
+    var p = 1.0;
+    final it = iterator;
+
+    while (it.hasNext) {
+      p *= it.next();
+    }
+
+    return p;
+  }
 }
 
 extension RIterableTuple2Ops<A, B> on RIterable<(A, B)> {
@@ -23,5 +59,14 @@ extension RIterableTuple2Ops<A, B> on RIterable<(A, B)> {
 }
 
 extension RIterableNested2Ops<A> on RIterable<RIterable<A>> {
-  RIterable<A> flatten() => fold(nil(), (acc, elem) => acc.concat(elem));
+  RIterable<A> flatten() {
+    final it = iterator;
+    final b = IList.builder<A>();
+
+    while (it.hasNext) {
+      b.addAll(it.next());
+    }
+
+    return b.toIList();
+  }
 }
