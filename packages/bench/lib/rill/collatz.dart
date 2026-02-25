@@ -1,4 +1,5 @@
 import 'package:benchmark_harness/benchmark_harness.dart';
+import 'package:ribs_bench/benchmark_emitter.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
@@ -7,7 +8,7 @@ const collatzStepThreshold = 200;
 const collatzTakeLimit = 50;
 
 class StreamCollatzBenchmark extends AsyncBenchmarkBase {
-  StreamCollatzBenchmark() : super('stream-collatz');
+  StreamCollatzBenchmark() : super('stream-collatz', emitter: RibsBenchmarkEmitter());
 
   @override
   Future<void> run() => computeCollatz(collatzStartNum, collatzStepThreshold, collatzTakeLimit);
@@ -43,7 +44,7 @@ class StreamCollatzBenchmark extends AsyncBenchmarkBase {
 }
 
 class RillCollatzBenchmark extends AsyncBenchmarkBase {
-  RillCollatzBenchmark() : super('rill-collatz');
+  RillCollatzBenchmark() : super('rill-collatz', emitter: RibsBenchmarkEmitter());
 
   @override
   Future<void> run() =>

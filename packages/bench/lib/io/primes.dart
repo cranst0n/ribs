@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:benchmark_harness/benchmark_harness.dart';
+import 'package:ribs_bench/benchmark_emitter.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
@@ -8,7 +9,7 @@ const int primesSearchLimit = 1000000;
 const int primesChunkSize = 10000;
 
 final class FuturePrimesBenchmark extends AsyncBenchmarkBase {
-  FuturePrimesBenchmark() : super('primes-future');
+  FuturePrimesBenchmark() : super('primes-future', emitter: RibsBenchmarkEmitter());
 
   @override
   Future<void> run() => segmentedSieve(primesSearchLimit, primesChunkSize);
@@ -37,7 +38,7 @@ final class FuturePrimesBenchmark extends AsyncBenchmarkBase {
 }
 
 final class RibsPrimesBenchmark extends AsyncBenchmarkBase {
-  RibsPrimesBenchmark() : super('primes-ribs');
+  RibsPrimesBenchmark() : super('primes-ribs', emitter: RibsBenchmarkEmitter());
 
   @override
   Future<void> run() => segmentedSieve(primesSearchLimit, primesChunkSize).unsafeRunFuture();

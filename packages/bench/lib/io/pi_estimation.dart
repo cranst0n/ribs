@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:benchmark_harness/benchmark_harness.dart';
+import 'package:ribs_bench/benchmark_emitter.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
@@ -10,7 +11,7 @@ const piEstimationChunks = 10000;
 final _random = Random();
 
 final class FuturePiEstimationBenchmark extends AsyncBenchmarkBase {
-  FuturePiEstimationBenchmark() : super('pi-estimation-future');
+  FuturePiEstimationBenchmark() : super('pi-estimation-future', emitter: RibsBenchmarkEmitter());
 
   @override
   Future<void> run() => estimatePi(piEstimationTotal, piEstimationChunks);
@@ -31,7 +32,7 @@ final class FuturePiEstimationBenchmark extends AsyncBenchmarkBase {
 }
 
 class RibsPiEstimationBenchmark extends AsyncBenchmarkBase {
-  RibsPiEstimationBenchmark() : super('pi-estimation-ribs');
+  RibsPiEstimationBenchmark() : super('pi-estimation-ribs', emitter: RibsBenchmarkEmitter());
 
   @override
   Future<void> run() => estimatePi(piEstimationTotal, piEstimationChunks).unsafeRunFuture();

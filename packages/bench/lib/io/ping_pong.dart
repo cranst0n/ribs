@@ -1,11 +1,12 @@
 import 'package:benchmark_harness/benchmark_harness.dart';
+import 'package:ribs_bench/benchmark_emitter.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
 const int pingPongN = 1000;
 
 class FuturePingPongBenchmark extends AsyncBenchmarkBase {
-  FuturePingPongBenchmark() : super('future-ping-pong');
+  FuturePingPongBenchmark() : super('future-ping-pong', emitter: RibsBenchmarkEmitter());
 
   @override
   Future<void> run() async => await _pingPong(pingPongN);
@@ -21,7 +22,7 @@ class FuturePingPongBenchmark extends AsyncBenchmarkBase {
 }
 
 class RibsPingPongBenchmark extends AsyncBenchmarkBase {
-  RibsPingPongBenchmark() : super('ribs-ping-pong');
+  RibsPingPongBenchmark() : super('ribs-ping-pong', emitter: RibsBenchmarkEmitter());
 
   @override
   Future<void> run() async => await _pingPong(pingPongN).unsafeRunFuture();

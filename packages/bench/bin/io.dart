@@ -11,41 +11,30 @@ import 'package:ribs_bench/io/ping_pong.dart';
 import 'package:ribs_bench/io/primes.dart';
 
 void main(List<String> args) async {
-  void printTitle(String title) => print('\n${'=' * 20} $title ${'=' * 20}');
-
-  printTitle('map (x$mapN)');
   await FutureMapBenchmark().report();
   await RibsMapBenchmark().report();
-
-  printTitle('flatmap (x$flatMapN)');
+  print('-' * 80);
   await FutureFlatmapBenchmark().report();
   await RibsFlatmapBenchmark().report();
-
-  printTitle('attempt happy (x$attemptHappyN)');
+  print('-' * 80);
   await FutureAttemptHappyBenchmark().report();
   await RibsAttemptHappyBenchmark().report();
-
-  printTitle('attempt sad (x$attemptSadN)');
+  print('-' * 80);
   await FutureAttemptSadBenchmark().report();
   await RibsAttemptSadBenchmark().report();
-
-  printTitle('ping pong (x$pingPongN)');
+  print('-' * 80);
   await FuturePingPongBenchmark().report();
   await RibsPingPongBenchmark().report();
-
-  printTitle('fibonacci ($fibonacciN)');
+  print('-' * 80);
   await FibonacciFutureBenchmark().report();
   await FibonacciIOBenchmark().report();
-
-  printTitle('primes ($primesSearchLimit / $primesChunkSize)');
+  print('-' * 80);
   await FuturePrimesBenchmark().report();
   await RibsPrimesBenchmark().report();
-
-  printTitle('pi estimation ($piEstimationTotal / $piEstimationChunks)');
+  print('-' * 80);
   await FuturePiEstimationBenchmark().report();
   await RibsPiEstimationBenchmark().report();
-
-  printTitle('merge sort ($mergeSortSize / $mergeSortThreshold)');
+  print('-' * 80);
   await MergeSortFutureBenchmark().report();
   await MergeSortIOBenchmark().report();
 }

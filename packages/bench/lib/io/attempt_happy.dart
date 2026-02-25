@@ -1,11 +1,12 @@
 import 'package:benchmark_harness/benchmark_harness.dart';
+import 'package:ribs_bench/benchmark_emitter.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
 const int attemptHappyN = 10000;
 
 class FutureAttemptHappyBenchmark extends AsyncBenchmarkBase {
-  FutureAttemptHappyBenchmark() : super('future-attempt-happy');
+  FutureAttemptHappyBenchmark() : super('future-attempt-happy', emitter: RibsBenchmarkEmitter());
 
   @override
   Future<void> run() =>
@@ -13,7 +14,7 @@ class FutureAttemptHappyBenchmark extends AsyncBenchmarkBase {
 }
 
 class RibsAttemptHappyBenchmark extends AsyncBenchmarkBase {
-  RibsAttemptHappyBenchmark() : super('ribs-attempt-happy');
+  RibsAttemptHappyBenchmark() : super('ribs-attempt-happy', emitter: RibsBenchmarkEmitter());
 
   @override
   Future<void> run() => IO.pure(0).attempt().replicate_(attemptHappyN).unsafeRunFuture();

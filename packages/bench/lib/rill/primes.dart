@@ -1,11 +1,12 @@
 import 'package:benchmark_harness/benchmark_harness.dart';
+import 'package:ribs_bench/benchmark_emitter.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
 const primesN = 1000000;
 
 class StreamPrimesBenchmark extends AsyncBenchmarkBase {
-  StreamPrimesBenchmark() : super('stream-primes');
+  StreamPrimesBenchmark() : super('stream-primes', emitter: RibsBenchmarkEmitter());
 
   @override
   Future<void> run() async {
@@ -45,7 +46,7 @@ class StreamPrimesBenchmark extends AsyncBenchmarkBase {
 }
 
 class RillPrimesBenchmark extends AsyncBenchmarkBase {
-  RillPrimesBenchmark() : super('rill-primes');
+  RillPrimesBenchmark() : super('rill-primes', emitter: RibsBenchmarkEmitter());
 
   @override
   Future<void> run() async {
