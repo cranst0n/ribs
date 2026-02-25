@@ -101,7 +101,7 @@ extension IOIListOps<A> on IList<A> {
 }
 
 extension IListConcurrencyOps<A> on IList<A> {
-  /// Maps [f] over the list in parallel, running at most [n] tasks simultaneously.
+  /// Maps [f] over the list concurrently, running at most [n] tasks at a time.
   IO<IList<B>> parTraverseN<B>(int n, IO<B> Function(A) f) {
     if (n <= 0) throw ArgumentError("Concurrency limit 'n' must be > 0");
 

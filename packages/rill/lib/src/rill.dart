@@ -1498,7 +1498,7 @@ class Rill<O> {
       return IO.ref(none<Deferred<Unit>>()).map((haltRef) {
         Rill<O2> runInner(O o, Deferred<Unit> halt) {
           return Rill.bracketFull(
-            (poll) => poll(guard.acquire()), // guard against parallel rills
+            (poll) => poll(guard.acquire()), // guard against simultaneously running rills
             (_, ec) {
               return ec.fold(
                 () => guard.release(),
