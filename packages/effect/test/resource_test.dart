@@ -324,13 +324,14 @@ void main() {
       expect(bReleased, isTrue);
     });
 
-    forAll2(
-      'releases resources in rever order of acquisition',
+    (
       Gen.ilistOf(
         Gen.chooseInt(0, 20),
         (Gen.integer, Gen.either<Object, Unit>(Gen.constant('boom'), Gen.constant(Unit()))).tupled,
       ),
       Gen.boolean,
+    ).forAllN(
+      'releases resources in rever order of acquisition',
       (as, rhs) {
         var released = nil<int>();
 

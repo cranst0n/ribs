@@ -11,7 +11,7 @@ void main() {
       expect(Cidr.fromString(cidr.toString()), isSome(cidr));
     });
 
-    forAll2('fromIpAndMask', genIp, Gen.nonNegativeInt, (ip, prefixBits0) {
+    (genIp, Gen.nonNegativeInt).forAllN('fromIpAndMask', (ip, prefixBits0) {
       final prefixBits = (prefixBits0 % ip.bitSize) + 1;
       final maskInt = BigInt.from(-1) << (ip.bitSize - prefixBits);
       final mask = ip.fold(
@@ -22,10 +22,8 @@ void main() {
       expect(Cidr.fromIpAndMask(ip, mask), Cidr.of(ip, prefixBits));
     });
 
-    forAll2(
+    (genIp, Gen.nonNegativeInt).forAllN(
       'parsing from string: only masks with a valid length return a CIDR',
-      genIp,
-      Gen.nonNegativeInt,
       (ip, prefixBits) {
         final cidr = Cidr.fromString('$ip/$prefixBits');
         expect(cidr.isDefined, 0 <= prefixBits && prefixBits <= ip.bitSize);

@@ -1168,3 +1168,7 @@ final class _DeferredState<A> {
     _state = state;
   }
 }
+
+extension ILazyListNestedOps<A> on ILazyList<ILazyList<A>> {
+  ILazyList<A> flatten() => flatMap(identity);
+}

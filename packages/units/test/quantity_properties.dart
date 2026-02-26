@@ -21,7 +21,7 @@ class QuantityProperties {
     Gen<A> gen,
     Gen<B> genUnit,
   ) {
-    forAll2('equivalentTo', gen, genUnit, (original, otherUnit) {
+    (gen, genUnit).forAllN('equivalentTo', (original, otherUnit) {
       expect(
         otherUnit(original.to(otherUnit)).equivalentTo(original),
         isTrue,
@@ -33,7 +33,7 @@ class QuantityProperties {
     Gen<A> gen,
     Iterable<Function1<A, A>> roundTrips,
   ) {
-    forAll2('roundtrip', gen, Gen.oneOf(roundTrips), (original, roundTrip) {
+    (gen, Gen.oneOf(roundTrips)).forAllN('roundtrip', (original, roundTrip) {
       final actual = roundTrip(original);
 
       expect(original.value, closeTo(actual.value, 1e-6));

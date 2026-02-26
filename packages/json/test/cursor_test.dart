@@ -102,10 +102,11 @@ void main() {
       expect(result.flatMap((a) => a.top()), isSome(j4));
     });
 
-    forAll2(
-      'delete should remove a value from an array',
+    (
       genJson,
       Gen.ilistOf(Gen.chooseInt(0, 5), genJson),
+    ).forAllN(
+      'delete should remove a value from an array',
       (h, t) {
         final result = HCursor.fromJson(
           Json.arrI(t.prepended(h)),
@@ -202,12 +203,15 @@ void main() {
     expect(result.flatMap((a) => a.focus()), isSome(Json.number(200.2)));
   });
 
-  forAll2('field should fail at the top', genJson, Gen.nonEmptyAlphaNumString(10), (json, key) {
-    final result = HCursor.fromJson(json).field(key);
+  (genJson, Gen.nonEmptyAlphaNumString(10)).forAllN(
+    'field should fail at the top',
+    (json, key) {
+      final result = HCursor.fromJson(json).field(key);
 
-    expect(result.failed, isTrue);
-    expect(result.history(), ilist([CursorOp.field(key)]));
-  });
+      expect(result.failed, isTrue);
+      expect(result.history(), ilist([CursorOp.field(key)]));
+    },
+  );
 
   test('getOrElse should successfully decode an existing field', () {
     final result = cursor

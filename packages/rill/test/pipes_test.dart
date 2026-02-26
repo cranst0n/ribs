@@ -78,15 +78,22 @@ void main() {
     });
 
     group('base64', () {
-      forAll3(
-        'base64.encode andThen base64.decode',
-        Gen.listOf(Gen.chooseInt(0, 20), Gen.listOf(Gen.chooseInt(0, 20), Gen.byte)),
+      (
+        Gen.listOf(
+          Gen.chooseInt(0, 20),
+          Gen.listOf(Gen.chooseInt(0, 20), Gen.byte),
+        ),
         Gen.boolean,
         Gen.integer,
+      ).forAllN(
+        'base64.encode andThen base64.decode',
         (bs, unchunked, rechunkSeed) {
           final actual = bs
               .map(Chunk.fromList)
-              .fold(Rill.empty<int>(), (acc, chunk) => acc.append(() => Rill.chunk(chunk)))
+              .fold(
+                Rill.empty<int>(),
+                (acc, chunk) => acc.append(() => Rill.chunk(chunk)),
+              )
               .through(Pipes.text.base64.encode)
               .through((rill) {
                 if (unchunked) {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:meta/meta.dart';
 import 'package:ribs_check/src/gen.dart';
@@ -49,33 +50,20 @@ final class Prop<T> {
     Map<String, dynamic>? onPlatform,
     int? retry,
   }) {
-    final seedNN = seed ?? DateTime.now().millisecondsSinceEpoch;
-
     test(
       description,
       () async {
-        var count = 0;
-        Option<PropFailure<T>> firstFailure = none();
+        final envSeed = Platform.environment['RIBS_CHECK_SEED'];
+        final seedNN = seed ?? int.tryParse(envSeed ?? '') ?? DateTime.now().millisecondsSinceEpoch;
 
-        final iterator = gen.stream(StatefulRandom(seedNN)).take(numTests ?? 100).iterator;
-        while (iterator.hasNext) {
-          final value = iterator.next();
-          count++;
-          final result = await _runProp(value, testBody);
-          if (result.isDefined) {
-            firstFailure = result;
-            break;
-          }
-        }
-
-        final shrunkenFailure = await firstFailure.fold(
-          () => Future.value(firstFailure),
-          (a) => _shrink(a, testBody),
-        );
+        final shrunkenFailure = await check(numTests: numTests, seed: seedNN);
 
         shrunkenFailure.foreach((a) {
           throw TestFailure(
-            '${a.underlying.message} Failed after $count iterations using value <${a.value}> and initial seed of [$seedNN].',
+            '${a.underlying.message}\n'
+            'Failed after ${a.count} iterations using value <${a.value}> and initial seed of [$seedNN].\n\n'
+            'To reproduce this failure, use seed: $seedNN in your forAll/Prop call, or run:\n'
+            'RIBS_CHECK_SEED=$seedNN dart test --plain-name "$description"\n',
           );
         });
       },
@@ -85,6 +73,29 @@ final class Prop<T> {
       tags: tags,
       onPlatform: onPlatform,
       retry: retry,
+    );
+  }
+
+  Future<Option<PropFailure<T>>> check({int? numTests, int? seed}) async {
+    final seedNN = seed ?? DateTime.now().millisecondsSinceEpoch;
+
+    var count = 0;
+    Option<PropFailure<T>> firstFailure = none();
+
+    final iterator = gen.stream(StatefulRandom(seedNN)).take(numTests ?? 100).iterator;
+    while (iterator.hasNext) {
+      final value = iterator.next();
+      count++;
+      final result = await _runProp(value, testBody);
+      if (result.isDefined) {
+        firstFailure = result.map((f) => f.copyWith(count: count));
+        break;
+      }
+    }
+
+    return firstFailure.fold(
+      () => Future.value(firstFailure),
+      (a) => _shrink(a, testBody),
     );
   }
 
@@ -108,12 +119,13 @@ final class Prop<T> {
     while (iterator.hasNext) {
       final value = iterator.next();
       final result = await _runProp(value, testBody);
-      final shrunkResult = await result.fold(
-        () => Future.value(Some(original)),
-        (fail) => _shrink(fail, testBody, count: count - 1),
-      );
-      if (shrunkResult.isDefined) {
-        return shrunkResult;
+
+      if (result.isDefined) {
+        return _shrink(
+          result.getOrElse(() => throw Exception('unreachable')),
+          testBody,
+          count: count - 1,
+        );
       }
     }
 
@@ -124,124 +136,13 @@ final class Prop<T> {
 class PropFailure<T> {
   final T value;
   final TestFailure underlying;
+  final int count;
 
-  const PropFailure(this.value, this.underlying);
+  const PropFailure(this.value, this.underlying, {this.count = 0});
+
+  PropFailure<T> copyWith({T? value, TestFailure? underlying, int? count}) => PropFailure(
+    value ?? this.value,
+    underlying ?? this.underlying,
+    count: count ?? this.count,
+  );
 }
-
-@isTest
-void forAll2<T0, T1>(
-  String description,
-  Gen<T0> gen0,
-  Gen<T1> gen1,
-  Function2<T0, T1, FutureOr<void>> testBody, {
-  int? numTests,
-  int? seed,
-  String? testOn,
-  Timeout? timeout,
-  dynamic skip,
-  dynamic tags,
-  Map<String, dynamic>? onPlatform,
-  int? retry,
-}) => forAll(
-  description,
-  (gen0, gen1).tupled,
-  testBody.tupled,
-  numTests: numTests,
-  seed: seed,
-  testOn: testOn,
-  timeout: timeout,
-  skip: skip,
-  tags: tags,
-  onPlatform: onPlatform,
-  retry: retry,
-);
-
-@isTest
-void forAll3<T0, T1, T2>(
-  String description,
-  Gen<T0> gen0,
-  Gen<T1> gen1,
-  Gen<T2> gen2,
-  Function3<T0, T1, T2, FutureOr<void>> testBody, {
-  int? numTests,
-  int? seed,
-  String? testOn,
-  Timeout? timeout,
-  dynamic skip,
-  dynamic tags,
-  Map<String, dynamic>? onPlatform,
-  int? retry,
-}) => forAll(
-  description,
-  (gen0, gen1, gen2).tupled,
-  testBody.tupled,
-  numTests: numTests,
-  seed: seed,
-  testOn: testOn,
-  timeout: timeout,
-  skip: skip,
-  tags: tags,
-  onPlatform: onPlatform,
-  retry: retry,
-);
-
-@isTest
-void forAll4<T0, T1, T2, T3>(
-  String description,
-  Gen<T0> gen0,
-  Gen<T1> gen1,
-  Gen<T2> gen2,
-  Gen<T3> gen3,
-  Function4<T0, T1, T2, T3, FutureOr<void>> testBody, {
-  int? numTests,
-  int? seed,
-  String? testOn,
-  Timeout? timeout,
-  dynamic skip,
-  dynamic tags,
-  Map<String, dynamic>? onPlatform,
-  int? retry,
-}) => forAll(
-  description,
-  (gen0, gen1, gen2, gen3).tupled,
-  testBody.tupled,
-  numTests: numTests,
-  seed: seed,
-  testOn: testOn,
-  timeout: timeout,
-  skip: skip,
-  tags: tags,
-  onPlatform: onPlatform,
-  retry: retry,
-);
-
-@isTest
-void forAll5<T0, T1, T2, T3, T4>(
-  String description,
-  Gen<T0> gen0,
-  Gen<T1> gen1,
-  Gen<T2> gen2,
-  Gen<T3> gen3,
-  Gen<T4> gen4,
-  Function5<T0, T1, T2, T3, T4, FutureOr<void>> testBody, {
-  int? numTests,
-  int? seed,
-  String? testOn,
-  Timeout? timeout,
-  dynamic skip,
-  dynamic tags,
-  Map<String, dynamic>? onPlatform,
-  int? retry,
-}) => forAll(
-  description,
-  (gen0, gen1, gen2, gen3, gen4).tupled,
-  testBody.tupled,
-  numTests: numTests,
-  seed: seed,
-  testOn: testOn,
-  timeout: timeout,
-  skip: skip,
-  tags: tags,
-  onPlatform: onPlatform,
-  retry: retry,
-);

@@ -453,10 +453,8 @@ void main() {
       expect(fromList, fromList2);
     });
 
-    forAll2(
+    (byteVector, Gen.integer).forAllN(
       'dropping from a view is consistent with dropping from a strict vector',
-      byteVector,
-      Gen.integer,
       (b, n0) {
         final view = ByteVector.view(b.toByteArray());
         final n = n0.abs();
@@ -518,11 +516,12 @@ void main() {
       expect(bv.acquire(bv.size + 1), isLeft<String, ByteVector>());
     });
 
-    forAll3(
-      'buffer append',
+    (
       byteVector,
       Gen.ilistOf(Gen.chooseInt(0, 10), byteVector),
       Gen.nonNegativeInt,
+    ).forAllN(
+      'buffer append',
       (b, bs, n) {
         final unbuf = bs.foldLeft(b, (a, b) => a.concat(b));
 
@@ -536,14 +535,18 @@ void main() {
       testOn: '!browser',
     );
 
-    forAll3(
-      'buffer concat/take/drop',
+    (
       byteVector,
       Gen.ilistOf(Gen.chooseInt(0, 10), byteVector),
       Gen.nonNegativeInt,
+    ).forAllN(
+      'buffer concat/take/drop',
       (b, bs, n) {
         final unbuf = bs.foldLeft(b, (a, b) => a.concat(b));
-        final buf = bs.foldLeft(b.bufferBy(max(n % 50, 0) + 1), (a, b) => a.concat(b));
+        final buf = bs.foldLeft(
+          b.bufferBy(max(n % 50, 0) + 1),
+          (a, b) => a.concat(b),
+        );
 
         expect(unbuf, buf);
 
@@ -554,12 +557,8 @@ void main() {
       },
     );
 
-    forAll4(
+    (byteVector, byteVector, byteVector, Gen.integer).forAllN(
       'buffer rebuffering',
-      byteVector,
-      byteVector,
-      byteVector,
-      Gen.integer,
       (b1, b2, b3, n) {
         final chunkSize = max(n % 50, 0) + 1;
 
@@ -611,7 +610,7 @@ void main() {
       expect(bv.dropWhile((b) => b != 0), expected);
     });
 
-    forAll2('endsWith', byteVector, Gen.integer, (bv, n0) {
+    (byteVector, Gen.integer).forAllN('endsWith', (bv, n0) {
       final n = bv.nonEmpty ? (n0 % bv.size).abs() : 0;
       final slice = bv.takeRight(n);
 
@@ -649,11 +648,8 @@ void main() {
       }
     });
 
-    forAll3(
+    (byteVector, Gen.integer, Gen.integer).forAllN(
       'indexOfSlice / containsSlice / startsWith',
-      byteVector,
-      Gen.integer,
-      Gen.integer,
       (bv, m0, n0) {
         final m = bv.nonEmpty ? (m0 % bv.size).abs() : 0;
         final n = bv.nonEmpty ? (n0 % bv.size).abs() : 0;
@@ -699,7 +695,7 @@ void main() {
       );
     });
 
-    forAll2('last', byteVector, Gen.byte, (bv, byte) {
+    (byteVector, Gen.byte).forAllN('last', (bv, byte) {
       if (bv.nonEmpty) {
         expect(bv.last, bv[bv.size - 1]);
       }
@@ -707,7 +703,7 @@ void main() {
       expect(bv.append(byte).last, byte);
     });
 
-    forAll2('lastOption', byteVector, Gen.byte, (bv, byte) {
+    (byteVector, Gen.byte).forAllN('lastOption', (bv, byte) {
       expect(bv.lastOption.isDefined, bv.nonEmpty);
       expect(bv.append(byte).lastOption, isSome(byte));
     });
@@ -726,7 +722,7 @@ void main() {
       expect(bv.padTo(bv.size + 10), bv.padRight(bv.size + 10));
     });
 
-    forAll3('patch', byteVector, byteVector, Gen.integer, (x, y, n0) {
+    (byteVector, byteVector, Gen.integer).forAllN('patch', (x, y, n0) {
       final n = x.nonEmpty ? (n0 % x.size).abs() : 0;
 
       expect(x.patch(n, x.slice(n, n)), x);
@@ -737,7 +733,7 @@ void main() {
       expect(b.reverse.reverse, b);
     });
 
-    forAll2('rotations', byteVector, Gen.integer, (b, n) {
+    (byteVector, Gen.integer).forAllN('rotations', (b, n) {
       expect(b.rotateLeft(b.size * 8), b);
       expect(b.rotateRight(b.size * 8), b);
       expect(b.rotateRight(n).rotateLeft(n), b);
@@ -768,7 +764,7 @@ void main() {
       );
     });
 
-    forAll3('splice', byteVector, byteVector, Gen.integer, (x, y, n0) {
+    (byteVector, byteVector, Gen.integer).forAllN('splice', (x, y, n0) {
       final n = x.nonEmpty ? (n0 % x.size).abs() : 0;
 
       expect(x.splice(n, ByteVector.empty), x);

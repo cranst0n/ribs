@@ -1,7 +1,6 @@
 import 'package:ribs_check/src/gen.dart';
 import 'package:ribs_check/src/prop.dart';
 import 'package:ribs_core/test_matchers.dart';
-import 'package:test/expect.dart';
 import 'package:test/test.dart';
 
 void main() {
