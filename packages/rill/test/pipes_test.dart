@@ -14,13 +14,13 @@ import 'matchers.dart';
 void main() {
   group('text', () {
     group('lines / linesLimited', () {
-      forAll('newlines appear in between chunks', stringRill, (lines) {
+      stringRill.forAll('newlines appear in between chunks', (lines) {
         expect(lines.intersperse('\n').through(Pipes.text.lines), producesSameAs(lines));
         expect(lines.intersperse('\r\n').through(Pipes.text.lines), producesSameAs(lines));
         expect(lines.intersperse('\r').through(Pipes.text.lines), producesSameAs(lines));
       });
 
-      forAll('single string', stringRill, (lines) async {
+      stringRill.forAll('single string', (lines) async {
         final list = await lines.compile.toList.unsafeRunFuture();
 
         if (list.nonEmpty) {
@@ -36,7 +36,7 @@ void main() {
         });
       });
 
-      forAll('grouped in 3 character chunks', stringRill, (lines) async {
+      stringRill.forAll('grouped in 3 character chunks', (lines) async {
         final s0 = await lines.intersperse('\r\n').compile.toList.unsafeRunFuture();
         final s = Chunk.from(s0.mkString().grouped(3));
 
@@ -85,7 +85,7 @@ void main() {
         ),
         Gen.boolean,
         Gen.integer,
-      ).forAllN(
+      ).forAll(
         'base64.encode andThen base64.decode',
         (bs, unchunked, rechunkSeed) {
           final actual = bs
@@ -121,9 +121,8 @@ void main() {
         },
       );
 
-      forAll(
+      Gen.listOf(Gen.chooseInt(0, 20), Gen.listOf(Gen.chooseInt(0, 20), Gen.byte)).forAll(
         'optional padding',
-        Gen.listOf(Gen.chooseInt(0, 20), Gen.listOf(Gen.chooseInt(0, 20), Gen.byte)),
         (bs) {
           final actual = bs
               .map(Chunk.fromList)

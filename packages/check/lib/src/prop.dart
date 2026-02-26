@@ -1,35 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:meta/meta.dart';
 import 'package:ribs_check/src/gen.dart';
 import 'package:ribs_check/src/stateful_random.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:test/test.dart';
-
-@isTest
-void forAll<T>(
-  String description,
-  Gen<T> gen,
-  TestBody<T> testBody, {
-  int? numTests,
-  int? seed,
-  String? testOn,
-  Timeout? timeout,
-  dynamic skip,
-  dynamic tags,
-  Map<String, dynamic>? onPlatform,
-  int? retry,
-}) => Prop(description, gen, testBody).run(
-  numTests: numTests,
-  seed: seed,
-  testOn: testOn,
-  timeout: timeout,
-  skip: skip,
-  tags: tags,
-  onPlatform: onPlatform,
-  retry: retry,
-);
 
 typedef TestBody<T> = Function1<T, FutureOr<void>>;
 
@@ -62,7 +37,7 @@ final class Prop<T> {
           throw TestFailure(
             '${a.underlying.message}\n'
             'Failed after ${a.count} iterations using value <${a.value}> and initial seed of [$seedNN].\n\n'
-            'To reproduce this failure, use seed: $seedNN in your forAll/Prop call, or run:\n'
+            'To reproduce this failure, use seed: $seedNN in your forAllN/Prop call, or run:\n'
             'RIBS_CHECK_SEED=$seedNN dart test --plain-name "$description"\n',
           );
         });

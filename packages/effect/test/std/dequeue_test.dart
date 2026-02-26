@@ -160,7 +160,7 @@ class DequeueTests {
   static void reverse<Q extends Dequeue<int>>(
     Function1<int, IO<Q>> constructor,
   ) {
-    forAll('reverse', Gen.ilistOfN(100, Gen.positiveInt), (l) {
+    Gen.ilistOfN(100, Gen.positiveInt).forAll('reverse', (l) {
       final test = constructor(1000000).flatMap((q) {
         return l.traverseIO_(q.offer).flatMap((_) {
           return q.reverse().flatMap((_) {

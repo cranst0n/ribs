@@ -8,7 +8,7 @@ import 'arbitraries.dart';
 
 void main() {
   group('IDN', () {
-    forAll('supports any hostname', genHostname, (hostname) {
+    genHostname.forAll('supports any hostname', (hostname) {
       final representable = hostname.labels.forall(
         (l) => !l.toString().toLowerCase().startsWith('xn--'),
       );
@@ -20,18 +20,18 @@ void main() {
       }
     });
 
-    forAll('roundtrip through string', genIDN, (idn) {
+    genIDN.forAll('roundtrip through string', (idn) {
       expect(IDN.fromString(idn.toString()), isSome(idn));
     });
 
-    forAll('allow access to labels', genIDN, (idn) {
+    genIDN.forAll('allow access to labels', (idn) {
       expect(
         IDN.fromString(idn.labels.mkString(sep: '.')).map((idn) => idn.labels),
         isSome(idn.labels),
       );
     });
 
-    forAll('require overall ascii length be less than 254 chars', genIDN, (idn) {
+    genIDN.forAll('require overall ascii length be less than 254 chars', (idn) {
       final istr = idn.toString();
       final i2 = '$istr.$istr';
 
@@ -47,23 +47,23 @@ void main() {
       expect(IDN.fromString(i2), expected);
     });
 
-    forAll('require labels be less than 64 ascii chars', genIDN, (idn) {
+    genIDN.forAll('require labels be less than 64 ascii chars', (idn) {
       final str = idn.toString();
       final suffix = str[str.length - 1] * 63;
       final tooLong = str + suffix;
       expect(IDN.fromString(tooLong), isNone());
     });
 
-    forAll('disallow labels that end in a dash', genIDN, (idn) {
+    genIDN.forAll('disallow labels that end in a dash', (idn) {
       // Note: simply appending a dash to final label doesn't guarantee the ASCII encoded label ends with a dash
       expect(IDN.fromString('$idn.a-'), isNone());
     });
 
-    forAll('disallow labels that start with a dash', genIDN, (idn) {
+    genIDN.forAll('disallow labels that start with a dash', (idn) {
       expect(IDN.fromString('-a.$idn'), isNone());
     });
 
-    forAll('support normalization', genIDN, (idn) {
+    genIDN.forAll('support normalization', (idn) {
       final expected = IDN
           .fromString(idn.labels.map((a) => a.toString().toLowerCase()).mkString(sep: '.'))
           .getOrElse(

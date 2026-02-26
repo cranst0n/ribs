@@ -8,7 +8,7 @@ import 'arbitraries.dart';
 
 void main() {
   group('Json', () {
-    forAll('hashCode / equality', genJson, (json) {
+    genJson.forAll('hashCode / equality', (json) {
       expect(json, json);
       expect(json.hashCode, json.hashCode);
     });

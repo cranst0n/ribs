@@ -29,7 +29,7 @@ void main() {
       expect(Ipv6Address.fromString(' ::: '), isNone());
     });
 
-    forAll('parses mixed strings', genIpv4, (v4) {
+    genIpv4.forAll('parses mixed strings', (v4) {
       expect(Ipv6Address.fromString('::$v4'), isSome(v4.toCompatV6()));
       expect(Ipv6Address.fromString('::ffff:$v4'), isSome(v4.toMappedV6()));
     });
@@ -38,28 +38,28 @@ void main() {
       expect(Ipv6Address.fromString('db'), isNone());
     });
 
-    forAll('support converting to uncondensed string format', genIpv6, (v6) {
+    genIpv6.forAll('support converting to uncondensed string format', (v6) {
       expect(v6.toUncondensedString().length, 4 * 8 + 7);
     });
 
-    forAll('uncondensed string roundtrip', genIpv6, (v6) {
+    genIpv6.forAll('uncondensed string roundtrip', (v6) {
       expect(Ipv6Address.fromString(v6.toUncondensedString()), isSome(v6));
     });
 
-    forAll('support converting to mixed string form', genIpv4, (v4) {
+    genIpv4.forAll('support converting to mixed string form', (v4) {
       expect(v4.toCompatV6().toMixedString(), '::$v4');
       expect(v4.toMappedV6().toMixedString(), '::ffff:$v4');
     });
 
-    forAll('mixed string roundtrip', genIpv6, (v6) {
+    genIpv6.forAll('mixed string roundtrip', (v6) {
       expect(Ipv6Address.fromString(v6.toMixedString()), isSome(v6));
     });
 
-    forAll('BigInt roundtrip', genIpv6, (v6) {
+    genIpv6.forAll('BigInt roundtrip', (v6) {
       expect(Ipv6Address.fromBigInt(v6.toBigInt()), v6);
     });
 
-    forAll('supports ordering', genIpv6.tuple2, (tuple) {
+    genIpv6.tuple2.forAll('supports ordering', (tuple) {
       final (left, right) = tuple;
 
       final biCompare = left.toBigInt().compareTo(right.toBigInt());
@@ -82,11 +82,11 @@ void main() {
       );
     });
 
-    forAll('compute next IP (gen)', genIpv6, (v6) {
+    genIpv6.forAll('compute next IP (gen)', (v6) {
       expect(v6.next(), Ipv6Address.fromBigInt(v6.toBigInt() + BigInt.one));
     });
 
-    forAll('compute previous IP (gen)', genIpv6, (v6) {
+    genIpv6.forAll('compute previous IP (gen)', (v6) {
       expect(v6.previous(), Ipv6Address.fromBigInt(v6.toBigInt() - BigInt.one));
     });
 

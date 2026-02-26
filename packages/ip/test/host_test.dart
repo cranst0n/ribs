@@ -7,21 +7,21 @@ import 'arbitraries.dart';
 
 void main() {
   group('Host', () {
-    forAll('fromString: IPAddress', genIp, (ip) {
+    genIp.forAll('fromString: IPAddress', (ip) {
       expect(
         Host.fromString(ip.toString()),
         isSome(ip.asHost),
       );
     });
 
-    forAll('fromString: Hostname', genHostname, (hostname) {
+    genHostname.forAll('fromString: Hostname', (hostname) {
       expect(
         Host.fromString(hostname.toString()),
         isSome(hostname.asHost),
       );
     });
 
-    forAll('fromString: IDN', genIDN, (idn) {
+    genIDN.forAll('fromString: IDN', (idn) {
       expect(
         Host.fromString(idn.toString()).map((a) => a.toString()),
         isSome(idn.toString()),

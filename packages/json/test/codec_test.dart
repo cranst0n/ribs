@@ -17,13 +17,12 @@ void main() {
 
     testCodec('dateTime', Gen.dateTime, Codec.dateTime);
 
-    forAll(
+    Gen.chooseDouble(
+      -double.maxFinite,
+      double.maxFinite,
+      specials: ilist([double.infinity, double.negativeInfinity, double.nan]),
+    ).forAll(
       'dubble',
-      Gen.chooseDouble(
-        -double.maxFinite,
-        double.maxFinite,
-        specials: ilist([double.infinity, double.negativeInfinity, double.nan]),
-      ),
       (a) {
         if (a.isFinite) {
           expect(
@@ -70,7 +69,7 @@ void main() {
 
     testCodec('json', genJson, Codec.json);
 
-    forAll('list', Gen.listOf(Gen.chooseInt(0, 20), Gen.boolean), (l) {
+    Gen.listOf(Gen.chooseInt(0, 20), Gen.boolean).forAll('list', (l) {
       Codec.list(Codec.boolean)
           .decode(Codec.list(Codec.boolean).encode(l))
           .fold(
@@ -79,7 +78,7 @@ void main() {
           );
     });
 
-    forAll('map', Gen.mapOfN(100, Gen.stringOf(Gen.alphaUpperChar), Gen.nonNegativeInt), (m) {
+    Gen.mapOfN(100, Gen.stringOf(Gen.alphaUpperChar), Gen.nonNegativeInt).forAll('map', (m) {
       Codec.mapOf(
         KeyCodec.string,
         Codec.integer,
@@ -111,22 +110,22 @@ void main() {
 
     testCodec('option', Gen.option(Gen.positiveInt), Codec.integer.optional());
 
-    forAll('tuple2', Gen.integer.tuple2, (t) {
+    Gen.integer.tuple2.forAll('tuple2', (t) {
       final d = Codec.tuple2(Codec.integer, Codec.integer);
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple3', Gen.integer.tuple3, (t) {
+    Gen.integer.tuple3.forAll('tuple3', (t) {
       final d = Codec.tuple3(Codec.integer, Codec.integer, Codec.integer);
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple4', Gen.integer.tuple4, (t) {
+    Gen.integer.tuple4.forAll('tuple4', (t) {
       final d = Codec.tuple4(Codec.integer, Codec.integer, Codec.integer, Codec.integer);
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple5', Gen.integer.tuple5, (t) {
+    Gen.integer.tuple5.forAll('tuple5', (t) {
       final d = Codec.tuple5(
         Codec.integer,
         Codec.integer,
@@ -137,7 +136,7 @@ void main() {
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple6', Gen.integer.tuple6, (t) {
+    Gen.integer.tuple6.forAll('tuple6', (t) {
       final d = Codec.tuple6(
         Codec.integer,
         Codec.integer,
@@ -149,7 +148,7 @@ void main() {
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple7', Gen.integer.tuple7, (t) {
+    Gen.integer.tuple7.forAll('tuple7', (t) {
       final d = Codec.tuple7(
         Codec.integer,
         Codec.integer,
@@ -162,7 +161,7 @@ void main() {
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple8', Gen.integer.tuple8, (t) {
+    Gen.integer.tuple8.forAll('tuple8', (t) {
       final d = Codec.tuple8(
         Codec.integer,
         Codec.integer,
@@ -176,7 +175,7 @@ void main() {
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple9', Gen.integer.tuple9, (t) {
+    Gen.integer.tuple9.forAll('tuple9', (t) {
       final d = Codec.tuple9(
         Codec.integer,
         Codec.integer,
@@ -191,7 +190,7 @@ void main() {
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple9', Gen.integer.tuple9, (t) {
+    Gen.integer.tuple9.forAll('tuple9', (t) {
       final d = Codec.tuple9(
         Codec.integer,
         Codec.integer,
@@ -206,7 +205,7 @@ void main() {
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple10', Gen.integer.tuple10, (t) {
+    Gen.integer.tuple10.forAll('tuple10', (t) {
       final d = Codec.tuple10(
         Codec.integer,
         Codec.integer,
@@ -221,7 +220,7 @@ void main() {
       );
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
-    forAll('tuple11', Gen.integer.tuple11, (t) {
+    Gen.integer.tuple11.forAll('tuple11', (t) {
       final d = Codec.tuple11(
         Codec.integer,
         Codec.integer,
@@ -238,7 +237,7 @@ void main() {
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple12', Gen.integer.tuple12, (t) {
+    Gen.integer.tuple12.forAll('tuple12', (t) {
       final d = Codec.tuple12(
         Codec.integer,
         Codec.integer,
@@ -256,7 +255,7 @@ void main() {
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple13', Gen.integer.tuple13, (t) {
+    Gen.integer.tuple13.forAll('tuple13', (t) {
       final d = Codec.tuple13(
         Codec.integer,
         Codec.integer,
@@ -275,7 +274,7 @@ void main() {
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple14', Gen.integer.tuple14, (t) {
+    Gen.integer.tuple14.forAll('tuple14', (t) {
       final d = Codec.tuple14(
         Codec.integer,
         Codec.integer,
@@ -295,7 +294,7 @@ void main() {
       expect(d.decode(d.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple15', Gen.integer.tuple15, (t) {
+    Gen.integer.tuple15.forAll('tuple15', (t) {
       final d = Codec.tuple15(
         Codec.integer,
         Codec.integer,
@@ -320,7 +319,7 @@ void main() {
 
 @isTest
 void testCodec<A>(String description, Gen<A> gen, Codec<A> codec) {
-  forAll(description, gen, (a) {
+  gen.forAll(description, (a) {
     expect(
       codec.decode(codec.encode(a)),
       isRight<DecodingFailure, A>(a),

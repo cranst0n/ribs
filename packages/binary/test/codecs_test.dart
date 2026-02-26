@@ -116,7 +116,7 @@ void main() {
       Codec.ilistOfN(Codec.int8, Codec.int32),
     );
 
-    forAll('peek', Gen.stringOf(Gen.asciiChar), (str) {
+    Gen.stringOf(Gen.asciiChar).forAll('peek', (str) {
       final codec = Codec.peek(Codec.ascii32);
       final result = codec.encode(str).flatMap((a) => codec.decode(a));
 
@@ -137,7 +137,7 @@ void main() {
       Codec.either(Codec.boolean, Codec.int32, Codec.boolean),
     );
 
-    forAll('byteAligned', Gen.chooseInt(0, 8).map((a) => BitVector.low(a)), (bv) {
+    Gen.chooseInt(0, 8).map((a) => BitVector.low(a)).forAll('byteAligned', (bv) {
       final codec = Codec.byteAligned(Codec.bits);
 
       codec.encode(bv).fold(
@@ -158,7 +158,7 @@ void main() {
       Codec.bitsN(8),
     );
 
-    forAll('ignore', Gen.chooseInt(0, 100), (nBits) {
+    Gen.chooseInt(0, 100).forAll('ignore', (nBits) {
       final codec = Codec.ignore(nBits);
 
       final encoded = codec.encode(Unit());
@@ -216,22 +216,26 @@ void testCodec<A>(
   Function1<A, Matcher>? customMatcher,
   String? testOn,
 }) {
-  forAll(description, gen, (n) {
-    final result = codec.encode(n).flatMap((a) => codec.decode(a));
+  gen.forAll(
+    description,
+    (n) {
+      final result = codec.encode(n).flatMap((a) => codec.decode(a));
 
-    result.fold(
-      (err) => fail('$codec failed on input [$n]: $err'),
-      (result) {
-        expect(result.value, customMatcher?.call(n) ?? n);
-        expect(result.remainder.isEmpty, isTrue);
-      },
-    );
-  }, testOn: testOn);
+      result.fold(
+        (err) => fail('$codec failed on input [$n]: $err'),
+        (result) {
+          expect(result.value, customMatcher?.call(n) ?? n);
+          expect(result.remainder.isEmpty, isTrue);
+        },
+      );
+    },
+    testOn: testOn,
+  );
 }
 
 @isTest
 void testVariableInt(String description, Gen<(int, int)> gen, Function1<int, Codec<int>> codecC) {
-  forAll(description, gen, (t) {
+  gen.forAll(description, (t) {
     final (bits, n) = t;
     final codec = codecC(bits);
 

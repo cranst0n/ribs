@@ -60,11 +60,11 @@ void main() {
       );
     });
 
-    forAll('init', Gen.positiveInt.tuple3, (t) {
+    Gen.positiveInt.tuple3.forAll('init', (t) {
       expect(t.init.appended(t.last), t);
     });
 
-    forAll('tail', Gen.positiveInt.tuple3, (t) {
+    Gen.positiveInt.tuple3.forAll('tail', (t) {
       expect(t.tail.prepended(t.$1), t);
     });
   });

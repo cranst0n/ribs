@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('KeyValueCodec', () {
-    forAll('tuple2', Gen.integer.tuple2, (t) {
+    Gen.integer.tuple2.forAll('tuple2', (t) {
       final codecN = KeyValueCodec.tuple2(
         KeyValueCodec('', Codec.integer).withKey('a'),
         KeyValueCodec('', Codec.integer).withKey('b'),
@@ -13,7 +13,7 @@ void main() {
       expect(codecN.decode(codecN.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple3', Gen.integer.tuple3, (t) {
+    Gen.integer.tuple3.forAll('tuple3', (t) {
       final codecN = KeyValueCodec.tuple3(
         KeyValueCodec('', Codec.integer).withKey('a'),
         KeyValueCodec('', Codec.integer).withKey('b'),
@@ -23,7 +23,7 @@ void main() {
       expect(codecN.decode(codecN.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple4', Gen.integer.tuple4, (t) {
+    Gen.integer.tuple4.forAll('tuple4', (t) {
       final codecN = KeyValueCodec.tuple4(
         KeyValueCodec('', Codec.integer).withKey('a'),
         KeyValueCodec('', Codec.integer).withKey('b'),
@@ -34,7 +34,7 @@ void main() {
       expect(codecN.decode(codecN.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple5', Gen.integer.tuple5, (t) {
+    Gen.integer.tuple5.forAll('tuple5', (t) {
       final codecN = KeyValueCodec.tuple5(
         KeyValueCodec('', Codec.integer).withKey('a'),
         KeyValueCodec('', Codec.integer).withKey('b'),
@@ -46,7 +46,7 @@ void main() {
       expect(codecN.decode(codecN.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple6', Gen.integer.tuple6, (t) {
+    Gen.integer.tuple6.forAll('tuple6', (t) {
       final codecN = KeyValueCodec.tuple6(
         KeyValueCodec('', Codec.integer).withKey('a'),
         KeyValueCodec('', Codec.integer).withKey('b'),
@@ -59,7 +59,7 @@ void main() {
       expect(codecN.decode(codecN.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple7', Gen.integer.tuple7, (t) {
+    Gen.integer.tuple7.forAll('tuple7', (t) {
       final codecN = KeyValueCodec.tuple7(
         KeyValueCodec('', Codec.integer).withKey('a'),
         KeyValueCodec('', Codec.integer).withKey('b'),
@@ -73,7 +73,7 @@ void main() {
       expect(codecN.decode(codecN.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple8', Gen.integer.tuple8, (t) {
+    Gen.integer.tuple8.forAll('tuple8', (t) {
       final codecN = KeyValueCodec.tuple8(
         KeyValueCodec('', Codec.integer).withKey('a'),
         KeyValueCodec('', Codec.integer).withKey('b'),
@@ -88,7 +88,7 @@ void main() {
       expect(codecN.decode(codecN.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple9', Gen.integer.tuple9, (t) {
+    Gen.integer.tuple9.forAll('tuple9', (t) {
       final codecN = KeyValueCodec.tuple9(
         KeyValueCodec('', Codec.integer).withKey('a'),
         KeyValueCodec('', Codec.integer).withKey('b'),
@@ -104,7 +104,7 @@ void main() {
       expect(codecN.decode(codecN.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple10', Gen.integer.tuple10, (t) {
+    Gen.integer.tuple10.forAll('tuple10', (t) {
       final codecN = KeyValueCodec.tuple10(
         KeyValueCodec('', Codec.integer).withKey('a'),
         KeyValueCodec('', Codec.integer).withKey('b'),
@@ -121,7 +121,7 @@ void main() {
       expect(codecN.decode(codecN.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple11', Gen.integer.tuple11, (t) {
+    Gen.integer.tuple11.forAll('tuple11', (t) {
       final codecN = KeyValueCodec.tuple11(
         KeyValueCodec('', Codec.integer).withKey('a'),
         KeyValueCodec('', Codec.integer).withKey('b'),
@@ -139,7 +139,7 @@ void main() {
       expect(codecN.decode(codecN.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple12', Gen.integer.tuple12, (t) {
+    Gen.integer.tuple12.forAll('tuple12', (t) {
       final codecN = KeyValueCodec.tuple12(
         KeyValueCodec('', Codec.integer).withKey('a'),
         KeyValueCodec('', Codec.integer).withKey('b'),
@@ -158,7 +158,7 @@ void main() {
       expect(codecN.decode(codecN.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple13', Gen.integer.tuple13, (t) {
+    Gen.integer.tuple13.forAll('tuple13', (t) {
       final codecN = KeyValueCodec.tuple13(
         KeyValueCodec('', Codec.integer).withKey('a'),
         KeyValueCodec('', Codec.integer).withKey('b'),
@@ -178,7 +178,7 @@ void main() {
       expect(codecN.decode(codecN.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple14', Gen.integer.tuple14, (t) {
+    Gen.integer.tuple14.forAll('tuple14', (t) {
       final codecN = KeyValueCodec.tuple14(
         KeyValueCodec('', Codec.integer).withKey('a'),
         KeyValueCodec('', Codec.integer).withKey('b'),
@@ -199,7 +199,7 @@ void main() {
       expect(codecN.decode(codecN.encode(t)), t.asRight<DecodingFailure>());
     });
 
-    forAll('tuple15', Gen.integer.tuple15, (t) {
+    Gen.integer.tuple15.forAll('tuple15', (t) {
       final codecN = KeyValueCodec.tuple15(
         KeyValueCodec('', Codec.integer).withKey('a'),
         KeyValueCodec('', Codec.integer).withKey('b'),

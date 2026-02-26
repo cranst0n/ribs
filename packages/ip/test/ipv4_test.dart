@@ -27,15 +27,15 @@ void main() {
       );
     });
 
-    forAll('roundtrip through string', genIpv4, (v4) {
+    genIpv4.forAll('roundtrip through string', (v4) {
       expect(Ipv4Address.fromString(v4.toString()), isSome(v4));
     });
 
-    forAll('roundtrip through int', genIpv4, (v4) {
+    genIpv4.forAll('roundtrip through int', (v4) {
       expect(Ipv4Address.fromInt(v4.toInt()), v4);
     });
 
-    forAll('supports ordering', genIpv4.tuple2, (tuple) {
+    genIpv4.tuple2.forAll('supports ordering', (tuple) {
       final (left, right) = tuple;
 
       final biCompare = left.toInt().compareTo(right.toInt());
@@ -50,7 +50,7 @@ void main() {
       expect(ipv4(255, 255, 255, 255).previous(), ipv4(255, 255, 255, 254));
     });
 
-    forAll('compute previous IP (gen)', genIpv4, (v4) {
+    genIpv4.forAll('compute previous IP (gen)', (v4) {
       expect(v4.previous(), Ipv4Address.fromInt(v4.toInt() - 1));
     });
 
@@ -60,7 +60,7 @@ void main() {
       expect(ipv4(255, 255, 255, 255).next(), ipv4(0, 0, 0, 0));
     });
 
-    forAll('compute next IP (gen)', genIpv4, (v4) {
+    genIpv4.forAll('compute next IP (gen)', (v4) {
       expect(v4.next(), Ipv4Address.fromInt(v4.toInt() + 1));
     });
 

@@ -7,7 +7,7 @@ import 'arbitraries.dart';
 
 void main() {
   group('Port', () {
-    forAll('roundtrip through string', genPort, (port) {
+    genPort.forAll('roundtrip through string', (port) {
       expect(Port.fromString(port.toString()), isSome(port));
     });
   });

@@ -15,7 +15,7 @@ void main() {
     (int, int) n2(int a) => (a, a + 1);
     (int, int, int) n3(int a) => n2(a).appended(a + 2);
 
-    forAll('identity', Gen.positiveInt, (a) {
+    Gen.positiveInt.forAll('identity', (a) {
       expect(identity(a), a);
     });
 
@@ -38,7 +38,7 @@ void main() {
       expect(a3.curried(1)(2)(3), 6);
     });
 
-    forAll('uncurried', Gen.positiveInt.tuple2, (tup) {
+    Gen.positiveInt.tuple2.forAll('uncurried', (tup) {
       expect(a2.curried.uncurried.tupled(tup), a2.tupled(tup));
     });
   });

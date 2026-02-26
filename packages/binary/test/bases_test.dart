@@ -45,7 +45,7 @@ void main() {
         expect(Alphabets.hexLower.ignore(' '), isTrue);
       });
 
-      forAll('toIndex (valid)', Gen.hexChar, (c) {
+      Gen.hexChar.forAll('toIndex (valid)', (c) {
         expect(Alphabets.hexLower.toIndex(c), isNotNull);
       });
 
@@ -60,7 +60,7 @@ void main() {
         expect(Alphabets.hexUpper.ignore(' '), isTrue);
       });
 
-      forAll('toIndex (valid)', Gen.hexChar, (c) {
+      Gen.hexChar.forAll('toIndex (valid)', (c) {
         expect(Alphabets.hexUpper.toIndex(c), isNotNull);
       });
 

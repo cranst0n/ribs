@@ -25,7 +25,7 @@ void main() {
   final deadbeef = ByteVector([0xde, 0xad, 0xbe, 0xef]);
 
   group('ByteVector', () {
-    forAll('hashCode / equals', bytesWithIndex, (t) {
+    bytesWithIndex.forAll('hashCode / equals', (t) {
       final (b, n) = t;
 
       expect(b.take(n).concat(b.drop(n)), b);
@@ -41,7 +41,7 @@ void main() {
       expect(() => bin('1101a000'), throwsArgumentError);
     });
 
-    forAll('fromValidBin (gen)', binString, (str) {
+    binString.forAll('fromValidBin (gen)', (str) {
       expect(bin(str).size, (str.length / 8).ceil());
     });
 
@@ -111,11 +111,11 @@ void main() {
       expect(deadbeef.toBin(), '11011110101011011011111011101111');
     });
 
-    forAll('toBin fromBin roundtrip', byteVector, (b) {
+    byteVector.forAll('toBin fromBin roundtrip', (b) {
       expect(bin(b.toBin()), b);
     });
 
-    forAll('fromValidHex (gen)', hexString, (str) {
+    hexString.forAll('fromValidHex (gen)', (str) {
       expect(hex(str).size, (str.length / 2).ceil());
     });
 
@@ -203,7 +203,7 @@ void main() {
       expect(deadbeef.toHex(), 'deadbeef');
     });
 
-    forAll('toHex fromHex roundtrip', byteVector, (b) {
+    byteVector.forAll('toHex fromHex roundtrip', (b) {
       expect(hex(b.toHex()), b);
     });
 
@@ -334,7 +334,7 @@ void main() {
       );
     });
 
-    forAll('toBase64Url / fromBase64Url roundtrip', base64UrlString, (str) {
+    base64UrlString.forAll('toBase64Url / fromBase64Url roundtrip', (str) {
       const dartCodec = Base64Codec.urlSafe();
 
       final dartBytes = dartCodec.decode(str);
@@ -351,15 +351,15 @@ void main() {
       expect(dartString, ribsString);
     });
 
-    forAll('bin roundtrip', byteVector, (bv) {
+    byteVector.forAll('bin roundtrip', (bv) {
       expect(ByteVector.fromBin(bv.toBin()), isSome(bv));
     });
 
-    forAll('hex roundtrip', byteVector, (bv) {
+    byteVector.forAll('hex roundtrip', (bv) {
       expect(ByteVector.fromHex(bv.toHex()), isSome(bv));
     });
 
-    forAll('base32 roundtrip', byteVector, (bv) {
+    byteVector.forAll('base32 roundtrip', (bv) {
       expect(ByteVector.fromBase32(bv.toBase32()), isSome(bv));
     });
 
@@ -368,15 +368,15 @@ void main() {
       expect(bv.toBase58(), '3v');
     });
 
-    forAll('base58 roundtrip', byteVector, (bv) {
+    byteVector.forAll('base58 roundtrip', (bv) {
       expect(ByteVector.fromBase58(bv.toBase58()), isSome(bv));
     });
 
-    forAll('base64 roundtrip', byteVector, (bv) {
+    byteVector.forAll('base64 roundtrip', (bv) {
       expect(ByteVector.fromBase64(bv.toBase64()), isSome(bv));
     });
 
-    forAll('base64 (no padding) roundtrip', byteVector, (bv) {
+    byteVector.forAll('base64 (no padding) roundtrip', (bv) {
       expect(ByteVector.fromBase64(bv.toBase64NoPad()), isSome(bv));
     });
 
@@ -443,7 +443,7 @@ void main() {
       );
     });
 
-    forAll('Uint8List roundtrip', byteVector, (b) {
+    byteVector.forAll('Uint8List roundtrip', (b) {
       final fromList = ByteVector(b.toByteArray());
 
       expect(b, fromList);
@@ -453,7 +453,7 @@ void main() {
       expect(fromList, fromList2);
     });
 
-    (byteVector, Gen.integer).forAllN(
+    (byteVector, Gen.integer).forAll(
       'dropping from a view is consistent with dropping from a strict vector',
       (b, n0) {
         final view = ByteVector.view(b.toByteArray());
@@ -463,7 +463,7 @@ void main() {
       },
     );
 
-    forAll('and/or/not/xor', byteVector, (bv) {
+    byteVector.forAll('and/or/not/xor', (bv) {
       expect(bv & bv, bv);
       expect(bv & ~bv, ByteVector.low(bv.size));
 
@@ -505,7 +505,7 @@ void main() {
       );
     });
 
-    forAll('acquire', byteVector, (bv) {
+    byteVector.forAll('acquire', (bv) {
       if (bv.isEmpty) {
         expect(bv.acquire(1), isLeft<String, ByteVector>());
       } else {
@@ -520,7 +520,7 @@ void main() {
       byteVector,
       Gen.ilistOf(Gen.chooseInt(0, 10), byteVector),
       Gen.nonNegativeInt,
-    ).forAllN(
+    ).forAll(
       'buffer append',
       (b, bs, n) {
         final unbuf = bs.foldLeft(b, (a, b) => a.concat(b));
@@ -539,7 +539,7 @@ void main() {
       byteVector,
       Gen.ilistOf(Gen.chooseInt(0, 10), byteVector),
       Gen.nonNegativeInt,
-    ).forAllN(
+    ).forAll(
       'buffer concat/take/drop',
       (b, bs, n) {
         final unbuf = bs.foldLeft(b, (a, b) => a.concat(b));
@@ -557,7 +557,7 @@ void main() {
       },
     );
 
-    (byteVector, byteVector, byteVector, Gen.integer).forAllN(
+    (byteVector, byteVector, byteVector, Gen.integer).forAll(
       'buffer rebuffering',
       (b1, b2, b3, n) {
         final chunkSize = max(n % 50, 0) + 1;
@@ -574,7 +574,7 @@ void main() {
       expect(b.compact(), b.compact());
     });
 
-    forAll('concat', Gen.ilistOf(Gen.chooseInt(0, 10), byteVector), (bvs) {
+    Gen.ilistOf(Gen.chooseInt(0, 10), byteVector).forAll('concat', (bvs) {
       final c = ByteVector.concatAll(bvs);
 
       expect(c.size, bvs.foldLeft(0, (acc, bv) => acc + bv.size));
@@ -589,7 +589,7 @@ void main() {
       expect(hex("0011223344").drop(1000), hex(""));
     });
 
-    forAll('dropWhile', byteVector, (bv) {
+    byteVector.forAll('dropWhile', (bv) {
       expect(bv.dropWhile((_) => false), bv);
       expect(bv.dropWhile((_) => true), ByteVector.empty);
 
@@ -610,7 +610,7 @@ void main() {
       expect(bv.dropWhile((b) => b != 0), expected);
     });
 
-    (byteVector, Gen.integer).forAllN('endsWith', (bv, n0) {
+    (byteVector, Gen.integer).forAll('endsWith', (bv, n0) {
       final n = bv.nonEmpty ? (n0 % bv.size).abs() : 0;
       final slice = bv.takeRight(n);
 
@@ -619,15 +619,15 @@ void main() {
       if (slice.nonEmpty) expect(bv.endsWith(~slice), isFalse);
     });
 
-    forAll('foldLeft', byteVector, (b) {
+    byteVector.forAll('foldLeft', (b) {
       expect(b.foldLeft(ByteVector.empty, (acc, b) => acc.append(b)), b);
     });
 
-    forAll('foldRight', byteVector, (b) {
+    byteVector.forAll('foldRight', (b) {
       expect(b.foldRight(ByteVector.empty, (b, acc) => acc.prepend(b)), b);
     });
 
-    forAll('grouped + concat', byteVector, (bv) {
+    byteVector.forAll('grouped + concat', (bv) {
       if (bv.isEmpty) {
         expect(bv.grouped(1).toIList(), nil<int>());
       } else if (bv.size < 3) {
@@ -640,7 +640,7 @@ void main() {
       }
     });
 
-    forAll('headOption', byteVector, (bv) {
+    byteVector.forAll('headOption', (bv) {
       expect(bv.headOption.isDefined, bv.nonEmpty);
 
       if (bv.nonEmpty) {
@@ -648,7 +648,7 @@ void main() {
       }
     });
 
-    (byteVector, Gen.integer, Gen.integer).forAllN(
+    (byteVector, Gen.integer, Gen.integer).forAll(
       'indexOfSlice / containsSlice / startsWith',
       (bv, m0, n0) {
         final m = bv.nonEmpty ? (m0 % bv.size).abs() : 0;
@@ -664,7 +664,7 @@ void main() {
       },
     );
 
-    forAll('init', byteVector, (bv) {
+    byteVector.forAll('init', (bv) {
       expect(bv.startsWith(bv.init), isTrue);
 
       if (bv.nonEmpty) {
@@ -688,14 +688,14 @@ void main() {
       );
     });
 
-    forAll('insert (2)', byteVector, (b) {
+    byteVector.forAll('insert (2)', (b) {
       expect(
         b.foldLeft(ByteVector.empty, (acc, b) => acc.insert(acc.size, b)),
         b,
       );
     });
 
-    (byteVector, Gen.byte).forAllN('last', (bv, byte) {
+    (byteVector, Gen.byte).forAll('last', (bv, byte) {
       if (bv.nonEmpty) {
         expect(bv.last, bv[bv.size - 1]);
       }
@@ -703,18 +703,18 @@ void main() {
       expect(bv.append(byte).last, byte);
     });
 
-    (byteVector, Gen.byte).forAllN('lastOption', (bv, byte) {
+    (byteVector, Gen.byte).forAll('lastOption', (bv, byte) {
       expect(bv.lastOption.isDefined, bv.nonEmpty);
       expect(bv.append(byte).lastOption, isSome(byte));
     });
 
-    forAll('padLeft', byteVector, (bv) {
+    byteVector.forAll('padLeft', (bv) {
       expect(() => bv.padLeft(bv.size - 1), throwsArgumentError);
       expect(bv.padLeft(bv.size + 3).size, bv.size + 3);
       expect(bv.padLeft(bv.size + 1).head, 0);
     });
 
-    forAll('padRight', byteVector, (bv) {
+    byteVector.forAll('padRight', (bv) {
       expect(() => bv.padRight(bv.size - 1), throwsArgumentError);
       expect(bv.padRight(bv.size + 3).size, bv.size + 3);
       expect(bv.padRight(bv.size + 1).last, 0);
@@ -722,18 +722,18 @@ void main() {
       expect(bv.padTo(bv.size + 10), bv.padRight(bv.size + 10));
     });
 
-    (byteVector, byteVector, Gen.integer).forAllN('patch', (x, y, n0) {
+    (byteVector, byteVector, Gen.integer).forAll('patch', (x, y, n0) {
       final n = x.nonEmpty ? (n0 % x.size).abs() : 0;
 
       expect(x.patch(n, x.slice(n, n)), x);
       expect(x.patch(n, y), x.take(n).concat(y).concat(x.drop(n + y.size)));
     });
 
-    forAll('reverse.reverse == id', byteVector, (b) {
+    byteVector.forAll('reverse.reverse == id', (b) {
       expect(b.reverse.reverse, b);
     });
 
-    (byteVector, Gen.integer).forAllN('rotations', (b, n) {
+    (byteVector, Gen.integer).forAll('rotations', (b, n) {
       expect(b.rotateLeft(b.size * 8), b);
       expect(b.rotateRight(b.size * 8), b);
       expect(b.rotateRight(n).rotateLeft(n), b);
@@ -764,14 +764,14 @@ void main() {
       );
     });
 
-    (byteVector, byteVector, Gen.integer).forAllN('splice', (x, y, n0) {
+    (byteVector, byteVector, Gen.integer).forAll('splice', (x, y, n0) {
       final n = x.nonEmpty ? (n0 % x.size).abs() : 0;
 
       expect(x.splice(n, ByteVector.empty), x);
       expect(x.splice(n, y), x.take(n).concat(y).concat(x.drop(n)));
     });
 
-    forAll('splitAt', byteVector, (bv) {
+    byteVector.forAll('splitAt', (bv) {
       expect(bv.splitAt(0), (ByteVector.empty, bv));
       expect(bv.splitAt(bv.size), (bv, ByteVector.empty));
 
@@ -786,7 +786,7 @@ void main() {
       expect(hex("0011223344").take(-10), hex(""));
     });
 
-    forAll('takeWhile', byteVector, (bv) {
+    byteVector.forAll('takeWhile', (bv) {
       final (expected, _) = bv.foldLeft((ByteVector.empty, true), (acct, b) {
         final (acc, taking) = acct;
 
@@ -804,7 +804,7 @@ void main() {
       expect(bv.takeWhile((a) => a != 0), expected);
     });
 
-    forAll('toInt roundtrip', Gen.integer, (n) {
+    Gen.integer.forAll('toInt roundtrip', (n) {
       expect(ByteVector.fromInt(n).toInt(), n);
 
       expect(
@@ -827,7 +827,7 @@ void main() {
       expect(b1.zipWithI(b2, (a, b) => a + b), ByteVector([1, 3, 5, 7]));
     });
 
-    forAll('zipWith2', byteVector, (b) {
+    byteVector.forAll('zipWith2', (b) {
       expect(b.zipWithI(b, (a, b) => a - b), ByteVector.fill(b.size, 0));
     });
   });

@@ -4,19 +4,19 @@ import 'package:ribs_effect/src/std/internal/binomial_heap.dart';
 import 'package:test/test.dart';
 
 void main() {
-  forAll('dequeue by priority', Gen.ilistOfN(100, Gen.positiveInt), (l) {
+  Gen.ilistOfN(100, Gen.positiveInt).forAll('dequeue by priority', (l) {
     final heap = buildHeap(l, Order.ints);
     final back = toList(heap);
 
     expect(back, l.sorted(Order.ints));
   });
 
-  forAll('maintain the heap property', Op.genList(Gen.positiveInt), (ops) {
+  Op.genList(Gen.positiveInt).forAll('maintain the heap property', (ops) {
     final heap = Op.toHeap(ops, Order.ints);
     expect(heap.trees.forall((t) => validHeap(t)), isTrue);
   });
 
-  forAll('maintain correct subtree ranks', Op.genList(Gen.positiveInt), (ops) {
+  Op.genList(Gen.positiveInt).forAll('maintain correct subtree ranks', (ops) {
     final heap = Op.toHeap(ops, Order.ints);
 
     int currentRank = 0;

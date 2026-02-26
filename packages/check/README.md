@@ -15,30 +15,33 @@
 
 ### Simple Property Test
 
-Use `forAll` to define a property that should hold for all generated values.
+Use `.forAll` to define a property that should hold for all generated values.
 
 ```dart
 import 'package:ribs_check/ribs_check.dart';
 import 'package:test/test.dart';
 
 void main() {
-  forAll('concatenated length is sum of lengths', Gen.alphaNumString(), (String s) {
-    final doubled = s + s;
-    expect(doubled.length, equals(s.length * 2));
-  });
+  Gen.alphaNumString().forAll(
+    'concatenated length is sum of lengths',
+    (String s) {
+      final doubled = s + s;
+      expect(doubled.length, equals(s.length * 2));
+    },
+  );
 }
 ```
 
-### Use Multiple Generators
+### Multiple Generators
 
-Use `.forAllN` on a record of `Gen` objects to test properties involving multiple generated values.
+Use `.forAll` on a record of `Gen` objects to test properties involving multiple generated values.
 
 ```dart
 void main() {
   (
     Gen.chooseInt(-100, 100),
     Gen.chooseInt(-100, 100),
-  ).forAllN(
+  ).forAll(
     'a + b == b + a',
     (int a, int b) {
       expect(a + b, equals(b + a));
@@ -49,7 +52,7 @@ void main() {
     Gen.chooseInt(-100, 100),
     Gen.chooseInt(-100, 100),
     Gen.chooseInt(-100, 100),
-  ).forAllN(
+  ).forAll(
     '(a + b) + c == a + (b + c)',
     (int a, int b, int c) {
       expect((a + b) + c, equals(a + (b + c)));
@@ -68,7 +71,7 @@ final userGen = (
   Gen.chooseInt(18, 100),
 ).tupled.map((t) => User(t.$1, t.$2));
 
-forAll('all users are adults', userGen, (User u) {
+userGen.forAll('all users are adults', (User u) {
   expect(u.age, greaterThanOrEqualTo(18));
 });
 ```

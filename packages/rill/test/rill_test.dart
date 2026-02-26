@@ -130,7 +130,7 @@ void main() {
   });
 
   group('buffer', () {
-    (rillOf(Gen.integer), Gen.positiveInt).forAllN('identity', (r, n) {
+    (rillOf(Gen.integer), Gen.positiveInt).forAll('identity', (r, n) {
       expect(r.buffer(n), producesSameAs(r));
     });
   });
@@ -182,7 +182,7 @@ void main() {
     );
   });
 
-  forAll('collect consistent with IList.collect', intRill, (r) async {
+  intRill.forAll('collect consistent with IList.collect', (r) async {
     Option<int> f(int n) => Option.when(() => n.isEven, () => n);
 
     final result = await r.toList;
@@ -199,7 +199,7 @@ void main() {
     expect(rillBig, producesNothing());
   });
 
-  forAll('collectFirst consistent with IList.collect', rillOf(Gen.integer), (r) async {
+  rillOf(Gen.integer).forAll('collectFirst consistent with IList.collect', (r) async {
     Option<int> f(int n) => Option.when(() => n.isEven, () => n);
 
     final result = await r.toList;
@@ -216,7 +216,7 @@ void main() {
     expect(rillFirstBig, producesNothing());
   });
 
-  (intRill, intRill).forAllN('collectWhile', (s1, s2) {
+  (intRill, intRill).forAll('collectWhile', (s1, s2) {
     Option<int> f(int n) => Option.when(() => n.isEven, () => n);
 
     final even = s1.filter((n) => n.isEven);
@@ -290,7 +290,7 @@ void main() {
     expect((elapsed.inMilliseconds - 1000).abs() < 100, isTrue);
   });
 
-  (intRill, Gen.nonNegativeInt).forAllN('delete', (r, idx0) async {
+  (intRill, Gen.nonNegativeInt).forAll('delete', (r, idx0) async {
     final v = await r.toList;
     final i = v.isEmpty ? 0 : v[(idx0 % v.size).abs()];
     expect(
@@ -299,7 +299,7 @@ void main() {
     );
   });
 
-  (intRill, Gen.nonNegativeInt, Gen.boolean).forAllN(
+  (intRill, Gen.nonNegativeInt, Gen.boolean).forAll(
     'drop',
     (r, n0, negate) async {
       final v = await r.toList;
@@ -310,19 +310,19 @@ void main() {
     },
   );
 
-  forAll('dropLast', intRill, (r) async {
+  intRill.forAll('dropLast', (r) async {
     final v = await r.toList;
     expect(r.dropLast, producesInOrder(v.dropRight(1)));
   });
 
-  forAll('dropLastIf', intRill, (r) async {
+  intRill.forAll('dropLastIf', (r) async {
     final v = await r.toList;
 
     expect(r.dropLastIf((_) => false), producesInOrder(v));
     expect(r.dropLastIf((_) => true), producesInOrder(v.dropRight(1)));
   });
 
-  (intRill, Gen.nonNegativeInt, Gen.boolean).forAllN(
+  (intRill, Gen.nonNegativeInt, Gen.boolean).forAll(
     'dropRight',
     (r, n0, negate) async {
       final v = await r.toList;
@@ -333,7 +333,7 @@ void main() {
     },
   );
 
-  (intRill, Gen.positiveInt).forAllN('dropWhile', (r, n0) async {
+  (intRill, Gen.positiveInt).forAll('dropWhile', (r, n0) async {
     final n = (n0 % 20).abs();
 
     final v = await r.toList;
@@ -345,7 +345,7 @@ void main() {
     );
   });
 
-  (intRill, Gen.positiveInt).forAllN('dropThrough', (r, n0) async {
+  (intRill, Gen.positiveInt).forAll('dropThrough', (r, n0) async {
     final n = (n0 % 20).abs();
     final v = await r.toList;
 
@@ -366,7 +366,7 @@ void main() {
     expect((r.head.inMilliseconds - delay.inMilliseconds).abs() < 100, isTrue);
   });
 
-  (intRill, intRill).forAllN('either', (s1, s2) async {
+  (intRill, intRill).forAll('either', (s1, s2) async {
     final s1List = await s1.toList;
     final s2List = await s2.toList;
 
@@ -380,11 +380,11 @@ void main() {
     expect(Rill.emit(0), producesOnly(0));
   });
 
-  forAll('evalFilter - const true', intRill, (r) {
+  intRill.forAll('evalFilter - const true', (r) {
     expect(r.evalFilter((_) => IO.pure(true)), producesSameAs(r));
   });
 
-  forAll('evalFilter - const false', intRill, (r) {
+  intRill.forAll('evalFilter - const false', (r) {
     expect(r.evalFilter((_) => IO.pure(false)), producesNothing());
   });
 
@@ -395,11 +395,11 @@ void main() {
     );
   });
 
-  forAll('evalFilterNot - const true', intRill, (r) {
+  intRill.forAll('evalFilterNot - const true', (r) {
     expect(r.evalFilterNot((_) => IO.pure(true)), producesNothing());
   });
 
-  forAll('evalFilterNot - const false', intRill, (r) {
+  intRill.forAll('evalFilterNot - const false', (r) {
     expect(r.evalFilterNot((_) => IO.pure(false)), producesSameAs(r));
   });
 
@@ -410,7 +410,7 @@ void main() {
     );
   });
 
-  (intRill, Gen.integer).forAllN('evalFold', (r, n) {
+  (intRill, Gen.integer).forAll('evalFold', (r, n) {
     int f(int x, int y) => x + y;
     expect(
       r.evalFold(n, (a, b) => IO.pure(f(a, b))),
@@ -418,11 +418,11 @@ void main() {
     );
   });
 
-  forAll('evalMapFilter - identity', intRill, (r) {
+  intRill.forAll('evalMapFilter - identity', (r) {
     expect(r.evalMapFilter((n) => IO.some(n)), producesSameAs(r));
   });
 
-  forAll('evalMapFilter - none', intRill, (r) {
+  intRill.forAll('evalMapFilter - none', (r) {
     expect(r.evalMapFilter((n) => IO.none()), producesNothing());
   });
 
@@ -431,7 +431,7 @@ void main() {
     expect(r, producesInOrder([0, 2, 4, 6, 8]));
   });
 
-  (intRill, Gen.stringOf(Gen.asciiChar, 100)).forAllN('evalScan', (s, n) async {
+  (intRill, Gen.stringOf(Gen.asciiChar, 100)).forAll('evalScan', (s, n) async {
     IO<String> f(String a, int b) => IO.pure('$a$b');
     String g(String a, int b) => '$a$b';
 
@@ -440,7 +440,7 @@ void main() {
     expect(s.evalScan(n, f), producesInOrder(expected));
   });
 
-  (intRill, Gen.integer).forAllN('exists', (s, n0) async {
+  (intRill, Gen.integer).forAll('exists', (s, n0) async {
     final n = (n0 % 20).abs() + 1;
     bool f(int i) => i % n == 0;
 
@@ -468,7 +468,7 @@ void main() {
     expect(count, 50000);
   });
 
-  forAll('fold1', intRill, (r) async {
+  intRill.forAll('fold1', (r) async {
     final v = await r.toList;
     int f(int a, int b) => a + b;
 
@@ -488,7 +488,7 @@ void main() {
     expect(s.forall((n) => n < 5), producesOnly(true));
   });
 
-  forAll('fromEither', Gen.either(Gen.constant('BOOM'), Gen.integer), (either) {
+  Gen.either(Gen.constant('BOOM'), Gen.integer).forAll('fromEither', (either) {
     final r = Rill.fromEither(either);
 
     either.fold(
@@ -497,7 +497,7 @@ void main() {
     );
   });
 
-  forAll('fromOption', Gen.option(Gen.integer), (option) {
+  Gen.option(Gen.integer).forAll('fromOption', (option) {
     final r = Rill.fromOption(option);
 
     option.fold(
@@ -525,7 +525,7 @@ void main() {
     });
   });
 
-  (intRill, Gen.integer).forAllN('groupAdjacentBy', (s, n0) async {
+  (intRill, Gen.integer).forAll('groupAdjacentBy', (s, n0) async {
     final n = (n0 % 20).abs() + 1;
     int f(int i) => i % n;
 
@@ -545,7 +545,7 @@ void main() {
     );
   });
 
-  (intRill, Gen.integer).forAllN('groupAdjacentByLimit', (s, n0) async {
+  (intRill, Gen.integer).forAll('groupAdjacentByLimit', (s, n0) async {
     final n = (n0 % 20).abs() + 1;
     final s1 = s.groupAdjacentByLimit(n, (_) => true);
 
@@ -559,7 +559,7 @@ void main() {
     final groupTimeout = Gen.chooseInt(0, 2000).map((n) => Duration(milliseconds: n));
     IO<Unit> sleep(int d) => IO.sleep(Duration(microseconds: (d % 500).abs()));
 
-    (intRill, groupTimeout, Gen.positiveInt).forAllN(
+    (intRill, groupTimeout, Gen.positiveInt).forAll(
       'should never lose any elements',
       (s, timeout, groupSize) {
         expect(
@@ -569,7 +569,7 @@ void main() {
       },
     );
 
-    (intRill, groupTimeout, Gen.positiveInt).forAllN(
+    (intRill, groupTimeout, Gen.positiveInt).forAll(
       'should never emit empty groups',
       (s, timeout, groupSize) async {
         final l = await s.evalTap(sleep).groupWithin(groupSize, timeout).toList;
@@ -577,7 +577,7 @@ void main() {
       },
     );
 
-    (intRill, groupTimeout, Gen.positiveInt).forAllN(
+    (intRill, groupTimeout, Gen.positiveInt).forAll(
       'should never have chunks larger than limit',
       (s, timeout, groupSize) async {
         final l = await s.evalTap(sleep).groupWithin(groupSize, timeout).toList;
@@ -592,9 +592,8 @@ void main() {
       expect(r.groupWithin(size, 1.second), producesSameAs(r.chunkN(size)));
     });
 
-    forAll(
+    Gen.listOf(Gen.chooseInt(1, 1000), Gen.integer).forAll(
       'giant group size emits single chunk',
-      Gen.listOf(Gen.chooseInt(1, 1000), Gen.integer),
       (list) {
         expect(
           Rill.emits(list).groupWithin(list.length, 1.day),
@@ -752,7 +751,7 @@ void main() {
     );
   });
 
-  (intRill, Gen.integer).forAllN('intersperse', (r, n) async {
+  (intRill, Gen.integer).forAll('intersperse', (r, n) async {
     final l = await r.toList;
     final expected = l.flatMap((i) => ilist([i, n])).dropRight(1);
 
@@ -788,12 +787,12 @@ void main() {
     );
   });
 
-  forAll('last', intRill, (r) async {
+  intRill.forAll('last', (r) async {
     final l = await r.toList;
     expect(r.last, producesInOrder([l.lastOption]));
   });
 
-  (intRill, Gen.integer).forAllN('lastOr', (r, n0) async {
+  (intRill, Gen.integer).forAll('lastOr', (r, n0) async {
     final n = (n0 % 20).abs() + 1;
     final l = await r.toList;
 
@@ -805,7 +804,7 @@ void main() {
     expect(rill, producesInOrder([2, 4, 6, 8, 10]));
   });
 
-  (intRill, Gen.integer, Gen.integer).forAllN('mapAccumulate', (s, m, n0) async {
+  (intRill, Gen.integer, Gen.integer).forAll('mapAccumulate', (s, m, n0) async {
     final n = (n0 % 20).abs() + 1;
     bool f(int i) => (i % n).isEven;
 
@@ -817,7 +816,7 @@ void main() {
   });
 
   group('mapAsync', () {
-    forAll('same as map', intRill, (s) async {
+    intRill.forAll('same as map', (s) async {
       int f(int n) => n + 1;
       final r = s.mapAsync(16, (n) => IO.pure(f(n)));
       final sList = await s.toList;
@@ -825,7 +824,7 @@ void main() {
       expect(r, producesInOrder(sList.map(f)));
     });
 
-    forAll('exception', intRill, (s) async {
+    intRill.forAll('exception', (s) async {
       IO<int> f(int n) => IO.raiseError('BOOM');
       final r = s.append(() => Rill.emit(1)).mapAsync(1, (n) => f(n)).attempt();
 
@@ -867,7 +866,7 @@ void main() {
     );
   });
 
-  forAll('mapAsyncUnordered', intRill, (s) async {
+  intRill.forAll('mapAsyncUnordered', (s) async {
     int f(int n) => n + 1;
     final r = s.mapAsync(16, (n) => IO.pure(f(n)));
     final sList = await s.toList;
@@ -933,7 +932,7 @@ void main() {
     );
   });
 
-  (intRill, intRill).forAllN('mergeHaltL emits all from left stream in order', (left, right) {
+  (intRill, intRill).forAll('mergeHaltL emits all from left stream in order', (left, right) {
     final leftTagged = left.map((n) => n.asLeft<int>());
     final rightTagged = right.map((n) => n.asRight<int>());
 
@@ -942,7 +941,7 @@ void main() {
     expect(rill, producesSameAs(left));
   });
 
-  (intRill, intRill).forAllN('mergeHaltR emits all from right stream in order', (left, right) {
+  (intRill, intRill).forAll('mergeHaltR emits all from right stream in order', (left, right) {
     final leftTagged = left.map((n) => n.asLeft<int>());
     final rightTagged = right.map((n) => n.asRight<int>());
 
@@ -1059,7 +1058,7 @@ void main() {
     expect(Rill.range(0, 100).rechunkRandomly(), producesInOrder(List.generate(100, (i) => i)));
   }, skip: 'flaky');
 
-  (intRill, Gen.chooseInt(0, 1000000000)).forAllN(
+  (intRill, Gen.chooseInt(0, 1000000000)).forAll(
     'rechunkRandomly is deterministic',
     (r, seed) {
       expect(
@@ -1205,14 +1204,14 @@ void main() {
     });
   });
 
-  (intRill, Gen.integer).forAllN('scan', (r, n) async {
+  (intRill, Gen.integer).forAll('scan', (r, n) async {
     int f(int a, int b) => a + b;
     final l = await r.toList;
 
     expect(r.scan(n, f), producesInOrder(l.scanLeft(n, f)));
   });
 
-  forAll('scan', intRill, (r) async {
+  intRill.forAll('scan', (r) async {
     int f(int a, int b) => a + b;
     final l = await r.toList;
     final expected = l.headOption.fold(() => nil<int>(), (h) => l.drop(1).scanLeft(h, f));
@@ -1234,7 +1233,7 @@ void main() {
     );
   });
 
-  (intRill, Gen.integer, Gen.integer).forAllN('sliding', (r, n0, n1) async {
+  (intRill, Gen.integer, Gen.integer).forAll('sliding', (r, n0, n1) async {
     final size = (n0 % 20).abs() + 1;
     final step = (n1 % 20).abs() + 1;
 
@@ -1462,12 +1461,12 @@ void main() {
     );
   });
 
-  forAll('zipWithIndex', intRill, (r) async {
+  intRill.forAll('zipWithIndex', (r) async {
     final l = await r.toList;
     expect(r.zipWithIndex(), producesInOrder(l.zipWithIndex()));
   });
 
-  forAll('zipWithNext', intRill, (r) async {
+  intRill.forAll('zipWithNext', (r) async {
     final xs = await r.toList;
 
     expect(
@@ -1485,7 +1484,7 @@ void main() {
     );
   });
 
-  forAll('zipWithPrevious', intRill, (r) async {
+  intRill.forAll('zipWithPrevious', (r) async {
     final xs = await r.toList;
 
     expect(
@@ -1503,7 +1502,7 @@ void main() {
     );
   });
 
-  forAll('zipWithPreviousAndNext', intRill, (r) async {
+  intRill.forAll('zipWithPreviousAndNext', (r) async {
     final xs = await r.toList;
 
     final zipWithPrevious = xs.map((n) => Option(n)).prepended(none()).zip(xs);

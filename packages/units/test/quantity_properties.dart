@@ -10,9 +10,8 @@ class QuantityProperties {
     Function1<String, Option<A>> parse,
     Iterable<UnitOfMeasure<A>> units,
   ) {
-    forAll(
+    quantityString(units).forAll(
       'parse',
-      quantityString(units),
       (str) => expect(parse(str).isDefined, isTrue),
     );
   }
@@ -21,7 +20,7 @@ class QuantityProperties {
     Gen<A> gen,
     Gen<B> genUnit,
   ) {
-    (gen, genUnit).forAllN('equivalentTo', (original, otherUnit) {
+    (gen, genUnit).forAll('equivalentTo', (original, otherUnit) {
       expect(
         otherUnit(original.to(otherUnit)).equivalentTo(original),
         isTrue,
@@ -33,7 +32,7 @@ class QuantityProperties {
     Gen<A> gen,
     Iterable<Function1<A, A>> roundTrips,
   ) {
-    (gen, Gen.oneOf(roundTrips)).forAllN('roundtrip', (original, roundTrip) {
+    (gen, Gen.oneOf(roundTrips)).forAll('roundtrip', (original, roundTrip) {
       final actual = roundTrip(original);
 
       expect(original.value, closeTo(actual.value, 1e-6));

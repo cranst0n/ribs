@@ -7,11 +7,11 @@ import 'arbitraries.dart';
 
 void main() {
   group('Cidr', () {
-    forAll('roundtrip through string', genCidr(genIp), (cidr) {
+    genCidr(genIp).forAll('roundtrip through string', (cidr) {
       expect(Cidr.fromString(cidr.toString()), isSome(cidr));
     });
 
-    (genIp, Gen.nonNegativeInt).forAllN('fromIpAndMask', (ip, prefixBits0) {
+    (genIp, Gen.nonNegativeInt).forAll('fromIpAndMask', (ip, prefixBits0) {
       final prefixBits = (prefixBits0 % ip.bitSize) + 1;
       final maskInt = BigInt.from(-1) << (ip.bitSize - prefixBits);
       final mask = ip.fold(
@@ -22,7 +22,7 @@ void main() {
       expect(Cidr.fromIpAndMask(ip, mask), Cidr.of(ip, prefixBits));
     });
 
-    (genIp, Gen.nonNegativeInt).forAllN(
+    (genIp, Gen.nonNegativeInt).forAll(
       'parsing from string: only masks with a valid length return a CIDR',
       (ip, prefixBits) {
         final cidr = Cidr.fromString('$ip/$prefixBits');

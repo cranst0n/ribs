@@ -8,18 +8,18 @@ import 'arbitraries.dart';
 
 void main() {
   group('Hostname', () {
-    forAll('roundtrip through string', genHostname, (hostname) {
+    genHostname.forAll('roundtrip through string', (hostname) {
       expect(Hostname.fromString(hostname.toString()), isSome(hostname));
     });
 
-    forAll('allow access to labels', genHostname, (hostname) {
+    genHostname.forAll('allow access to labels', (hostname) {
       expect(
         Hostname.fromString(hostname.labels.mkString(sep: '.')).map((h) => h.labels),
         isSome(hostname.labels),
       );
     });
 
-    forAll('require overall length be less than 254 chars', genHostname, (hostname) {
+    genHostname.forAll('require overall length be less than 254 chars', (hostname) {
       final hstr = hostname.toString();
       final h2 = '$hstr.$hstr';
 
@@ -33,7 +33,7 @@ void main() {
       expect(Hostname.fromString(h2), expected);
     });
 
-    forAll('require labels be less than 64 chars', genHostname, (hostname) {
+    genHostname.forAll('require labels be less than 64 chars', (hostname) {
       final hstr = hostname.toString();
       final suffix = hstr[hstr.length - 1] * 63;
       final tooLong = hstr + suffix;
@@ -41,11 +41,11 @@ void main() {
       expect(Hostname.fromString(tooLong), isNone());
     });
 
-    forAll('disallow labels that end in a dash', genHostname, (hostname) {
+    genHostname.forAll('disallow labels that end in a dash', (hostname) {
       expect(Hostname.fromString('$hostname-'), isNone());
     });
 
-    forAll('disallow labels that start with a dash', genHostname, (hostname) {
+    genHostname.forAll('disallow labels that start with a dash', (hostname) {
       expect(Hostname.fromString('-$hostname'), isNone());
     });
   });

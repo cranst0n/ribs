@@ -253,12 +253,11 @@ void main() {
     expect(b, isTrue);
   });
 
-  forAll(
+  Gen.ilistOf(
+    Gen.chooseInt(0, 20),
+    (Gen.integer, Gen.either<Object, Unit>(Gen.constant('boom'), Gen.constant(Unit()))).tupled,
+  ).forAll(
     'allocated releases resources in reverse order of acquisition',
-    Gen.ilistOf(
-      Gen.chooseInt(0, 20),
-      (Gen.integer, Gen.either<Object, Unit>(Gen.constant('boom'), Gen.constant(Unit()))).tupled,
-    ),
     (as) {
       var released = nil<int>();
 
@@ -330,7 +329,7 @@ void main() {
         (Gen.integer, Gen.either<Object, Unit>(Gen.constant('boom'), Gen.constant(Unit()))).tupled,
       ),
       Gen.boolean,
-    ).forAllN(
+    ).forAll(
       'releases resources in rever order of acquisition',
       (as, rhs) {
         var released = nil<int>();

@@ -70,7 +70,7 @@ void main() {
     expect(Order.strings.gteqv('cat', 'cat'), isTrue);
   });
 
-  forAll('reverse', Gen.integer.tuple2, (ab) {
+  Gen.integer.tuple2.forAll('reverse', (ab) {
     final (a, b) = ab;
 
     expect(

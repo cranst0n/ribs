@@ -8,11 +8,11 @@ import 'arbitraries.dart';
 
 void main() {
   group('Cursor', () {
-    forAll('focus should return the JSON value in a newly created cursor', genJson, (json) {
+    genJson.forAll('focus should return the JSON value in a newly created cursor', (json) {
       expect(HCursor.fromJson(json).focus(), isSome<Json>());
     });
 
-    forAll('top should return from navigation into an object', genJson, (json) {
+    genJson.forAll('top should return from navigation into an object', (json) {
       final c = HCursor.fromJson(json);
 
       final intoObject = c.keys.flatMap(
@@ -25,7 +25,7 @@ void main() {
       );
     });
 
-    forAll('top should return from navigation into an array', genJson, (json) {
+    genJson.forAll('top should return from navigation into an array', (json) {
       expect(
         HCursor.fromJson(
           json,
@@ -34,7 +34,7 @@ void main() {
       );
     });
 
-    forAll('root should return from navigation into an object', genJson, (json) {
+    genJson.forAll('root should return from navigation into an object', (json) {
       final c = HCursor.fromJson(json);
 
       final intoObject = c.keys.flatMap(
@@ -47,11 +47,11 @@ void main() {
       );
     });
 
-    forAll('root should return from navigation into an array', genJson, (json) {
+    genJson.forAll('root should return from navigation into an array', (json) {
       expect(HCursor.fromJson(json).downArray().root()?.focus(), Some(json));
     });
 
-    forAll('up should undo navigation into an object', genJson, (json) {
+    genJson.forAll('up should undo navigation into an object', (json) {
       final c = HCursor.fromJson(json);
 
       final intoObject = c.keys.flatMap(
@@ -64,7 +64,7 @@ void main() {
       );
     });
 
-    forAll('up should undo navigation into an array', genJson, (json) {
+    genJson.forAll('up should undo navigation into an array', (json) {
       final success = HCursor.fromJson(json).downArray().success();
       expect(
         success.forall((atFirst) => atFirst.up().success().flatMap((a) => a.focus()) == Some(json)),
@@ -72,14 +72,14 @@ void main() {
       );
     });
 
-    forAll('up should fail at the top', genJson, (json) {
+    genJson.forAll('up should fail at the top', (json) {
       final result = HCursor.fromJson(json).up();
 
       expect(result.failed, isTrue);
       expect(result.history(), ilist([CursorOp.moveUp]));
     });
 
-    forAll('withFocus should have no effect when given the identity function', genJson, (json) {
+    genJson.forAll('withFocus should have no effect when given the identity function', (json) {
       expect(HCursor.fromJson(json).withFocus(identity).focus(), isSome(json));
     });
 
@@ -105,7 +105,7 @@ void main() {
     (
       genJson,
       Gen.ilistOf(Gen.chooseInt(0, 5), genJson),
-    ).forAllN(
+    ).forAll(
       'delete should remove a value from an array',
       (h, t) {
         final result = HCursor.fromJson(
@@ -118,7 +118,7 @@ void main() {
     );
   });
 
-  forAll('delete should fail at the top', genJson, (json) {
+  genJson.forAll('delete should fail at the top', (json) {
     final result = HCursor.fromJson(json).delete();
 
     expect(result.failed, isTrue);
@@ -157,7 +157,7 @@ void main() {
     expect(result.flatMap((a) => a.focus()), isNone());
   });
 
-  forAll('left should fail at the top', genJson, (json) {
+  genJson.forAll('left should fail at the top', (json) {
     final result = HCursor.fromJson(json).left();
 
     expect(result.failed, isTrue);
@@ -203,7 +203,7 @@ void main() {
     expect(result.flatMap((a) => a.focus()), isSome(Json.number(200.2)));
   });
 
-  (genJson, Gen.nonEmptyAlphaNumString(10)).forAllN(
+  (genJson, Gen.nonEmptyAlphaNumString(10)).forAll(
     'field should fail at the top',
     (json, key) {
       final result = HCursor.fromJson(json).field(key);

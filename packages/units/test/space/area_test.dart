@@ -12,7 +12,7 @@ void main() {
     QuantityProperties.equivalence(area, areaUnit);
     QuantityProperties.roundtrip(area, roundTrips);
 
-    forAll('multiple / divide', length.tuple2, (t) {
+    length.tuple2.forAll('multiple / divide', (t) {
       final (a, b) = t;
       expect((a * b / b).to(a.unit), closeTo(a.value, 1e-6));
     });

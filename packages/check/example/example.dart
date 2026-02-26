@@ -3,10 +3,9 @@ import 'package:test/test.dart';
 
 void main() {
   group('List Properties', () {
-    // A simple property test using forAll
-    forAll(
+    // A simple property test using forAllN
+    Gen.listOf(Gen.chooseInt(0, 10), Gen.chooseInt(-100, 100)).forAll(
       'reversing a list twice returns the original list',
-      Gen.listOf(Gen.chooseInt(0, 10), Gen.chooseInt(-100, 100)),
       (List<int> list) {
         expect(list.reversed.toList().reversed.toList(), equals(list));
       },
@@ -15,7 +14,7 @@ void main() {
     (
       Gen.chooseInt(-1000, 1000),
       Gen.chooseInt(-1000, 1000),
-    ).forAllN(
+    ).forAll(
       'sum of two integers is commutative',
       (int a, int b) {
         expect(a + b, equals(b + a));
@@ -26,7 +25,7 @@ void main() {
       Gen.chooseInt(-100, 100),
       Gen.chooseInt(-100, 100),
       Gen.chooseInt(-100, 100),
-    ).forAllN(
+    ).forAll(
       'addition is associative',
       (int a, int b, int c) {
         expect((a + b) + c, equals(a + (b + c)));
@@ -42,9 +41,8 @@ void main() {
       Gen.boolean,
     ).tupled.map((t) => User(t.$1, t.$2, isAdmin: t.$3));
 
-    forAll(
+    userGen.forAll(
       'generated users meet domain constraints',
-      userGen,
       (User user) {
         expect(user.name.length, lessThanOrEqualTo(10));
         expect(user.age, inInclusiveRange(18, 100));
@@ -55,9 +53,8 @@ void main() {
   group('Edge Cases and Shrinking', () {
     // ribs_check will automatically try edge cases from the generator's domain
     // and if a failure is found, it will "shrink" it to the simplest reproduction.
-    forAll(
+    Gen.chooseInt(0, 100).forAll(
       'all integers are less than 50 (this will fail and shrink!)',
-      Gen.chooseInt(0, 100),
       (int n) {
         if (n >= 50) {
           // This will fail for any n >= 50.

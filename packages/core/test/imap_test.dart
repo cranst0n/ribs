@@ -32,15 +32,11 @@ void main() {
       expect(m3 == m3, isTrue);
     });
 
-    forAll(
-      'equality (property)',
-      Gen.imapOf(
-        Gen.chooseInt(0, 10),
-        Gen.alphaLowerChar,
-        Gen.chooseInt(-10, 10),
-      ),
-      (map) => expect(map == map, isTrue),
-    );
+    Gen.imapOf(
+      Gen.chooseInt(0, 10),
+      Gen.alphaLowerChar,
+      Gen.chooseInt(-10, 10),
+    ).forAll('equality (property)', (map) => expect(map == map, isTrue));
 
     test('empty', () {
       expect(imap({}).size, 0);

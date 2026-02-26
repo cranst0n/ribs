@@ -7,7 +7,7 @@ import 'arbitraries.dart';
 
 void main() {
   group('Multicast', () {
-    forAll('support equality', genMulticast4, (mip) {
+    genMulticast4.forAll('support equality', (mip) {
       expect(mip.address.asMulticast(), isSome(mip));
     });
 

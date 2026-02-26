@@ -6,7 +6,7 @@ import 'package:ribs_effect/src/std/internal/bankers_queue.dart';
 import 'package:test/test.dart';
 
 void main() {
-  forAll('maintain size invariants', Op.genList(Gen.positiveInt), (ops) {
+  Op.genList(Gen.positiveInt).forAll('maintain size invariants', (ops) {
     final queue = Op.fold(ops);
 
     expect(
@@ -20,15 +20,15 @@ void main() {
     );
   });
 
-  forAll('dequeue in order from front', Op.genList(Gen.positiveInt), (ops) {
+  Op.genList(Gen.positiveInt).forAll('dequeue in order from front', (ops) {
     expect(toListFromFront(buildQueue(ops)), ops);
   });
 
-  forAll('dequeue in order from back', Op.genList(Gen.positiveInt), (ops) {
+  Op.genList(Gen.positiveInt).forAll('dequeue in order from back', (ops) {
     expect(toListFromBack(buildQueue(ops)), ops.reverse());
   });
 
-  forAll('reverse', Op.genList(Gen.positiveInt), (ops) {
+  Op.genList(Gen.positiveInt).forAll('reverse', (ops) {
     expect(toListFromFront(buildQueue(ops).reverse()), ops.reverse());
   });
 }

@@ -7,7 +7,7 @@ import 'arbitraries.dart';
 
 void main() {
   group('SocketAddress', () {
-    forAll('roundtrip through string', genSocketAddress, (sa) {
+    genSocketAddress.forAll('roundtrip through string', (sa) {
       expect(SocketAddress.fromString(sa.toString()), isSome(sa));
     });
   });

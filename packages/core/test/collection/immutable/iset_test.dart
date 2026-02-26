@@ -122,7 +122,7 @@ void main() {
       expect(iset({-1, -2, 3}).forall((x) => x > 0), isFalse);
     });
 
-    forAll('foreach', Gen.ilistOf(Gen.chooseInt(0, 100), Gen.integer).map((l) => l.toISet()), (
+    Gen.ilistOf(Gen.chooseInt(0, 100), Gen.integer).map((l) => l.toISet()).forAll('foreach', (
       aSet,
     ) {
       var count = 0;
@@ -209,9 +209,8 @@ void main() {
       ]);
     });
 
-    forAll(
+    Gen.chooseInt(0, 100).map((n) => IList.tabulate(n, identity)).map((a) => a.toISet()).forAll(
       'size/emptines',
-      Gen.chooseInt(0, 100).map((n) => IList.tabulate(n, identity)).map((a) => a.toISet()),
       (aSet) {
         expect(aSet.size > 0, aSet.isNotEmpty);
         expect(aSet.size == 0, aSet.isEmpty);
