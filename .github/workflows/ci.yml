@@ -17,9 +17,11 @@ jobs:
         sdk: [stable, beta]
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout Repository
+        uses: actions/checkout@v5
 
-      - uses: dart-lang/setup-dart@v1
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
         with:
           sdk: ${{ matrix.sdk }}
 
@@ -55,3 +57,11 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/binary/coverage.lcov,packages/check/coverage.lcov,packages/core/coverage.lcov,packages/effect/coverage.lcov,packages/ip/coverage.lcov,packages/json/coverage.lcov,packages/optics/coverage.lcov,packages/units/coverage.lcov
           verbose: true
+
+#      - name: Install Semantic Changelog
+#        run: dart pub global activate -s git https://github.com/rrousselGit/semantic_changelog/
+#
+#      - name: Enforce Changelog Updates
+#        if: github.event_name == 'pull_request'
+#        # Compares the PR branch against the target main branch to ensure changelogs are updated
+#        run: version check origin/main

@@ -19,7 +19,7 @@ workspace:
   - website/snippets
 
 dev_dependencies:
-  melos: ^7.3.0
+  melos: ^7.4.0
 
 melos:
   scripts:
@@ -54,5 +54,3 @@ melos:
     analyze: melos exec -c1 -- dart analyze --fatal-infos .
 
     format: melos exec dart format --show=changed .
-
-    outdated: melos exec dart pub outdated
