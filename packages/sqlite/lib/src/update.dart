@@ -29,7 +29,7 @@ final class Update<A> {
             );
           }),
         ),
-        (ps, _) => IO.exec(() => ps.dispose()),
+        (ps, _) => IO.exec(() => ps.close()),
       );
     });
   }

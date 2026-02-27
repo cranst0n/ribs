@@ -56,7 +56,7 @@ void main() {
 
     final insertAll = ilist([
       'create table todo (id integer primary key, title text not null, description text, raw json)',
-      '''insert into todo values (0, "sit", "quietly", '[true, null, 2, 3.14, "hello"]')''',
+      '''insert into todo values (0, 'sit', 'quietly', '[true, null, 2, 3.14, "hello"]')''',
     ]).traverseIO_((sql) => sql.update0.run(db));
 
     await insertAll.unsafeRunFuture();
@@ -115,8 +115,8 @@ void main() {
     final res3 =
         await '''
                 insert into todo values
-                  (5000, "Foo", null, '[1.23, [null, true, {}]]'),
-                  (5001, "Bar", null, '[]')
+                  (5000, 'Foo', null, '[1.23, [null, true, {}]]'),
+                  (5001, 'Bar', null, '[]')
                 returning id, title, raw'''
             .query((Read.integer, Read.string).tupled)
             .ivector()

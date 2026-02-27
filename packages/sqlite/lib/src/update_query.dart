@@ -37,7 +37,7 @@ final class UpdateQuery<A, B> {
             return read.unsafeGet(rs.first, 0);
           });
         }),
-        (ps, _) => IO.exec(() => ps.dispose()),
+        (ps, _) => IO.exec(() => ps.close()),
       );
     });
   }

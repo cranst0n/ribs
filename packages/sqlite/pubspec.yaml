@@ -16,9 +16,14 @@ dependencies:
   ribs_core:   ^1.0.0-dev.14
   ribs_effect: ^1.0.0-dev.3
   ribs_json:   ^1.0.0-dev.15
-  sqlite3:     ^2.9.4
+  sqlite3:     ^3.1.6
 
 dev_dependencies:
   lint:       ^2.8.0
   ribs_check: ^1.0.0-dev.8
   test:       ^1.0.0
+
+#hooks:
+#  user_defines:
+#    sqlite3:
+#      source: system # or "process", or "excutable"
