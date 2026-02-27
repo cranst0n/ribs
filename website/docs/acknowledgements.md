@@ -18,6 +18,7 @@ libraries:
 | [scala](https://github.com/scala/scala)                 | `IList`, `IVector`, `Option`, `Either` and much more        |
 | [cats](https://github.com/typelevel/cats)               | `Validated`, `Ref` and other effect related implementations |
 | [cats-effect](https://github.com/typelevel/cats-effect) | `IO`, `Ref` and other effect related implementations        |
+| [fs2](https://github.com/typelevel/fs2)                 | `Rill` and other streaming related implementations          |
 | [cats-retry](https://github.com/cb372/cats-retry)       | `IO` retry capabilities                                     |
 | [jawn](https://github.com/typelevel/jawn)               | JSON parser                                                 |
 | [circe](https://github.com/circe/circe)                 | JSON Encoding / Decoding                                    |
@@ -32,7 +33,7 @@ In addition to these libraries, additional inspiration/motivation was provided b
 | ---------------------------------------------------------- | --------------------------------------------------------------------------- |
 | [FIC](https://pub.dev/packages/fast_immutable_collections) | Amazing immutable collections library for Dart.                             |
 | [dartz](https://github.com/spebbe/dartz)                   | The OG Dart FP library.                                                     |
-| [fpdart](https://github.com/SandroMaglione/fpdart)         | The current de-facto FP library for Dart provides an great dev experience.  |
+| [fpdart](https://github.com/SandroMaglione/fpdart)         | The current de-facto FP library for Dart provides a great dev experience.  |
 
 All of these libraries are worth exploring and represent tremendous value to
 the entire Dart ecosystem! Much of what Ribs has become is directly possible

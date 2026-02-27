@@ -122,6 +122,11 @@ Now let's write an equivalent program using `IO`:
 This version using `IO` has all the resource safety guarentees of the `try`/`catch` version but
 doesn't use `Exception`s to avoid side-effects.
 
+:::tip
+While `IO.bracket` is a great starting point for resource safety, you should
+check out `Resource` for a more robust solution.
+:::
+
 ## Conversions
 
 `IO` comes with a few helper functions to convert common FP types into an `IO`.

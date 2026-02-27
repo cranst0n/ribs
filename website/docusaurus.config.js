@@ -15,7 +15,6 @@ const config = {
   url: `https://${organizationName}.github.io`,
   baseUrl: `/${projectName}/`,
   onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "throw",
   trailingSlash: false,
 
   organizationName,

@@ -20,16 +20,17 @@ const sidebars = {
       label: 'API Reference',
       collapsed: false,
       items: [
-        { type: 'link', label: 'Core', href: 'https://pub.dev/documentation/ribs_core/latest/ribs_core/ribs_core-library.html' },
-        { type: 'link', label: 'Effect', href: 'https://pub.dev/documentation/ribs_core/latest/ribs_effect/ribs_effect-library.html' },
-        { type: 'link', label: 'JSON', href: 'https://pub.dev/documentation/ribs_json/latest/ribs_json/ribs_json-library.html' },
-        { type: 'link', label: 'Binary', href: 'https://pub.dev/documentation/ribs_binary/latest/ribs_binary/ribs_binary-library.html' },
-        { type: 'link', label: 'Optics', href: 'https://pub.dev/documentation/ribs_optics/latest/ribs_optics/ribs_optics-library.html' },
-        { type: 'link', label: 'Units', href: 'https://pub.dev/documentation/ribs_untis/latest/ribs_untis/ribs_untis-library.html' },
+        { type: 'link', label: 'Core', href: 'https://pub.dev/documentation/ribs_core/latest/ribs_core/' },
+        { type: 'link', label: 'Effect', href: 'https://pub.dev/documentation/ribs_effect/latest/ribs_effect/' },
+        { type: 'link', label: 'Rill', href: 'https://pub.dev/documentation/ribs_rill/latest/ribs_rill/' },
+        { type: 'link', label: 'JSON', href: 'https://pub.dev/documentation/ribs_json/latest/ribs_json/' },
+        { type: 'link', label: 'Binary', href: 'https://pub.dev/documentation/ribs_binary/latest/ribs_binary/' },
+        { type: 'link', label: 'Optics', href: 'https://pub.dev/documentation/ribs_optics/latest/ribs_optics/' },
+        { type: 'link', label: 'Units', href: 'https://pub.dev/documentation/ribs_units/latest/ribs_units/' },
         { type: 'link', label: 'Check', href: 'https://pub.dev/documentation/ribs_check/latest/ribs_check/ribs_check-library.html' },
       ]
     },
   ],
 };
 
-module.exports = sidebars;
+export default sidebars;

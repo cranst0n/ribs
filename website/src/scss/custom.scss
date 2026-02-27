@@ -1,4 +1,4 @@
-@import "variables";
-@import "mixins";
+@use "variables";
+@use "mixins";
 
-@import "../components/CodeSnippet/style";
+@use "../components/CodeSnippet/style";
