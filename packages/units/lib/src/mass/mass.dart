@@ -4,6 +4,9 @@ import 'package:ribs_units/ribs_units.dart';
 final class Mass extends Quantity<Mass> {
   Mass(super.value, super.unit);
 
+  Mass operator +(Mass that) => Mass(value + that.to(unit), unit);
+  Mass operator -(Mass that) => Mass(value - that.to(unit), unit);
+
   Mass get toGrams => to(grams).grams;
   Mass get toNanograms => to(nanograms).nanograms;
   Mass get toMicrograms => to(micrograms).micrograms;

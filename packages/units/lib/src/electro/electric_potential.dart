@@ -4,6 +4,11 @@ import 'package:ribs_units/ribs_units.dart';
 final class ElectricPotential extends Quantity<ElectricPotential> {
   ElectricPotential(super.value, super.unit);
 
+  ElectricPotential operator +(ElectricPotential that) =>
+      ElectricPotential(value + that.to(unit), unit);
+  ElectricPotential operator -(ElectricPotential that) =>
+      ElectricPotential(value - that.to(unit), unit);
+
   ElectricPotential get toMicrovolts => to(microvolts).microvolts;
   ElectricPotential get toMillivolts => to(millivolts).millivolts;
   ElectricPotential get toVolts => to(volts).volts;

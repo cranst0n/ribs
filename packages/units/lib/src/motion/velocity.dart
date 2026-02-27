@@ -4,6 +4,9 @@ import 'package:ribs_units/ribs_units.dart';
 final class Velocity extends Quantity<Velocity> {
   Velocity(super.value, super.unit);
 
+  Velocity operator +(Velocity that) => Velocity(value + that.to(unit), unit);
+  Velocity operator -(Velocity that) => Velocity(value - that.to(unit), unit);
+
   Velocity get toFeetPerSecond => to(feetPerSecond).feetPerSecond;
   Velocity get toMillimetersPerSecond => to(millimetersPerSecond).millimetersPerSecond;
   Velocity get toMetersPerSecond => to(metersPerSecond).metersPerSecond;

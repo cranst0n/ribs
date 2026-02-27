@@ -4,6 +4,9 @@ import 'package:ribs_units/ribs_units.dart';
 final class Frequency extends Quantity<Frequency> {
   Frequency(super.value, super.unit);
 
+  Frequency operator +(Frequency that) => Frequency(value + that.to(unit), unit);
+  Frequency operator -(Frequency that) => Frequency(value - that.to(unit), unit);
+
   Frequency get toHertz => to(hertz).hertz;
   Frequency get toKilohertz => to(kilohertz).kilohertz;
   Frequency get toMegahertz => to(megahertz).megahertz;

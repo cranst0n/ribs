@@ -4,6 +4,9 @@ import 'package:ribs_units/ribs_units.dart';
 final class DataRate extends Quantity<DataRate> {
   DataRate(super.value, super.unit);
 
+  DataRate operator +(DataRate that) => DataRate(value + that.to(unit), unit);
+  DataRate operator -(DataRate that) => DataRate(value - that.to(unit), unit);
+
   DataRate get toBytesPerSecond => to(bytesPerSecond).bytesPerSecond;
   DataRate get toKilobytesPerSecond => to(kilobytesPerSecond).kilobytesPerSecond;
   DataRate get toKibibytesPerSecond => to(kibibytesPerSecond).kibibytesPerSecond;

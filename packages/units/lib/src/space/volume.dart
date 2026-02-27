@@ -4,6 +4,9 @@ import 'package:ribs_units/ribs_units.dart';
 final class Volume extends Quantity<Volume> {
   Volume(super.value, super.unit);
 
+  Volume operator +(Volume that) => Volume(value + that.to(unit), unit);
+  Volume operator -(Volume that) => Volume(value - that.to(unit), unit);
+
   Volume get toCubicMeters => to(cubicMeters).cubicMeters;
   Volume get toLitres => to(litres).litres;
   Volume get toNanolitres => to(nanolitres).nanolitres;

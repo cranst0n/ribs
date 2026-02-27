@@ -7,6 +7,11 @@ abstract class Quantity<A extends Quantity<A>> {
 
   Quantity(this.value, this.unit);
 
+  bool operator >(A that) => value > that.to(unit);
+  bool operator <(A that) => value < that.to(unit);
+  bool operator >=(A that) => value >= that.to(unit);
+  bool operator <=(A that) => value <= that.to(unit);
+
   double to(UnitOfMeasure<A> uom) => uom == unit ? value : uom.convertTo(unit.convertFrom(value));
 
   bool equivalentTo(Quantity<A> other) => other.to(unit) == value;

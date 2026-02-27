@@ -4,6 +4,9 @@ import 'package:ribs_units/ribs_units.dart';
 final class Time extends Quantity<Time> {
   Time(super.value, super.unit);
 
+  Time operator +(Time that) => Time(value + that.to(unit), unit);
+  Time operator -(Time that) => Time(value - that.to(unit), unit);
+
   Time get toNanoseconds => to(nanoseconds).nanoseconds;
   Time get toMicroseconds => to(microseconds).microseconds;
   Time get toMilliseconds => to(milliseconds).milliseconds;

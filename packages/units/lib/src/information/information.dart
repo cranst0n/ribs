@@ -4,6 +4,9 @@ import 'package:ribs_units/ribs_units.dart';
 final class Information extends Quantity<Information> {
   Information(super.value, super.unit);
 
+  Information operator +(Information that) => Information(value + that.to(unit), unit);
+  Information operator -(Information that) => Information(value - that.to(unit), unit);
+
   Information get toBytes => to(bytes).bytes;
   Information get toOctets => to(octets).octets;
   Information get toKilobytes => to(kilobytes).kilobytes;

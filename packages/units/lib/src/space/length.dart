@@ -4,6 +4,9 @@ import 'package:ribs_units/ribs_units.dart';
 final class Length extends Quantity<Length> {
   Length(super.value, super.unit);
 
+  Length operator +(Length that) => Length(value + that.to(unit), unit);
+  Length operator -(Length that) => Length(value - that.to(unit), unit);
+
   Area operator *(Length that) {
     if (unit == centimeters) {
       return Area.squareCentimeters(value * that.toCentimeters.value);
@@ -116,7 +119,7 @@ final class Hectometers extends LengthUnit {
 }
 
 final class Kilometers extends LengthUnit {
-  const Kilometers._() : super('kilometer', 'hm', MetricSystem.Kilo);
+  const Kilometers._() : super('kilometer', 'km', MetricSystem.Kilo);
 }
 
 final class Inches extends LengthUnit {

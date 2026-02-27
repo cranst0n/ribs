@@ -4,6 +4,9 @@ import 'package:ribs_units/ribs_units.dart';
 final class Area extends Quantity<Area> {
   Area(super.value, super.unit);
 
+  Area operator +(Area that) => Area(value + that.to(unit), unit);
+  Area operator -(Area that) => Area(value - that.to(unit), unit);
+
   Volume operator *(Length that) => switch (unit) {
     SquareUsMiles _ => Volume.cubicUsMiles(value * that.toUsMiles.value),
     SquareYards _ => Volume.cubicYards(value * that.toYards.value),
