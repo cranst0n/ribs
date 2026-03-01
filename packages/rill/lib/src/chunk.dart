@@ -35,6 +35,15 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
 
   static Chunk<O> singleton<O>(O a) => _SingletonChunk(a);
 
+  /// Creates a [Chunk] of [count] elements produced by [f].
+  ///
+  /// More efficient than [fromList] for generated sequences since a single
+  /// fixed-size [List] is allocated with no intermediate copy.
+  static Chunk<O> tabulate<O>(int count, Function1<int, O> f) {
+    if (count <= 0) return empty();
+    return _BoxedChunk(List<O>.generate(count, f, growable: false));
+  }
+
   static final unit = Chunk.singleton(Unit());
 
   @override
@@ -375,7 +384,154 @@ class _BoxedChunk<O> extends Chunk<O> {
   O operator [](int index) => _values[index];
 
   @override
+  Chunk<B> collect<B>(Function1<O, Option<B>> f) {
+    final result = <B>[];
+
+    for (var i = 0; i < _values.length; i++) {
+      final opt = f(_values[i]);
+      if (opt is Some<B>) result.add(opt.value);
+    }
+
+    if (result.isEmpty) {
+      return Chunk.empty();
+    } else {
+      return _BoxedChunk(List.of(result, growable: false));
+    }
+  }
+
+  @override
+  Chunk<O> dropWhile(Function1<O, bool> p) {
+    var i = 0;
+
+    while (i < _values.length && p(_values[i])) {
+      i++;
+    }
+
+    if (i == _values.length) {
+      return Chunk.empty();
+    } else if (i == 0) {
+      return this;
+    } else {
+      return _SliceChunk(this, i, _values.length - i);
+    }
+  }
+
+  @override
+  Chunk<O> filter(Function1<O, bool> p) {
+    final result = <O>[];
+
+    for (var i = 0; i < _values.length; i++) {
+      if (p(_values[i])) result.add(_values[i]);
+    }
+
+    if (result.isEmpty) {
+      return Chunk.empty();
+    } else {
+      return _BoxedChunk(List.of(result, growable: false));
+    }
+  }
+
+  @override
+  B foldLeft<B>(B z, Function2<B, O, B> f) {
+    var acc = z;
+
+    for (var i = 0; i < _values.length; i++) {
+      acc = f(acc, _values[i]);
+    }
+
+    return acc;
+  }
+
+  @override
+  void foreach<U>(Function1<O, U> f) {
+    for (var i = 0; i < _values.length; i++) {
+      f(_values[i]);
+    }
+  }
+
+  @override
+  RIterator<O> get iterator => _BoxedChunkIterator(_values);
+
+  @override
+  Chunk<B> map<B>(Function1<O, B> f) {
+    if (_values.isEmpty) {
+      return Chunk.empty();
+    } else {
+      return _BoxedChunk(
+        List<B>.generate(_values.length, (i) => f(_values[i]), growable: false),
+      );
+    }
+  }
+
+  @override
   int get size => _values.length;
+
+  @override
+  (Chunk<O>, Chunk<O>) span(Function1<O, bool> p) {
+    var i = 0;
+
+    while (i < _values.length && p(_values[i])) {
+      i++;
+    }
+
+    if (i == 0) {
+      return (Chunk.empty(), this);
+    } else if (i == _values.length) {
+      return (this, Chunk.empty());
+    } else {
+      return (_SliceChunk(this, 0, i), _SliceChunk(this, i, _values.length - i));
+    }
+  }
+
+  @override
+  (Chunk<O>, Chunk<O>) splitAt(int n) {
+    if (n <= 0) {
+      return (Chunk.empty(), this);
+    } else if (n >= _values.length) {
+      return (this, Chunk.empty());
+    } else {
+      return (_SliceChunk(this, 0, n), _SliceChunk(this, n, _values.length - n));
+    }
+  }
+
+  @override
+  Chunk<O> takeWhile(Function1<O, bool> p) {
+    var i = 0;
+
+    while (i < _values.length && p(_values[i])) {
+      i++;
+    }
+
+    if (i == 0) {
+      return Chunk.empty();
+    } else if (i == _values.length) {
+      return this;
+    } else {
+      return _SliceChunk(this, 0, i);
+    }
+  }
+
+  @override
+  (Chunk<B>, B) _scanLeft<B>(B initial, Function2<B, O, B> op, bool emitZero) {
+    final outLen = _values.length + (emitZero ? 1 : 0);
+
+    if (outLen == 0) {
+      return (Chunk.empty(), initial);
+    } else {
+      final out = List<B>.filled(outLen, initial);
+      var acc = initial;
+      var j = 0;
+
+      if (emitZero) out[j++] = acc;
+
+      for (var i = 0; i < _values.length; i++) {
+        acc = op(acc, _values[i]);
+        out[j++] = acc;
+      }
+
+      return (_BoxedChunk(out), acc);
+    }
+  }
 
   @override
   List<O> toDartList() => List.of(_values);
@@ -473,10 +629,49 @@ class _SliceChunk<A> extends Chunk<A> {
   };
 
   @override
-  int get size => _length;
+  Chunk<A> filter(Function1<A, bool> p) {
+    final result = <A>[];
+
+    if (underlying is _BoxedChunk<A>) {
+      final src = (underlying as _BoxedChunk<A>)._values;
+
+      for (var i = 0; i < _length; i++) {
+        final v = src[offset + i];
+        if (p(v)) result.add(v);
+      }
+    } else {
+      for (var i = 0; i < _length; i++) {
+        final v = underlying[offset + i];
+        if (p(v)) result.add(v);
+      }
+    }
+
+    if (result.isEmpty) {
+      return Chunk.empty();
+    } else {
+      return _BoxedChunk(List.of(result, growable: false));
+    }
+  }
 
   @override
   bool get isCompact => false;
+
+  @override
+  Chunk<B> map<B>(Function1<A, B> f) {
+    if (underlying is _BoxedChunk<A>) {
+      final src = (underlying as _BoxedChunk<A>)._values;
+      return _BoxedChunk(
+        List<B>.generate(_length, (i) => f(src[offset + i]), growable: false),
+      );
+    } else {
+      return _BoxedChunk(
+        List<B>.generate(_length, (i) => f(underlying[offset + i]), growable: false),
+      );
+    }
+  }
+
+  @override
+  int get size => _length;
 
   @override
   Chunk<A> take(int n) => switch (n) {
@@ -545,4 +740,17 @@ final class _ChunkIterator<A> extends RIterator<A> {
     _i += 1;
     return res;
   }
+}
+
+final class _BoxedChunkIterator<A> extends RIterator<A> {
+  final List<A> _values;
+  var _i = 0;
+
+  _BoxedChunkIterator(this._values);
+
+  @override
+  bool get hasNext => _i < _values.length;
+
+  @override
+  A next() => _values[_i++];
 }

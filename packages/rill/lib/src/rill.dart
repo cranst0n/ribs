@@ -332,23 +332,23 @@ class Rill<O> {
       return Rill.empty();
     } else {
       Pull<int, Unit> loop(int current) {
-        final elements = <int>[];
-        int i = current;
-
-        while (elements.length < chunkSize) {
-          if ((step > 0 && i < stopExclusive && start < stopExclusive) ||
-              (step < 0 && i > stopExclusive && start > stopExclusive)) {
-            elements.add(i);
-            i += step;
-          } else {
-            break;
-          }
-        }
-
-        if (elements.isEmpty) {
+        // Termination check (direction is constant across iterations)
+        if (step > 0 && current >= stopExclusive) {
+          return Pull.done;
+        } else if (step < 0 && current <= stopExclusive) {
           return Pull.done;
         } else {
-          return Pull.output(Chunk.fromList(elements)).append(() => loop(i));
+          // Compute exact count for this chunk
+          final available =
+              step > 0
+                  ? (stopExclusive - current + step - 1) ~/ step
+                  : (current - stopExclusive + (-step) - 1) ~/ (-step);
+
+          final count = available < chunkSize ? available : chunkSize;
+
+          return Pull.output(
+            Chunk.tabulate(count, (j) => current + j * step),
+          ).append(() => loop(current + count * step));
         }
       }
 

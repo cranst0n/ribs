@@ -3,7 +3,9 @@
 import 'package:ribs_bench/ribs_benchmark.dart';
 import 'package:ribs_bench/rill/basic.dart';
 import 'package:ribs_bench/rill/collatz.dart';
+import 'package:ribs_bench/rill/groupby.dart';
 import 'package:ribs_bench/rill/primes.dart';
+import 'package:ribs_bench/rill/scan.dart';
 
 void main(List<String> args) async {
   await RibsBenchmark.runAndReportAsync([
@@ -19,5 +21,15 @@ void main(List<String> args) async {
   await RibsBenchmark.runAndReportAsync([
     StreamCollatzBenchmark(),
     RillCollatzBenchmark(),
+  ]);
+
+  await RibsBenchmark.runAndReportAsync([
+    StreamScanBenchmark(),
+    RillScanBenchmark(),
+  ]);
+
+  await RibsBenchmark.runAndReportAsync([
+    StreamGroupByBenchmark(),
+    RillGroupByBenchmark(),
   ]);
 }
