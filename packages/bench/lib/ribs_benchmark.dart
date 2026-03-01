@@ -53,10 +53,12 @@ class RibsBenchmark extends PrintEmitter {
       for (final (name, value) in scores) {
         final namePadded = name.padLeft(35);
         final valuePadded = value.toStringAsFixed(2).padLeft(12);
+        final slowerPadded =
+            value > minValue ? '${(value / minValue).toStringAsFixed(1).padLeft(7)}× slower' : '';
 
         final colorize = _getChalk(value, minValue, median, mad);
 
-        print(colorize('$namePadded $valuePadded us'));
+        print(colorize('$namePadded $valuePadded us $slowerPadded'));
       }
 
       print('');
