@@ -306,15 +306,18 @@ IO<_Step<O, R>> _stepPull<O, R>(Pull<O, R> pull, Scope scope) {
             current = k(pure.value);
             continue;
           case final _Output<O> output:
+            // k expects Unit (the result type of _Output), so call it directly
+            // instead of building Pull.done.flatMap(k) and stepping through it.
             return IO.pure(
-              _StepOut(output.chunk, Pull.done.flatMap((x) => k(x))),
+              _StepOut(output.chunk, k(Unit())),
             );
           default:
             return _stepPull(source, scope).flatMap((step) {
               return switch (step) {
                 final _StepDone<O, dynamic> d => _stepPull(k(d.result), scope),
+                // Reuse existing k Fn1 directly rather than wrapping in a new closure.
                 final _StepOut<O, dynamic> o => IO.pure(
-                  _StepOut(o.head, o.next.flatMap((x) => k(x))),
+                  _StepOut(o.head, _Bind(o.next, k)),
                 ),
                 final _StepError<O, dynamic> e => IO.pure(_StepError<O, R>(e.error, e.stackTrace)),
               };

@@ -163,7 +163,11 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
       s = s2;
     });
 
-    return (s, chunk(bldr));
+    if (bldr.isEmpty) {
+      return (s, Chunk.empty());
+    } else {
+      return (s, _BoxedChunk(List.of(bldr, growable: false)));
+    }
   }
 
   @override
@@ -225,7 +229,11 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
       bldr.add(acc);
     });
 
-    return (chunk(bldr), acc);
+    if (bldr.isEmpty) {
+      return (Chunk.empty(), acc);
+    } else {
+      return (_BoxedChunk(List.of(bldr, growable: false)), acc);
+    }
   }
 
   @override
@@ -426,6 +434,8 @@ class _BoxedChunk<O> extends Chunk<O> {
 
     if (result.isEmpty) {
       return Chunk.empty();
+    } else if (result.length == _values.length) {
+      return this; // All elements passed - avoid redundant copy.
     } else {
       return _BoxedChunk(List.of(result, growable: false));
     }
