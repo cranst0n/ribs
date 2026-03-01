@@ -38,6 +38,20 @@ sealed class Pull<O, R> {
   static Pull<Never, Never> raiseError(Object err, [StackTrace? stackTrace]) =>
       _Fail(err, stackTrace);
 
+  /// Wraps [pull] so that it is interrupted when [haltWhen] completes.
+  ///
+  /// [haltWhen] is an `IO<Either<Object, Unit>>`:
+  /// - `Right(Unit())` → clean interruption (scope closed with [ExitCase.canceled])
+  /// - `Left(err)` → interruption with error (scope closed with [ExitCase.errored])
+  ///
+  /// The halt signal is checked at each output step, and the scope is closed with
+  /// the correct [ExitCase] so that resource finalizers (e.g. from [bracketCase])
+  /// observe the proper exit condition.
+  static Pull<O, R> interruptWhen<O, R>(
+    Pull<O, R> pull,
+    IO<Either<Object, Unit>> haltWhen,
+  ) => _InterruptWhen(pull, haltWhen);
+
   static Pull<O, Unit> scope<O>(Pull<O, Unit> pull) => _OpenScope<O>().flatMap((newScope) {
     return _RunInScope<O, Unit>(pull, newScope).flatMap((_) {
       return _CloseScope<O>(newScope, ExitCase.succeeded()).handleErrorWith(
@@ -223,6 +237,13 @@ class _RunInScope<O, R> extends Pull<O, R> {
   const _RunInScope(this.pull, this.targetScope);
 }
 
+class _InterruptWhen<O, R> extends Pull<O, R> {
+  final Pull<O, R> source;
+  final IO<Either<Object, Unit>> haltWhen;
+
+  const _InterruptWhen(this.source, this.haltWhen);
+}
+
 sealed class _Step<O, R> {
   static _Step<O, R> done<O, R>(R r) => _StepDone(r);
 }
@@ -299,6 +320,8 @@ IO<_Step<O, R>> _stepPull<O, R>(Pull<O, R> pull, Scope scope) {
               };
             });
         }
+      case final _InterruptWhen<O, R> iw:
+        return _stepInterruptWhen(iw, scope);
       case final _Handle<O, R> h:
         return _stepHandle(h, scope);
       case final _RunInScope<O, R> r:
@@ -360,6 +383,40 @@ IO<_Step<O, R>> _stepCloseScope<O, R>(_CloseScope<O> pull) {
     return closeResult.fold(
       (err) => _StepError(err),
       (_) => _StepDone(Unit() as R),
+    );
+  });
+}
+
+IO<_Step<O, R>> _stepInterruptWhen<O, R>(_InterruptWhen<O, R> pull, Scope scope) {
+  return IO.race(pull.haltWhen, _stepPull(pull.source, scope)).flatMap((either) {
+    return either.fold(
+      // Halt signal won: close scope with the appropriate ExitCase so that
+      // resource finalizers (bracketCase/bracketFull) observe the correct exit.
+      (haltResult) => haltResult.fold(
+        // Left(err) — interrupt with error
+        (err) => scope.close(ExitCase.errored(err)).map(
+          (closeResult) => closeResult.fold(
+            (closeErr) => _StepError<O, R>(closeErr),
+            (_) => _StepError<O, R>(err),
+          ),
+        ),
+        // Right(unit) — clean cancellation
+        (_) => scope.close(ExitCase.canceled()).map(
+          (closeResult) => closeResult.fold(
+            (closeErr) => _StepError<O, R>(closeErr),
+            (_) => _StepDone<O, R>(Unit() as R),
+          ),
+        ),
+      ),
+      // Inner step won: propagate the halt signal through each output's continuation.
+      (innerStep) => IO.pure(switch (innerStep) {
+        final _StepDone<O, R> done => done,
+        final _StepOut<O, R> out => _StepOut(
+          out.head,
+          _InterruptWhen(out.next, pull.haltWhen),
+        ),
+        final _StepError<O, R> err => err,
+      }),
     );
   });
 }

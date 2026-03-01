@@ -1016,9 +1016,8 @@ class Rill<O> {
       final startSignalFiber = signal.attempt().flatMap((_) => stopEvent.complete(Unit())).start();
 
       return Rill.eval(startSignalFiber).flatMap((fiber) {
-        return Rill._noScope(
-          _interruptibleLoop(underlying, stopEvent.value()),
-        ).onFinalize(fiber.cancel());
+        final haltWhen = stopEvent.value().as(Unit().asRight<Object>());
+        return Pull.interruptWhen(underlying, haltWhen).rillNoScope.onFinalize(fiber.cancel());
       });
     });
   }
@@ -1057,25 +1056,6 @@ class Rill<O> {
     });
 
     return Rill.force(rillF);
-  }
-
-  static Pull<O, Unit> _interruptibleLoop<O>(Pull<O, Unit> original, IO<Unit> barrier) {
-    return Pull.getScope.flatMap((scope) {
-      return Pull.eval(IO.race(barrier, _stepPull(original, scope))).flatMap((either) {
-        return either.fold(
-          (signalWon) => Pull.done,
-          (stepWon) {
-            return switch (stepWon) {
-              final _StepDone<dynamic, dynamic> _ => Pull.done,
-              final _StepOut<O, Unit> so => Pull.output(
-                so.head,
-              ).flatMap((_) => _interruptibleLoop(so.next, barrier)),
-              final _StepError<dynamic, dynamic> se => Pull.raiseError(se.error),
-            };
-          },
-        );
-      });
-    });
   }
 
   Rill<O> keepAlive(Duration maxIdle, IO<O> heartbeat) {
