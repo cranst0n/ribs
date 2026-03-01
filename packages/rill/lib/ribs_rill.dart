@@ -11,3 +11,4 @@ export 'src/pipes.dart';
 export 'src/rill.dart';
 export 'src/scope.dart';
 export 'src/signal.dart';
+export 'src/topic.dart' show Topic, TopicClosed;
