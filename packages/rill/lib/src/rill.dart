@@ -569,7 +569,36 @@ class Rill<O> {
   Rill<O2> collectWhile<O2>(Function1<O, Option<O2>> f) =>
       map(f).takeWhile((b) => b.isDefined).unNone;
 
-  Rill<O> debounce(Duration d) => switchMap((o) => Rill.sleep(d).as(o));
+  Rill<O> debounce(Duration d) {
+    final rillF = Channel.bounded<O>(1).flatMap((chan) {
+      return IO.ref(none<O>()).map((ref) {
+        final sendLatest = ref.getAndSet(const None()).flatMap((opt) => opt.traverseIO_(chan.send));
+
+        IO<Unit> sendItem(O o) => ref.getAndSet(Some(o)).flatMap((prev) {
+          if (prev.isEmpty) {
+            return IO.sleep(d).productR(() => sendLatest).start().voided();
+          } else {
+            return IO.unit;
+          }
+        });
+
+        Pull<Never, Unit> go(Pull<O, Unit> pull) {
+          return pull.uncons.flatMap((hdtl) {
+            return hdtl.foldN(
+              () => Pull.eval(sendLatest.productR(chan.close).voided()),
+              (hd, tl) => Pull.eval(sendItem(hd.last)).append(() => go(tl)),
+            );
+          });
+        }
+
+        final debouncedSend = go(underlying).rillNoScope;
+
+        return chan.rill.concurrently(debouncedSend);
+      });
+    });
+
+    return Rill.force(rillF);
+  }
 
   Rill<O> delayBy(Duration duration) => Rill.sleep_<O>(duration).append(() => this);
 
@@ -1465,8 +1494,7 @@ class Rill<O> {
   }
 
   Rill<O> spaced(Duration delay, {bool startImmediately = true}) {
-    // TODO: _Pure, and other Pull ADT nodes probably can't use Never type
-    final start = startImmediately ? Rill.unit : Rill.unit.drop(1);
+    final start = startImmediately ? Rill.unit : Rill.empty<Unit>();
     return start.append(() => Rill.fixedDelay(delay)).zipRight(this);
   }
 
