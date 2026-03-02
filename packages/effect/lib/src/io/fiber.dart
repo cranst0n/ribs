@@ -81,19 +81,24 @@ final class IOFiber<A> {
       if (_outcome != null) {
         return IO.unit;
       } else {
-        _canceled = true;
+        // Only the first caller to observe _canceled == false resumes the
+        // canceled fiber.  Subsequent callers therefore fall through to
+        // join(), which completes naturally once _done() is called.
+        if (!_canceled) {
+          _canceled = true;
 
-        if (_isUnmasked()) {
-          return IO._async_((fin) {
-            _resumeTag = _AsyncContinueCanceledWithFinalizerR;
-            _resumeData = Fn1(fin);
+          if (_isUnmasked()) {
+            return IO._async_((fin) {
+              _resumeTag = _AsyncContinueCanceledWithFinalizerR;
+              _resumeData = Fn1(fin);
 
-            final expectedGen = ++_resumeGeneration;
-            _scheduleResume(expectedGen);
-          });
-        } else {
-          return join()._voided();
+              final expectedGen = ++_resumeGeneration;
+              _scheduleResume(expectedGen);
+            });
+          }
         }
+
+        return join()._voided();
       }
     });
 

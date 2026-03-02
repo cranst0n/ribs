@@ -369,39 +369,56 @@ void main() {
         expect(test.ticked.nonTerminating(), isTrue);
       });
 
-      test(
-        'first canceller backpressures subsequent cancellers',
-        () {
-          var started = false;
-          var started2 = false;
+      test('both concurrent cancel calls complete', () {
+        final io = IO.never<Unit>().start().flatMap(
+          (fiber) => IO.both(fiber.cancel(), fiber.cancel()).voided(),
+        );
 
-          final markStarted = IO.exec(() => started = true);
-          final markStarted2 = IO.exec(() => started2 = true);
+        expect(io.ticked.nonTerminating(), isFalse);
+      });
 
-          IO<Unit> cedeUntilStarted() => IO
-              .delay(() => started)
-              .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted()));
+      test('both concurrent cancel calls complete with finalizer', () {
+        var finalized = false;
 
-          IO<Unit> cedeUntilStarted2() => IO
-              .delay(() => started2)
-              .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted2()));
+        final io = IO
+            .never<Unit>()
+            .onCancel(IO.exec(() => finalized = true))
+            .start()
+            .flatMap((fiber) => IO.both(fiber.cancel(), fiber.cancel()).voided());
 
-          final test = markStarted
-              .productR(() => IO.never<Unit>())
-              .onCancel(IO.never())
-              .start()
-              .flatMap(
-                (first) => cedeUntilStarted()
-                    .productR(() => markStarted2)
-                    .productR(() => first.cancel())
-                    .start()
-                    .productR(() => cedeUntilStarted2().productR(() => first.cancel())),
-              );
+        expect(io.ticked.nonTerminating(), isFalse);
+        expect(finalized, isTrue);
+      });
 
-          expect(test.ticked.nonTerminating(), isTrue);
-        },
-        skip: 'Expected to be non-terminating (but succeeds)',
-      );
+      test('first canceller backpressures subsequent cancellers', () {
+        var started = false;
+        var started2 = false;
+
+        final markStarted = IO.exec(() => started = true);
+        final markStarted2 = IO.exec(() => started2 = true);
+
+        IO<Unit> cedeUntilStarted() => IO
+            .delay(() => started)
+            .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted()));
+
+        IO<Unit> cedeUntilStarted2() => IO
+            .delay(() => started2)
+            .ifM(() => IO.unit, () => IO.cede.productR(() => cedeUntilStarted2()));
+
+        final test = markStarted
+            .productR(() => IO.never<Unit>())
+            .onCancel(IO.never())
+            .start()
+            .flatMap(
+              (first) => cedeUntilStarted()
+                  .productR(() => markStarted2)
+                  .productR(() => first.cancel())
+                  .start()
+                  .productR(() => cedeUntilStarted2().productR(() => first.cancel())),
+            );
+
+        expect(test.ticked.nonTerminating(), isTrue);
+      });
 
       test('reliably cancel infinite IO.unit(s)', () {
         final test = IO.unit.foreverM().start().flatMap(

@@ -235,7 +235,6 @@ void main() {
                       .release()
                       .productR(() => latch.await())
                       .productR(() => q.take())
-                      .onCancel(IO.print('CANCELED...'))
                       .start()
                       .flatMap((taker) {
                         return latch.await().flatMap((_) {
@@ -258,8 +257,8 @@ void main() {
         });
       });
 
-      expect(test.parReplicate(1), ioSucceeded());
-    }, skip: true);
+      expect(test.parReplicate(1000), ioSucceeded());
+    });
   });
 
   group('Unbounded Queue', () {
