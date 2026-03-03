@@ -19,8 +19,7 @@ class StreamScanBenchmark extends AsyncBenchmarkBase {
   @override
   Future<void> run() async {
     var acc = 0;
-    final stream =
-        Stream.fromIterable(Iterable.generate(scanN, (i) => i)).map((x) => acc += x);
+    final stream = Stream.fromIterable(Iterable.generate(scanN, (i) => i)).map((x) => acc += x);
 
     await for (final _ in stream) {}
   }

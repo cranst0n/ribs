@@ -55,17 +55,19 @@ sealed class Pull<O, R> {
   static Pull<O, Unit> scope<O>(Pull<O, Unit> pull) => _OpenScope<O>().flatMap((newScope) {
     return _RunInScope<O, Unit>(pull, newScope)
         .handleErrorWith<O>(
-          (err) => _CloseScope<O>(newScope, ExitCase.errored(err))
-              .append<O, Unit>(() => Pull.raiseError(err)),
+          (err) => _CloseScope<O>(
+            newScope,
+            ExitCase.errored(err),
+          ).append<O, Unit>(() => Pull.raiseError(err)),
         )
         .flatMap((_) {
-      return _CloseScope<O>(newScope, ExitCase.succeeded()).handleErrorWith<O>(
-        (err) => _CloseScope<O>(
-          newScope,
-          ExitCase.errored(err),
-        ).append<O, Unit>(() => Pull.raiseError(err)),
-      );
-    });
+          return _CloseScope<O>(newScope, ExitCase.succeeded()).handleErrorWith<O>(
+            (err) => _CloseScope<O>(
+              newScope,
+              ExitCase.errored(err),
+            ).append<O, Unit>(() => Pull.raiseError(err)),
+          );
+        });
   });
 
   static Pull<O, R> suspend<O, R>(Function0<Pull<O, R>> f) => Pull.unit.flatMap((_) => f());
@@ -402,19 +404,23 @@ IO<_Step<O, R>> _stepInterruptWhen<O, R>(_InterruptWhen<O, R> pull, Scope scope)
       // resource finalizers (bracketCase/bracketFull) observe the correct exit.
       (haltResult) => haltResult.fold(
         // Left(err) — interrupt with error
-        (err) => scope.close(ExitCase.errored(err)).map(
-          (closeResult) => closeResult.fold(
-            (closeErr) => _StepError<O, R>(closeErr),
-            (_) => _StepError<O, R>(err),
-          ),
-        ),
+        (err) => scope
+            .close(ExitCase.errored(err))
+            .map(
+              (closeResult) => closeResult.fold(
+                (closeErr) => _StepError<O, R>(closeErr),
+                (_) => _StepError<O, R>(err),
+              ),
+            ),
         // Right(unit) — clean cancellation
-        (_) => scope.close(ExitCase.canceled()).map(
-          (closeResult) => closeResult.fold(
-            (closeErr) => _StepError<O, R>(closeErr),
-            (_) => _StepDone<O, R>(Unit() as R),
-          ),
-        ),
+        (_) => scope
+            .close(ExitCase.canceled())
+            .map(
+              (closeResult) => closeResult.fold(
+                (closeErr) => _StepError<O, R>(closeErr),
+                (_) => _StepDone<O, R>(Unit() as R),
+              ),
+            ),
       ),
       // Inner step won: propagate the halt signal through each output's continuation.
       (innerStep) => IO.pure(switch (innerStep) {

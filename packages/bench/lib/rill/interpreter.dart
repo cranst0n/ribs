@@ -49,10 +49,7 @@ class RillSumRange extends AsyncBenchmarkBase {
 
   @override
   Future<void> run() {
-    return Rill.range(0, 10000000)
-        .compile
-        .fold(0, (acc, x) => acc + x)
-        .unsafeRunFuture();
+    return Rill.range(0, 10000000).compile.fold(0, (acc, x) => acc + x).unsafeRunFuture();
   }
 }
 
@@ -63,11 +60,7 @@ class RillScanRange extends AsyncBenchmarkBase {
 
   @override
   Future<void> run() {
-    return Rill.range(0, 1000000)
-        .scan(0, (acc, x) => acc + x)
-        .compile
-        .last
-        .unsafeRunFuture();
+    return Rill.range(0, 1000000).scan(0, (acc, x) => acc + x).compile.last.unsafeRunFuture();
   }
 }
 
@@ -80,12 +73,10 @@ class RillSlicedMap extends AsyncBenchmarkBase {
   @override
   Future<void> run() {
     // mapChunks + take creates _SliceChunk; subsequent map operates on it
-    return Rill.range(0, 1000000)
-        .mapChunks((c) => c.take(c.size ~/ 2))
-        .map((x) => x * 2)
-        .compile
-        .drain
-        .unsafeRunFuture();
+    return Rill.range(
+      0,
+      1000000,
+    ).mapChunks((c) => c.take(c.size ~/ 2)).map((x) => x * 2).compile.drain.unsafeRunFuture();
   }
 }
 
