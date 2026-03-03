@@ -53,12 +53,17 @@ sealed class Pull<O, R> {
   ) => _InterruptWhen(pull, haltWhen);
 
   static Pull<O, Unit> scope<O>(Pull<O, Unit> pull) => _OpenScope<O>().flatMap((newScope) {
-    return _RunInScope<O, Unit>(pull, newScope).flatMap((_) {
-      return _CloseScope<O>(newScope, ExitCase.succeeded()).handleErrorWith(
+    return _RunInScope<O, Unit>(pull, newScope)
+        .handleErrorWith<O>(
+          (err) => _CloseScope<O>(newScope, ExitCase.errored(err))
+              .append<O, Unit>(() => Pull.raiseError(err)),
+        )
+        .flatMap((_) {
+      return _CloseScope<O>(newScope, ExitCase.succeeded()).handleErrorWith<O>(
         (err) => _CloseScope<O>(
           newScope,
           ExitCase.errored(err),
-        ).append(() => Pull.raiseError(err)),
+        ).append<O, Unit>(() => Pull.raiseError(err)),
       );
     });
   });

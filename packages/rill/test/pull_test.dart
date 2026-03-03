@@ -1,4 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/ribs_effect.dart';
+import 'package:ribs_effect/test.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 import 'package:test/test.dart';
 
@@ -13,6 +15,27 @@ void main() {
       expect(() => go(), throwsA(isA<TypeError>()));
     });
   });
+
+  test(
+    'Pull.scope closes child scope with errored exit case when inner '
+    'stream errors and outer handleErrorWith recovers',
+    () {
+      final test = IO.ref(ExitCase.succeeded()).flatMap((exitRef) {
+        return Rill.bracketCase(
+              IO.pure('resource'),
+              (_, ec) => exitRef.setValue(ec),
+            )
+            .flatMap((_) => Rill.raiseError<String>('BOOM'))
+            .scope // explicit scope boundary: bracketCase resource lives in childScope
+            .handleErrorWith((_) => Rill.empty())
+            .compile
+            .drain
+            .flatMap((_) => exitRef.value());
+      });
+
+      expect(test, ioSucceeded(ExitCase.errored('BOOM')));
+    },
+  );
 
   test('flatMapOutput preserves the original error stackTrace', () async {
     final originalTrace = StackTrace.fromString('original-trace-sentinel');
