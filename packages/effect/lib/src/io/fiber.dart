@@ -601,9 +601,9 @@ final class IOFiber<A> {
         case _CancelationLoopK:
           return _cancelationLoopFailureK(error, stackTrace);
         case _HandleErrorWithK:
-          final fn = _contData.pop() as Fn1<Object, IO<dynamic>>;
+          final fn = _contData.pop() as Fn2<Object, StackTrace?, IO<dynamic>>;
           try {
-            return fn(error);
+            return fn(error, stackTrace);
           } catch (e, s) {
             error = e;
             stackTrace = s;

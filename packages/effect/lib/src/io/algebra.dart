@@ -84,7 +84,7 @@ final class _FlatMap<A, B> extends IO<B> {
 
 final class _HandleErrorWith<A> extends IO<A> {
   final IO<A> ioa;
-  final Fn1<Object, IO<A>> f;
+  final Fn2<Object, StackTrace?, IO<A>> f;
 
   const _HandleErrorWith(this.ioa, this.f);
 

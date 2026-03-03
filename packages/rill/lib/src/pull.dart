@@ -133,7 +133,7 @@ extension PullOps<O> on Pull<O, Unit> {
 
             return runChunk(head).flatMap((_) => next.flatMapOutput(f));
           case final _StepError<dynamic, dynamic> s:
-            return Pull.raiseError(s.error);
+            return Pull.raiseError(s.error, s.stackTrace);
         }
       });
     });
