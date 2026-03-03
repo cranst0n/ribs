@@ -157,10 +157,10 @@ extension PullOps<O> on Pull<O, Unit> {
   }
 
   Pull<O2, Unit> unconsFlatMap<O2>(Function1<Chunk<O>, Pull<O2, Unit>> f) {
-    return uncons.flatMap((hdtl) {
-      return hdtl.foldN(
+    return uncons.flatMap<O2, Unit>((hdtl) {
+      return hdtl.foldN<Pull<O2, Unit>>(
         () => Pull.done,
-        (hd, tl) => f(hd).append(() => tl.unconsFlatMap(f)),
+        (hd, tl) => f(hd).append<O2, Unit>(() => tl.unconsFlatMap(f)),
       );
     });
   }
@@ -345,7 +345,7 @@ IO<_Step<O, R>> _stepHandle<O, R>(_Handle<O, R> pull, Scope scope) {
             return IO.pure(step);
           case _StepOut<O, R> _:
             return IO.pure(
-              _StepOut(step.head, step.next.handleErrorWith((e) => pull.handler(e))),
+              _StepOut(step.head, step.next.handleErrorWith(pull.handler.f)),
             );
           case final _StepError<dynamic, dynamic> step:
             try {

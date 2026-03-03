@@ -480,7 +480,7 @@ class Rill<O> {
   Rill<O2> as<O2>(O2 o2) => map((_) => o2);
 
   Rill<Either<Object, O>> attempt() =>
-      map((o) => o.asRight<Object>()).handleErrorWith((err) => Rill.emit(Left(err)));
+      map((o) => o.asRight<Object>()).handleErrorWith((err) => Rill.emit(Left<Object, O>(err)));
 
   Rill<Either<Object, O>> attempts(Rill<Duration> delays) => attempt().append(
     () => delays.flatMap((delay) => Rill.sleep(delay).flatMap((_) => attempt())),
