@@ -4,9 +4,9 @@ import 'dart:math';
 import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
-import 'package:ribs_effect/src/platform/stub.dart'
-    if (dart.library.js_interop) 'platform/web.dart'
-    if (dart.library.io) 'platform/native.dart';
+import 'package:ribs_effect/src/io_platform/io_platform_stub.dart'
+    if (dart.library.js_interop) 'io_platform/io_platform_web.dart'
+    if (dart.library.io) 'io_platform/io_platform_io.dart';
 import 'package:ribs_effect/src/std/internal/stack.dart';
 
 part 'io/algebra.dart';
@@ -26,7 +26,7 @@ typedef RacePairOutcome<A, B> = Either<AWon<A, B>, BWon<A, B>>;
 sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   const IO();
 
-  static final PlatformImpl _platformImpl = PlatformImpl();
+  static final _platformImpl = IOPlatformImpl();
 
   static void installFiberDumpSignalHandler() => _platformImpl.installFiberDumpSignalHandler();
 

@@ -2,10 +2,10 @@ import 'dart:js_interop';
 
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
-import 'package:ribs_effect/src/platform/base.dart';
+import 'package:ribs_effect/src/io_platform/io_platform.dart';
 import 'package:web/web.dart' as web;
 
-final class PlatformImpl extends PlatformBase {
+final class IOPlatformImpl implements IOPlatform {
   @override
   IO<A> isolate<A>(IO<A> io, {String? debugName}) => io;
 

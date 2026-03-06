@@ -8,9 +8,9 @@ import 'dart:isolate';
 
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
-import 'package:ribs_effect/src/platform/base.dart';
+import 'package:ribs_effect/src/io_platform/io_platform.dart';
 
-final class PlatformImpl extends PlatformBase {
+final class IOPlatformImpl implements IOPlatform {
   @override
   IO<A> isolate<A>(IO<A> io, {String? debugName}) =>
       IO.fromFutureF(() => Isolate.run(() => io.unsafeRunFuture(), debugName: debugName));
