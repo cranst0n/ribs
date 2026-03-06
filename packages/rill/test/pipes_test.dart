@@ -21,7 +21,7 @@ void main() {
       });
 
       stringRill.forAll('single string', (lines) async {
-        final list = await lines.compile.toList.unsafeRunFuture();
+        final list = await lines.compile.toIList.unsafeRunFuture();
 
         if (list.nonEmpty) {
           final s = await lines.intersperse('\r\n').compile.string.unsafeRunFuture();
@@ -37,7 +37,7 @@ void main() {
       });
 
       stringRill.forAll('grouped in 3 character chunks', (lines) async {
-        final s0 = await lines.intersperse('\r\n').compile.toList.unsafeRunFuture();
+        final s0 = await lines.intersperse('\r\n').compile.toIList.unsafeRunFuture();
         final s = Chunk.from(s0.mkString().grouped(3));
 
         if (s.isEmpty) {
@@ -61,14 +61,14 @@ void main() {
               await rill
                   .through(Pipes.text.linesLimited(10))
                   .compile
-                  .toList
+                  .toIList
                   .unsafeRunFutureOutcome();
 
           final resB =
               await rill
                   .through(Pipes.text.linesLimited(line.length))
                   .compile
-                  .toList
+                  .toIList
                   .unsafeRunFutureOutcome();
 
           expect(resA.isError, isTrue);
@@ -117,7 +117,7 @@ void main() {
               .map((bytes) => ByteVector.view(Uint8List.fromList(bytes)))
               .foldLeft(ByteVector.empty, (acc, elem) => acc.concat(elem));
 
-          expect(actual.compile.toList.map(ByteVector.from), ioSucceeded(expected));
+          expect(actual.compile.toIList.map(ByteVector.from), ioSucceeded(expected));
         },
       );
 
@@ -135,7 +135,7 @@ void main() {
               .map((bytes) => ByteVector.view(Uint8List.fromList(bytes)))
               .foldLeft(ByteVector.empty, (acc, elem) => acc.concat(elem));
 
-          expect(actual.compile.toList.map(ByteVector.from), ioSucceeded(expected));
+          expect(actual.compile.toIList.map(ByteVector.from), ioSucceeded(expected));
         },
       );
     });

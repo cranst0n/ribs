@@ -11,7 +11,7 @@ import 'matchers.dart';
 
 // yolo-mode
 extension<A> on Rill<A> {
-  Future<IList<A>> get toList => compile.toList.unsafeRunFuture();
+  Future<IList<A>> get toList => compile.toIList.unsafeRunFuture();
 }
 
 void main() {
@@ -238,7 +238,7 @@ void main() {
       'c',
     ]).repeat().evalTap((c) => IO.exec(() => buffer.write(c)).delayBy(250.milliseconds));
 
-    final test = rillA.concurrently(rillB).compile.toList;
+    final test = rillA.concurrently(rillB).compile.toIList;
     final ticker = test.ticked..tickAll();
 
     await expectLater(ticker.outcome, completion(Outcome.succeeded(ilist([0, 1, 2, 3, 4]))));
@@ -259,7 +259,7 @@ void main() {
           return IO.sleep(i == 2 ? period * 5 : 0.seconds).as(o);
         })
         .compile
-        .toList
+        .toIList
         .map((l) {
           final elapsed = l.last - l.head;
           expect(elapsed > period * count, isTrue);
@@ -518,7 +518,7 @@ void main() {
             ])
             .traverseIO((chunk) => q1.tryOfferN(chunk.toIList().map((n) => n.some)))
             .flatMap((_) => q1.offer(none()))
-            .flatMap((_) => s1.compile.toList);
+            .flatMap((_) => s1.compile.toIList);
       });
 
       expect(test, ioSucceeded(ilist([1, 2, 3, 4, 5])));
@@ -879,7 +879,7 @@ void main() {
       final rillA = Rill.range(0, 5, chunkSize: 1).evalTap((_) => IO.sleep(75.milliseconds));
       final rillB = Rill.range(5, 10, chunkSize: 1).evalTap((_) => IO.sleep(200.milliseconds));
 
-      final test = Ticker.ticked(rillA.merge(rillB).compile.toList)..tickAll();
+      final test = Ticker.ticked(rillA.merge(rillB).compile.toIList)..tickAll();
 
       expect(await test.outcome, Outcome.succeeded(ilist([0, 1, 5, 2, 3, 4, 6, 7, 8, 9])));
     });
@@ -1025,7 +1025,7 @@ void main() {
       Rill.range(10, 15).evalMap((n) => IO.pure(n).delayBy((n * 1).milliseconds)),
     ]);
 
-    final result = await rill.parJoin(3).compile.toList.unsafeRunFuture();
+    final result = await rill.parJoin(3).compile.toIList.unsafeRunFuture();
 
     expect(result.head, 0);
     expect(result.last, 4);
@@ -1286,7 +1286,7 @@ void main() {
 
       final outer = Rill.awakeEvery(1.second).zipWithIndex().map((t) => t.$2).take(5);
 
-      final ticked = Ticker.ticked(outer.switchMap(inner).compile.toList)..tickAll();
+      final ticked = Ticker.ticked(outer.switchMap(inner).compile.toIList)..tickAll();
       final result = await ticked.outcome;
 
       final expected = ilist([

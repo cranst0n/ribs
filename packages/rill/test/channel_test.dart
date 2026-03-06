@@ -14,7 +14,7 @@ void main() {
         final cleanup = IO
             .sleep(200.milliseconds)
             .productR(() => chan.close())
-            .productR(() => chan.rill.compile.toList);
+            .productR(() => chan.rill.compile.toIList);
 
         return IO.both(senders, cleanup).map((t) => t.$2);
       });

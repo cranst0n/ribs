@@ -24,7 +24,7 @@ class _ProducesError extends AsyncMatcher {
       return 'was not a Rill';
     }
 
-    return item.compile.toList.unsafeRunFutureOutcome().then((outcome) {
+    return item.compile.toIList.unsafeRunFutureOutcome().then((outcome) {
       return outcome.fold(
         () => fail('Rill did not succeed, but was canceled'),
         (err, _) {
@@ -52,7 +52,7 @@ class _ProducesInOrder extends AsyncMatcher {
       return 'was not a Rill';
     }
 
-    return item.compile.toList.unsafeRunFutureOutcome().then((outcome) {
+    return item.compile.toIList.unsafeRunFutureOutcome().then((outcome) {
       return outcome.fold(
         () => fail('Rill did not succeed, but was canceled'),
         (err, _) => fail('Rill did not succeed, but errored: $err'),
@@ -82,7 +82,7 @@ class _ProducesNothing extends AsyncMatcher {
       return 'was not a Rill';
     }
 
-    return item.compile.toList.unsafeRunFutureOutcome().then((outcome) {
+    return item.compile.toIList.unsafeRunFutureOutcome().then((outcome) {
       return outcome.fold(
         () => fail('Rill did not succeed, but was canceled'),
         (err, _) => fail('Rill did not succeed, but errored: $err'),
@@ -106,8 +106,8 @@ class _ProducesSameAs<A> extends AsyncMatcher {
       return 'was not a Rill';
     }
 
-    final a = await item.compile.toList.unsafeRunFutureOutcome();
-    final b = await expected.compile.toList.unsafeRunFutureOutcome();
+    final a = await item.compile.toIList.unsafeRunFutureOutcome();
+    final b = await expected.compile.toIList.unsafeRunFutureOutcome();
 
     a.fold(
       () => expect(b.isCanceled, isTrue),
@@ -143,7 +143,7 @@ class _ProducesUnordered extends AsyncMatcher {
       return 'was not a Rill';
     }
 
-    return item.compile.toList.unsafeRunFutureOutcome().then((outcome) {
+    return item.compile.toIList.unsafeRunFutureOutcome().then((outcome) {
       return outcome.fold(
         () => fail('Rill did not succeed, but was canceled'),
         (err, _) => fail('Rill did not succeed, but errored: $err'),

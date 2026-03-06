@@ -9,7 +9,7 @@ void main() {
       final publisher = Rill.constant('1').through(topic.publish);
       final subscriber = topic.subscribe(10).take(4);
 
-      return subscriber.concurrently(publisher).compile.toList;
+      return subscriber.concurrently(publisher).compile.toIList;
     });
 
     expect(test, ioSucceeded(ilist(['1', '1', '1', '1'])));

@@ -69,9 +69,9 @@ class RillCompile<O> {
 
   RillResourceCompile<O> get resource => RillResourceCompile(_pull);
 
-  IO<IList<O>> get toList => foldChunks(IList.empty<O>(), (acc, chunk) => acc.concat(chunk));
+  IO<IList<O>> get toIList => foldChunks(IList.empty<O>(), (acc, chunk) => acc.concat(chunk));
 
-  IO<IVector<O>> get toVector => foldChunks(IVector.empty<O>(), (acc, chunk) => acc.concat(chunk));
+  IO<IVector<O>> get toIVector => foldChunks(IVector.empty<O>(), (acc, chunk) => acc.concat(chunk));
 }
 
 extension RillCompilerStringOps on RillCompile<String> {
@@ -150,8 +150,8 @@ class RillResourceCompile<O> {
     });
   }
 
-  Resource<IList<O>> get toList => foldChunks(IList.empty<O>(), (acc, chunk) => acc.concat(chunk));
+  Resource<IList<O>> get toIList => foldChunks(IList.empty<O>(), (acc, chunk) => acc.concat(chunk));
 
-  Resource<IVector<O>> get toVector =>
+  Resource<IVector<O>> get toIVector =>
       foldChunks(IVector.empty<O>(), (acc, chunk) => acc.concat(chunk));
 }

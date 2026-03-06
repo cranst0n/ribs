@@ -55,7 +55,7 @@ class RillCollatzBenchmark extends AsyncBenchmarkBase {
         .filter((result) => result.steps > threshold)
         .take(limit)
         .compile
-        .toList
+        .toIList
         .map((results) => results.map((r) => r.number).toList());
   }
 }
