@@ -97,6 +97,20 @@ class ToPull<O> {
     return go(none(), self);
   }
 
+  Pull<Never, Option<(Chunk<O>, Rill<O>)>> get peek => uncons.flatMap(
+    (hdtl) => hdtl.foldN(
+      () => Pull.pure(const None()),
+      (hd, tl) => Pull.pure(Some((hd, tl.cons(hd)))),
+    ),
+  );
+
+  Pull<Never, Option<(O, Rill<O>)>> get peek1 => uncons.flatMap(
+    (hdtl) => hdtl.foldN(
+      () => Pull.pure(const None()),
+      (hd, tl) => Pull.pure(Some((hd.head, tl.cons(hd)))),
+    ),
+  );
+
   Pull<O2, S> scanChunks<S, O2>(S initial, Function2<S, Chunk<O>, (S, Chunk<O2>)> f) =>
       scanChunksOpt(initial, (s) => Some((c) => f(s, c)));
 
