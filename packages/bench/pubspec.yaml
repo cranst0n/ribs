@@ -19,10 +19,12 @@ dependencies:
   fast_immutable_collections: ^11.1.0
   fpdart:                     ^1.2.0
   kt_dart:                    ^1.1.0
+  petitparser:                ^7.0.2
   ribs_binary:                ^1.0.0-dev.10
   ribs_core:                  ^1.0.0-dev.14
   ribs_effect:                ^1.0.0-dev.3
   ribs_json:                  ^1.0.0-dev.15
+  ribs_parse:                 ^1.0.0-dev.1
   ribs_rill:                  ^1.0.0-dev.1
 
 dev_dependencies:
