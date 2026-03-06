@@ -1,9 +1,9 @@
-name: ribs_sqlite
+name: ribs_sql
 version: 1.0.0-dev.1
 homepage: https://cranst0n.github.io/ribs/
 repository: https://github.com/cranst0n/ribs
 description: >
-  Function SQLite interactions.
+  Functional SQL database interactions.
 
 publish_to: none
 
@@ -15,16 +15,10 @@ dependencies:
   meta:                    ^1.10.0
   ribs_core:               ^1.0.0-dev.14
   ribs_effect:             ^1.0.0-dev.3
+  ribs_json:               ^1.0.0-dev.15
   ribs_rill:               ^1.0.0-dev.1
-  ribs_sql:                ^1.0.0-dev.1
-  sqlite3:                 ^3.1.6
-  sqlite3_connection_pool: ^0.1.1
 
 dev_dependencies:
   lint:       ^2.8.0
+  ribs_check: ^1.0.0-dev.8
   test:       ^1.0.0
-
-#hooks:
-#  user_defines:
-#    sqlite3:
-#      source: system # or "process", or "excutable"

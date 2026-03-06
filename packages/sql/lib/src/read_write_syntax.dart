@@ -1,43 +1,4 @@
-import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_sqlite/ribs_sqlite.dart';
-import 'package:sqlite3/sqlite3.dart';
-
-class ReadWrite<A> extends Read<A> with Write<A> {
-  final Read<A> read;
-  final Write<A> write;
-
-  ReadWrite(this.read, this.write);
-
-  @override
-  IList<Get<dynamic>> get gets => read.gets;
-
-  ReadWrite<Option<A>> optional() => ReadWrite(read.optional(), write.optional());
-
-  @override
-  IList<Put<dynamic>> get puts => write.puts;
-
-  @override
-  IStatementParameters setParameter(IStatementParameters params, int n, A a) =>
-      write.setParameter(params, n, a);
-
-  @override
-  A unsafeGet(Row row, int n) => read.unsafeGet(row, n);
-
-  ReadWrite<B> xmap<B>(Function1<A, B> f, Function1<B, A> g) =>
-      ReadWrite(read.map(f), write.contramap(g));
-
-  ReadWrite<B> xemap<B>(Function1<A, Either<String, B>> f, Function1<B, A> g) =>
-      ReadWrite(read.emap(f), write.contramap(g));
-
-  static final bigInt = ReadWrite(Read.bigInt, Write.bigInt);
-  static final blob = ReadWrite(Read.blob, Write.blob);
-  static final boolean = ReadWrite(Read.boolean, Write.boolean);
-  static final dateTime = ReadWrite(Read.dateTime, Write.dateTime);
-  static final dubble = ReadWrite(Read.dubble, Write.dubble);
-  static final integer = ReadWrite(Read.integer, Write.integer);
-  static final json = ReadWrite(Read.json, Write.json);
-  static final string = ReadWrite(Read.string, Write.string);
-}
+import 'package:ribs_sql/ribs_sql.dart';
 
 extension Tuple2ReadWriteOps<A, B> on (ReadWrite<A>, ReadWrite<B>) {
   ReadWrite<(A, B)> get tupled => ReadWrite(($1.read, $2.read).tupled, ($1.write, $2.write).tupled);
@@ -67,7 +28,15 @@ extension Tuple5ReadWriteOps<A, B, C, D, E>
 }
 
 extension Tuple6ReadWriteOps<A, B, C, D, E, F>
-    on (ReadWrite<A>, ReadWrite<B>, ReadWrite<C>, ReadWrite<D>, ReadWrite<E>, ReadWrite<F>) {
+    on
+        (
+          ReadWrite<A>,
+          ReadWrite<B>,
+          ReadWrite<C>,
+          ReadWrite<D>,
+          ReadWrite<E>,
+          ReadWrite<F>,
+        ) {
   ReadWrite<(A, B, C, D, E, F)> get tupled => ReadWrite(
     ($1.read, $2.read, $3.read, $4.read, $5.read, $6.read).tupled,
     ($1.write, $2.write, $3.write, $4.write, $5.write, $6.write).tupled,
@@ -105,7 +74,16 @@ extension Tuple8ReadWriteOps<A, B, C, D, E, F, G, H>
         ) {
   ReadWrite<(A, B, C, D, E, F, G, H)> get tupled => ReadWrite(
     ($1.read, $2.read, $3.read, $4.read, $5.read, $6.read, $7.read, $8.read).tupled,
-    ($1.write, $2.write, $3.write, $4.write, $5.write, $6.write, $7.write, $8.write).tupled,
+    (
+      $1.write,
+      $2.write,
+      $3.write,
+      $4.write,
+      $5.write,
+      $6.write,
+      $7.write,
+      $8.write,
+    ).tupled,
   );
 }
 
@@ -123,7 +101,17 @@ extension Tuple9ReadWriteOps<A, B, C, D, E, F, G, H, I>
           ReadWrite<I>,
         ) {
   ReadWrite<(A, B, C, D, E, F, G, H, I)> get tupled => ReadWrite(
-    ($1.read, $2.read, $3.read, $4.read, $5.read, $6.read, $7.read, $8.read, $9.read).tupled,
+    (
+      $1.read,
+      $2.read,
+      $3.read,
+      $4.read,
+      $5.read,
+      $6.read,
+      $7.read,
+      $8.read,
+      $9.read,
+    ).tupled,
     (
       $1.write,
       $2.write,

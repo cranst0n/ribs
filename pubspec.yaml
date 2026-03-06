@@ -13,7 +13,9 @@ workspace:
   - packages/ip
   - packages/json
   - packages/optics
+  - packages/postgres
   - packages/rill
+  - packages/sql
   - packages/sqlite
   - packages/units
   - website/snippets
