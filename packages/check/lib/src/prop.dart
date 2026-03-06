@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:io' show Platform;
 
 import 'package:ribs_check/src/gen.dart';
 import 'package:ribs_check/src/stateful_random.dart';
@@ -28,7 +28,7 @@ final class Prop<T> {
     test(
       description,
       () async {
-        final envSeed = Platform.environment['RIBS_CHECK_SEED'];
+        final envSeed = _kIsWeb ? null : Platform.environment['RIBS_CHECK_SEED'];
         final seedNN = seed ?? int.tryParse(envSeed ?? '') ?? DateTime.now().millisecondsSinceEpoch;
 
         final shrunkenFailure = await check(numTests: numTests, seed: seedNN);
@@ -121,3 +121,5 @@ class PropFailure<T> {
     count: count ?? this.count,
   );
 }
+
+const bool _kIsWeb = bool.fromEnvironment('dart.library.js_util');

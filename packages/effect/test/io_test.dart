@@ -1804,6 +1804,6 @@ void main() {
     );
 
     expect(capturedSt, isNotNull);
-    expect(capturedSt.toString(), contains('main'));
+    expect(capturedSt.toString(), anyOf(contains('main'), contains('browser_test.dart.js')));
   });
 }
