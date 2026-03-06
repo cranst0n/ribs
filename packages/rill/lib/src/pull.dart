@@ -45,7 +45,7 @@ sealed class Pull<O, R> {
   /// - `Left(err)` → interruption with error (scope closed with [ExitCase.errored])
   ///
   /// The halt signal is checked at each output step, and the scope is closed with
-  /// the correct [ExitCase] so that resource finalizers (e.g. from [bracketCase])
+  /// the correct [ExitCase] so that resource finalizers (e.g. from [Rill.bracketCase])
   /// observe the proper exit condition.
   static Pull<O, R> interruptWhen<O, R>(
     Pull<O, R> pull,

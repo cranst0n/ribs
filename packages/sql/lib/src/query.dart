@@ -91,7 +91,7 @@ final class Query<A> {
 
   /// Returns a [ConnectionRill] that streams result rows lazily.
   ///
-  /// Call `.transact(xa)` on the result to obtain a [Rill] that keeps the
+  /// Call `.transact(xa)` on the result to obtain a Rill that keeps the
   /// database connection open for the duration of the stream.
   ///
   /// Example:
@@ -156,7 +156,7 @@ final class ParameterizedQuery<P, A> {
   /// Applies the given [params] to the query and returns a [ConnectionRill]
   /// that streams result rows lazily.
   ///
-  /// Call `.transact(xa)` on the result to obtain a [Rill] that keeps the
+  /// Call `.transact(xa)` on the result to obtain a Rill that keeps the
   /// database connection open for the duration of the stream.
   ///
   /// Example:
