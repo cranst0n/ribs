@@ -1,4 +1,3 @@
-import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/src/dawn/fcontext.dart';
 import 'package:ribs_json/src/dawn/string_based_parser.dart';
 import 'package:ribs_json/src/dawn/sync_parser.dart';
@@ -23,7 +22,7 @@ class StringParser extends SyncParser with StringBasedParser {
   String atRange(int i, int j) => s.substring(i, j);
 
   @override
-  void checkpoint(int state, int i, FContext context, IList<FContext> stack) {}
+  void checkpoint(int state, int i, FContext context, List<FContext> stack) {}
 
   @override
   void close() {}

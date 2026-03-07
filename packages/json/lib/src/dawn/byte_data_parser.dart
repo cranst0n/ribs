@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/src/dawn/byte_based_parser.dart';
 import 'package:ribs_json/src/dawn/fcontext.dart';
 import 'package:ribs_json/src/dawn/sync_parser.dart';
@@ -34,7 +33,7 @@ final class ByteDataParser extends SyncParser with ByteBasedParser {
   int byte(int i) => src[i + _start];
 
   @override
-  void checkpoint(int state, int i, FContext context, IList<FContext> stack) {}
+  void checkpoint(int state, int i, FContext context, List<FContext> stack) {}
 
   @override
   void close() {}

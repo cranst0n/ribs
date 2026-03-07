@@ -54,15 +54,14 @@ abstract class HCursor extends ACursor {
   @override
   ACursor downField(String key) {
     final self = value;
+    final op = CursorOp.downField(key);
 
     if (self is JObject) {
-      if (!self.value.contains(key)) {
-        return fail(CursorOp.downField(key));
-      } else {
-        return ObjectCursor(self.value, key, this, false, this, CursorOp.downField(key));
-      }
+      return self.value.contains(key)
+          ? ObjectCursor(self.value, key, this, false, this, op)
+          : fail(op);
     } else {
-      return fail(CursorOp.downField(key));
+      return fail(op);
     }
   }
 

@@ -7,35 +7,32 @@ final class ListDecoder<A> extends Decoder<List<A>> {
   ListDecoder(this.decodeA);
 
   @override
+  DecodeResult<List<A>> decode(Json json) {
+    if (json is JArray) return _fastDecode(json.value);
+    return DecodingFailure(WrongTypeExpectation('array', json), nil<CursorOp>()).asLeft();
+  }
+
+  @override
   DecodeResult<List<A>> decodeC(HCursor cursor) {
-    var current = cursor.downArray();
+    final json = cursor.value;
+    if (json is JArray) return _fastDecode(json.value);
+    return DecodingFailure(WrongTypeExpectation('array', json), cursor.history()).asLeft();
+  }
 
-    if (current.succeeded) {
-      final l = List<A>.empty(growable: true);
-      DecodingFailure? failure;
+  DecodeResult<List<A>> _fastDecode(IList<Json> elems) {
+    final l = List<A>.empty(growable: true);
+    IList<Json> current = elems;
+    DecodingFailure? failure;
 
-      while (failure == null && current.succeeded) {
-        decodeA.decodeC(current as HCursor).fold(
-          (err) => failure = err,
-          (a) {
-            l.add(a);
-            current = current.right();
-          },
-        );
-      }
-
-      return Either.cond(
-        () => failure == null,
-        () => l,
-        () => failure!,
+    while (failure == null && current is Cons<Json>) {
+      decodeA.decode(current.head).fold(
+        (err) => failure = err,
+        l.add,
       );
-    } else if (cursor.value.isArray) {
-      return List<A>.empty().asRight();
-    } else {
-      return DecodingFailure(
-        WrongTypeExpectation('array', cursor.value),
-        cursor.history(),
-      ).asLeft();
+      current = current.tail;
     }
+
+    if (failure != null) return failure!.asLeft();
+    return l.asRight();
   }
 }

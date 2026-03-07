@@ -7,8 +7,24 @@ final class DownFieldDecoder<A> extends Decoder<A> {
   DownFieldDecoder(this.key, this.valueDecoder);
 
   @override
-  DecodeResult<A> decodeC(HCursor cursor) => tryDecodeC(cursor);
+  DecodeResult<A> decodeC(HCursor cursor) {
+    final json = cursor.value;
+    if (json is JObject) {
+      final v = json.value.tryGet(key);
+      if (v != null) return valueDecoder.decode(v);
+    }
+    return valueDecoder.tryDecodeC(cursor.downField(key));
+  }
 
   @override
-  DecodeResult<A> tryDecodeC(ACursor cursor) => valueDecoder.tryDecodeC(cursor.downField(key));
+  DecodeResult<A> tryDecodeC(ACursor cursor) {
+    if (cursor is HCursor) {
+      final json = cursor.value;
+      if (json is JObject) {
+        final v = json.value.tryGet(key);
+        if (v != null) return valueDecoder.decode(v);
+      }
+    }
+    return valueDecoder.tryDecodeC(cursor.downField(key));
+  }
 }

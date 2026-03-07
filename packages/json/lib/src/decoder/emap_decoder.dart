@@ -8,6 +8,14 @@ final class EmapDecoder<A, B> extends Decoder<B> {
   EmapDecoder(this.aDecoder, this.f);
 
   @override
+  DecodeResult<B> decode(Json json) {
+    return aDecoder.decode(json).fold(
+      (failure) => failure.asLeft(),
+      (a) => f(a).leftMap((str) => DecodingFailure(CustomReason(str), nil<CursorOp>())),
+    );
+  }
+
+  @override
   DecodeResult<B> decodeC(HCursor cursor) => tryDecodeC(cursor);
 
   @override

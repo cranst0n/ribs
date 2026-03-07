@@ -16,6 +16,7 @@ import 'package:ribs_json/src/decoder/non_empty_ilist_decoder.dart';
 import 'package:ribs_json/src/decoder/option_decoder.dart';
 import 'package:ribs_json/src/decoder/or_decoder.dart';
 import 'package:ribs_json/src/decoder/prepared_decoder.dart';
+import 'package:ribs_json/src/decoder/primitive_decoder.dart';
 
 @immutable
 abstract mixin class Decoder<A> {
@@ -85,12 +86,15 @@ abstract mixin class Decoder<A> {
     (a) => Option(BigInt.tryParse(a)).toRight(() => 'BigInt.tryParse failed: $a'),
   );
 
-  static Decoder<bool> boolean = Decoder.instance(
-    (c) => Either.cond(
-      () => c.value is JBoolean,
-      () => (c.value as JBoolean).value,
-      () => _wrongTypeFail('bool', c),
-    ),
+  static Decoder<bool> boolean = PrimitiveDecoder(
+    (json) =>
+        json is JBoolean
+            ? json.value.asRight()
+            : DecodingFailure(WrongTypeExpectation('bool', json), nil<CursorOp>()).asLeft(),
+    (c) =>
+        c.value is JBoolean
+            ? (c.value as JBoolean).value.asRight()
+            : DecodingFailure(WrongTypeExpectation('bool', c.value), c.history()).asLeft(),
   );
 
   static Decoder<Uint8List> bytes = string.map(base64Decode);
@@ -99,15 +103,26 @@ abstract mixin class Decoder<A> {
     (a) => Either.catching(() => DateTime.parse(a), (err, _) => err.toString()),
   );
 
-  static Decoder<double> dubble = Decoder.instance((j) {
-    if (j.value is JNumber) {
-      return (j.value as JNumber).value.toDouble().asRight();
-    } else if (j.value is JNull) {
-      return double.nan.asRight();
-    } else {
-      return _wrongTypeFail('double', j).asLeft();
-    }
-  });
+  static Decoder<double> dubble = PrimitiveDecoder(
+    (json) {
+      if (json is JNumber) {
+        return json.value.toDouble().asRight();
+      } else if (json is JNull) {
+        return double.nan.asRight();
+      } else {
+        return DecodingFailure(WrongTypeExpectation('double', json), nil<CursorOp>()).asLeft();
+      }
+    },
+    (c) {
+      if (c.value is JNumber) {
+        return (c.value as JNumber).value.toDouble().asRight();
+      } else if (c.value is JNull) {
+        return double.nan.asRight();
+      } else {
+        return DecodingFailure(WrongTypeExpectation('double', c.value), c.history()).asLeft();
+      }
+    },
+  );
 
   static Decoder<Duration> duration = integer.map((a) => Duration(microseconds: a));
 
@@ -125,22 +140,51 @@ abstract mixin class Decoder<A> {
 
   static Decoder<IList<A>> ilist<A>(Decoder<A> decodeA) => list(decodeA).map(IList.fromDart);
 
-  static Decoder<int> integer = number.emap(
-    (number) => Either.cond(
-      () => number is int,
-      () => number as int,
-      () => 'Found decimal ($number). Expected integer.',
-    ),
+  static Decoder<int> integer = PrimitiveDecoder(
+    (json) {
+      if (json is JNumber) {
+        final v = json.value;
+
+        if (v is int) {
+          return v.asRight();
+        } else {
+          return DecodingFailure(
+            CustomReason('Found decimal ($v). Expected integer.'),
+            nil<CursorOp>(),
+          ).asLeft();
+        }
+      } else {
+        return DecodingFailure(WrongTypeExpectation('int', json), nil<CursorOp>()).asLeft();
+      }
+    },
+    (c) {
+      if (c.value is JNumber) {
+        final v = (c.value as JNumber).value;
+        if (v is int) {
+          return v.asRight();
+        } else {
+          return DecodingFailure(
+            CustomReason('Found decimal ($v). Expected integer.'),
+            c.history(),
+          ).asLeft();
+        }
+      } else {
+        return DecodingFailure(WrongTypeExpectation('int', c.value), c.history()).asLeft();
+      }
+    },
   );
 
   static Decoder<Json> json = Decoder.instance((c) => c.value.asRight());
 
-  static Decoder<num> number = Decoder.instance(
-    (c) => Either.cond(
-      () => c.value is JNumber,
-      () => (c.value as JNumber).value,
-      () => _wrongTypeFail('num', c),
-    ),
+  static Decoder<num> number = PrimitiveDecoder(
+    (json) =>
+        json is JNumber
+            ? json.value.asRight()
+            : DecodingFailure(WrongTypeExpectation('num', json), nil<CursorOp>()).asLeft(),
+    (c) =>
+        c.value is JNumber
+            ? (c.value as JNumber).value.asRight()
+            : DecodingFailure(WrongTypeExpectation('num', c.value), c.history()).asLeft(),
   );
 
   static Decoder<List<A>> list<A>(Decoder<A> decodeA) => ListDecoder(decodeA);
@@ -154,12 +198,15 @@ abstract mixin class Decoder<A> {
   static Decoder<NonEmptyIList<A>> nonEmptyIList<A>(Decoder<A> decodeA) =>
       NonEmptyIListDecoder(decodeA);
 
-  static Decoder<String> string = Decoder.instance(
-    (c) => Either.cond(
-      () => c.value is JString,
-      () => (c.value as JString).value,
-      () => _wrongTypeFail('num', c),
-    ),
+  static Decoder<String> string = PrimitiveDecoder(
+    (json) =>
+        json is JString
+            ? json.value.asRight()
+            : DecodingFailure(WrongTypeExpectation('String', json), nil<CursorOp>()).asLeft(),
+    (c) =>
+        c.value is JString
+            ? (c.value as JString).value.asRight()
+            : DecodingFailure(WrongTypeExpectation('String', c.value), c.history()).asLeft(),
   );
 
   static DecodingFailure _wrongTypeFail(String expected, HCursor cursor) =>

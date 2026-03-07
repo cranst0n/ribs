@@ -1,4 +1,3 @@
-import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
 abstract class FContext {
@@ -51,8 +50,7 @@ class _ObjectContext extends FContext {
   }
 
   @override
-  Json finishAt(int index) =>
-      Json.fromJsonObject(JsonObject.fromIList(ilist(m.entries).map((e) => (e.key, e.value))));
+  Json finishAt(int index) => Json.fromJsonObject(JsonObject.fromMap(m));
 
   @override
   bool get isObject => true;

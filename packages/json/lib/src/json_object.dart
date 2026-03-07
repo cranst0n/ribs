@@ -14,9 +14,16 @@ sealed class JsonObject {
     LinkedHashMap.fromIterables(fields.map((e) => e.$1), fields.map((e) => e.$2)),
   );
 
+  /// Wraps an existing [Map] directly, avoiding repeated iteration.
+  static JsonObject fromMap(Map<String, Json> fields) =>
+      _LinkedHashMapJsonObject(LinkedHashMap.from(fields));
+
   JsonObject add(String key, Json value);
 
   Option<Json> get(String key);
+
+  /// Returns the value for [key], or `null` if absent. Avoids [Option] allocation.
+  Json? tryGet(String key);
 
   Json getUnsafe(String key);
 
@@ -68,6 +75,9 @@ final class _LinkedHashMapJsonObject extends JsonObject {
   Option<Json> get(String key) => Option(fields[key]);
 
   @override
+  Json? tryGet(String key) => fields[key];
+
+  @override
   Json getUnsafe(String key) => fields[key]!;
 
   @override
@@ -111,7 +121,7 @@ final class _LinkedHashMapJsonObject extends JsonObject {
           return true;
         } else {
           if (size == other.size) {
-            return keys.forall((k) => get(k) == other.get(k));
+            return keys.forall((k) => tryGet(k) == other.tryGet(k));
           } else {
             return false;
           }

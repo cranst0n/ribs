@@ -53,7 +53,7 @@ abstract class Parser {
     int state,
     int i,
     FContext context,
-    IList<FContext> stack,
+    List<FContext> stack,
   );
 
   void close();
@@ -168,7 +168,7 @@ abstract class Parser {
       }
     }
 
-    ctxt.addValueAt(_jnum(atRange(i, j), decIndex, expIndex), i);
+    ctxt.addValueAt(_jnum(i, j, decIndex, expIndex), i);
 
     return j;
   }
@@ -190,7 +190,7 @@ abstract class Parser {
       // '0'
       j += 1;
       if (atEof(j)) {
-        ctxt.addValueAt(_jnum(atRange(i, j), decIndex, expIndex), i);
+        ctxt.addValueAt(_jnum(i, j, decIndex, expIndex), i);
         return j;
       }
       c = atCodeUnit(j);
@@ -200,7 +200,7 @@ abstract class Parser {
         j += 1;
 
         if (atEof(j)) {
-          ctxt.addValueAt(_jnum(atRange(i, j), decIndex, expIndex), i);
+          ctxt.addValueAt(_jnum(i, j, decIndex, expIndex), i);
           return j;
         }
 
@@ -222,7 +222,7 @@ abstract class Parser {
           j += 1;
 
           if (atEof(j)) {
-            ctxt.addValueAt(_jnum(atRange(i, j), decIndex, expIndex), i);
+            ctxt.addValueAt(_jnum(i, j, decIndex, expIndex), i);
             return j;
           }
           c = atCodeUnit(j);
@@ -250,7 +250,7 @@ abstract class Parser {
           j += 1;
 
           if (atEof(j)) {
-            ctxt.addValueAt(_jnum(atRange(i, j), decIndex, expIndex), i);
+            ctxt.addValueAt(_jnum(i, j, decIndex, expIndex), i);
             return j;
           }
           c = atCodeUnit(j);
@@ -260,7 +260,7 @@ abstract class Parser {
       }
     }
 
-    ctxt.addValueAt(_jnum(atRange(i, j), decIndex, expIndex), i);
+    ctxt.addValueAt(_jnum(i, j, decIndex, expIndex), i);
 
     return j;
   }
@@ -338,9 +338,9 @@ abstract class Parser {
           newline(i);
           n += 1;
         case 91: // '['
-          return iparse(_ARRBEG, n + 1, FContext.array(n), nil());
+          return iparse(_ARRBEG, n + 1, FContext.array(n), []);
         case 123: // '{'
-          return iparse(_OBJBEG, n + 1, FContext.object(n), nil());
+          return iparse(_OBJBEG, n + 1, FContext.object(n), []);
         case 45: // '-'
         case 48: // '0'
         case 49: // '1'
@@ -379,13 +379,13 @@ abstract class Parser {
     int state,
     int j,
     FContext context,
-    IList<FContext> stack,
+    List<FContext> stack,
   ) {
     // No tail recursion so we must loop
     int iState = state;
     int iJ = j;
     FContext iContext = context;
-    IList<FContext> iStack = stack;
+    final iStack = stack;
 
     while (true) {
       final i = reset(iJ);
@@ -393,7 +393,7 @@ abstract class Parser {
 
       final c = atCodeUnit(i);
 
-      if (iStack.size > _MaxDepth) {
+      if (iStack.length > _MaxDepth) {
         die(i, 'JSON max depth ($_MaxDepth) exceeded');
       }
 
@@ -410,13 +410,13 @@ abstract class Parser {
           // '['
           iState = _ARRBEG;
           iJ = i + 1;
-          iStack = iStack.prepended(iContext);
+          iStack.add(iContext);
           iContext = FContext.array(i);
         } else if (c == 123) {
           // '{'
           iState = _OBJBEG;
           iJ = i + 1;
-          iStack = iStack.prepended(iContext);
+          iStack.add(iContext);
           iContext = FContext.object(i);
         } else if ((c >= 48 && c <= 57) || c == 45) {
           // '0'-'9' or '-'
@@ -452,13 +452,12 @@ abstract class Parser {
         if (iStack.isEmpty) {
           return (iContext.finishAt(i), i + 1);
         } else {
-          final ctxt2 = iStack[0];
+          final ctxt2 = iStack.removeLast();
           ctxt2.addValueAt(iContext.finishAt(i), i);
 
           iState = ctxt2.isObject ? _OBJEND : _ARREND;
           iJ = i + 1;
           iContext = ctxt2;
-          iStack = iStack.tail;
         }
       } else if (iState == _KEY) {
         // we are in an object expecting to see a key.
@@ -508,7 +507,18 @@ abstract class Parser {
     }
   }
 
-  JNumber _jnum(String s, int decIndex, int expIndex) => JNumber(num.parse(s));
+  JNumber _jnum(int start, int end, int decIndex, int expIndex) {
+    if (decIndex == -1 && expIndex == -1) {
+      // Fast path: parse integer directly from code units, no substring allocation.
+      final neg = atCodeUnit(start) == 45; // '-'
+      var result = 0;
+      for (var k = neg ? start + 1 : start; k < end; k++) {
+        result = result * 10 + (atCodeUnit(k) - 48);
+      }
+      return JNumber(neg ? -result : result);
+    }
+    return JNumber(num.parse(atRange(start, end)));
+  }
 
   static const _ARRBEG = 6;
   static const _OBJBEG = 7;

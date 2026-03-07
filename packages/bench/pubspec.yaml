@@ -22,6 +22,7 @@ dependencies:
   ribs_binary:                ^1.0.0-dev.10
   ribs_core:                  ^1.0.0-dev.14
   ribs_effect:                ^1.0.0-dev.3
+  ribs_json:                  ^1.0.0-dev.15
   ribs_rill:                  ^1.0.0-dev.1
 
 dev_dependencies:

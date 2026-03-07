@@ -22,7 +22,7 @@ final class AsyncParser extends Parser with ByteBasedParser {
   int _state;
   int _curr;
   FContext? _context;
-  IList<FContext> _stack;
+  List<FContext> _stack;
   final List<int> _data;
   int _len;
   int _offset;
@@ -40,7 +40,7 @@ final class AsyncParser extends Parser with ByteBasedParser {
     mode._start,
     0,
     null,
-    nil(),
+    [],
     List.empty(growable: true),
     0,
     0,
@@ -110,11 +110,11 @@ final class AsyncParser extends Parser with ByteBasedParser {
   }
 
   @override
-  void checkpoint(int state, int i, FContext context, IList<FContext> stack) {
+  void checkpoint(int state, int i, FContext context, List<FContext> stack) {
     _state = state;
     _curr = i;
     _context = context;
-    _stack = stack;
+    _stack = List.of(stack);
   }
 
   @override
@@ -238,7 +238,7 @@ final class AsyncParser extends Parser with ByteBasedParser {
           _curr = j;
           _offset = j;
           _context = null;
-          _stack = nil();
+          _stack = [];
           results.add(value);
         }
       }
