@@ -1,14 +1,23 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/test_matchers.dart';
+import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_sql/ribs_sql.dart';
 import 'package:ribs_sqlite/ribs_sqlite.dart';
 import 'package:test/test.dart';
 
 void main() {
-  late SqliteTransactor xa;
+  late Transactor xa;
+  late IO<Unit> release;
 
-  setUp(() {
-    xa = SqliteTransactor.memory();
+  setUp(() async {
+    final allocated =
+        await SqliteTransactor.memory().allocated().unsafeRunFuture();
+    xa = allocated.$1;
+    release = allocated.$2;
+  });
+
+  tearDown(() async {
+    await release.unsafeRunFuture();
   });
 
   group('DDL', () {

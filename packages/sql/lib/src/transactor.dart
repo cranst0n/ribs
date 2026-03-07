@@ -16,8 +16,4 @@ abstract class Transactor {
   /// Streams results from [query], keeping a connection open for the duration
   /// of the stream. The connection is released when the [Rill] terminates.
   Rill<A> stream<A>(Query<A> query);
-
-  /// Acquires a raw [SqlConnection] directly.
-  /// Intended for advanced use cases; prefer [transact] for normal work.
-  Resource<SqlConnection> connection();
 }

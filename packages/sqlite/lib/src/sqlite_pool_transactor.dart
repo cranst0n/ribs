@@ -31,26 +31,28 @@ import 'package:sqlite3_connection_pool/sqlite3_connection_pool.dart';
 ///   },
 /// );
 ///
-/// final xa = SqlitePoolTransactor(pool);
+/// await SqlitePoolTransactor.create(pool).use((xa) {
+///   // use xa here
+/// });
 /// ```
 final class SqlitePoolTransactor implements Transactor {
   final SqliteConnectionPool _pool;
 
-  const SqlitePoolTransactor(this._pool);
+  SqlitePoolTransactor._(this._pool);
 
-  @override
-  Resource<SqlConnection> connection() => Resource.make(
-    IO.fromFutureF(() async => _SqliteLeaseConnection(await _pool.writer())),
-    (conn) => conn.close(),
+  /// Creates a [Resource] wrapping a [SqlitePoolTransactor] that owns [pool].
+  /// The pool is closed when the [Resource] is released.
+  static Resource<Transactor> create(SqliteConnectionPool pool) => Resource.make(
+    IO.pure(SqlitePoolTransactor._(pool)),
+    (_) => IO.exec(pool.close),
   );
 
   @override
   IO<A> transact<A>(ConnectionIO<A> cio) => IO.fromFutureF(() => _pool.writer()).bracket((lease) {
-    final conn = _SqliteLeaseConnection(lease);
     IO<Unit> leaseExecute(String sql) => IO.fromFutureF(() => lease.execute(sql)).voided();
 
     return leaseExecute('BEGIN')
-        .productR(() => cio.run(conn))
+        .productR(() => cio.run(_SqliteLeaseConnection(lease)))
         .productL(() => leaseExecute('COMMIT'))
         .handleErrorWith((err) => leaseExecute('ROLLBACK').productR(() => IO.raiseError(err)));
   }, (lease) => IO.exec(lease.returnLease));
