@@ -5,7 +5,7 @@ import 'package:ribs_sql/ribs_sql.dart';
 import 'package:ribs_sqlite/src/sqlite_rill.dart';
 import 'package:sqlite3/sqlite3.dart' as sqlite;
 
-final class SqliteConnection implements SqlConnection {
+final class SqliteConnection extends SqlConnection {
   final sqlite.Database _db;
 
   SqliteConnection(this._db);

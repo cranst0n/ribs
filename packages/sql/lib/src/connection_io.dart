@@ -15,7 +15,7 @@ import 'package:ribs_sql/ribs_sql.dart';
 final class ConnectionIO<A> {
   final Function1<SqlConnection, IO<A>> _run;
 
-  ConnectionIO._(this._run);
+  const ConnectionIO._(this._run);
 
   /// Suspends a synchronous computation into [ConnectionIO].
   static ConnectionIO<A> delay<A>(Function0<A> thunk) => ConnectionIO._((_) => IO.delay(thunk));
@@ -26,11 +26,15 @@ final class ConnectionIO<A> {
   /// Lifts an [IO] into [ConnectionIO], ignoring the connection.
   static ConnectionIO<A> lift<A>(IO<A> io) => ConnectionIO._((_) => io);
 
+  static ConnectionIO<A> never<A>() => ConnectionIO.lift(IO.never());
+
   /// Lifts a pure value into [ConnectionIO].
   static ConnectionIO<A> pure<A>(A a) => ConnectionIO._((_) => IO.pure(a));
 
   static ConnectionIO<A> raiseError<A>(Object error, [StackTrace? stackTrace]) =>
       ConnectionIO._((_) => IO.raiseError(error, stackTrace));
+
+  static final ConnectionIO<Unit> unit = ConnectionIO.pure(Unit.instance);
 
   ConnectionIO<B> map<B>(Function1<A, B> f) => ConnectionIO._((conn) => _run(conn).map(f));
 

@@ -1,16 +1,16 @@
+import 'dart:async';
+
 import 'package:postgres/postgres.dart' as pg;
+import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_postgres/ribs_postgres.dart';
-import 'package:ribs_rill/ribs_rill.dart';
 import 'package:ribs_sql/ribs_sql.dart';
 
 /// A [Transactor] backed by a PostgreSQL connection pool via the `postgres`
 /// package's built-in [pg.Pool].
 ///
 /// [transact] borrows a session from the pool, runs the [ConnectionIO] inside
-/// a database transaction (BEGIN/COMMIT/ROLLBACK), then returns the session to
-/// the pool. [stream] opens a dedicated connection for the lifetime of the
-/// [Rill], independent of the pool.
+/// a database transaction, then returns the session to the pool.
 ///
 /// Example:
 /// ```dart
@@ -24,16 +24,10 @@ import 'package:ribs_sql/ribs_sql.dart';
 ///       .transact(xa)
 /// });
 /// ```
-final class PostgresPoolTransactor implements Transactor {
+final class PostgresPoolTransactor extends Transactor {
   final pg.Pool<dynamic> _pool;
-  final List<pg.Endpoint> _endpoints;
-  final pg.ConnectionSettings? _connectionSettings;
 
-  PostgresPoolTransactor._(
-    this._pool,
-    this._endpoints,
-    this._connectionSettings,
-  );
+  PostgresPoolTransactor._(this._pool, super.strategy);
 
   /// Creates a [Resource] wrapping a pool transactor from a list of
   /// [endpoints]. The pool is closed when the [Resource] is released.
@@ -43,56 +37,65 @@ final class PostgresPoolTransactor implements Transactor {
   static Resource<Transactor> withEndpoints(
     List<pg.Endpoint> endpoints, {
     pg.PoolSettings? settings,
+    Strategy? strategy,
   }) {
-    final pool = pg.Pool<Never>.withEndpoints(endpoints, settings: settings);
     return Resource.make(
-      IO.pure(PostgresPoolTransactor._(pool, endpoints, settings)),
-      (_) => IO.fromFutureF(() => pool.close()).voided(),
-    );
+      IO.delay(() => pg.Pool<Never>.withEndpoints(endpoints, settings: settings)),
+      (pool) => IO.fromFutureF(() => pool.close()).voided(),
+    ).map((pool) => PostgresPoolTransactor._(pool, strategy));
   }
 
   /// Creates a [Resource] wrapping a pool transactor from a PostgreSQL
   /// connection [url] of the form
   /// `postgresql://[user:password@]host[:port][/database][?params]`.
   /// The pool is closed when the [Resource] is released.
-  static Resource<Transactor> withUrl(String url) {
-    final pool = pg.Pool<Never>.withUrl(url);
+  static Resource<Transactor> withUrl(
+    String url, {
+    Strategy? strategy,
+  }) {
     return Resource.make(
-      IO.pure(PostgresPoolTransactor._(pool, [], null)),
-      (_) => IO.fromFutureF(() => pool.close()).voided(),
-    );
+      IO.delay(() => pg.Pool<Never>.withUrl(url)),
+      (pool) => IO.fromFutureF(() => pool.close()).voided(),
+    ).map((pool) => PostgresPoolTransactor._(pool, strategy));
   }
 
-  /// Borrows a session from the pool, runs [cio] inside a transaction, then
-  /// returns the session to the pool. The transaction is automatically rolled
-  /// back on error.
   @override
-  IO<A> transact<A>(ConnectionIO<A> cio) => IO.fromFutureF(
-    () => _pool.runTx(
-      (txSession) => cio.run(PostgresConnection(txSession)).unsafeRunFuture(),
-    ),
-  );
+  Resource<SqlConnection> connect() {
+    return Resource.apply(
+      IO.async((cb) {
+        final signalDone = Completer<void>();
 
-  /// Opens a dedicated connection for the duration of the [Rill]. The
-  /// connection is closed when the stream terminates or is interrupted.
-  @override
-  Rill<A> stream<A>(Query<A> query) {
-    final acquire = IO
-        .fromFutureF(
-          () => pg.Connection.open(
-            _endpoints.first,
-            settings: _connectionSettings,
+        // Call pg.PoolwithConnection with async callback.
+        // The connection is held open until `signalDone` is completed
+        // by the release action.
+        _pool
+            .withConnection((pg.Connection conn) async {
+              cb(
+                Right((
+                  PostgresConnection(conn),
+
+                  IO.delay(() {
+                    if (!signalDone.isCompleted) signalDone.complete();
+                  }).voided(),
+                )),
+              );
+
+              // Hold the connection until the Resource scope ends.
+              await signalDone.future;
+            })
+            .catchError((Object err) {
+              if (!signalDone.isCompleted) cb(Left(err));
+            });
+
+        // If we're canceled, unblock withConnection
+        return IO.pure(
+          Some(
+            IO.delay(() {
+              if (!signalDone.isCompleted) signalDone.complete();
+            }).voided(),
           ),
-        )
-        .map(PostgresConnection.new);
-
-    return Rill.bracket(
-      acquire,
-      (conn) => conn.close(),
-    ).flatMap(
-      (conn) => conn
-          .streamQuery(query.fragment.sql, query.fragment.params)
-          .map((row) => query.read.unsafeGet(row, 0)),
+        );
+      }),
     );
   }
 }

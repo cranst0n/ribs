@@ -35,38 +35,35 @@ import 'package:sqlite3_connection_pool/sqlite3_connection_pool.dart';
 ///   // use xa here
 /// });
 /// ```
-final class SqlitePoolTransactor implements Transactor {
+final class SqlitePoolTransactor extends Transactor {
   final SqliteConnectionPool _pool;
 
-  SqlitePoolTransactor._(this._pool);
+  SqlitePoolTransactor._(this._pool, super.strategy);
 
   /// Creates a [Resource] wrapping a [SqlitePoolTransactor] that owns [pool].
   /// The pool is closed when the [Resource] is released.
-  static Resource<Transactor> create(SqliteConnectionPool pool) => Resource.make(
-    IO.pure(SqlitePoolTransactor._(pool)),
+  static Resource<Transactor> create(
+    SqliteConnectionPool pool, {
+    Strategy? strategy,
+  }) => Resource.make(
+    IO.pure(SqlitePoolTransactor._(pool, strategy)),
     (_) => IO.exec(pool.close),
   );
 
   @override
-  IO<A> transact<A>(ConnectionIO<A> cio) => IO.fromFutureF(() => _pool.writer()).bracket((lease) {
-    IO<Unit> leaseExecute(String sql) => IO.fromFutureF(() => lease.execute(sql)).voided();
-
-    return leaseExecute('BEGIN')
-        .productR(() => cio.run(_SqliteLeaseConnection(lease)))
-        .productL(() => leaseExecute('COMMIT'))
-        .handleErrorWith((err) => leaseExecute('ROLLBACK').productR(() => IO.raiseError(err)));
-  }, (lease) => IO.exec(lease.returnLease));
+  Resource<SqlConnection> connect() {
+    return Resource.make(
+      IO.fromFutureF(() => _pool.writer()),
+      (lease) => IO.exec(lease.returnLease),
+    ).map(_SqliteLeaseConnection.new);
+  }
 
   @override
-  Rill<A> stream<A>(Query<A> query) {
-    return Rill.bracket(
-      IO.fromFutureF(() => _pool.reader()).map(_SqliteLeaseConnection.new),
-      (conn) => conn.close(),
-    ).flatMap(
-      (conn) => conn
-          .streamQuery(query.fragment.sql, query.fragment.params)
-          .map((row) => query.read.unsafeGet(row, 0)),
-    );
+  Resource<SqlConnection> connectReader() {
+    return Resource.make(
+      IO.fromFutureF(() => _pool.reader()),
+      (lease) => IO.exec(lease.returnLease),
+    ).map(_SqliteLeaseConnection.new);
   }
 }
 
@@ -74,7 +71,7 @@ final class SqlitePoolTransactor implements Transactor {
 ///
 /// [close] returns the lease to the pool — do not call the underlying
 /// sqlite3 [Database.close] directly.
-final class _SqliteLeaseConnection implements SqlConnection {
+final class _SqliteLeaseConnection extends SqlConnection {
   final ConnectionLease _lease;
 
   _SqliteLeaseConnection(this._lease);

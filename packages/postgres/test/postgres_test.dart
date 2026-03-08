@@ -1,19 +1,40 @@
+import 'package:postgres/postgres.dart' as pg;
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/test_matchers.dart';
 import 'package:ribs_effect/ribs_effect.dart';
+import 'package:ribs_postgres/ribs_postgres.dart';
 import 'package:ribs_sql/ribs_sql.dart';
-import 'package:ribs_sqlite/ribs_sqlite.dart';
 import 'package:test/test.dart';
+import 'package:testainers/testainers.dart';
 
 void main() {
+  late TestainersPostgresql container;
   late Transactor xa;
   late IO<Unit> release;
 
+  setUpAll(() async {
+    container = TestainersPostgresql();
+    await container.start();
+  });
+
+  tearDownAll(() async {
+    await container.stop();
+  });
+
   setUp(() async {
-    final allocated =
-        await SqliteTransactor.memory().allocated().unsafeRunFuture();
-    xa = allocated.$1;
-    release = allocated.$2;
+    (xa, release) =
+        await PostgresPoolTransactor.withEndpoints(
+          [
+            pg.Endpoint(
+              host: 'localhost',
+              port: container.port,
+              database: container.database,
+              username: container.username,
+              password: container.password,
+            ),
+          ],
+          settings: const pg.PoolSettings(sslMode: pg.SslMode.disable),
+        ).allocated().unsafeRunFuture();
   });
 
   tearDown(() async {
@@ -27,9 +48,11 @@ void main() {
   });
 
   group('Update / Insert', () {
-    test('insert single row', () async {
-      await _createTable().transact(xa).unsafeRunFuture();
+    setUp(() async {
+      await _resetTable().transact(xa).unsafeRunFuture();
+    });
 
+    test('insert single row', () async {
       final rows =
           await 'INSERT INTO person (name, age) VALUES (?, ?)'
               .update((Write.string, Write.integer).tupled)
@@ -41,8 +64,6 @@ void main() {
     });
 
     test('insert many rows', () async {
-      await _createTable().transact(xa).unsafeRunFuture();
-
       final people = [('Alice', 30), ('Bob', 25), ('Carol', 35)];
 
       await 'INSERT INTO person (name, age) VALUES (?, ?)'
@@ -55,7 +76,7 @@ void main() {
 
   group('Query', () {
     setUp(() async {
-      await _createTable().transact(xa).unsafeRunFuture();
+      await _resetTable().transact(xa).unsafeRunFuture();
       await _insertPeople().transact(xa).unsafeRunFuture();
     });
 
@@ -110,7 +131,7 @@ void main() {
 
   group('ParameterizedQuery', () {
     setUp(() async {
-      await _createTable().transact(xa).unsafeRunFuture();
+      await _resetTable().transact(xa).unsafeRunFuture();
       await _insertPeople().transact(xa).unsafeRunFuture();
     });
 
@@ -140,7 +161,7 @@ void main() {
 
   group('ConnectionRill / stream', () {
     setUp(() async {
-      await _createTable().transact(xa).unsafeRunFuture();
+      await _resetTable().transact(xa).unsafeRunFuture();
       await _insertPeople().transact(xa).unsafeRunFuture();
     });
 
@@ -170,7 +191,7 @@ void main() {
 
   group('UpdateReturning', () {
     setUp(() async {
-      await _createTableWithId().transact(xa).unsafeRunFuture();
+      await _resetTableWithId().transact(xa).unsafeRunFuture();
     });
 
     test('insert returning id', () async {
@@ -196,10 +217,56 @@ void main() {
     });
   });
 
-  group('ReadWrite codec', () {
-    test('optional reads null columns', () async {
-      await _createTable().transact(xa).unsafeRunFuture();
+  group('Transaction rollback', () {
+    setUp(() async {
+      await _resetTable().transact(xa).unsafeRunFuture();
+    });
 
+    test('rolls back on error', () async {
+      final program = 'INSERT INTO person (name, age) VALUES (?, ?)'
+          .update((Write.string, Write.integer).tupled)
+          .run(('Rollback', 42))
+          .flatMap((_) => ConnectionIO.raiseError<Unit>(Exception('boom')))
+          .transact(xa);
+
+      await program.attempt().unsafeRunFuture();
+
+      final count =
+          await 'SELECT COUNT(*) FROM person'
+              .query(Read.integer)
+              .unique()
+              .transact(xa)
+              .unsafeRunFuture();
+
+      expect(count, equals(0));
+    });
+
+    test('rolls back on fiber cancellation', () async {
+      final program = 'INSERT INTO person (name, age) VALUES (?, ?)'
+          .update((Write.string, Write.integer).tupled)
+          .run(('Rollback', 42))
+          .flatMap((_) => ConnectionIO.never<Unit>())
+          .transact(xa);
+
+      await program.start().flatMap((fiber) => fiber.cancel()).unsafeRunFuture();
+
+      final count =
+          await 'SELECT COUNT(*) FROM person'
+              .query(Read.integer)
+              .unique()
+              .transact(xa)
+              .unsafeRunFuture();
+
+      expect(count, equals(0));
+    });
+  });
+
+  group('ReadWrite codec', () {
+    setUp(() async {
+      await _resetTable().transact(xa).unsafeRunFuture();
+    });
+
+    test('string roundtrip', () async {
       await 'INSERT INTO person (name, age) VALUES (?, ?)'
           .update((Write.string, Write.integer).tupled)
           .run(('NoNick', 99))
@@ -222,17 +289,24 @@ void main() {
 // Helpers
 // ---------------------------------------------------------------------------
 
+ConnectionIO<Unit> _resetTable() =>
+    'DROP TABLE IF EXISTS person'.update0.run().flatMap((_) => _createTable().map((_) => Unit()));
+
 ConnectionIO<int> _createTable() =>
     '''
-CREATE TABLE IF NOT EXISTS person (
+CREATE TABLE person (
   name TEXT NOT NULL,
   age  INTEGER NOT NULL
 )'''.update0.run();
 
+ConnectionIO<Unit> _resetTableWithId() => 'DROP TABLE IF EXISTS item'.update0.run().flatMap(
+  (_) => _createTableWithId().map((_) => Unit()),
+);
+
 ConnectionIO<int> _createTableWithId() =>
     '''
-CREATE TABLE IF NOT EXISTS item (
-  id    INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE item (
+  id    SERIAL PRIMARY KEY,
   label TEXT NOT NULL
 )'''.update0.run();
 

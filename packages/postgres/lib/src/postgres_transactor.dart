@@ -1,7 +1,6 @@
 import 'package:postgres/postgres.dart' as pg;
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_postgres/ribs_postgres.dart';
-import 'package:ribs_rill/ribs_rill.dart';
 import 'package:ribs_sql/ribs_sql.dart';
 
 /// A [Transactor] backed by a PostgreSQL database via the `postgres` package.
@@ -12,20 +11,19 @@ import 'package:ribs_sql/ribs_sql.dart';
 ///
 /// Example:
 /// ```dart
-/// await PostgresTransactor.create(
+/// PostgresTransactor.create(
 ///   pg.Endpoint(host: 'localhost', database: 'mydb', username: 'user', password: 'pass'),
-/// ).use((xa) async {
-///   final people = await 'SELECT id, name FROM person'
+/// ).use((xa) {
+///   return 'SELECT id, name FROM person'
 ///       .query((Read.integer, Read.string).tupled)
 ///       .ilist()
-///       .transact(xa)
-///       .unsafeRunFuture();
-/// }).unsafeRunFuture();
+///       .transact(xa);
+/// });
 /// ```
-final class PostgresTransactor implements Transactor {
+final class PostgresTransactor extends Transactor {
   final pg.Connection _connection;
 
-  PostgresTransactor._(this._connection);
+  PostgresTransactor._(this._connection, super.strategy);
 
   /// Creates a [Resource] wrapping a [PostgresTransactor] backed by a single
   /// shared connection. The connection is opened once when the [Resource] is
@@ -34,20 +32,12 @@ final class PostgresTransactor implements Transactor {
   static Resource<Transactor> create(
     pg.Endpoint endpoint, {
     pg.ConnectionSettings? settings,
+    Strategy? strategy,
   }) => Resource.make(
     IO.fromFutureF(() => pg.Connection.open(endpoint, settings: settings)),
     (conn) => IO.fromFutureF(() => conn.close()).voided(),
-  ).map<Transactor>(PostgresTransactor._);
+  ).map<Transactor>((connection) => PostgresTransactor._(connection, strategy));
 
   @override
-  IO<A> transact<A>(ConnectionIO<A> cio) => IO.fromFutureF(
-    () => _connection.runTx(
-      (txSession) => cio.run(PostgresConnection(txSession)).unsafeRunFuture(),
-    ),
-  );
-
-  @override
-  Rill<A> stream<A>(Query<A> query) => PostgresConnection(_connection)
-      .streamQuery(query.fragment.sql, query.fragment.params)
-      .map((row) => query.read.unsafeGet(row, 0));
+  Resource<SqlConnection> connect() => Resource.pure(PostgresConnection(_connection));
 }
