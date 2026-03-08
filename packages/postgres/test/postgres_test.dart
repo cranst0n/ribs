@@ -261,6 +261,102 @@ void main() {
     });
   });
 
+  group('Connection lifecycle', () {
+    late Transactor singleXa;
+    late IO<Unit> releasePool;
+
+    setUp(() async {
+      (singleXa, releasePool) =
+          await PostgresPoolTransactor.withEndpoints(
+            [
+              pg.Endpoint(
+                host: 'localhost',
+                port: container.port,
+                database: container.database,
+                username: container.username,
+                password: container.password,
+              ),
+            ],
+            settings: const pg.PoolSettings(
+              sslMode: pg.SslMode.disable,
+              maxConnectionCount: 1,
+            ),
+          ).allocated().unsafeRunFuture();
+    });
+
+    tearDown(() async {
+      await releasePool.unsafeRunFuture();
+    });
+
+    test('connection is returned to pool after successful transaction', () async {
+      await 'SELECT 1'.query(Read.integer).unique().transact(singleXa).unsafeRunFuture();
+      // Would hang forever if the connection was not returned.
+      await 'SELECT 1'.query(Read.integer).unique().transact(singleXa).unsafeRunFuture();
+    });
+
+    test('connection is returned to pool after failed transaction', () async {
+      await ConnectionIO.raiseError<Unit>(Exception('boom'))
+          .transact(singleXa)
+          .attempt()
+          .unsafeRunFuture();
+      // Would block if the connection leaked on error.
+      await 'SELECT 1'.query(Read.integer).unique().transact(singleXa).unsafeRunFuture();
+    });
+
+    test('connection is returned to pool after fiber cancellation', () async {
+      final acquired = await Deferred.of<Unit>().unsafeRunFuture();
+
+      final fiber = await ConnectionIO.lift(acquired.complete(Unit()))
+          .flatMap((_) => ConnectionIO.never<Unit>())
+          .transact(singleXa)
+          .start()
+          .unsafeRunFuture();
+
+      await acquired.value().unsafeRunFuture(); // wait until fiber holds the connection
+      await fiber.cancel().unsafeRunFuture();
+
+      // Would block if cancellation didn't trigger the signalDone Completer.
+      await 'SELECT 1'.query(Read.integer).unique().transact(singleXa).unsafeRunFuture();
+    });
+
+    test('connection is held for the duration of a transaction', () async {
+      final acquired = await Deferred.of<Unit>().unsafeRunFuture();
+      final proceed = await Deferred.of<Unit>().unsafeRunFuture();
+
+      final fiber = await ConnectionIO.lift(acquired.complete(Unit()))
+          .flatMap((_) => ConnectionIO.lift(proceed.value()))
+          .transact(singleXa)
+          .start()
+          .unsafeRunFuture();
+
+      await acquired.value().unsafeRunFuture(); // fiber now holds the sole connection
+
+      // With pool size 1 exhausted, a second transaction must block.
+      final blocked = await 'SELECT 1'
+          .query(Read.integer)
+          .unique()
+          .transact(singleXa)
+          .timeout(const Duration(milliseconds: 500))
+          .attempt()
+          .unsafeRunFuture();
+
+      expect(
+        blocked.isLeft,
+        isTrue,
+        reason: 'second transaction should be blocked by pool exhaustion',
+      );
+
+      // Release the connection.
+      await proceed.complete(Unit()).unsafeRunFuture();
+      await fiber.join().unsafeRunFuture();
+
+      // Connection is back in the pool; this must now succeed.
+      final value =
+          await 'SELECT 1'.query(Read.integer).unique().transact(singleXa).unsafeRunFuture();
+      expect(value, equals(1));
+    });
+  });
+
   group('ReadWrite codec', () {
     setUp(() async {
       await _resetTable().transact(xa).unsafeRunFuture();

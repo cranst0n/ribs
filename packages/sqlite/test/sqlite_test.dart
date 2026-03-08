@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/test_matchers.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_sql/ribs_sql.dart';
 import 'package:ribs_sqlite/ribs_sqlite.dart';
+import 'package:sqlite3/sqlite3.dart' as sq;
+import 'package:sqlite3_connection_pool/sqlite3_connection_pool.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -234,6 +238,131 @@ void main() {
               .unsafeRunFuture();
 
       expect(count, equals(0));
+    });
+  });
+
+  group('Connection lifecycle', () {
+    late Transactor poolXa;
+    late IO<Unit> releasePoolXa;
+    late File dbFile;
+
+    setUp(() async {
+      dbFile = File(
+        '${Directory.systemTemp.path}/ribs_sqlite_test_${DateTime.now().microsecondsSinceEpoch}.db',
+      );
+      final pool = SqliteConnectionPool.open(
+        name: dbFile.path,
+        openConnections: () {
+          sq.Database open(bool write) {
+            final db = sq.sqlite3.open(dbFile.path);
+            db.execute('PRAGMA journal_mode = WAL;');
+            if (!write) db.execute('PRAGMA query_only = true;');
+            return db;
+          }
+
+          return PoolConnections(open(true), [open(false), open(false)]);
+        },
+      );
+      (poolXa, releasePoolXa) =
+          await SqlitePoolTransactor.create(pool).allocated().unsafeRunFuture();
+    });
+
+    tearDown(() async {
+      await releasePoolXa.unsafeRunFuture();
+      if (dbFile.existsSync()) dbFile.deleteSync();
+    });
+
+    test('connection is returned to pool after successful transaction', () async {
+      await 'SELECT 1'.query(Read.integer).unique().transact(poolXa).unsafeRunFuture();
+      // Would hang forever if the connection was not returned.
+      await 'SELECT 1'.query(Read.integer).unique().transact(poolXa).unsafeRunFuture();
+    });
+
+    test('connection is returned to pool after failed transaction', () async {
+      await ConnectionIO.raiseError<Unit>(Exception('boom'))
+          .transact(poolXa)
+          .attempt()
+          .unsafeRunFuture();
+      // Would block if the connection leaked on error.
+      await 'SELECT 1'.query(Read.integer).unique().transact(poolXa).unsafeRunFuture();
+    });
+
+    test('connection is returned to pool after fiber cancellation', () async {
+      final acquired = await Deferred.of<Unit>().unsafeRunFuture();
+
+      final fiber = await ConnectionIO.lift(acquired.complete(Unit()))
+          .flatMap((_) => ConnectionIO.never<Unit>())
+          .transact(poolXa)
+          .start()
+          .unsafeRunFuture();
+
+      await acquired.value().unsafeRunFuture(); // wait until fiber holds the connection
+      await fiber.cancel().unsafeRunFuture();
+
+      // Would block if cancellation didn't return the lease to the pool.
+      await 'SELECT 1'.query(Read.integer).unique().transact(poolXa).unsafeRunFuture();
+    });
+
+    test('writer connection is held for the duration of a transaction', () async {
+      final acquired = await Deferred.of<Unit>().unsafeRunFuture();
+      final proceed = await Deferred.of<Unit>().unsafeRunFuture();
+      final writerAcquired2 = await Deferred.of<Unit>().unsafeRunFuture();
+
+      // Fiber 1: signal 'acquired' once it holds the writer, then wait for 'proceed'.
+      final fiber1 = await ConnectionIO.lift(acquired.complete(Unit()))
+          .flatMap((_) => ConnectionIO.lift(proceed.value()))
+          .transact(poolXa)
+          .start()
+          .unsafeRunFuture();
+
+      await acquired.value().unsafeRunFuture(); // fiber 1 now holds the sole writer
+
+      // Fiber 2: blocks on writer acquisition; signals 'writerAcquired2' only once it gets it.
+      final fiber2 = await ConnectionIO.lift(writerAcquired2.complete(Unit()))
+          .transact(poolXa)
+          .start()
+          .unsafeRunFuture();
+
+      // Race: fiber 2 signalling vs. a short sleep.
+      // Sleep must win because fiber 2 cannot acquire the writer while fiber 1 holds it.
+      final raceResult = await IO.race(
+        writerAcquired2.value(),
+        IO.sleep(const Duration(milliseconds: 300)),
+      ).unsafeRunFuture();
+
+      expect(raceResult.isRight, isTrue, reason: 'fiber 2 should be blocked by pool exhaustion');
+
+      // Release fiber 1's writer — fiber 2 can now proceed normally.
+      await proceed.complete(Unit()).unsafeRunFuture();
+      await fiber1.join().unsafeRunFuture();
+
+      // Fiber 2 acquires the writer, signals writerAcquired2, and finishes.
+      await writerAcquired2.value().unsafeRunFuture();
+      await fiber2.join().unsafeRunFuture();
+    });
+
+    test('multiple readers can operate concurrently', () async {
+      final r1Acquired = await Deferred.of<Unit>().unsafeRunFuture();
+      final r2Acquired = await Deferred.of<Unit>().unsafeRunFuture();
+      final proceed = await Deferred.of<Unit>().unsafeRunFuture();
+
+      // Fiber 1: hold reader 1 until 'proceed' fires.
+      final fiber1 = await poolXa.connectReader().use((conn) {
+        return r1Acquired.complete(Unit()).flatMap((_) => proceed.value());
+      }).start().unsafeRunFuture();
+
+      // Fiber 2: hold reader 2 until 'proceed' fires.
+      final fiber2 = await poolXa.connectReader().use((conn) {
+        return r2Acquired.complete(Unit()).flatMap((_) => proceed.value());
+      }).start().unsafeRunFuture();
+
+      // Both readers must be acquired while fiber 1 still holds its connection.
+      await r1Acquired.value().unsafeRunFuture();
+      await r2Acquired.value().unsafeRunFuture(); // would block if readers were serialized
+
+      await proceed.complete(Unit()).unsafeRunFuture();
+      await fiber1.join().unsafeRunFuture();
+      await fiber2.join().unsafeRunFuture();
     });
   });
 

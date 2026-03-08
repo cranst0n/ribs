@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
@@ -53,7 +55,7 @@ final class SqlitePoolTransactor extends Transactor {
   @override
   Resource<SqlConnection> connect() {
     return Resource.make(
-      IO.fromFutureF(() => _pool.writer()),
+      _acquireWriter(),
       (lease) => IO.exec(lease.returnLease),
     ).map(_SqliteLeaseConnection.new);
   }
@@ -61,10 +63,48 @@ final class SqlitePoolTransactor extends Transactor {
   @override
   Resource<SqlConnection> connectReader() {
     return Resource.make(
-      IO.fromFutureF(() => _pool.reader()),
+      _acquireReader(),
       (lease) => IO.exec(lease.returnLease),
     ).map(_SqliteLeaseConnection.new);
   }
+
+  IO<ConnectionLease> _acquireWriter() => IO.async((cb) {
+    final abort = Completer<void>();
+
+    _pool
+        .writer(abortSignal: abort.future)
+        .then(
+          (lease) => cb(Right(lease)),
+          onError: (Object err) => cb(Left(err)),
+        );
+
+    return IO.pure(
+      Some(
+        IO.exec(() {
+          if (!abort.isCompleted) abort.complete();
+        }),
+      ),
+    );
+  });
+
+  IO<ConnectionLease> _acquireReader() => IO.async((cb) {
+    final abort = Completer<void>();
+
+    _pool
+        .reader(abortSignal: abort.future)
+        .then(
+          (lease) => cb(Right(lease)),
+          onError: (Object err) => cb(Left(err)),
+        );
+
+    return IO.pure(
+      Some(
+        IO.exec(() {
+          if (!abort.isCompleted) abort.complete();
+        }),
+      ),
+    );
+  });
 }
 
 /// [SqlConnection] backed by a [ConnectionLease] from [SqliteConnectionPool].
