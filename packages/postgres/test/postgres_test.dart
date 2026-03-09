@@ -295,10 +295,9 @@ void main() {
     });
 
     test('connection is returned to pool after failed transaction', () async {
-      await ConnectionIO.raiseError<Unit>(Exception('boom'))
-          .transact(singleXa)
-          .attempt()
-          .unsafeRunFuture();
+      await ConnectionIO.raiseError<Unit>(
+        Exception('boom'),
+      ).transact(singleXa).attempt().unsafeRunFuture();
       // Would block if the connection leaked on error.
       await 'SELECT 1'.query(Read.integer).unique().transact(singleXa).unsafeRunFuture();
     });
@@ -306,11 +305,10 @@ void main() {
     test('connection is returned to pool after fiber cancellation', () async {
       final acquired = await Deferred.of<Unit>().unsafeRunFuture();
 
-      final fiber = await ConnectionIO.lift(acquired.complete(Unit()))
-          .flatMap((_) => ConnectionIO.never<Unit>())
-          .transact(singleXa)
-          .start()
-          .unsafeRunFuture();
+      final fiber =
+          await ConnectionIO.lift(
+            acquired.complete(Unit()),
+          ).flatMap((_) => ConnectionIO.never<Unit>()).transact(singleXa).start().unsafeRunFuture();
 
       await acquired.value().unsafeRunFuture(); // wait until fiber holds the connection
       await fiber.cancel().unsafeRunFuture();
@@ -323,22 +321,24 @@ void main() {
       final acquired = await Deferred.of<Unit>().unsafeRunFuture();
       final proceed = await Deferred.of<Unit>().unsafeRunFuture();
 
-      final fiber = await ConnectionIO.lift(acquired.complete(Unit()))
-          .flatMap((_) => ConnectionIO.lift(proceed.value()))
-          .transact(singleXa)
-          .start()
-          .unsafeRunFuture();
+      final fiber =
+          await ConnectionIO.lift(acquired.complete(Unit()))
+              .flatMap((_) => ConnectionIO.lift(proceed.value()))
+              .transact(singleXa)
+              .start()
+              .unsafeRunFuture();
 
       await acquired.value().unsafeRunFuture(); // fiber now holds the sole connection
 
       // With pool size 1 exhausted, a second transaction must block.
-      final blocked = await 'SELECT 1'
-          .query(Read.integer)
-          .unique()
-          .transact(singleXa)
-          .timeout(const Duration(milliseconds: 500))
-          .attempt()
-          .unsafeRunFuture();
+      final blocked =
+          await 'SELECT 1'
+              .query(Read.integer)
+              .unique()
+              .transact(singleXa)
+              .timeout(const Duration(milliseconds: 500))
+              .attempt()
+              .unsafeRunFuture();
 
       expect(
         blocked.isLeft,
