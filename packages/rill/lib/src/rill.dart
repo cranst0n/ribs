@@ -1022,6 +1022,8 @@ class Rill<O> {
     });
   }
 
+  Rill<O> interruptWhenSignaled(Signal<bool> signal) => interruptWhenTrue(signal.discrete);
+
   Rill<O> interruptWhenTrue(Rill<bool> haltWhenTrue) {
     final rillF = (
       IO.deferred<Unit>(),

@@ -10,6 +10,12 @@ class CompositeError {
   String toString() => 'CompositeError(${errors.mkString(sep: ', ')})';
 }
 
+class Lease {
+  final IO<Either<Object, Unit>> cancel;
+
+  const Lease(this.cancel);
+}
+
 class Scope {
   static int count = 0;
 
@@ -17,28 +23,40 @@ class Scope {
   final Scope? parent;
   final Ref<IList<Function1<ExitCase, IO<Unit>>>> _finalizers;
   final Ref<bool> _closed;
+  final Ref<int> _leaseCount;
+  final Ref<Option<ExitCase>> _pendingClose;
 
-  Scope._(this.parent, this._finalizers, this._closed) : id = count++;
+  Scope._(
+    this.parent,
+    this._finalizers,
+    this._closed,
+    this._leaseCount,
+    this._pendingClose,
+  ) : id = count++;
 
   static IO<Scope> create([Scope? parent]) {
     return IO.ref(nil<Function1<ExitCase, IO<Unit>>>()).flatMap((fins) {
       return IO.ref(false).flatMap((closed) {
-        final newScope = Scope._(parent, fins, closed);
+        return IO.ref(0).flatMap((leaseCount) {
+          return IO.ref(none<ExitCase>()).flatMap((pendingClose) {
+            final newScope = Scope._(parent, fins, closed, leaseCount, pendingClose);
 
-        if (parent != null) {
-          return parent
-              .register((ec) {
-                return newScope.close(ec).flatMap((closeResult) {
-                  return closeResult.fold(
-                    (err) => IO.raiseError(err),
-                    (_) => IO.unit,
-                  );
-                });
-              })
-              .as(newScope);
-        } else {
-          return IO.pure(newScope);
-        }
+            if (parent != null) {
+              return parent
+                  .register((ec) {
+                    return newScope.close(ec).flatMap((closeResult) {
+                      return closeResult.fold(
+                        (err) => IO.raiseError(err),
+                        (_) => IO.unit,
+                      );
+                    });
+                  })
+                  .as(newScope);
+            } else {
+              return IO.pure(newScope);
+            }
+          });
+        });
       });
     });
   }
@@ -55,32 +73,67 @@ class Scope {
     });
   }
 
+  IO<Lease> lease() {
+    return _closed.value().flatMap((isClosed) {
+      if (isClosed) {
+        return IO.raiseError(StateError('Scope is already closed'));
+      } else {
+        return _leaseCount.update((n) => n + 1).as(Lease(_releaseLease()));
+      }
+    });
+  }
+
+  IO<Either<Object, Unit>> _releaseLease() {
+    return _leaseCount.updateAndGet((n) => n - 1).flatMap((remaining) {
+      if (remaining == 0) {
+        return _pendingClose.value().flatMap((pendingOpt) {
+          return pendingOpt.fold(
+            () => IO.pure(Unit().asRight<Object>()),
+            (ec) => _runFinalizers(ec),
+          );
+        });
+      } else {
+        return IO.pure(Unit().asRight<Object>());
+      }
+    });
+  }
+
   IO<Either<Object, Unit>> close(ExitCase ec) {
     return _closed.getAndSet(true).flatMap((wasClosed) {
       if (wasClosed) {
         return IO.pure(Unit().asRight());
       } else {
-        return _finalizers.value().flatMap((fins) {
-          return fins
-              .foldLeft(
-                IO.pure(nil<Object>()),
-                (accIO, fin) => accIO.flatMap(
-                  (acc) => fin(ec).attempt().map((either) {
-                    return either.fold((err) => acc.appended(err), (_) => acc);
-                  }),
-                ),
-              )
-              .map((allErrors) {
-                if (allErrors.isEmpty) {
-                  return Unit().asRight<Object>();
-                } else if (allErrors.size == 1) {
-                  return allErrors[0].asLeft<Unit>();
-                } else {
-                  return CompositeError(allErrors).asLeft<Unit>();
-                }
-              });
+        return _leaseCount.value().flatMap((leases) {
+          if (leases > 0) {
+            return _pendingClose.update((_) => Some(ec)).as(Unit().asRight<Object>());
+          } else {
+            return _runFinalizers(ec);
+          }
         });
       }
+    });
+  }
+
+  IO<Either<Object, Unit>> _runFinalizers(ExitCase ec) {
+    return _finalizers.value().flatMap((fins) {
+      return fins
+          .foldLeft(
+            IO.pure(nil<Object>()),
+            (accIO, fin) => accIO.flatMap(
+              (acc) => fin(ec).attempt().map((either) {
+                return either.fold((err) => acc.appended(err), (_) => acc);
+              }),
+            ),
+          )
+          .map((allErrors) {
+            if (allErrors.isEmpty) {
+              return Unit().asRight<Object>();
+            } else if (allErrors.size == 1) {
+              return allErrors[0].asLeft<Unit>();
+            } else {
+              return CompositeError(allErrors).asLeft<Unit>();
+            }
+          });
     });
   }
 }

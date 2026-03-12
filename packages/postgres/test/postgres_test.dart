@@ -381,10 +381,6 @@ void main() {
   });
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 ConnectionIO<Unit> _resetTable() =>
     'DROP TABLE IF EXISTS person'.update0.run().flatMap((_) => _createTable().map((_) => Unit()));
 

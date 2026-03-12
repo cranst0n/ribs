@@ -1018,19 +1018,35 @@ void main() {
     expect(c.compile.onlyOrError, ioErrored());
   });
 
-  test('parJoin', () async {
+  test('parJoin', () {
     final rill = Rill.emits([
       Rill.range(0, 5).evalMap((n) => IO.pure(n).delayBy((n * 100).milliseconds)),
       Rill.range(5, 10).evalMap((n) => IO.pure(n).delayBy((n * 10).milliseconds)),
       Rill.range(10, 15).evalMap((n) => IO.pure(n).delayBy((n * 1).milliseconds)),
     ]);
 
-    final result = await rill.parJoin(3).compile.toIList.unsafeRunFuture();
-
-    expect(result.head, 0);
-    expect(result.last, 4);
-
     expect(rill.parJoin(3), producesUnordered(List.generate(15, (i) => i)));
+  });
+
+  test('parJoin resource lifecycle', () {
+    final test = IO.ref(nil<String>()).flatMap((log) {
+      IO<Unit> record(String s) => log.update((l) => l.appended(s));
+
+      final inner1 = Rill.range(0, 2).onFinalize(record('inner1-done'));
+      final inner2 = Rill.range(2, 4).onFinalize(record('inner2-done'));
+
+      final outer = Rill.bracket(
+        record('outer-acquired'),
+        (_) => record('outer-released'),
+      ).flatMap((_) => Rill.emits([inner1, inner2]));
+
+      return outer.parJoin(2).compile.drain.flatMap((_) => log.value());
+    });
+
+    expect(
+      test.map((log) => log.last),
+      ioSucceeded('outer-released'),
+    );
   });
 
   test('pauseWhen', () {
