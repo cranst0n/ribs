@@ -706,8 +706,9 @@ sealed class ByteVector {
       if (bytes.isEmpty) {
         return MurmurHash3.finalizeHash(h, iter);
       } else {
+        final chunk = bytes.take(chunkSize);
         bytes = bytes.drop(chunkSize);
-        h = MurmurHash3.mix(h, MurmurHash3.bytesHash(bytes.toByteArray()));
+        h = MurmurHash3.mix(h, MurmurHash3.bytesHash(chunk.toByteArray()));
         iter += 1;
       }
     }

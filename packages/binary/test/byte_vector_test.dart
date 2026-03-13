@@ -36,6 +36,18 @@ void main() {
       }
     });
 
+    test('hashCode is content-dependent for small vectors', () {
+      final a = ByteVector([0x00]);
+      final b = ByteVector([0xff]);
+      expect(a.hashCode, isNot(equals(b.hashCode)));
+
+      final hashes = List.generate(256, (i) => ByteVector([i]).hashCode).toSet();
+      expect(hashes.length, greaterThan(1));
+
+      final v = ByteVector([0x01, 0x02, 0x03, 0x04, 0x05]);
+      expect(v.take(3).concat(v.drop(3)).hashCode, v.hashCode);
+    });
+
     test('fromValidBin', () {
       expect(bin(deadbeef.toBin()), deadbeef);
       expect(() => bin('1101a000'), throwsArgumentError);
