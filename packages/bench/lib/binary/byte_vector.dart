@@ -233,3 +233,91 @@ class ByteVectorToByteArrayBufferBenchmark extends BenchmarkBase {
   @override
   void run() => bv.toByteArray();
 }
+
+// ─── hashCode ─────────────────────────────────────────────────────────────────
+
+/// Hash a _Chunk node.
+class ByteVectorHashCodeChunkBenchmark extends BenchmarkBase {
+  final int n;
+  late ByteVector bv;
+
+  ByteVectorHashCodeChunkBenchmark(this.n) : super('bytevec-hashcode-chunk-$n');
+
+  @override
+  void setup() => bv = ByteVector.fill(n, 0xff);
+
+  @override
+  void run() => bv.hashCode;
+}
+
+/// Hash a _Chunks tree.
+class ByteVectorHashCodeChunksBenchmark extends BenchmarkBase {
+  final int n;
+  late ByteVector bv;
+
+  ByteVectorHashCodeChunksBenchmark(this.n) : super('bytevec-hashcode-chunks-$n');
+
+  @override
+  void setup() => bv = _buildBvChunks(n);
+
+  @override
+  void run() => bv.hashCode;
+}
+
+/// Hash a _Buffer node.
+class ByteVectorHashCodeBufferBenchmark extends BenchmarkBase {
+  final int n;
+  late ByteVector bv;
+
+  ByteVectorHashCodeBufferBenchmark(this.n) : super('bytevec-hashcode-buffer-$n');
+
+  @override
+  void setup() => bv = ByteVector.fill(n, 0xff).bufferBy(64);
+
+  @override
+  void run() => bv.hashCode;
+}
+
+// ─── foreach (iteration) ──────────────────────────────────────────────────────
+
+/// Iterate a _Chunk node byte by byte.
+class ByteVectorForeachChunkBenchmark extends BenchmarkBase {
+  final int n;
+  late ByteVector bv;
+
+  ByteVectorForeachChunkBenchmark(this.n) : super('bytevec-foreach-chunk-$n');
+
+  @override
+  void setup() => bv = ByteVector.fill(n, 0xff);
+
+  @override
+  void run() => bv.foreach((_) {});
+}
+
+/// Iterate a _Chunks tree byte by byte.
+class ByteVectorForeachChunksBenchmark extends BenchmarkBase {
+  final int n;
+  late ByteVector bv;
+
+  ByteVectorForeachChunksBenchmark(this.n) : super('bytevec-foreach-chunks-$n');
+
+  @override
+  void setup() => bv = _buildBvChunks(n);
+
+  @override
+  void run() => bv.foreach((_) {});
+}
+
+/// Iterate a _Buffer node byte by byte.
+class ByteVectorForeachBufferBenchmark extends BenchmarkBase {
+  final int n;
+  late ByteVector bv;
+
+  ByteVectorForeachBufferBenchmark(this.n) : super('bytevec-foreach-buffer-$n');
+
+  @override
+  void setup() => bv = ByteVector.fill(n, 0xff).bufferBy(64);
+
+  @override
+  void run() => bv.foreach((_) {});
+}

@@ -74,5 +74,17 @@ void main(List<String> args) {
       ByteVectorToByteArrayChunksBenchmark(n),
       ByteVectorToByteArrayBufferBenchmark(n),
     ]);
+
+    RibsBenchmark.runAndReport([
+      ByteVectorHashCodeChunkBenchmark(n),
+      ByteVectorHashCodeChunksBenchmark(n),
+      ByteVectorHashCodeBufferBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      ByteVectorForeachChunkBenchmark(n),
+      ByteVectorForeachChunksBenchmark(n),
+      ByteVectorForeachBufferBenchmark(n),
+    ]);
   }
 }
