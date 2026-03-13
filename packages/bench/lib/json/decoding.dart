@@ -85,8 +85,7 @@ class DartDecodeSmallBenchmark extends BenchmarkBase {
 
   @override
   void setup() {
-    _map = jsonDecode('{"id":1,"name":"Alice","score":98.6}')
-        as Map<String, dynamic>;
+    _map = jsonDecode('{"id":1,"name":"Alice","score":98.6}') as Map<String, dynamic>;
   }
 
   @override

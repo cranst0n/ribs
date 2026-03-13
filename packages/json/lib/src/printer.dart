@@ -191,16 +191,18 @@ class _PrintFolder extends JsonFolder<void> {
     for (var i = 0; i < len; i++) {
       final cu = value.codeUnitAt(i);
       final esc = switch (cu) {
-        34  => 34,  // "
-        92  => 92,  // \
-        8   => 98,  // b
-        12  => 102, // f
-        10  => 110, // n
-        13  => 114, // r
-        9   => 116, // t
-        _   => (printer.escapeNonAscii && cu > 127) ? -1 : 0,
+        34 => 34, // "
+        92 => 92, // \
+        8 => 98, // b
+        12 => 102, // f
+        10 => 110, // n
+        13 => 114, // r
+        9 => 116, // t
+        _ => (printer.escapeNonAscii && cu > 127) ? -1 : 0,
       };
-      if (esc == 0) { continue; }
+      if (esc == 0) {
+        continue;
+      }
 
       if (i > start) buffer.write(value.substring(start, i));
       buffer.write('\\');

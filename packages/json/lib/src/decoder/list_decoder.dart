@@ -25,10 +25,12 @@ final class ListDecoder<A> extends Decoder<List<A>> {
     DecodingFailure? failure;
 
     while (failure == null && current is Cons<Json>) {
-      decodeA.decode(current.head).fold(
-        (err) => failure = err,
-        l.add,
-      );
+      decodeA
+          .decode(current.head)
+          .fold(
+            (err) => failure = err,
+            l.add,
+          );
       current = current.tail;
     }
 
