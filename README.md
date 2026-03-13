@@ -78,7 +78,9 @@ performance of the different libraries.
 ```bash
 dart pub global activate benchmark_harness
 
+dart run benchmark_harness:bench --flavor aot --target packages/bench/bin/binary.dart
 dart run benchmark_harness:bench --flavor aot --target packages/bench/bin/io.dart
+dart run benchmark_harness:bench --flavor aot --target packages/bench/bin/json.dart
 dart run benchmark_harness:bench --flavor aot --target packages/bench/bin/rill.dart
 
 dart run benchmark_harness:bench --flavor aot --target packages/bench/bin/collection/map.dart
