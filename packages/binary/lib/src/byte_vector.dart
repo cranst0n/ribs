@@ -731,46 +731,47 @@ sealed class ByteVector {
   void _foreachSPartial(Function1<int, bool> f) => _foreachVPartial((v) => v.foreachPartial(f));
 
   void _foreachV(Function1<_View, void> f) {
-    void go(IList<ByteVector> rem) {
-      if (!rem.isEmpty) {
-        switch (rem.head) {
-          case _Chunk(bytes: final bs):
-            f(bs);
-            go(rem.tail);
-          case _Append(left: final l, right: final r):
-            go(rem.tail.prepended(r).prepended(l));
-          case final _Buffer b:
-            go(rem.tail.prepended(b.unbuffer()));
-          case final _Chunks c:
-            go(rem.tail.prepended(c.chunks.right).prepended(c.chunks.left));
-        }
+    final stack = <ByteVector>[this];
+
+    while (stack.isNotEmpty) {
+      final cur = stack.removeLast();
+
+      switch (cur) {
+        case _Chunk(:final bytes):
+          f(bytes);
+        case _Append(:final left, :final right):
+          stack.add(right);
+          stack.add(left);
+        case final _Buffer b:
+          stack.add(b.unbuffer());
+        case final _Chunks c:
+          stack.add(c.chunks.right);
+          stack.add(c.chunks.left);
       }
     }
-
-    return go(ilist([this]));
   }
 
   bool _foreachVPartial(Function1<_View, bool> f) {
-    bool go(IList<ByteVector> rem) {
-      if (!rem.isEmpty) {
-        switch (rem.head) {
-          case _Chunk(bytes: final bs):
-            return f(bs) && go(rem.tail);
-          case _Append(left: final l, right: final r):
-            return go(rem.tail.prepended(r).prepended(l));
-          case final _Buffer b:
-            return go(rem.tail.prepended(b.unbuffer()));
-          case final _Chunks c:
-            return go(
-              rem.tail.prepended(c.chunks.right).prepended(c.chunks.left),
-            );
-        }
-      } else {
-        return true;
+    final stack = <ByteVector>[this];
+
+    while (stack.isNotEmpty) {
+      final cur = stack.removeLast();
+
+      switch (cur) {
+        case _Chunk(:final bytes):
+          if (!f(bytes)) return false;
+        case _Append(:final left, :final right):
+          stack.add(right);
+          stack.add(left);
+        case final _Buffer b:
+          stack.add(b.unbuffer());
+        case final _Chunks c:
+          stack.add(c.chunks.right);
+          stack.add(c.chunks.left);
       }
     }
 
-    return go(ilist([this]));
+    return true;
   }
 
   void _checkIndex(int n) {
