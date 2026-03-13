@@ -124,23 +124,22 @@ class _PrintFolder extends JsonFolder<void> {
     final originalDepth = depth;
     final p = printer._pieces.atDepth(depth);
 
-    if (value.isEmpty) {
+    if (value is! Cons<Json>) {
       buffer.write(p.lrEmptyBrackets);
     } else {
-      final iterator = value.toList().iterator;
-
       buffer.write(p.lBrackets);
 
+      IList<Json> current = value;
       depth += 1;
-      iterator.moveNext();
-      iterator.current.foldWith(this);
-
+      value.head.foldWith(this);
+      current = value.tail;
       depth = originalDepth;
 
-      while (iterator.moveNext()) {
+      while (current is Cons<Json>) {
         buffer.write(p.arrayCommas);
         depth += 1;
-        iterator.current.foldWith(this);
+        current.head.foldWith(this);
+        current = current.tail;
         depth = originalDepth;
       }
 
@@ -161,30 +160,23 @@ class _PrintFolder extends JsonFolder<void> {
   void onObject(JsonObject value) {
     final originalDepth = depth;
     final p = printer._pieces.atDepth(depth);
-
-    bool first = true;
-
-    final iterator = value.toIList().toList().iterator;
+    var first = true;
 
     buffer.write(p.lBraces);
 
-    while (iterator.moveNext()) {
-      final (key, value) = iterator.current;
-
-      if (!printer.dropNullValues || !value.isNull) {
+    value.forEach((key, val) {
+      if (!printer.dropNullValues || !val.isNull) {
         if (!first) {
           buffer.write(p.objectCommas);
         }
-
         onString(key);
         buffer.write(p.colons);
-
         depth += 1;
-        value.foldWith(this);
+        val.foldWith(this);
         depth = originalDepth;
         first = false;
       }
-    }
+    });
 
     buffer.write(p.rBraces);
   }
@@ -193,36 +185,34 @@ class _PrintFolder extends JsonFolder<void> {
   void onString(String value) {
     buffer.write('"');
 
-    int i = 0;
+    final len = value.length;
+    var start = 0;
 
-    while (i < value.length) {
-      final c = value[i];
-
-      final esc = switch (c) {
-        '"' => '"'.codeUnits[0],
-        '\\' => '\\'.codeUnits[0],
-        '\b' => 'b'.codeUnits[0],
-        '\f' => 'f'.codeUnits[0],
-        '\n' => 'n'.codeUnits[0],
-        '\r' => 'r'.codeUnits[0],
-        '\t' => 't'.codeUnits[0],
-        _ => printer.escapeNonAscii && c.codeUnitAt(0) > 127 ? 1 : 0,
+    for (var i = 0; i < len; i++) {
+      final cu = value.codeUnitAt(i);
+      final esc = switch (cu) {
+        34  => 34,  // "
+        92  => 92,  // \
+        8   => 98,  // b
+        12  => 102, // f
+        10  => 110, // n
+        13  => 114, // r
+        9   => 116, // t
+        _   => (printer.escapeNonAscii && cu > 127) ? -1 : 0,
       };
+      if (esc == 0) { continue; }
 
-      if (esc != 0) {
-        buffer.write('\\');
-        if (esc != 1) {
-          buffer.write(String.fromCharCode(esc));
-        } else {
-          buffer.write(_escapedChar(c.codeUnitAt(0)));
-        }
+      if (i > start) buffer.write(value.substring(start, i));
+      buffer.write('\\');
+      if (esc == -1) {
+        buffer.write(_escapedChar(cu));
       } else {
-        buffer.write(c);
+        buffer.writeCharCode(esc);
       }
-
-      i += 1;
+      start = i + 1;
     }
 
+    if (start < len) buffer.write(value.substring(start, len));
     buffer.write('"');
   }
 

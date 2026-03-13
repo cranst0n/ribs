@@ -10,15 +10,23 @@ sealed class JsonObject {
 
   static JsonObject fromIList(IList<(String, Json)> fields) => fromIterable(fields.toList());
 
-  static JsonObject fromIterable(Iterable<(String, Json)> fields) => _LinkedHashMapJsonObject(
-    LinkedHashMap.fromIterables(fields.map((e) => e.$1), fields.map((e) => e.$2)),
-  );
+  static JsonObject fromIterable(Iterable<(String, Json)> fields) {
+    final map = <String, Json>{};
+
+    for (final (k, v) in fields) {
+      map[k] = v;
+    }
+
+    return _LinkedHashMapJsonObject(map as LinkedHashMap<String, Json>);
+  }
 
   /// Wraps an existing [Map] directly, avoiding repeated iteration.
   static JsonObject fromMap(Map<String, Json> fields) =>
       _LinkedHashMapJsonObject(LinkedHashMap.from(fields));
 
   JsonObject add(String key, Json value);
+
+  void forEach(void Function(String key, Json value) f);
 
   Option<Json> get(String key);
 
@@ -70,6 +78,9 @@ final class _LinkedHashMapJsonObject extends JsonObject {
   @override
   JsonObject add(String key, Json value) =>
       _LinkedHashMapJsonObject(LinkedHashMap.of(fields)..addAll({key: value}));
+
+  @override
+  void forEach(void Function(String key, Json value) f) => fields.forEach(f);
 
   @override
   Option<Json> get(String key) => Option(fields[key]);
