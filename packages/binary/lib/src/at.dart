@@ -37,6 +37,12 @@ final class _AtArray extends At {
 
   @override
   int get(int i) => arr[i] & 0xff;
+
+  @override
+  int copyToArray(Uint8List xs, int start, int offset, int size) {
+    xs.setRange(start, start + size, arr, offset);
+    return size;
+  }
 }
 
 final class _AtF extends At {
