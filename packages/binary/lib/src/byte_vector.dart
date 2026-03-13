@@ -912,7 +912,7 @@ final class _Buffer extends ByteVector {
     }
   }
 
-  ByteVector get lastBytes => ByteVector(lastChunk).take(lastSize);
+  ByteVector get lastBytes => ByteVector.view(Uint8List.sublistView(lastChunk, 0, lastSize));
 
   @override
   ByteVector unbuffer() {
