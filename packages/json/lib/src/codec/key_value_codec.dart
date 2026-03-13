@@ -1,5 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
+import 'package:ribs_json/src/decoder/primitive_decoder.dart';
 
 final class KeyValueCodec<A> extends Codec<A> {
   final String key;
@@ -39,8 +40,28 @@ final class KeyValueCodec<A> extends Codec<A> {
 
   KeyValueCodec<A> withKey(String newKey) => KeyValueCodec(newKey, value);
 
+  // Here for performance reasons, to avoid the overhead of creating a new Codec for each field when decoding.
+  @pragma('vm:prefer-inline')
+  static Either<DecodingFailure, A> _decodeField<A>(
+    JsonObject obj,
+    KeyValueCodec<A> codec,
+  ) {
+    final v = obj.tryGet(codec.key);
+    if (v == null) return DecodingFailure(MissingField(), nil<CursorOp>()).asLeft();
+    return codec.value.decode(v);
+  }
+
+  // Here for performance reasons, to avoid the overhead of creating a new Codec for each field when decoding.
+  @pragma('vm:prefer-inline')
+  static A _get<A>(Either<DecodingFailure, A> e) => (e as Right<DecodingFailure, A>).b;
+
   //////////////////////////////////////////////////////////////////////////////
   /// Product Instances
+  ///
+  /// You may be wondering why the product instances are implemented this way.
+  /// While ugly, this is done for performance reasons. The alternative would be
+  /// to create a new Codec for each field in the product, which would be very
+  /// expensive when decoding.
   //////////////////////////////////////////////////////////////////////////////
 
   static Codec<C> product2<A, B, C>(
@@ -49,16 +70,33 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function2<A, B, C> apply,
     Function1<C, (A, B)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<C>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        return apply(_get(ra), _get(rb)).asRight();
+      },
       (cursor) => (codecA.decodeC(cursor), codecB.decodeC(cursor)).mapN(apply),
     );
 
     final encoder = Encoder.instance<C>(
       (a) => tupled(a)(
-        (a, b) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-        ]),
+        (a, b) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+          ]),
+        ),
       ),
     );
 
@@ -72,7 +110,25 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function3<A, B, C, D> apply,
     Function1<D, (A, B, C)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<D>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        return apply(_get(ra), _get(rb), _get(rc)).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -82,11 +138,13 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<D>(
       (a) => tupled(a)(
-        (a, b, c) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-        ]),
+        (a, b, c) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+          ]),
+        ),
       ),
     );
 
@@ -101,7 +159,28 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function4<A, B, C, D, E> apply,
     Function1<E, (A, B, C, D)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<E>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        return apply(_get(ra), _get(rb), _get(rc), _get(rd)).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -112,12 +191,14 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<E>(
       (a) => tupled(a)(
-        (a, b, c, d) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-        ]),
+        (a, b, c, d) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+          ]),
+        ),
       ),
     );
 
@@ -133,7 +214,31 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function5<A, B, C, D, E, F> apply,
     Function1<F, (A, B, C, D, E)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<F>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        return apply(_get(ra), _get(rb), _get(rc), _get(rd), _get(re)).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -145,13 +250,15 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<F>(
       (a) => tupled(a)(
-        (a, b, c, d, e) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-        ]),
+        (a, b, c, d, e) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+          ]),
+        ),
       ),
     );
 
@@ -168,7 +275,34 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function6<A, B, C, D, E, F, G> apply,
     Function1<G, (A, B, C, D, E, F)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<G>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        return apply(_get(ra), _get(rb), _get(rc), _get(rd), _get(re), _get(rf)).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -181,14 +315,16 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<G>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-        ]),
+        (a, b, c, d, e, f) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+          ]),
+        ),
       ),
     );
 
@@ -206,7 +342,45 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function7<A, B, C, D, E, F, G, H> apply,
     Function1<H, (A, B, C, D, E, F, G)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<H>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        final rg = _decodeField(obj, codecG);
+        if (rg.isLeft) return (rg as Left<DecodingFailure, G>).a.asLeft();
+
+        return apply(
+          _get(ra),
+          _get(rb),
+          _get(rc),
+          _get(rd),
+          _get(re),
+          _get(rf),
+          _get(rg),
+        ).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -220,15 +394,17 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<H>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f, g) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-          codecG.encode(g),
-        ]),
+        (a, b, c, d, e, f, g) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+            (codecG.key, codecG.value.encode(g)),
+          ]),
+        ),
       ),
     );
 
@@ -247,7 +423,49 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function8<A, B, C, D, E, F, G, H, I> apply,
     Function1<I, (A, B, C, D, E, F, G, H)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<I>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        final rg = _decodeField(obj, codecG);
+        if (rg.isLeft) return (rg as Left<DecodingFailure, G>).a.asLeft();
+
+        final rh = _decodeField(obj, codecH);
+        if (rh.isLeft) return (rh as Left<DecodingFailure, H>).a.asLeft();
+
+        return apply(
+          _get(ra),
+          _get(rb),
+          _get(rc),
+          _get(rd),
+          _get(re),
+          _get(rf),
+          _get(rg),
+          _get(rh),
+        ).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -262,16 +480,18 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<I>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f, g, h) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-          codecG.encode(g),
-          codecH.encode(h),
-        ]),
+        (a, b, c, d, e, f, g, h) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+            (codecG.key, codecG.value.encode(g)),
+            (codecH.key, codecH.value.encode(h)),
+          ]),
+        ),
       ),
     );
 
@@ -291,7 +511,53 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function9<A, B, C, D, E, F, G, H, I, J> apply,
     Function1<J, (A, B, C, D, E, F, G, H, I)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<J>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        final rg = _decodeField(obj, codecG);
+        if (rg.isLeft) return (rg as Left<DecodingFailure, G>).a.asLeft();
+
+        final rh = _decodeField(obj, codecH);
+        if (rh.isLeft) return (rh as Left<DecodingFailure, H>).a.asLeft();
+
+        final ri = _decodeField(obj, codecI);
+        if (ri.isLeft) return (ri as Left<DecodingFailure, I>).a.asLeft();
+
+        return apply(
+          _get(ra),
+          _get(rb),
+          _get(rc),
+          _get(rd),
+          _get(re),
+          _get(rf),
+          _get(rg),
+          _get(rh),
+          _get(ri),
+        ).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -307,17 +573,19 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<J>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-          codecG.encode(g),
-          codecH.encode(h),
-          codecI.encode(i),
-        ]),
+        (a, b, c, d, e, f, g, h, i) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+            (codecG.key, codecG.value.encode(g)),
+            (codecH.key, codecH.value.encode(h)),
+            (codecI.key, codecI.value.encode(i)),
+          ]),
+        ),
       ),
     );
 
@@ -338,7 +606,57 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function10<A, B, C, D, E, F, G, H, I, J, K> apply,
     Function1<K, (A, B, C, D, E, F, G, H, I, J)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<K>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        final rg = _decodeField(obj, codecG);
+        if (rg.isLeft) return (rg as Left<DecodingFailure, G>).a.asLeft();
+
+        final rh = _decodeField(obj, codecH);
+        if (rh.isLeft) return (rh as Left<DecodingFailure, H>).a.asLeft();
+
+        final ri = _decodeField(obj, codecI);
+        if (ri.isLeft) return (ri as Left<DecodingFailure, I>).a.asLeft();
+
+        final rj = _decodeField(obj, codecJ);
+        if (rj.isLeft) return (rj as Left<DecodingFailure, J>).a.asLeft();
+
+        return apply(
+          _get(ra),
+          _get(rb),
+          _get(rc),
+          _get(rd),
+          _get(re),
+          _get(rf),
+          _get(rg),
+          _get(rh),
+          _get(ri),
+          _get(rj),
+        ).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -355,18 +673,20 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<K>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-          codecG.encode(g),
-          codecH.encode(h),
-          codecI.encode(i),
-          codecJ.encode(j),
-        ]),
+        (a, b, c, d, e, f, g, h, i, j) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+            (codecG.key, codecG.value.encode(g)),
+            (codecH.key, codecH.value.encode(h)),
+            (codecI.key, codecI.value.encode(i)),
+            (codecJ.key, codecJ.value.encode(j)),
+          ]),
+        ),
       ),
     );
 
@@ -388,7 +708,61 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function11<A, B, C, D, E, F, G, H, I, J, K, L> apply,
     Function1<L, (A, B, C, D, E, F, G, H, I, J, K)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<L>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        final rg = _decodeField(obj, codecG);
+        if (rg.isLeft) return (rg as Left<DecodingFailure, G>).a.asLeft();
+
+        final rh = _decodeField(obj, codecH);
+        if (rh.isLeft) return (rh as Left<DecodingFailure, H>).a.asLeft();
+
+        final ri = _decodeField(obj, codecI);
+        if (ri.isLeft) return (ri as Left<DecodingFailure, I>).a.asLeft();
+
+        final rj = _decodeField(obj, codecJ);
+        if (rj.isLeft) return (rj as Left<DecodingFailure, J>).a.asLeft();
+
+        final rk = _decodeField(obj, codecK);
+        if (rk.isLeft) return (rk as Left<DecodingFailure, K>).a.asLeft();
+
+        return apply(
+          _get(ra),
+          _get(rb),
+          _get(rc),
+          _get(rd),
+          _get(re),
+          _get(rf),
+          _get(rg),
+          _get(rh),
+          _get(ri),
+          _get(rj),
+          _get(rk),
+        ).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -406,19 +780,21 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<L>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-          codecG.encode(g),
-          codecH.encode(h),
-          codecI.encode(i),
-          codecJ.encode(j),
-          codecK.encode(k),
-        ]),
+        (a, b, c, d, e, f, g, h, i, j, k) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+            (codecG.key, codecG.value.encode(g)),
+            (codecH.key, codecH.value.encode(h)),
+            (codecI.key, codecI.value.encode(i)),
+            (codecJ.key, codecJ.value.encode(j)),
+            (codecK.key, codecK.value.encode(k)),
+          ]),
+        ),
       ),
     );
 
@@ -441,7 +817,65 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function12<A, B, C, D, E, F, G, H, I, J, K, L, M> apply,
     Function1<M, (A, B, C, D, E, F, G, H, I, J, K, L)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<M>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        final rg = _decodeField(obj, codecG);
+        if (rg.isLeft) return (rg as Left<DecodingFailure, G>).a.asLeft();
+
+        final rh = _decodeField(obj, codecH);
+        if (rh.isLeft) return (rh as Left<DecodingFailure, H>).a.asLeft();
+
+        final ri = _decodeField(obj, codecI);
+        if (ri.isLeft) return (ri as Left<DecodingFailure, I>).a.asLeft();
+
+        final rj = _decodeField(obj, codecJ);
+        if (rj.isLeft) return (rj as Left<DecodingFailure, J>).a.asLeft();
+
+        final rk = _decodeField(obj, codecK);
+        if (rk.isLeft) return (rk as Left<DecodingFailure, K>).a.asLeft();
+
+        final rl = _decodeField(obj, codecL);
+        if (rl.isLeft) return (rl as Left<DecodingFailure, L>).a.asLeft();
+
+        return apply(
+          _get(ra),
+          _get(rb),
+          _get(rc),
+          _get(rd),
+          _get(re),
+          _get(rf),
+          _get(rg),
+          _get(rh),
+          _get(ri),
+          _get(rj),
+          _get(rk),
+          _get(rl),
+        ).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -460,20 +894,22 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<M>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-          codecG.encode(g),
-          codecH.encode(h),
-          codecI.encode(i),
-          codecJ.encode(j),
-          codecK.encode(k),
-          codecL.encode(l),
-        ]),
+        (a, b, c, d, e, f, g, h, i, j, k, l) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+            (codecG.key, codecG.value.encode(g)),
+            (codecH.key, codecH.value.encode(h)),
+            (codecI.key, codecI.value.encode(i)),
+            (codecJ.key, codecJ.value.encode(j)),
+            (codecK.key, codecK.value.encode(k)),
+            (codecL.key, codecL.value.encode(l)),
+          ]),
+        ),
       ),
     );
 
@@ -497,7 +933,69 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function13<A, B, C, D, E, F, G, H, I, J, K, L, M, N> apply,
     Function1<N, (A, B, C, D, E, F, G, H, I, J, K, L, M)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<N>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        final rg = _decodeField(obj, codecG);
+        if (rg.isLeft) return (rg as Left<DecodingFailure, G>).a.asLeft();
+
+        final rh = _decodeField(obj, codecH);
+        if (rh.isLeft) return (rh as Left<DecodingFailure, H>).a.asLeft();
+
+        final ri = _decodeField(obj, codecI);
+        if (ri.isLeft) return (ri as Left<DecodingFailure, I>).a.asLeft();
+
+        final rj = _decodeField(obj, codecJ);
+        if (rj.isLeft) return (rj as Left<DecodingFailure, J>).a.asLeft();
+
+        final rk = _decodeField(obj, codecK);
+        if (rk.isLeft) return (rk as Left<DecodingFailure, K>).a.asLeft();
+
+        final rl = _decodeField(obj, codecL);
+        if (rl.isLeft) return (rl as Left<DecodingFailure, L>).a.asLeft();
+
+        final rm = _decodeField(obj, codecM);
+        if (rm.isLeft) return (rm as Left<DecodingFailure, M>).a.asLeft();
+
+        return apply(
+          _get(ra),
+          _get(rb),
+          _get(rc),
+          _get(rd),
+          _get(re),
+          _get(rf),
+          _get(rg),
+          _get(rh),
+          _get(ri),
+          _get(rj),
+          _get(rk),
+          _get(rl),
+          _get(rm),
+        ).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -517,21 +1015,23 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<N>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-          codecG.encode(g),
-          codecH.encode(h),
-          codecI.encode(i),
-          codecJ.encode(j),
-          codecK.encode(k),
-          codecL.encode(l),
-          codecM.encode(m),
-        ]),
+        (a, b, c, d, e, f, g, h, i, j, k, l, m) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+            (codecG.key, codecG.value.encode(g)),
+            (codecH.key, codecH.value.encode(h)),
+            (codecI.key, codecI.value.encode(i)),
+            (codecJ.key, codecJ.value.encode(j)),
+            (codecK.key, codecK.value.encode(k)),
+            (codecL.key, codecL.value.encode(l)),
+            (codecM.key, codecM.value.encode(m)),
+          ]),
+        ),
       ),
     );
 
@@ -556,7 +1056,73 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> apply,
     Function1<O, (A, B, C, D, E, F, G, H, I, J, K, L, M, N)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<O>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        final rg = _decodeField(obj, codecG);
+        if (rg.isLeft) return (rg as Left<DecodingFailure, G>).a.asLeft();
+
+        final rh = _decodeField(obj, codecH);
+        if (rh.isLeft) return (rh as Left<DecodingFailure, H>).a.asLeft();
+
+        final ri = _decodeField(obj, codecI);
+        if (ri.isLeft) return (ri as Left<DecodingFailure, I>).a.asLeft();
+
+        final rj = _decodeField(obj, codecJ);
+        if (rj.isLeft) return (rj as Left<DecodingFailure, J>).a.asLeft();
+
+        final rk = _decodeField(obj, codecK);
+        if (rk.isLeft) return (rk as Left<DecodingFailure, K>).a.asLeft();
+
+        final rl = _decodeField(obj, codecL);
+        if (rl.isLeft) return (rl as Left<DecodingFailure, L>).a.asLeft();
+
+        final rm = _decodeField(obj, codecM);
+        if (rm.isLeft) return (rm as Left<DecodingFailure, M>).a.asLeft();
+
+        final rn = _decodeField(obj, codecN);
+        if (rn.isLeft) return (rn as Left<DecodingFailure, N>).a.asLeft();
+
+        return apply(
+          _get(ra),
+          _get(rb),
+          _get(rc),
+          _get(rd),
+          _get(re),
+          _get(rf),
+          _get(rg),
+          _get(rh),
+          _get(ri),
+          _get(rj),
+          _get(rk),
+          _get(rl),
+          _get(rm),
+          _get(rn),
+        ).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -577,22 +1143,24 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<O>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-          codecG.encode(g),
-          codecH.encode(h),
-          codecI.encode(i),
-          codecJ.encode(j),
-          codecK.encode(k),
-          codecL.encode(l),
-          codecM.encode(m),
-          codecN.encode(n),
-        ]),
+        (a, b, c, d, e, f, g, h, i, j, k, l, m, n) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+            (codecG.key, codecG.value.encode(g)),
+            (codecH.key, codecH.value.encode(h)),
+            (codecI.key, codecI.value.encode(i)),
+            (codecJ.key, codecJ.value.encode(j)),
+            (codecK.key, codecK.value.encode(k)),
+            (codecL.key, codecL.value.encode(l)),
+            (codecM.key, codecM.value.encode(m)),
+            (codecN.key, codecN.value.encode(n)),
+          ]),
+        ),
       ),
     );
 
@@ -618,7 +1186,77 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> apply,
     Function1<P, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<P>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        final rg = _decodeField(obj, codecG);
+        if (rg.isLeft) return (rg as Left<DecodingFailure, G>).a.asLeft();
+
+        final rh = _decodeField(obj, codecH);
+        if (rh.isLeft) return (rh as Left<DecodingFailure, H>).a.asLeft();
+
+        final ri = _decodeField(obj, codecI);
+        if (ri.isLeft) return (ri as Left<DecodingFailure, I>).a.asLeft();
+
+        final rj = _decodeField(obj, codecJ);
+        if (rj.isLeft) return (rj as Left<DecodingFailure, J>).a.asLeft();
+
+        final rk = _decodeField(obj, codecK);
+        if (rk.isLeft) return (rk as Left<DecodingFailure, K>).a.asLeft();
+
+        final rl = _decodeField(obj, codecL);
+        if (rl.isLeft) return (rl as Left<DecodingFailure, L>).a.asLeft();
+
+        final rm = _decodeField(obj, codecM);
+        if (rm.isLeft) return (rm as Left<DecodingFailure, M>).a.asLeft();
+
+        final rn = _decodeField(obj, codecN);
+        if (rn.isLeft) return (rn as Left<DecodingFailure, N>).a.asLeft();
+
+        final ro = _decodeField(obj, codecO);
+        if (ro.isLeft) return (ro as Left<DecodingFailure, O>).a.asLeft();
+
+        return apply(
+          _get(ra),
+          _get(rb),
+          _get(rc),
+          _get(rd),
+          _get(re),
+          _get(rf),
+          _get(rg),
+          _get(rh),
+          _get(ri),
+          _get(rj),
+          _get(rk),
+          _get(rl),
+          _get(rm),
+          _get(rn),
+          _get(ro),
+        ).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -640,23 +1278,25 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<P>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-          codecG.encode(g),
-          codecH.encode(h),
-          codecI.encode(i),
-          codecJ.encode(j),
-          codecK.encode(k),
-          codecL.encode(l),
-          codecM.encode(m),
-          codecN.encode(n),
-          codecO.encode(o),
-        ]),
+        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+            (codecG.key, codecG.value.encode(g)),
+            (codecH.key, codecH.value.encode(h)),
+            (codecI.key, codecI.value.encode(i)),
+            (codecJ.key, codecJ.value.encode(j)),
+            (codecK.key, codecK.value.encode(k)),
+            (codecL.key, codecL.value.encode(l)),
+            (codecM.key, codecM.value.encode(m)),
+            (codecN.key, codecN.value.encode(n)),
+            (codecO.key, codecO.value.encode(o)),
+          ]),
+        ),
       ),
     );
 
@@ -683,7 +1323,81 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> apply,
     Function1<Q, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<Q>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        final rg = _decodeField(obj, codecG);
+        if (rg.isLeft) return (rg as Left<DecodingFailure, G>).a.asLeft();
+
+        final rh = _decodeField(obj, codecH);
+        if (rh.isLeft) return (rh as Left<DecodingFailure, H>).a.asLeft();
+
+        final ri = _decodeField(obj, codecI);
+        if (ri.isLeft) return (ri as Left<DecodingFailure, I>).a.asLeft();
+
+        final rj = _decodeField(obj, codecJ);
+        if (rj.isLeft) return (rj as Left<DecodingFailure, J>).a.asLeft();
+
+        final rk = _decodeField(obj, codecK);
+        if (rk.isLeft) return (rk as Left<DecodingFailure, K>).a.asLeft();
+
+        final rl = _decodeField(obj, codecL);
+        if (rl.isLeft) return (rl as Left<DecodingFailure, L>).a.asLeft();
+
+        final rm = _decodeField(obj, codecM);
+        if (rm.isLeft) return (rm as Left<DecodingFailure, M>).a.asLeft();
+
+        final rn = _decodeField(obj, codecN);
+        if (rn.isLeft) return (rn as Left<DecodingFailure, N>).a.asLeft();
+
+        final ro = _decodeField(obj, codecO);
+        if (ro.isLeft) return (ro as Left<DecodingFailure, O>).a.asLeft();
+
+        final rp = _decodeField(obj, codecP);
+        if (rp.isLeft) return (rp as Left<DecodingFailure, P>).a.asLeft();
+
+        return apply(
+          _get(ra),
+          _get(rb),
+          _get(rc),
+          _get(rd),
+          _get(re),
+          _get(rf),
+          _get(rg),
+          _get(rh),
+          _get(ri),
+          _get(rj),
+          _get(rk),
+          _get(rl),
+          _get(rm),
+          _get(rn),
+          _get(ro),
+          _get(rp),
+        ).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -706,24 +1420,26 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<Q>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-          codecG.encode(g),
-          codecH.encode(h),
-          codecI.encode(i),
-          codecJ.encode(j),
-          codecK.encode(k),
-          codecL.encode(l),
-          codecM.encode(m),
-          codecN.encode(n),
-          codecO.encode(o),
-          codecP.encode(p),
-        ]),
+        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+            (codecG.key, codecG.value.encode(g)),
+            (codecH.key, codecH.value.encode(h)),
+            (codecI.key, codecI.value.encode(i)),
+            (codecJ.key, codecJ.value.encode(j)),
+            (codecK.key, codecK.value.encode(k)),
+            (codecL.key, codecL.value.encode(l)),
+            (codecM.key, codecM.value.encode(m)),
+            (codecN.key, codecN.value.encode(n)),
+            (codecO.key, codecO.value.encode(o)),
+            (codecP.key, codecP.value.encode(p)),
+          ]),
+        ),
       ),
     );
 
@@ -751,7 +1467,85 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> apply,
     Function1<R, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<R>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        final rg = _decodeField(obj, codecG);
+        if (rg.isLeft) return (rg as Left<DecodingFailure, G>).a.asLeft();
+
+        final rh = _decodeField(obj, codecH);
+        if (rh.isLeft) return (rh as Left<DecodingFailure, H>).a.asLeft();
+
+        final ri = _decodeField(obj, codecI);
+        if (ri.isLeft) return (ri as Left<DecodingFailure, I>).a.asLeft();
+
+        final rj = _decodeField(obj, codecJ);
+        if (rj.isLeft) return (rj as Left<DecodingFailure, J>).a.asLeft();
+
+        final rk = _decodeField(obj, codecK);
+        if (rk.isLeft) return (rk as Left<DecodingFailure, K>).a.asLeft();
+
+        final rl = _decodeField(obj, codecL);
+        if (rl.isLeft) return (rl as Left<DecodingFailure, L>).a.asLeft();
+
+        final rm = _decodeField(obj, codecM);
+        if (rm.isLeft) return (rm as Left<DecodingFailure, M>).a.asLeft();
+
+        final rn = _decodeField(obj, codecN);
+        if (rn.isLeft) return (rn as Left<DecodingFailure, N>).a.asLeft();
+
+        final ro = _decodeField(obj, codecO);
+        if (ro.isLeft) return (ro as Left<DecodingFailure, O>).a.asLeft();
+
+        final rp = _decodeField(obj, codecP);
+        if (rp.isLeft) return (rp as Left<DecodingFailure, P>).a.asLeft();
+
+        final rq = _decodeField(obj, codecQ);
+        if (rq.isLeft) return (rq as Left<DecodingFailure, Q>).a.asLeft();
+
+        return apply(
+          _get(ra),
+          _get(rb),
+          _get(rc),
+          _get(rd),
+          _get(re),
+          _get(rf),
+          _get(rg),
+          _get(rh),
+          _get(ri),
+          _get(rj),
+          _get(rk),
+          _get(rl),
+          _get(rm),
+          _get(rn),
+          _get(ro),
+          _get(rp),
+          _get(rq),
+        ).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -775,25 +1569,27 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<R>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-          codecG.encode(g),
-          codecH.encode(h),
-          codecI.encode(i),
-          codecJ.encode(j),
-          codecK.encode(k),
-          codecL.encode(l),
-          codecM.encode(m),
-          codecN.encode(n),
-          codecO.encode(o),
-          codecP.encode(p),
-          codecQ.encode(q),
-        ]),
+        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+            (codecG.key, codecG.value.encode(g)),
+            (codecH.key, codecH.value.encode(h)),
+            (codecI.key, codecI.value.encode(i)),
+            (codecJ.key, codecJ.value.encode(j)),
+            (codecK.key, codecK.value.encode(k)),
+            (codecL.key, codecL.value.encode(l)),
+            (codecM.key, codecM.value.encode(m)),
+            (codecN.key, codecN.value.encode(n)),
+            (codecO.key, codecO.value.encode(o)),
+            (codecP.key, codecP.value.encode(p)),
+            (codecQ.key, codecQ.value.encode(q)),
+          ]),
+        ),
       ),
     );
 
@@ -822,7 +1618,89 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> apply,
     Function1<S, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<S>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        final rg = _decodeField(obj, codecG);
+        if (rg.isLeft) return (rg as Left<DecodingFailure, G>).a.asLeft();
+
+        final rh = _decodeField(obj, codecH);
+        if (rh.isLeft) return (rh as Left<DecodingFailure, H>).a.asLeft();
+
+        final ri = _decodeField(obj, codecI);
+        if (ri.isLeft) return (ri as Left<DecodingFailure, I>).a.asLeft();
+
+        final rj = _decodeField(obj, codecJ);
+        if (rj.isLeft) return (rj as Left<DecodingFailure, J>).a.asLeft();
+
+        final rk = _decodeField(obj, codecK);
+        if (rk.isLeft) return (rk as Left<DecodingFailure, K>).a.asLeft();
+
+        final rl = _decodeField(obj, codecL);
+        if (rl.isLeft) return (rl as Left<DecodingFailure, L>).a.asLeft();
+
+        final rm = _decodeField(obj, codecM);
+        if (rm.isLeft) return (rm as Left<DecodingFailure, M>).a.asLeft();
+
+        final rn = _decodeField(obj, codecN);
+        if (rn.isLeft) return (rn as Left<DecodingFailure, N>).a.asLeft();
+
+        final ro = _decodeField(obj, codecO);
+        if (ro.isLeft) return (ro as Left<DecodingFailure, O>).a.asLeft();
+
+        final rp = _decodeField(obj, codecP);
+        if (rp.isLeft) return (rp as Left<DecodingFailure, P>).a.asLeft();
+
+        final rq = _decodeField(obj, codecQ);
+        if (rq.isLeft) return (rq as Left<DecodingFailure, Q>).a.asLeft();
+
+        final rr = _decodeField(obj, codecR);
+        if (rr.isLeft) return (rr as Left<DecodingFailure, R>).a.asLeft();
+
+        return apply(
+          _get(ra),
+          _get(rb),
+          _get(rc),
+          _get(rd),
+          _get(re),
+          _get(rf),
+          _get(rg),
+          _get(rh),
+          _get(ri),
+          _get(rj),
+          _get(rk),
+          _get(rl),
+          _get(rm),
+          _get(rn),
+          _get(ro),
+          _get(rp),
+          _get(rq),
+          _get(rr),
+        ).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -847,26 +1725,28 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<S>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-          codecG.encode(g),
-          codecH.encode(h),
-          codecI.encode(i),
-          codecJ.encode(j),
-          codecK.encode(k),
-          codecL.encode(l),
-          codecM.encode(m),
-          codecN.encode(n),
-          codecO.encode(o),
-          codecP.encode(p),
-          codecQ.encode(q),
-          codecR.encode(r),
-        ]),
+        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+            (codecG.key, codecG.value.encode(g)),
+            (codecH.key, codecH.value.encode(h)),
+            (codecI.key, codecI.value.encode(i)),
+            (codecJ.key, codecJ.value.encode(j)),
+            (codecK.key, codecK.value.encode(k)),
+            (codecL.key, codecL.value.encode(l)),
+            (codecM.key, codecM.value.encode(m)),
+            (codecN.key, codecN.value.encode(n)),
+            (codecO.key, codecO.value.encode(o)),
+            (codecP.key, codecP.value.encode(p)),
+            (codecQ.key, codecQ.value.encode(q)),
+            (codecR.key, codecR.value.encode(r)),
+          ]),
+        ),
       ),
     );
 
@@ -896,7 +1776,93 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> apply,
     Function1<T, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<T>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        final rg = _decodeField(obj, codecG);
+        if (rg.isLeft) return (rg as Left<DecodingFailure, G>).a.asLeft();
+
+        final rh = _decodeField(obj, codecH);
+        if (rh.isLeft) return (rh as Left<DecodingFailure, H>).a.asLeft();
+
+        final ri = _decodeField(obj, codecI);
+        if (ri.isLeft) return (ri as Left<DecodingFailure, I>).a.asLeft();
+
+        final rj = _decodeField(obj, codecJ);
+        if (rj.isLeft) return (rj as Left<DecodingFailure, J>).a.asLeft();
+
+        final rk = _decodeField(obj, codecK);
+        if (rk.isLeft) return (rk as Left<DecodingFailure, K>).a.asLeft();
+
+        final rl = _decodeField(obj, codecL);
+        if (rl.isLeft) return (rl as Left<DecodingFailure, L>).a.asLeft();
+
+        final rm = _decodeField(obj, codecM);
+        if (rm.isLeft) return (rm as Left<DecodingFailure, M>).a.asLeft();
+
+        final rn = _decodeField(obj, codecN);
+        if (rn.isLeft) return (rn as Left<DecodingFailure, N>).a.asLeft();
+
+        final ro = _decodeField(obj, codecO);
+        if (ro.isLeft) return (ro as Left<DecodingFailure, O>).a.asLeft();
+
+        final rp = _decodeField(obj, codecP);
+        if (rp.isLeft) return (rp as Left<DecodingFailure, P>).a.asLeft();
+
+        final rq = _decodeField(obj, codecQ);
+        if (rq.isLeft) return (rq as Left<DecodingFailure, Q>).a.asLeft();
+
+        final rr = _decodeField(obj, codecR);
+        if (rr.isLeft) return (rr as Left<DecodingFailure, R>).a.asLeft();
+
+        final rs = _decodeField(obj, codecS);
+        if (rs.isLeft) return (rs as Left<DecodingFailure, S>).a.asLeft();
+
+        return apply(
+          _get(ra),
+          _get(rb),
+          _get(rc),
+          _get(rd),
+          _get(re),
+          _get(rf),
+          _get(rg),
+          _get(rh),
+          _get(ri),
+          _get(rj),
+          _get(rk),
+          _get(rl),
+          _get(rm),
+          _get(rn),
+          _get(ro),
+          _get(rp),
+          _get(rq),
+          _get(rr),
+          _get(rs),
+        ).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -922,27 +1888,29 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<T>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-          codecG.encode(g),
-          codecH.encode(h),
-          codecI.encode(i),
-          codecJ.encode(j),
-          codecK.encode(k),
-          codecL.encode(l),
-          codecM.encode(m),
-          codecN.encode(n),
-          codecO.encode(o),
-          codecP.encode(p),
-          codecQ.encode(q),
-          codecR.encode(r),
-          codecS.encode(s),
-        ]),
+        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+            (codecG.key, codecG.value.encode(g)),
+            (codecH.key, codecH.value.encode(h)),
+            (codecI.key, codecI.value.encode(i)),
+            (codecJ.key, codecJ.value.encode(j)),
+            (codecK.key, codecK.value.encode(k)),
+            (codecL.key, codecL.value.encode(l)),
+            (codecM.key, codecM.value.encode(m)),
+            (codecN.key, codecN.value.encode(n)),
+            (codecO.key, codecO.value.encode(o)),
+            (codecP.key, codecP.value.encode(p)),
+            (codecQ.key, codecQ.value.encode(q)),
+            (codecR.key, codecR.value.encode(r)),
+            (codecS.key, codecS.value.encode(s)),
+          ]),
+        ),
       ),
     );
 
@@ -973,7 +1941,97 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> apply,
     Function1<U, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<U>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        final rg = _decodeField(obj, codecG);
+        if (rg.isLeft) return (rg as Left<DecodingFailure, G>).a.asLeft();
+
+        final rh = _decodeField(obj, codecH);
+        if (rh.isLeft) return (rh as Left<DecodingFailure, H>).a.asLeft();
+
+        final ri = _decodeField(obj, codecI);
+        if (ri.isLeft) return (ri as Left<DecodingFailure, I>).a.asLeft();
+
+        final rj = _decodeField(obj, codecJ);
+        if (rj.isLeft) return (rj as Left<DecodingFailure, J>).a.asLeft();
+
+        final rk = _decodeField(obj, codecK);
+        if (rk.isLeft) return (rk as Left<DecodingFailure, K>).a.asLeft();
+
+        final rl = _decodeField(obj, codecL);
+        if (rl.isLeft) return (rl as Left<DecodingFailure, L>).a.asLeft();
+
+        final rm = _decodeField(obj, codecM);
+        if (rm.isLeft) return (rm as Left<DecodingFailure, M>).a.asLeft();
+
+        final rn = _decodeField(obj, codecN);
+        if (rn.isLeft) return (rn as Left<DecodingFailure, N>).a.asLeft();
+
+        final ro = _decodeField(obj, codecO);
+        if (ro.isLeft) return (ro as Left<DecodingFailure, O>).a.asLeft();
+
+        final rp = _decodeField(obj, codecP);
+        if (rp.isLeft) return (rp as Left<DecodingFailure, P>).a.asLeft();
+
+        final rq = _decodeField(obj, codecQ);
+        if (rq.isLeft) return (rq as Left<DecodingFailure, Q>).a.asLeft();
+
+        final rr = _decodeField(obj, codecR);
+        if (rr.isLeft) return (rr as Left<DecodingFailure, R>).a.asLeft();
+
+        final rs = _decodeField(obj, codecS);
+        if (rs.isLeft) return (rs as Left<DecodingFailure, S>).a.asLeft();
+
+        final rt = _decodeField(obj, codecT);
+        if (rt.isLeft) return (rt as Left<DecodingFailure, T>).a.asLeft();
+
+        return apply(
+          _get(ra),
+          _get(rb),
+          _get(rc),
+          _get(rd),
+          _get(re),
+          _get(rf),
+          _get(rg),
+          _get(rh),
+          _get(ri),
+          _get(rj),
+          _get(rk),
+          _get(rl),
+          _get(rm),
+          _get(rn),
+          _get(ro),
+          _get(rp),
+          _get(rq),
+          _get(rr),
+          _get(rs),
+          _get(rt),
+        ).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -1000,28 +2058,30 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<U>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-          codecG.encode(g),
-          codecH.encode(h),
-          codecI.encode(i),
-          codecJ.encode(j),
-          codecK.encode(k),
-          codecL.encode(l),
-          codecM.encode(m),
-          codecN.encode(n),
-          codecO.encode(o),
-          codecP.encode(p),
-          codecQ.encode(q),
-          codecR.encode(r),
-          codecS.encode(s),
-          codecT.encode(t),
-        ]),
+        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+            (codecG.key, codecG.value.encode(g)),
+            (codecH.key, codecH.value.encode(h)),
+            (codecI.key, codecI.value.encode(i)),
+            (codecJ.key, codecJ.value.encode(j)),
+            (codecK.key, codecK.value.encode(k)),
+            (codecL.key, codecL.value.encode(l)),
+            (codecM.key, codecM.value.encode(m)),
+            (codecN.key, codecN.value.encode(n)),
+            (codecO.key, codecO.value.encode(o)),
+            (codecP.key, codecP.value.encode(p)),
+            (codecQ.key, codecQ.value.encode(q)),
+            (codecR.key, codecR.value.encode(r)),
+            (codecS.key, codecS.value.encode(s)),
+            (codecT.key, codecT.value.encode(t)),
+          ]),
+        ),
       ),
     );
 
@@ -1053,7 +2113,101 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> apply,
     Function1<V, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<V>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        final rg = _decodeField(obj, codecG);
+        if (rg.isLeft) return (rg as Left<DecodingFailure, G>).a.asLeft();
+
+        final rh = _decodeField(obj, codecH);
+        if (rh.isLeft) return (rh as Left<DecodingFailure, H>).a.asLeft();
+
+        final ri = _decodeField(obj, codecI);
+        if (ri.isLeft) return (ri as Left<DecodingFailure, I>).a.asLeft();
+
+        final rj = _decodeField(obj, codecJ);
+        if (rj.isLeft) return (rj as Left<DecodingFailure, J>).a.asLeft();
+
+        final rk = _decodeField(obj, codecK);
+        if (rk.isLeft) return (rk as Left<DecodingFailure, K>).a.asLeft();
+
+        final rl = _decodeField(obj, codecL);
+        if (rl.isLeft) return (rl as Left<DecodingFailure, L>).a.asLeft();
+
+        final rm = _decodeField(obj, codecM);
+        if (rm.isLeft) return (rm as Left<DecodingFailure, M>).a.asLeft();
+
+        final rn = _decodeField(obj, codecN);
+        if (rn.isLeft) return (rn as Left<DecodingFailure, N>).a.asLeft();
+
+        final ro = _decodeField(obj, codecO);
+        if (ro.isLeft) return (ro as Left<DecodingFailure, O>).a.asLeft();
+
+        final rp = _decodeField(obj, codecP);
+        if (rp.isLeft) return (rp as Left<DecodingFailure, P>).a.asLeft();
+
+        final rq = _decodeField(obj, codecQ);
+        if (rq.isLeft) return (rq as Left<DecodingFailure, Q>).a.asLeft();
+
+        final rr = _decodeField(obj, codecR);
+        if (rr.isLeft) return (rr as Left<DecodingFailure, R>).a.asLeft();
+
+        final rs = _decodeField(obj, codecS);
+        if (rs.isLeft) return (rs as Left<DecodingFailure, S>).a.asLeft();
+
+        final rt = _decodeField(obj, codecT);
+        if (rt.isLeft) return (rt as Left<DecodingFailure, T>).a.asLeft();
+
+        final ru = _decodeField(obj, codecU);
+        if (ru.isLeft) return (ru as Left<DecodingFailure, U>).a.asLeft();
+
+        return apply(
+          _get(ra),
+          _get(rb),
+          _get(rc),
+          _get(rd),
+          _get(re),
+          _get(rf),
+          _get(rg),
+          _get(rh),
+          _get(ri),
+          _get(rj),
+          _get(rk),
+          _get(rl),
+          _get(rm),
+          _get(rn),
+          _get(ro),
+          _get(rp),
+          _get(rq),
+          _get(rr),
+          _get(rs),
+          _get(rt),
+          _get(ru),
+        ).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -1081,29 +2235,31 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<V>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-          codecG.encode(g),
-          codecH.encode(h),
-          codecI.encode(i),
-          codecJ.encode(j),
-          codecK.encode(k),
-          codecL.encode(l),
-          codecM.encode(m),
-          codecN.encode(n),
-          codecO.encode(o),
-          codecP.encode(p),
-          codecQ.encode(q),
-          codecR.encode(r),
-          codecS.encode(s),
-          codecT.encode(t),
-          codecU.encode(u),
-        ]),
+        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+            (codecG.key, codecG.value.encode(g)),
+            (codecH.key, codecH.value.encode(h)),
+            (codecI.key, codecI.value.encode(i)),
+            (codecJ.key, codecJ.value.encode(j)),
+            (codecK.key, codecK.value.encode(k)),
+            (codecL.key, codecL.value.encode(l)),
+            (codecM.key, codecM.value.encode(m)),
+            (codecN.key, codecN.value.encode(n)),
+            (codecO.key, codecO.value.encode(o)),
+            (codecP.key, codecP.value.encode(p)),
+            (codecQ.key, codecQ.value.encode(q)),
+            (codecR.key, codecR.value.encode(r)),
+            (codecS.key, codecS.value.encode(s)),
+            (codecT.key, codecT.value.encode(t)),
+            (codecU.key, codecU.value.encode(u)),
+          ]),
+        ),
       ),
     );
 
@@ -1136,7 +2292,105 @@ final class KeyValueCodec<A> extends Codec<A> {
     Function22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W> apply,
     Function1<W, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)> tupled,
   ) {
-    final decoder = Decoder.instance(
+    final decoder = PrimitiveDecoder<W>(
+      (json) {
+        if (json is! JObject) {
+          return DecodingFailure(WrongTypeExpectation('object', json), nil<CursorOp>()).asLeft();
+        }
+
+        final obj = json.value;
+
+        final ra = _decodeField(obj, codecA);
+        if (ra.isLeft) return (ra as Left<DecodingFailure, A>).a.asLeft();
+
+        final rb = _decodeField(obj, codecB);
+        if (rb.isLeft) return (rb as Left<DecodingFailure, B>).a.asLeft();
+
+        final rc = _decodeField(obj, codecC);
+        if (rc.isLeft) return (rc as Left<DecodingFailure, C>).a.asLeft();
+
+        final rd = _decodeField(obj, codecD);
+        if (rd.isLeft) return (rd as Left<DecodingFailure, D>).a.asLeft();
+
+        final re = _decodeField(obj, codecE);
+        if (re.isLeft) return (re as Left<DecodingFailure, E>).a.asLeft();
+
+        final rf = _decodeField(obj, codecF);
+        if (rf.isLeft) return (rf as Left<DecodingFailure, F>).a.asLeft();
+
+        final rg = _decodeField(obj, codecG);
+        if (rg.isLeft) return (rg as Left<DecodingFailure, G>).a.asLeft();
+
+        final rh = _decodeField(obj, codecH);
+        if (rh.isLeft) return (rh as Left<DecodingFailure, H>).a.asLeft();
+
+        final ri = _decodeField(obj, codecI);
+        if (ri.isLeft) return (ri as Left<DecodingFailure, I>).a.asLeft();
+
+        final rj = _decodeField(obj, codecJ);
+        if (rj.isLeft) return (rj as Left<DecodingFailure, J>).a.asLeft();
+
+        final rk = _decodeField(obj, codecK);
+        if (rk.isLeft) return (rk as Left<DecodingFailure, K>).a.asLeft();
+
+        final rl = _decodeField(obj, codecL);
+        if (rl.isLeft) return (rl as Left<DecodingFailure, L>).a.asLeft();
+
+        final rm = _decodeField(obj, codecM);
+        if (rm.isLeft) return (rm as Left<DecodingFailure, M>).a.asLeft();
+
+        final rn = _decodeField(obj, codecN);
+        if (rn.isLeft) return (rn as Left<DecodingFailure, N>).a.asLeft();
+
+        final ro = _decodeField(obj, codecO);
+        if (ro.isLeft) return (ro as Left<DecodingFailure, O>).a.asLeft();
+
+        final rp = _decodeField(obj, codecP);
+        if (rp.isLeft) return (rp as Left<DecodingFailure, P>).a.asLeft();
+
+        final rq = _decodeField(obj, codecQ);
+        if (rq.isLeft) return (rq as Left<DecodingFailure, Q>).a.asLeft();
+
+        final rr = _decodeField(obj, codecR);
+        if (rr.isLeft) return (rr as Left<DecodingFailure, R>).a.asLeft();
+
+        final rs = _decodeField(obj, codecS);
+        if (rs.isLeft) return (rs as Left<DecodingFailure, S>).a.asLeft();
+
+        final rt = _decodeField(obj, codecT);
+        if (rt.isLeft) return (rt as Left<DecodingFailure, T>).a.asLeft();
+
+        final ru = _decodeField(obj, codecU);
+        if (ru.isLeft) return (ru as Left<DecodingFailure, U>).a.asLeft();
+
+        final rv = _decodeField(obj, codecV);
+        if (rv.isLeft) return (rv as Left<DecodingFailure, V>).a.asLeft();
+
+        return apply(
+          _get(ra),
+          _get(rb),
+          _get(rc),
+          _get(rd),
+          _get(re),
+          _get(rf),
+          _get(rg),
+          _get(rh),
+          _get(ri),
+          _get(rj),
+          _get(rk),
+          _get(rl),
+          _get(rm),
+          _get(rn),
+          _get(ro),
+          _get(rp),
+          _get(rq),
+          _get(rr),
+          _get(rs),
+          _get(rt),
+          _get(ru),
+          _get(rv),
+        ).asRight();
+      },
       (cursor) => (
         codecA.decodeC(cursor),
         codecB.decodeC(cursor),
@@ -1165,30 +2419,32 @@ final class KeyValueCodec<A> extends Codec<A> {
 
     final encoder = Encoder.instance<W>(
       (a) => tupled(a)(
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v) => Json.deepMergeAll([
-          codecA.encode(a),
-          codecB.encode(b),
-          codecC.encode(c),
-          codecD.encode(d),
-          codecE.encode(e),
-          codecF.encode(f),
-          codecG.encode(g),
-          codecH.encode(h),
-          codecI.encode(i),
-          codecJ.encode(j),
-          codecK.encode(k),
-          codecL.encode(l),
-          codecM.encode(m),
-          codecN.encode(n),
-          codecO.encode(o),
-          codecP.encode(p),
-          codecQ.encode(q),
-          codecR.encode(r),
-          codecS.encode(s),
-          codecT.encode(t),
-          codecU.encode(u),
-          codecV.encode(v),
-        ]),
+        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v) => Json.fromJsonObject(
+          JsonObject.fromIterable([
+            (codecA.key, codecA.value.encode(a)),
+            (codecB.key, codecB.value.encode(b)),
+            (codecC.key, codecC.value.encode(c)),
+            (codecD.key, codecD.value.encode(d)),
+            (codecE.key, codecE.value.encode(e)),
+            (codecF.key, codecF.value.encode(f)),
+            (codecG.key, codecG.value.encode(g)),
+            (codecH.key, codecH.value.encode(h)),
+            (codecI.key, codecI.value.encode(i)),
+            (codecJ.key, codecJ.value.encode(j)),
+            (codecK.key, codecK.value.encode(k)),
+            (codecL.key, codecL.value.encode(l)),
+            (codecM.key, codecM.value.encode(m)),
+            (codecN.key, codecN.value.encode(n)),
+            (codecO.key, codecO.value.encode(o)),
+            (codecP.key, codecP.value.encode(p)),
+            (codecQ.key, codecQ.value.encode(q)),
+            (codecR.key, codecR.value.encode(r)),
+            (codecS.key, codecS.value.encode(s)),
+            (codecT.key, codecT.value.encode(t)),
+            (codecU.key, codecU.value.encode(u)),
+            (codecV.key, codecV.value.encode(v)),
+          ]),
+        ),
       ),
     );
 
