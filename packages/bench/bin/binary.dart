@@ -2,6 +2,7 @@
 
 import 'package:ribs_bench/binary/bit_vector.dart';
 import 'package:ribs_bench/binary/byte_vector.dart';
+import 'package:ribs_bench/binary/codec.dart';
 import 'package:ribs_bench/ribs_benchmark.dart';
 
 void main(List<String> args) {
@@ -85,6 +86,11 @@ void main(List<String> args) {
       ByteVectorForeachChunkBenchmark(n),
       ByteVectorForeachChunksBenchmark(n),
       ByteVectorForeachBufferBenchmark(n),
+    ]);
+
+    RibsBenchmark.runAndReport([
+      CodecDecodeBenchmark(),
+      RawDecodeBenchmark(),
     ]);
   }
 }
