@@ -134,8 +134,8 @@ final class _RacePair<A, B> extends IO<RacePairOutcome<A, B>> {
 
   const _RacePair(this.ioa, this.iob);
 
-  IOFiber<A> createFiberA(IORuntime runtime, int autoCedeN) => IOFiber(ioa, runtime: runtime);
-  IOFiber<B> createFiberB(IORuntime runtime, int autoCedeN) => IOFiber(iob, runtime: runtime);
+  IOFiber<A> createFiberA(IORuntime runtime) => IOFiber(ioa, runtime: runtime);
+  IOFiber<B> createFiberB(IORuntime runtime) => IOFiber(iob, runtime: runtime);
 
   RacePairOutcome<A, B> aWon(
     Outcome<dynamic> oc,

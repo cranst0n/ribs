@@ -3,10 +3,10 @@ import 'package:test/test.dart';
 
 void main() {
   test('push/pop', () {
-    final s = Stack<int>();
+    var s = Stack<int>();
 
-    s.push(0);
-    s.push(1);
+    s = s.push(0);
+    s = s.push(1);
 
     expect(s.size, 2);
     expect(s.pop(), 1);
@@ -14,27 +14,27 @@ void main() {
   });
 
   test('clear', () {
-    final s = Stack<int>();
+    var s = Stack<int>();
 
-    s.push(0);
-    s.push(1);
+    s = s.push(0);
+    s = s.push(1);
 
     expect(s.size, 2);
     s.clear();
 
     expect(s.size, 0);
 
-    s.push(42);
+    s = s.push(42);
     expect(s.size, 1);
     expect(s.pop(), 42);
     expect(s.size, 0);
   });
 
   test('peek', () {
-    final s = Stack<int>();
+    var s = Stack<int>();
 
-    s.push(0);
-    s.push(1);
+    s = s.push(0);
+    s = s.push(1);
 
     expect(s.peek, 1);
     expect(s.pop(), 1);
@@ -42,22 +42,22 @@ void main() {
   });
 
   test('isEmpty', () {
-    final s = Stack<int>();
+    var s = Stack<int>();
 
     expect(s.isEmpty, isTrue);
     expect(s.nonEmpty, isFalse);
 
-    s.push(1);
+    s = s.push(1);
 
     expect(s.isEmpty, isFalse);
     expect(s.nonEmpty, isTrue);
   });
 
   test('grows as necessary', () {
-    final s = Stack<int>();
+    var s = Stack<int>();
 
     for (int i = 0; i < 100; i++) {
-      s.push(i);
+      s = s.push(i);
     }
 
     expect(s.size, 100);

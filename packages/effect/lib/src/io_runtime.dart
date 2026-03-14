@@ -7,7 +7,9 @@ abstract class IORuntime {
 
   final int autoCedeN;
 
-  const IORuntime({this.autoCedeN = DefaultAutoCedeN});
+  IORuntime({this.autoCedeN = DefaultAutoCedeN}) {
+    if (autoCedeN < 1) throw ArgumentError('IORuntime.autoCedeN must be > 0');
+  }
 
   DateTime get now;
 

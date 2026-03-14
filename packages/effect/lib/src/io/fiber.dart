@@ -8,24 +8,18 @@ final class IOFiber<A> {
   static final Set<WeakReference<IOFiber<dynamic>>> _activeFibers = {};
   static int _idCounter = 0;
 
-  final IO<A> _startIO;
-
   // Dump related fields.
   final int id;
   FiberState _state = FiberState.running;
-  String _suspensionInfo = "Initializing";
 
-  final _callbacks = Stack<Function1<Outcome<A>, void>>(2);
-  final _finalizers = Stack<IO<Unit>>(2);
+  var _callbacks = Stack<Function1<Outcome<A>, void>>(1);
+  var _finalizers = Stack<IO<Unit>>(1);
 
   /// State to resume fiber when it's next scheduled.
   int _resumeTag = _ExecR;
 
   /// Any associated data to be used when the fiber is resumed.
   Object? _resumeData;
-
-  /// Associated stack trace to be used when the fiber is resumed.
-  StackTrace? _resumeStackTrace;
 
   /// The IO to run when the fiber is resumed.
   IO<dynamic>? _resumeIO;
@@ -39,8 +33,8 @@ final class IOFiber<A> {
   /// current generation are permitted to wake the fiber.
   int _resumeGeneration = 0;
 
-  final _conts = ByteStack();
-  final _contData = Stack<Object>();
+  var _conts = ByteStack(4);
+  var _contData = Stack<Object>(2);
 
   Fn1<Either<Object, Unit>, void>? _cancelationFinalizer;
 
@@ -50,75 +44,80 @@ final class IOFiber<A> {
 
   late final _selfRef = WeakReference(this);
 
-  late IO<Unit> _cancel;
-  late IO<Outcome<A>> _join;
-
   Outcome<A>? _outcome;
 
-  bool _canceled = false;
+  /// Bitfield tracking cancelation and finalization status, as well as the
+  /// number of active uncancelable masks.
   int _masks = 0;
-  bool _finalizing = false;
 
   final IORuntime _runtime;
-  late final int _autoCedeN;
 
   IOFiber(
-    this._startIO, {
+    IO<A> startIO, {
     Function1<Outcome<A>, void>? callback,
     IORuntime? runtime,
   }) : _runtime = runtime ?? IORuntime.defaultRuntime,
        id = _idCounter++ {
-    _autoCedeN = _runtime.autoCedeN;
-    if (_autoCedeN < 1) throw ArgumentError('Fiber autoCedeN must be > 0');
-
-    _resumeIO = _startIO;
+    _resumeIO = startIO;
 
     if (callback != null) {
-      _callbacks.push(callback);
+      _callbacks = _callbacks.push(callback);
     }
-
-    _cancel = IO._uncancelable((_) {
-      if (_outcome != null) {
-        return IO.unit;
-      } else {
-        // Only the first caller to observe _canceled == false resumes the
-        // canceled fiber.  Subsequent callers therefore fall through to
-        // join(), which completes naturally once _done() is called.
-        if (!_canceled) {
-          _canceled = true;
-
-          if (_isUnmasked()) {
-            return IO._async_((fin) {
-              _resumeTag = _AsyncContinueCanceledWithFinalizerR;
-              _resumeData = Fn1(fin);
-
-              final expectedGen = ++_resumeGeneration;
-              _scheduleResume(expectedGen);
-            });
-          }
-        }
-
-        return join()._voided();
-      }
-    });
-
-    _join = IO._async_<Outcome<A>>((cb) => _registerListener((oc) => cb(oc.asRight())));
   }
 
   /// Creates an [IO] that requsets the fiber be canceled and waits for the
   /// completion/finalization of the fiber.
-  IO<Unit> cancel() => _cancel.traced('cancel');
+  IO<Unit> cancel() => IO
+      ._uncancelable((_) {
+        if (_outcome != null) {
+          return IO.unit;
+        } else {
+          // Only the first caller to observe _canceled == false resumes the
+          // canceled fiber.  Subsequent callers therefore fall through to
+          // join(), which completes naturally once _done() is called.
+          if (!_isCanceled) {
+            _masks |= _canceledFlag;
+
+            if (_isUnmasked) {
+              return IO._async_<Unit>((fin) {
+                _resumeTag = _AsyncContinueCanceledWithFinalizerR;
+                _resumeData = Fn1(fin);
+
+                final expectedGen = ++_resumeGeneration;
+                _scheduleResume(expectedGen);
+              });
+            }
+          }
+
+          return join()._voided();
+        }
+      })
+      .traced('cancel');
 
   /// Creates an [IO] that will return the [Outcome] of the fiber when it
   /// completes.
-  IO<Outcome<A>> join() => _join.traced('join');
+  IO<Outcome<A>> join() {
+    final oc = _outcome;
+
+    if (oc != null) {
+      return IO.pure(oc).traced('join');
+    } else {
+      return IO
+          ._async_<Outcome<A>>(
+            (cb) => _registerListener((oc) => cb(oc.asRight())),
+          )
+          .traced('join');
+    }
+  }
 
   IO<A> joinWith(IO<A> onCancel) => join()._flatMap((a) => a.embed(onCancel));
 
   IO<A> joinWithNever() => joinWith(IO.never());
 
-  bool _shouldFinalize() => _canceled && _isUnmasked();
-  bool _isUnmasked() => _masks == 0;
+  bool get _isCanceled => (_masks & _canceledFlag) != 0;
+  bool get _isFinalizing => (_masks & _finalizingFlag) != 0;
+  bool get _isUnmasked => (_masks & ~3) == 0;
+  bool get _shouldFinalize => _isCanceled && _isUnmasked;
 
   void _scheduleResume(int expectedGen) {
     _runtime.schedule(() {
@@ -136,10 +135,7 @@ final class IOFiber<A> {
     _state = FiberState.running;
 
     final data = _resumeData;
-    final stackTrace = _resumeStackTrace;
-
     _resumeData = null;
-    _resumeStackTrace = null;
 
     switch (_resumeTag) {
       case _ExecR:
@@ -147,12 +143,13 @@ final class IOFiber<A> {
       case _AsyncContinueSuccessfulR:
         _asyncContinueSuccessfulR(data);
       case _AsyncContinueFailedR:
-        _asyncContinueFailedR(data!, stackTrace);
+        _asyncContinueFailedR(data!);
       case _AsyncContinueCanceledR:
         _asyncContinueCanceledR();
       case _AsyncContinueCanceledWithFinalizerR:
         _asyncContinueCanceledWithFinalizerR(data! as Fn1<Either<Object, Unit>, void>);
       case _CedeR:
+      case _SleepR:
         _cedeR();
       case _AutoCedeR:
         _autoCedeR();
@@ -171,58 +168,54 @@ final class IOFiber<A> {
   }
 
   void _execR() {
-    if (_canceled) {
+    if (_isCanceled) {
       _done(Canceled());
     } else {
       _conts.clear();
       _contData.clear();
 
-      _conts.push(_RunTerminusK);
+      _conts = _conts.push(_RunTerminusK);
 
       _finalizers.clear();
 
       final io = _resumeIO;
       _resumeIO = null;
 
-      _runLoop(io!, _autoCedeN);
+      _runLoop(io!);
     }
   }
 
-  void _asyncContinueSuccessfulR(dynamic value) => _runLoop(_succeeded(value), _autoCedeN);
+  void _asyncContinueSuccessfulR(dynamic value) => _runLoop(_succeeded(value));
 
   void _asyncContinueFailedR(Object error, [StackTrace? stackTrace]) =>
-      _runLoop(_failed(error, stackTrace), _autoCedeN);
+      _runLoop(_failed(error, stackTrace));
 
   void _asyncContinueCanceledR() {
     final fin = _prepareFiberForCancelation();
-    _runLoop(fin, _autoCedeN);
+    _runLoop(fin);
   }
 
   void _asyncContinueCanceledWithFinalizerR(Fn1<Either<Object, Unit>, void> cb) {
     final fin = _prepareFiberForCancelation(cb);
-
-    _runLoop(fin, _autoCedeN);
+    _runLoop(fin);
   }
 
-  void _cedeR() => _runLoop(_succeeded(Unit()), _autoCedeN);
+  void _cedeR() => _runLoop(_succeeded(Unit()));
 
   void _autoCedeR() {
     final io = _resumeIO;
     _resumeIO = null;
 
-    _runLoop(io!, _autoCedeN);
+    _runLoop(io!);
   }
 
   void _asyncGetR(_AsyncGet<dynamic> asyncGet) {
-    _runLoop(asyncGet, _autoCedeN);
+    _runLoop(asyncGet);
   }
 
-  void _runLoop(
-    IO<dynamic> initial,
-    int cedeIterations,
-  ) {
+  void _runLoop(IO<dynamic> initial) {
     var cur0 = initial;
-    int nextCede = cedeIterations;
+    int nextCede = _runtime.autoCedeN;
 
     runLoop:
     while (true) {
@@ -234,7 +227,7 @@ final class IOFiber<A> {
         final expectedGen = ++_resumeGeneration;
         _scheduleResume(expectedGen);
         break runLoop;
-      } else if (_shouldFinalize()) {
+      } else if (_shouldFinalize) {
         cur0 = _prepareFiberForCancelation();
       } else {
         switch (cur0) {
@@ -265,8 +258,8 @@ final class IOFiber<A> {
                   cur0 = _failed(e, s);
                 }
               default:
-                _conts.push(_MapK);
-                _contData.push(f);
+                _conts = _conts.push(_MapK);
+                _contData = _contData.push(f);
                 cur0 = ioa;
             }
           case _FlatMap(:final ioa, :final f):
@@ -286,8 +279,8 @@ final class IOFiber<A> {
                   cur0 = _failed(e, s);
                 }
               default:
-                _conts.push(_FlatMapK);
-                _contData.push(f);
+                _conts = _conts.push(_FlatMapK);
+                _contData = _contData.push(f);
                 cur0 = ioa;
             }
           case final _Attempt<dynamic> attempt:
@@ -303,18 +296,17 @@ final class IOFiber<A> {
                   cur0 = _succeeded(attempt.left(e));
                 }
               default:
-                _conts.push(_AttemptK);
-                _contData.push(attempt);
+                _conts = _conts.push(_AttemptK);
+                _contData = _contData.push(attempt);
 
                 cur0 = attempt.ioa;
             }
           case _Sleep(:final duration):
-            _resumeTag = _CedeR;
+            _resumeTag = _SleepR;
             final expectedGen = ++_resumeGeneration;
             _scheduleResumeAfter(duration, expectedGen);
 
             _state = FiberState.suspended;
-            _suspensionInfo = "Sleep($duration)";
 
             break runLoop;
           case _Now():
@@ -325,16 +317,15 @@ final class IOFiber<A> {
             _scheduleResume(expectedGen);
 
             _state = FiberState.suspended;
-            _suspensionInfo = "AutoCede";
 
             break runLoop;
           case _HandleErrorWith(:final ioa, :final f):
-            _conts.push(_HandleErrorWithK);
-            _contData.push(f);
+            _conts = _conts.push(_HandleErrorWithK);
+            _contData = _contData.push(f);
             cur0 = ioa;
           case _OnCancel(:final ioa, :final fin):
-            _finalizers.push(fin);
-            _conts.push(_OnCancelK);
+            _finalizers = _finalizers.push(fin);
+            _conts = _conts.push(_OnCancelK);
             cur0 = ioa;
           case _Async(:final body):
             final resultF = cur0.getter();
@@ -354,12 +345,11 @@ final class IOFiber<A> {
                   if (_resumeTag == _AsyncGetR && _resumeData == resultF) {
                     final nextGen = ++_resumeGeneration;
 
-                    if (!_shouldFinalize()) {
+                    if (!_shouldFinalize) {
                       result.fold(
                         (err) {
                           _resumeTag = _AsyncContinueFailedR;
                           _resumeData = err;
-                          _resumeStackTrace = null;
                         },
                         (a) {
                           _resumeTag = _AsyncContinueSuccessfulR;
@@ -407,7 +397,6 @@ final class IOFiber<A> {
               _resumeData = cur0;
 
               _state = FiberState.suspended;
-              _suspensionInfo = "Async(waiting for callback)";
 
               break runLoop;
             }
@@ -416,9 +405,9 @@ final class IOFiber<A> {
             fiber._run();
             cur0 = _succeeded(fiber);
           case _Canceled():
-            _canceled = true;
+            _masks |= _canceledFlag;
 
-            if (_isUnmasked()) {
+            if (_isUnmasked) {
               final fin = _prepareFiberForCancelation();
               cur0 = fin;
             } else {
@@ -426,8 +415,8 @@ final class IOFiber<A> {
             }
           case final _RacePair<dynamic, dynamic> rp:
             cur0 = IO._async<RacePairOutcome<dynamic, dynamic>>((cb) {
-              final fiberA = rp.createFiberA(_runtime, _autoCedeN);
-              final fiberB = rp.createFiberB(_runtime, _autoCedeN);
+              final fiberA = rp.createFiberA(_runtime);
+              final fiberB = rp.createFiberB(_runtime);
 
               fiberA._setCallback((oc) {
                 fiberB._setCallback((_) {});
@@ -450,9 +439,8 @@ final class IOFiber<A> {
             });
 
             _state = FiberState.suspended;
-            _suspensionInfo = "RacePair(Waiting for children)";
           case _Uncancelable(:final body):
-            _masks += 1;
+            _masks += _masksUnit;
             final id = _masks;
 
             final poll = _RuntimePoll(id, this);
@@ -463,11 +451,11 @@ final class IOFiber<A> {
               cur0 = IO._raiseError(e, stackTrace);
             }
 
-            _conts.push(_UncancelableK);
+            _conts = _conts.push(_UncancelableK);
           case _UnmaskRunLoop(:final ioa, :final id, :final self):
-            if (_masks == id && this == self) {
-              _masks -= 1;
-              _conts.push(_UnmaskK);
+            if ((_masks & ~3) == (id & ~3) && this == self) {
+              _masks -= _masksUnit;
+              _conts = _conts.push(_UnmaskK);
             }
 
             cur0 = ioa;
@@ -502,7 +490,7 @@ final class IOFiber<A> {
 
   void _registerListener(Function1<Outcome<A>, void> cb) {
     if (_outcome == null) {
-      _callbacks.push(cb);
+      _callbacks = _callbacks.push(cb);
     } else {
       cb(_outcome!);
     }
@@ -510,24 +498,24 @@ final class IOFiber<A> {
 
   void _setCallback(Function1<Outcome<A>, void> cb) {
     _callbacks.clear();
-    _callbacks.push(cb);
+    _callbacks = _callbacks.push(cb);
   }
 
   IO<dynamic> _prepareFiberForCancelation([
     Fn1<Either<Object, Unit>, void>? cb,
   ]) {
     if (_finalizers.nonEmpty) {
-      if (!_finalizing) {
-        _finalizing = true;
+      if (!_isFinalizing) {
+        _masks |= _finalizingFlag;
 
         _conts.clear();
         _contData.clear();
 
-        _conts.push(_CancelationLoopK);
+        _conts = _conts.push(_CancelationLoopK);
 
         _cancelationFinalizer = cb;
 
-        _masks += 1;
+        _masks += _masksUnit;
       }
 
       return _finalizers.pop();
@@ -574,9 +562,9 @@ final class IOFiber<A> {
         case _OnCancelK:
           _finalizers.pop();
         case _UncancelableK:
-          _masks -= 1;
+          _masks -= _masksUnit;
         case _UnmaskK:
-          _masks += 1;
+          _masks += _masksUnit;
         case _AttemptK:
           final attempt = _contData.pop() as _Attempt<dynamic>;
           result = attempt.right(result);
@@ -611,9 +599,9 @@ final class IOFiber<A> {
         case _OnCancelK:
           _finalizers.pop();
         case _UncancelableK:
-          _masks -= 1;
+          _masks -= _masksUnit;
         case _UnmaskK:
-          _masks += 1;
+          _masks += _masksUnit;
         case _AttemptK:
           final attempt = _contData.pop() as _Attempt<dynamic>;
           return _succeeded(attempt.left(error));
@@ -622,9 +610,6 @@ final class IOFiber<A> {
   }
 
   void _done(Outcome<A> oc) {
-    _join = IO.pure(oc).traced('join');
-    _cancel = IO.pure(Unit()).traced('cancel');
-
     _outcome = oc;
 
     _masks = 0;
@@ -658,7 +643,7 @@ final class IOFiber<A> {
   IO<dynamic> _cancelationLoopSuccessK() {
     if (_finalizers.nonEmpty) {
       // still more finalizers to execute
-      _conts.push(_CancelationLoopK);
+      _conts = _conts.push(_CancelationLoopK);
       return _finalizers.pop();
     } else {
       // last finalizer has finished running...
@@ -687,7 +672,12 @@ final class IOFiber<A> {
         final status =
             fiber._state == FiberState.running
                 ? "RUNNING (or scheduled)"
-                : "SUSPENDED: ${fiber._suspensionInfo}";
+                : "SUSPENDED: ${switch (fiber._resumeTag) {
+                  _SleepR => 'Sleep',
+                  _CedeR => 'Cede',
+                  _AsyncGetR => 'Async(waiting for callback)',
+                  _ => 'Unknown',
+                }}";
 
         doPrint("Fiber #${fiber.id} [$status]");
 
@@ -729,6 +719,11 @@ const int _CedeR = 5;
 const int _AutoCedeR = 6;
 const int _AsyncGetR = 7;
 const int _DoneR = 8;
+const int _SleepR = 9;
+
+const int _canceledFlag = 0x1;
+const int _finalizingFlag = 0x2;
+const int _masksUnit = 0x4;
 
 const int _RunTerminusK = 0;
 const int _MapK = 1;

@@ -3,132 +3,150 @@ import 'dart:typed_data';
 /// A specialized stack designed specifically for the IO interpreter but used
 /// in other places as well.
 ///
-/// This implementation avoids the overhead of standard [List.add] and
-/// [List.removeLast] by managing a fixed-size buffer and a manual index pointer.
+/// This is an extension type wrapping a [List<Object?>]. Element 0 stores the
+/// current size as an [int]; elements 1..size store the actual items.
+/// Storing size inline and using a single list allocation eliminates the
+/// class-wrapper heap object that a regular class would require.
+///
+/// [push] returns a (potentially new) [Stack] to handle growth, since the
+/// representation field of an extension type cannot be reassigned in place.
 ///
 /// ***For internal use only***
-class Stack<A> {
-  // The backing store.
-  List<Object?> _buffer;
-
-  // The pointer to the *next* available slot.
-  // 0 means empty.
-  int _index = 0;
-
-  Stack([int initialCapacity = 16]) : _buffer = List<Object?>.filled(initialCapacity, null);
+extension type Stack<A>._(List<Object?> _list) {
+  Stack([int initialCapacity = 16])
+    : this._(List<Object?>.filled(initialCapacity + 1, null)..[0] = 0);
 
   /// Checks if stack is empty.
   @pragma('vm:prefer-inline')
-  bool get isEmpty => _index == 0;
-  bool get nonEmpty => _index != 0;
+  bool get isEmpty => (_list[0]! as int) == 0;
+
+  /// Checks if stack is not empty.
+  @pragma('vm:prefer-inline')
+  bool get nonEmpty => (_list[0]! as int) != 0;
 
   /// Returns the number of elements currently on this stack.
-  int get size => _index;
+  @pragma('vm:prefer-inline')
+  int get size => _list[0]! as int;
 
   /// Removes all elements from this stack.
   void clear() {
-    _buffer.fillRange(0, _index, null); // Null out all references to allow GC of elements.
-    _index = 0;
+    final size = _list[0]! as int;
+    _list.fillRange(1, size + 1, null); // Null out references to allow GC.
+    _list[0] = 0;
   }
 
-  /// Pushes an element onto the stack.
+  /// Pushes an element onto the stack, returning the (possibly grown) stack.
   @pragma('vm:prefer-inline')
-  void push(A a) {
-    if (_index == _buffer.length) _grow();
-    _buffer[_index++] = a;
+  Stack<A> push(A a) {
+    final size = _list[0]! as int;
+    final capacity = _list.length - 1;
+    final list = size < capacity ? _list : _growFrom(_list);
+
+    list[size + 1] = a;
+    list[0] = size + 1;
+
+    return Stack<A>._(list);
   }
 
-  /// Pops the last element on the stack..
+  /// Pops the last element on the stack.
   ///
   /// Note: This assumes the caller has verified [isEmpty] is false,
   /// or that the logic guarantees a pop is safe.
   @pragma('vm:prefer-inline')
   A pop() {
-    // Decrement first to get the item at the top.
-    final f = _buffer[--_index] as A;
+    final idx = _list[0]! as int;
+    final item = _list[idx]! as A;
 
-    // Null out the slot to allow the element to be Garbage Collected.
-    _buffer[_index] = null;
+    _list[0] = idx - 1;
+    _list[idx] = null; // Null out to allow GC.
 
-    return f;
+    return item;
   }
 
   /// Returns the top element on this stack. The stack itself is unchanged.
   ///
-  /// If this stack is empty, an exception will be thrown
-  A get peek => _buffer[_index - 1]! as A;
+  /// If this stack is empty, an exception will be thrown.
+  A get peek => _list[_list[0]! as int]! as A;
 
-  /// Doubles the capacity of the buffer when full.
-  void _grow() {
-    final newCapacity = _buffer.length * 2;
-    final newBuffer = List<Object?>.filled(newCapacity, null);
-
-    // Fast intrinsic copy
-    List.copyRange(newBuffer, 0, _buffer);
-    _buffer = newBuffer;
+  static List<Object?> _growFrom(List<Object?> old) {
+    final newList = List<Object?>.filled((old.length - 1) * 2 + 1, null);
+    List.copyRange(newList, 0, old);
+    return newList;
   }
 }
 
 /// A specialized stack designed specifically for the IO interpreter to store
 /// byte opcodes.
 ///
-/// This uses a [Uint8List] as a buffer so it's assumed all values pushed onto
-/// the stack are in the range [0, 255].
+/// This is an extension type wrapping a [Uint32List]. Element 0 stores the
+/// current size; remaining elements each pack 4 bytes (opcodes are in [0,255]).
+/// Storing size inline and using a single typed-data allocation eliminates the
+/// class-wrapper heap object that a regular class would require.
+///
+/// [push] returns a (potentially new) [ByteStack] to handle growth, since the
+/// representation field of an extension type cannot be reassigned in place.
 ///
 /// ***For internal use only***
-class ByteStack {
-  // The backing store.
-  Uint8List _buffer;
-
-  // The pointer to the *next* available slot.
-  // 0 means empty.
-  int _index = 0;
-
-  ByteStack([int initialCapacity = 16]) : _buffer = Uint8List(initialCapacity);
+extension type ByteStack._(Uint32List _list) {
+  ByteStack([int initialCapacity = 16]) : this._(Uint32List(1 + (initialCapacity + 3) ~/ 4));
 
   /// Checks if stack is empty.
   @pragma('vm:prefer-inline')
-  bool get isEmpty => _index == 0;
-  bool get nonEmpty => _index != 0;
+  bool get isEmpty => _list[0] == 0;
+
+  /// Checks if stack is non empty.
+  @pragma('vm:prefer-inline')
+  bool get nonEmpty => _list[0] != 0;
 
   /// Returns the number of elements currently on this stack.
-  int get size => _index;
+  @pragma('vm:prefer-inline')
+  int get size => _list[0];
 
   /// Removes all elements from this stack.
-  void clear() {
-    _index = 0;
-  }
-
-  /// Pushes an element onto the stack.
   @pragma('vm:prefer-inline')
-  void push(int a) {
-    if (_index == _buffer.length) _grow();
-    _buffer[_index++] = a;
+  void clear() => _list[0] = 0;
+
+  /// Pushes an element onto the stack, returning the (possibly grown) stack.
+  @pragma('vm:prefer-inline')
+  ByteStack push(int a) {
+    final size = _list[0];
+    final capacity = (_list.length - 1) * 4;
+    final list = size < capacity ? _list : _growFrom(_list);
+    final slot = 1 + size ~/ 4;
+    final shift = (size % 4) * 8;
+
+    list[slot] = (list[slot] & ~(0xFF << shift)) | ((a & 0xFF) << shift);
+    list[0] = size + 1;
+
+    return ByteStack._(list);
   }
 
-  /// Pops the last element on the stack..
+  /// Pops the last element on the stack.
   ///
   /// Note: This assumes the caller has verified [isEmpty] is false,
   /// or that the logic guarantees a pop is safe.
   @pragma('vm:prefer-inline')
   int pop() {
-    return _buffer[--_index];
+    final size = _list[0] - 1;
+
+    _list[0] = size;
+
+    return (_list[1 + size ~/ 4] >> ((size % 4) * 8)) & 0xFF;
   }
 
   /// Returns the top element on this stack. The stack itself is unchanged.
   ///
-  /// If this stack is empty, an exception will be thrown
-  int get peek => _buffer[_index - 1];
-
-  /// Doubles the capacity of the buffer when full.
-  void _grow() {
-    final newCapacity = _buffer.length * 2;
-    final newBuffer = Uint8List(newCapacity);
-
-    // Fast intrinsic copy
-    List.copyRange(newBuffer, 0, _buffer);
-    _buffer = newBuffer;
+  /// If this stack is empty, an exception will be thrown.
+  int get peek {
+    final i = _list[0] - 1;
+    return (_list[1 + i ~/ 4] >> ((i % 4) * 8)) & 0xFF;
   }
 
-  static int maxSize = 16;
+  static Uint32List _growFrom(Uint32List old) {
+    final newList = Uint32List((old.length - 1) * 2 + 1);
+
+    List.copyRange(newList, 0, old);
+
+    return newList;
+  }
 }

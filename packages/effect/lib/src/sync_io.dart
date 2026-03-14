@@ -39,10 +39,10 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
   A unsafeRunSync() => runLoop();
 
   A runLoop() {
-    final conts = Stack<_Cont>();
-    final objectState = Stack<dynamic>();
+    var conts = Stack<_Cont>();
+    var objectState = Stack<dynamic>();
 
-    conts.push(_Cont.RunTerminus);
+    conts = conts.push(_Cont.RunTerminus);
 
     SyncIO<dynamic> cur0 = this;
 
@@ -66,16 +66,16 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
       } else if (cur0 is _Error) {
         cur0 = failed(conts, objectState, cur0.value, 0);
       } else if (cur0 is _Map) {
-        objectState.push(cur0.f);
-        conts.push(_Cont.Map);
+        objectState = objectState.push(cur0.f);
+        conts = conts.push(_Cont.Map);
         cur0 = cur0.ioa;
       } else if (cur0 is _FlatMap) {
-        objectState.push(cur0.f);
-        conts.push(_Cont.FlatMap);
+        objectState = objectState.push(cur0.f);
+        conts = conts.push(_Cont.FlatMap);
         cur0 = cur0.ioa;
       } else if (cur0 is _HandleErrorWith) {
-        objectState.push(cur0.f);
-        conts.push(_Cont.HandleErrorWith);
+        objectState = objectState.push(cur0.f);
+        conts = conts.push(_Cont.HandleErrorWith);
         cur0 = cur0.ioa;
       } else if (cur0 is _Success) {
         return cur0.value as A;
@@ -86,8 +86,8 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
         // Push this function on to allow proper type tagging when running
         // the continuation
-        objectState.push(Fn1((x) => attempt.smartCast(x)));
-        conts.push(_Cont.Attempt);
+        objectState = objectState.push(Fn1((x) => attempt.smartCast(x)));
+        conts = conts.push(_Cont.Attempt);
         cur0 = cur0.ioa;
       } else {
         throw StateError('SyncIO.runLoop: $cur0');
