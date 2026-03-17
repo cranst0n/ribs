@@ -118,6 +118,14 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// Creates an [IO] that immediately results in an [Outcome] of [Canceled].
   static const IO<Unit> canceled = _Canceled();
 
+  static IO<A> catchNonError<A>(Function0<A> f) {
+    try {
+      return IO.pure(f());
+    } on Exception catch (error, stackTrace) {
+      return IO.raiseError(error, stackTrace);
+    }
+  }
+
   /// Introduces an asynchronous boundary in the IO runtime loop that can
   /// be used for cancelation checking and fairness, among other things.
   static const IO<Unit> cede = _Cede();

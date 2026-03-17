@@ -554,8 +554,42 @@ class Rill<O> {
   });
 
   Rill<O> concurrently<O2>(Rill<O2> that) {
-    final daemon = that.drain().flatMap((_) => Rill.never);
-    return mergeHaltBoth(daemon);
+    return _concurrentlyAux(that).flatMap((tuple) {
+      final (startBack, fore) = tuple;
+      return startBack.flatMap((_) => fore);
+    });
+  }
+
+  Rill<(Rill<IOFiber<Unit>>, Rill<O>)> _concurrentlyAux<O2>(Rill<O2> that) {
+    final frill = Deferred.of<Unit>().flatMap((interrupt) {
+      return Deferred.of<Either<Object, Unit>>().map((backResult) {
+        Rill<A> watch<A>(Rill<A> rill) => rill.interruptWhen(interrupt.value().attempt());
+
+        final compileBack =
+            watch(that).compile.drain.guaranteeCase((outcome) {
+              return outcome.fold(
+                () => backResult.complete(Unit().asRight()).voided(),
+                // Pass the result of backstream completion in the backResult deferred.
+                // IF result of back-stream was failed, interrupt fore. Otherwise, let it be
+                (error, _) => backResult
+                    .complete(error.asLeft())
+                    .productR(() => interrupt.complete(Unit()).voided()),
+                (_) => backResult.complete(Unit().asRight()).voided(),
+              );
+            }).voidError();
+
+        // stop background process but await for it to finalise with a result
+        // We use F.fromEither to bring errors from the back into the fore
+        // val stopBack: F2[Unit] = interrupt.complete(()) >> backResult.get.flatMap(F.fromEither)
+        final stopBack = interrupt
+            .complete(Unit())
+            .productR(() => backResult.value().flatMap(IO.fromEither));
+
+        return (Rill.bracket(compileBack.start(), (_) => stopBack), watch(this));
+      });
+    });
+
+    return Rill.eval(frill);
   }
 
   Rill<O> cons(Chunk<O> c) => c.isEmpty ? this : Rill.chunk(c).append(() => this);
@@ -1233,58 +1267,132 @@ class Rill<O> {
       Rill.bracketCase(IO.unit, (_, ec) => finalizer(ec)).flatMap((_) => this);
 
   Rill<O2> parEvalMap<O2>(int maxConcurrent, Function1<O, IO<O2>> f) {
-    return Rill.eval(Queue.unbounded<Either<Object, Option<IOFiber<O2>>>>()).flatMap((queue) {
-      return Rill.eval(Semaphore.permits(maxConcurrent)).flatMap((sem) {
-        final backgroundProducer = evalMap((o) {
-              return sem.acquire().flatMap((_) {
-                return f(o).guarantee(sem.release()).start();
-              });
-            })
-            .map((fiber) => Right<Object, Option<IOFiber<O2>>>(Some(fiber)))
-            .evalMap(queue.offer)
-            .compile
-            .drain
-            .handleErrorWith((err) => queue.offer(Left(err)))
-            .guarantee(queue.offer(Right(none())));
+    if (maxConcurrent == 1) {
+      return evalMap(f);
+    } else {
+      assert(maxConcurrent > 0, 'maxConcurrent must be > 0, was: $maxConcurrent');
 
-        // Read fibers from queue and joins in order
-        Rill<O2> consume() {
-          return Rill.eval(queue.take()).flatMap((event) {
-            return event.fold(
-              (err) => Rill.raiseError(err),
-              (opt) => opt.fold(
-                () => Rill.empty(),
-                (fiber) {
-                  // join the fiber, maintaining order
-                  return Rill.eval(fiber.join()).flatMap((outcome) {
-                    return outcome.fold(
-                      () => Rill.raiseError('Inner task canceled'),
-                      (err, stackTrace) => Rill.raiseError(err, stackTrace),
-                      (result) => Rill.emit(result).append(() => consume()),
-                    );
-                  });
-                },
-              ),
-            );
-          });
-        }
+      // One is taken by inner stream read.
+      final concurrency = maxConcurrent == Integer.MaxValue ? Integer.MaxValue : maxConcurrent + 1;
+      final channelF = Channel.bounded<IO<Either<Object, O2>>>(concurrency);
 
-        return Rill.bracket(
-          backgroundProducer.start(),
-          (fiber) => fiber.cancel(),
-        ).flatMap((_) => consume());
-      });
-    });
+      return _parEvalMapImpl(concurrency, channelF, true, f);
+    }
   }
 
   Rill<O2> parEvalMapUnbounded<O2>(int maxConcurrent, Function1<O, IO<O2>> f) =>
-      parEvalMapUnordered(Integer.MaxValue, f);
+      _parEvalMapImpl(Integer.MaxValue, Channel.unbounded(), true, f);
 
-  Rill<O2> parEvalMapUnordered<O2>(int maxConcurrent, Function1<O, IO<O2>> f) =>
-      map((o) => Rill.eval(f(o))).parJoin(maxConcurrent);
+  Rill<O2> parEvalMapUnordered<O2>(int maxConcurrent, Function1<O, IO<O2>> f) {
+    if (maxConcurrent == 1) {
+      return evalMap(f);
+    } else {
+      assert(maxConcurrent > 0, 'maxConcurrent must be > 0, was: $maxConcurrent');
+
+      // One is taken by inner stream read.
+      final concurrency = maxConcurrent == Integer.MaxValue ? Integer.MaxValue : maxConcurrent + 1;
+      final channelF = Channel.bounded<IO<Either<Object, O2>>>(concurrency);
+
+      return _parEvalMapImpl(concurrency, channelF, false, f);
+    }
+  }
 
   Rill<O2> parEvalMapUnorderedUnbounded<O2>(Function1<O, IO<O2>> f) =>
-      parEvalMapUnordered(Integer.MaxValue, f);
+      _parEvalMapImpl(Integer.MaxValue, Channel.unbounded(), false, f);
+
+  Rill<O2> _parEvalMapImpl<O2>(
+    int concurrency,
+    IO<Channel<IO<Either<Object, O2>>>> channel,
+    bool isOrdered,
+    Function1<O, IO<O2>> f,
+  ) {
+    final action = Semaphore.permits(concurrency).flatMap((semaphore) {
+      return channel.flatMap((channel) {
+        return Deferred.of<Unit>().flatMap((stop) {
+          return Deferred.of<Unit>().map((end) {
+            IO<Function1<Either<Object, O2>, IO<Unit>>> initFork(IO<Unit> release) {
+              IO<Function1<Either<Object, O2>, IO<Unit>>> ordered() {
+                Function1<Either<Object, O2>, IO<Unit>> send(Deferred<Either<Object, O2>> v) =>
+                    (el) => v.complete(el).voided();
+
+                return Deferred.of<Either<Object, O2>>()
+                    .flatTap((value) => channel.send(release.productR(() => value.value())))
+                    .map(send);
+              }
+
+              Function1<Either<Object, O2>, IO<Unit>> unordered() {
+                return (el) => channel.send(IO.pure(el)).productR(() => release);
+              }
+
+              return isOrdered ? ordered() : IO.pure(unordered());
+            }
+
+            final releaseAndCheckCompletion = semaphore.release().productR(() {
+              return semaphore.available().flatMap((available) {
+                if (available == concurrency) {
+                  return channel.close().productR(() => end.complete(Unit()).voided());
+                } else {
+                  return IO.unit;
+                }
+              });
+            });
+
+            IO<Unit> forkOnElem(O el) {
+              return IO.uncancelable((poll) {
+                return poll(semaphore.acquire()).productL(() {
+                  return Deferred.of<Unit>().flatMap((pushed) {
+                    final init = initFork(pushed.complete(Unit()).voided());
+
+                    return poll(init).onCancel(releaseAndCheckCompletion).flatMap((send) {
+                      final action = IO
+                          .catchNonError(() => f(el))
+                          .flatten()
+                          .attempt()
+                          .flatMap(send)
+                          .productR(() => pushed.value());
+
+                      if (isOrdered) {
+                        return IO
+                            .race(stop.value(), action)
+                            .start()
+                            .productR(() => releaseAndCheckCompletion);
+                      } else {
+                        return IO
+                            .race(stop.value(), action)
+                            .guarantee(releaseAndCheckCompletion)
+                            .start()
+                            .voided();
+                      }
+                    });
+                  });
+                });
+              });
+            }
+
+            final background = Rill.exec<Unit>(semaphore.acquire()).append(() {
+              return interruptWhen(
+                stop.value().map((u) => u.asRight<Object>()),
+              ).foreach(forkOnElem).onFinalizeCase((exitCase) {
+                return exitCase.fold(
+                  () => stop.complete(Unit()).productR(() => releaseAndCheckCompletion),
+                  (_, _) => stop.complete(Unit()).productR(() => releaseAndCheckCompletion),
+                  () => releaseAndCheckCompletion,
+                );
+              });
+            });
+
+            final foreground = channel.rill.evalMap((x) => x.rethrowError());
+
+            return foreground
+                .onFinalize(stop.complete(Unit()).productR(() => end.value()))
+                .concurrently(background);
+          });
+        });
+      });
+    });
+
+    return Rill.force(action);
+  }
 
   Rill<O> pauseWhen(Rill<bool> pauseWhenTrue) {
     return Rill.eval(SignallingRef.of(false)).flatMap((pauseSignal) {

@@ -187,18 +187,20 @@ final class _BoundedChannel<A> with Channel<A> {
               })
               .flatMap((s) {
                 if (shouldEmit(s)) {
+                  var size = s.size;
                   final initValues = s.values;
                   final producers = s.producers;
 
-                  final tailValues = <A>[];
+                  final tailValues = IList.builder<A>();
                   var unblock = IO.unit;
 
                   producers.foreachN((value, producer) {
-                    tailValues.add(value);
+                    size += 1;
+                    tailValues.addOne(value);
                     unblock = unblock.productL(() => producer.complete(Unit()));
                   });
 
-                  final toEmit = Chunk.from(initValues).concat(Chunk.fromDart(tailValues));
+                  final toEmit = makeChunk(initValues, tailValues.toIList(), size);
 
                   return unblock.as(Pull.output(toEmit).append(() => consumeLoop()));
                 } else {
@@ -226,4 +228,20 @@ final class _BoundedChannel<A> with Channel<A> {
   IO<bool> signalClosure() => closedGate.complete(Unit());
 
   bool shouldEmit(_State<A> s) => s.values.nonEmpty || s.producers.nonEmpty;
+
+  Chunk<A> makeChunk(IList<A> init, IList<A> tail, int size) {
+    final arr = <A>[];
+
+    var i = size - 1;
+    var values = tail;
+
+    while (i >= 0) {
+      if (values.isEmpty) values = init;
+      arr.add(values.head);
+      values = values.tail;
+      i -= 1;
+    }
+
+    return Chunk.fromList(arr.reversed.toList());
+  }
 }
