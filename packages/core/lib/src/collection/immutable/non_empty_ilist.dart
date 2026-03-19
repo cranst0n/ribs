@@ -65,14 +65,14 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   A operator [](int ix) => ix == 0 ? head : _tail[ix - 1];
 
   @override
-  NonEmptyIList<A> appended(A a) => NonEmptyIList(head, _tail.appended(a));
+  NonEmptyIList<A> appended(A elem) => NonEmptyIList(head, _tail.appended(elem));
 
   @override
   NonEmptyIList<A> appendedAll(RIterableOnce<A> suffix) =>
       NonEmptyIList(head, _tail.appendedAll(suffix));
 
   @override
-  NonEmptyIList<A> concat(RIterableOnce<A> as) => NonEmptyIList(head, _tail.concat(as));
+  NonEmptyIList<A> concat(RIterableOnce<A> suffix) => NonEmptyIList(head, _tail.concat(suffix));
 
   /// Adds all elements of [nel] to the end of this list.
   ///
@@ -126,12 +126,12 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   @override
   IMap<K, NonEmptyIList<V>> groupMap<K, V>(
     Function1<A, K> key,
-    Function1<A, V> value,
+    Function1<A, V> f,
   ) => foldLeft(
     imap({}),
     (acc, a) => acc.updatedWith(
       key(a),
-      (prev) => prev.map((l) => l.appended(value(a))).orElse(() => nel(value(a)).some),
+      (prev) => prev.map((l) => l.appended(f(a))).orElse(() => nel(f(a)).some),
     ),
   );
 
@@ -200,19 +200,19 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
           );
 
   @override
-  NonEmptyIList<B> scan<B>(B z, Function2<B, A, B> f) => scanLeft(z, f);
+  NonEmptyIList<B> scan<B>(B z, Function2<B, A, B> op) => scanLeft(z, op);
 
   @override
-  NonEmptyIList<B> scanLeft<B>(B z, Function2<B, A, B> f) =>
-      NonEmptyIList(z, _tail.scanLeft(f(z, head), f));
+  NonEmptyIList<B> scanLeft<B>(B z, Function2<B, A, B> op) =>
+      NonEmptyIList(z, _tail.scanLeft(op(z, head), op));
 
   @override
-  NonEmptyIList<B> scanRight<B>(B z, Function2<A, B, B> f) {
-    final newTail = _tail.scanRight(z, f);
+  NonEmptyIList<B> scanRight<B>(B z, Function2<A, B, B> op) {
+    final newTail = _tail.scanRight(z, op);
 
     return newTail.headOption.fold(
-      () => NonEmptyIList(f(head, z), ilist([z])),
-      (h) => NonEmptyIList(f(head, h), newTail),
+      () => NonEmptyIList(op(head, z), ilist([z])),
+      (h) => NonEmptyIList(op(head, h), newTail),
     );
   }
 
@@ -220,7 +220,7 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   RIterator<IList<A>> sliding(int size, [int step = 1]) => toIList().sliding(size, step);
 
   @override
-  NonEmptyIList<A> sorted(Order<A> o) => fromDartUnsafe(toIList().sorted(o).toList());
+  NonEmptyIList<A> sorted(Order<A> order) => fromDartUnsafe(toIList().sorted(order).toList());
 
   @override
   NonEmptyIList<A> sortBy<B>(Order<B> order, Function1<A, B> f) =>

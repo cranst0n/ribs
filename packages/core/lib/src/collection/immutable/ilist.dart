@@ -702,21 +702,21 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  IList<A> updated(int idx, A elem) {
+  IList<A> updated(int index, A elem) {
     var i = 0;
     var current = this;
     final prefix = builder<A>();
 
-    while (i < idx && current.nonEmpty) {
+    while (i < index && current.nonEmpty) {
       i += 1;
       prefix.addOne(current.head);
       current = current.tail;
     }
 
-    if (i == idx && current.nonEmpty) {
+    if (i == index && current.nonEmpty) {
       return prefix.prependToList(Cons(elem, current.tail));
     } else {
-      throw RangeError('$idx is out of bounds (min 0, max ${length - 1})');
+      throw RangeError('$index is out of bounds (min 0, max ${length - 1})');
     }
   }
 

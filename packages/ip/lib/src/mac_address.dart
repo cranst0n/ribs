@@ -103,7 +103,7 @@ final class MacAddress extends Ordered<MacAddress> {
   }
 
   @override
-  bool operator ==(Object that) => switch (that) {
+  bool operator ==(Object other) => switch (other) {
     final MacAddress that => ilist(_bytes).zip(ilist(that._bytes)).forall((t) => t.$1 == t.$2),
     _ => false,
   };

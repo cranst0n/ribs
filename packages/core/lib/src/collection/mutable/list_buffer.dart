@@ -283,15 +283,15 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
   }
 
   @override
-  ListBuffer<A> subtractOne(A elem) {
+  ListBuffer<A> subtractOne(A x) {
     _ensureUnaliased();
     if (isEmpty) {
-    } else if (_first.head == elem) {
+    } else if (_first.head == x) {
       _first = _first.tail;
       _reduceLengthBy(1);
     } else {
       var cursor = _first;
-      while (!cursor.tail.isEmpty && cursor.tail.head != elem) {
+      while (!cursor.tail.isEmpty && cursor.tail.head != x) {
         cursor = cursor.tail;
       }
       if (!cursor.tail.isEmpty) {

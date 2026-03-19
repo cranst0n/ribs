@@ -15,4 +15,5 @@ dependencies:
   test:      ^1.0.0
 
 dev_dependencies:
-  lint: ^2.8.0
+  lint:  ^2.8.0
+  lints: ^6.1.0

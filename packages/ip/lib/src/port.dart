@@ -32,7 +32,7 @@ final class Port extends Ordered<Port> {
   int compareTo(Port other) => value.compareTo(other.value);
 
   @override
-  bool operator ==(Object that) => switch (that) {
+  bool operator ==(Object other) => switch (other) {
     final Port that => value == that.value,
     _ => false,
   };

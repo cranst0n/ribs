@@ -38,20 +38,20 @@ final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   IHashSet<A> operator -(A a) => excl(a);
 
   @override
-  IHashSet<A> concat(RIterableOnce<A> that) {
-    if (that is IHashSet<A>) {
+  IHashSet<A> concat(RIterableOnce<A> suffix) {
+    if (suffix is IHashSet<A>) {
       if (isEmpty) {
-        return that;
+        return suffix;
       } else {
-        final newNode = _rootNode.concat(that._rootNode, 0);
-        if (newNode == that._rootNode) {
-          return that;
+        final newNode = _rootNode.concat(suffix._rootNode, 0);
+        if (newNode == suffix._rootNode) {
+          return suffix;
         } else {
           return _newHashSetOrThis(newNode);
         }
       }
     } else {
-      final iter = that.iterator;
+      final iter = suffix.iterator;
       var current = _rootNode;
 
       while (iter.hasNext) {
@@ -204,9 +204,9 @@ final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   IHashSet<A> get tail => this - head;
 
   @override
-  bool operator ==(Object that) => switch (that) {
-    final IHashSet<A> that => identical(this, that) || _rootNode == that._rootNode,
-    _ => super == that,
+  bool operator ==(Object other) => switch (other) {
+    final IHashSet<A> other => identical(this, other) || _rootNode == other._rootNode,
+    _ => super == other,
   };
 
   @override

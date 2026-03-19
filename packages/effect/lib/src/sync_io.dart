@@ -48,7 +48,7 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
     while (true) {
       if (cur0 is _Pure) {
-        cur0 = succeeded(conts, objectState, cur0.value, 0);
+        cur0 = _succeeded(conts, objectState, cur0.value, 0);
       } else if (cur0 is _Suspend) {
         dynamic result;
         Object? error;
@@ -61,10 +61,10 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
         cur0 =
             error == null
-                ? succeeded(conts, objectState, result, 0)
-                : failed(conts, objectState, error, 0);
+                ? _succeeded(conts, objectState, result, 0)
+                : _failed(conts, objectState, error, 0);
       } else if (cur0 is _Error) {
-        cur0 = failed(conts, objectState, cur0.value, 0);
+        cur0 = _failed(conts, objectState, cur0.value, 0);
       } else if (cur0 is _Map) {
         objectState = objectState.push(cur0.f);
         conts = conts.push(_Cont.Map);
@@ -96,7 +96,7 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
   }
 
   // todo: tailrec
-  SyncIO<dynamic> succeeded(
+  SyncIO<dynamic> _succeeded(
     Stack<_Cont> conts,
     Stack<dynamic> objectState,
     dynamic result,
@@ -104,17 +104,17 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
   ) {
     switch (conts.pop()) {
       case _Cont.Map:
-        return mapK(conts, objectState, result, depth);
+        return _mapK(conts, objectState, result, depth);
       case _Cont.FlatMap:
-        return flatMapK(conts, objectState, result, depth);
+        return _flatMapK(conts, objectState, result, depth);
       case _Cont.HandleErrorWith:
         objectState.pop();
-        return succeeded(conts, objectState, result, depth);
+        return _succeeded(conts, objectState, result, depth);
       case _Cont.RunTerminus:
         return _Success(result);
       case _Cont.Attempt:
         final f = objectState.pop() as Fn1;
-        return succeeded(
+        return _succeeded(
           conts,
           objectState,
           f(result),
@@ -123,7 +123,7 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
     }
   }
 
-  SyncIO<dynamic> failed(
+  SyncIO<dynamic> _failed(
     Stack<_Cont> conts,
     Stack<dynamic> objectState,
     Object error,
@@ -141,14 +141,14 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
       case _Cont.Map:
       case _Cont.FlatMap:
         objectState.pop();
-        return failed(conts, objectState, error, depth);
+        return _failed(conts, objectState, error, depth);
       case _Cont.HandleErrorWith:
         final f = objectState.pop() as Fn1;
 
         try {
           return f(error) as SyncIO<dynamic>;
         } catch (e) {
-          return failed(conts, objectState, e, depth + 1);
+          return _failed(conts, objectState, e, depth + 1);
         }
       case _Cont.RunTerminus:
         return _Failure(error);
@@ -156,7 +156,7 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
         // TODO: pop function to get proper Either cast
         final f = objectState.pop() as Fn1;
 
-        return succeeded(
+        return _succeeded(
           conts,
           objectState,
           f(error),
@@ -165,7 +165,7 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
     }
   }
 
-  SyncIO<dynamic> mapK(
+  SyncIO<dynamic> _mapK(
     Stack<_Cont> conts,
     Stack<dynamic> objectState,
     dynamic result,
@@ -190,14 +190,14 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
       }
     } else {
       if (error == null) {
-        return succeeded(conts, objectState, transformed, depth + 1);
+        return _succeeded(conts, objectState, transformed, depth + 1);
       } else {
-        return failed(conts, objectState, error, depth + 1);
+        return _failed(conts, objectState, error, depth + 1);
       }
     }
   }
 
-  SyncIO<dynamic> flatMapK(
+  SyncIO<dynamic> _flatMapK(
     Stack<_Cont> conts,
     Stack<dynamic> objectState,
     dynamic result,
@@ -208,7 +208,7 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
     try {
       return f(result) as SyncIO<dynamic>;
     } catch (e) {
-      return failed(conts, objectState, e, depth + 1);
+      return _failed(conts, objectState, e, depth + 1);
     }
   }
 

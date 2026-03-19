@@ -1215,7 +1215,7 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
   }
 
   @override
-  bool operator ==(Object that) => switch (that) {
+  bool operator ==(Object other) => switch (other) {
     final BitmapIndexedMapNode<K, V> node =>
       identical(this, node) ||
           ((cachedDartKeySetHashCode == node.cachedDartKeySetHashCode) &&
@@ -1825,7 +1825,7 @@ final class HashCollisionMapNode<K, V> extends MapNode<K, V> {
   }
 
   @override
-  bool operator ==(Object that) => switch (that) {
+  bool operator ==(Object other) => switch (other) {
     final HashCollisionMapNode<K, V> node =>
       identical(this, node) ||
           (hash == node.hash) && (content.length == node.content.length) && _contentEqual(node),

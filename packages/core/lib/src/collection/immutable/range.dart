@@ -299,14 +299,14 @@ abstract class Range with RIterableOnce<int>, RIterable<int>, RSeq<int>, Indexed
   }
 
   @override
-  bool operator ==(Object that) {
-    if (that is Range) {
-      return (isEmpty == that.isEmpty) &&
-          (start == that.start) &&
-          (last == that.last) &&
-          (start == last || step == that.step);
+  bool operator ==(Object other) {
+    if (other is Range) {
+      return (isEmpty == other.isEmpty) &&
+          (start == other.start) &&
+          (last == other.last) &&
+          (start == last || step == other.step);
     } else {
-      return super == that;
+      return super == other;
     }
   }
 

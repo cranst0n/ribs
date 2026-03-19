@@ -545,12 +545,12 @@ sealed class BitVector implements Comparable<BitVector> {
     }
   }
 
-  _Bytes compact() {
+  Bytes compact() {
     if (_bytesNeededForBits(size) > Integer.MaxValue) {
       throw ArgumentError('cannot compact bit vector of size ${size.toDouble() / 8 / 1e9} GB');
     }
 
-    IVector<_Bytes> go(IList<BitVector> b, IVector<_Bytes> acc) {
+    IVector<Bytes> go(IList<BitVector> b, IVector<Bytes> acc) {
       var currentB = b;
       var currentAcc = acc;
 
@@ -561,7 +561,7 @@ sealed class BitVector implements Comparable<BitVector> {
         switch (head) {
           case final _Suspend s:
             currentB = rem.prepended(s.underlying);
-          case final _Bytes bytesNode:
+          case final Bytes bytesNode:
             currentB = rem;
             currentAcc = currentAcc.appended(bytesNode);
           case final _Drop d:
@@ -581,13 +581,13 @@ sealed class BitVector implements Comparable<BitVector> {
     }
 
     switch (this) {
-      case final _Bytes bs:
+      case final Bytes bs:
         final b2 = bs.underlying.compact();
-        return b2 == bs.underlying ? bs : _Bytes(b2, bs.size);
+        return b2 == bs.underlying ? bs : Bytes(b2, bs.size);
       case final _Drop d:
         final bs = d.interpretDrop();
         final b2 = bs.underlying.compact();
-        return b2 == bs.underlying ? bs : _Bytes(b2, bs.size);
+        return b2 == bs.underlying ? bs : Bytes(b2, bs.size);
       default:
         final balanced = _reduceBalanced(
           go(ilist([this]), IVector.empty()),
@@ -595,20 +595,20 @@ sealed class BitVector implements Comparable<BitVector> {
           (x, y) => x.combine(y),
         );
 
-        return _Bytes(balanced.underlying.compact(), balanced.size);
+        return Bytes(balanced.underlying.compact(), balanced.size);
     }
   }
 
   /// Produce a single flat `Bytes` by interpreting any non-byte-aligned appends or drops. Unlike
   /// `compact`, the underlying `ByteVector` is not necessarily copied.
-  _Bytes align();
+  Bytes align();
 
   /// Return a `BitVector` with the same contents as `this`, but based off a single flat
   /// `ByteVector`. This function is guaranteed to copy all the bytes in this `BitVector`, unlike
   /// `compact`, which may no-op if this `BitVector` already consists of a single `ByteVector`
   /// chunk.
-  _Bytes copy() => switch (this) {
-    final _Bytes b => _Bytes(b.underlying.copy(), b.size),
+  Bytes copy() => switch (this) {
+    final Bytes b => Bytes(b.underlying.copy(), b.size),
     _ => compact(),
   };
 
@@ -622,7 +622,7 @@ sealed class BitVector implements Comparable<BitVector> {
         final tail = currentCont.tail;
 
         switch (cur) {
-          case final _Bytes b:
+          case final Bytes b:
             return tail.foldLeft(b, (a, b) => a.concat(b));
           case _Append(left: final l, right: final r):
             currentCont = tail.prepended(r).prepended(l);
@@ -701,7 +701,7 @@ sealed class BitVector implements Comparable<BitVector> {
 
   int toInt({bool signed = true, Endian ordering = Endian.big}) {
     return switch (this) {
-      final _Bytes bytes => switch (size) {
+      final Bytes bytes => switch (size) {
         32 when signed => ByteData.sublistView(
           bytes.underlying.toByteArray(),
         ).getInt32(0, ordering),
@@ -874,7 +874,7 @@ sealed class BitVector implements Comparable<BitVector> {
 
   BitVector _mapBytes(Function1<ByteVector, ByteVector> f) {
     return switch (this) {
-      final _Bytes b => _toBytes(f(b.underlying), b.size),
+      final Bytes b => _toBytes(f(b.underlying), b.size),
       _Append(left: final l, right: final r) => _Append(l._mapBytes(f), r._mapBytes(f)),
       final _Drop d => _Drop(d.underlying._mapBytes(f).compact(), d.offset),
       final _Suspend s => _Suspend(() => s.underlying._mapBytes(f)),
@@ -924,7 +924,7 @@ final class _Append extends BitVector {
           : _Append(left, right.update(n - left.size, high));
 
   @override
-  _Bytes align() => left.align().combine(right.align());
+  Bytes align() => left.align().combine(right.align());
 
   @override
   int get size {
@@ -1071,18 +1071,18 @@ final class _Append extends BitVector {
   }
 }
 
-final class _Bytes extends BitVector {
+final class Bytes extends BitVector {
   final ByteVector underlying;
 
   @override
   final int size;
 
-  _Bytes(this.underlying, this.size);
+  Bytes(this.underlying, this.size);
 
   @override
-  _Bytes align() => this;
+  Bytes align() => this;
 
-  _Bytes combine(_Bytes other) {
+  Bytes combine(Bytes other) {
     final nInvalidBits = invalidBits();
 
     if (isEmpty) {
@@ -1117,7 +1117,7 @@ final class _Bytes extends BitVector {
     } else if (n <= 0) {
       return this;
     } else if (n % 8 == 0) {
-      return _Bytes(underlying.drop(n ~/ 8), size - n);
+      return Bytes(underlying.drop(n ~/ 8), size - n);
     } else {
       return _Drop(this, n);
     }
@@ -1156,7 +1156,7 @@ final class _Bytes extends BitVector {
       underlying.lift(n ~/ 8).map((a) => _setBit(a, n % 8, high)).getOrElse(() => outOfBounds(n)),
     );
 
-    return _Bytes(b2, size);
+    return Bytes(b2, size);
   }
 
   int invalidBits() => 8 - _validBitsInLastByte(size);
@@ -1177,7 +1177,7 @@ final class _Chunks extends BitVector {
   BitVector get _unchunk => _Append(chunks.left, chunks.right._unchunk);
 
   @override
-  _Bytes align() => chunks.align();
+  Bytes align() => chunks.align();
 
   @override
   BitVector take(int n) => chunks.take(n);
@@ -1345,7 +1345,7 @@ final class _Buffer extends BitVector {
   }
 
   @override
-  _Bytes align() => unbuffer().align();
+  Bytes align() => unbuffer().align();
 
   @override
   BitVector update(int n, bool high) {
@@ -1368,13 +1368,13 @@ final class _Buffer extends BitVector {
 }
 
 final class _Drop extends BitVector {
-  final _Bytes underlying;
+  final Bytes underlying;
   final int offset;
 
   _Drop(this.underlying, this.offset);
 
   @override
-  _Bytes align() => interpretDrop();
+  Bytes align() => interpretDrop();
 
   @override
   BitVector drop(int n) {
@@ -1416,7 +1416,7 @@ final class _Drop extends BitVector {
   BitVector update(int n, bool high) =>
       _Drop(underlying.update(offset + n, high).compact(), offset);
 
-  _Bytes interpretDrop() {
+  Bytes interpretDrop() {
     final low = max(offset, 0);
     final newSize = size;
 
@@ -1464,7 +1464,7 @@ final class _Suspend extends BitVector {
   _Suspend(this.thunk);
 
   @override
-  _Bytes align() => underlying.align();
+  Bytes align() => underlying.align();
 
   @override
   BitVector drop(int n) => underlying.drop(n);
@@ -1515,10 +1515,10 @@ bool _getBit(int byte, int n) => ((0x00000080 >> n) & byte) != 0;
 int _setBit(int byte, int n, bool high) =>
     (high ? (0x00000080 >> n) | byte : (~(0x00000080 >> n)) & byte) & 0xff;
 
-_Bytes _toBytes(ByteVector bs, int sizeInBits) {
+Bytes _toBytes(ByteVector bs, int sizeInBits) {
   final needed = _bytesNeededForBits(sizeInBits);
   final b = bs.size > needed ? bs.take(needed) : bs;
-  return _Bytes(b, sizeInBits);
+  return Bytes(b, sizeInBits);
 }
 
 A _reduceBalanced<A>(

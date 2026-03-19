@@ -82,7 +82,7 @@ final class SocketAddress<A extends Host> {
   };
 
   @override
-  bool operator ==(Object that) => switch (that) {
+  bool operator ==(Object other) => switch (other) {
     final SocketAddress that => host == that.host && port == that.port,
     _ => false,
   };

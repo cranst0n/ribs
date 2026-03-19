@@ -1,4 +1,6 @@
-include: package:lint/strict.yaml
+include:
+  - package:lint/strict.yaml
+  - package:lints/recommended.yaml
 
 analyzer:
   language:

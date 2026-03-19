@@ -103,7 +103,7 @@ final class Hostname extends Host {
   String toString() => repr;
 
   @override
-  bool operator ==(Object that) => switch (that) {
+  bool operator ==(Object other) => switch (other) {
     final Hostname that => toString() == that.toString(),
     _ => false,
   };
@@ -128,7 +128,7 @@ final class HostnameLabel extends Ordered<HostnameLabel> {
   String toString() => _toStringF;
 
   @override
-  bool operator ==(Object that) => switch (that) {
+  bool operator ==(Object other) => switch (other) {
     final HostnameLabel that => toString() == that.toString(),
     _ => false,
   };
@@ -229,7 +229,7 @@ sealed class IpAddress extends Host {
   }
 
   @override
-  bool operator ==(Object that) => switch (that) {
+  bool operator ==(Object other) => switch (other) {
     final IpAddress that =>
       version == that.version && ilist(_bytes).zip(ilist(that._bytes)).forall((t) => t.$1 == t.$2),
     _ => false,
@@ -826,7 +826,7 @@ final class IDN extends Host {
   }
 
   @override
-  bool operator ==(Object that) => switch (that) {
+  bool operator ==(Object other) => switch (other) {
     final IDN that => toString() == that.toString(),
     _ => false,
   };
@@ -863,7 +863,7 @@ final class IDNLabel extends Ordered<IDNLabel> {
   String toString() => _toStringF;
 
   @override
-  bool operator ==(Object that) => switch (that) {
+  bool operator ==(Object other) => switch (other) {
     final IDNLabel that => toString() == that.toString(),
     _ => false,
   };

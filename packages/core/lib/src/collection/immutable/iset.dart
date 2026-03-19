@@ -206,9 +206,9 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
   ISet<(A, int)> zipWithIndex() => super.zipWithIndex().toISet();
 
   @override
-  bool operator ==(Object that) =>
-      identical(this, that) ||
-      switch (that) {
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      switch (other) {
         final ISet<A> thatSet => thatSet.size == size && subsetOf(thatSet),
         _ => false,
       };

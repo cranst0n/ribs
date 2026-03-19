@@ -20,5 +20,6 @@ dependencies:
 
 dev_dependencies:
   lint:       ^2.8.0
+  lints:      ^6.1.0
   ribs_check: ^1.0.0-dev.8
   test:       ^1.0.0

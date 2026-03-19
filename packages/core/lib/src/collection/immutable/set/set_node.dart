@@ -972,7 +972,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
   }
 
   @override
-  bool operator ==(Object that) => switch (that) {
+  bool operator ==(Object other) => switch (other) {
     final BitmapIndexedSetNode<A> node =>
       identical(this, node) ||
           ((cachedDartKeySetHashCode == node.cachedDartKeySetHashCode) &&

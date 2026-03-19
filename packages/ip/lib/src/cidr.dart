@@ -88,7 +88,7 @@ final class Cidr<A extends IpAddress> {
   String toString() => '$address/$prefixBits';
 
   @override
-  bool operator ==(Object that) => switch (that) {
+  bool operator ==(Object other) => switch (other) {
     final Cidr that => address == that.address && prefixBits == that.prefixBits,
     _ => false,
   };
