@@ -1,0 +1,85 @@
+---
+sidebar_position: 9
+---
+
+import {CodeSnippet} from '../../src/components/CodeSnippet';
+import TestingSnippet from '!!raw-loader!../../snippets/test/effect/testing_test.dart';
+
+# Testing
+
+ribs_effect ships test utilities in `package:ribs_effect/test.dart`:
+
+- **IO matchers** — `expect`-compatible matchers that run an `IO` and assert
+  its outcome
+- **`Ticker`** — a deterministic, virtual-clock runtime that fast-forwards
+  `IO.sleep` calls so time-sensitive tests run instantly
+
+---
+
+## IO Matchers
+
+The matchers integrate directly with `package:test`'s `expect`. Each matcher
+runs the `IO` through the default runtime and checks the resulting `Outcome`.
+
+| Matcher | Passes when |
+|---|---|
+| `ioSucceeded([matcher])` | IO completes with a value; optional `matcher` checked against the value |
+| `ioErrored([matcher])` | IO raises an error; optional `matcher` checked against the error |
+| `ioCanceled()` | IO is canceled before completing |
+| `expectIO(actual, matcher)` | Like `expectLater`, but returns `IO<Unit>` for chaining inside IO programs |
+
+<CodeSnippet snippet={TestingSnippet} section="testing-matchers" />
+
+### Composing with standard matchers
+
+`ioSucceeded` and `ioErrored` accept any `Matcher` from `package:test`, so
+you can compose them with the full set of built-in matchers — `greaterThan`,
+`isA`, `contains`, `hasLength`, and so on.
+
+<CodeSnippet snippet={TestingSnippet} section="testing-matchers-advanced" />
+
+---
+
+## Ticker
+
+The standard IO matchers run `IO` on a real runtime. That works for most tests,
+but it breaks down for IOs that involve `IO.sleep`: a test for a 10-hour timeout
+would have to wait 10 hours.
+
+`Ticker` solves this by running the `IO` on a **virtual clock** backed by
+`TestIORuntime`. Time only advances when you tell it to — no real wall-clock
+time ever passes.
+
+| Method / property | Description |
+|---|---|
+| `io.ticked` | Start `io` on a `TestIORuntime` and return a `Ticker<A>` |
+| `ticker.tick()` | Run all tasks scheduled at or before the current virtual time |
+| `ticker.tickAll()` | Advance through every pending sleep and run all tasks to completion |
+| `ticker.tickOne()` | Run exactly one queued task; returns `false` if none are ready |
+| `ticker.advance(d)` | Move the virtual clock forward by `d` without running tasks |
+| `ticker.advanceAndTick(d)` | Advance clock by `d`, then run all newly ready tasks |
+| `ticker.nonTerminating()` | Calls `tickAll()` then returns `true` if the IO has not yet completed |
+| `ticker.outcome` | `Future<Outcome<A>>` that completes when the IO finishes |
+| `ticker.nextInterval()` | Duration until the next scheduled task |
+
+<CodeSnippet snippet={TestingSnippet} section="testing-ticker" />
+
+`nonTerminating()` is the standard way to assert that an IO is permanently
+stuck — for example, verifying that acquiring a semaphore with zero permits
+truly suspends rather than proceeding or erroring.
+
+---
+
+## Real-world example: testing a polling loop
+
+A common pattern is to poll for external state on a fixed interval — retry an
+IO until it returns `Some`, sleeping between attempts. On a real clock, a test
+for this pattern would take as many seconds as there are retries. With `Ticker`,
+every sleep is skipped and the entire retry chain completes in microseconds.
+
+<CodeSnippet snippet={TestingSnippet} section="testing-ticker-realworld" />
+
+The cascade `..tickAll()` advances the virtual clock through all four
+one-second sleeps in sequence. The test verifies not just the final value, but
+also that the correct number of attempts were made — something that would be
+difficult to assert reliably against wall-clock time.

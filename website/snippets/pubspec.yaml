@@ -15,9 +15,28 @@ dependencies:
     path: ../../packages/core/
   ribs_effect:
     path: ../../packages/effect/
+  ribs_ip:
+    path: ../../packages/ip/
   ribs_json:
     path: ../../packages/json/
+  ribs_optics:
+    path: ../../packages/optics/
+  ribs_sql:
+    path: ../../packages/sql/
+  ribs_sqlite:
+    path: ../../packages/sqlite/
+  ribs_postgres:
+    path: ../../packages/postgres/
+  postgres: ^3.5.0
+  sqlite3: ^3.2.0
+  sqlite3_connection_pool: ^0.1.1
+  ribs_rill:
+    path: ../../packages/rill/
+  ribs_rill_io:
+    path: ../../packages/rill_io/
 
 dev_dependencies:
   lint: ^2.8.0
+  ribs_check:
+    path: ../../packages/check/
   test: ^1.0.0

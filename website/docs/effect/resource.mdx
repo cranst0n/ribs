@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 2
 ---
 
 import {CodeSnippet} from '../../src/components/CodeSnippet';
@@ -9,40 +9,89 @@ import ResourceSnippet from '!!raw-loader!../../snippets/lib/src/effect/resource
 
 ## Motivation
 
-It's quite common to encounter a case where a developer will need to acquire
-a limited resource (e.g. file, socket), use that resource in some way and then
-properly release that resource. Failure to do so is an easy way to leak finite
-resources.
+Whenever you open a file, acquire a database connection, or bind a network
+socket, you take on a responsibility: **you must release that resource when
+you are done**, regardless of whether your program succeeds, fails, or is
+canceled. Forgetting to do so leaks finite system resources and can silently
+corrupt state.
 
-`Resource` makes this common pattern easy to encode, without having to rely
-on unwieldy and error prone `try`/`catch`/`finally` blocks.
+The standard Dart answer is `try`/`finally`. For a single resource this is
+manageable, but it degrades quickly as soon as you need two resources at once:
 
-## Use Case
+<CodeSnippet snippet={ResourceSnippet} section="try-catch-finally" />
 
-Here's a basic example of using `Resource` in the wild in relation to reading
-a `File`:
+The deeper you nest, the more surface area exists for subtle mistakes —
+a misplaced `return`, an exception thrown in the wrong `finally` block, or
+simply losing track of which resource is closed by which handler.
 
-<CodeSnippet language="dart" snippet={ResourceSnippet} section="file-example" />
+---
 
-We now have a `Resource` that will automatically handle opening and closing the
-underlying resource (i.e. the `RandomAccessFile`) **regardless of whether the
-operation we use the resource with succeeds, fails or is canceled**. This
-naturally begs the question of how we are supposed to use the resource. For
-this example, let's say we need to read the first 100 bytes of data from the
-file:
+## Step up: `IO.bracket`
 
-<CodeSnippet language="dart" snippet={ResourceSnippet} section="file-example-use" />
+`IO` provides `bracket`, which guarantees that a release action runs after a
+`use` block, whether it completes successfully, raises an error, or is
+canceled. The same two-file copy using `bracket` looks like this:
 
-### Combinators
+<CodeSnippet snippet={ResourceSnippet} section="io-bracket" />
 
-:::tip
-`Resource` comes with many of the same combinators at `IO` like `map`,
-`flatMap`, etc.
+This is already safer than `try`/`finally` — cancellation is handled
+correctly, and the release is guaranteed. But notice the shape: each
+additional resource adds another level of nesting. With three or more
+resources, `bracket` chains become a rightward-growing pyramid that is hard to
+read and harder to refactor.
+
+:::info
+These examples use the built in `dart:io` functions to read/write to file. Ribs
+also provides it's own functional ways of reading and writing files and sockets
+in the `ribs_rill_io` package that seamlessly integrates with `IO` and `Resource`.
 :::
 
-Because `Resource` comes with these combinators, composing and managing
-multiple resources at one time become easy! When using `try`/`catch`/`finally`,
-things can get messy at best, and incorrect at worst. But using `Resource`
-it's possible to create readible, expressive code:
+---
 
-<CodeSnippet language="dart" snippet={ResourceSnippet} section="multiple-resources" />
+## `Resource`: composable lifecycle management
+
+`Resource<A>` pairs an acquisition effect with its finalizer into a **single,
+named value** that can be stored, passed around, and composed just like any
+other type. Under the hood, `Resource` is implemented in terms of `bracket`,
+so all the same safety guarantees apply — but the nesting disappears.
+
+### Creating a Resource
+
+`Resource.make` takes an acquire `IO` and a release function:
+
+<CodeSnippet snippet={ResourceSnippet} section="file-example" />
+
+The resulting `Resource<RandomAccessFile>` is completely inert until it is
+used — no file is opened yet.
+
+### Using a Resource
+
+Call `.use(f)` to open the resource, run `f` with the acquired value, then
+close the resource. The finalizer runs even if `f` raises an error or the
+fiber is canceled:
+
+<CodeSnippet snippet={ResourceSnippet} section="file-example-use" />
+
+`use` returns a plain `IO<B>`, so the result integrates naturally with the
+rest of your `IO` program. You can observe the outcome to react to success,
+failure, or cancellation:
+
+<CodeSnippet snippet={ResourceSnippet} section="file-example-outcome" />
+
+### Composing multiple Resources
+
+Because `Resource` has `map` and `flatMap`, two resources compose with the
+same combinators you already use on `IO`. When you need several resources
+open at once, tuple them and call `useN` to receive each value as a
+separate argument — no nesting required:
+
+<CodeSnippet snippet={ResourceSnippet} section="multiple-resources" />
+
+Finalizers run in **reverse acquisition order** (LIFO), so the last resource
+opened is always the first to be closed.
+
+:::tip
+`Resource` comes with the full set of `IO`-style combinators: `map`,
+`flatMap`, `flatTap`, `evalMap`, `mapN` / `useN` for tuples, and more.
+Any transformation you can express on `IO` can be expressed on `Resource`.
+:::

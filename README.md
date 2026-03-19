@@ -105,4 +105,3 @@ the following libraries.
 * [doobie](https://github.com/tpolecat/doobie)
 * [dart-check](https://github.com/wigahluk/dart-check)
 * [ip4s](https://github.com/Comcast/ip4s)
-* [punycode_converter](https://github.com/darkxanter/punycode_converter)

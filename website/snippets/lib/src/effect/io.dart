@@ -140,6 +140,147 @@ Future<void> conversionsSnippet() async {
   // conversions-bad-future
 }
 
+void deferSnippet() {
+  // io-defer
+
+  // IO.delay: synchronous thunk that produces a plain value A
+  final delayEx = IO.delay(() => Random.secure().nextInt(100));
+
+  // IO.defer: thunk that produces an IO<A> — use when choosing between IOs
+  // at runtime, or when IO construction itself could throw
+  IO<int> coinFlip() => IO.defer(() {
+    final heads = Random.secure().nextBool();
+    return heads ? IO.pure(1) : IO.raiseError('tails!');
+  });
+
+  // io-defer
+}
+
+void combinatorsSnippet() {
+  // io-combinators
+
+  // map: transform the successful value
+  final doubled = IO.pure(21).map((n) => n * 2); // IO(42)
+
+  // flatMap: sequence two IOs, passing the result of the first to the second
+  final chained = IO.pure(10).flatMap((n) => IO.pure(n + 5)); // IO(15)
+
+  // flatTap: run a side-effect using the value, then pass the value through
+  final logged = IO.pure(42).flatTap((n) => IO.print('computed: $n')); // IO(42)
+
+  // productR: run two IOs in sequence, keep only the second result
+  final init = IO.print('setup').productR(() => IO.pure(42)); // IO(42)
+
+  // attempt: pull a potential error into an Either instead of raising it
+  final safe = IO.raiseError<int>('oops').attempt(); // IO<Either<Object, int>>
+
+  // redeem: recover from an error or transform the success, all in one step
+  final recovered = IO.raiseError<int>('oops').redeem((_) => -1, (n) => n * 2); // IO(-1)
+
+  // io-combinators
+}
+
+void concurrencySnippet() {
+  // io-both
+
+  final fetchUser = IO.pure('Alice');
+  final fetchProfile = IO.pure(99);
+
+  // Both IOs run concurrently; if either fails the other is canceled
+  final program = IO
+      .both(fetchUser, fetchProfile)
+      .flatMap((t) => IO.print('user: ${t.$1}, score: ${t.$2}'));
+
+  // io-both
+
+  // io-race
+
+  final fast = IO.sleep(100.milliseconds).productR(() => IO.pure('fast result'));
+  final slow = IO.sleep(500.milliseconds).productR(() => IO.pure('slow result'));
+
+  // The winner is returned as Either<A, B>; the loser is automatically canceled
+  final race = IO
+      .race(fast, slow)
+      .map((winner) => winner.fold((a) => 'A won: $a', (b) => 'B won: $b'));
+
+  // io-race
+}
+
+void timingSnippet() {
+  // io-timing
+
+  // sleep: deliberate async delay
+  final delayed = IO.sleep(200.milliseconds).productR(() => IO.pure(42));
+
+  // timed: measure how long an IO takes
+  final measured = IO.pure(42).timed(); // IO<(Duration, int)>
+
+  // timeout: raise TimeoutException if the IO doesn't finish in time
+  final withTimeout = IO.sleep(5.seconds).timeout(1.seconds);
+
+  // timeoutTo: return a fallback IO instead of raising
+  final withFallback = IO
+      .sleep(5.seconds)
+      .productR(() => IO.pure(42))
+      .timeoutTo(1.seconds, IO.pure(-1));
+
+  // io-timing
+}
+
+void repetitionSnippet() {
+  // io-repetition
+
+  // replicate: run sequentially n times, collect results
+  final rolls = IO.delay(() => Random.secure().nextInt(6) + 1).replicate(3);
+  // IO<IList<int>>
+
+  // replicate_: run n times, discard results
+  final ticks = IO.print('tick').replicate_(5);
+
+  // iterateUntil: keep running until the predicate is satisfied
+  final poll = IO.delay(() => Random.secure().nextInt(100)).iterateUntil((n) => n > 90);
+  // IO<int> — repeats until a value > 90 is produced
+
+  // io-repetition
+}
+
+void traverseSnippet() {
+  // io-traverse
+
+  // traverseIO: apply an IO-valued function to each element, sequentially.
+  // Short-circuits on the first error — later elements are not evaluated.
+  final validated = ilist([2, 4, 6]).traverseIO(
+    (n) => n.isEven ? IO.pure(n * 10) : IO.raiseError<int>('odd: $n'),
+  ); // IO<IList<int>>([20, 40, 60])
+
+  // traverseIO_: same, but discard the results
+  final logged = ilist(['a', 'b', 'c']).traverseIO_((s) => IO.print('processing: $s'));
+
+  // sequence: collapse IList<IO<A>> into IO<IList<A>>
+  final actions = ilist([IO.pure(1), IO.pure(2), IO.pure(3)]);
+  final sequenced = actions.sequence(); // IO<IList<int>>
+
+  // parTraverseIO / parSequence: same ideas, but run all IOs concurrently
+  final parallel = ilist([1, 2, 3]).parTraverseIO((n) => IO.pure(n * 10));
+
+  // io-traverse
+}
+
+Future<void> outcomeSnippet() async {
+  // io-outcome
+
+  final outcome = await IO.pure(42).unsafeRunFutureOutcome();
+
+  // fold over the three possible cases: canceled, errored, succeeded
+  outcome.fold(
+    () => print('IO was canceled'),
+    (err, _) => print('IO failed: $err'),
+    (value) => print('IO succeeded: $value'), // IO succeeded: 42
+  );
+
+  // io-outcome
+}
+
 Future<void> cancelationSnippet() async {
   // cancelation-1
   int count = 0;

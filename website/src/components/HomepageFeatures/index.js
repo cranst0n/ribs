@@ -46,33 +46,33 @@ const FeatureList = [
     ),
   },
   {
-    title: 'Supercharged IO',
+    title: 'Supercharged Effects',
     Svg: require('@site/static/img/undraw_dev_productivity_re_fylf.svg').default,
     description: (
       <>
         Ribs <code>IO</code> type allows you to control your synchronous and asynchronous
         side effects with error handling and cancelation capabilities included!
-        <code>IO</code> is <code>Future</code> on sterioids!
       </>
     ),
   },
   {
-    title: 'Typesafe JSON',
-    Svg: require('@site/static/img/undraw_dev_focus_re_6iwt.svg').default,
-    description: (
-      <>
-        Say goodbye to <code>Map&lt;String, dynamic&gt;</code>! Ribs offers completely
-        typed JSON as well as streaming.
-      </>
-    ),
-  },
-  {
-    title: 'Binary Codecs',
+    title: 'Functional Streaming',
     Svg: require('@site/static/img/undraw_convert_re_l0y1.svg').default,
     description: (
       <>
-        Encoding and decoding binary data is a breeze with Ribs. Declare
-        your codecs and get control over every bit of data! Streaming
+        Ribs includes it's own pull based streaming data type.
+        <code>Rill</code> is referentially transparent, supports evaluating
+        effects and has guaranteed resource safety baked in!
+      </>
+    ),
+  },
+  {
+    title: 'Typesafe JSON and Binary',
+    Svg: require('@site/static/img/undraw_dev_focus_re_6iwt.svg').default,
+    description: (
+      <>
+        Encoding and decoding JSON and binary data is a breeze with Ribs.
+        Declare your codecs and get control over every bit of data. Streaming
         is also supported!
       </>
     ),

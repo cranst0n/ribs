@@ -1,5 +1,8 @@
 // ignore_for_file: avoid_print
 
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
@@ -41,3 +44,49 @@ final badJson = Json.parse('[ null, 1 true, "hi!", { "distance": 3.14 } ]');
 // Left(ParsingFailure(ParseException: expected ] or , got 'true, ... (line 1, column 11) [index: 10, line: 1, col: 11]))
 
 // parsing-4
+
+// parsing-5
+
+// parseBytes accepts a Uint8List — the format returned by HTTP clients and
+// file reads — without requiring a String conversion first.
+final rawBytes = Uint8List.fromList(utf8.encode('[1, 2, 3]'));
+final Either<ParsingFailure, Json> fromBytes = Json.parseBytes(rawBytes);
+// Right(JArray([JNumber(1), JNumber(2), JNumber(3)]))
+
+// parsing-5
+
+// parsing-6
+
+// ParsingFailure.message carries the full error description including the
+// line and column numbers — useful when surfacing errors in a UI or log.
+void showParsingFailure() {
+  final result = Json.parse('{"broken": }');
+
+  result.fold(
+    (failure) => print(failure.message),
+    // ParseException: expected field name got '}' (line 1, column 12)
+    //   [index: 11, line: 1, col: 12]
+    (json) => print(json),
+  );
+}
+
+// parsing-6
+
+// parsing-7
+
+// Json.decode parses and decodes in a single step, returning Either<Error, A>.
+// Error is a sealed type covering both ParsingFailure and DecodingFailure,
+// so a single fold handles all failure modes.
+final Either<Error, IList<int>> numbers = Json.decode(
+  '[1, 2, 3]',
+  Decoder.ilist(Decoder.integer),
+);
+// Right(IList(1, 2, 3))
+
+// decodeBytes does the same from a Uint8List
+final Either<Error, IList<int>> numbersFromBytes = Json.decodeBytes(
+  Uint8List.fromList(utf8.encode('[1, 2, 3]')),
+  Decoder.ilist(Decoder.integer),
+);
+
+// parsing-7

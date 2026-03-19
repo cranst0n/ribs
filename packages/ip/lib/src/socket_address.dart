@@ -7,6 +7,10 @@ final class SocketAddress<A extends Host> {
 
   const SocketAddress(this.host, this.port);
 
+  static final Wildcard = SocketAddress(Ipv4Address.Wildcard, Port.Wildcard);
+
+  static SocketAddress withPort(Port port) => SocketAddress(Ipv4Address.Wildcard, port);
+
   static Option<SocketAddress<Host>> fromString(String value) => fromStringIp(value)
       .map((a) => a as SocketAddress<Host>) // ignore: unnecessary_cast
       .orElse(

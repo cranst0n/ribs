@@ -1,0 +1,159 @@
+---
+sidebar_position: 1
+---
+
+import {CodeSnippet} from '../../src/components/CodeSnippet';
+import CheckSnippet from '!!raw-loader!../../snippets/test/check/property_based_testing_test.dart';
+
+# Property-Based Testing
+
+`ribs_check` is Ribs' property-based testing library, inspired by
+[ScalaCheck](https://scalacheck.org/) and
+[QuickCheck](https://hackage.haskell.org/package/QuickCheck).
+
+Instead of writing individual test cases with hand-picked inputs, you describe
+the *properties* your code must satisfy and let the library generate hundreds of
+random inputs automatically — then minimise any failing input to the simplest
+possible counterexample.
+
+## Motivation
+
+Consider testing a function that reverses a list. The obvious approach is to
+pick a few inputs:
+
+```dart
+test('reverse', () {
+  expect(reverse([1, 2, 3]), equals([3, 2, 1]));
+  expect(reverse([]),        equals([]));
+});
+```
+
+This only covers two cases. With property-based testing you describe the
+*invariants* that must hold for any input:
+
+- Reversing a list twice gives back the original list.
+- A reversed list has the same length as the original.
+
+`ribs_check` generates 100 (or more) random inputs automatically and checks
+each one. If any input fails, it *shrinks* the failing value down to the
+smallest counterexample before reporting the error.
+
+---
+
+## Your first property
+
+`Gen<A>` is a generator of random values of type `A`. Call `.forAll` on any
+`Gen` to register a property as a test:
+
+<CodeSnippet snippet={CheckSnippet} section="check-basic" />
+
+Every `Gen.forAll` call is equivalent to calling `test(...)` from the `test`
+package — it integrates directly with the normal test runner.
+
+### Built-in generators
+
+| Generator | Type | Description |
+|---|---|---|
+| `Gen.integer` | `Gen<int>` | Full 32-bit signed range |
+| `Gen.positiveInt` | `Gen<int>` | `[1, MaxInt]` |
+| `Gen.nonNegativeInt` | `Gen<int>` | `[0, MaxInt]` |
+| `Gen.chooseInt(min, max)` | `Gen<int>` | Range `[min, max]` |
+| `Gen.chooseDouble(min, max)` | `Gen<double>` | Range `[min, max]` |
+| `Gen.boolean` | `Gen<bool>` | `true` or `false` |
+| `Gen.alphaLowerChar` | `Gen<String>` | One lowercase letter |
+| `Gen.alphaLowerString([n])` | `Gen<String>` | Up to `n` lowercase letters |
+| `Gen.alphaNumString([n])` | `Gen<String>` | Up to `n` alphanumeric chars |
+| `Gen.nonEmptyAlphaNumString([n])` | `Gen<String>` | At least one char |
+| `Gen.ilistOf(sizeGen, gen)` | `Gen<IList<A>>` | Variable-length list |
+| `Gen.ilistOfN(n, gen)` | `Gen<IList<A>>` | Exactly `n` elements |
+| `Gen.option(gen)` | `Gen<Option<A>>` | 10% `None`, 90% `Some` |
+| `Gen.either(genA, genB)` | `Gen<Either<A,B>>` | 50/50 `Left`/`Right` |
+| `Gen.chooseEnum(values)` | `Gen<T>` | Uniformly picks an enum variant |
+| `Gen.date` | `Gen<DateTime>` | Random date (date only) |
+| `Gen.dateTime` | `Gen<DateTime>` | Random date and time |
+| `Gen.duration` | `Gen<Duration>` | Random duration |
+| `Gen.oneOf(values)` | `Gen<A>` | Uniformly picks from a list |
+| `Gen.frequency(weights)` | `Gen<A>` | Picks a generator by weight |
+
+---
+
+## Combining generators
+
+`Gen` is a `Monad` — `map` and `flatMap` let you build complex generators from
+simple ones. A Dart record of generators provides a multi-parameter `forAll`
+that receives each value as a separate named argument.
+
+<CodeSnippet snippet={CheckSnippet} section="check-combining" />
+
+Key points:
+
+- **`map`** transforms the generated value without consuming new randomness.
+- **`flatMap`** produces a new `Gen` from the generated value — essential for
+  *dependent* generators where one value constrains the range of another (the
+  `rangeGen` example above).
+- **Tuple syntax** `(Gen<A>, Gen<B>).forAll(desc, (A a, B b) { ... })` runs
+  two independent generators and passes each result as a separate argument.
+  Tuples up to arity 22 are supported.
+- **`Gen.frequency`** assigns integer weights to generators; each pair is
+  `(weight, gen)`.
+- **`Gen.retryUntil(p)`** re-samples until the predicate holds — use sparingly
+  (up to 1000 retries; prefer `flatMap` for dependent structure).
+
+---
+
+## Custom generators
+
+For domain types, combine generators with `.tupled` and `.map`:
+
+<CodeSnippet snippet={CheckSnippet} section="check-custom-gen" />
+
+`(gen1, gen2, gen3).tupled` produces a `Gen<(A, B, C)>` whose shrinker is
+automatically composed from the shrinkers of each component. Any `Gen` built
+from these primitives inherits shrinking for free.
+
+---
+
+## Shrinking
+
+When a property fails, `ribs_check` does not just report the first failing
+input. It *shrinks* — repeatedly tries smaller variants of the failing value
+until it finds the minimal counterexample that still causes the failure.
+
+<CodeSnippet snippet={CheckSnippet} section="check-shrinking" />
+
+Shrinkers are built into the standard generators:
+
+| Generator | Shrinks toward |
+|---|---|
+| `Gen.integer` / `Gen.chooseInt` | `0` (bisects the distance) |
+| `Gen.chooseDouble` | `0.0` (bisects the distance) |
+| `Gen.alphaLowerString` / `Gen.alphaNumString` | Shorter strings |
+| `Gen.ilistOf` / `Gen.ilistOfN` | Shorter lists, then smaller elements |
+| `Gen.option` | `None`, then smaller `Some` value |
+| `Gen.either` | Smaller `Left`/`Right` value |
+
+Custom generators built with `map`, `flatMap`, and `tupled` compose their
+shrinkers automatically. If you need full control, call
+`.withShrinker(Shrinker(fn))` on any `Gen` to replace its shrinker.
+
+---
+
+## Seeds and reproducibility
+
+By default, `ribs_check` seeds each run from the current timestamp so every
+run exercises different inputs. When a failure is found, the seed is printed so
+you can reproduce it exactly:
+
+```
+Failed after 7 iterations using value <-42> and initial seed of [1706123456789].
+To reproduce this failure, use seed: 1706123456789 in your forAllN/Prop call, or run:
+RIBS_CHECK_SEED=1706123456789 dart test --plain-name "my property description"
+```
+
+<CodeSnippet snippet={CheckSnippet} section="check-seed" />
+
+| Option | Effect |
+|---|---|
+| `seed: n` | Lock the RNG seed for this property |
+| `numTests: n` | Number of inputs to generate (default 100) |
+| `RIBS_CHECK_SEED=n` env var | Override the seed for all properties in the run |

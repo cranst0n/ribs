@@ -4,6 +4,8 @@ final class Port extends Ordered<Port> {
   static const MinValue = 0;
   static const MaxValue = 65535;
 
+  static const Wildcard = Port._(0);
+
   final int value;
 
   const Port._(this.value);

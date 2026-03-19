@@ -75,3 +75,30 @@ Future<void> snippet3() async {
 
   // streaming-3
 }
+
+// streaming-4
+
+// singleValue buffers the entire stream before emitting exactly one Json value.
+// Useful when you receive a complete JSON document in chunks and want a single
+// fully-parsed result at the end.
+final Stream<Json> singleDocument = File(
+  'config.json',
+).openRead().transform(JsonTransformer.bytes(AsyncParserMode.singleValue));
+
+// streaming-4
+
+// streaming-5
+
+// JsonTransformer.strings accepts a Stream<String> instead of Stream<List<int>>.
+// This is convenient when the data source already decodes bytes to UTF-8 text
+// (e.g. some HTTP clients, or a text file reader).
+final Stream<String> stringChunks = Stream.fromIterable([
+  '[{"id": "1", "type": "PushEvent", "repo": {"id": 1, "name": "a/b"}}, ',
+  ' {"id": "2", "type": "CreateEvent", "repo": {"id": 2, "name": "c/d"}}]',
+]);
+
+final Stream<Json> fromStrings = stringChunks.transform(
+  JsonTransformer.strings(AsyncParserMode.unwrapArray),
+);
+
+// streaming-5

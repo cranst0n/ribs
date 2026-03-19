@@ -14,7 +14,7 @@ developer to check what type of data exactly they're dealing with. Then you
 also have to deal with the potential thrown exception, adding yet another
 responsibility which could instead be encoded as a type.
 
-By contrast Ribs uses it's own parser (heavily derived from Scala's jawn),
+By contrast Ribs uses it's own parser (derived from Scala's jawn),
 to build typed JSON data! No more type checks or casts using `is` or `as`
 which pollute your code and reduce the readability.
 
@@ -53,4 +53,42 @@ parsed and has the proper type.
 Naturally if we feed an invalid JSON string into the parser, we'll get an
 error. For illustrative purposes:
 
-<CodeSnippet language="dart" title="Typed JSON" snippet={ParsingSnippet} section="parsing-4"/>
+<CodeSnippet language="dart" title="Parse failure" snippet={ParsingSnippet} section="parsing-4"/>
+
+## Parsing from bytes
+
+`Json.parse` expects a `String`, but in practice JSON often arrives as raw
+bytes — from an HTTP response body, a file read, or a network socket.
+`Json.parseBytes` accepts a `Uint8List` directly, skipping the intermediate
+string allocation:
+
+<CodeSnippet language="dart" title="Json.parseBytes" snippet={ParsingSnippet} section="parsing-5"/>
+
+The return type is identical to `Json.parse`: `Either<ParsingFailure, Json>`.
+
+## ParsingFailure in detail
+
+A `ParsingFailure` wraps a single `message` string produced by the parser.
+The message includes the unexpected token, the line number, and the column
+number, which makes it straightforward to present a meaningful error to a user
+or write it to a structured log:
+
+<CodeSnippet language="dart" title="ParsingFailure.message" snippet={ParsingSnippet} section="parsing-6"/>
+
+## Parsing and decoding in one step
+
+`Json.parse` only takes you as far as an untyped `Json` tree. The vast
+majority of the time you also want to decode that tree into a domain type.
+`Json.decode` combines both steps and returns `Either<Error, A>`:
+
+<CodeSnippet language="dart" title="Json.decode and Json.decodeBytes" snippet={ParsingSnippet} section="parsing-7"/>
+
+`Error` is a sealed supertype of both `ParsingFailure` and `DecodingFailure`,
+so a single `fold` handles every failure mode at once. `Json.decodeBytes`
+is the byte-input counterpart, matching `Json.parseBytes`.
+
+:::tip
+`Json.decode` is usually the right starting point when you know the expected
+shape of the data up front. Save `Json.parse` for cases where you need to
+inspect or transform the raw `Json` tree before handing it off to a decoder.
+:::

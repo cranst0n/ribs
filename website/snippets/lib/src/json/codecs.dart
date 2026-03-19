@@ -168,18 +168,20 @@ void snippet6() {
     (petType) => petType.index,
   );
 
-  final petCodec = Codec.product3(
+  final petCodec = (
     'name'.as(Codec.string), // Same as: Codec.string.atField('name'),
     'weight'.as(Codec.dubble).optional(),
     'type'.as(petTypeCodec),
+  ).product(
     Pet.new,
     (p) => (p.name, p.weight, p.type),
   );
 
-  final userCodec = Codec.product3(
+  final userCodec = (
     'name'.as(Codec.string),
     'age'.as(Codec.integer),
     'pets'.as(Codec.ilist(petCodec)),
+  ).product(
     User.new, // Constructor tear-off
     (u) => (u.name, u.age, u.pets), // Describe how to turn user into tuple
   );

@@ -1,0 +1,86 @@
+---
+sidebar_position: 3
+---
+
+import {CodeSnippet} from '../../src/components/CodeSnippet';
+import PostgresSnippet from '!!raw-loader!../../snippets/lib/src/sql/postgres.dart';
+
+# Postgres
+
+`ribs_postgres` is the PostgreSQL backend for `ribs_sql`. It wraps the
+[`postgres`](https://pub.dev/packages/postgres) Dart driver and exposes two
+concrete `Transactor` implementations:
+
+| Implementation | Connections | Use case |
+|---|---|---|
+| `PostgresTransactor` | Single shared connection | Scripts, low-traffic services |
+| `PostgresPoolTransactor` | `pg.Pool`-managed pool | Production, concurrent workloads |
+
+Both return `Resource<Transactor>`, guaranteeing the underlying connection or
+pool is closed cleanly on success, error, or fiber cancellation.
+
+:::note Placeholder conversion
+The PostgreSQL wire protocol uses `$1`, `$2`, … positional placeholders, but
+`ribs_sql` uses `?` throughout. `ribs_postgres` rewrites `?` to `$N`
+automatically, so every `Query`, `Update`, and `Fragment` you write is
+identical to the SQLite equivalent.
+:::
+
+## PostgresTransactor — single connection
+
+`PostgresTransactor.create` opens one connection when the `Resource` is
+acquired and reuses it for every `transact()` and `stream()` call. Transactions
+are serialised over this single connection, which keeps the setup simple but
+limits throughput under concurrent load.
+
+<CodeSnippet language="dart" title="PostgresTransactor" snippet={PostgresSnippet} section="postgres-single"/>
+
+`pg.Endpoint` accepts `host`, `port` (default `5432`), `database`, `username`,
+and `password`. The optional `settings` parameter takes a
+`pg.ConnectionSettings` for controlling SSL mode, timeouts, and other
+connection-level options.
+
+## PostgresPoolTransactor — connection pool
+
+`PostgresPoolTransactor` wraps `pg.Pool` from the `postgres` package. Each
+`transact()` call borrows a session from the pool, runs the `ConnectionIO`
+inside a database transaction, and returns the session automatically — even on
+error or fiber cancellation.
+
+### From endpoints
+
+`withEndpoints` accepts a list of `pg.Endpoint` objects. When more than one
+endpoint is provided, the pool distributes new connections across them using
+round-robin selection, which is useful for read replicas or multi-node setups.
+`pg.PoolSettings` controls the pool size and SSL mode:
+
+<CodeSnippet language="dart" title="PostgresPoolTransactor.withEndpoints" snippet={PostgresSnippet} section="postgres-pool-endpoints"/>
+
+### From a URL
+
+`withUrl` accepts a standard PostgreSQL connection URL. This is convenient when
+the connection string comes from an environment variable:
+
+<CodeSnippet language="dart" title="PostgresPoolTransactor.withUrl" snippet={PostgresSnippet} section="postgres-pool-url"/>
+
+## Placeholder conversion
+
+`?` placeholders in SQL strings and `Fragment.param` calls are automatically
+rewritten to `$1`, `$2`, … before the statement is sent to the driver.
+This means `Query`, `Update`, `ParameterizedQuery`, and `Fragment` look exactly
+the same as they do in the [Overview](/docs/sql/overview) examples:
+
+<CodeSnippet language="dart" title="? placeholders work unchanged" snippet={PostgresSnippet} section="postgres-placeholders"/>
+
+## Example program
+
+The following snippet defines an `Employee` domain model and runs a complete
+create-insert-query workflow against a pool transactor. All `ConnectionIO`
+steps compose with `flatMap` and execute inside a single `BEGIN`/`COMMIT`
+transaction:
+
+<CodeSnippet language="dart" title="End-to-end example" snippet={PostgresSnippet} section="postgres-example"/>
+
+`program()` returns `IO<IList<Employee>>`. Nothing is executed until the `IO`
+is run at the application boundary. The pool is opened and closed by the
+`Resource` scope inside `withUrl(...).use(...)`.

@@ -48,7 +48,7 @@ const config = {
     ({
       image: 'img/logo.jpg',
       colorMode: {
-        defaultMode: 'light',
+        defaultMode: 'dark',
       },
       navbar: {
         title: 'Ribs',

@@ -7,10 +7,7 @@ import 'package:ribs_rill_io/ribs_rill_io.dart';
 import 'package:test/test.dart';
 
 void main() {
-  SocketAddress addr(int port) => SocketAddress(
-    Ipv4Address.fromBytes(127, 0, 0, 1),
-    Port.fromInt(port).getOrElse(() => throw StateError('invalid port: $port')),
-  );
+  final port = Port.fromInt(58001).getOrElse(() => throw StateError('invalid port'));
 
   group('Socket', () {
     test(
@@ -24,7 +21,7 @@ void main() {
         final serverReady = Completer<void>();
 
         final serverFuture =
-            Network.bind(addr(58001)).use((server) {
+            Network.bind(SocketAddress.withPort(port)).use((server) {
               serverReady.complete();
               return server.accept
                   .take(1)
@@ -36,7 +33,7 @@ void main() {
         await serverReady.future;
 
         final clientFuture =
-            Network.connect(addr(58001)).use((socket) {
+            Network.connect(SocketAddress.withPort(port)).use((socket) {
               return Rill.emits(payload).through(socket.writes).compile.drain;
             }).unsafeRunFuture();
 
@@ -56,7 +53,7 @@ void main() {
         // bindAndAccept binds lazily inside the Rill; yield to the event loop
         // via a short delay to let the bind complete before connecting.
         final serverFuture =
-            Network.bindAndAccept(addr(58002))
+            Network.bindAndAccept(SocketAddress.withPort(port))
                 .take(1)
                 .flatMap((client) => client.reads.take(payload.length))
                 .compile
@@ -66,7 +63,7 @@ void main() {
         await Future<void>.delayed(const Duration(milliseconds: 50));
 
         final clientFuture =
-            Network.connect(addr(58002)).use((socket) {
+            Network.connect(SocketAddress.withPort(port)).use((socket) {
               return Rill.emits(payload).through(socket.writes).compile.drain;
             }).unsafeRunFuture();
 
