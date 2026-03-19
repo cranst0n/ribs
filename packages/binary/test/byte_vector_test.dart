@@ -332,12 +332,12 @@ void main() {
     test('fail due to illegal character fromBase58', () {
       expect(
         ByteVector.fromBase58Descriptive('R3C0NFxN'),
-        "Invalid base 58 character '0' at index 3".asLeft<ByteVector>(),
+        "Invalid argument(s): Invalid base 58 character '0' at index 3".asLeft<ByteVector>(),
       );
 
       expect(
         ByteVector.fromBase58Descriptive('03CMNFxN'),
-        "Invalid base 58 character '0' at index 0".asLeft<ByteVector>(),
+        "Invalid argument(s): Invalid base 58 character '0' at index 0".asLeft<ByteVector>(),
       );
 
       expect(

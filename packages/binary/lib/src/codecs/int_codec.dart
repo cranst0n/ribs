@@ -13,7 +13,8 @@ final class IntCodec extends Codec<int> {
   final int maxValue;
 
   IntCodec(this.bits, this.signed, this.ordering)
-    : minValue = signed ? -pow(2, bits - 1).toInt() : 0,
+    : assert(bits > 0, 'IntCodec: bits must be positive'),
+      minValue = signed ? -pow(2, bits - 1).toInt() : 0,
       maxValue = (pow(2, signed ? bits - 1 : bits).toInt()) - 1;
 
   @override

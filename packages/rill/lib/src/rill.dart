@@ -235,6 +235,7 @@ class Rill<O> {
   }
 
   static Rill<O> fromRIterator<O>(RIterator<O> it, {int chunkSize = 64}) {
+    assert(chunkSize > 0, 'Rill.fromRIterator: chunkSize must be positive');
     IO<Option<(Chunk<O>, RIterator<O>)>> getNextChunk(RIterator<O> i) {
       return IO.delay(() {
         final bldr = <O>[];
@@ -328,6 +329,7 @@ class Rill<O> {
     int step = 1,
     int chunkSize = 64,
   }) {
+    assert(chunkSize > 0, 'chunkSize must be positive');
     if (step == 0) {
       return Rill.empty();
     } else {
@@ -544,14 +546,17 @@ class Rill<O> {
     });
   });
 
-  Rill<Chunk<O>> chunkN(int n, {bool allowFewer = true}) => repeatPull((tp) {
-    return tp.unconsN(n, allowFewer: allowFewer).flatMap((hdtl) {
-      return hdtl.foldN(
-        () => Pull.pure(none()),
-        (hd, tl) => Pull.output1(hd).as(Some(tl)),
-      );
+  Rill<Chunk<O>> chunkN(int n, {bool allowFewer = true}) {
+    assert(n > 0, 'n must be positive');
+    return repeatPull((tp) {
+      return tp.unconsN(n, allowFewer: allowFewer).flatMap((hdtl) {
+        return hdtl.foldN(
+          () => Pull.pure(none()),
+          (hd, tl) => Pull.output1(hd).as(Some(tl)),
+        );
+      });
     });
-  });
+  }
 
   Rill<O> concurrently<O2>(Rill<O2> that) {
     return _concurrentlyAux(that).flatMap((tuple) {
@@ -1515,6 +1520,7 @@ class Rill<O> {
   Rill<O> get scope => Pull.scope(underlying).rillNoScope;
 
   Rill<Chunk<O>> sliding(int size, {int step = 1}) {
+    assert(size > 0 && step > 0, 'size and step must be positive');
     Pull<Chunk<O>, Unit> stepNotSmallerThanSize(Rill<O> s, Chunk<O> prev) {
       return s.pull.uncons.flatMap(
         (hdtl) => hdtl.foldN(

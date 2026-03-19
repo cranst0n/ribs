@@ -20,7 +20,10 @@ sealed class ByteVector {
 
   factory ByteVector.high(int size) => ByteVector.fill(size, 0xff);
 
-  factory ByteVector.fill(int size, int byte) => _Chunk(_View(At((i) => byte), 0, size));
+  factory ByteVector.fill(int size, int byte) {
+    assert(size >= 0, 'ByteVector.fill: size must be non-negative');
+    return _Chunk(_View(At((i) => byte), 0, size));
+  }
 
   factory ByteVector.from(RIterableOnce<int> bs) => ByteVector(bs.toList());
 
