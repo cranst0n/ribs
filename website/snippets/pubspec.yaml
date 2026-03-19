@@ -32,6 +32,8 @@ dependencies:
     path: ../../packages/sql/
   ribs_sqlite:
     path: ../../packages/sqlite/
+  ribs_units:
+    path: ../../packages/units/
   sqlite3: ^3.2.0
   sqlite3_connection_pool: ^0.2.0+1
 

@@ -18,7 +18,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'API Reference',
-      collapsed: false,
+      collapsed: true,
       items: [
         { type: 'link', label: 'Core', href: 'https://pub.dev/documentation/ribs_core/latest/ribs_core/' },
         { type: 'link', label: 'Effect', href: 'https://pub.dev/documentation/ribs_effect/latest/ribs_effect/' },

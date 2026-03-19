@@ -1,8 +1,9 @@
 # Benchmarks
 
 To the greatest extent possible, performance is optimized to be competitive with the standard library.
-It's not uncommon for ribs to outperform the standard library in certain scenarios but the best way
-to determine if ribs is right for your use-case is to test and measure yourself.
+While some ribs features can lag behind their built in counterparts, tt's not uncommon for ribs to
+outperform the standard library in certain scenarios but the best way to determine if ribs is right
+for your use-case is to test and measure yourself.
 
 ### Running
 
@@ -21,6 +22,9 @@ dart run benchmark_harness:bench --flavor aot --target packages/bench/bin/rill.d
 
 # Compare Dart json parsing with ribs
 dart run benchmark_harness:bench --flavor aot --target packages/bench/bin/json.dart
+
+# Compare raw Uint8List parsing with ribs
+dart run benchmark_harness:bench --flavor aot --target packages/bench/bin/binary.dart
 
 # Compare Collections
 dart run benchmark_harness:bench --flavor aot --target packages/bench/bin/collection/map.dart
