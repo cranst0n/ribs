@@ -2,7 +2,13 @@
 ********************************************************************************
 ********************************************************************************
 **      Code in ribs is derived in part from other open source software.      **
-**            You can find their licenses in the `licences` folder.           **
+**   You can find their licenses in the `licences/` folder and attribution    **
+**   notices in the `NOTICE` file.                                            **
+**                                                                            **
+**   Upstream licenses: Scala (Apache 2.0), cats-effect (Apache 2.0),         **
+**   doobie(MIT), fs2 (MIT), circe (Apache 2.0), cats-retry (Apache 2.0),     **
+**   scodec (BSD 3-Clause), squants (Apache 2.0), ip4s (Apache 2.0),          **
+**   dart-check (MIT).                                                        **
 ********************************************************************************
 ********************************************************************************
 
@@ -196,7 +202,7 @@
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright [yyyy] [name of copyright owner]
+   Copyright 2026 Ian McIntosh
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

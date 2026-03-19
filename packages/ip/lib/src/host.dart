@@ -1,3 +1,16 @@
+// This file is derived in part from ip4s.
+// https://github.com/Comcast/ip4s
+//
+// ip4s (https://github.com/Comcast/ip4s)
+//
+// Copyright 2018 Comcast Cable Communications Management, LLC
+//
+// Licensed under Apache License 2.0
+// (http://www.apache.org/licenses/LICENSE-2.0).
+//
+// See the NOTICE file distributed with this work for
+// additional information regarding copyright ownership.
+
 import 'dart:typed_data';
 
 import 'package:punycoder/punycoder.dart';
@@ -246,7 +259,9 @@ sealed class IpAddress extends Host {
 ///
 ///
 final class Ipv4Address extends IpAddress {
-  Ipv4Address._(super._bytes);
+  const Ipv4Address._(super._bytes);
+
+  static final Wildcard = Ipv4Address._(Uint8List.fromList([0, 0, 0, 0]));
 
   static IO<IList<IpAddress>> loopback() =>
       IpAddress.loopback().map((ifaces) => ifaces.filter((iface) => iface.version == IpVersion.v4));
