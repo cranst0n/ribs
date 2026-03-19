@@ -7,7 +7,7 @@ void main() {
   test('resolve / reverse roundtrip', () async {
     final hostname = Hostname.fromString(
       'comcast.com',
-    ).getOrElse(() => throw 'Dns.resolve test failed');
+    ).getOrElse(() => throw StateError('Dns.resolve test failed'));
 
     final addresses = await Dns.resolve(hostname).unsafeRunFuture();
 

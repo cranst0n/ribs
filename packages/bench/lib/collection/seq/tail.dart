@@ -42,7 +42,7 @@ class DartzIListTailBenchmark extends BenchmarkBase {
   void setup() => l = genDartzList(n);
 
   @override
-  void run() => l.tailOption.getOrElse(() => throw '');
+  void run() => l.tailOption.getOrElse(() => throw StateError('tail of empty list'));
 }
 
 class FICIListTailBenchmark extends BenchmarkBase {

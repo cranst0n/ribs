@@ -11,7 +11,7 @@ void main() {
     Gen.listOfN(6, Gen.byte).forAll('roundtrip through string', (bytes) {
       final addr = MacAddress.fromByteList(
         bytes,
-      ).getOrElse(() => throw 'MacAddress string roundtrip failed: $bytes');
+      ).getOrElse(() => throw StateError('MacAddress string roundtrip failed: $bytes'));
       expect(MacAddress.fromString(addr.toString()), isSome(addr));
     });
 

@@ -138,7 +138,7 @@ class RillResourceCompile<O> {
       if (chunk.isEmpty) {
         return acc;
       } else if (acc.isDefined || chunk.size > 1) {
-        throw 'Expected singleton rill';
+        throw StateError('Expected singleton rill');
       } else {
         return chunk.headOption;
       }

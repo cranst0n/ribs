@@ -65,7 +65,7 @@ final class _Vector4<A> extends _BigVector<A> {
         return _prefix1[idx] as A;
       }
     } else {
-      throw throw _rngErr(idx);
+      throw _rngErr(idx);
     }
   }
 

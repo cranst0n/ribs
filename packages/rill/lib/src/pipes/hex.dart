@@ -34,7 +34,7 @@ final class HexPipes {
               midByte = true;
             }
           } catch (e) {
-            throw "Invalid hexadecimal character: '$c'";
+            throw ArgumentError("Invalid hexadecimal character: '$c'");
           }
         }
 

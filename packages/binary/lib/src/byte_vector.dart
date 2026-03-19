@@ -104,7 +104,7 @@ sealed class ByteVector {
         } catch (_) {
           final idx = trim.takeWhile((x) => x != c).length;
 
-          throw "Invalid base 58 character '$c' at index $idx";
+          throw ArgumentError("Invalid base 58 character '$c' at index $idx");
         }
       });
 

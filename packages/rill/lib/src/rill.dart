@@ -1177,7 +1177,7 @@ class Rill<O> {
               return switch (current) {
                 (None(), None()) => (Some(result), none()),
                 (Some(:final value), None()) => (Option(value), Option(result)),
-                _ => throw 'Rill.merge_: impossible',
+                _ => throw StateError('Rill.merge_: impossible'),
               };
             });
           }
