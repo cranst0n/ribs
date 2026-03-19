@@ -129,7 +129,7 @@ final class _SqliteLeaseConnection extends SqlConnection {
   @override
   Rill<Row> streamQuery(String sql, StatementParameters params) {
     return Rill.bracket(
-      IO.delay(() => _lease.unsafeRawDatabase.prepare(sql)),
+      IO.delay(() => _lease.unsafeRawConnection.database.prepare(sql)),
       (stmt) => IO.exec(() => stmt.close()),
     ).flatMap((stmt) => rillFromSqliteCursor(stmt.selectCursor(params.toList)));
   }

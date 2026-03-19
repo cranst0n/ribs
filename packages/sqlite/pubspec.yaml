@@ -17,8 +17,8 @@ dependencies:
   ribs_effect:             ^1.0.0-dev.3
   ribs_rill:               ^1.0.0-dev.1
   ribs_sql:                ^1.0.0-dev.1
-  sqlite3:                 ^3.1.6
-  sqlite3_connection_pool: ^0.1.1
+  sqlite3:                 ^3.2.0
+  sqlite3_connection_pool: ^0.2.0+1
 
 dev_dependencies:
   lint:  ^2.8.0
