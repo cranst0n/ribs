@@ -10,6 +10,18 @@ void main() {
     QuantityProperties.parsing(Length.parse, Length.units);
     QuantityProperties.equivalence(length, lengthUnit);
     QuantityProperties.roundtrip(length, roundTrips);
+
+    test('operator +', () {
+      final result = 1.0.meters + 100.0.centimeters;
+      expect(result.value, closeTo(2.0, 1e-9));
+      expect(result.unit, equals(Length.meters));
+    });
+
+    test('operator -', () {
+      final result = 3.0.meters - 100.0.centimeters;
+      expect(result.value, closeTo(2.0, 1e-9));
+      expect(result.unit, equals(Length.meters));
+    });
   });
 }
 

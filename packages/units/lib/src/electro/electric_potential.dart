@@ -9,23 +9,27 @@ final class ElectricPotential extends Quantity<ElectricPotential> {
   ElectricPotential operator -(ElectricPotential that) =>
       ElectricPotential(value - that.to(unit), unit);
 
+  ElectricCurrent operator /(ElectricResistance that) =>
+      ElectricCurrent.amperes(toVolts.value / that.toOhms.value);
+  Power operator *(ElectricCurrent that) => Power.watts(toVolts.value * that.toAmperes.value);
+
   ElectricPotential get toMicrovolts => to(microvolts).microvolts;
   ElectricPotential get toMillivolts => to(millivolts).millivolts;
   ElectricPotential get toVolts => to(volts).volts;
-  ElectricPotential get toMilovolts => to(milovolts).milovolts;
+  ElectricPotential get toKilovolts => ElectricPotential(to(kilovolts), kilovolts);
   ElectricPotential get toMegavolts => to(megavolts).megavolts;
 
   static const ElectricPotentialUnit microvolts = Microvolts._();
   static const ElectricPotentialUnit millivolts = Millivolts._();
   static const ElectricPotentialUnit volts = Volts._();
-  static const ElectricPotentialUnit milovolts = Kilovolts._();
+  static const ElectricPotentialUnit kilovolts = Kilovolts._();
   static const ElectricPotentialUnit megavolts = Megavolts._();
 
   static const units = {
     microvolts,
     millivolts,
     volts,
-    milovolts,
+    kilovolts,
     megavolts,
   };
 
@@ -63,6 +67,6 @@ extension ElectricPotentialOps on num {
   ElectricPotential get microvolts => ElectricPotential.microvolts(this);
   ElectricPotential get millivolts => ElectricPotential.millivolts(this);
   ElectricPotential get volts => ElectricPotential.volts(this);
-  ElectricPotential get milovolts => ElectricPotential.milovolts(this);
+  ElectricPotential get kilovolts => ElectricPotential.kilovolts(this);
   ElectricPotential get megavolts => ElectricPotential.megavolts(this);
 }

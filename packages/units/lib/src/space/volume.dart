@@ -7,6 +7,9 @@ final class Volume extends Quantity<Volume> {
   Volume operator +(Volume that) => Volume(value + that.to(unit), unit);
   Volume operator -(Volume that) => Volume(value - that.to(unit), unit);
 
+  VolumeFlow operator /(Time that) =>
+      VolumeFlow.cubicMetersPerSecond(toCubicMeters.value / that.toSeconds.value);
+
   Volume get toCubicMeters => to(cubicMeters).cubicMeters;
   Volume get toLitres => to(litres).litres;
   Volume get toNanolitres => to(nanolitres).nanolitres;

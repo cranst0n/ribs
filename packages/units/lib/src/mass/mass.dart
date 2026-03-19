@@ -7,6 +7,11 @@ final class Mass extends Quantity<Mass> {
   Mass operator +(Mass that) => Mass(value + that.to(unit), unit);
   Mass operator -(Mass that) => Mass(value - that.to(unit), unit);
 
+  Force operator *(Acceleration that) =>
+      Force.newtons(toKilograms.value * that.toMetersPerSecondSquared.value);
+  Density operator /(Volume that) =>
+      Density.kilogramsPerCubicMeter(toKilograms.value / that.toCubicMeters.value);
+
   Mass get toGrams => to(grams).grams;
   Mass get toNanograms => to(nanograms).nanograms;
   Mass get toMicrograms => to(micrograms).micrograms;

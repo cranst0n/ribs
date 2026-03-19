@@ -10,6 +10,18 @@ void main() {
     QuantityProperties.parsing(Volume.parse, Volume.units);
     QuantityProperties.equivalence(volume, volumeUnit);
     QuantityProperties.roundtrip(volume, roundTrips);
+
+    test('operator +', () {
+      final result = 1.0.litres + 500.0.millilitres;
+      expect(result.value, closeTo(1.5, 1e-9));
+      expect(result.unit, equals(Volume.litres));
+    });
+
+    test('operator -', () {
+      final result = 2.0.litres - 500.0.millilitres;
+      expect(result.value, closeTo(1.5, 1e-9));
+      expect(result.unit, equals(Volume.litres));
+    });
   });
 }
 

@@ -9,6 +9,9 @@ final class Angle extends Quantity<Angle> {
   Angle operator +(Angle that) => Angle(value + that.to(unit), unit);
   Angle operator -(Angle that) => Angle(value - that.to(unit), unit);
 
+  AngularVelocity operator /(Time that) =>
+      AngularVelocity.radiansPerSecond(toRadians.value / that.toSeconds.value);
+
   Angle get toRadians => to(radians).radians;
   Angle get toDegrees => to(degrees).degrees;
   Angle get toGradians => to(gradians).gradians;

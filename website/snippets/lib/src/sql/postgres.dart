@@ -66,8 +66,7 @@ final Resource<Transactor> urlXa = PostgresPoolTransactor.withUrl(
 // ribs_postgres rewrites the ? placeholders used throughout ribs_sql to the
 // $N form automatically, so you write the same SQL regardless of the backend.
 ConnectionIO<Option<(String, int)>> findUser(String name) =>
-    (Fragment.raw('SELECT name, age FROM person WHERE name = ') +
-            Fragment.param(name, Put.string))
+    (Fragment.raw('SELECT name, age FROM person WHERE name = ') + Fragment.param(name, Put.string))
         .query((Read.string, Read.integer).tupled)
         .option();
 
@@ -85,14 +84,14 @@ final class Employee {
   const Employee({this.id, required this.name, required this.department});
 }
 
-final employeeRead =
-    (Read.integer.optional(), Read.string, Read.string).tupled.map(
-      (t) => Employee(id: t.$1.toNullable(), name: t.$2, department: t.$3),
-    );
+final employeeRead = (Read.integer.optional(), Read.string, Read.string).tupled.map(
+  (t) => Employee(id: t.$1.toNullable(), name: t.$2, department: t.$3),
+);
 
 // ── Schema ───────────────────────────────────────────────────────────────────
 
-ConnectionIO<int> createEmployeeTable() => '''
+ConnectionIO<int> createEmployeeTable() =>
+    '''
 CREATE TABLE IF NOT EXISTS employee (
   id         SERIAL PRIMARY KEY,
   name       TEXT NOT NULL,
@@ -130,16 +129,14 @@ ConnectionIO<IList<Employee>> employeesIn(String dept) => byDept.ilist(dept);
 // Build the transactor from a URL and run the entire program inside a single
 // Resource scope. The pool is closed automatically when use() completes.
 IO<IList<Employee>> program() => PostgresPoolTransactor.withUrl(
-      'postgresql://app:s3cr3t@localhost:5432/mydb',
-    ).use((xa) {
-      final setup = createEmployeeTable()
-          .flatMap((_) => insertEmployee('Alice', 'Engineering'))
-          .flatMap((_) => insertEmployee('Bob', 'Engineering'))
-          .flatMap((_) => insertEmployee('Carol', 'Product'));
+  'postgresql://app:s3cr3t@localhost:5432/mydb',
+).use((xa) {
+  final setup = createEmployeeTable()
+      .flatMap((_) => insertEmployee('Alice', 'Engineering'))
+      .flatMap((_) => insertEmployee('Bob', 'Engineering'))
+      .flatMap((_) => insertEmployee('Carol', 'Product'));
 
-      return setup
-          .flatMap((_) => employeesIn('Engineering'))
-          .transact(xa);
-    });
+  return setup.flatMap((_) => employeesIn('Engineering')).transact(xa);
+});
 
 // postgres-example

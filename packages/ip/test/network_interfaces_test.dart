@@ -9,7 +9,9 @@ void main() {
     expect(loopbacks.length, 2);
     expect(loopbacks.contains(Ipv4Address.fromBytes(127, 0, 0, 1)), isTrue);
     expect(
-      loopbacks.contains(Ipv6Address.fromString('::1').getOrElse(() => throw StateError('ipv6 loopback'))),
+      loopbacks.contains(
+        Ipv6Address.fromString('::1').getOrElse(() => throw StateError('ipv6 loopback')),
+      ),
       isTrue,
     );
   }, testOn: 'vm');

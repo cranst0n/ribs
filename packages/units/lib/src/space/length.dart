@@ -7,6 +7,8 @@ final class Length extends Quantity<Length> {
   Length operator +(Length that) => Length(value + that.to(unit), unit);
   Length operator -(Length that) => Length(value - that.to(unit), unit);
 
+  Velocity operator /(Time that) => Velocity.metersPerSecond(toMeters.value / that.toSeconds.value);
+
   Area operator *(Length that) {
     if (unit == centimeters) {
       return Area.squareCentimeters(value * that.toCentimeters.value);

@@ -7,6 +7,9 @@ final class Velocity extends Quantity<Velocity> {
   Velocity operator +(Velocity that) => Velocity(value + that.to(unit), unit);
   Velocity operator -(Velocity that) => Velocity(value - that.to(unit), unit);
 
+  Acceleration operator /(Time that) =>
+      Acceleration.metersPerSecondSquared(toMetersPerSecond.value / that.toSeconds.value);
+
   Velocity get toFeetPerSecond => to(feetPerSecond).feetPerSecond;
   Velocity get toMillimetersPerSecond => to(millimetersPerSecond).millimetersPerSecond;
   Velocity get toMetersPerSecond => to(metersPerSecond).metersPerSecond;
