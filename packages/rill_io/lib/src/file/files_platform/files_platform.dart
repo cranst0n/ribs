@@ -18,6 +18,12 @@ abstract class FilesPlatform {
     bool? exclusive,
   });
 
+  IO<Unit> createSymbolicLink(
+    Path link,
+    Path existing, {
+    bool recursive = false,
+  });
+
   IO<Path> createTempDirectory({
     Option<Path> dir = const None(),
     String prefix = '',

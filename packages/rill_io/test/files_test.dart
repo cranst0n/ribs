@@ -286,6 +286,190 @@ void main() {
       );
     });
 
+    group('isSameFile', () {
+      test(
+        'returns true when both paths refer to the same file',
+        () {
+          expect(
+            Files.tempFile.use((path) => Files.isSameFile(path, path)),
+            ioSucceeded(true),
+          );
+        },
+        testOn: 'vm',
+      );
+
+      test(
+        'returns false for two different files',
+        () {
+          final result = Files.tempFile.use(
+            (a) => Files.tempFile.use((b) => Files.isSameFile(a, b)),
+          );
+          expect(result, ioSucceeded(false));
+        },
+        testOn: 'vm',
+      );
+    });
+
+    group('isSymbolicLink', () {
+      test(
+        'returns false for a regular file',
+        () {
+          expect(
+            Files.tempFile.use(Files.isSymbolicLink),
+            ioSucceeded(false),
+          );
+        },
+        testOn: 'vm',
+      );
+
+      test(
+        'returns true for a symbolic link',
+        () {
+          final result = tempDir().use((dir) {
+            final target = dir / 'target.txt';
+            final link = dir / 'link.txt';
+            return Files.createFile(target).flatMap((_) {
+              return Files.createSymbolicLink(
+                link,
+                target,
+              ).productR(() => Files.isSymbolicLink(link));
+            });
+          });
+
+          expect(result, ioSucceeded(true));
+        },
+        testOn: 'vm',
+      );
+    });
+
+    group('tempDirectory getter', () {
+      test(
+        'provides a path that is a directory and cleans up on release',
+        () {
+          late Path captured;
+
+          final result = Files.tempDirectory
+              .use((dir) {
+                captured = dir;
+                return Files.isDirectory(dir);
+              })
+              .flatMap((_) => Files.exists(captured));
+
+          expect(result, ioSucceeded(false));
+        },
+        testOn: 'vm',
+      );
+    });
+
+    group('writeUtf8Lines with empty input', () {
+      test(
+        'writing empty rill produces no output',
+        () {
+          final result = Files.tempFile.use((path) {
+            return Rill.empty<String>()
+                .through(Files.writeUtf8Lines(path))
+                .compile
+                .drain
+                .productR(() => Files.size(path));
+          });
+
+          expect(result, ioSucceeded(0));
+        },
+        testOn: 'vm',
+      );
+    });
+
+    group('writeRotate', () {
+      test(
+        'rotates into new files at the byte limit',
+        () {
+          final result = tempDir().use((dir) {
+            final paths = <Path>[];
+            var i = 0;
+
+            final computePath = IO.delay(() {
+              final p = dir / 'part_$i.bin';
+              paths.add(p);
+              i += 1;
+              return p;
+            });
+
+            // 7 bytes with limit 3 → file0:[0,1,2]  file1:[3,4,5]  file2:[6]
+            const bytes = [0, 1, 2, 3, 4, 5, 6];
+
+            return Rill.emits(bytes)
+                .through(Files.writeRotate(computePath, 3, Flags.Write))
+                .compile
+                .drain
+                .productR(
+                  () => IO
+                      .delay(() => paths)
+                      .flatMap(
+                        (ps) =>
+                            ps.map((p) => Files.readAll(p).compile.toIList).toIList().parSequence(),
+                      ),
+                );
+          });
+
+          expect(
+            result,
+            ioSucceeded(
+              ilist([
+                ilist([0, 1, 2]),
+                ilist([3, 4, 5]),
+                ilist([6]),
+              ]),
+            ),
+          );
+        },
+        testOn: 'vm',
+      );
+
+      test(
+        'rotates with append flag, continuing from file size',
+        () {
+          final result = tempDir().use((dir) {
+            final paths = <Path>[];
+            var i = 0;
+
+            final computePath = IO.delay(() {
+              final p = dir / 'part_$i.bin';
+              paths.add(p);
+              i += 1;
+              return p;
+            });
+
+            const bytes = [10, 20, 30, 40];
+
+            return Rill.emits(bytes)
+                .through(Files.writeRotate(computePath, 2, Flags.Write))
+                .compile
+                .drain
+                .productR(
+                  () => IO
+                      .delay(() => paths)
+                      .flatMap(
+                        (ps) =>
+                            ps.map((p) => Files.readAll(p).compile.toIList).toIList().parSequence(),
+                      ),
+                );
+          });
+
+          expect(
+            result,
+            ioSucceeded(
+              ilist([
+                ilist([10, 20]),
+                ilist([30, 40]),
+                ilist([]),
+              ]),
+            ),
+          );
+        },
+        testOn: 'vm',
+      );
+    });
+
     group('range read', () {
       test('readRange reads the specified byte slice', () {
         const bytes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];

@@ -22,6 +22,12 @@ final class Files {
     bool? exclusive,
   }) => _platform.createFile(path, recursive: recursive, exclusive: exclusive);
 
+  static IO<Unit> createSymbolicLink(
+    Path link,
+    Path existing, {
+    bool recursive = false,
+  }) => _platform.createSymbolicLink(link, existing);
+
   static IO<Path> createTempDirectory({
     Option<Path> dir = const None(),
     String prefix = '',

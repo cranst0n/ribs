@@ -20,6 +20,13 @@ class FilesPlatformImpl implements FilesPlatform {
   }) => throw UnimplementedError('Files.createFile');
 
   @override
+  IO<Unit> createSymbolicLink(
+    Path link,
+    Path existing, {
+    bool recursive = false,
+  }) => throw UnimplementedError('Files.createSymbolicLink');
+
+  @override
   IO<Path> createTempDirectory({
     Option<Path> dir = const None(),
     String prefix = '',

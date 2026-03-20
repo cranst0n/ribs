@@ -32,6 +32,18 @@ final class FilesPlatformImpl implements FilesPlatform {
           .voided();
 
   @override
+  IO<Unit> createSymbolicLink(
+    Path link,
+    Path existing, {
+    bool recursive = false,
+  }) =>
+      IO
+          .fromFutureF(
+            () => Link(link.toString()).create(existing.toString(), recursive: recursive),
+          )
+          .voided();
+
+  @override
   IO<Path> createTempDirectory({
     Option<Path> dir = const None(),
     String prefix = '',
