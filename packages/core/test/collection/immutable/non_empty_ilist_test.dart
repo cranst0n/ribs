@@ -361,5 +361,174 @@ void main() {
     test('zipWithIndex', () {
       expect(nel(0, [1, 2]).zipWithIndex(), nel((0, 0), [(1, 1), (2, 2)]));
     });
+
+    test('appendedAll', () {
+      expect(nel(1).appendedAll(ilist(<int>[])), nel(1));
+      expect(nel(1).appendedAll(ilist([2, 3])), nel(1, [2, 3]));
+      expect(nel(1, [2]).appendedAll(ilist([3, 4])), nel(1, [2, 3, 4]));
+    });
+
+    test('collect', () {
+      Option<int> f(int n) => Option.when(() => n.isOdd, () => n * 2);
+
+      expect(nel(1, [2, 3]).collect(f), ilist([2, 6]));
+      expect(nel(2, [4]).collect(f), nil<int>());
+    });
+
+    test('combinations', () {
+      expect(
+        nel(1, [2, 3]).combinations(2).toIList(),
+        ilist([ilist([1, 2]), ilist([1, 3]), ilist([2, 3])]),
+      );
+    });
+
+    test('diff', () {
+      expect(nel(1, [2, 3]).diff(nel(2)), ilist([1, 3]));
+      expect(nel(1, [2, 3]).diff(ilist(<int>[])), ilist([1, 2, 3]));
+    });
+
+    test('distinctBy', () {
+      expect(
+        nel('a', ['bb', 'c', 'dd']).distinctBy((s) => s.length),
+        nel('a', ['bb']),
+      );
+    });
+
+    test('grouped', () {
+      expect(
+        nel(1, [2, 3]).grouped(2).toIList(),
+        ilist([ilist([1, 2]), ilist([3])]),
+      );
+    });
+
+    test('hashCode', () {
+      expect(nel(1, [2, 3]).hashCode, nel(1, [2, 3]).hashCode);
+      expect(nel(1).hashCode, nel(1).hashCode);
+    });
+
+    test('inits', () {
+      expect(
+        nel(1, [2, 3]).inits.toIList(),
+        ilist([ilist([1, 2, 3]), ilist([1, 2]), ilist([1]), nil<int>()]),
+      );
+    });
+
+    test('intersect', () {
+      expect(nel(1, [2, 3]).intersect(ilist([2, 3, 4])), ilist([2, 3]));
+      expect(nel(1, [2, 3]).intersect(ilist(<int>[])), nil<int>());
+    });
+
+    test('intersperse', () {
+      expect(nel(1).intersperse(0), nel(1));
+      expect(nel(1, [2, 3]).intersperse(0), nel(1, [0, 2, 0, 3]));
+    });
+
+    test('partition', () {
+      expect(
+        nel(1, [2, 3, 4]).partition((x) => x.isOdd),
+        (ilist([1, 3]), ilist([2, 4])),
+      );
+    });
+
+    test('partitionMap', () {
+      Either<String, int> f(int x) =>
+          Either.cond(() => x.isEven, () => x, () => '$x');
+
+      expect(
+        nel(1, [2, 3]).partitionMap(f),
+        (ilist(['1', '3']), ilist([2])),
+      );
+    });
+
+    test('patch', () {
+      expect(nel(1, [2, 3]).patch(1, ilist([10, 20]), 1), ilist([1, 10, 20, 3]));
+      expect(nel(1, [2, 3]).patch(0, ilist([10]), 2), ilist([10, 3]));
+    });
+
+    test('permutations', () {
+      expect(
+        nel(1, [2]).permutations().toIList(),
+        ilist([nel(1, [2]), nel(2, [1])]),
+      );
+    });
+
+    test('removeAt', () {
+      expect(nel(1, [2, 3]).removeAt(0), ilist([2, 3]));
+      expect(nel(1, [2, 3]).removeAt(1), ilist([1, 3]));
+      expect(nel(1, [2, 3]).removeAt(2), ilist([1, 2]));
+    });
+
+    test('sequence (Either)', () {
+      expect(
+        nel(1.asRight<String>(), [2.asRight<String>()]).sequence(),
+        nel(1, [2]).asRight<String>(),
+      );
+      expect(
+        nel(1.asRight<String>(), ['err'.asLeft<int>()]).sequence(),
+        'err'.asLeft<NonEmptyIList<int>>(),
+      );
+    });
+
+    test('sequence (Option)', () {
+      expect(
+        nel(const Some(1), [const Some(2), const Some(3)]).sequence(),
+        nel(1, [2, 3]).some,
+      );
+      expect(
+        nel(const Some(1), [none<int>(), const Some(3)]).sequence(),
+        isNone(),
+      );
+    });
+
+    test('sliding', () {
+      expect(
+        nel(1, [2, 3]).sliding(2).toIList(),
+        ilist([ilist([1, 2]), ilist([2, 3])]),
+      );
+      expect(
+        nel(1, [2, 3]).sliding(2, 2).toIList(),
+        ilist([ilist([1, 2]), ilist([3])]),
+      );
+    });
+
+    test('span', () {
+      expect(nel(1, [2, 3]).span((x) => x < 3), (ilist([1, 2]), ilist([3])));
+      expect(nel(1, [2, 3]).span((x) => x < 0), (nil<int>(), ilist([1, 2, 3])));
+    });
+
+    test('splitAt', () {
+      expect(nel(1, [2, 3]).splitAt(2), (ilist([1, 2]), ilist([3])));
+      expect(nel(1, [2, 3]).splitAt(0), (nil<int>(), ilist([1, 2, 3])));
+    });
+
+    test('tail', () {
+      expect(nel(1).tail, nil<int>());
+      expect(nel(1, [2, 3]).tail, ilist([2, 3]));
+    });
+
+    test('tails', () {
+      expect(
+        nel(1, [2]).tails.toIList(),
+        ilist([ilist([1, 2]), ilist([2]), nil<int>()]),
+      );
+    });
+
+    test('tapEach', () {
+      final seen = <int>[];
+      final result = nel(1, [2, 3]).tapEach(seen.add);
+
+      expect(seen, [1, 2, 3]);
+      expect(result, nel(1, [2, 3]));
+    });
+
+    test('toString', () {
+      expect(nel(1, [2, 3]).toString(), 'NonEmptyIList(1, 2, 3)');
+      expect(nel(42).toString(), 'NonEmptyIList(42)');
+    });
+
+    test('== with non-NonEmptyIList', () {
+      // ignore: unrelated_type_equality_checks
+      expect(nel(1) == 'not a list', isFalse);
+    });
   });
 }

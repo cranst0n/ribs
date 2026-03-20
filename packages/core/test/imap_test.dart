@@ -326,5 +326,94 @@ void main() {
         ]),
       );
     });
+
+    test('drop / dropRight / dropWhile', () {
+      final m = imap({1: 1, 2: 2, 3: 3});
+      expect(m.drop(0).size, 3);
+      expect(m.drop(3), imap<int, int>({}));
+      expect(m.dropRight(0).size, 3);
+      expect(m.dropRight(3), imap<int, int>({}));
+      expect(m.dropWhile((_) => true), imap<int, int>({}));
+      expect(m.dropWhile((_) => false).size, 3);
+    });
+
+    test('groupBy', () {
+      final grouped = imap({1: 1, 2: 2, 3: 3, 4: 4}).groupBy(
+        ((int, int) kv) => kv.$1.isEven,
+      );
+      expect(grouped.get(true), isSome(imap({2: 2, 4: 4})));
+      expect(grouped.get(false), isSome(imap({1: 1, 3: 3})));
+    });
+
+    test('grouped', () {
+      expect(imap({1: 1, 2: 2, 3: 3}).grouped(2).toIList().size, 2);
+      expect(imap({1: 1, 2: 2, 3: 3}).grouped(3).toIList().size, 1);
+    });
+
+    test('init / inits', () {
+      expect(imap({1: 1, 2: 2, 3: 3}).init.size, 2);
+      expect(imap({1: 1, 2: 2}).inits.toIList().size, 3);
+    });
+
+    test('slice', () {
+      expect(imap({1: 1, 2: 2, 3: 3}).slice(0, 3).size, 3);
+      expect(imap({1: 1, 2: 2, 3: 3}).slice(1, 3).size, 2);
+      expect(imap({1: 1, 2: 2, 3: 3}).slice(0, 0), imap<int, int>({}));
+    });
+
+    test('sliding', () {
+      expect(imap({1: 1, 2: 2, 3: 3}).sliding(2).toIList().size, 2);
+    });
+
+    test('span', () {
+      final (all, none_) = imap({1: 1, 2: 2, 3: 3}).span((_) => true);
+      expect(all.size, 3);
+      expect(none_, imap<int, int>({}));
+
+      final (none2, all2) = imap({1: 1, 2: 2, 3: 3}).span((_) => false);
+      expect(none2, imap<int, int>({}));
+      expect(all2.size, 3);
+    });
+
+    test('splitAt', () {
+      final (first, second) = imap({1: 1, 2: 2, 3: 3}).splitAt(2);
+      expect(first.size, 2);
+      expect(second.size, 1);
+    });
+
+    test('tail / tails', () {
+      expect(imap({1: 1, 2: 2, 3: 3}).tail.size, 2);
+      expect(imap({1: 1, 2: 2}).tails.toIList().size, 3);
+    });
+
+    test('take / takeRight / takeWhile', () {
+      final m = imap({1: 1, 2: 2, 3: 3});
+      expect(m.take(0), imap<int, int>({}));
+      expect(m.take(3).size, 3);
+      expect(m.takeRight(0), imap<int, int>({}));
+      expect(m.takeRight(3).size, 3);
+      expect(m.takeWhile((_) => false), imap<int, int>({}));
+      expect(m.takeWhile((_) => true).size, 3);
+    });
+
+    test('withDefault - operations preserve default', () {
+      final m = imap({1: 1, 2: 2, 3: 3}).withDefault((int k) => k * 10);
+
+      expect(m.size, 3);
+      expect(m.isEmpty, isFalse);
+      expect(m.keys, iset([1, 2, 3]));
+      expect(m.values.toISet(), iset([1, 2, 3]));
+      expect(m.iterator.toIList().size, 3);
+
+      // removed preserves the default function
+      final m2 = m.removed(1);
+      expect(m2[1], 10);
+      expect(m2[2], 2);
+
+      // updated preserves the default function
+      final m3 = m.updated(5, 500);
+      expect(m3[5], 500);
+      expect(m3[9], 90);
+    });
   });
 }

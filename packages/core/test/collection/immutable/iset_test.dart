@@ -216,5 +216,131 @@ void main() {
         expect(aSet.size == 0, aSet.isEmpty);
       },
     );
+
+    test('collect', () {
+      expect(
+        iset<int>({}).collect((int x) => x.isEven ? Some(x * 2) : none<int>()),
+        iset<int>({}),
+      );
+      expect(
+        iset({1, 2, 3, 4}).collect((int x) => x.isEven ? Some(x * 2) : none<int>()),
+        iset({4, 8}),
+      );
+    });
+
+    test('drop / dropRight / dropWhile', () {
+      expect(iset({1, 2, 3}).drop(0).size, 3);
+      expect(iset({1, 2, 3}).drop(3), iset<int>({}));
+      expect(iset({1, 2, 3}).dropRight(0).size, 3);
+      expect(iset({1, 2, 3}).dropRight(3), iset<int>({}));
+      expect(iset({1, 2, 3}).dropWhile((_) => true), iset<int>({}));
+      expect(iset({1, 2, 3}).dropWhile((_) => false).size, 3);
+    });
+
+    test('grouped', () {
+      expect(iset({1, 2, 3}).grouped(2).toIList().size, 2);
+      expect(iset({1, 2, 3}).grouped(3).toIList().size, 1);
+    });
+
+    test('init / inits', () {
+      expect(iset({1, 2, 3}).init.size, 2);
+      expect(iset({1, 2}).inits.toIList().size, 3); // [s, s.init, empty]
+    });
+
+    test('intersect', () {
+      expect(iset<int>({}).intersect(iset({1, 2})), iset<int>({}));
+      expect(iset({1, 2, 3}).intersect(iset({2, 3, 4})), iset({2, 3}));
+      expect(iset({1, 2, 3}).intersect(iset<int>({})), iset<int>({}));
+      expect(iset({1, 2, 3}).intersect(iset({1, 2, 3})), iset({1, 2, 3}));
+    });
+
+    test('partition', () {
+      final (evens, odds) = iset({1, 2, 3, 4}).partition((int x) => x.isEven);
+      expect(evens, iset({2, 4}));
+      expect(odds, iset({1, 3}));
+    });
+
+    test('partitionMap', () {
+      final result = iset({1, 2, 3}).partitionMap(
+        (int x) => x.isEven ? Either.right<String, int>(x) : Either.left<String, int>(x.toString()),
+      );
+      expect(result.$1, iset({'1', '3'}));
+      expect(result.$2, iset({2}));
+    });
+
+    test('scan / scanLeft / scanRight', () {
+      // scanLeft produces n+1 values (initial + one per element); all distinct
+      // since inputs are positive so partial sums are strictly increasing
+      expect(iset({1, 2, 3}).scanLeft(0, (int a, int b) => a + b).size, 4);
+      expect(iset({1, 2, 3}).scanRight(0, (int a, int b) => a + b).size, 4);
+      expect(iset({1, 2, 3}).scan(0, (int a, int b) => a + b).size, 4);
+    });
+
+    test('slice', () {
+      expect(iset({1, 2, 3}).slice(0, 3).size, 3);
+      expect(iset({1, 2, 3}).slice(1, 3).size, 2);
+      expect(iset({1, 2, 3}).slice(0, 0), iset<int>({}));
+    });
+
+    test('sliding', () {
+      expect(iset({1, 2, 3}).sliding(2).toIList().size, 2);
+    });
+
+    test('span', () {
+      final (all, none_) = iset({1, 2, 3}).span((_) => true);
+      expect(all.size, 3);
+      expect(none_, iset<int>({}));
+
+      final (empty_, all2) = iset({1, 2, 3}).span((_) => false);
+      expect(empty_, iset<int>({}));
+      expect(all2.size, 3);
+    });
+
+    test('splitAt', () {
+      final (first, second) = iset({1, 2, 3}).splitAt(2);
+      expect(first.size, 2);
+      expect(second.size, 1);
+    });
+
+    test('tail / tails', () {
+      expect(iset({1, 2, 3}).tail.size, 2);
+      expect(iset({1, 2}).tails.toIList().size, 3); // [s, s.tail, empty]
+    });
+
+    test('take / takeRight / takeWhile', () {
+      expect(iset({1, 2, 3}).take(0), iset<int>({}));
+      expect(iset({1, 2, 3}).take(3).size, 3);
+      expect(iset({1, 2, 3}).takeRight(0), iset<int>({}));
+      expect(iset({1, 2, 3}).takeRight(3).size, 3);
+      expect(iset({1, 2, 3}).takeWhile((_) => false), iset<int>({}));
+      expect(iset({1, 2, 3}).takeWhile((_) => true).size, 3);
+    });
+
+    test('tapEach', () {
+      final seen = <int>{};
+      iset({1, 2, 3}).tapEach(seen.add);
+      expect(seen.length, 3);
+    });
+
+    test('union', () {
+      expect(iset<int>({}).union(iset({1, 2})), iset({1, 2}));
+      expect(iset({1, 2}).union(iset({2, 3})), iset({1, 2, 3}));
+      expect(iset({1, 2}).union(iset<int>({})), iset({1, 2}));
+    });
+
+    test('zip / zipAll / zipWithIndex', () {
+      expect(iset({1, 2}).zip(iset({3, 4})).size, 2);
+      expect(iset({1, 2}).zip(iset<int>({})), iset<(int, int)>({}));
+      expect(iset({1}).zipAll(iset({2, 3}), 0, 0).size, 2);
+      expect(iset({1, 2, 3}).zipWithIndex().size, 3);
+    });
+
+    test('subsets with length', () {
+      expect(iset({1, 2, 3}).subsets(length: 0).toIList().size, 1);
+      expect(iset({1, 2, 3}).subsets(length: 1).toIList().size, 3);
+      expect(iset({1, 2, 3}).subsets(length: 2).toIList().size, 3);
+      expect(iset({1, 2, 3}).subsets(length: 3).toIList().size, 1);
+      expect(iset({1, 2, 3}).subsets(length: 4).toIList().size, 0);
+    });
   });
 }
