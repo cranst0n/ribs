@@ -168,7 +168,16 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
   IVector<A> dropRight(int n) => slice(0, length - max(n, 0));
 
   @override
-  IVector<A> dropWhile(Function1<A, bool> p) => super.dropWhile(p).toIVector();
+  IVector<A> dropWhile(Function1<A, bool> p) {
+    var i = 0;
+    final it = iterator;
+
+    while (it.hasNext && p(it.next())) {
+      i += 1;
+    }
+
+    return slice(i, length);
+  }
 
   @override
   IVector<A> filter(Function1<A, bool> p) => _filterImpl(p, false);
@@ -191,7 +200,20 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
   }
 
   @override
-  IVector<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) => super.flatMap(f).toIVector();
+  IVector<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) {
+    final b = IVectorBuilder<B>();
+    final it = iterator;
+
+    while (it.hasNext) {
+      final inner = f(it.next()).iterator;
+
+      while (inner.hasNext) {
+        b.addOne(inner.next());
+      }
+    }
+
+    return b.result();
+  }
 
   @override
   IMap<K, IVector<A>> groupBy<K>(Function1<A, K> f) =>
@@ -236,8 +258,21 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
 
   @override
   (IVector<A>, IVector<A>) partition(Function1<A, bool> p) {
-    final (a, b) = super.partition(p);
-    return (a.toIVector(), b.toIVector());
+    final yes = IVectorBuilder<A>();
+    final no = IVectorBuilder<A>();
+
+    final it = iterator;
+
+    while (it.hasNext) {
+      final x = it.next();
+
+      if (p(x)) {
+        yes.addOne(x);
+      } else {
+        no.addOne(x);
+      }
+    }
+    return (yes.result(), no.result());
   }
 
   @override
@@ -303,8 +338,14 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
 
   @override
   (IVector<A>, IVector<A>) span(Function1<A, bool> p) {
-    final (a, b) = super.span(p);
-    return (a.toIVector(), b.toIVector());
+    var i = 0;
+    final it = iterator;
+
+    while (it.hasNext && p(it.next())) {
+      i += 1;
+    }
+
+    return (slice(0, i), slice(i, length));
   }
 
   @override
