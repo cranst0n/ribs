@@ -378,7 +378,11 @@ void main() {
     test('combinations', () {
       expect(
         nel(1, [2, 3]).combinations(2).toIList(),
-        ilist([ilist([1, 2]), ilist([1, 3]), ilist([2, 3])]),
+        ilist([
+          ilist([1, 2]),
+          ilist([1, 3]),
+          ilist([2, 3]),
+        ]),
       );
     });
 
@@ -397,7 +401,10 @@ void main() {
     test('grouped', () {
       expect(
         nel(1, [2, 3]).grouped(2).toIList(),
-        ilist([ilist([1, 2]), ilist([3])]),
+        ilist([
+          ilist([1, 2]),
+          ilist([3]),
+        ]),
       );
     });
 
@@ -409,7 +416,12 @@ void main() {
     test('inits', () {
       expect(
         nel(1, [2, 3]).inits.toIList(),
-        ilist([ilist([1, 2, 3]), ilist([1, 2]), ilist([1]), nil<int>()]),
+        ilist([
+          ilist([1, 2, 3]),
+          ilist([1, 2]),
+          ilist([1]),
+          nil<int>(),
+        ]),
       );
     });
 
@@ -431,8 +443,7 @@ void main() {
     });
 
     test('partitionMap', () {
-      Either<String, int> f(int x) =>
-          Either.cond(() => x.isEven, () => x, () => '$x');
+      Either<String, int> f(int x) => Either.cond(() => x.isEven, () => x, () => '$x');
 
       expect(
         nel(1, [2, 3]).partitionMap(f),
@@ -448,7 +459,10 @@ void main() {
     test('permutations', () {
       expect(
         nel(1, [2]).permutations().toIList(),
-        ilist([nel(1, [2]), nel(2, [1])]),
+        ilist([
+          nel(1, [2]),
+          nel(2, [1]),
+        ]),
       );
     });
 
@@ -483,11 +497,17 @@ void main() {
     test('sliding', () {
       expect(
         nel(1, [2, 3]).sliding(2).toIList(),
-        ilist([ilist([1, 2]), ilist([2, 3])]),
+        ilist([
+          ilist([1, 2]),
+          ilist([2, 3]),
+        ]),
       );
       expect(
         nel(1, [2, 3]).sliding(2, 2).toIList(),
-        ilist([ilist([1, 2]), ilist([3])]),
+        ilist([
+          ilist([1, 2]),
+          ilist([3]),
+        ]),
       );
     });
 
@@ -509,7 +529,11 @@ void main() {
     test('tails', () {
       expect(
         nel(1, [2]).tails.toIList(),
-        ilist([ilist([1, 2]), ilist([2]), nil<int>()]),
+        ilist([
+          ilist([1, 2]),
+          ilist([2]),
+          nil<int>(),
+        ]),
       );
     });
 
