@@ -110,7 +110,7 @@ mixin RIterableOnce<A> {
       if (!p(a.next(), b.next())) return false;
     }
 
-    return a.hasNext && b.hasNext;
+    return !a.hasNext && !b.hasNext;
   }
 
   /// {@template iterable_once_count}
