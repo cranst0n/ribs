@@ -609,7 +609,7 @@ final class _DropRightIterator<A> extends RIterator<A> {
 
   void _init() {
     if (buf == null) {
-      buf = List.filled(min(maxlen, 256), null);
+      buf = <dynamic>[];
 
       while (pos < maxlen && underlying.hasNext) {
         buf!.add(underlying.next());
@@ -668,23 +668,25 @@ final class _TakeRightIterator<A> extends RIterator<A> {
   }
 
   void _init() {
-    buf = List.filled(min(maxlen, 256), null);
-    _len = 0;
-    while (underlying.hasNext) {
-      final n = underlying.next();
-      if (_pos >= buf!.length) {
-        buf!.add(n);
-      } else {
-        buf![_pos] = n;
+    if (buf == null) {
+      buf = List.filled(min(maxlen, 256), null, growable: true);
+      _len = 0;
+      while (underlying.hasNext) {
+        final n = underlying.next();
+        if (_pos >= buf!.length) {
+          buf!.add(n);
+        } else {
+          buf![_pos] = n;
+        }
+        _pos += 1;
+        if (_pos == maxlen) _pos = 0;
+        _len += 1;
       }
-      _pos += 1;
-      if (_pos == maxlen) _pos = 0;
-      _len += 1;
-    }
 
-    if (_len > maxlen) _len = maxlen;
-    _pos = _pos - _len;
-    if (_pos < 0) _pos += maxlen;
+      if (_len > maxlen) _len = maxlen;
+      _pos = _pos - _len;
+      if (_pos < 0) _pos += maxlen;
+    }
   }
 }
 
