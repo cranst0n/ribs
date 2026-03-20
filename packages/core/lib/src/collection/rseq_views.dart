@@ -14,6 +14,8 @@
 import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/src/collection/rseq_view.dart';
+import 'package:ribs_core/src/collection/view.dart';
 import 'package:ribs_core/src/collection/views.dart' as views;
 
 abstract class AbstractSeqView<A>

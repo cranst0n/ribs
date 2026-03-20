@@ -55,9 +55,6 @@ mixin View<A> on RIterable<A> {
   RIterable<A> takeWhile(Function1<A, bool> p) => views.TakeWhile(this, p);
 
   @override
-  View<A> get view => this;
-
-  @override
   RIterable<(A, B)> zip<B>(RIterableOnce<B> that) => views.Zip(this, that);
 
   @override

@@ -143,9 +143,9 @@ void main() {
       expect(y.toList(), [1, 2, 3, 4, 5]);
     });
 
-    test('view', () {
+    test('map/take/takeRight chaining', () {
       final v0 = IVector.tabulate(5, (a) => a);
-      final v1 = v0.view.map((a) => a + 1).take(4).takeRight(3).toList();
+      final v1 = v0.map((a) => a + 1).take(4).takeRight(3).toList();
 
       expect(v1, [2, 3, 4]);
     });

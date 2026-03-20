@@ -312,7 +312,10 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
   IVector<A> removeFirst(Function1<A, bool> p) => super.removeFirst(p).toIVector();
 
   @override
-  IVector<A> reverse() => view.reverse().toIVector();
+  IVector<A> reverse() {
+    final len = length;
+    return IVector.tabulate(len, (i) => this[len - 1 - i]);
+  }
 
   @override
   IVector<B> scan<B>(B z, Function2<B, A, B> op) => scanLeft(z, op);
@@ -391,9 +394,6 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
 
   @override
   IVector<A> updated(int index, A elem);
-
-  @override
-  IndexedSeqView<A> get view => IndexedSeqView.from(this);
 
   @override
   IVector<(A, B)> zip<B>(RIterableOnce<B> that) => super.zip(that).toIVector();

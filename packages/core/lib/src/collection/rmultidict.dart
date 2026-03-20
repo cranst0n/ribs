@@ -68,7 +68,7 @@ mixin RMultiDict<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
   @override
   RIterator<(K, V)> get iterator => sets.iterator.flatMap((t) {
     final (k, vs) = t;
-    return vs.view.map((v) => (t.$1, v));
+    return vs.map((V v) => (t.$1, v));
   });
 
   RSet<K> keySet() => sets.keySet;

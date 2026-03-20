@@ -14,6 +14,7 @@
 import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/src/collection/view.dart';
 
 abstract class AbstractView<A> with RIterableOnce<A>, RIterable<A>, View<A> {
   const AbstractView();

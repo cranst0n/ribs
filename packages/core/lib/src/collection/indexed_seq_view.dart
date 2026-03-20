@@ -13,6 +13,8 @@
 
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/indexed_seq_views.dart' as iseqview;
+import 'package:ribs_core/src/collection/rseq_view.dart';
+import 'package:ribs_core/src/collection/view.dart';
 
 mixin IndexedSeqView<A>
     on RIterableOnce<A>, RIterable<A>, RSeq<A>, View<A>, SeqView<A>, IndexedSeq<A> {
@@ -67,7 +69,4 @@ mixin IndexedSeqView<A>
     f(a);
     return a;
   });
-
-  @override
-  IndexedSeqView<A> get view => this;
 }

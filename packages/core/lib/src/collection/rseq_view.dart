@@ -13,6 +13,7 @@
 
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/rseq_views.dart' as seqview;
+import 'package:ribs_core/src/collection/view.dart';
 
 mixin SeqView<A> on RIterableOnce<A>, RIterable<A>, RSeq<A>, View<A> {
   static SeqView<A> from<A>(RSeq<A> v) => seqview.Id(v);
@@ -58,7 +59,4 @@ mixin SeqView<A> on RIterableOnce<A>, RIterable<A>, RSeq<A>, View<A> {
     f(a);
     return a;
   });
-
-  @override
-  SeqView<A> get view => this;
 }

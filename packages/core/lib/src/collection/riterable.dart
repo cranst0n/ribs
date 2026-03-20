@@ -244,8 +244,6 @@ mixin RIterable<A> on RIterableOnce<A> {
     return a;
   });
 
-  View<A> get view => views.Id(this);
-
   /// Returns a new collection that combines corresponding elements from this
   /// collection and [that] as a tuple. The length of the returned collection will
   /// be the minimum of this collections size and the size of [that].

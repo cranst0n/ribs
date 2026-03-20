@@ -451,7 +451,7 @@ mixin RSeq<A> on RIterable<A> {
   }
 
   @override
-  RSeq<A> get tail => view.tail.toSeq();
+  RSeq<A> get tail => drop(1);
 
   /// Applies [f] to each element of this [RSeq] and collects the results into a
   /// new collection. If [Left] is encountered for any element, that result is
@@ -524,9 +524,6 @@ mixin RSeq<A> on RIterable<A> {
 
     return b.result();
   }
-
-  @override
-  SeqView<A> get view => SeqView.from(this);
 
   @override
   RSeq<(A, B)> zip<B>(RIterableOnce<B> that) => super.zip(that).toSeq();
