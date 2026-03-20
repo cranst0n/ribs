@@ -377,9 +377,13 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       final itA = iterator;
       final itB = other.iterator;
 
-      while (itA.hasNext && itB.hasNext && itA.next() == itB.next()) {}
+      var equal = true;
 
-      return itA.hasNext == itB.hasNext;
+      while (equal && itA.hasNext && itB.hasNext) {
+        equal = itA.next() == itB.next();
+      }
+
+      return equal && !itA.hasNext && !itB.hasNext;
     } else {
       return super == other;
     }
@@ -530,6 +534,8 @@ final class _ChainReverseRIterator<A> extends RIterator<A> {
         currentIterator = null;
 
         if (c is _Singleton<A>) {
+          final a = (c! as _Singleton<A>).a;
+
           if (lefts.isEmpty) {
             c = null;
           } else {
@@ -538,10 +544,10 @@ final class _ChainReverseRIterator<A> extends RIterator<A> {
             c = head;
           }
 
-          return (c! as _Singleton<A>).a;
+          return a;
         } else if (c is _Append<A>) {
           final app = c! as _Append<A>;
-          c = app.leftNE;
+          c = app.rightNE;
           lefts = lefts.prepended(app.leftNE);
         } else if (c is _Wrap<A>) {
           final wrap = c! as _Wrap<A>;
