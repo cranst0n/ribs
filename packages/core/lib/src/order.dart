@@ -35,6 +35,11 @@ abstract class Order<A> {
   static Order<A> by<A, B extends Comparable<dynamic>>(Function1<A, B> f) =>
       Order.from((a, b) => f(a).compareTo(f(b)));
 
+  static Order<A> whenEqual<A>(Order<A> first, Order<A> second) => Order.from((x, y) {
+    final c = first.compare(x, y);
+    return c == 0 ? second.compare(x, y) : c;
+  });
+
   /// Order for [int] type.
   static final ints = Order.fromComparable<int>();
 
