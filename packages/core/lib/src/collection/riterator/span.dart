@@ -131,6 +131,15 @@ final class _SpanTrailingIterator<A> extends RIterator<A> {
   @override
   bool get hasNext {
     switch (_status) {
+      case -1:
+        if (myLeading!.finish()) {
+          _status = 0;
+          return true;
+        } else {
+          _status = 1;
+          myLeading = null;
+          return self.hasNext;
+        }
       case 3:
         return false;
       case 2:
