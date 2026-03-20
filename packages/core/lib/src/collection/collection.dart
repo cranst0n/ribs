@@ -2,7 +2,7 @@ export 'immutable/ichain.dart';
 export 'immutable/ilazylist.dart';
 export 'immutable/ilist.dart';
 export 'immutable/imap.dart';
-export 'immutable/imulitdict.dart';
+export 'immutable/imultidict.dart';
 export 'immutable/imultiset.dart';
 export 'immutable/iqueue.dart';
 export 'immutable/iset.dart';
