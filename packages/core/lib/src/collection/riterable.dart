@@ -281,7 +281,7 @@ mixin RIterable<A> on RIterableOnce<A> {
     Function1<RIterable<A>, RIterable<A>> f,
   ) {
     final it = RIterator.iterate(this, f).takeWhile((a) => a.nonEmpty);
-    return it.concat(RIterator.single(const Nil()));
+    return it.concat(RIterator.single(nil<A>()));
   }
 
   RIterable<A> _reversed() {
