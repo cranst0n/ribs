@@ -184,33 +184,31 @@ mixin RSeq<A> on RIterable<A> {
     if (that.isEmpty && from == 0) {
       return const Some(0);
     } else {
-      // TODO: Bug in kmpSeach somewhere, surfaces with Chunk with knownSizes 3,1
+      final l = knownSize;
+      final tl = that.knownSize;
 
-      // final l = knownSize;
-      // final tl = that.knownSize;
+      if (l >= 0 && tl >= 0) {
+        final clippedFrom = max(0, from);
+        if (from > l) {
+          return none();
+        } else if (tl < 1) {
+          return Some(clippedFrom);
+        } else if (l < tl) {
+          return none();
+        } else {
+          return _kmpSearch(this, clippedFrom, l, that, 0, tl, true);
+        }
+      } else {
+        var i = from;
+        var s = drop(i);
+        while (s.nonEmpty) {
+          if (s.startsWith(that)) return Some(i);
 
-      // if (l >= 0 && tl >= 0) {
-      //   final clippedFrom = max(0, from);
-      //   if (from > l) {
-      //     return none();
-      //   } else if (tl < 1) {
-      //     return Some(clippedFrom);
-      //   } else if (l < tl) {
-      //     return none();
-      //   } else {
-      //     return _kmpSearch(this, clippedFrom, l, that, 0, tl, true);
-      //   }
-      // } else {
-      var i = from;
-      var s = drop(i);
-      while (s.nonEmpty) {
-        if (s.startsWith(that)) return Some(i);
-
-        i += 1;
-        s = s.tail;
+          i += 1;
+          s = s.tail;
+        }
+        return none();
       }
-      return none();
-      // }
     }
   }
 
@@ -742,7 +740,7 @@ List<int?> _kmpJumpTable<B>(RSeq<B> Wopt, int wlen) {
   var pos = 2;
   var cnd = 0;
   arr[0] = -1;
-  arr[1] = 0;
+  if (wlen > 1) arr[1] = 0;
   while (pos < wlen) {
     if (Wopt[pos - 1] == Wopt[cnd]) {
       arr[pos] = cnd + 1;
