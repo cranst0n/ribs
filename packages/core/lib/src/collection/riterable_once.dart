@@ -53,7 +53,7 @@ mixin RIterableOnce<A> {
   // ///////////////////////////////////////////////////////////////////////////
 
   bool get isEmpty => switch (knownSize) {
-    -1 => iterator.hasNext,
+    -1 => !iterator.hasNext,
     0 => true,
     _ => false,
   };
