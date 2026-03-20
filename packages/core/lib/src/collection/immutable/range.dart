@@ -301,10 +301,15 @@ abstract class Range with RIterableOnce<int>, RIterable<int>, RSeq<int>, Indexed
   @override
   bool operator ==(Object other) {
     if (other is Range) {
-      return (isEmpty == other.isEmpty) &&
-          (start == other.start) &&
-          (last == other.last) &&
-          (start == last || step == other.step);
+      if (isEmpty) {
+        return other.isEmpty;
+      } else if (other.isEmpty) {
+        return false;
+      } else {
+        return (start == other.start) &&
+            (last == other.last) &&
+            (start == last || step == other.step);
+      }
     } else {
       return super == other;
     }
