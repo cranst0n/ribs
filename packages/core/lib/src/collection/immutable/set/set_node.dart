@@ -1182,11 +1182,11 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
     final dstHashes = removeElement(originalHashes, dataIx);
 
     return BitmapIndexedSetNode(
-      dataMap = dataMap ^ bitpos,
-      nodeMap = nodeMap | bitpos,
-      content = dst,
-      originalHashes = dstHashes,
-      size = size - 1 + node.size,
+      dataMap ^ bitpos,
+      nodeMap | bitpos,
+      dst,
+      dstHashes,
+      size - 1 + node.size,
       cachedDartKeySetHashCode - elementHash + node.cachedDartKeySetHashCode,
     );
   }
@@ -1233,11 +1233,11 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
     final dstHashes = insertElement(originalHashes, dataIxNew, hash);
 
     return BitmapIndexedSetNode(
-      dataMap = dataMap | bitpos,
-      nodeMap = nodeMap ^ bitpos,
-      content = dst,
-      originalHashes = dstHashes,
-      size = size - oldNode.size + 1,
+      dataMap | bitpos,
+      nodeMap ^ bitpos,
+      dst,
+      dstHashes,
+      size - oldNode.size + 1,
       cachedDartKeySetHashCode - oldNode.cachedDartKeySetHashCode + node.cachedDartKeySetHashCode,
     );
   }

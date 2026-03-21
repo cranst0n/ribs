@@ -1414,12 +1414,12 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
     final dstHashes = removeElement(originalHashes, dataIx);
 
     return BitmapIndexedMapNode<K, V>(
-      dataMap = dataMap ^ bitpos,
-      nodeMap = nodeMap | bitpos,
-      content = dst,
-      originalHashes = dstHashes,
-      size = size - 1 + node.size,
-      cachedDartKeySetHashCode = cachedDartKeySetHashCode - keyHash + node.cachedDartKeySetHashCode,
+      dataMap ^ bitpos,
+      nodeMap | bitpos,
+      dst,
+      dstHashes,
+      size - 1 + node.size,
+      cachedDartKeySetHashCode - keyHash + node.cachedDartKeySetHashCode,
     );
   }
 
@@ -1450,15 +1450,12 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
     final dstHashes = insertElement(originalHashes, dataIxNew, hash);
 
     return BitmapIndexedMapNode<K, V>(
-      dataMap = dataMap | bitpos,
-      nodeMap = nodeMap ^ bitpos,
-      content = dst,
-      originalHashes = dstHashes,
-      size = size - oldNode.size + 1,
-      cachedDartKeySetHashCode =
-          cachedDartKeySetHashCode -
-          oldNode.cachedDartKeySetHashCode +
-          node.cachedDartKeySetHashCode,
+      dataMap | bitpos,
+      nodeMap ^ bitpos,
+      dst,
+      dstHashes,
+      size - oldNode.size + 1,
+      cachedDartKeySetHashCode - oldNode.cachedDartKeySetHashCode + node.cachedDartKeySetHashCode,
     );
   }
 
@@ -1575,8 +1572,10 @@ final class HashCollisionMapNode<K, V> extends MapNode<K, V> {
           final nextPayload = iter.next();
 
           if (hc.indexOf(nextPayload.$1) < 0) {
-            newContent ??= IVectorBuilder();
-            newContent.addAll(hc.content);
+            if (newContent == null) {
+              newContent = IVectorBuilder<(K, V)>();
+              newContent.addAll(hc.content);
+            }
             newContent.addOne(nextPayload);
           }
         }

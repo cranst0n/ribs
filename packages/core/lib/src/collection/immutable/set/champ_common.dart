@@ -20,7 +20,7 @@ abstract class Node<T extends Node<T>> {
   static const BitPartitionSize = 5;
   static const BitPartitionMask = (1 << BitPartitionSize) - 1;
   static final MaxDepth = (HashCodeLength.toDouble() / BitPartitionSize).ceil();
-  static const BranchingFactor = 1 << BitPartitionSize;
+  static final BranchingFactor = Integer.Size;
 
   static int maskFrom(int hash, int shift) => (hash >>> shift) & BitPartitionMask;
 
