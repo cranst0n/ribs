@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_dynamic_calls
-
 import 'dart:typed_data';
 
 import 'package:ribs_core/ribs_core.dart';
@@ -12,21 +10,23 @@ sealed class MurmurHash3 {
   static final setSeed = 'Set'.hashCode;
   static const stringSeed = 0xf7ca7fd2;
 
-  static final _Murmur3Impl _impl = _Murmur3Impl();
+  static final _tuple2HashCode = 'Tuple2'.hashCode;
 
-  static int bytesHash(Uint8List data) => _impl.bytesHash(data, arraySeed);
+  static final _intSize = Integer.Size;
 
-  static int mix(int hash, int data) => _impl.mix(hash, data);
+  static int bytesHash(Uint8List data) => _bytesHash(data, arraySeed);
 
-  static int mixLast(int hash, int data) => _impl.mixLast(hash, data);
+  static int mix(int hash, int data) => _mix(hash, data);
 
-  static int finalizeHash(int hash, int length) => _impl.finalizeHash(hash, length);
+  static int mixLast(int hash, int data) => _mixLast(hash, data);
 
-  static int stringHash(String str) => _impl.stringHash(str, stringSeed);
+  static int finalizeHash(int hash, int length) => _finalizeHash(hash, length);
 
-  static int listHash(IList<dynamic> xs) => _impl.listHash(xs, seqSeed);
+  static int stringHash(String str) => _stringHash(str, stringSeed);
 
-  static int mapHash(RMap<dynamic, dynamic> xs) {
+  static int listHash(IList<Object?> xs) => _listHash(xs, seqSeed);
+
+  static int mapHash(RMap<Object?, Object?> xs) {
     if (xs.isEmpty) {
       return _emptyMapHash;
     } else {
@@ -41,7 +41,7 @@ sealed class MurmurHash3 {
 
       while (it.hasNext) {
         final kv = it.next();
-        final h = _tuple2Hash(kv.$1, kv.$2);
+        final h = _tuple2Hash(kv.$1.hashCode, kv.$2.hashCode);
 
         a += h;
         b ^= h;
@@ -49,55 +49,51 @@ sealed class MurmurHash3 {
         n += 1;
       }
 
-      h = _impl.mix(h, a);
-      h = _impl.mix(h, b);
-      h = _impl.mixLast(h, c);
+      h = _mix(h, a);
+      h = _mix(h, b);
+      h = _mixLast(h, c);
 
-      return _impl.finalizeHash(h, n);
+      return _finalizeHash(h, n);
     }
   }
 
-  static int rangeHash(int start, int step, int last) =>
-      _impl.rangeHash(start, step, last, seqSeed);
+  static int rangeHash(int start, int step, int last) => _rangeHash(start, step, last, seqSeed);
 
-  static int seqHash(RSeq<dynamic> seq) {
+  static int seqHash(RSeq<Object?> seq) {
     return switch (seq) {
-      final IndexedSeq<dynamic> xs => _impl.indexedSeqHash(xs, seqSeed),
-      final IList<dynamic> xs => _impl.listHash(xs, seqSeed),
-      _ => _impl.orderedHash(seq, seqSeed),
+      final IndexedSeq<Object?> xs => _indexedSeqHash(xs, seqSeed),
+      final IList<Object?> xs => _listHash(xs, seqSeed),
+      _ => _orderedHash(seq, seqSeed),
     };
   }
 
-  static int setHash(RSet<dynamic> xs) => _impl.unorderedHash(xs, setSeed);
+  static int setHash(RSet<Object?> xs) => _unorderedHash(xs, setSeed);
 
-  static int unorderedHash(RIterableOnce<dynamic> xs, int seed) => _impl.unorderedHash(xs, seed);
+  static int unorderedHash(RIterableOnce<Object?> xs, int seed) => _unorderedHash(xs, seed);
 
   static final _emptyMapHash = unorderedHash(nil(), mapSeed);
 
-  static int _tuple2Hash(dynamic x, dynamic y) =>
-      _impl.tuple2Hash(x.hashCode, y.hashCode, productSeed);
-}
+  // Private static implementations
 
-final class _Murmur3Impl {
-  int mix(int hash, int data) {
-    var h = mixLast(hash, data);
-    h = Integer.rotateLeft(h, 13);
+  static int _mix(int hash, int data) {
+    var h = _mixLast(hash, data);
+    h = (h << 13) | (h >>> (_intSize - 13));
     return h * 5 + 0xe6546b64;
   }
 
-  int mixLast(int hash, int data) {
+  static int _mixLast(int hash, int data) {
     var k = data;
 
     k *= 0xcc9e2d51;
-    k = Integer.rotateLeft(k, 15);
+    k = (k << 15) | (k >>> (_intSize - 15));
     k *= 0x1b873593;
 
     return hash ^ k;
   }
 
-  int finalizeHash(int hash, int length) => avalanche(hash ^ length);
+  static int _finalizeHash(int hash, int length) => _avalanche(hash ^ length);
 
-  int avalanche(int hash) {
+  static int _avalanche(int hash) {
     var h = hash;
 
     h ^= h >>> 16;
@@ -109,30 +105,30 @@ final class _Murmur3Impl {
     return h;
   }
 
-  int tuple2Hash(int x, int y, int seed) {
-    var h = seed;
-    h = mix(h, 'Tuple2'.hashCode);
-    h = mix(h, x);
-    h = mix(h, y);
-    return finalizeHash(h, 2);
+  static int _tuple2Hash(int x, int y) {
+    var h = productSeed;
+    h = _mix(h, _tuple2HashCode);
+    h = _mix(h, x);
+    h = _mix(h, y);
+    return _finalizeHash(h, 2);
   }
 
-  int stringHash(String str, int seed) {
+  static int _stringHash(String str, int seed) {
     var h = seed;
     var i = 0;
 
     while (i + 1 < str.length) {
       final data = (str.codeUnitAt(i) << 16) + str.codeUnitAt(i + 1);
-      h = mix(h, data);
+      h = _mix(h, data);
       i += 2;
     }
 
-    if (i < str.length) h = mixLast(h, str.codeUnitAt(i));
+    if (i < str.length) h = _mixLast(h, str.codeUnitAt(i));
 
-    return finalizeHash(h, str.length);
+    return _finalizeHash(h, str.length);
   }
 
-  int unorderedHash(RIterableOnce<dynamic> xs, int seed) {
+  static int _unorderedHash(RIterableOnce<Object?> xs, int seed) {
     var a = 0;
     var b = 0;
     var n = 0;
@@ -150,67 +146,66 @@ final class _Murmur3Impl {
     }
 
     var h = seed;
-    h = mix(h, a);
-    h = mix(h, b);
-    h = mixLast(h, c);
+    h = _mix(h, a);
+    h = _mix(h, b);
+    h = _mixLast(h, c);
 
-    return finalizeHash(h, n);
+    return _finalizeHash(h, n);
   }
 
-  int orderedHash(RIterableOnce<dynamic> xs, int seed) {
+  static int _orderedHash(RIterableOnce<Object?> xs, int seed) {
     final it = xs.iterator;
     var h = seed;
 
-    if (!it.hasNext) return finalizeHash(h, 0);
+    if (!it.hasNext) return _finalizeHash(h, 0);
 
     final x0 = it.next();
-    if (!it.hasNext) return finalizeHash(mix(h, x0.hashCode), 1);
+    if (!it.hasNext) return _finalizeHash(_mix(h, x0.hashCode), 1);
 
     final x1 = it.next();
 
     final initial = x0.hashCode;
-    h = mix(h, initial);
+    h = _mix(h, initial);
     final h0 = h;
     var prev = x1.hashCode;
     final rangeDiff = prev - initial;
     var i = 2;
 
     while (it.hasNext) {
-      h = mix(h, prev);
+      h = _mix(h, prev);
       final hash = it.next().hashCode;
 
       if (rangeDiff != hash - prev) {
-        h = mix(h, hash);
+        h = _mix(h, hash);
         i += 1;
         while (it.hasNext) {
-          h = mix(h, it.next().hashCode);
+          h = _mix(h, it.next().hashCode);
           i += 1;
         }
-        return finalizeHash(h, i);
+        return _finalizeHash(h, i);
       }
 
       prev = hash;
       i += 1;
     }
-    return avalanche(mix(mix(h0, rangeDiff), prev));
+    return _avalanche(_mix(_mix(h0, rangeDiff), prev));
   }
 
-  int rangeHash(int start, int step, int last, int seed) =>
-      avalanche(mix(mix(mix(seed, start), step), last));
+  static int _rangeHash(int start, int step, int last, int seed) =>
+      _avalanche(_mix(_mix(_mix(seed, start), step), last));
 
-  int bytesHash(Uint8List data, int seed) {
+  static int _bytesHash(Uint8List data, int seed) {
     var len = data.length;
     var h = seed;
+
+    final byteData = ByteData.view(data.buffer, data.offsetInBytes, data.lengthInBytes);
 
     // Body
     var i = 0;
     while (len >= 4) {
-      var k = data[i + 0] & 0xFF;
-      k |= (data[i + 1] & 0xFF) << 8;
-      k |= (data[i + 2] & 0xFF) << 16;
-      k |= (data[i + 3] & 0xFF) << 24;
+      final k = byteData.getUint32(i, Endian.little);
 
-      h = mix(h, k);
+      h = _mix(h, k);
 
       i += 4;
       len -= 4;
@@ -222,51 +217,51 @@ final class _Murmur3Impl {
     if (len >= 2) k ^= (data[i + 1] & 0xFF) << 8;
     if (len >= 1) {
       k ^= data[i + 0] & 0xFF;
-      h = mixLast(h, k);
+      h = _mixLast(h, k);
     }
 
     // Finalization
-    return finalizeHash(h, data.length);
+    return _finalizeHash(h, data.length);
   }
 
-  int indexedSeqHash(IndexedSeq<dynamic> a, int seed) {
+  static int _indexedSeqHash(IndexedSeq<Object?> a, int seed) {
     var h = seed;
     final l = a.length;
 
     switch (l) {
       case 0:
-        return finalizeHash(h, 0);
+        return _finalizeHash(h, 0);
       case 1:
-        return finalizeHash(mix(h, a[0].hashCode), 1);
+        return _finalizeHash(_mix(h, a[0].hashCode), 1);
       default:
         final initial = a[0].hashCode;
-        h = mix(h, initial);
+        h = _mix(h, initial);
         final h0 = h;
         var prev = a[1].hashCode;
         final rangeDiff = prev - initial;
         var i = 2;
 
         while (i < l) {
-          h = mix(h, prev);
+          h = _mix(h, prev);
           final hash = a[i].hashCode;
           if (rangeDiff != hash - prev) {
-            h = mix(h, hash);
+            h = _mix(h, hash);
             i += 1;
             while (i < l) {
-              h = mix(h, a[i].hashCode);
+              h = _mix(h, a[i].hashCode);
               i += 1;
             }
-            return finalizeHash(h, l);
+            return _finalizeHash(h, l);
           }
           prev = hash;
           i += 1;
         }
 
-        return avalanche(mix(mix(h0, rangeDiff), prev));
+        return _avalanche(_mix(_mix(h0, rangeDiff), prev));
     }
   }
 
-  int listHash(IList<dynamic> xs, int seed) {
+  static int _listHash(IList<Object?> xs, int seed) {
     var n = 0;
     var h = seed;
 
@@ -282,7 +277,7 @@ final class _Murmur3Impl {
       final head = elems.head;
       final hash = head.hashCode;
 
-      h = mix(h, hash);
+      h = _mix(h, hash);
 
       switch (rangeState) {
         case 0:
@@ -302,9 +297,9 @@ final class _Murmur3Impl {
     }
 
     if (rangeState == 2) {
-      return rangeHash(initial, rangeDiff, prev, seed);
+      return _rangeHash(initial, rangeDiff, prev, seed);
     } else {
-      return finalizeHash(h, n);
+      return _finalizeHash(h, n);
     }
   }
 }
