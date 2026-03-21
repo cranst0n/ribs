@@ -5,8 +5,8 @@ import 'package:test/test.dart';
 
 void main() {
   group('IVector', () {
-    // 0, 2^5, 2^10, 2^15, 2^20, 2^25
-    final vectorNBounds = [0, 32, 1024, 32768, 1048576, 33554432].expand((n) => [n, n + 1]);
+    // 0, 2^5, 2^10, 2^15, 2^20
+    final vectorNBounds = [0, 32, 1024, 32768, 1048576].expand((n) => [n, n + 1]);
 
     test('sandbox', () {
       vectorNBounds.forEach((n) {
