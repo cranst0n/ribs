@@ -121,7 +121,7 @@ final class _BoundedChannel<A> with Channel<A> {
   Pipe<A, Never> get sendAll {
     return (ins) =>
         ins
-            .flatMap((_) => Rill.exec<A>(close().voided()))
+            .append(() => Rill.exec(close().voided()))
             .evalMap((a) => send(a))
             .takeWhile((a) => a.isRight)
             .drain();
