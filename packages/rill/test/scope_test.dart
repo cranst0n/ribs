@@ -114,9 +114,10 @@ void main() {
 
     group('close', () {
       test('returns Right(Unit) when no finalizers throw', () async {
-        final result = await Scope.create()
-            .flatMap((scope) => scope.close(ExitCase.succeeded()))
-            .unsafeRunFuture();
+        final result =
+            await Scope.create()
+                .flatMap((scope) => scope.close(ExitCase.succeeded()))
+                .unsafeRunFuture();
 
         expect(result.isRight, isTrue);
       });
@@ -137,23 +138,25 @@ void main() {
 
       test('single failing finalizer returns Left with that error', () async {
         final err = Exception('finalizer failed');
-        final result = await Scope.create().flatMap((scope) {
-          return scope
-              .register((_) => IO.raiseError(err))
-              .productR(() => scope.close(ExitCase.succeeded()));
-        }).unsafeRunFuture();
+        final result =
+            await Scope.create().flatMap((scope) {
+              return scope
+                  .register((_) => IO.raiseError(err))
+                  .productR(() => scope.close(ExitCase.succeeded()));
+            }).unsafeRunFuture();
 
         expect(result.isLeft, isTrue);
         expect(result.fold((e) => e, (_) => null), same(err));
       });
 
       test('multiple failing finalizers returns Left(CompositeError)', () async {
-        final result = await Scope.create().flatMap((scope) {
-          return scope
-              .register((_) => IO.raiseError(Exception('first')))
-              .productR(() => scope.register((_) => IO.raiseError(Exception('second'))))
-              .productR(() => scope.close(ExitCase.succeeded()));
-        }).unsafeRunFuture();
+        final result =
+            await Scope.create().flatMap((scope) {
+              return scope
+                  .register((_) => IO.raiseError(Exception('first')))
+                  .productR(() => scope.register((_) => IO.raiseError(Exception('second'))))
+                  .productR(() => scope.close(ExitCase.succeeded()));
+            }).unsafeRunFuture();
 
         expect(result.isLeft, isTrue);
         expect(result.fold((e) => e, (_) => null), isA<CompositeError>());
@@ -161,15 +164,16 @@ void main() {
 
       test('all finalizers run even when some throw — errors are collected', () async {
         final ran = <int>[];
-        final result = await Scope.create().flatMap((scope) {
-          return scope
-              .register((_) => IO.exec(() => ran.add(1)))
-              .productR(
-                () => scope.register((_) => IO.raiseError<Unit>(Exception('middle fails'))),
-              )
-              .productR(() => scope.register((_) => IO.exec(() => ran.add(3))))
-              .productR(() => scope.close(ExitCase.succeeded()));
-        }).unsafeRunFuture();
+        final result =
+            await Scope.create().flatMap((scope) {
+              return scope
+                  .register((_) => IO.exec(() => ran.add(1)))
+                  .productR(
+                    () => scope.register((_) => IO.raiseError<Unit>(Exception('middle fails'))),
+                  )
+                  .productR(() => scope.register((_) => IO.exec(() => ran.add(3))))
+                  .productR(() => scope.close(ExitCase.succeeded()));
+            }).unsafeRunFuture();
 
         // Finalizers run LIFO: 3 ran, middle threw, 1 ran. All three were attempted.
         expect(ran, containsAll([1, 3]));
@@ -243,9 +247,10 @@ void main() {
       });
 
       test('cancel on released lease returns Right when no pending close', () async {
-        final result = await Scope.create().flatMap((scope) {
-          return scope.lease().flatMap((lease) => lease.cancel);
-        }).unsafeRunFuture();
+        final result =
+            await Scope.create().flatMap((scope) {
+              return scope.lease().flatMap((lease) => lease.cancel);
+            }).unsafeRunFuture();
 
         expect(result.isRight, isTrue);
       });

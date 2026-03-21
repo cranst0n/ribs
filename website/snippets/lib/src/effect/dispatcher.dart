@@ -5,37 +5,38 @@ import 'package:ribs_effect/ribs_effect.dart';
 
 // dispatcher-parallel
 /// unsafeToFuture runs an IO and returns a Future that resolves to the result.
-IO<int> parallelToFuture() =>
-    Dispatcher.parallel().use((dispatcher) {
-      final future = dispatcher.unsafeToFuture(IO.pure(42));
-      return IO.fromFutureF(() => future);
-    });
+IO<int> parallelToFuture() => Dispatcher.parallel().use((dispatcher) {
+  final future = dispatcher.unsafeToFuture(IO.pure(42));
+  return IO.fromFutureF(() => future);
+});
 
 /// unsafeRunAndForget submits an IO for execution and discards the result.
 /// Use when you only care about the side-effect, not the outcome.
-IO<Unit> parallelFireAndForget() =>
-    Dispatcher.parallel().use((dispatcher) {
-      return IO.delay(() {
+IO<Unit> parallelFireAndForget() => Dispatcher.parallel().use((dispatcher) {
+  return IO
+      .delay(() {
         dispatcher.unsafeRunAndForget(IO.print('background work'));
         return Unit();
-      }).productR(() => IO.sleep(10.milliseconds));
-    });
+      })
+      .productR(() => IO.sleep(10.milliseconds));
+});
 // dispatcher-parallel
 
 // dispatcher-sequential
 /// A sequential Dispatcher serializes submitted effects in FIFO order —
 /// each effect runs to completion before the next one starts.
-IO<IList<int>> sequentialFifo() =>
-    IO.ref(nil<int>()).flatMap((log) {
-      return Dispatcher.sequential().use((dispatcher) {
-        return IO.fromFutureF<Unit>(() async {
+IO<IList<int>> sequentialFifo() => IO.ref(nil<int>()).flatMap((log) {
+  return Dispatcher.sequential().use((dispatcher) {
+    return IO
+        .fromFutureF<Unit>(() async {
           await dispatcher.unsafeToFuture(log.update((IList<int> l) => l.prepended(1)));
           await dispatcher.unsafeToFuture(log.update((IList<int> l) => l.prepended(2)));
           await dispatcher.unsafeToFuture(log.update((IList<int> l) => l.prepended(3)));
           return Unit();
-        }).productR(() => log.value());
-      });
-    });
+        })
+        .productR(() => log.value());
+  });
+});
 // dispatcher-sequential
 
 // dispatcher-bridge
@@ -46,25 +47,21 @@ void initSdk(void Function(String) onMessage) => onMessage('hello from sdk');
 
 /// WITHOUT a Dispatcher: IO is lazy — queue.offer() returns an `IO<Unit>`
 /// description but never executes it. The message is lost.
-IO<Unit> withoutDispatcher() =>
-    Queue.unbounded<String>().flatMap((queue) {
-      initSdk((msg) {
-        queue.offer(msg); // returns IO<Unit> and discards it — nothing runs
-      });
-      return queue
-          .tryTake()
-          .flatMap((oa) => IO.print(oa.fold(() => 'nothing :(', (v) => v)));
-      // prints: nothing :(
-    });
+IO<Unit> withoutDispatcher() => Queue.unbounded<String>().flatMap((queue) {
+  initSdk((msg) {
+    queue.offer(msg); // returns IO<Unit> and discards it — nothing runs
+  });
+  return queue.tryTake().flatMap((oa) => IO.print(oa.fold(() => 'nothing :(', (v) => v)));
+  // prints: nothing :(
+});
 
 /// WITH a Dispatcher: unsafeRunAndForget executes the IO immediately,
 /// placing the message in the queue where the IO program can consume it.
-IO<Unit> withDispatcher() =>
-    Dispatcher.sequential().use((dispatcher) {
-      return Queue.unbounded<String>().flatMap((queue) {
-        initSdk((msg) => dispatcher.unsafeRunAndForget(queue.offer(msg)));
-        return queue.take().flatMap((msg) => IO.print(msg));
-        // prints: hello from sdk
-      });
-    });
+IO<Unit> withDispatcher() => Dispatcher.sequential().use((dispatcher) {
+  return Queue.unbounded<String>().flatMap((queue) {
+    initSdk((msg) => dispatcher.unsafeRunAndForget(queue.offer(msg)));
+    return queue.take().flatMap((msg) => IO.print(msg));
+    // prints: hello from sdk
+  });
+});
 // dispatcher-bridge

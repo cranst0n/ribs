@@ -21,12 +21,11 @@ IO<Unit> cyclicBarrierBasic() => CyclicBarrier.withCapacity(2).flatMap((barrier)
 /// Unlike [CountDownLatch], a [CyclicBarrier] resets after each cycle.
 /// Here three fibers rendezvous twice — once per round.
 IO<Unit> cyclicBarrierReuse() => CyclicBarrier.withCapacity(3).flatMap((barrier) {
-  IO<Unit> worker(int id) =>
-      barrier
-          .await()
-          .productR(() => IO.print('round 1: worker $id released'))
-          .productR(() => barrier.await())
-          .productR(() => IO.print('round 2: worker $id released'));
+  IO<Unit> worker(int id) => barrier
+      .await()
+      .productR(() => IO.print('round 1: worker $id released'))
+      .productR(() => barrier.await())
+      .productR(() => IO.print('round 2: worker $id released'));
 
   return ilist([worker(1), worker(2), worker(3)]).parSequence_();
 });
@@ -41,9 +40,7 @@ IO<Unit> cyclicBarrierCancel() => CyclicBarrier.withCapacity(2).flatMap((barrier
 
   // After the impatient fiber cancels, the barrier is back to capacity 2,
   // so we need a second fiber to arrive alongside the patient one.
-  final patient = IO
-      .sleep(100.milliseconds)
-      .productR(() => barrier.await());
+  final patient = IO.sleep(100.milliseconds).productR(() => barrier.await());
 
   final secondArrival = IO
       .sleep(150.milliseconds)
@@ -69,15 +66,13 @@ IO<Unit> pipelineStages() => CyclicBarrier.withCapacity(3).flatMap((barrier) {
         .productR(() => barrier.await())
         .productR(() => IO.print('[$name] chunk $chunk committed'));
 
-    return processChunk(1)
-        .productR(() => processChunk(2))
-        .productR(() => processChunk(3));
+    return processChunk(1).productR(() => processChunk(2)).productR(() => processChunk(3));
   }
 
   return ilist([
-    stage('parse',     50.milliseconds),
+    stage('parse', 50.milliseconds),
     stage('transform', 80.milliseconds),
-    stage('persist',   60.milliseconds),
+    stage('persist', 60.milliseconds),
   ]).parSequence_();
 });
 // cb-pipeline

@@ -13,12 +13,9 @@ IO<Unit> countDownLatchBasic() => CountDownLatch.create(3).flatMap((latch) {
       .productR(() => latch.release());
 
   // The coordinator blocks until all three workers have released.
-  final coordinator = latch
-      .await()
-      .productR(() => IO.print('all workers done — proceeding'));
+  final coordinator = latch.await().productR(() => IO.print('all workers done — proceeding'));
 
-  return ilist([worker(1), worker(2), worker(3), coordinator])
-      .parSequence_();
+  return ilist([worker(1), worker(2), worker(3), coordinator]).parSequence_();
 });
 // cdl-basic
 
@@ -26,8 +23,7 @@ IO<Unit> countDownLatchBasic() => CountDownLatch.create(3).flatMap((latch) {
 /// Multiple fibers can call [await] simultaneously; they are all unblocked
 /// at the same instant when the last [release] fires.
 IO<Unit> multipleAwaiters() => CountDownLatch.create(1).flatMap((latch) {
-  IO<Unit> waiter(int id) =>
-      latch.await().productR(() => IO.print('waiter $id: unblocked'));
+  IO<Unit> waiter(int id) => latch.await().productR(() => IO.print('waiter $id: unblocked'));
 
   final starter = IO
       .sleep(100.milliseconds)
@@ -65,16 +61,14 @@ IO<Unit> parallelServiceInit() => CountDownLatch.create(3).flatMap((ready) {
 
   // The HTTP gateway waits for every service to be ready before it
   // starts routing traffic.
-  final gateway = ready
-      .await()
-      .productR(
-        () => IO.print('[gateway] all services ready — accepting requests'),
-      );
+  final gateway = ready.await().productR(
+    () => IO.print('[gateway] all services ready — accepting requests'),
+  );
 
   return ilist([
-    startService('auth',     150.milliseconds, 8081),
-    startService('catalog',  200.milliseconds, 8082),
-    startService('billing',  120.milliseconds, 8083),
+    startService('auth', 150.milliseconds, 8081),
+    startService('catalog', 200.milliseconds, 8082),
+    startService('billing', 120.milliseconds, 8083),
     gateway,
   ]).parSequence_();
 });
