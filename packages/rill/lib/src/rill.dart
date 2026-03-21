@@ -1012,7 +1012,7 @@ class Rill<O> {
     (o) => Option(o),
   ).zipAll<Option<O>>(that.map((o) => Option(o)), none(), none()).flatMap((t) {
     final (thisOpt, thatOpt) = t;
-    return Rill.chunk(Chunk.from(thisOpt).concat(Chunk.from(thatOpt)));
+    return Rill.chunk(Chunk.from(thisOpt)).append(() => Rill.chunk(Chunk.from(thatOpt)));
   });
 
   Rill<O> intersperse(O separator) {

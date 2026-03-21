@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/test_matchers.dart';
 import 'package:ribs_rill/src/chunk.dart';
@@ -29,6 +31,36 @@ void main() {
       expect(l[5], 5);
 
       expect(() => l[6], throwsRangeError);
+    });
+
+    test('[] on Chunk directly', () {
+      final c = chunk([10, 20, 30]);
+      expect(c[0], 10);
+      expect(c[2], 30);
+      expect(() => c[-1], throwsRangeError);
+      expect(() => c[3], throwsRangeError);
+      expect(() => Chunk.empty<int>()[0], throwsRangeError);
+    });
+
+    test('singleton', () {
+      expect(Chunk.singleton(42), chunk([42]));
+      expect(Chunk.singleton(42).size, 1);
+    });
+
+    test('tabulate', () {
+      expect(Chunk.tabulate<int>(0, (i) => i), Chunk.empty<int>());
+      expect(Chunk.tabulate<int>(3, (i) => i * 2), chunk([0, 2, 4]));
+    });
+
+    test('bytes', () {
+      final empty = Chunk.bytes(Uint8List(0));
+      expect(empty, Chunk.empty<int>());
+
+      final c = Chunk.bytes(Uint8List.fromList([10, 20, 30, 255]));
+      expect(c.size, 4);
+      expect(c[0], 10);
+      expect(c[3], 255);
+      expect(c.toList(), [10, 20, 30, 255]);
     });
 
     test('appended', () {
@@ -722,6 +754,157 @@ void main() {
 
     test('zipWithIndex', () {
       expect(chunk([0, 1, 2]).zipWithIndex(), chunk([(0, 0), (1, 1), (2, 2)]));
+    });
+
+    test('size, isEmpty, nonEmpty, head, last', () {
+      expect(Chunk.empty<int>().size, 0);
+      expect(Chunk.empty<int>().isEmpty, isTrue);
+      expect(Chunk.empty<int>().nonEmpty, isFalse);
+
+      final c = chunk([10, 20, 30]);
+
+      expect(c.size, 3);
+      expect(c.isEmpty, isFalse);
+      expect(c.nonEmpty, isTrue);
+      expect(c.head, 10);
+      expect(c.last, 30);
+    });
+
+    test('tail on Chunk', () {
+      expect(chunk([1, 2, 3]).tail, chunk([2, 3]));
+      expect(chunk([1]).tail, Chunk.empty<int>());
+    });
+
+    test('+ operator (concat alias)', () {
+      expect(chunk([1, 2]) + chunk([3, 4]), chunk([1, 2, 3, 4]));
+      expect(Chunk.empty<int>() + chunk([1]), chunk([1]));
+      expect(chunk([1]) + Chunk.empty<int>(), chunk([1]));
+    });
+
+    test('appendedAll', () {
+      expect(Chunk.empty<int>().appendedAll(chunk([1, 2])), chunk([1, 2]));
+      expect(chunk([1, 2]).appendedAll(chunk([3, 4])), chunk([1, 2, 3, 4]));
+    });
+
+    test('toDartList', () {
+      expect(Chunk.empty<int>().toDartList(), <int>[]);
+      expect(chunk([1, 2, 3]).toDartList(), [1, 2, 3]);
+    });
+
+    test('tabulate', () {
+      expect(Chunk.tabulate<int>(0, (i) => i), Chunk.empty<int>());
+      expect(Chunk.tabulate<int>(4, (i) => i * i), chunk([0, 1, 4, 9]));
+    });
+
+    test('compact and isCompact', () {
+      // _BoxedChunk is already compact
+      expect(chunk([1, 2, 3]).isCompact, isTrue);
+      expect(chunk([1, 2, 3]).compact(), chunk([1, 2, 3]));
+
+      // _SliceChunk (produced by drop/take) is not compact
+      final sliced = chunk([1, 2, 3, 4]).drop(1);
+      expect(sliced.isCompact, isFalse);
+      expect(sliced.compact(), chunk([2, 3, 4]));
+      expect(sliced.compact().isCompact, isTrue);
+
+      // _ConcatChunk (produced by concat) is not compact
+      final concatenated = chunk([1, 2]).concat(chunk([3, 4]));
+      expect(concatenated.isCompact, isFalse);
+      expect(concatenated.compact(), chunk([1, 2, 3, 4]));
+      expect(concatenated.compact().isCompact, isTrue);
+    });
+
+    test('mapAccumulate', () {
+      final (state, result) = chunk([1, 2, 3]).mapAccumulate(0, (s, a) => (s + a, s + a));
+      expect(state, 6);
+      expect(result, chunk([1, 3, 6]));
+
+      final (s2, r2) = Chunk.empty<int>().mapAccumulate(42, (s, a) => (s + a, a));
+      expect(s2, 42);
+      expect(r2, Chunk.empty<int>());
+    });
+
+    test('scanLeft', () {
+      expect(Chunk.empty<int>().scanLeft(0, (a, b) => a + b), chunk([0]));
+      expect(chunk([1, 2, 3]).scanLeft(0, (a, b) => a + b), chunk([0, 1, 3, 6]));
+    });
+
+    test('scanLeftCarry', () {
+      final (result, carry) = chunk([1, 2, 3]).scanLeftCarry(0, (a, b) => a + b);
+
+      // scanLeftCarry emits accumulated values without the seed
+      expect(result, chunk([1, 3, 6]));
+      expect(carry, 6);
+
+      final (r2, c2) = Chunk.empty<int>().scanLeftCarry(10, (a, b) => a + b);
+      expect(r2, Chunk.empty<int>());
+      expect(c2, 10);
+    });
+
+    test('tapEach', () {
+      final seen = <int>[];
+      final result = chunk([1, 2, 3]).tapEach(seen.add);
+
+      expect(result, chunk([1, 2, 3]));
+      expect(seen, [1, 2, 3]);
+    });
+
+    test('patch', () {
+      expect(chunk([1, 2, 3, 4]).patch(1, chunk([10, 20]), 2), chunk([1, 10, 20, 4]));
+      expect(chunk([1, 2, 3]).patch(0, chunk([9]), 1), chunk([9, 2, 3]));
+      expect(chunk([1, 2, 3]).patch(3, chunk([4, 5]), 0), chunk([1, 2, 3, 4, 5]));
+    });
+
+    test('combinations', () {
+      expect(
+        chunk([1, 2, 3]).combinations(2).map(Chunk.from).toIList(),
+        ilist([
+          chunk([1, 2]),
+          chunk([1, 3]),
+          chunk([2, 3]),
+        ]),
+      );
+      expect(chunk([1, 2]).combinations(0).toIList().size, 1);
+    });
+
+    test('_SliceChunk indexing and operations', () {
+      // drop produces a _SliceChunk
+      final s = chunk([0, 1, 2, 3, 4]).drop(2);
+      expect(s[0], 2);
+      expect(s[2], 4);
+      expect(() => s[3], throwsRangeError);
+      expect(() => s[-1], throwsRangeError);
+
+      // take on a _SliceChunk
+      expect(s.take(2), chunk([2, 3]));
+      expect(s.drop(1), chunk([3, 4]));
+
+      // filter on a _SliceChunk
+      expect(s.filter((x) => x.isEven), chunk([2, 4]));
+
+      // map on a _SliceChunk
+      expect(s.map((x) => x * 10), chunk([20, 30, 40]));
+    });
+
+    test('_ConcatChunk indexing', () {
+      final c = chunk([1, 2]).concat(chunk([3, 4, 5]));
+      expect(c[0], 1);
+      expect(c[2], 3);
+      expect(c[4], 5);
+      expect(() => c[5], throwsRangeError);
+      expect(() => c[-1], throwsRangeError);
+    });
+
+    test('equality and hashCode', () {
+      expect(chunk([1, 2, 3]), chunk([1, 2, 3]));
+      expect(chunk([1, 2, 3]) == chunk([1, 2, 4]), isFalse);
+      expect(chunk([1, 2, 3]).hashCode, chunk([1, 2, 3]).hashCode);
+      expect(Chunk.empty<int>(), Chunk.empty<int>());
+    });
+
+    test('toString', () {
+      expect(Chunk.empty<int>().toString(), 'Chunk()');
+      expect(chunk([1, 2, 3]).toString(), 'Chunk(1, 2, 3)');
     });
   });
 }

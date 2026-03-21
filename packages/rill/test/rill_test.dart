@@ -1622,4 +1622,559 @@ void main() {
       });
     });
   });
+
+  group('bracketCase', () {
+    test('release receives succeeded ExitCase on normal completion', () {
+      final test = IO.ref<ExitCase?>(null).flatMap((ref) {
+        return Rill.bracketCase(
+          IO.pure(42),
+          (_, ec) => ref.setValue(ec),
+        ).compile.drain.productR(() => ref.value());
+      });
+
+      expect(
+        test.map((ec) => ec!.isSuccess),
+        ioSucceeded(isTrue),
+      );
+    });
+
+    test('release receives errored ExitCase on error', () {
+      final test = IO.ref<ExitCase?>(null).flatMap((ref) {
+        return Rill.bracketCase(IO.pure(42), (_, ec) => ref.setValue(ec))
+            .flatMap((_) => Rill.raiseError<int>('BOOM'))
+            .compile
+            .drain
+            .attempt()
+            .productR(() => ref.value());
+      });
+
+      expect(
+        test.map((ec) => ec!.isError),
+        ioSucceeded(isTrue),
+      );
+    });
+  });
+
+  group('bracketFull', () {
+    test('acquire receives Poll and release is called', () {
+      final test = IO.ref(false).flatMap((released) {
+        return Rill.bracketFull(
+          (_) => IO.pure(1),
+          (_, _) => released.setValue(true),
+        ).compile.toIList.productR(() => released.value());
+      });
+
+      expect(test, ioSucceeded(isTrue));
+    });
+  });
+
+  group('force', () {
+    test('wraps IO<Rill> and emits elements', () {
+      final r = Rill.force(IO.pure(Rill.emits<int>([1, 2, 3])));
+      expect(r, producesInOrder([1, 2, 3]));
+    });
+
+    test('defers Rill construction until stream is run', () {
+      var built = false;
+      final r = Rill.force(
+        IO.delay(() {
+          built = true;
+          return Rill.emit(99);
+        }),
+      );
+
+      expect(built, isFalse);
+      expect(r, producesOnly(99));
+    });
+  });
+
+  group('suspend', () {
+    test('emits elements from lazily-constructed Rill', () {
+      expect(
+        Rill.suspend(() => Rill.emits<int>([1, 2, 3])),
+        producesInOrder([1, 2, 3]),
+      );
+    });
+
+    test('defers construction until stream is run', () {
+      var built = false;
+      final r = Rill.suspend(() {
+        built = true;
+        return Rill.emit(7);
+      });
+
+      expect(built, isFalse);
+      expect(r, producesOnly(7));
+    });
+  });
+
+  test('never does not emit any elements within take(0)', () {
+    expect(Rill.never.take(0), producesNothing());
+  });
+
+  group('fromIterator', () {
+    test('wraps a Dart Iterator', () {
+      final it = [1, 2, 3].iterator;
+      expect(Rill.fromIterator(it), producesInOrder([1, 2, 3]));
+    });
+
+    test('empty iterator produces empty stream', () {
+      final it = <int>[].iterator;
+      expect(Rill.fromIterator(it), producesNothing());
+    });
+  });
+
+  group('fromQueueUnterminated', () {
+    test('reads elements offered to the queue', () {
+      final test = Queue.bounded<int>(10).flatMap((q) {
+        final producer = IList.range(0, 5).traverseIO_((i) => q.offer(i));
+        final consumer = Rill.fromQueueUnterminated(q).take(5).compile.toIList;
+
+        return IO.both(producer, consumer).map((t) => t.$2);
+      });
+
+      expect(test, ioSucceeded(ilist([0, 1, 2, 3, 4])));
+    });
+  });
+
+  group('unfoldChunk', () {
+    test('produces elements via chunk-based unfold', () {
+      expect(
+        Rill.unfoldChunk<int, int>(0, (s) {
+          if (s >= 3) {
+            return none();
+          } else {
+            return Some((Chunk.fromDart([s * 2, s * 2 + 1]), s + 1));
+          }
+        }),
+        producesInOrder([0, 1, 2, 3, 4, 5]),
+      );
+    });
+
+    test('empty when initial predicate returns None', () {
+      expect(
+        Rill.unfoldChunk<int, int>(0, (_) => none()),
+        producesNothing(),
+      );
+    });
+  });
+
+  group('unfoldEval', () {
+    test('produces elements via IO-based unfold', () {
+      expect(
+        Rill.unfoldEval<int, int>(0, (s) => IO.pure(s < 3 ? Some((s, s + 1)) : none())),
+        producesInOrder([0, 1, 2]),
+      );
+    });
+
+    test('empty when IO returns None immediately', () {
+      expect(
+        Rill.unfoldEval<int, int>(0, (_) => IO.pure(none())),
+        producesNothing(),
+      );
+    });
+  });
+
+  group('unfoldChunkEval', () {
+    test('produces chunks via IO-based chunk unfold', () {
+      expect(
+        Rill.unfoldChunkEval<int, int>(
+          0,
+          (s) => IO.pure(s >= 2 ? none() : Some((Chunk.fromDart([s, s + 10]), s + 1))),
+        ),
+        producesInOrder([0, 10, 1, 11]),
+      );
+    });
+  });
+
+  group('cons / cons1', () {
+    test('cons prepends a Chunk to the stream', () {
+      expect(
+        Rill.emits<int>([3, 4]).cons(Chunk.fromDart([1, 2])),
+        producesInOrder([1, 2, 3, 4]),
+      );
+    });
+
+    test('cons with empty Chunk returns stream unchanged', () {
+      expect(
+        Rill.emits<int>([1, 2]).cons(Chunk.empty()),
+        producesInOrder([1, 2]),
+      );
+    });
+
+    test('cons1 prepends a single element', () {
+      expect(
+        Rill.emits<int>([2, 3]).cons1(1),
+        producesInOrder([1, 2, 3]),
+      );
+    });
+  });
+
+  group('operator +', () {
+    test('appends two streams', () {
+      expect(
+        Rill.emits<int>([1, 2]) + Rill.emits<int>([3, 4]),
+        producesInOrder([1, 2, 3, 4]),
+      );
+    });
+
+    test('right operand is not evaluated until left is exhausted', () async {
+      final log = <String>[];
+      final left = Rill.emits<int>([1]).evalTap((_) => IO.exec(() => log.add('left')));
+      final right = Rill.emits<int>([2]).evalTap((_) => IO.exec(() => log.add('right')));
+
+      await (left + right).compile.drain.unsafeRunFuture();
+
+      expect(log, ['left', 'right']);
+    });
+  });
+
+  group('onComplete', () {
+    test('appends continuation after natural completion', () {
+      expect(
+        Rill.emits<int>([1, 2]).onComplete(() => Rill.emits<int>([3, 4])),
+        producesInOrder([1, 2, 3, 4]),
+      );
+    });
+
+    test('continuation is NOT appended after error', () async {
+      var continuationRan = false;
+      final r = Rill.emit(1).append(() => Rill.raiseError<int>('BOOM')).onComplete(() {
+        continuationRan = true;
+        return Rill.emit(99);
+      });
+      await r.compile.drain.unsafeRunFutureOutcome();
+      expect(continuationRan, isFalse);
+    });
+  });
+
+  group('onFinalizeCase', () {
+    test('receives succeeded ExitCase on normal completion', () {
+      final test = IO.ref<ExitCase?>(null).flatMap((ref) {
+        return Rill.emit(1).onFinalizeCase(ref.setValue).compile.drain.productR(() => ref.value());
+      });
+
+      expect(test.map((ec) => ec!.isSuccess), ioSucceeded(isTrue));
+    });
+
+    test('receives errored ExitCase on stream error', () {
+      final test = IO.ref<ExitCase?>(null).flatMap((ref) {
+        return Rill.raiseError<int>(
+          'BOOM',
+        ).onFinalizeCase(ref.setValue).compile.drain.attempt().productR(() => ref.value());
+      });
+
+      expect(test.map((ec) => ec!.isError), ioSucceeded(isTrue));
+    });
+  });
+
+  group('filterWithPrevious', () {
+    test('emits element when predicate is true for consecutive pair', () {
+      // First element is always emitted. Subsequent elements are emitted when
+      // p(prev, curr) returns true.
+      expect(
+        Rill.emits<int>([1, 2, 3, 2, 1]).filterWithPrevious((a, b) => b > a),
+        producesInOrder([1, 2, 3]),
+      );
+    });
+
+    test('always emits first element', () {
+      expect(
+        Rill.emits<int>([5, 3, 4]).filterWithPrevious((_, _) => false),
+        producesOnly(5),
+      );
+    });
+  });
+
+  group('changesWith', () {
+    test('emits when custom predicate detects a change', () {
+      // changesWith(f) emits when f(prev, curr) returns true
+      expect(
+        Rill.emits<int>([1, 1, 2, 2, 3]).changesWith((a, b) => a != b),
+        producesInOrder([1, 2, 3]),
+      );
+    });
+  });
+
+  group('distinct', () {
+    test('passes through already-unique elements unchanged', () {
+      expect(
+        Rill.emits<int>([1, 2, 3]).distinct,
+        producesInOrder([1, 2, 3]),
+      );
+    });
+
+    test('empty stream stays empty', () {
+      expect(Rill.empty<int>().distinct, producesNothing());
+    });
+  });
+
+  group('head', () {
+    test('emits only first element', () {
+      expect(Rill.emits<int>([1, 2, 3]).head, producesOnly(1));
+    });
+
+    test('empty stream produces nothing', () {
+      expect(Rill.empty<int>().head, producesNothing());
+    });
+  });
+
+  group('tail', () {
+    test('drops first element', () {
+      expect(Rill.emits<int>([1, 2, 3]).tail, producesInOrder([2, 3]));
+    });
+
+    test('empty stream produces nothing', () {
+      expect(Rill.empty<int>().tail, producesNothing());
+    });
+
+    test('single-element stream produces nothing', () {
+      expect(Rill.emit(1).tail, producesNothing());
+    });
+  });
+
+  group('last (Rill<Option<O>>)', () {
+    test('empty stream emits None', () {
+      expect(Rill.empty<int>().last, producesOnly(none<int>()));
+    });
+
+    test('non-empty stream emits Some of last element', () {
+      expect(Rill.emits<int>([1, 2, 3]).last, producesOnly(const Some(3)));
+    });
+  });
+
+  group('lastOr', () {
+    test('empty stream emits fallback', () {
+      expect(Rill.empty<int>().lastOr(() => 42), producesOnly(42));
+    });
+
+    test('non-empty stream emits last element', () {
+      expect(Rill.emits<int>([10, 20, 30]).lastOr(() => 42), producesOnly(30));
+    });
+  });
+
+  group('mask', () {
+    test('passes through normal elements', () {
+      expect(Rill.emits<int>([1, 2, 3]).mask, producesInOrder([1, 2, 3]));
+    });
+
+    test('empty stream produces nothing', () {
+      expect(Rill.empty<int>().mask, producesNothing());
+    });
+  });
+
+  group('timeout', () {
+    test('interrupts the stream after the given duration', () {
+      // timeout is identical in implementation to interruptAfter.
+      final r = Rill.repeatEval(IO.sleep(50.milliseconds).as(1)).timeout(200.milliseconds);
+      expect(r.compile.toIList.map((l) => l.size < 10), ioSucceeded(isTrue));
+    });
+  });
+
+  group('noneTerminate', () {
+    test('wraps elements in Some and appends None', () {
+      expect(
+        Rill.emits<int>([1, 2, 3]).noneTerminate(),
+        producesInOrder([const Some(1), const Some(2), const Some(3), none<int>()]),
+      );
+    });
+
+    test('empty stream emits only None', () {
+      expect(Rill.empty<int>().noneTerminate(), producesOnly(none<int>()));
+    });
+  });
+
+  group('foreach', () {
+    test('executes IO side-effect for each element', () {
+      final test = IO.ref(nil<int>()).flatMap((ref) {
+        return Rill.emits<int>([1, 2, 3])
+            .foreach((x) => ref.update((l) => l.appended(x)))
+            .compile
+            .drain
+            .productR(() => ref.value());
+      });
+
+      expect(test, ioSucceeded(ilist([1, 2, 3])));
+    });
+  });
+
+  group('mapChunks', () {
+    test('transforms each chunk', () {
+      expect(
+        Rill.emits<int>([1, 2, 3]).mapChunks((c) => c.map((x) => x * 10)),
+        producesInOrder([10, 20, 30]),
+      );
+    });
+
+    test('can change element type', () {
+      expect(
+        Rill.emits<int>([1, 2, 3]).mapChunks((c) => c.map((x) => '$x')),
+        producesInOrder(['1', '2', '3']),
+      );
+    });
+  });
+
+  group('ifEmpty', () {
+    test('empty stream emits fallback Rill', () {
+      expect(
+        Rill.empty<int>().ifEmpty(() => Rill.emits<int>([10, 20])),
+        producesInOrder([10, 20]),
+      );
+    });
+
+    test('non-empty stream is returned as-is', () {
+      expect(
+        Rill.emits<int>([1, 2]).ifEmpty(() => Rill.emits<int>([99])),
+        producesInOrder([1, 2]),
+      );
+    });
+  });
+
+  group('zipLeft / zipRight', () {
+    test('zipLeft keeps left elements, terminates with shorter', () {
+      expect(
+        Rill.emits<int>([1, 2, 3]).zipLeft(Rill.emits<String>(['a', 'b', 'c'])),
+        producesInOrder([1, 2, 3]),
+      );
+    });
+
+    test('zipLeft terminates when right is shorter', () {
+      expect(
+        Rill.emits<int>([1, 2, 3]).zipLeft(Rill.emits<String>(['a', 'b'])),
+        producesInOrder([1, 2]),
+      );
+    });
+
+    test('zipRight keeps right elements', () {
+      expect(
+        Rill.emits<int>([1, 2, 3]).zipRight(Rill.emits<String>(['a', 'b', 'c'])),
+        producesInOrder(['a', 'b', 'c']),
+      );
+    });
+  });
+
+  group('zipLatestWith', () {
+    test('combines using function', () {
+      IO<A> cede<A>(A a) => IO.pure(a).productL(() => IO.cede);
+      expect(
+        Rill.emits<int>([1, 2])
+            .evalMap(cede)
+            .zipLatestWith(
+              Rill.emits<String>(['a', 'b']).evalMap(cede),
+              (i, s) => '$i$s',
+            ),
+        producesInOrder(['1a', '2a', '2b']),
+      );
+    });
+  });
+
+  group('takeThrough', () {
+    test('includes first element that fails the predicate', () {
+      expect(
+        Rill.emits<int>([1, 2, 3, 4, 5]).takeThrough((x) => x < 3),
+        producesInOrder([1, 2, 3]),
+      );
+    });
+
+    test('takes all when all elements pass', () {
+      expect(
+        Rill.emits<int>([1, 2, 3]).takeThrough((x) => x < 10),
+        producesInOrder([1, 2, 3]),
+      );
+    });
+
+    test('empty stream produces nothing', () {
+      expect(Rill.empty<int>().takeThrough((x) => x < 3), producesNothing());
+    });
+  });
+
+  group('parEvalMapUnbounded', () {
+    test('maps elements concurrently with no bound', () {
+      expect(
+        Rill.range(0, 5).parEvalMapUnbounded(Integer.MaxValue, (i) => IO.pure(i * 2)),
+        producesUnordered([0, 2, 4, 6, 8]),
+      );
+    });
+  });
+
+  group('parEvalMapUnorderedUnbounded', () {
+    test('maps elements concurrently with no bound, unordered', () {
+      expect(
+        Rill.range(0, 5).parEvalMapUnorderedUnbounded((i) => IO.pure(i * 2)),
+        producesUnordered([0, 2, 4, 6, 8]),
+      );
+    });
+  });
+
+  group('scanChunksOpt', () {
+    test('returns None to stop early', () {
+      // When f returns None, scanning stops.
+      // Force one element per chunk so f is called once per element.
+      expect(
+        Rill.range(0, 10).flatMap((int i) => Rill.emit(i)).scanChunksOpt<int, int>(0, (int s) {
+          if (s >= 3) return none();
+          return Some(
+            (Chunk<int> c) => c.mapAccumulate(s, (int acc, int x) => (acc + 1, x * 10)),
+          );
+        }),
+        producesInOrder([0, 10, 20]),
+      );
+    });
+
+    test('behaves like scanChunks when never returning None', () {
+      expect(
+        Rill.emits<int>([1, 2, 3]).scanChunksOpt<int, int>(0, (int s) {
+          return Some(
+            (Chunk<int> c) => c.mapAccumulate(s, (int acc, int x) => (acc + x, x)),
+          );
+        }),
+        producesInOrder([1, 2, 3]),
+      );
+    });
+  });
+
+  group('sleep_', () {
+    test('emits no elements of the typed output type', () {
+      // sleep_<int> sleeps but produces a Rill<int> with no elements.
+      expect(Rill.sleep_<int>(1.milliseconds), producesNothing());
+    });
+  });
+
+  group('interruptWhenSignaled', () {
+    test('interrupts when Signal<bool> becomes true', () {
+      final test = SignallingRef.of(false).flatMap((sig) {
+        final toggleAfterDelay = IO.sleep(100.milliseconds).productR(() => sig.setValue(true));
+        final stream =
+            Rill.repeatEval(
+              IO.sleep(20.milliseconds).as(1),
+            ).interruptWhenSignaled(sig).compile.toIList;
+        return IO.both(toggleAfterDelay, stream).map((t) => t.$2);
+      });
+
+      expect(test.map((l) => l.size < 20), ioSucceeded(isTrue));
+    });
+  });
+
+  group('pauseWhenSignal', () {
+    test('pauses while Signal<bool> is true', () {
+      final test = SignallingRef.of(false).flatMap((sig) {
+        final pause = IO
+            .sleep(50.milliseconds)
+            .productR(() => sig.setValue(true))
+            .productR(() => IO.sleep(200.milliseconds))
+            .productR(() => sig.setValue(false));
+
+        final stream =
+            Rill.repeatEval(
+              IO.sleep(30.milliseconds).as(1),
+            ).interruptAfter(500.milliseconds).pauseWhenSignal(sig).compile.toIList;
+
+        return IO.both(pause, stream).map((t) => t.$2);
+      });
+
+      // Should have produced some elements before pause and some after resume,
+      // fewer than if unpaused for the full duration.
+      expect(test.map((l) => l.size < 15), ioSucceeded(isTrue));
+    });
+  });
 }
