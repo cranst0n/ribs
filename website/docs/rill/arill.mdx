@@ -68,7 +68,7 @@ store it in a variable, and compile it more than once — each compilation
 produces an independent `IO` that runs the full pipeline from scratch.
 
 Internally, `Rill<O>` wraps `Pull<O, Unit>`, a trampolined computation that
-emits `Chunk<O>` values and is stack-safe regardless of stream length. You
+emits `Chunk<O>` values and is stack-safe regardless of rill length. You
 rarely work with `Pull` directly; `Rill` exposes a high-level API on top of it.
 
 ## Relationship to IO
@@ -87,7 +87,7 @@ This means a `Rill` pipeline always runs inside IO's fiber system, inheriting
 IO's cancellation, error handling, and concurrency semantics. It composes
 naturally with every other IO primitive: `Ref`, `Deferred`, `Semaphore`, etc.
 
-Effects within the stream are expressed with `evalMap` and `evalTap`, which
+Effects within the rill are expressed with `evalMap` and `evalTap`, which
 lift `IO` actions into the pipeline without breaking the pure model.
 
 ---
@@ -106,7 +106,7 @@ Other useful constructors:
 | `Rill.fromStream(stream)` | Wrap a Dart `Stream` |
 | `Rill.resource(resource)` | Emit the value produced by a `Resource` |
 | `Rill.fixedRate(period)` | Emit `Unit` at a fixed interval |
-| `Rill.never` | A stream that never emits or terminates |
+| `Rill.never` | A rill that never emits or terminates |
 
 ## Transforming a Rill
 
@@ -114,7 +114,7 @@ Other useful constructors:
 
 `scan` is an _inclusive_ prefix-fold: it emits the initial accumulator
 followed by each intermediate result, making the running state visible as a
-stream element.
+rill element.
 
 A selection of the most commonly used combinators:
 
@@ -128,7 +128,7 @@ A selection of the most commonly used combinators:
 | `scan(init, f)` | Emit running accumulated state |
 | `zipWithIndex()` | Pair each element with its index |
 | `changes()` | Emit only when the value differs from the previous |
-| `concat` | Append one stream after another |
+| `concat` | Append one rill after another |
 
 :::info
 These are only the most common combinators `Rill` provides. Review the API docs
@@ -139,15 +139,15 @@ to get the full picture of what is provided.
 
 <CodeSnippet snippet={RillSnippet} section="rill-effects" />
 
-`evalTap` is the stream equivalent of `flatTap` on `IO` — it executes a
+`evalTap` is the rill equivalent of `flatTap` on `IO` — it executes a
 side-effect per element and passes the original element downstream unchanged.
-Use it for logging, metrics, or state updates that should not alter the stream
+Use it for logging, metrics, or state updates that should not alter the rill
 type.
 
 ## Resource safety
 
-`Rill.bracket(acquire, release)` ties a resource's lifetime to the stream's
-lifetime. The release action runs **unconditionally** when the stream ends —
+`Rill.bracket(acquire, release)` ties a resource's lifetime to the rill's
+lifetime. The release action runs **unconditionally** when the rill ends —
 whether it completes normally, raises an error, or is canceled by the fiber
 runtime.
 
@@ -162,7 +162,7 @@ the source, use `rill.onFinalize(io)`. For access to the `ExitCase`
 ## Interruption
 
 Any `Rill` can be stopped early — cleanly, without leaking resources — using
-one of the interrupt combinators. When a stream is interrupted, all `bracket`
+one of the interrupt combinators. When a rill is interrupted, all `bracket`
 finalizers and `onFinalize` hooks still run, exactly as they do on normal
 completion.
 
@@ -176,8 +176,8 @@ completion.
 <CodeSnippet snippet={RillSnippet} section="rill-interrupt" />
 
 `interruptWhen(io)` is the most flexible form. Passing a `Deferred.value()`
-as the signal gives any other fiber a handle to stop the stream on demand —
-a clean alternative to canceling the whole fiber. The stream drains whatever
+as the signal gives any other fiber a handle to stop the rill on demand —
+a clean alternative to canceling the whole fiber. The rill drains whatever
 it has already produced before halting.
 
 ---
@@ -186,24 +186,24 @@ it has already produced before halting.
 
 `parEvalMap` covers the common case of applying one IO-valued function to
 each element concurrently. For more general concurrency — where each element
-expands into a **multi-element sub-stream** — use `parJoin`.
+expands into a **multi-element sub-rill** — use `parJoin`.
 
 `parJoin` lives on `Rill<Rill<O>>`. It subscribes to up to `maxOpen` inner
-streams simultaneously and merges their outputs into a single stream. Results
-arrive in **completion order**: whichever inner stream emits next appears next,
-regardless of its position in the outer stream.
+rills simultaneously and merges their outputs into a single rill. Results
+arrive in **completion order**: whichever inner rill emits next appears next,
+regardless of its position in the outer rill.
 
-### Fixed set of concurrent streams
+### Fixed set of concurrent rills
 
 <CodeSnippet snippet={RillSnippet} section="rill-par-join" />
 
 All three sources run concurrently from the moment `parJoin` starts. Fast
-sources do not wait for slow ones; the merged stream ends only after every
-inner stream has completed.
+sources do not wait for slow ones; the merged rill ends only after every
+inner rill has completed.
 
 ### Dynamic concurrency with `flatMap` + `parJoin`
 
-`flatMap` + `parJoin` is the general pattern when the number of inner streams
+`flatMap` + `parJoin` is the general pattern when the number of inner rills
 is not known up front or each outer element should fan out into multiple values.
 
 <CodeSnippet snippet={RillSnippet} section="rill-par-join-dynamic" />
@@ -211,18 +211,18 @@ is not known up front or each outer element should fan out into multiple values.
 :::info
 `rill.parEvalMap(n, f)` is exactly `rill.map((o) => Rill.eval(f(o))).parJoin(n)`.
 Use `parEvalMap` for the one-IO-per-element case; reach for `flatMap` +
-`parJoin` when each element should produce a full sub-stream.
+`parJoin` when each element should produce a full sub-rill.
 :::
 
 ### Error propagation and cancellation
 
-If any inner stream raises an error, `parJoin` immediately cancels all
-remaining inner streams and propagates the error to the outer stream. If the
-outer stream itself is interrupted (e.g. via `interruptAfter`), all running
-inner streams are canceled before the combined stream terminates.
+If any inner rill raises an error, `parJoin` immediately cancels all
+remaining inner rills and propagates the error to the outer rill. If the
+outer rill itself is interrupted (e.g. via `interruptAfter`), all running
+inner rills are canceled before the combined rill terminates.
 
 `parJoinUnbounded()` is a convenience alias for `parJoin(Integer.MaxValue)` —
-use it when you know the number of inner streams is bounded by the outer stream
+use it when you know the number of inner rills is bounded by the outer rill
 and you do not need an explicit cap.
 
 ---
@@ -247,6 +247,6 @@ compositionality of `IO`.
 
 :::tip
 For cases where ordering does not matter and throughput is the priority, swap
-`parEvalMap` for `parEvalMapUnordered`. To run a background stream concurrently
+`parEvalMap` for `parEvalMapUnordered`. To run a background rill concurrently
 with the main pipeline, see `rill.concurrently(other)`.
 :::
