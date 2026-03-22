@@ -71,7 +71,7 @@ extension StringOps on String {
     var v = z;
     var i = length - 1;
 
-    while (i < length) {
+    while (i >= 0) {
       v = op(this[i], v);
       i -= 1;
     }
@@ -99,7 +99,7 @@ extension StringOps on String {
   int lastIndexWhere(Function1<String, bool> p, [int end = 2147483647]) {
     var i = min(end, length - 1);
 
-    while (i < length) {
+    while (i >= 0) {
       if (p(this[i])) return i;
       i -= 1;
     }
