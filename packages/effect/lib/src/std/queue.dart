@@ -19,7 +19,7 @@ abstract class Queue<A> {
 
   static IO<Queue<A>> synchronous<A>() => Ref.of(_SyncState.empty<A>()).map(_SyncQueue.new);
 
-  static IO<Queue<A>> unbounded<A>() => bounded(Integer.MaxValue);
+  static IO<Queue<A>> unbounded<A>() => bounded(Integer.maxValue);
 
   IO<int> size();
 
@@ -40,7 +40,7 @@ abstract class Queue<A> {
 
   IO<IList<A>> tryTakeN(Option<int> maxN) {
     return IO.defer(() {
-      final limit = maxN.getOrElse(() => Integer.MaxValue);
+      final limit = maxN.getOrElse(() => Integer.maxValue);
       if (limit <= 0) return IO.pure(nil());
 
       var count = 0;

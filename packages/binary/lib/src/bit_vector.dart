@@ -138,7 +138,7 @@ sealed class BitVector implements Comparable<BitVector> {
     int? size,
     Endian ordering = Endian.big,
   }) {
-    final nBits = size ?? Integer.Size;
+    final nBits = size ?? Integer.size;
 
     final Uint8List bytes;
 
@@ -213,7 +213,7 @@ sealed class BitVector implements Comparable<BitVector> {
 
   /// Returns `true` if the size of this `BitVector` is less than or equal to `n`. Unlike `size`,
   /// this forces this `BitVector` from left to right, halting as soon as it has a definite answer.
-  bool sizeLessThanOrEqual(int n) => n == Integer.MaxValue || sizeLessThan(n + 1);
+  bool sizeLessThanOrEqual(int n) => n == Integer.maxValue || sizeLessThan(n + 1);
 
   /// Returns true if the `n`th bit is high, false otherwise.
   bool get(int n);
@@ -546,7 +546,7 @@ sealed class BitVector implements Comparable<BitVector> {
   }
 
   Bytes compact() {
-    if (_bytesNeededForBits(size) > Integer.MaxValue) {
+    if (_bytesNeededForBits(size) > Integer.maxValue) {
       throw ArgumentError('cannot compact bit vector of size ${size.toDouble() / 8 / 1e9} GB');
     }
 
@@ -681,11 +681,11 @@ sealed class BitVector implements Comparable<BitVector> {
     }
   }
 
-  String toHexDump() => HexDumpFormat.NoAnsi.renderBits(this);
+  String toHexDump() => HexDumpFormat.noAnsi.renderBits(this);
 
-  String toHexDumpColorized() => HexDumpFormat.Default.renderBits(this);
+  String toHexDumpColorized() => HexDumpFormat.defaultFormat.renderBits(this);
 
-  void printHexDump() => HexDumpFormat.Default.printBits(this);
+  void printHexDump() => HexDumpFormat.defaultFormat.printBits(this);
 
   String toBase16([HexAlphabet alphabet = Alphabets.hexLower]) => toHex(alphabet);
 

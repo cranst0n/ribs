@@ -23,8 +23,7 @@ final class CodecSyntaxGenerator {
     return generatedCode.toString();
   }
 
-  static List<String> _typeParams(int size) =>
-      List.generate(size, (i) => _letters[i]);
+  static List<String> _typeParams(int size) => List.generate(size, (i) => _letters[i]);
 
   static String _outputParam(int size) => _letters[size];
 
@@ -32,8 +31,7 @@ final class CodecSyntaxGenerator {
     final params = _typeParams(size);
     final output = _outputParam(size);
     final extensionName = 'Codec${size}KVOps<${params.join(', ')}>';
-    final onType =
-        '(${params.map((t) => 'KeyValueCodec<$t>').join(', ')})';
+    final onType = '(${params.map((t) => 'KeyValueCodec<$t>').join(', ')})';
 
     final dollarArgs = List.generate(size, (i) => '\$${i + 1}').join(', ');
 
@@ -55,8 +53,7 @@ final class CodecSyntaxGenerator {
     final params = _typeParams(size);
     final output = _outputParam(size);
     final extensionName = 'Codec${size}Ops<${params.join(', ')}>';
-    final onType =
-        '(${params.map((t) => '(String, Codec<$t>)').join(', ')})';
+    final onType = '(${params.map((t) => '(String, Codec<$t>)').join(', ')})';
 
     final kvArgs = List.generate(size, (i) => '\$${i + 1}.kv').join(', ');
 

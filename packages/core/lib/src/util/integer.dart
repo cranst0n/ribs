@@ -5,10 +5,10 @@ import 'package:ribs_core/src/util/integer/stub.dart'
 sealed class Integer {
   static final IntegerImpl _platformImpl = IntegerImpl();
 
-  static int get Size => _platformImpl.Size;
+  static int get size => _platformImpl.size;
 
-  static int get MaxValue => _platformImpl.MaxValue;
-  static int get MinValue => _platformImpl.MinValue;
+  static int get maxValue => _platformImpl.maxValue;
+  static int get minValue => _platformImpl.minValue;
 
   static int bitCount(int i) => _platformImpl.bitCount(i);
 
@@ -19,8 +19,8 @@ sealed class Integer {
   static int numberOfTrailingZeros(int i) => _platformImpl.numberOfTrailingZeros(i);
 
   static int rotateLeft(int i, int distance) =>
-      (i << distance) | (i >>> (_platformImpl.Size - distance));
+      (i << distance) | (i >>> (_platformImpl.size - distance));
 
   static int rotateRight(int i, int distance) =>
-      (i >>> distance) | (i << (_platformImpl.Size - distance));
+      (i >>> distance) | (i << (_platformImpl.size - distance));
 }

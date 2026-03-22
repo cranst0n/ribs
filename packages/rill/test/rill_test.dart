@@ -544,7 +544,9 @@ void main() {
     final n = (n0 % 20).abs() + 1;
     final s1 = s.groupAdjacentByLimit(n, (_) => true);
 
-    final res1 = (await s1.mapN((_, chunk) => chunk).toList).toIList().map((chunk) => chunk.toIList());
+    final res1 = (await s1.mapN((_, chunk) => chunk).toList).toIList().map(
+      (chunk) => chunk.toIList(),
+    );
     final res2 = (await s.toList).grouped(n).toIList();
 
     expect(res1, res2);

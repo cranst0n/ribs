@@ -101,7 +101,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       // it could not be exclusive, because then upper bound in worst case (Node.BranchingFactor) would be out-of-bound
       // of int bitposition representation
       final maximumBitPos = Node.bitposFrom(
-        Node.BranchingFactor - Integer.numberOfLeadingZeros(allMap) - 1,
+        Node.branchingFactor - Integer.numberOfLeadingZeros(allMap) - 1,
       );
 
       var leftNodeRightNode = 0;
@@ -403,7 +403,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       } else {
         final allMap = dataMap | nodeMap;
         final minimumIndex = Integer.numberOfTrailingZeros(allMap);
-        final maximumIndex = Node.BranchingFactor - Integer.numberOfLeadingZeros(allMap);
+        final maximumIndex = Node.branchingFactor - Integer.numberOfLeadingZeros(allMap);
 
         var oldDataPassThrough = 0;
 
@@ -544,7 +544,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       //     descendants
       //
       final minimumIndex = Integer.numberOfTrailingZeros(dataMap);
-      final maximumIndex = Node.BranchingFactor - Integer.numberOfLeadingZeros(dataMap);
+      final maximumIndex = Node.branchingFactor - Integer.numberOfLeadingZeros(dataMap);
 
       var newDataMap = 0;
       var newCachedHashCode = 0;
@@ -578,7 +578,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
         final newSize = Integer.bitCount(newDataMap);
         final newContent = Array.ofDim<dynamic>(newSize);
         final newOriginalHashCodes = Array.ofDim<int>(newSize);
-        final newMaximumIndex = Node.BranchingFactor - Integer.numberOfLeadingZeros(newDataMap);
+        final newMaximumIndex = Node.branchingFactor - Integer.numberOfLeadingZeros(newDataMap);
 
         var j = Integer.numberOfTrailingZeros(newDataMap);
 
@@ -607,7 +607,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
     } else {
       final allMap = dataMap | nodeMap;
       final minimumIndex = Integer.numberOfTrailingZeros(allMap);
-      final maximumIndex = Node.BranchingFactor - Integer.numberOfLeadingZeros(allMap);
+      final maximumIndex = Node.branchingFactor - Integer.numberOfLeadingZeros(allMap);
 
       var oldDataPassThrough = 0;
 
@@ -1482,7 +1482,7 @@ final class BitmapIndexedSetNode<A> extends SetNode<A> {
       final newOriginalHashes = Array.ofDim<int>(newDataSize);
 
       final newAllMap = newDataMap | newNodeMap;
-      final maxIndex = Node.BranchingFactor - Integer.numberOfLeadingZeros(newAllMap);
+      final maxIndex = Node.branchingFactor - Integer.numberOfLeadingZeros(newAllMap);
 
       // note: We MUST start from the minimum index in the old (`this`) node, otherwise `old{Node,Data}Index` will
       // not be incremented properly. Otherwise we could have started at Integer.numberOfTrailingZeroes(newAllMap)

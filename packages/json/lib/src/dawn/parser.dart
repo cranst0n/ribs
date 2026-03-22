@@ -270,7 +270,7 @@ abstract class Parser {
     int x = 0;
 
     while (i < 4) {
-      final n = _HexChars[s.codeUnitAt(i)];
+      final n = _hexChars[s.codeUnitAt(i)];
 
       if (n < 0) {
         die(pos, 'expected valid unicode escape');
@@ -528,7 +528,7 @@ abstract class Parser {
   static const _ARREND = 4;
   static const _OBJEND = 5;
 
-  static final _HexChars = _genHexChars();
+  static final _hexChars = _genHexChars();
 
   static const _ErrorContext = 6;
   static const _MaxDepth = 10000;

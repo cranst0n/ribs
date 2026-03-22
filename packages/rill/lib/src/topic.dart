@@ -27,11 +27,11 @@ abstract class Topic<A> {
 
   Rill<A> subscribe(int maxQueued);
 
-  Rill<A> subscribeUnbounded() => subscribe(Integer.MaxValue);
+  Rill<A> subscribeUnbounded() => subscribe(Integer.maxValue);
 
   Resource<Rill<A>> subscribeAwait(int maxQueued);
 
-  Resource<Rill<A>> subscribeAwaitUnbounded() => subscribeAwait(Integer.MaxValue);
+  Resource<Rill<A>> subscribeAwaitUnbounded() => subscribeAwait(Integer.maxValue);
 
   /// Signal of active subscribers.
   Rill<int> get subscribers;

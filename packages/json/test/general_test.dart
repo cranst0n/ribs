@@ -61,12 +61,12 @@ void main() {
 
     expect(
       json.hcursor.downN(1).focus(),
-      Json.obj([('bar', JNull()), ('baz', JString('qux'))]).some,
+      Json.obj([('bar', const JNull()), ('baz', const JString('qux'))]).some,
     );
 
     expect(
       json.deepDropNullValues().hcursor.downN(1).focus(),
-      Json.obj([('baz', JString('qux'))]).some,
+      Json.obj([('baz', const JString('qux'))]).some,
     );
 
     final cursor = json.hcursor.downArray().downField('foo');
@@ -151,7 +151,11 @@ void main() {
   test('Encoder', () {
     expect(
       Parse3.codec.encode(const Parse3(1, 'two', false)),
-      Json.obj([('foo', JNumber(1)), ('bar', JString('two')), ('baz', JBoolean(false))]),
+      Json.obj([
+        ('foo', const JNumber(1)),
+        ('bar', const JString('two')),
+        ('baz', const JBoolean(false)),
+      ]),
     );
   });
 
@@ -159,7 +163,7 @@ void main() {
     const value = (1, false);
     final codec = Codec.tuple2(Codec.integer, Codec.boolean);
 
-    expect(codec.encode(value), Json.arr([JNumber(1), JBoolean(false)]));
+    expect(codec.encode(value), Json.arr([const JNumber(1), const JBoolean(false)]));
 
     codec
         .decode(codec.encode(value))

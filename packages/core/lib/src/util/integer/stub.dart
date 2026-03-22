@@ -2,13 +2,13 @@ import 'package:ribs_core/src/util/integer/base.dart';
 
 class IntegerImpl extends IntegerBase {
   @override
-  int get MaxValue => throw UnimplementedError();
+  int get maxValue => throw UnimplementedError();
 
   @override
-  int get MinValue => throw UnimplementedError();
+  int get minValue => throw UnimplementedError();
 
   @override
-  int get Size => throw UnimplementedError();
+  int get size => throw UnimplementedError();
 
   @override
   int bitCount(int i) {

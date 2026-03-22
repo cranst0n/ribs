@@ -24,7 +24,7 @@ final class HexDumpFormat {
     this.lengthLimit,
   );
 
-  static final Default = HexDumpFormat._(
+  static final defaultFormat = HexDumpFormat._(
     true,
     2,
     8,
@@ -32,10 +32,10 @@ final class HexDumpFormat {
     Alphabets.hexLower,
     true,
     0,
-    Integer.MaxValue,
+    Integer.maxValue,
   );
 
-  static final NoAnsi = Default.withAnsi(false);
+  static final noAnsi = defaultFormat.withAnsi(false);
 
   int get numBytesPerLine => dataColumnWidthInBytes * dataColumnCount;
   int get numBitsPerLine => numBytesPerLine * 8;

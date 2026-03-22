@@ -49,7 +49,7 @@ class RillPrimesBenchmark extends AsyncBenchmarkBase {
 
   @override
   Future<void> run() async {
-    final numbers = Rill.range(2, Integer.MaxValue);
+    final numbers = Rill.range(2, Integer.maxValue);
     final primes = sieve(numbers.pull.echo).rillNoScope.take(primesN);
     await primes.compile.drain.unsafeRunFuture();
   }

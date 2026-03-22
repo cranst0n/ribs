@@ -68,7 +68,7 @@ final class _SliceIterator<A> extends RIterator<A> {
       return RIterator.empty();
     } else {
       final sum = _dropping + lo;
-      _dropping = sum < 0 ? Integer.MaxValue : sum;
+      _dropping = sum < 0 ? Integer.maxValue : sum;
       _remaining = rest;
       return this;
     }

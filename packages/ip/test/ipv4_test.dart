@@ -77,8 +77,8 @@ void main() {
     });
 
     test('isMulticast', () {
-      final ssmStart = Ipv4Address.MulticastRangeStart;
-      final ssmEnd = Ipv4Address.MulticastRangeEnd;
+      final ssmStart = Ipv4Address.multicastRangeStart;
+      final ssmEnd = Ipv4Address.multicastRangeEnd;
 
       expect(ssmStart.isMulticast, isTrue);
       expect(ssmStart.next().isMulticast, isTrue);
@@ -90,8 +90,8 @@ void main() {
     });
 
     test('isSourceSpecificMulticast', () {
-      final ssmStart = Ipv4Address.SourceSpecificMulticastRangeStart;
-      final ssmEnd = Ipv4Address.SourceSpecificMulticastRangeEnd;
+      final ssmStart = Ipv4Address.sourceSpecificMulticastRangeStart;
+      final ssmEnd = Ipv4Address.sourceSpecificMulticastRangeEnd;
 
       expect(ssmStart.isSourceSpecificMulticast, isTrue);
       expect(ssmStart.next().isSourceSpecificMulticast, isTrue);

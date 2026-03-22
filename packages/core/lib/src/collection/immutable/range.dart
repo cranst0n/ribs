@@ -419,7 +419,7 @@ abstract class Range with RIterableOnce<int>, RIterable<int>, RSeq<int>, Indexed
       final hasStub = isInclusive || (gap % step != 0);
       final result = jumps + (hasStub ? 1 : 0);
 
-      if (result > Integer.MaxValue) {
+      if (result > Integer.maxValue) {
         return -1;
       } else {
         return result;

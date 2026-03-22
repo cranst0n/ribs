@@ -7,7 +7,7 @@ mixin Channel<A> {
 
   static IO<Channel<A>> synchronous<A>() => bounded(0);
 
-  static IO<Channel<A>> unbounded<A>() => bounded(Integer.MaxValue);
+  static IO<Channel<A>> unbounded<A>() => bounded(Integer.maxValue);
 
   Pipe<A, Never> get sendAll;
 

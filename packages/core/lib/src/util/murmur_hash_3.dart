@@ -12,7 +12,7 @@ sealed class MurmurHash3 {
 
   static final _tuple2HashCode = 'Tuple2'.hashCode;
 
-  static final _intSize = Integer.Size;
+  static final _intSize = Integer.size;
 
   static int bytesHash(Uint8List data) => _bytesHash(data, arraySeed);
 

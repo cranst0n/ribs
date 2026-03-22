@@ -38,9 +38,9 @@ final prettyJsonString = anObject.printWith(Printer.spaces2);
 // creating-3
 
 // The complete set of Json value constructors
-final nullValue = Json.Null; //        null
-final trueValue = Json.True; //        true
-final falseValue = Json.False; //      false
+const nullValue = Json.Null; //        null
+const trueValue = Json.True; //        true
+const falseValue = Json.False; //      false
 final boolValue = Json.boolean(true); // same as Json.True, but from a Dart bool
 final strValue = Json.str('hello'); //  "hello"
 final numValue = Json.number(42); //    42

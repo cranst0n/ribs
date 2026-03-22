@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 void main() {
   group('Integer (native)', () {
     test('size', () {
-      expect(Integer.Size, 64);
+      expect(Integer.size, 64);
     });
 
     test('highestOneBit', () {
@@ -41,7 +41,7 @@ void main() {
 
   group('Integer (web)', () {
     test('size', () {
-      expect(Integer.Size, 53);
+      expect(Integer.size, 53);
     });
 
     test('highestOneBit', () {

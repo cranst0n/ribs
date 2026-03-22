@@ -1,8 +1,8 @@
 abstract class IntegerBase {
-  int get Size; // bits
+  int get size; // bits
 
-  int get MaxValue;
-  int get MinValue;
+  int get maxValue;
+  int get minValue;
 
   int bitCount(int i);
   int highestOneBit(int i);

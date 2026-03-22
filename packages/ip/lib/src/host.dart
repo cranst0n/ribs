@@ -331,14 +331,14 @@ final class Ipv4Address extends IpAddress {
   Ipv4Address previous() => Ipv4Address.fromInt(toInt() - 1);
 
   @override
-  bool get isMulticast => MulticastRangeStart <= this && this <= MulticastRangeEnd;
+  bool get isMulticast => multicastRangeStart <= this && this <= multicastRangeEnd;
 
   @override
   Option<Multicast<Ipv4Address>> asMulticast() => Multicast.fromIpAddress(this);
 
   @override
   bool get isSourceSpecificMulticast =>
-      SourceSpecificMulticastRangeStart <= this && this <= SourceSpecificMulticastRangeEnd;
+      sourceSpecificMulticastRangeStart <= this && this <= sourceSpecificMulticastRangeEnd;
 
   @override
   Option<SourceSpecificMulticastStrict<Ipv4Address>> asSourceSpecificMulticast() =>
@@ -391,16 +391,16 @@ final class Ipv4Address extends IpAddress {
   int toInt() => _bytes.fold(0, (acc, b) => (acc << 8) | (0x0ff & b));
 
   /// First IP address in the IPv4 multicast range.
-  static final MulticastRangeStart = fromBytes(224, 0, 0, 0);
+  static final multicastRangeStart = fromBytes(224, 0, 0, 0);
 
   /// Last IP address in the IPv4 multicast range.
-  static final MulticastRangeEnd = fromBytes(239, 255, 255, 255);
+  static final multicastRangeEnd = fromBytes(239, 255, 255, 255);
 
   /// First IP address in the IPv4 source specific multicast range.
-  static final SourceSpecificMulticastRangeStart = fromBytes(232, 0, 0, 0);
+  static final sourceSpecificMulticastRangeStart = fromBytes(232, 0, 0, 0);
 
   /// Last IP address in the IPv4 source specific multicast range.
-  static final SourceSpecificMulticastRangeEnd = fromBytes(232, 255, 255, 255);
+  static final sourceSpecificMulticastRangeEnd = fromBytes(232, 255, 255, 255);
 }
 
 ///

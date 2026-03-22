@@ -19,8 +19,8 @@ abstract class Node<T extends Node<T>> {
   static const HashCodeLength = 32;
   static const BitPartitionSize = 5;
   static const BitPartitionMask = (1 << BitPartitionSize) - 1;
-  static final MaxDepth = (HashCodeLength.toDouble() / BitPartitionSize).ceil();
-  static final BranchingFactor = Integer.Size;
+  static final maxDepth = (HashCodeLength.toDouble() / BitPartitionSize).ceil();
+  static final branchingFactor = Integer.size;
 
   static int maskFrom(int hash, int shift) => (hash >>> shift) & BitPartitionMask;
 
@@ -28,7 +28,7 @@ abstract class Node<T extends Node<T>> {
     if (mask >= 0) {
       return 1 << mask;
     } else {
-      return 1 << Integer.Size + mask;
+      return 1 << Integer.size + mask;
     }
   }
 
@@ -134,8 +134,8 @@ abstract class ChampBaseIterator<A, T extends Node<T>> extends RIterator<A> {
 
   void _initNodes() {
     if (_nodeCursorsAndLengths == null) {
-      _nodeCursorsAndLengths = Array.ofDim<int>(Node.MaxDepth * 2);
-      _nodes = Array.ofDim<T>(Node.MaxDepth);
+      _nodeCursorsAndLengths = Array.ofDim<int>(Node.maxDepth * 2);
+      _nodes = Array.ofDim<T>(Node.maxDepth);
     }
   }
 
@@ -196,8 +196,8 @@ abstract class ChampBaseReverseIterator<A, T extends Node<T>> extends RIterator<
   T? currentValueNode;
 
   var _currentStackLevel = -1;
-  final _nodeIndex = Array.ofDim<int>(Node.MaxDepth + 1);
-  final _nodeStack = Array.ofDim<T>(Node.MaxDepth + 1);
+  final _nodeIndex = Array.ofDim<int>(Node.maxDepth + 1);
+  final _nodeStack = Array.ofDim<T>(Node.maxDepth + 1);
 
   ChampBaseReverseIterator(T rootNode) {
     _pushNode(rootNode);

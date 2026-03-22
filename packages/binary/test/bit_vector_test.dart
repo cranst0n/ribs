@@ -92,7 +92,7 @@ void main() {
   Gen.integer.forAll('BigInt conversions - verify sign handling', (n) {
     expect(
       BitVector.fromInt(n).toBigInt(signed: false),
-      n >= 0 ? BigInt.from(n) : BigInt.from(n).toUnsigned(Integer.Size),
+      n >= 0 ? BigInt.from(n) : BigInt.from(n).toUnsigned(Integer.size),
     );
   });
 

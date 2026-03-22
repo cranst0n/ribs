@@ -115,7 +115,7 @@ class Rill<O> {
     Queue<O> queue, {
     int? limit,
   }) {
-    final lim = limit ?? Integer.MaxValue;
+    final lim = limit ?? Integer.maxValue;
 
     if (lim > 1) {
       // First, try non-blocking batch dequeue.
@@ -154,7 +154,7 @@ class Rill<O> {
   static Rill<O> fromQueueNoneUnterminated<O>(
     Queue<Option<O>> queue, {
     int? limit,
-  }) => _awaitNoneTerminated(queue, limit ?? Integer.MaxValue);
+  }) => _awaitNoneTerminated(queue, limit ?? Integer.maxValue);
 
   static Rill<O> fromQueueNoneUnterminatedChunk<O>(
     Queue<Option<Chunk<O>>> queue, {
@@ -165,7 +165,7 @@ class Rill<O> {
     IO<Option<Chunk<O>>> take,
     IO<Option<Option<Chunk<O>>>> tryTake, {
     int? limit,
-  }) => _awaitNoneTerminatedChunk(take, tryTake, limit ?? Integer.MaxValue);
+  }) => _awaitNoneTerminatedChunk(take, tryTake, limit ?? Integer.maxValue);
 
   static Rill<O> _awaitNoneTerminated<O>(Queue<Option<O>> queue, int limit) {
     return Rill.eval(queue.take()).flatMap((opt) {
@@ -834,7 +834,7 @@ class Rill<O> {
       underlying.flatMapOutput((o) => Pull.eval(f(o))).rillNoScope;
 
   Rill<(O2, Chunk<O>)> groupAdjacentBy<O2>(Function1<O, O2> f) =>
-      groupAdjacentByLimit(Integer.MaxValue, f);
+      groupAdjacentByLimit(Integer.maxValue, f);
 
   Rill<(O2, Chunk<O>)> groupAdjacentByLimit<O2>(int limit, Function1<O, O2> f) {
     Pull<(O2, Chunk<O>), Unit> go(Option<(O2, Chunk<O>)> current, Rill<O> s) {
@@ -1275,7 +1275,7 @@ class Rill<O> {
       assert(maxConcurrent > 0, 'maxConcurrent must be > 0, was: $maxConcurrent');
 
       // One is taken by inner stream read.
-      final concurrency = maxConcurrent == Integer.MaxValue ? Integer.MaxValue : maxConcurrent + 1;
+      final concurrency = maxConcurrent == Integer.maxValue ? Integer.maxValue : maxConcurrent + 1;
       final channelF = Channel.bounded<IO<Either<Object, O2>>>(concurrency);
 
       return _parEvalMapImpl(concurrency, channelF, true, f);
@@ -1283,7 +1283,7 @@ class Rill<O> {
   }
 
   Rill<O2> parEvalMapUnbounded<O2>(Function1<O, IO<O2>> f) =>
-      _parEvalMapImpl(Integer.MaxValue, Channel.unbounded(), true, f);
+      _parEvalMapImpl(Integer.maxValue, Channel.unbounded(), true, f);
 
   Rill<O2> parEvalMapUnordered<O2>(int maxConcurrent, Function1<O, IO<O2>> f) {
     if (maxConcurrent == 1) {
@@ -1292,7 +1292,7 @@ class Rill<O> {
       assert(maxConcurrent > 0, 'maxConcurrent must be > 0, was: $maxConcurrent');
 
       // One is taken by inner stream read.
-      final concurrency = maxConcurrent == Integer.MaxValue ? Integer.MaxValue : maxConcurrent + 1;
+      final concurrency = maxConcurrent == Integer.maxValue ? Integer.maxValue : maxConcurrent + 1;
       final channelF = Channel.bounded<IO<Either<Object, O2>>>(concurrency);
 
       return _parEvalMapImpl(concurrency, channelF, false, f);
@@ -1300,7 +1300,7 @@ class Rill<O> {
   }
 
   Rill<O2> parEvalMapUnorderedUnbounded<O2>(Function1<O, IO<O2>> f) =>
-      _parEvalMapImpl(Integer.MaxValue, Channel.unbounded(), false, f);
+      _parEvalMapImpl(Integer.maxValue, Channel.unbounded(), false, f);
 
   Rill<O2> _parEvalMapImpl<O2>(
     int concurrency,

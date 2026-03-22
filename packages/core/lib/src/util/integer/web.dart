@@ -27,13 +27,13 @@ import 'package:ribs_core/src/util/integer/base.dart';
 
 final class IntegerImpl extends IntegerBase {
   @override
-  int get MaxValue => 0x1FFFFFFFFFFFFF;
+  int get maxValue => 0x1FFFFFFFFFFFFF;
 
   @override
-  int get MinValue => -0x1FFFFFFFFFFFFF;
+  int get minValue => -0x1FFFFFFFFFFFFF;
 
   @override
-  int get Size => 53;
+  int get size => 53;
 
   @override
   int highestOneBit(int i) {

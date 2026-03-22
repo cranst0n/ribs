@@ -7,11 +7,11 @@ sealed class Hotswap<R> {
   Resource<R> get current;
 
   static Resource<Hotswap<R>> create<R>(Resource<R> initial) {
-    return Resource.eval(Semaphore.permits(Integer.MaxValue)).flatMap((semaphore) {
+    return Resource.eval(Semaphore.permits(Integer.maxValue)).flatMap((semaphore) {
       Resource<Unit> exclusive() {
         return Resource.makeFull(
-          (poll) => poll(semaphore.acquireN(Integer.MaxValue)),
-          (_) => semaphore.releaseN(Integer.MaxValue),
+          (poll) => poll(semaphore.acquireN(Integer.maxValue)),
+          (_) => semaphore.releaseN(Integer.maxValue),
         );
       }
 
@@ -69,7 +69,8 @@ class HotswapImpl<R> extends Hotswap<R> {
   IO<Unit> swap(Resource<R> next) {
     return IO.uncancelable((poll) {
       return poll(next.allocated()).flatMapN(
-        (r, fin) => exclusive().onCancel(Resource.eval(fin)).surround(swapFinalizer(Acquired(r, fin))),
+        (r, fin) =>
+            exclusive().onCancel(Resource.eval(fin)).surround(swapFinalizer(Acquired(r, fin))),
       );
     });
   }
@@ -92,8 +93,8 @@ class HotswapImpl<R> extends Hotswap<R> {
 
   Resource<Unit> exclusive() {
     return Resource.makeFull(
-      (poll) => poll(semaphore.acquireN(Integer.MaxValue)),
-      (_) => semaphore.releaseN(Integer.MaxValue),
+      (poll) => poll(semaphore.acquireN(Integer.maxValue)),
+      (_) => semaphore.releaseN(Integer.maxValue),
     );
   }
 }

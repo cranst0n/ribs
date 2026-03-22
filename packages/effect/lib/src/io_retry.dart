@@ -165,7 +165,7 @@ class RetryPolicy {
     final micros = BigInt.from(duration.inMicroseconds) * factor;
 
     return Duration(
-      microseconds: micros.isValidInt ? micros.toInt() : Integer.MaxValue,
+      microseconds: micros.isValidInt ? micros.toInt() : Integer.maxValue,
     );
   }
 

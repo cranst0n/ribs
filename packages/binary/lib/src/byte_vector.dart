@@ -98,12 +98,12 @@ sealed class ByteVector {
     final zeroLength = str.takeWhile((c) => c == '1').length;
     final zeroes = ByteVector.fill(zeroLength, 0);
     final trim = str.splitAt(zeroLength).$2.split('').toIList();
-    final RADIX = BigInt.from(58);
+    final radix = BigInt.from(58);
 
     try {
       final decoded = trim.foldLeft(BigInt.zero, (a, c) {
         try {
-          return a * RADIX + BigInt.from(alphabet.toIndex(c));
+          return a * radix + BigInt.from(alphabet.toIndex(c));
         } catch (_) {
           final idx = trim.takeWhile((x) => x != c).length;
 
@@ -505,11 +505,11 @@ sealed class ByteVector {
     return out.join();
   }
 
-  String toHexDump() => HexDumpFormat.NoAnsi.renderBytes(this);
+  String toHexDump() => HexDumpFormat.noAnsi.renderBytes(this);
 
-  String toHexDumpColorized() => HexDumpFormat.Default.renderBytes(this);
+  String toHexDumpColorized() => HexDumpFormat.defaultFormat.renderBytes(this);
 
-  void printHexDump() => HexDumpFormat.Default.printBytes(this);
+  void printHexDump() => HexDumpFormat.defaultFormat.printBytes(this);
 
   String toBase16([HexAlphabet alphabet = Alphabets.hexLower]) => toHex(alphabet);
 

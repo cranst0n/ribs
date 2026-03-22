@@ -288,7 +288,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
       .choose(1, limit ?? 1000)
       .flatMap((size) => Gen.ilistOfN(size, gen).map(NonEmptyIList.unsafe));
 
-  static final Gen<int> nonNegativeInt = chooseInt(0, Integer.MaxValue);
+  static final Gen<int> nonNegativeInt = chooseInt(0, Integer.maxValue);
 
   static final Gen<String> numChar = charSample('01234567890');
 
@@ -308,7 +308,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
   static Gen<Option<A>> option<A>(Gen<A> a) =>
       frequency([(1, constant(none<A>())), (9, some(a))]).withShrinker(Shrinker.option(a.shrinker));
 
-  static final Gen<int> positiveInt = chooseInt(1, Integer.MaxValue);
+  static final Gen<int> positiveInt = chooseInt(1, Integer.maxValue);
 
   static Gen<Option<A>> some<A>(Gen<A> a) => a.map((a) => Some(a));
 

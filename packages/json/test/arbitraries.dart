@@ -8,21 +8,21 @@ const _maxObjectSize = 5;
 
 Gen<Json> genJson = genJsonAtDepth(_maxJsonDepth);
 
-Gen<JNull> genNull = Gen.constant(JNull());
+Gen<JNull> genNull = Gen.constant(const JNull());
 
-Gen<JBoolean> genBoolean = Gen.oneOf([JBoolean(false), JBoolean(true)]);
+Gen<JBoolean> genBoolean = Gen.oneOf([const JBoolean(false), const JBoolean(true)]);
 
 Gen<Json> genNumber = Gen.oneOfGen([genNumberInt, genNumberDouble]);
 
 Gen<Json> genNumberInt = Gen.integer
     .map((x) => JNumber(x))
-    .map((number) => number.value.isFinite ? number : JNull());
+    .map((number) => number.value.isFinite ? number : const JNull());
 
 Gen<Json> genNumberDouble = Gen.chooseDouble(
   -double.maxFinite,
   double.maxFinite,
   specials: ilist([double.infinity, double.negativeInfinity, double.nan]),
-).map((x) => JNumber(x)).map((number) => number.value.isFinite ? number : JNull());
+).map((x) => JNumber(x)).map((number) => number.value.isFinite ? number : const JNull());
 
 Gen<JString> genString = Gen.chooseInt(
   1,

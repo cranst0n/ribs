@@ -560,7 +560,7 @@ RIterator<A> _takeRightIterator<A>(RIterator<A> it, int n) {
 
   if (k == 0 || n <= 0) {
     return RIterator.empty<A>();
-  } else if (n == Integer.MaxValue) {
+  } else if (n == Integer.maxValue) {
     return it;
   } else if (k > 0) {
     return it.drop(max(k - n, 0));

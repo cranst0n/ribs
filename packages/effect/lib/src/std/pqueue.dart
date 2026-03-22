@@ -7,7 +7,7 @@ abstract class PQueue<A> extends Queue<A> {
   static IO<PQueue<A>> bounded<A>(Order<A> order, int capacity) =>
       Ref.of(_State.empty(order)).map((ref) => _BoundedPQueue._(ref, capacity));
 
-  static IO<PQueue<A>> unbounded<A>(Order<A> order) => bounded(order, Integer.MaxValue);
+  static IO<PQueue<A>> unbounded<A>(Order<A> order) => bounded(order, Integer.maxValue);
 }
 
 final class _State<A> {

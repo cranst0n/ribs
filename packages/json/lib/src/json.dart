@@ -7,9 +7,9 @@ import 'package:ribs_json/src/dawn/dawn.dart' as dawn;
 
 @immutable
 sealed class Json {
-  static Json Null = JNull();
-  static Json True = JBoolean(true);
-  static Json False = JBoolean(false);
+  static const Json Null = JNull();
+  static const Json True = JBoolean(true);
+  static const Json False = JBoolean(false);
 
   static Json arr(Iterable<Json> values) => JArray(IList.fromDart(values));
   static Json arrI(IList<Json> values) => JArray(values);
@@ -32,6 +32,8 @@ sealed class Json {
 
   static Either<Error, A> decodeBytes<A>(Uint8List input, Decoder<A> decoder) =>
       parseBytes(input).leftMap<Error>(identity).flatMap((a) => decoder.decode(a));
+
+  const Json();
 
   A foldWith<A>(JsonFolder<A> folder);
 
@@ -129,6 +131,8 @@ sealed class Json {
 }
 
 final class JNull extends Json {
+  const JNull();
+
   @override
   A foldWith<A>(JsonFolder<A> folder) => folder.onNull();
 
@@ -203,7 +207,7 @@ final class JNull extends Json {
 final class JBoolean extends Json {
   final bool value;
 
-  JBoolean(this.value);
+  const JBoolean(this.value);
 
   @override
   A foldWith<A>(JsonFolder<A> folder) => folder.onBoolean(value);
@@ -279,7 +283,7 @@ final class JBoolean extends Json {
 final class JNumber extends Json {
   final num value;
 
-  JNumber(this.value);
+  const JNumber(this.value);
 
   @override
   A foldWith<A>(JsonFolder<A> folder) => folder.onNumber(value);
@@ -358,7 +362,7 @@ final class JNumber extends Json {
 final class JString extends Json {
   final String value;
 
-  JString(this.value);
+  const JString(this.value);
 
   @override
   A foldWith<A>(JsonFolder<A> folder) => folder.onString(value);
@@ -434,7 +438,7 @@ final class JString extends Json {
 final class JArray extends Json {
   final IList<Json> value;
 
-  JArray(this.value);
+  const JArray(this.value);
 
   @override
   A foldWith<A>(JsonFolder<A> folder) => folder.onArray(value);
@@ -510,7 +514,7 @@ final class JArray extends Json {
 final class JObject extends Json {
   final JsonObject value;
 
-  JObject(this.value);
+  const JObject(this.value);
 
   @override
   A foldWith<A>(JsonFolder<A> folder) => folder.onObject(value);

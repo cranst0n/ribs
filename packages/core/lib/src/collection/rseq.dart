@@ -694,8 +694,8 @@ Option<int> _kmpSearch<B>(
 ) {
   // We had better not index into S directly!
   final iter = S.iterator.drop(m0);
-  final Wopt = W; //kmpOptimizeWord(W, n0, n1, forward = true);
-  final T = _kmpJumpTable(Wopt, n1 - n0);
+  final wopt = W; //kmpOptimizeWord(W, n0, n1, forward = true);
+  final T = _kmpJumpTable(wopt, n1 - n0);
 
   // Ring buffer--need a quick way to do a look-behind
   final cache = List<dynamic>.filled(n1 - n0, null);
@@ -710,7 +710,7 @@ Option<int> _kmpSearch<B>(
       cache[largest % (n1 - n0)] = iter.next();
       largest += 1;
     }
-    if (Wopt[i] == cache[(i + m) % (n1 - n0)] as B) {
+    if (wopt[i] == cache[(i + m) % (n1 - n0)] as B) {
       i += 1;
       if (i == n1 - n0) {
         if (forward) {
@@ -732,14 +732,14 @@ Option<int> _kmpSearch<B>(
   return Option(answer).filter((a) => a >= 0);
 }
 
-List<int?> _kmpJumpTable<B>(RSeq<B> Wopt, int wlen) {
+List<int?> _kmpJumpTable<B>(RSeq<B> wopt, int wlen) {
   final arr = List<int?>.filled(wlen, null);
   var pos = 2;
   var cnd = 0;
   arr[0] = -1;
   if (wlen > 1) arr[1] = 0;
   while (pos < wlen) {
-    if (Wopt[pos - 1] == Wopt[cnd]) {
+    if (wopt[pos - 1] == wopt[cnd]) {
       arr[pos] = cnd + 1;
       pos += 1;
       cnd += 1;

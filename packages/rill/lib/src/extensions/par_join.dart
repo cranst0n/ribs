@@ -3,7 +3,7 @@ import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
 extension ParJoinOps<O> on Rill<Rill<O>> {
-  Rill<O> parJoinUnbounded() => parJoin(Integer.MaxValue);
+  Rill<O> parJoinUnbounded() => parJoin(Integer.maxValue);
 
   /// Runs [maxOpen] inner streams concurrently.
   ///

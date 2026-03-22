@@ -18,7 +18,7 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
   @override
   Codec<Option<A>> optional() => from(
     OptionDecoder(this),
-    Encoder.instance<Option<A>>((a) => a.fold(() => JNull(), encode)),
+    Encoder.instance<Option<A>>((a) => a.fold(() => const JNull(), encode)),
   );
 
   Codec<B> xmap<B>(Function1<A, B> f, Function1<B, A> g) => iemap((a) => f(a).asRight(), g);

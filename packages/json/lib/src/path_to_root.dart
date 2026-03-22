@@ -80,9 +80,9 @@ final class PathToRoot {
     return Option.when(() => op is MoveRight, () {
       return acc.lastOption.flatMap((lastOp) => lastOp.asArrayIndex()).map((arrIx) {
         return Either.cond(
-          () => arrIx.index < Integer.MaxValue,
+          () => arrIx.index < Integer.maxValue,
           () => acc.appended(PathElem.arrayIndex(arrIx.index + 1)),
-          () => 'Attempt to move to index > ${Integer.MaxValue} in array.',
+          () => 'Attempt to move to index > ${Integer.maxValue} in array.',
         );
       });
     }).flatten();
