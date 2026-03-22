@@ -56,7 +56,7 @@ class _Set3<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
     }
 
     if (p(elem3)) {
-      n == 0 ? r1 = elem2 : r2 = elem3;
+      n == 0 ? r1 = elem3 : r2 = elem3;
       n += 1;
     }
 

@@ -1,5 +1,6 @@
 import 'package:ribs_check/ribs_check.dart';
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/src/collection/immutable/set/hash_set.dart';
 import 'package:ribs_core/test_matchers.dart';
 import 'package:test/test.dart';
 
@@ -341,6 +342,521 @@ void main() {
       expect(iset({1, 2, 3}).subsets(length: 2).toIList().size, 3);
       expect(iset({1, 2, 3}).subsets(length: 3).toIList().size, 1);
       expect(iset({1, 2, 3}).subsets(length: 4).toIList().size, 0);
+    });
+  });
+
+  group('small set type transitions', () {
+    test('empty → set1 on incl', () {
+      final s = ISet.empty<int>() + 1;
+      expect(s.size, 1);
+      expect(s.contains(1), isTrue);
+      expect(s.contains(2), isFalse);
+    });
+
+    test('set1 → set2 on incl', () {
+      final s = iset({1}) + 2;
+      expect(s.size, 2);
+      expect(s.contains(1), isTrue);
+      expect(s.contains(2), isTrue);
+    });
+
+    test('set2 → set3 on incl', () {
+      final s = iset({1, 2}) + 3;
+      expect(s.size, 3);
+      expect(s.contains(3), isTrue);
+    });
+
+    test('set3 → set4 on incl', () {
+      final s = iset({1, 2, 3}) + 4;
+      expect(s.size, 4);
+      expect(s.contains(4), isTrue);
+    });
+
+    test('set4 → IHashSet on incl (5th element)', () {
+      final s = iset({1, 2, 3, 4}) + 5;
+      expect(s.size, 5);
+      expect(s, isA<IHashSet<int>>());
+      expect(s.contains(5), isTrue);
+    });
+
+    test('set1 → empty on excl', () {
+      final s = iset({99}) - 99;
+      expect(s.isEmpty, isTrue);
+    });
+
+    test('set2 → set1 on excl', () {
+      expect((iset({1, 2}) - 1).size, 1);
+      expect((iset({1, 2}) - 2).size, 1);
+      expect((iset({1, 2}) - 3).size, 2); // element not present
+    });
+
+    test('set3 → set2 on excl', () {
+      expect(iset({1, 2, 3}) - 1, iset({2, 3}));
+      expect(iset({1, 2, 3}) - 2, iset({1, 3}));
+      expect(iset({1, 2, 3}) - 3, iset({1, 2}));
+      expect((iset({1, 2, 3}) - 4).size, 3); // element not present
+    });
+
+    test('set4 → set3 on excl', () {
+      expect(iset({1, 2, 3, 4}) - 1, iset({2, 3, 4}));
+      expect(iset({1, 2, 3, 4}) - 2, iset({1, 3, 4}));
+      expect(iset({1, 2, 3, 4}) - 3, iset({1, 2, 4}));
+      expect(iset({1, 2, 3, 4}) - 4, iset({1, 2, 3}));
+      expect((iset({1, 2, 3, 4}) - 5).size, 4); // element not present
+    });
+
+    test('incl is idempotent on each small set type', () {
+      expect(iset({1}) + 1, iset({1}));
+      expect(iset({1, 2}) + 1, iset({1, 2}));
+      expect(iset({1, 2}) + 2, iset({1, 2}));
+      expect(iset({1, 2, 3}) + 2, iset({1, 2, 3}));
+      expect(iset({1, 2, 3, 4}) + 3, iset({1, 2, 3, 4}));
+    });
+  });
+
+  group('_EmptySet', () {
+    test('diff returns empty', () {
+      expect(ISet.empty<int>().diff(iset({1, 2})), iset<int>({}));
+    });
+
+    test('intersect returns empty', () {
+      expect(ISet.empty<int>().intersect(iset({1, 2})), iset<int>({}));
+    });
+
+    test('removedAll returns empty', () {
+      expect(ISet.empty<int>().removedAll(ilist([1, 2, 3])), iset<int>({}));
+    });
+
+    test('subsetOf any set', () {
+      expect(ISet.empty<int>().subsetOf(ISet.empty()), isTrue);
+      expect(ISet.empty<int>().subsetOf(iset({1, 2})), isTrue);
+    });
+
+    test('filter / filterNot return empty', () {
+      expect(ISet.empty<int>().filter((_) => true), iset<int>({}));
+      expect(ISet.empty<int>().filterNot((_) => false), iset<int>({}));
+    });
+  });
+
+  group('_Set1', () {
+    test('head and tail', () {
+      expect(iset({42}).head, 42);
+      expect(iset({42}).tail, iset<int>({}));
+    });
+
+    test('exists / find / forall', () {
+      expect(iset({5}).exists((x) => x == 5), isTrue);
+      expect(iset({5}).exists((x) => x == 6), isFalse);
+      expect(iset({5}).find((x) => x == 5), isSome(5));
+      expect(iset({5}).find((x) => x == 6), isNone());
+      expect(iset({5}).forall((x) => x > 0), isTrue);
+      expect(iset({5}).forall((x) => x < 0), isFalse);
+    });
+
+    test('iterator yields single element', () {
+      final it = iset({7}).iterator;
+      expect(it.hasNext, isTrue);
+      expect(it.next(), 7);
+      expect(it.hasNext, isFalse);
+    });
+  });
+
+  group('_Set2', () {
+    test('head and tail', () {
+      final s = iset({1, 2});
+      expect(s.head, 1);
+      expect(s.tail, iset({2}));
+    });
+
+    test('filter: both pass', () => expect(iset({1, 2}).filter((_) => true), iset({1, 2})));
+    test('filter: first passes only', () => expect(iset({1, 2}).filter((x) => x == 1), iset({1})));
+    test('filter: second passes only', () => expect(iset({1, 2}).filter((x) => x == 2), iset({2})));
+    test('filter: none pass', () => expect(iset({1, 2}).filter((_) => false), iset<int>({})));
+
+    test('filterNot delegates to filter complement', () {
+      expect(iset({1, 2}).filterNot((x) => x == 1), iset({2}));
+      expect(iset({1, 2}).filterNot((_) => false), iset({1, 2}));
+    });
+
+    test('exists / find / forall', () {
+      expect(iset({3, 7}).exists((x) => x == 3), isTrue);
+      expect(iset({3, 7}).exists((x) => x == 7), isTrue);
+      expect(iset({3, 7}).exists((x) => x == 5), isFalse);
+      expect(iset({3, 7}).find((x) => x == 7), isSome(7));
+      expect(iset({3, 7}).find((x) => x == 5), isNone());
+      expect(iset({3, 7}).forall((x) => x > 0), isTrue);
+      expect(iset({3, 7}).forall((x) => x > 5), isFalse);
+    });
+
+    test('iterator yields both elements', () {
+      final elems = iset({10, 20}).iterator.toIList();
+      expect(elems.size, 2);
+    });
+  });
+
+  group('_Set3', () {
+    test('head and tail', () {
+      final s = iset({1, 2, 3});
+      expect(s.head, 1);
+      expect(s.tail, iset({2, 3}));
+    });
+
+    test('filter: all pass', () => expect(iset({1, 2, 3}).filter((_) => true), iset({1, 2, 3})));
+    test('filter: none pass', () => expect(iset({1, 2, 3}).filter((_) => false), iset<int>({})));
+    test('filter: first only', () => expect(iset({1, 2, 3}).filter((x) => x == 1), iset({1})));
+    test('filter: second only', () => expect(iset({1, 2, 3}).filter((x) => x == 2), iset({2})));
+    test('filter: third only', () => expect(iset({1, 2, 3}).filter((x) => x == 3), iset({3})));
+    test('filter: first two', () => expect(iset({1, 2, 3}).filter((x) => x <= 2), iset({1, 2})));
+    test('filter: last two', () => expect(iset({1, 2, 3}).filter((x) => x >= 2), iset({2, 3})));
+    test(
+      'filter: first and third',
+      () => expect(iset({1, 2, 3}).filter((x) => x != 2), iset({1, 3})),
+    );
+
+    test('exists / find / forall', () {
+      expect(iset({1, 2, 3}).exists((x) => x == 3), isTrue);
+      expect(iset({1, 2, 3}).exists((x) => x > 10), isFalse);
+      expect(iset({1, 2, 3}).find((x) => x == 2), isSome(2));
+      expect(iset({1, 2, 3}).find((x) => x == 3), isSome(3));
+      expect(iset({1, 2, 3}).find((x) => x > 10), isNone());
+      expect(iset({1, 2, 3}).forall((x) => x > 0), isTrue);
+      expect(iset({1, 2, 3}).forall((x) => x > 1), isFalse);
+    });
+  });
+
+  group('_Set4', () {
+    test('head and tail', () {
+      final s = iset({1, 2, 3, 4});
+      expect(s.head, 1);
+      expect(s.tail, iset({2, 3, 4}));
+    });
+
+    test(
+      'filter: all pass',
+      () => expect(iset({1, 2, 3, 4}).filter((_) => true), iset({1, 2, 3, 4})),
+    );
+    test('filter: none pass', () => expect(iset({1, 2, 3, 4}).filter((_) => false), iset<int>({})));
+    test('filter: first only', () => expect(iset({1, 2, 3, 4}).filter((x) => x == 1), iset({1})));
+    test('filter: second only', () => expect(iset({1, 2, 3, 4}).filter((x) => x == 2), iset({2})));
+    test('filter: third only', () => expect(iset({1, 2, 3, 4}).filter((x) => x == 3), iset({3})));
+    test('filter: fourth only', () => expect(iset({1, 2, 3, 4}).filter((x) => x == 4), iset({4})));
+    test(
+      'filter: three elements',
+      () => expect(iset({1, 2, 3, 4}).filter((x) => x <= 3), iset({1, 2, 3})),
+    );
+
+    test('exists / find / forall', () {
+      expect(iset({1, 2, 3, 4}).exists((x) => x == 4), isTrue);
+      expect(iset({1, 2, 3, 4}).exists((x) => x > 10), isFalse);
+      expect(iset({1, 2, 3, 4}).find((x) => x == 3), isSome(3));
+      expect(iset({1, 2, 3, 4}).find((x) => x == 4), isSome(4));
+      expect(iset({1, 2, 3, 4}).find((x) => x > 10), isNone());
+      expect(iset({1, 2, 3, 4}).forall((x) => x > 0), isTrue);
+      expect(iset({1, 2, 3, 4}).forall((x) => x > 2), isFalse);
+    });
+  });
+
+  group('ISetBuilder', () {
+    test('builds small sets up to size 4', () {
+      final b = ISet.builder<int>();
+      for (var i = 1; i <= 4; i++) {
+        b.addOne(i);
+      }
+      expect(b.result(), iset({1, 2, 3, 4}));
+      expect(b.result(), isNot(isA<IHashSet<int>>()));
+    });
+
+    test('switches to IHashSet at 5th distinct element', () {
+      final b = ISet.builder<int>();
+      for (var i = 1; i <= 5; i++) {
+        b.addOne(i);
+      }
+      expect(b.result(), isA<IHashSet<int>>());
+      expect(b.result().size, 5);
+    });
+
+    test('duplicate elements do not trigger hash-set switch', () {
+      final b = ISet.builder<int>();
+      // add 4 distinct + duplicates — should stay as small set
+      for (var i = 0; i < 10; i++) {
+        b.addOne(i % 4); // only 4 distinct values
+      }
+      expect(b.result().size, 4);
+      expect(b.result(), isNot(isA<IHashSet<int>>()));
+    });
+
+    test('addAll works like repeated addOne', () {
+      final b = ISet.builder<int>()..addAll(ilist([1, 2, 3, 2, 1]));
+      expect(b.result(), iset({1, 2, 3}));
+    });
+
+    test('result() is stable (returns same object on repeated calls)', () {
+      final b = ISet.builder<int>()..addAll(ilist([10, 20, 30, 40, 50]));
+      expect(identical(b.result(), b.result()), isTrue);
+    });
+
+    test('clear() resets builder', () {
+      final b = ISet.builder<int>()..addAll(ilist([1, 2, 3]));
+      b.clear();
+      expect(b.result().isEmpty, isTrue);
+    });
+
+    test('clear() then reuse builds fresh set', () {
+      final b = ISet.builder<int>()..addAll(ilist([1, 2, 3, 4, 5]));
+      b.clear();
+      b.addAll(ilist([7, 8]));
+      expect(b.result(), iset({7, 8}));
+    });
+  });
+
+  group('_SetNIterator', () {
+    test('drop advances iterator', () {
+      // Set2 uses _SetNIterator(2, ...)
+      final it = iset({10, 20}).iterator;
+      it.drop(1);
+      expect(it.hasNext, isTrue);
+      expect(it.knownSize, 1);
+      it.next();
+      expect(it.hasNext, isFalse);
+    });
+
+    test('drop past end yields empty iterator', () {
+      final it = iset({1, 2, 3}).iterator; // _SetNIterator(3, ...)
+      it.drop(10);
+      expect(it.hasNext, isFalse);
+      expect(it.knownSize, 0);
+    });
+
+    test('knownSize tracks remaining elements', () {
+      final it = iset({1, 2, 3, 4}).iterator; // _SetNIterator(4, ...)
+      expect(it.knownSize, 4);
+      it.next();
+      expect(it.knownSize, 3);
+      it.next();
+      expect(it.knownSize, 2);
+    });
+
+    test('drop(0) is a no-op', () {
+      final it = iset({1, 2}).iterator;
+      it.drop(0);
+      expect(it.knownSize, 2);
+    });
+  });
+
+  group('IHashSet', () {
+    // Helpers
+    ISet<int> large() => iset({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+
+    test('is IHashSet for 5+ elements', () {
+      expect(iset({1, 2, 3, 4, 5}), isA<IHashSet<int>>());
+    });
+
+    test('head and last', () {
+      final s = iset({1, 2, 3, 4, 5});
+      // head and last must be members; order depends on hash so just check membership
+      expect(s.contains(s.head), isTrue);
+      expect(s.contains(s.last), isTrue);
+    });
+
+    test('isEmpty / knownSize / size are consistent', () {
+      final s = large();
+      expect(s.isEmpty, isFalse);
+      expect(s.isNotEmpty, isTrue);
+      expect(s.size, 10);
+      expect(s.knownSize, 10);
+    });
+
+    test('concat two IHashSets (fast CHAMP merge)', () {
+      final a = iset({1, 2, 3, 4, 5});
+      final b = iset({5, 6, 7, 8, 9});
+      final result = a.concat(b);
+      expect(result.size, 9);
+      for (var i = 1; i <= 9; i++) {
+        expect(result.contains(i), isTrue);
+      }
+    });
+
+    test('concat IHashSet with empty IHashSet returns other', () {
+      final a = IHashSet.empty<int>();
+      final b = iset({1, 2, 3, 4, 5});
+      expect(a.concat(b), b);
+    });
+
+    test('concat IHashSet with itself is idempotent', () {
+      final s = iset({1, 2, 3, 4, 5});
+      expect(s.concat(s), s);
+    });
+
+    test('concat IHashSet with non-IHashSet iterable', () {
+      final s = iset({1, 2, 3, 4, 5});
+      final result = s.concat(ilist([6, 7, 8, 9, 10]));
+      expect(result.size, 10);
+    });
+
+    test('diff two IHashSets (fast CHAMP diff)', () {
+      final a = iset({1, 2, 3, 4, 5});
+      final b = iset({3, 4, 5, 6, 7});
+      expect(a.diff(b), iset({1, 2}));
+    });
+
+    test('diff with empty IHashSet returns self', () {
+      final s = iset({1, 2, 3, 4, 5});
+      expect(s.diff(IHashSet.empty()), s);
+    });
+
+    test('diff that empties set returns empty', () {
+      final s = iset({1, 2, 3, 4, 5});
+      expect(s.diff(s), iset<int>({}));
+    });
+
+    test('diff IHashSet against small ISet', () {
+      final a = iset({1, 2, 3, 4, 5});
+      final b = iset({2, 3}); // small set (Set2)
+      expect(a.diff(b), iset({1, 4, 5}));
+    });
+
+    test('empty IHashSet diff anything is empty', () {
+      expect(IHashSet.empty<int>().diff(iset({1, 2, 3, 4, 5})), iset<int>({}));
+    });
+
+    test('filter keeps matching elements', () {
+      final s = iset({1, 2, 3, 4, 5, 6});
+      expect(s.filter((x) => x.isEven), iset({2, 4, 6}));
+    });
+
+    test('filter returning all elements returns same set object', () {
+      final s = iset({1, 2, 3, 4, 5});
+      expect(identical(s.filter((_) => true), s), isTrue);
+    });
+
+    test('filter returning no elements returns empty', () {
+      expect(iset({1, 2, 3, 4, 5}).filter((_) => false), iset<int>({}));
+    });
+
+    test('filterNot is complement of filter', () {
+      final s = iset({1, 2, 3, 4, 5, 6});
+      expect(s.filterNot((x) => x.isEven), iset({1, 3, 5}));
+    });
+
+    test('removedAll with another ISet uses diff fast-path', () {
+      final a = iset({1, 2, 3, 4, 5});
+      final b = iset({2, 4});
+      expect(a.removedAll(b), iset({1, 3, 5}));
+    });
+
+    test('removedAll with non-ISet iterable', () {
+      final s = iset({1, 2, 3, 4, 5});
+      expect(s.removedAll(ilist([1, 3, 5])), iset({2, 4}));
+    });
+
+    test('equality: same rootNode → equal', () {
+      final s = iset({1, 2, 3, 4, 5});
+      expect(s == s, isTrue); // identical shortcut
+    });
+
+    test('equality: same elements, different instances', () {
+      expect(iset({1, 2, 3, 4, 5}) == iset({5, 4, 3, 2, 1}), isTrue);
+    });
+
+    test('equality: different elements → not equal', () {
+      expect(iset({1, 2, 3, 4, 5}) == iset({1, 2, 3, 4, 6}), isFalse);
+    });
+
+    test('equality: IHashSet vs small ISet with same elements', () {
+      // iset({1,2,3,4,5}) is IHashSet; iset({1,2,3}) is _Set3
+      expect(iset({1, 2, 3, 4, 5}) == iset({1, 2, 3, 4, 5}), isTrue);
+      expect(iset({1, 2, 3, 4, 5}) == iset({1, 2, 3}), isFalse);
+    });
+
+    test('hashCode is consistent with equality', () {
+      final a = iset({1, 2, 3, 4, 5});
+      final b = iset({5, 4, 3, 2, 1});
+      expect(a.hashCode, b.hashCode);
+    });
+
+    test('ISet.from(IHashSet) returns same instance', () {
+      final s = iset({1, 2, 3, 4, 5}) as IHashSet<int>;
+      expect(identical(IHashSet.from(s), s), isTrue);
+    });
+
+    test('IHashSet.empty has size 0', () {
+      expect(IHashSet.empty<int>().size, 0);
+      expect(IHashSet.empty<int>().isEmpty, isTrue);
+    });
+
+    test('init removes last element', () {
+      final s = iset({1, 2, 3, 4, 5});
+      expect(s.init.size, 4);
+      expect(s.init.contains(s.last), isFalse);
+    });
+
+    test('inits produces n+1 sets', () {
+      final s = iset({1, 2, 3, 4, 5});
+      final all = s.inits.toIList();
+      expect(all.size, 6); // s, s.init, ..., empty
+    });
+
+    test('tail removes head element', () {
+      final s = iset({1, 2, 3, 4, 5});
+      final t = s.tail;
+      expect(t.size, 4);
+      expect(t.contains(s.head), isFalse);
+    });
+
+    test('large set round-trip through builder', () {
+      final elems = List.generate(100, (i) => i);
+      final s = iset(elems);
+      expect(s.size, 100);
+      for (final e in elems) {
+        expect(s.contains(e), isTrue);
+      }
+    });
+
+    test('ISet.from fast paths preserve type', () {
+      final empty = ISet.empty<int>();
+      expect(identical(ISet.from(empty), empty), isTrue);
+
+      final s1 = iset({1});
+      expect(identical(ISet.from(s1), s1), isTrue);
+
+      final s2 = iset({1, 2});
+      expect(identical(ISet.from(s2), s2), isTrue);
+
+      final s3 = iset({1, 2, 3});
+      expect(identical(ISet.from(s3), s3), isTrue);
+
+      final s4 = iset({1, 2, 3, 4});
+      expect(identical(ISet.from(s4), s4), isTrue);
+
+      final hs = iset({1, 2, 3, 4, 5}) as IHashSet<int>;
+      expect(identical(ISet.from(hs), hs), isTrue);
+    });
+  });
+
+  group('ISet.flatten', () {
+    test('empty outer set', () {
+      expect(ISet.empty<ISet<int>>().flatten(), iset<int>({}));
+    });
+
+    test('outer set containing empty inner sets', () {
+      final s = iset<ISet<int>>({iset<int>({}), iset<int>({})});
+      expect(s.flatten(), iset<int>({}));
+    });
+
+    test('flattens nested sets with deduplication', () {
+      final s = iset<ISet<int>>({
+        iset({1, 2}),
+        iset({2, 3}),
+        iset({4}),
+      });
+      expect(s.flatten(), iset({1, 2, 3, 4}));
+    });
+
+    test('flattens into large IHashSet', () {
+      final inner1 = iset({1, 2, 3, 4, 5});
+      final inner2 = iset({6, 7, 8, 9, 10});
+      final outer = iset<ISet<int>>({inner1, inner2});
+      expect(outer.flatten().size, 10);
     });
   });
 }
