@@ -1892,10 +1892,12 @@ void main() {
 
   test('bracketCase success', () async {
     Outcome<int>? got;
-    final io = IO.pure(41).bracketCase(
-      (a) => IO.pure(a + 1),
-      (a, oc) => IO.exec(() => got = oc),
-    );
+    final io = IO
+        .pure(41)
+        .bracketCase(
+          (a) => IO.pure(a + 1),
+          (a, oc) => IO.exec(() => got = oc),
+        );
     await expectLater(io, ioSucceeded(42));
     expect(got, isA<Succeeded<int>>());
   });
@@ -1903,20 +1905,24 @@ void main() {
   test('bracketCase error', () async {
     Outcome<int>? got;
     const err = 'boom';
-    final io = IO.pure(41).bracketCase(
-      (a) => IO.raiseError<int>(err),
-      (a, oc) => IO.exec(() => got = oc),
-    );
+    final io = IO
+        .pure(41)
+        .bracketCase(
+          (a) => IO.raiseError<int>(err),
+          (a, oc) => IO.exec(() => got = oc),
+        );
     await expectLater(io, ioErrored(err));
     expect(got, isA<Errored<int>>());
   });
 
   test('bracketCase canceled', () async {
     Outcome<int>? got;
-    final io = IO.pure(41).bracketCase(
-      (a) => IO.canceled.as(a),
-      (a, oc) => IO.exec(() => got = oc),
-    );
+    final io = IO
+        .pure(41)
+        .bracketCase(
+          (a) => IO.canceled.as(a),
+          (a, oc) => IO.exec(() => got = oc),
+        );
     await expectLater(io, ioCanceled());
     expect(got, isA<Canceled<int>>());
   });
@@ -1932,9 +1938,12 @@ void main() {
   test('iterateWhileM', () {
     var count = 0;
     expect(
-      IO.exec(() => count += 1).flatMap((_) => IO.pure(count)).iterateWhileM(
-        (n) => IO.pure(n < 5),
-      ),
+      IO
+          .exec(() => count += 1)
+          .flatMap((_) => IO.pure(count))
+          .iterateWhileM(
+            (n) => IO.pure(n < 5),
+          ),
       ioSucceeded(5),
     );
   });
@@ -1960,10 +1969,8 @@ void main() {
 
   test('unsafeRunFutureCancelable cancels successfully', () async {
     var canceled = false;
-    final (future, cancel) = IO
-        .never<int>()
-        .onCancel(IO.exec(() => canceled = true))
-        .unsafeRunFutureCancelable();
+    final (future, cancel) =
+        IO.never<int>().onCancel(IO.exec(() => canceled = true)).unsafeRunFutureCancelable();
     // Silence the unhandled exception from cancellation
     future.ignore();
     await cancel();

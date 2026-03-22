@@ -36,8 +36,7 @@ mixin MSet<A> on RIterable<A>, RSet<A> {
 
   MSet<A> diff(MSet<A> that) => foldLeft(
     MSet.empty<A>(),
-    (result, elem) =>
-        that.contains(elem) ? result : (result..add(elem)),
+    (result, elem) => that.contains(elem) ? result : (result..add(elem)),
   );
 
   bool remove(A elem);
