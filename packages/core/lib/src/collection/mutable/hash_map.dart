@@ -261,11 +261,11 @@ final class _Node<K, V> {
 
     while (true) {
       if (h == curr._hash && k == curr._key) {
-        return this;
+        return curr;
       } else if (curr.next == null || curr._hash > h) {
         return null;
       } else {
-        curr = next!;
+        curr = curr.next!;
       }
     }
   }
@@ -274,8 +274,8 @@ final class _Node<K, V> {
     _Node<K, V>? curr = this;
 
     while (curr != null) {
-      if (curr._key != null && curr._value != null) f((curr._key, _value!));
-      curr = next;
+      if (curr._key != null && curr._value != null) f((curr._key, curr._value!));
+      curr = curr.next;
     }
   }
 
@@ -283,8 +283,8 @@ final class _Node<K, V> {
     _Node<K, V>? curr = this;
 
     while (curr != null) {
-      if (curr._key != null && curr._value != null) f(curr._key, _value as V);
-      curr = next;
+      if (curr._key != null && curr._value != null) f(curr._key, curr._value as V);
+      curr = curr.next;
     }
   }
 

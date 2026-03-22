@@ -424,12 +424,10 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
   }
 
   void _removeAfter(Cons<A>? prev, int n) {
-    var i = n;
     IList<A> nx = _getNext(prev);
 
-    while (i >= 0) {
-      nx = _getNext(nx.tail as Cons<A>);
-      i -= 1;
+    for (var i = 0; i < n; i++) {
+      nx = nx.tail;
     }
 
     if (prev == null) {

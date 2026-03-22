@@ -27,7 +27,7 @@ mixin Buffer<A> on RIterableOnce<A>, RIterable<A>, RSeq<A> {
   void clear();
 
   Buffer<A> dropInPlace(int n) {
-    removeN(n, _normalized(n));
+    removeN(0, _normalized(n));
     return this;
   }
 

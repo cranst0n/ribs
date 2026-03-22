@@ -52,7 +52,7 @@ mixin MMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
   MMap<K, V> filterInPlace(Function1<(K, V), bool> p) {
     if (!isEmpty) {
       foreach((kv) {
-        if (p(kv)) remove(kv.$1);
+        if (!p(kv)) remove(kv.$1);
       });
     }
 
