@@ -23,6 +23,7 @@ workspace:
 
 dev_dependencies:
   melos: ^7.4.0
+  remove_from_coverage: ^2.0.0
 
 melos:
   scripts:
@@ -33,7 +34,7 @@ melos:
         dirExists: test
 
     coverage:
-      run: melos exec -c 1 --fail-fast -- dart test --coverage="coverage" && melos exec --dir-exists="test" format_coverage --lcov --in=coverage --out=coverage.lcov --report-on=lib
+      run: melos exec -c 1 --fail-fast -- dart test --coverage="coverage" && melos exec --dir-exists="test" format_coverage --lcov --in=coverage --out=coverage.lcov --report-on=lib && melos exec --dir-exists="test" -- dart run remove_from_coverage:remove_from_coverage -f coverage.lcov -r '.*/generated/.*'
       description: Run all dart tests in this project with code coverage data.
       packageFilters:
         dirExists: test
@@ -41,7 +42,7 @@ melos:
           - "snippets"
 
     coverage-report:
-      run: melos exec -c 1 --fail-fast -- dart test --coverage="coverage" && melos exec --dir-exists="test" format_coverage --lcov --in=coverage --out=coverage.lcov --report-on=lib && find . -name coverage.lcov | xargs genhtml -o coverage-report
+      run: melos exec -c 1 --fail-fast -- dart test --coverage="coverage" && melos exec --dir-exists="test" format_coverage --lcov --in=coverage --out=coverage.lcov --report-on=lib && melos exec --dir-exists="test" -- dart run remove_from_coverage:remove_from_coverage -f coverage.lcov -r '.*/generated/.*' && find . -name coverage.lcov | xargs genhtml -o coverage-report
       description: Run all dart tests in this project and generate code coverage report.
       packageFilters:
         dirExists: test
