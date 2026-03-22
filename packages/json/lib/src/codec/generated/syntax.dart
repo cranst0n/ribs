@@ -5,6 +5,7 @@ extension<A> on (String, Codec<A>) {
   KeyValueCodec<A> get kv => KeyValueCodec($1, $2);
 }
 
+/// Provides a product operation on a 2-tuple of [KeyValueCodec]s.
 extension Codec2KVOps<A, B> on (KeyValueCodec<A>, KeyValueCodec<B>) {
   Codec<C> product<C>(
     Function2<A, B, C> apply,
@@ -12,6 +13,7 @@ extension Codec2KVOps<A, B> on (KeyValueCodec<A>, KeyValueCodec<B>) {
   ) => Codec.product2($1, $2, apply, tupled);
 }
 
+/// Provides a product operation on a 2-tuple of (String, [Codec]) pairs.
 extension Codec2Ops<A, B> on ((String, Codec<A>), (String, Codec<B>)) {
   Codec<C> product<C>(
     Function2<A, B, C> apply,
@@ -19,6 +21,7 @@ extension Codec2Ops<A, B> on ((String, Codec<A>), (String, Codec<B>)) {
   ) => ($1.kv, $2.kv).product(apply, tupled);
 }
 
+/// Provides a product operation on a 3-tuple of [KeyValueCodec]s.
 extension Codec3KVOps<A, B, C> on (KeyValueCodec<A>, KeyValueCodec<B>, KeyValueCodec<C>) {
   Codec<D> product<D>(
     Function3<A, B, C, D> apply,
@@ -26,6 +29,7 @@ extension Codec3KVOps<A, B, C> on (KeyValueCodec<A>, KeyValueCodec<B>, KeyValueC
   ) => Codec.product3($1, $2, $3, apply, tupled);
 }
 
+/// Provides a product operation on a 3-tuple of (String, [Codec]) pairs.
 extension Codec3Ops<A, B, C> on ((String, Codec<A>), (String, Codec<B>), (String, Codec<C>)) {
   Codec<D> product<D>(
     Function3<A, B, C, D> apply,
@@ -33,6 +37,7 @@ extension Codec3Ops<A, B, C> on ((String, Codec<A>), (String, Codec<B>), (String
   ) => ($1.kv, $2.kv, $3.kv).product(apply, tupled);
 }
 
+/// Provides a product operation on a 4-tuple of [KeyValueCodec]s.
 extension Codec4KVOps<A, B, C, D>
     on (KeyValueCodec<A>, KeyValueCodec<B>, KeyValueCodec<C>, KeyValueCodec<D>) {
   Codec<E> product<E>(
@@ -41,6 +46,7 @@ extension Codec4KVOps<A, B, C, D>
   ) => Codec.product4($1, $2, $3, $4, apply, tupled);
 }
 
+/// Provides a product operation on a 4-tuple of (String, [Codec]) pairs.
 extension Codec4Ops<A, B, C, D>
     on ((String, Codec<A>), (String, Codec<B>), (String, Codec<C>), (String, Codec<D>)) {
   Codec<E> product<E>(
@@ -49,6 +55,7 @@ extension Codec4Ops<A, B, C, D>
   ) => ($1.kv, $2.kv, $3.kv, $4.kv).product(apply, tupled);
 }
 
+/// Provides a product operation on a 5-tuple of [KeyValueCodec]s.
 extension Codec5KVOps<A, B, C, D, E>
     on (KeyValueCodec<A>, KeyValueCodec<B>, KeyValueCodec<C>, KeyValueCodec<D>, KeyValueCodec<E>) {
   Codec<F> product<F>(
@@ -57,6 +64,7 @@ extension Codec5KVOps<A, B, C, D, E>
   ) => Codec.product5($1, $2, $3, $4, $5, apply, tupled);
 }
 
+/// Provides a product operation on a 5-tuple of (String, [Codec]) pairs.
 extension Codec5Ops<A, B, C, D, E>
     on
         (
@@ -72,6 +80,7 @@ extension Codec5Ops<A, B, C, D, E>
   ) => ($1.kv, $2.kv, $3.kv, $4.kv, $5.kv).product(apply, tupled);
 }
 
+/// Provides a product operation on a 6-tuple of [KeyValueCodec]s.
 extension Codec6KVOps<A, B, C, D, E, F>
     on
         (
@@ -88,6 +97,7 @@ extension Codec6KVOps<A, B, C, D, E, F>
   ) => Codec.product6($1, $2, $3, $4, $5, $6, apply, tupled);
 }
 
+/// Provides a product operation on a 6-tuple of (String, [Codec]) pairs.
 extension Codec6Ops<A, B, C, D, E, F>
     on
         (
@@ -104,6 +114,7 @@ extension Codec6Ops<A, B, C, D, E, F>
   ) => ($1.kv, $2.kv, $3.kv, $4.kv, $5.kv, $6.kv).product(apply, tupled);
 }
 
+/// Provides a product operation on a 7-tuple of [KeyValueCodec]s.
 extension Codec7KVOps<A, B, C, D, E, F, G>
     on
         (
@@ -121,6 +132,7 @@ extension Codec7KVOps<A, B, C, D, E, F, G>
   ) => Codec.product7($1, $2, $3, $4, $5, $6, $7, apply, tupled);
 }
 
+/// Provides a product operation on a 7-tuple of (String, [Codec]) pairs.
 extension Codec7Ops<A, B, C, D, E, F, G>
     on
         (
@@ -138,6 +150,7 @@ extension Codec7Ops<A, B, C, D, E, F, G>
   ) => ($1.kv, $2.kv, $3.kv, $4.kv, $5.kv, $6.kv, $7.kv).product(apply, tupled);
 }
 
+/// Provides a product operation on a 8-tuple of [KeyValueCodec]s.
 extension Codec8KVOps<A, B, C, D, E, F, G, H>
     on
         (
@@ -156,6 +169,7 @@ extension Codec8KVOps<A, B, C, D, E, F, G, H>
   ) => Codec.product8($1, $2, $3, $4, $5, $6, $7, $8, apply, tupled);
 }
 
+/// Provides a product operation on a 8-tuple of (String, [Codec]) pairs.
 extension Codec8Ops<A, B, C, D, E, F, G, H>
     on
         (
@@ -174,6 +188,7 @@ extension Codec8Ops<A, B, C, D, E, F, G, H>
   ) => ($1.kv, $2.kv, $3.kv, $4.kv, $5.kv, $6.kv, $7.kv, $8.kv).product(apply, tupled);
 }
 
+/// Provides a product operation on a 9-tuple of [KeyValueCodec]s.
 extension Codec9KVOps<A, B, C, D, E, F, G, H, I>
     on
         (
@@ -193,6 +208,7 @@ extension Codec9KVOps<A, B, C, D, E, F, G, H, I>
   ) => Codec.product9($1, $2, $3, $4, $5, $6, $7, $8, $9, apply, tupled);
 }
 
+/// Provides a product operation on a 9-tuple of (String, [Codec]) pairs.
 extension Codec9Ops<A, B, C, D, E, F, G, H, I>
     on
         (
@@ -212,6 +228,7 @@ extension Codec9Ops<A, B, C, D, E, F, G, H, I>
   ) => ($1.kv, $2.kv, $3.kv, $4.kv, $5.kv, $6.kv, $7.kv, $8.kv, $9.kv).product(apply, tupled);
 }
 
+/// Provides a product operation on a 10-tuple of [KeyValueCodec]s.
 extension Codec10KVOps<A, B, C, D, E, F, G, H, I, J>
     on
         (
@@ -232,6 +249,7 @@ extension Codec10KVOps<A, B, C, D, E, F, G, H, I, J>
   ) => Codec.product10($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, apply, tupled);
 }
 
+/// Provides a product operation on a 10-tuple of (String, [Codec]) pairs.
 extension Codec10Ops<A, B, C, D, E, F, G, H, I, J>
     on
         (
@@ -263,6 +281,7 @@ extension Codec10Ops<A, B, C, D, E, F, G, H, I, J>
   ).product(apply, tupled);
 }
 
+/// Provides a product operation on a 11-tuple of [KeyValueCodec]s.
 extension Codec11KVOps<A, B, C, D, E, F, G, H, I, J, K>
     on
         (
@@ -284,6 +303,7 @@ extension Codec11KVOps<A, B, C, D, E, F, G, H, I, J, K>
   ) => Codec.product11($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, apply, tupled);
 }
 
+/// Provides a product operation on a 11-tuple of (String, [Codec]) pairs.
 extension Codec11Ops<A, B, C, D, E, F, G, H, I, J, K>
     on
         (
@@ -317,6 +337,7 @@ extension Codec11Ops<A, B, C, D, E, F, G, H, I, J, K>
   ).product(apply, tupled);
 }
 
+/// Provides a product operation on a 12-tuple of [KeyValueCodec]s.
 extension Codec12KVOps<A, B, C, D, E, F, G, H, I, J, K, L>
     on
         (
@@ -339,6 +360,7 @@ extension Codec12KVOps<A, B, C, D, E, F, G, H, I, J, K, L>
   ) => Codec.product12($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, apply, tupled);
 }
 
+/// Provides a product operation on a 12-tuple of (String, [Codec]) pairs.
 extension Codec12Ops<A, B, C, D, E, F, G, H, I, J, K, L>
     on
         (
@@ -374,6 +396,7 @@ extension Codec12Ops<A, B, C, D, E, F, G, H, I, J, K, L>
   ).product(apply, tupled);
 }
 
+/// Provides a product operation on a 13-tuple of [KeyValueCodec]s.
 extension Codec13KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M>
     on
         (
@@ -397,6 +420,7 @@ extension Codec13KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M>
   ) => Codec.product13($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, apply, tupled);
 }
 
+/// Provides a product operation on a 13-tuple of (String, [Codec]) pairs.
 extension Codec13Ops<A, B, C, D, E, F, G, H, I, J, K, L, M>
     on
         (
@@ -434,6 +458,7 @@ extension Codec13Ops<A, B, C, D, E, F, G, H, I, J, K, L, M>
   ).product(apply, tupled);
 }
 
+/// Provides a product operation on a 14-tuple of [KeyValueCodec]s.
 extension Codec14KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N>
     on
         (
@@ -458,6 +483,7 @@ extension Codec14KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N>
   ) => Codec.product14($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, apply, tupled);
 }
 
+/// Provides a product operation on a 14-tuple of (String, [Codec]) pairs.
 extension Codec14Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N>
     on
         (
@@ -497,6 +523,7 @@ extension Codec14Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N>
   ).product(apply, tupled);
 }
 
+/// Provides a product operation on a 15-tuple of [KeyValueCodec]s.
 extension Codec15KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>
     on
         (
@@ -540,6 +567,7 @@ extension Codec15KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>
   );
 }
 
+/// Provides a product operation on a 15-tuple of (String, [Codec]) pairs.
 extension Codec15Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>
     on
         (
@@ -581,6 +609,7 @@ extension Codec15Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>
   ).product(apply, tupled);
 }
 
+/// Provides a product operation on a 16-tuple of [KeyValueCodec]s.
 extension Codec16KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>
     on
         (
@@ -626,6 +655,7 @@ extension Codec16KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>
   );
 }
 
+/// Provides a product operation on a 16-tuple of (String, [Codec]) pairs.
 extension Codec16Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>
     on
         (
@@ -669,6 +699,7 @@ extension Codec16Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>
   ).product(apply, tupled);
 }
 
+/// Provides a product operation on a 17-tuple of [KeyValueCodec]s.
 extension Codec17KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>
     on
         (
@@ -716,6 +747,7 @@ extension Codec17KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>
   );
 }
 
+/// Provides a product operation on a 17-tuple of (String, [Codec]) pairs.
 extension Codec17Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>
     on
         (
@@ -761,6 +793,7 @@ extension Codec17Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>
   ).product(apply, tupled);
 }
 
+/// Provides a product operation on a 18-tuple of [KeyValueCodec]s.
 extension Codec18KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
     on
         (
@@ -810,6 +843,7 @@ extension Codec18KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
   );
 }
 
+/// Provides a product operation on a 18-tuple of (String, [Codec]) pairs.
 extension Codec18Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
     on
         (
@@ -857,6 +891,7 @@ extension Codec18Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
   ).product(apply, tupled);
 }
 
+/// Provides a product operation on a 19-tuple of [KeyValueCodec]s.
 extension Codec19KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
     on
         (
@@ -908,6 +943,7 @@ extension Codec19KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
   );
 }
 
+/// Provides a product operation on a 19-tuple of (String, [Codec]) pairs.
 extension Codec19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
     on
         (
@@ -957,6 +993,7 @@ extension Codec19Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
   ).product(apply, tupled);
 }
 
+/// Provides a product operation on a 20-tuple of [KeyValueCodec]s.
 extension Codec20KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
     on
         (
@@ -1010,6 +1047,7 @@ extension Codec20KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, 
   );
 }
 
+/// Provides a product operation on a 20-tuple of (String, [Codec]) pairs.
 extension Codec20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
     on
         (
@@ -1061,6 +1099,7 @@ extension Codec20Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
   ).product(apply, tupled);
 }
 
+/// Provides a product operation on a 21-tuple of [KeyValueCodec]s.
 extension Codec21KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>
     on
         (
@@ -1116,6 +1155,7 @@ extension Codec21KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, 
   );
 }
 
+/// Provides a product operation on a 21-tuple of (String, [Codec]) pairs.
 extension Codec21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>
     on
         (
@@ -1169,6 +1209,7 @@ extension Codec21Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
   ).product(apply, tupled);
 }
 
+/// Provides a product operation on a 22-tuple of [KeyValueCodec]s.
 extension Codec22KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>
     on
         (
@@ -1226,6 +1267,7 @@ extension Codec22KVOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, 
   );
 }
 
+/// Provides a product operation on a 22-tuple of (String, [Codec]) pairs.
 extension Codec22Ops<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>
     on
         (

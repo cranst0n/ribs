@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:dart_style/dart_style.dart';
 
+import 'codec_syntax_generator.dart';
 import 'codecs_generator.dart';
 import 'decoders_generator.dart';
 import 'encoders_generator.dart';
@@ -28,6 +29,7 @@ void main(List<String> args) {
   // the generated code as static members on the classes themselves so
   // when needed, generate the files, copy and paste the generated code
   // into the resprective classes and then delete the generated files.
+  genFile('lib/src/codecs/generated/syntax.dart', CodecSyntaxGenerator.generate);
   genFile('lib/src/generated/codecs.dart', CodecsGenerator.generate);
   genFile('lib/src/generated/decoders.dart', DecodersGenerator.generate);
   genFile('lib/src/generated/encoders.dart', EncodersGenerator.generate);

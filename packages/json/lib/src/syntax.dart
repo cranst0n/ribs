@@ -1,1 +1,1 @@
-export 'codec/syntax.dart';
+export 'codec/generated/syntax.dart';

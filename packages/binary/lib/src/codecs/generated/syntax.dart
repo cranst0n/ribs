@@ -1,6 +1,7 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// Provides a product operation on a 2-tuple of [Codec]s.
 extension CodecTuple2Ops<T0, T1> on (Codec<T0>, Codec<T1>) {
   Codec<T2> product<T2>(
     Function2<T0, T1, T2> apply,
@@ -8,6 +9,7 @@ extension CodecTuple2Ops<T0, T1> on (Codec<T0>, Codec<T1>) {
   ) => Codec.product2(this.$1, this.$2, apply, tupled);
 }
 
+/// Provides a product operation on a 3-tuple of [Codec]s.
 extension CodecTuple3Ops<T0, T1, T2> on (Codec<T0>, Codec<T1>, Codec<T2>) {
   Codec<T3> product<T3>(
     Function3<T0, T1, T2, T3> apply,
@@ -15,6 +17,7 @@ extension CodecTuple3Ops<T0, T1, T2> on (Codec<T0>, Codec<T1>, Codec<T2>) {
   ) => Codec.product3(this.$1, this.$2, this.$3, apply, tupled);
 }
 
+/// Provides a product operation on a 4-tuple of [Codec]s.
 extension CodecTuple4Ops<T0, T1, T2, T3> on (Codec<T0>, Codec<T1>, Codec<T2>, Codec<T3>) {
   Codec<T4> product<T4>(
     Function4<T0, T1, T2, T3, T4> apply,
@@ -22,66 +25,36 @@ extension CodecTuple4Ops<T0, T1, T2, T3> on (Codec<T0>, Codec<T1>, Codec<T2>, Co
   ) => Codec.product4(this.$1, this.$2, this.$3, this.$4, apply, tupled);
 }
 
+/// Provides a product operation on a 5-tuple of [Codec]s.
 extension CodecTuple5Ops<T0, T1, T2, T3, T4>
-    on
-        (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-        ) {
+    on (Codec<T0>, Codec<T1>, Codec<T2>, Codec<T3>, Codec<T4>) {
   Codec<T5> product<T5>(
     Function5<T0, T1, T2, T3, T4, T5> apply,
     Function1<T5, (T0, T1, T2, T3, T4)> tupled,
   ) => Codec.product5(this.$1, this.$2, this.$3, this.$4, this.$5, apply, tupled);
 }
 
+/// Provides a product operation on a 6-tuple of [Codec]s.
 extension CodecTuple6Ops<T0, T1, T2, T3, T4, T5>
-    on
-        (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-        ) {
+    on (Codec<T0>, Codec<T1>, Codec<T2>, Codec<T3>, Codec<T4>, Codec<T5>) {
   Codec<T6> product<T6>(
     Function6<T0, T1, T2, T3, T4, T5, T6> apply,
     Function1<T6, (T0, T1, T2, T3, T4, T5)> tupled,
   ) => Codec.product6(this.$1, this.$2, this.$3, this.$4, this.$5, this.$6, apply, tupled);
 }
 
+/// Provides a product operation on a 7-tuple of [Codec]s.
 extension CodecTuple7Ops<T0, T1, T2, T3, T4, T5, T6>
-    on
-        (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-          Codec<T6> c6,
-        ) {
+    on (Codec<T0>, Codec<T1>, Codec<T2>, Codec<T3>, Codec<T4>, Codec<T5>, Codec<T6>) {
   Codec<T7> product<T7>(
     Function7<T0, T1, T2, T3, T4, T5, T6, T7> apply,
     Function1<T7, (T0, T1, T2, T3, T4, T5, T6)> tupled,
   ) => Codec.product7(this.$1, this.$2, this.$3, this.$4, this.$5, this.$6, this.$7, apply, tupled);
 }
 
+/// Provides a product operation on a 8-tuple of [Codec]s.
 extension CodecTuple8Ops<T0, T1, T2, T3, T4, T5, T6, T7>
-    on
-        (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-          Codec<T6> c6,
-          Codec<T7> c7,
-        ) {
+    on (Codec<T0>, Codec<T1>, Codec<T2>, Codec<T3>, Codec<T4>, Codec<T5>, Codec<T6>, Codec<T7>) {
   Codec<T8> product<T8>(
     Function8<T0, T1, T2, T3, T4, T5, T6, T7, T8> apply,
     Function1<T8, (T0, T1, T2, T3, T4, T5, T6, T7)> tupled,
@@ -99,18 +72,19 @@ extension CodecTuple8Ops<T0, T1, T2, T3, T4, T5, T6, T7>
   );
 }
 
+/// Provides a product operation on a 9-tuple of [Codec]s.
 extension CodecTuple9Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8>
     on
         (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-          Codec<T6> c6,
-          Codec<T7> c7,
-          Codec<T8> c8,
+          Codec<T0>,
+          Codec<T1>,
+          Codec<T2>,
+          Codec<T3>,
+          Codec<T4>,
+          Codec<T5>,
+          Codec<T6>,
+          Codec<T7>,
+          Codec<T8>,
         ) {
   Codec<T9> product<T9>(
     Function9<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> apply,
@@ -130,19 +104,20 @@ extension CodecTuple9Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8>
   );
 }
 
+/// Provides a product operation on a 10-tuple of [Codec]s.
 extension CodecTuple10Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
     on
         (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-          Codec<T6> c6,
-          Codec<T7> c7,
-          Codec<T8> c8,
-          Codec<T9> c9,
+          Codec<T0>,
+          Codec<T1>,
+          Codec<T2>,
+          Codec<T3>,
+          Codec<T4>,
+          Codec<T5>,
+          Codec<T6>,
+          Codec<T7>,
+          Codec<T8>,
+          Codec<T9>,
         ) {
   Codec<T10> product<T10>(
     Function10<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> apply,
@@ -163,20 +138,21 @@ extension CodecTuple10Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
   );
 }
 
+/// Provides a product operation on a 11-tuple of [Codec]s.
 extension CodecTuple11Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
     on
         (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-          Codec<T6> c6,
-          Codec<T7> c7,
-          Codec<T8> c8,
-          Codec<T9> c9,
-          Codec<T10> c10,
+          Codec<T0>,
+          Codec<T1>,
+          Codec<T2>,
+          Codec<T3>,
+          Codec<T4>,
+          Codec<T5>,
+          Codec<T6>,
+          Codec<T7>,
+          Codec<T8>,
+          Codec<T9>,
+          Codec<T10>,
         ) {
   Codec<T11> product<T11>(
     Function11<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> apply,
@@ -198,23 +174,24 @@ extension CodecTuple11Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
   );
 }
 
-extension CodecTuple12Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
+/// Provides a product operation on a 12-tuple of [Codec]s.
+extension CodecTuple12Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
     on
         (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-          Codec<T6> c6,
-          Codec<T7> c7,
-          Codec<T8> c8,
-          Codec<T9> c9,
-          Codec<T10> c10,
-          Codec<T11> c11,
+          Codec<T0>,
+          Codec<T1>,
+          Codec<T2>,
+          Codec<T3>,
+          Codec<T4>,
+          Codec<T5>,
+          Codec<T6>,
+          Codec<T7>,
+          Codec<T8>,
+          Codec<T9>,
+          Codec<T10>,
+          Codec<T11>,
         ) {
-  Codec<T12> product(
+  Codec<T12> product<T12>(
     Function12<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> apply,
     Function1<T12, (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)> tupled,
   ) => Codec.product12(
@@ -235,24 +212,25 @@ extension CodecTuple12Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
   );
 }
 
-extension CodecTuple13Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>
+/// Provides a product operation on a 13-tuple of [Codec]s.
+extension CodecTuple13Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
     on
         (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-          Codec<T6> c6,
-          Codec<T7> c7,
-          Codec<T8> c8,
-          Codec<T9> c9,
-          Codec<T10> c10,
-          Codec<T11> c11,
-          Codec<T12> c12,
+          Codec<T0>,
+          Codec<T1>,
+          Codec<T2>,
+          Codec<T3>,
+          Codec<T4>,
+          Codec<T5>,
+          Codec<T6>,
+          Codec<T7>,
+          Codec<T8>,
+          Codec<T9>,
+          Codec<T10>,
+          Codec<T11>,
+          Codec<T12>,
         ) {
-  Codec<T13> product(
+  Codec<T13> product<T13>(
     Function13<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> apply,
     Function1<T13, (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)> tupled,
   ) => Codec.product13(
@@ -274,23 +252,24 @@ extension CodecTuple13Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
   );
 }
 
+/// Provides a product operation on a 14-tuple of [Codec]s.
 extension CodecTuple14Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>
     on
         (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-          Codec<T6> c6,
-          Codec<T7> c7,
-          Codec<T8> c8,
-          Codec<T9> c9,
-          Codec<T10> c10,
-          Codec<T11> c11,
-          Codec<T12> c12,
-          Codec<T13> c13,
+          Codec<T0>,
+          Codec<T1>,
+          Codec<T2>,
+          Codec<T3>,
+          Codec<T4>,
+          Codec<T5>,
+          Codec<T6>,
+          Codec<T7>,
+          Codec<T8>,
+          Codec<T9>,
+          Codec<T10>,
+          Codec<T11>,
+          Codec<T12>,
+          Codec<T13>,
         ) {
   Codec<T14> product<T14>(
     Function14<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> apply,
@@ -315,24 +294,25 @@ extension CodecTuple14Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
   );
 }
 
+/// Provides a product operation on a 15-tuple of [Codec]s.
 extension CodecTuple15Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>
     on
         (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-          Codec<T6> c6,
-          Codec<T7> c7,
-          Codec<T8> c8,
-          Codec<T9> c9,
-          Codec<T10> c10,
-          Codec<T11> c11,
-          Codec<T12> c12,
-          Codec<T13> c13,
-          Codec<T14> c14,
+          Codec<T0>,
+          Codec<T1>,
+          Codec<T2>,
+          Codec<T3>,
+          Codec<T4>,
+          Codec<T5>,
+          Codec<T6>,
+          Codec<T7>,
+          Codec<T8>,
+          Codec<T9>,
+          Codec<T10>,
+          Codec<T11>,
+          Codec<T12>,
+          Codec<T13>,
+          Codec<T14>,
         ) {
   Codec<T15> product<T15>(
     Function15<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> apply,
@@ -358,25 +338,26 @@ extension CodecTuple15Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
   );
 }
 
+/// Provides a product operation on a 16-tuple of [Codec]s.
 extension CodecTuple16Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>
     on
         (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-          Codec<T6> c6,
-          Codec<T7> c7,
-          Codec<T8> c8,
-          Codec<T9> c9,
-          Codec<T10> c10,
-          Codec<T11> c11,
-          Codec<T12> c12,
-          Codec<T13> c13,
-          Codec<T14> c14,
-          Codec<T15> c15,
+          Codec<T0>,
+          Codec<T1>,
+          Codec<T2>,
+          Codec<T3>,
+          Codec<T4>,
+          Codec<T5>,
+          Codec<T6>,
+          Codec<T7>,
+          Codec<T8>,
+          Codec<T9>,
+          Codec<T10>,
+          Codec<T11>,
+          Codec<T12>,
+          Codec<T13>,
+          Codec<T14>,
+          Codec<T15>,
         ) {
   Codec<T16> product<T16>(
     Function16<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> apply,
@@ -403,26 +384,27 @@ extension CodecTuple16Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
   );
 }
 
+/// Provides a product operation on a 17-tuple of [Codec]s.
 extension CodecTuple17Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>
     on
         (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-          Codec<T6> c6,
-          Codec<T7> c7,
-          Codec<T8> c8,
-          Codec<T9> c9,
-          Codec<T10> c10,
-          Codec<T11> c11,
-          Codec<T12> c12,
-          Codec<T13> c13,
-          Codec<T14> c14,
-          Codec<T15> c15,
-          Codec<T16> c16,
+          Codec<T0>,
+          Codec<T1>,
+          Codec<T2>,
+          Codec<T3>,
+          Codec<T4>,
+          Codec<T5>,
+          Codec<T6>,
+          Codec<T7>,
+          Codec<T8>,
+          Codec<T9>,
+          Codec<T10>,
+          Codec<T11>,
+          Codec<T12>,
+          Codec<T13>,
+          Codec<T14>,
+          Codec<T15>,
+          Codec<T16>,
         ) {
   Codec<T17> product<T17>(
     Function17<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>
@@ -452,6 +434,7 @@ extension CodecTuple17Ops<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
   );
 }
 
+/// Provides a product operation on a 18-tuple of [Codec]s.
 extension CodecTuple18Ops<
   T0,
   T1,
@@ -474,24 +457,24 @@ extension CodecTuple18Ops<
 >
     on
         (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-          Codec<T6> c6,
-          Codec<T7> c7,
-          Codec<T8> c8,
-          Codec<T9> c9,
-          Codec<T10> c10,
-          Codec<T11> c11,
-          Codec<T12> c12,
-          Codec<T13> c13,
-          Codec<T14> c14,
-          Codec<T15> c15,
-          Codec<T16> c16,
-          Codec<T17> c17,
+          Codec<T0>,
+          Codec<T1>,
+          Codec<T2>,
+          Codec<T3>,
+          Codec<T4>,
+          Codec<T5>,
+          Codec<T6>,
+          Codec<T7>,
+          Codec<T8>,
+          Codec<T9>,
+          Codec<T10>,
+          Codec<T11>,
+          Codec<T12>,
+          Codec<T13>,
+          Codec<T14>,
+          Codec<T15>,
+          Codec<T16>,
+          Codec<T17>,
         ) {
   Codec<T18> product<T18>(
     Function18<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>
@@ -522,6 +505,7 @@ extension CodecTuple18Ops<
   );
 }
 
+/// Provides a product operation on a 19-tuple of [Codec]s.
 extension CodecTuple19Ops<
   T0,
   T1,
@@ -545,25 +529,25 @@ extension CodecTuple19Ops<
 >
     on
         (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-          Codec<T6> c6,
-          Codec<T7> c7,
-          Codec<T8> c8,
-          Codec<T9> c9,
-          Codec<T10> c10,
-          Codec<T11> c11,
-          Codec<T12> c12,
-          Codec<T13> c13,
-          Codec<T14> c14,
-          Codec<T15> c15,
-          Codec<T16> c16,
-          Codec<T17> c17,
-          Codec<T18> c18,
+          Codec<T0>,
+          Codec<T1>,
+          Codec<T2>,
+          Codec<T3>,
+          Codec<T4>,
+          Codec<T5>,
+          Codec<T6>,
+          Codec<T7>,
+          Codec<T8>,
+          Codec<T9>,
+          Codec<T10>,
+          Codec<T11>,
+          Codec<T12>,
+          Codec<T13>,
+          Codec<T14>,
+          Codec<T15>,
+          Codec<T16>,
+          Codec<T17>,
+          Codec<T18>,
         ) {
   Codec<T19> product<T19>(
     Function19<
@@ -619,6 +603,7 @@ extension CodecTuple19Ops<
   );
 }
 
+/// Provides a product operation on a 20-tuple of [Codec]s.
 extension CodecTuple20Ops<
   T0,
   T1,
@@ -643,26 +628,26 @@ extension CodecTuple20Ops<
 >
     on
         (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-          Codec<T6> c6,
-          Codec<T7> c7,
-          Codec<T8> c8,
-          Codec<T9> c9,
-          Codec<T10> c10,
-          Codec<T11> c11,
-          Codec<T12> c12,
-          Codec<T13> c13,
-          Codec<T14> c14,
-          Codec<T15> c15,
-          Codec<T16> c16,
-          Codec<T17> c17,
-          Codec<T18> c18,
-          Codec<T19> c19,
+          Codec<T0>,
+          Codec<T1>,
+          Codec<T2>,
+          Codec<T3>,
+          Codec<T4>,
+          Codec<T5>,
+          Codec<T6>,
+          Codec<T7>,
+          Codec<T8>,
+          Codec<T9>,
+          Codec<T10>,
+          Codec<T11>,
+          Codec<T12>,
+          Codec<T13>,
+          Codec<T14>,
+          Codec<T15>,
+          Codec<T16>,
+          Codec<T17>,
+          Codec<T18>,
+          Codec<T19>,
         ) {
   Codec<T20> product<T20>(
     Function20<
@@ -720,6 +705,7 @@ extension CodecTuple20Ops<
   );
 }
 
+/// Provides a product operation on a 21-tuple of [Codec]s.
 extension CodecTuple21Ops<
   T0,
   T1,
@@ -745,27 +731,27 @@ extension CodecTuple21Ops<
 >
     on
         (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-          Codec<T6> c6,
-          Codec<T7> c7,
-          Codec<T8> c8,
-          Codec<T9> c9,
-          Codec<T10> c10,
-          Codec<T11> c11,
-          Codec<T12> c12,
-          Codec<T13> c13,
-          Codec<T14> c14,
-          Codec<T15> c15,
-          Codec<T16> c16,
-          Codec<T17> c17,
-          Codec<T18> c18,
-          Codec<T19> c19,
-          Codec<T20> c20,
+          Codec<T0>,
+          Codec<T1>,
+          Codec<T2>,
+          Codec<T3>,
+          Codec<T4>,
+          Codec<T5>,
+          Codec<T6>,
+          Codec<T7>,
+          Codec<T8>,
+          Codec<T9>,
+          Codec<T10>,
+          Codec<T11>,
+          Codec<T12>,
+          Codec<T13>,
+          Codec<T14>,
+          Codec<T15>,
+          Codec<T16>,
+          Codec<T17>,
+          Codec<T18>,
+          Codec<T19>,
+          Codec<T20>,
         ) {
   Codec<T21> product<T21>(
     Function21<
@@ -847,6 +833,7 @@ extension CodecTuple21Ops<
   );
 }
 
+/// Provides a product operation on a 22-tuple of [Codec]s.
 extension CodecTuple22Ops<
   T0,
   T1,
@@ -873,28 +860,28 @@ extension CodecTuple22Ops<
 >
     on
         (
-          Codec<T0> c0,
-          Codec<T1> c1,
-          Codec<T2> c2,
-          Codec<T3> c3,
-          Codec<T4> c4,
-          Codec<T5> c5,
-          Codec<T6> c6,
-          Codec<T7> c7,
-          Codec<T8> c8,
-          Codec<T9> c9,
-          Codec<T10> c10,
-          Codec<T11> c11,
-          Codec<T12> c12,
-          Codec<T13> c13,
-          Codec<T14> c14,
-          Codec<T15> c15,
-          Codec<T16> c16,
-          Codec<T17> c17,
-          Codec<T18> c18,
-          Codec<T19> c19,
-          Codec<T20> c20,
-          Codec<T21> c21,
+          Codec<T0>,
+          Codec<T1>,
+          Codec<T2>,
+          Codec<T3>,
+          Codec<T4>,
+          Codec<T5>,
+          Codec<T6>,
+          Codec<T7>,
+          Codec<T8>,
+          Codec<T9>,
+          Codec<T10>,
+          Codec<T11>,
+          Codec<T12>,
+          Codec<T13>,
+          Codec<T14>,
+          Codec<T15>,
+          Codec<T16>,
+          Codec<T17>,
+          Codec<T18>,
+          Codec<T19>,
+          Codec<T20>,
+          Codec<T21>,
         ) {
   Codec<T22> product<T22>(
     Function22<
