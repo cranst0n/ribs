@@ -69,9 +69,11 @@ class RillCompile<O> {
 
   RillResourceCompile<O> get resource => RillResourceCompile(_pull);
 
-  IO<IList<O>> get toIList => foldChunks(IList.empty<O>(), (acc, chunk) => acc.concat(chunk));
+  IO<IList<O>> get toIList =>
+      foldChunks(IList.builder<O>(), (buf, chunk) => buf..addAll(chunk)).map((buf) => buf.toIList());
 
-  IO<IVector<O>> get toIVector => foldChunks(IVector.empty<O>(), (acc, chunk) => acc.concat(chunk));
+  IO<IVector<O>> get toIVector =>
+      foldChunks(IVector.builder<O>(), (buf, chunk) => buf..addAll(chunk)).map((buf) => buf.result());
 }
 
 extension RillCompilerStringOps on RillCompile<String> {
@@ -150,8 +152,9 @@ class RillResourceCompile<O> {
     });
   }
 
-  Resource<IList<O>> get toIList => foldChunks(IList.empty<O>(), (acc, chunk) => acc.concat(chunk));
+  Resource<IList<O>> get toIList =>
+      foldChunks(IList.builder<O>(), (buf, chunk) => buf..addAll(chunk)).map((buf) => buf.toIList());
 
   Resource<IVector<O>> get toIVector =>
-      foldChunks(IVector.empty<O>(), (acc, chunk) => acc.concat(chunk));
+      foldChunks(IVector.builder<O>(), (buf, chunk) => buf..addAll(chunk)).map((buf) => buf.result());
 }
