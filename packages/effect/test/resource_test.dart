@@ -619,6 +619,331 @@ void main() {
     await expectLater(test, ioSucceeded(Unit()));
     expect(released, isFalse);
   });
+
+  group('as', () {
+    test('replaces the resource value', () {
+      expect(Resource.pure(42).as('hello').use(IO.pure), ioSucceeded('hello'));
+    });
+
+    test('finalizer still runs after as', () async {
+      var released = false;
+      final res = Resource.make(IO.pure(42), (_) => IO.exec(() => released = true)).as('hello');
+      await expectLater(res.use(IO.pure), ioSucceeded('hello'));
+      expect(released, isTrue);
+    });
+  });
+
+  group('voided', () {
+    test('discards resource value', () {
+      expect(Resource.pure(42).voided().use(IO.pure), ioSucceeded(Unit()));
+    });
+
+    test('finalizer still runs after voided', () async {
+      var released = false;
+      final res = Resource.make(IO.pure(42), (_) => IO.exec(() => released = true)).voided();
+      await expectLater(res.use(IO.pure), ioSucceeded(Unit()));
+      expect(released, isTrue);
+    });
+  });
+
+  group('flatTap', () {
+    test('executes side-effecting resource and returns original value', () async {
+      var tapped = 0;
+      final res = Resource.pure(42).flatTap(
+        (a) => Resource.eval(IO.exec(() => tapped = a)),
+      );
+      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      expect(tapped, 42);
+    });
+
+    test('releases both resources', () async {
+      var aReleased = false;
+      var bReleased = false;
+      final res = Resource.make(IO.pure(1), (_) => IO.exec(() => aReleased = true)).flatTap(
+        (_) => Resource.make(IO.pure(2), (_) => IO.exec(() => bReleased = true)),
+      );
+      await expectLater(res.use(IO.pure), ioSucceeded(1));
+      expect(aReleased, isTrue);
+      expect(bReleased, isTrue);
+    });
+  });
+
+  group('evalMap', () {
+    test('applies IO function to resource value', () {
+      expect(Resource.pure(21).evalMap((a) => IO.pure(a * 2)).use(IO.pure), ioSucceeded(42));
+    });
+
+    test('propagates IO error', () {
+      expect(
+        Resource.pure(0).evalMap((_) => IO.raiseError<int>('oops')).use(IO.pure),
+        ioErrored('oops'),
+      );
+    });
+  });
+
+  group('handleErrorWith', () {
+    test('recovers from acquire error', () {
+      final res = Resource.raiseError<int>('boom').handleErrorWith((_) => Resource.pure(42));
+      expect(res.use(IO.pure), ioSucceeded(42));
+    });
+
+    test('does not invoke handler on success', () async {
+      var handlerCalled = false;
+      final res = Resource.pure(42).handleErrorWith((_) {
+        handlerCalled = true;
+        return Resource.pure(0);
+      });
+      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      expect(handlerCalled, isFalse);
+    });
+
+    test('releases recovered resource', () async {
+      var released = false;
+      final res = Resource.raiseError<int>('boom').handleErrorWith(
+        (_) => Resource.make(IO.pure(42), (_) => IO.exec(() => released = true)),
+      );
+      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      expect(released, isTrue);
+    });
+  });
+
+  group('onFinalize', () {
+    test('runs finalizer on success', () async {
+      var finalized = false;
+      final res = Resource.pure(42).onFinalize(IO.exec(() => finalized = true));
+      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      expect(finalized, isTrue);
+    });
+
+    test('runs finalizer on error', () async {
+      var finalized = false;
+      final res = Resource.pure(
+        42,
+      ).onFinalize(IO.exec(() => finalized = true)).evalMap((_) => IO.raiseError<int>('boom'));
+      await expectLater(res.use(IO.pure), ioErrored('boom'));
+      expect(finalized, isTrue);
+    });
+  });
+
+  group('onCancel', () {
+    test('runs cancellation hook when use is canceled', () {
+      final test = IO.ref(false).flatMap((canceled) {
+        final res = Resource.eval(IO.sleep(5.seconds)).onCancel(
+          Resource.eval(IO.exec(() {})).flatTap(
+            (_) => Resource.eval(canceled.setValue(true)),
+          ),
+        );
+        return res.use_().timeout(1.second).attempt().productR(() => canceled.value());
+      });
+
+      final ticker = test.ticked..tickAll();
+      expect(ticker.outcome, completion((Outcome<bool> oc) => oc == Outcome.succeeded(true)));
+    });
+  });
+
+  group('preAllocate', () {
+    test('runs IO before resource acquisition', () async {
+      final order = <String>[];
+
+      final res = Resource.make(
+        IO.exec(() => order.add('acquire')),
+        (_) => IO.exec(() => order.add('release')),
+      ).preAllocate(IO.exec(() => order.add('pre')));
+
+      await expectLater(res.use_(), ioSucceeded(Unit()));
+      expect(order, ['pre', 'acquire', 'release']);
+    });
+
+    test('propagates preAllocate error', () {
+      final res = Resource.pure(42).preAllocate(IO.raiseError<Unit>('pre-error'));
+      expect(res.use(IO.pure), ioErrored('pre-error'));
+    });
+  });
+
+  group('guaranteeCase', () {
+    test('runs finalizer on success', () async {
+      Outcome<int>? got;
+      final res = Resource.pure(42).guaranteeCase(
+        (oc) => Resource.eval(IO.exec(() => got = oc)),
+      );
+      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      expect(got, Outcome.succeeded(42));
+    });
+
+    test('runs finalizer on error', () async {
+      Outcome<int>? got;
+      const err = 'boom';
+      final res = Resource.raiseError<int>(err).guaranteeCase(
+        (oc) => Resource.eval(IO.exec(() => got = oc)),
+      );
+      await expectLater(res.use(IO.pure), ioErrored(err));
+      expect(got, Outcome.errored<int>(err));
+    });
+
+    test('runs finalizer on cancellation', () async {
+      Outcome<int>? got;
+      final res = Resource.canceled
+          .as(42)
+          .guaranteeCase(
+            (oc) => Resource.eval(IO.exec(() => got = oc)),
+          );
+      await expectLater(res.use(IO.pure), ioCanceled());
+      expect(got, Outcome.canceled<int>());
+    });
+  });
+
+  group('ref', () {
+    test('creates a Ref with initial value', () {
+      final test = Resource.ref(42).use((ref) => ref.value());
+      expect(test, ioSucceeded(42));
+    });
+
+    test('Ref can be updated within use', () {
+      final test = Resource.ref(0).use((ref) => ref.setValue(99).flatMap((_) => ref.value()));
+      expect(test, ioSucceeded(99));
+    });
+  });
+
+  group('raiseError', () {
+    test('injects error into resource evaluation', () {
+      expect(Resource.raiseError<int>('oops').use(IO.pure), ioErrored('oops'));
+    });
+
+    test('is recoverable via handleErrorWith', () {
+      expect(
+        Resource.raiseError<int>('oops').handleErrorWith((_) => Resource.pure(0)).use(IO.pure),
+        ioSucceeded(0),
+      );
+    });
+  });
+
+  group('never', () {
+    test('non-terminating resource is cancelable', () {
+      final test = Resource.never<int>().use(IO.pure).timeout(1.second).attempt();
+      final ticker = test.ticked..tickAll();
+      expect(
+        ticker.outcome,
+        completion(
+          (Outcome<Either<Object, int>> oc) =>
+              oc.fold(() => false, (err, st) => false, (e) => e.isLeft),
+        ),
+      );
+    });
+  });
+
+  group('canceled', () {
+    test('immediately canceled resource cancels use', () {
+      expect(Resource.canceled.use_(), ioCanceled());
+    });
+  });
+
+  group('cede', () {
+    test('introduces async boundary without error', () {
+      expect(Resource.cede.use_(), ioSucceeded(Unit()));
+    });
+  });
+
+  group('apply', () {
+    test('creates resource from IO of (value, finalizer) pair', () async {
+      var released = false;
+      final res = Resource.apply(
+        IO.pure((42, IO.exec(() => released = true))),
+      );
+      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      expect(released, isTrue);
+    });
+  });
+
+  group('applyCase', () {
+    test('finalizer receives exit case on success', () async {
+      ExitCase? got;
+      final res = Resource.applyCase(
+        IO.pure((42, (ExitCase ec) => IO.exec(() => got = ec))),
+      );
+      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      expect(got, ExitCase.succeeded());
+    });
+
+    test('finalizer receives exit case on error', () async {
+      ExitCase? got;
+      const err = 'boom';
+      final res = Resource.applyCase(
+        IO.pure((42, (ExitCase ec) => IO.exec(() => got = ec))),
+      );
+      await expectLater(
+        res.use((_) => IO.raiseError<int>(err)),
+        ioErrored(err),
+      );
+      expect(got, ExitCase.errored(err));
+    });
+  });
+
+  group('makeCaseFull', () {
+    test('acquire uses poll, finalizer receives exit case', () async {
+      ExitCase? got;
+      final res = Resource.makeCaseFull<int>(
+        (poll) => poll(IO.pure(42)),
+        (a, ec) => IO.exec(() => got = ec),
+      );
+      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      expect(got, ExitCase.succeeded());
+    });
+  });
+
+  group('makeFull', () {
+    test('acquire uses poll, finalizer is called', () async {
+      var released = false;
+      final res = Resource.makeFull<int>(
+        (poll) => poll(IO.pure(42)),
+        (_) => IO.exec(() => released = true),
+      );
+      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      expect(released, isTrue);
+    });
+  });
+
+  group('useForever', () {
+    test('never completes and resource finalizer is not invoked until canceled', () {
+      final test = IO.ref(false).flatMap((released) {
+        final res = Resource.make(IO.unit, (_) => released.setValue(true));
+        return res.useForever().start().flatMap(
+          (fiber) =>
+              IO.sleep(1.second).flatMap((_) => fiber.cancel()).productR(() => released.value()),
+        );
+      });
+
+      final ticker = test.ticked..tickAll();
+      expect(ticker.outcome, completion((Outcome<bool> oc) => oc == Outcome.succeeded(true)));
+    });
+  });
+
+  group('race', () {
+    test('returns winner value when left wins', () {
+      final left = Resource.make(IO.pure(1), (_) => IO.unit);
+      final right = Resource.make(IO.sleep(5.seconds).productR(() => IO.pure(2)), (_) => IO.unit);
+      final test = Resource.race(left, right).use(IO.pure);
+      final ticker = test.ticked..tickAll();
+      expect(
+        ticker.outcome,
+        completion(
+          (Outcome<Either<int, int>> oc) => oc == Outcome.succeeded(const Left<int, int>(1)),
+        ),
+      );
+    });
+
+    test('returns winner value when right wins', () {
+      final left = Resource.make(IO.sleep(5.seconds).productR(() => IO.pure(1)), (_) => IO.unit);
+      final right = Resource.make(IO.pure(2), (_) => IO.unit);
+      final test = Resource.race(left, right).use(IO.pure);
+      final ticker = test.ticked..tickAll();
+      expect(
+        ticker.outcome,
+        completion(
+          (Outcome<Either<int, int>> oc) => oc == Outcome.succeeded(const Right<int, int>(2)),
+        ),
+      );
+    });
+  });
 }
 
 extension<A> on IList<A> {

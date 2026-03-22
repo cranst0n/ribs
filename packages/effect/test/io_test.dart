@@ -1806,4 +1806,173 @@ void main() {
     expect(capturedSt, isNotNull);
     expect(capturedSt.toString(), anyOf(contains('main'), contains('browser_test.dart.js')));
   });
+
+  test('catchNonError succeeds for non-exceptional thunk', () {
+    expect(IO.catchNonError(() => 42), ioSucceeded(42));
+  });
+
+  test('catchNonError captures Exception', () {
+    expect(IO.catchNonError<int>(() => throw Exception('boom')), ioErrored(isA<Exception>()));
+  });
+
+  test('some', () {
+    expect(IO.some(42), ioSucceeded(const Some(42)));
+  });
+
+  test('none', () {
+    expect(IO.none<int>(), ioSucceeded(isA<None>()));
+  });
+
+  test('ref', () {
+    expect(IO.ref(42).flatMap((r) => r.value()), ioSucceeded(42));
+  });
+
+  test('flatten', () {
+    expect(IO.pure(IO.pure(42)).flatten(), ioSucceeded(42));
+  });
+
+  test('flatten error', () {
+    expect(IO.pure(IO.raiseError<int>('boom')).flatten(), ioErrored('boom'));
+  });
+
+  test('ifM true branch', () {
+    expect(IO.pure(true).ifM(() => IO.pure(42), () => IO.pure(0)), ioSucceeded(42));
+  });
+
+  test('ifM false branch', () {
+    expect(IO.pure(false).ifM(() => IO.pure(42), () => IO.pure(0)), ioSucceeded(0));
+  });
+
+  test('rethrowError success', () {
+    expect(IO.pure(42.asRight<Object>()).rethrowError(), ioSucceeded(42));
+  });
+
+  test('rethrowError error', () {
+    expect(IO.pure('boom'.asLeft<int>()).rethrowError(), ioErrored('boom'));
+  });
+
+  test('voidError', () {
+    expect(IO.raiseError<Unit>('boom').voidError(), ioSucceeded(Unit()));
+    expect(IO.unit.voidError(), ioSucceeded(Unit()));
+  });
+
+  test('attemptTap success', () async {
+    Either<Object, int>? tapped;
+    final io = IO.pure(42).attemptTap((e) => IO.exec(() => tapped = e));
+    await expectLater(io, ioSucceeded(42));
+    expect(tapped, 42.asRight<Object>());
+  });
+
+  test('attemptTap error still raises', () async {
+    Either<Object, int>? tapped;
+    final io = IO.raiseError<int>('boom').attemptTap((e) => IO.exec(() => tapped = e));
+    await expectLater(io, ioErrored('boom'));
+    expect(tapped, isA<Left<Object, int>>());
+  });
+
+  test('product', () {
+    expect(IO.pure(1).product(IO.pure(2)), ioSucceeded((1, 2)));
+  });
+
+  test('productL', () {
+    expect(IO.pure(42).productL(() => IO.pure('ignored')), ioSucceeded(42));
+  });
+
+  test('now returns a DateTime', () async {
+    final before = DateTime.now();
+    final dt = await IO.now.unsafeRunFuture();
+    final after = DateTime.now();
+    expect(dt.isAfter(before) || dt.isAtSameMomentAs(before), isTrue);
+    expect(dt.isBefore(after) || dt.isAtSameMomentAs(after), isTrue);
+  });
+
+  test('toResource', () {
+    expect(IO.pure(42).toResource().use(IO.pure), ioSucceeded(42));
+  });
+
+  test('bracketCase success', () async {
+    Outcome<int>? got;
+    final io = IO.pure(41).bracketCase(
+      (a) => IO.pure(a + 1),
+      (a, oc) => IO.exec(() => got = oc),
+    );
+    await expectLater(io, ioSucceeded(42));
+    expect(got, isA<Succeeded<int>>());
+  });
+
+  test('bracketCase error', () async {
+    Outcome<int>? got;
+    const err = 'boom';
+    final io = IO.pure(41).bracketCase(
+      (a) => IO.raiseError<int>(err),
+      (a, oc) => IO.exec(() => got = oc),
+    );
+    await expectLater(io, ioErrored(err));
+    expect(got, isA<Errored<int>>());
+  });
+
+  test('bracketCase canceled', () async {
+    Outcome<int>? got;
+    final io = IO.pure(41).bracketCase(
+      (a) => IO.canceled.as(a),
+      (a, oc) => IO.exec(() => got = oc),
+    );
+    await expectLater(io, ioCanceled());
+    expect(got, isA<Canceled<int>>());
+  });
+
+  test('iterateWhile', () {
+    var count = 0;
+    expect(
+      IO.exec(() => count += 1).flatMap((_) => IO.pure(count)).iterateWhile((n) => n < 5),
+      ioSucceeded(5),
+    );
+  });
+
+  test('iterateWhileM', () {
+    var count = 0;
+    expect(
+      IO.exec(() => count += 1).flatMap((_) => IO.pure(count)).iterateWhileM(
+        (n) => IO.pure(n < 5),
+      ),
+      ioSucceeded(5),
+    );
+  });
+
+  test('replicate', () {
+    expect(IO.pure(1).replicate(3), ioSucceeded(ilist([1, 1, 1])));
+    expect(IO.pure(1).replicate(0), ioSucceeded(nil<int>()));
+  });
+
+  test('parReplicate', () {
+    expect(IO.pure(42).parReplicate(3), ioSucceeded(ilist([42, 42, 42])));
+    expect(IO.pure(42).parReplicate(0), ioSucceeded(nil<int>()));
+  });
+
+  test('delayBy', () {
+    expect(IO.pure(42).delayBy(100.milliseconds), ioSucceeded(42));
+  });
+
+  test('andWait actually waits', () {
+    final io = IO.pure(42).andWait(200.milliseconds);
+    expect(io, ioSucceeded(42));
+  });
+
+  test('unsafeRunFutureCancelable cancels successfully', () async {
+    var canceled = false;
+    final (future, cancel) = IO
+        .never<int>()
+        .onCancel(IO.exec(() => canceled = true))
+        .unsafeRunFutureCancelable();
+    // Silence the unhandled exception from cancellation
+    future.ignore();
+    await cancel();
+    expect(canceled, isTrue);
+  });
+
+  test('unsafeRunAsync calls callback with outcome', () async {
+    final completer = Completer<Outcome<int>>();
+    IO.pure(42).unsafeRunAsync(completer.complete);
+    expect(await completer.future, Outcome.succeeded(42));
+  });
 }
