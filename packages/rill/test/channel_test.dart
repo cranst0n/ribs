@@ -16,7 +16,7 @@ void main() {
             .productR(() => chan.close())
             .productR(() => chan.rill.compile.toIList);
 
-        return IO.both(senders, cleanup).map((t) => t.$2);
+        return IO.both(senders, cleanup).mapN((_, b) => b);
       });
 
       final result = await test.unsafeRunFuture();
@@ -135,7 +135,7 @@ void main() {
         final sender = chan.send(42);
         final receiver = chan.rill.take(1).compile.toIList;
 
-        return IO.both(sender, receiver).map((t) => t.$2);
+        return IO.both(sender, receiver).mapN((_, b) => b);
       });
 
       final result = await test.unsafeRunFuture();
@@ -159,7 +159,7 @@ void main() {
         final sending = Rill.emits<int>([1, 2, 3]).through<Never>(chan.sendAll).compile.drain;
         final receiving = chan.rill.compile.toIList;
 
-        return IO.both(sending, receiving).map((t) => t.$2);
+        return IO.both(sending, receiving).mapN((_, b) => b);
       });
 
       final result = await test.unsafeRunFuture();
@@ -175,7 +175,7 @@ void main() {
             .productR(() => chan.rill.take(3).compile.toIList);
         final producer = IList.range(0, 3).traverseIO_((i) => chan.send(i));
 
-        return IO.both(producer, slowConsumer).map((t) => t.$2);
+        return IO.both(producer, slowConsumer).mapN((_, b) => b);
       });
 
       final result = await test.unsafeRunFuture();

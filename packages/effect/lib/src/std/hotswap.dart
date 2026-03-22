@@ -26,11 +26,9 @@ sealed class Hotswap<R> {
 
       IO<Ref<HotswapState<R>>> initialize() {
         return IO.uncancelable((poll) {
-          return poll(initial.allocated()).flatMap((tuple) {
-            final (r, fin) = tuple;
-
-            return exclusive().onCancel(Resource.eval(fin)).surround(IO.ref(Acquired(r, fin)));
-          });
+          return poll(initial.allocated()).flatMapN(
+            (r, fin) => exclusive().onCancel(Resource.eval(fin)).surround(IO.ref(Acquired(r, fin))),
+          );
         });
       }
 
@@ -70,10 +68,9 @@ class HotswapImpl<R> extends Hotswap<R> {
   @override
   IO<Unit> swap(Resource<R> next) {
     return IO.uncancelable((poll) {
-      return poll(next.allocated()).flatMap((tuple) {
-        final (r, fin) = tuple;
-        return exclusive().onCancel(Resource.eval(fin)).surround(swapFinalizer(Acquired(r, fin)));
-      });
+      return poll(next.allocated()).flatMapN(
+        (r, fin) => exclusive().onCancel(Resource.eval(fin)).surround(swapFinalizer(Acquired(r, fin))),
+      );
     });
   }
 

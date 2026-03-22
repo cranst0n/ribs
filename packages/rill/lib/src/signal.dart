@@ -93,11 +93,8 @@ class _SignallingRefImpl<A> extends SignallingRef<A> {
   Rill<A> get continuous => Rill.repeatEval(value());
 
   @override
-  Rill<A> get discrete => Rill.resource(getAndDiscreteUpdates()).flatMap((tuple) {
-    final (a, updates) = tuple;
-
-    return Rill.emit(a).append(() => updates);
-  });
+  Rill<A> get discrete =>
+      Rill.resource(getAndDiscreteUpdates()).flatMapN((a, updates) => Rill.emit(a).append(() => updates));
 
   @override
   IO<B> flatModify<B>(Function1<A, (A, IO<B>)> f) => IO.uncancelable((_) => modify(f).flatten());
@@ -121,10 +118,7 @@ class _SignallingRefImpl<A> extends SignallingRef<A> {
         }).flatten();
       });
 
-      return Rill.eval(getNext).flatMap((tuple) {
-        final (a, lastUpdate) = tuple;
-        return Rill.emit(a).append(() => go(id, lastUpdate));
-      });
+      return Rill.eval(getNext).flatMapN((a, lastUpdate) => Rill.emit(a).append(() => go(id, lastUpdate)));
     }
 
     IO<Unit> cleanup(int id) => state.update((s) => s.copy(listeners: s.listeners.removed(id)));

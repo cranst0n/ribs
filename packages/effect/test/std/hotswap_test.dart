@@ -191,8 +191,7 @@ void main() {
             await IO.ref(false).flatMap((swapped) {
               return Hotswap.create(Resource.pure(1)).use((hotswap) {
                 // Acquire current resource and hold it open briefly
-                return hotswap.current.allocated().flatMap((t) {
-                  final (_, release) = t;
+                return hotswap.current.allocated().flatMapN((_, release) {
 
                   // Start swap concurrently; it must wait for the held current to release
                   final swapFiber = IO.sleep(50.milliseconds).productR(() => release).start();

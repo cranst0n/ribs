@@ -559,10 +559,7 @@ class Rill<O> {
   }
 
   Rill<O> concurrently<O2>(Rill<O2> that) {
-    return _concurrentlyAux(that).flatMap((tuple) {
-      final (startBack, fore) = tuple;
-      return startBack.flatMap((_) => fore);
-    });
+    return _concurrentlyAux(that).flatMapN((startBack, fore) => startBack.flatMap((_) => fore));
   }
 
   Rill<(Rill<IOFiber<Unit>>, Rill<O>)> _concurrentlyAux<O2>(Rill<O2> that) {
@@ -1285,7 +1282,7 @@ class Rill<O> {
     }
   }
 
-  Rill<O2> parEvalMapUnbounded<O2>(int maxConcurrent, Function1<O, IO<O2>> f) =>
+  Rill<O2> parEvalMapUnbounded<O2>(Function1<O, IO<O2>> f) =>
       _parEvalMapImpl(Integer.MaxValue, Channel.unbounded(), true, f);
 
   Rill<O2> parEvalMapUnordered<O2>(int maxConcurrent, Function1<O, IO<O2>> f) {
@@ -1842,7 +1839,7 @@ class Rill<O> {
   Rill<(O, O2)> zipWithScan<O2>(O2 z, Function2<O2, O, O2> f) => mapAccumulate(
     z,
     (s, o) => (f(s, o), (o, s)),
-  ).map((t) => t.$2);
+  ).mapN((_, v) => v);
 
   Rill<(O, O2)> zipWithScan1<O2>(O2 z, Function2<O2, O, O2> f) => mapAccumulate(
     z,
@@ -1850,7 +1847,7 @@ class Rill<O> {
       final s2 = f(s, o);
       return (s2, (o, s2));
     },
-  ).map((t) => t.$2);
+  ).mapN((_, v) => v);
 
   RillCompile<O> get compile => RillCompile(underlying);
 

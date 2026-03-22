@@ -44,7 +44,7 @@ void main() {
       final r = IList.range(
         1,
         50000,
-      ).foldLeft(res, (r, _) => r.flatMap((_) => res)).allocatedCase().map((t) => t.$1);
+      ).foldLeft(res, (r, _) => r.flatMap((_) => res)).allocatedCase().mapN((a, _) => a);
 
       expect(r, ioSucceeded(Unit()));
     });
@@ -944,16 +944,4 @@ void main() {
       );
     });
   });
-}
-
-extension<A> on IList<A> {
-  Resource<IList<B>> traverseResource<B>(Function1<A, Resource<B>> f) {
-    Resource<IList<B>> result = Resource.pure(nil());
-
-    foreach((elem) {
-      result = result.flatMap((l) => f(elem).map((b) => l.prepended(b)));
-    });
-
-    return result.map((a) => a.reverse());
-  }
 }

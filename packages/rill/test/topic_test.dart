@@ -42,7 +42,7 @@ void main() {
             final sub1 = topic.subscribe(10).take(1).compile.toIList;
             final sub2 = topic.subscribe(10).take(1).compile.toIList;
             final publish = IO.sleep(20.milliseconds).productR(() => topic.publish1(99));
-            return IO.both(IO.both(sub1, sub2), publish).map((t) => t.$1);
+            return IO.both(IO.both(sub1, sub2), publish).mapN((a, _) => a);
           }).unsafeRunFuture();
 
       expect(result.$1, ilist([99]));
@@ -71,7 +71,7 @@ void main() {
           await Topic.create<int>().flatMap((topic) {
             final sub = topic.subscribe(10).compile.toIList;
             final closeAfterDelay = IO.sleep(50.milliseconds).productR(() => topic.close);
-            return IO.both(sub, closeAfterDelay).map((t) => t.$1);
+            return IO.both(sub, closeAfterDelay).mapN((a, _) => a);
           }).unsafeRunFuture();
 
       expect(result, nil<int>());
@@ -85,7 +85,7 @@ void main() {
                 .publish1(1)
                 .productR(() => topic.publish1(2))
                 .productR(() => topic.close);
-            return IO.both(sub, sendAndClose).map((t) => t.$1);
+            return IO.both(sub, sendAndClose).mapN((a, _) => a);
           }).unsafeRunFuture();
 
       expect(result, ilist([1, 2]));
@@ -165,7 +165,7 @@ void main() {
                 .productR(() => topic.publish1(1))
                 .productR(() => topic.publish1(2))
                 .productR(() => topic.publish1(3));
-            return IO.both(sub, produce).map((t) => t.$1);
+            return IO.both(sub, produce).mapN((a, _) => a);
           }).unsafeRunFuture();
 
       expect(result, ilist([1, 2, 3]));
@@ -182,7 +182,7 @@ void main() {
                   .sleep(20.milliseconds)
                   .productR(() => topic.publish1(10))
                   .productR(() => topic.publish1(20));
-              return IO.both(recv, send).map((t) => t.$1);
+              return IO.both(recv, send).mapN((a, _) => a);
             });
           }).unsafeRunFuture();
 
@@ -212,7 +212,7 @@ void main() {
                     .productR(() => topic.publish1(1))
                     .productR(() => topic.publish1(2))
                     .productR(() => topic.publish1(3));
-                return IO.both(IO.both(recv1, recv2), send).map((t) => t.$1);
+                return IO.both(IO.both(recv1, recv2), send).mapN((a, _) => a);
               });
             });
           }).unsafeRunFuture();
@@ -232,7 +232,7 @@ void main() {
                   .sleep(20.milliseconds)
                   .productR(() => topic.publish1(7))
                   .productR(() => topic.publish1(8));
-              return IO.both(recv, send).map((t) => t.$1);
+              return IO.both(recv, send).mapN((a, _) => a);
             });
           }).unsafeRunFuture();
 

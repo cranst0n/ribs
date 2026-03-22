@@ -8,6 +8,8 @@ extension ResourceTuple2Ops<T1, T2> on Resource<(T1, T2)> {
 
   Resource<T3> flatMapN<T3>(Function2<T1, T2, Resource<T3>> f) => flatMap(f.tupled);
 
+  Resource<(T1, T2)> flatTapN<T3>(Function2<T1, T2, Resource<T3>> f) => flatTap(f.tupled);
+
   Resource<T3> mapN<T3>(Function2<T1, T2, T3> f) => map(f.tupled);
 
   IO<T3> useN<T3>(Function2<T1, T2, IO<T3>> f) => use(f.tupled);
@@ -21,6 +23,8 @@ extension ResourceTuple3Ops<T1, T2, T3> on Resource<(T1, T2, T3)> {
 
   Resource<T4> flatMapN<T4>(Function3<T1, T2, T3, Resource<T4>> f) => flatMap(f.tupled);
 
+  Resource<(T1, T2, T3)> flatTapN<T4>(Function3<T1, T2, T3, Resource<T4>> f) => flatTap(f.tupled);
+
   Resource<T4> mapN<T4>(Function3<T1, T2, T3, T4> f) => map(f.tupled);
 
   IO<T4> useN<T4>(Function3<T1, T2, T3, IO<T4>> f) => use(f.tupled);
@@ -33,6 +37,9 @@ extension ResourceTuple4Ops<T1, T2, T3, T4> on Resource<(T1, T2, T3, T4)> {
   Resource<(T1, T2, T3, T4)> evalTapN<T5>(Function4<T1, T2, T3, T4, IO<T5>> f) => evalTap(f.tupled);
 
   Resource<T5> flatMapN<T5>(Function4<T1, T2, T3, T4, Resource<T5>> f) => flatMap(f.tupled);
+
+  Resource<(T1, T2, T3, T4)> flatTapN<T5>(Function4<T1, T2, T3, T4, Resource<T5>> f) =>
+      flatTap(f.tupled);
 
   Resource<T5> mapN<T5>(Function4<T1, T2, T3, T4, T5> f) => map(f.tupled);
 
@@ -48,6 +55,9 @@ extension ResourceTuple5Ops<T1, T2, T3, T4, T5> on Resource<(T1, T2, T3, T4, T5)
 
   Resource<T6> flatMapN<T6>(Function5<T1, T2, T3, T4, T5, Resource<T6>> f) => flatMap(f.tupled);
 
+  Resource<(T1, T2, T3, T4, T5)> flatTapN<T6>(Function5<T1, T2, T3, T4, T5, Resource<T6>> f) =>
+      flatTap(f.tupled);
+
   Resource<T6> mapN<T6>(Function5<T1, T2, T3, T4, T5, T6> f) => map(f.tupled);
 
   IO<T6> useN<T6>(Function5<T1, T2, T3, T4, T5, IO<T6>> f) => use(f.tupled);
@@ -61,6 +71,10 @@ extension ResourceTuple6Ops<T1, T2, T3, T4, T5, T6> on Resource<(T1, T2, T3, T4,
       evalTap(f.tupled);
 
   Resource<T7> flatMapN<T7>(Function6<T1, T2, T3, T4, T5, T6, Resource<T7>> f) => flatMap(f.tupled);
+
+  Resource<(T1, T2, T3, T4, T5, T6)> flatTapN<T7>(
+    Function6<T1, T2, T3, T4, T5, T6, Resource<T7>> f,
+  ) => flatTap(f.tupled);
 
   Resource<T7> mapN<T7>(Function6<T1, T2, T3, T4, T5, T6, T7> f) => map(f.tupled);
 
@@ -77,6 +91,10 @@ extension ResourceTuple7Ops<T1, T2, T3, T4, T5, T6, T7> on Resource<(T1, T2, T3,
 
   Resource<T8> flatMapN<T8>(Function7<T1, T2, T3, T4, T5, T6, T7, Resource<T8>> f) =>
       flatMap(f.tupled);
+
+  Resource<(T1, T2, T3, T4, T5, T6, T7)> flatTapN<T8>(
+    Function7<T1, T2, T3, T4, T5, T6, T7, Resource<T8>> f,
+  ) => flatTap(f.tupled);
 
   Resource<T8> mapN<T8>(Function7<T1, T2, T3, T4, T5, T6, T7, T8> f) => map(f.tupled);
 
@@ -96,6 +114,10 @@ extension ResourceTuple8Ops<T1, T2, T3, T4, T5, T6, T7, T8>
   Resource<T9> flatMapN<T9>(Function8<T1, T2, T3, T4, T5, T6, T7, T8, Resource<T9>> f) =>
       flatMap(f.tupled);
 
+  Resource<(T1, T2, T3, T4, T5, T6, T7, T8)> flatTapN<T9>(
+    Function8<T1, T2, T3, T4, T5, T6, T7, T8, Resource<T9>> f,
+  ) => flatTap(f.tupled);
+
   Resource<T9> mapN<T9>(Function8<T1, T2, T3, T4, T5, T6, T7, T8, T9> f) => map(f.tupled);
 
   IO<T9> useN<T9>(Function8<T1, T2, T3, T4, T5, T6, T7, T8, IO<T9>> f) => use(f.tupled);
@@ -113,6 +135,10 @@ extension ResourceTuple9Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9>
 
   Resource<T10> flatMapN<T10>(Function9<T1, T2, T3, T4, T5, T6, T7, T8, T9, Resource<T10>> f) =>
       flatMap(f.tupled);
+
+  Resource<(T1, T2, T3, T4, T5, T6, T7, T8, T9)> flatTapN<T10>(
+    Function9<T1, T2, T3, T4, T5, T6, T7, T8, T9, Resource<T10>> f,
+  ) => flatTap(f.tupled);
 
   Resource<T10> mapN<T10>(Function9<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> f) => map(f.tupled);
 
@@ -132,6 +158,10 @@ extension ResourceTuple10Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
   Resource<T11> flatMapN<T11>(
     Function10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Resource<T11>> f,
   ) => flatMap(f.tupled);
+
+  Resource<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)> flatTapN<T11>(
+    Function10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Resource<T11>> f,
+  ) => flatTap(f.tupled);
 
   Resource<T11> mapN<T11>(Function10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> f) =>
       map(f.tupled);
@@ -155,6 +185,10 @@ extension ResourceTuple11Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
     Function11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Resource<T12>> f,
   ) => flatMap(f.tupled);
 
+  Resource<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)> flatTapN<T12>(
+    Function11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Resource<T12>> f,
+  ) => flatTap(f.tupled);
+
   Resource<T12> mapN<T12>(Function11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> f) =>
       map(f.tupled);
 
@@ -177,6 +211,10 @@ extension ResourceTuple12Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
     Function12<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Resource<T13>> f,
   ) => flatMap(f.tupled);
 
+  Resource<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)> flatTapN<T13>(
+    Function12<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Resource<T13>> f,
+  ) => flatTap(f.tupled);
+
   Resource<T13> mapN<T13>(Function12<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> f) =>
       map(f.tupled);
 
@@ -198,6 +236,10 @@ extension ResourceTuple13Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, 
   Resource<T14> flatMapN<T14>(
     Function13<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Resource<T14>> f,
   ) => flatMap(f.tupled);
+
+  Resource<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)> flatTapN<T14>(
+    Function13<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Resource<T14>> f,
+  ) => flatTap(f.tupled);
 
   Resource<T14> mapN<T14>(
     Function13<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> f,
@@ -223,6 +265,10 @@ extension ResourceTuple14Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, 
     Function14<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Resource<T15>> f,
   ) => flatMap(f.tupled);
 
+  Resource<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)> flatTapN<T15>(
+    Function14<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Resource<T15>> f,
+  ) => flatTap(f.tupled);
+
   Resource<T15> mapN<T15>(
     Function14<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> f,
   ) => map(f.tupled);
@@ -246,6 +292,10 @@ extension ResourceTuple15Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, 
   Resource<T16> flatMapN<T16>(
     Function15<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Resource<T16>> f,
   ) => flatMap(f.tupled);
+
+  Resource<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)> flatTapN<T16>(
+    Function15<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Resource<T16>> f,
+  ) => flatTap(f.tupled);
 
   Resource<T16> mapN<T16>(
     Function15<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> f,
@@ -271,6 +321,11 @@ extension ResourceTuple16Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, 
     Function16<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Resource<T17>>
     f,
   ) => flatMap(f.tupled);
+
+  Resource<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)> flatTapN<T17>(
+    Function16<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Resource<T17>>
+    f,
+  ) => flatTap(f.tupled);
 
   Resource<T17> mapN<T17>(
     Function16<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> f,
@@ -336,6 +391,31 @@ extension ResourceTuple17Ops<
     >
     f,
   ) => flatMap(f.tupled);
+
+  Resource<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)>
+  flatTapN<T18>(
+    Function17<
+      T1,
+      T2,
+      T3,
+      T4,
+      T5,
+      T6,
+      T7,
+      T8,
+      T9,
+      T10,
+      T11,
+      T12,
+      T13,
+      T14,
+      T15,
+      T16,
+      T17,
+      Resource<T18>
+    >
+    f,
+  ) => flatTap(f.tupled);
 
   Resource<T18> mapN<T18>(
     Function17<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> f,
@@ -444,6 +524,32 @@ extension ResourceTuple18Ops<
     >
     f,
   ) => flatMap(f.tupled);
+
+  Resource<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)>
+  flatTapN<T19>(
+    Function18<
+      T1,
+      T2,
+      T3,
+      T4,
+      T5,
+      T6,
+      T7,
+      T8,
+      T9,
+      T10,
+      T11,
+      T12,
+      T13,
+      T14,
+      T15,
+      T16,
+      T17,
+      T18,
+      Resource<T19>
+    >
+    f,
+  ) => flatTap(f.tupled);
 
   Resource<T19> mapN<T19>(
     Function18<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>
@@ -580,6 +686,33 @@ extension ResourceTuple19Ops<
     >
     f,
   ) => flatMap(f.tupled);
+
+  Resource<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)>
+  flatTapN<T20>(
+    Function19<
+      T1,
+      T2,
+      T3,
+      T4,
+      T5,
+      T6,
+      T7,
+      T8,
+      T9,
+      T10,
+      T11,
+      T12,
+      T13,
+      T14,
+      T15,
+      T16,
+      T17,
+      T18,
+      T19,
+      Resource<T20>
+    >
+    f,
+  ) => flatTap(f.tupled);
 
   Resource<T20> mapN<T20>(
     Function19<
@@ -765,6 +898,36 @@ extension ResourceTuple20Ops<
     >
     f,
   ) => flatMap(f.tupled);
+
+  Resource<
+    (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+  >
+  flatTapN<T21>(
+    Function20<
+      T1,
+      T2,
+      T3,
+      T4,
+      T5,
+      T6,
+      T7,
+      T8,
+      T9,
+      T10,
+      T11,
+      T12,
+      T13,
+      T14,
+      T15,
+      T16,
+      T17,
+      T18,
+      T19,
+      T20,
+      Resource<T21>
+    >
+    f,
+  ) => flatTap(f.tupled);
 
   Resource<T21> mapN<T21>(
     Function20<
@@ -957,6 +1120,37 @@ extension ResourceTuple21Ops<
     >
     f,
   ) => flatMap(f.tupled);
+
+  Resource<
+    (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+  >
+  flatTapN<T22>(
+    Function21<
+      T1,
+      T2,
+      T3,
+      T4,
+      T5,
+      T6,
+      T7,
+      T8,
+      T9,
+      T10,
+      T11,
+      T12,
+      T13,
+      T14,
+      T15,
+      T16,
+      T17,
+      T18,
+      T19,
+      T20,
+      T21,
+      Resource<T22>
+    >
+    f,
+  ) => flatTap(f.tupled);
 
   Resource<T22> mapN<T22>(
     Function21<
@@ -1179,6 +1373,61 @@ extension ResourceTuple22Ops<
     >
     f,
   ) => flatMap(f.tupled);
+
+  Resource<
+    (
+      T1,
+      T2,
+      T3,
+      T4,
+      T5,
+      T6,
+      T7,
+      T8,
+      T9,
+      T10,
+      T11,
+      T12,
+      T13,
+      T14,
+      T15,
+      T16,
+      T17,
+      T18,
+      T19,
+      T20,
+      T21,
+      T22,
+    )
+  >
+  flatTapN<T23>(
+    Function22<
+      T1,
+      T2,
+      T3,
+      T4,
+      T5,
+      T6,
+      T7,
+      T8,
+      T9,
+      T10,
+      T11,
+      T12,
+      T13,
+      T14,
+      T15,
+      T16,
+      T17,
+      T18,
+      T19,
+      T20,
+      T21,
+      T22,
+      Resource<T23>
+    >
+    f,
+  ) => flatTap(f.tupled);
 
   Resource<T23> mapN<T23>(
     Function22<

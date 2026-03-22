@@ -58,10 +58,7 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
     final bothFinalizers = Ref.of((noop(), noop()));
 
     return Resource.makeCase(bothFinalizers, (finalizers, ec) {
-      return finalizers.value().flatMap((a) {
-        final (aFin, bFin) = a;
-        return IO.both(aFin(ec), bFin(ec)).voided();
-      });
+      return finalizers.value().flatMapN((aFin, bFin) => IO.both(aFin(ec), bFin(ec)).voided());
     }).evalMap((store) {
       return IO.both(
         allocate(ra, (f) => store.update((a) => (f(a.$1), a.$2))),

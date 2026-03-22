@@ -32,6 +32,7 @@ final class ResourceTupleOpsGenerator {
               evalMapN(size),
               evalTapN(size),
               flatMapN(size),
+              flatTapN(size),
               mapN(size),
               useN(size),
             ]),
@@ -107,6 +108,29 @@ final class ResourceTupleOpsGenerator {
             ..requiredParameters.add(param)
             ..returns = refer(returnType)
             ..body = const Code('flatMap(f.tupled)')
+            ..lambda = true,
+    );
+  }
+
+  static Method flatTapN(int size) {
+    final returnType = 'Resource<(${_typeParams(size).join(', ')})>';
+
+    final paramType = 'Function$size<${_typeParams(size).join(', ')}, Resource<T${size + 1}>>';
+    final param = Parameter(
+      (b) =>
+          b
+            ..name = 'f'
+            ..type = refer(paramType),
+    );
+
+    return Method(
+      (b) =>
+          b
+            ..name = 'flatTapN'
+            ..types.add(refer('T${size + 1}'))
+            ..requiredParameters.add(param)
+            ..returns = refer(returnType)
+            ..body = const Code('flatTap(f.tupled)')
             ..lambda = true,
     );
   }

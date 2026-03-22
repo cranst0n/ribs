@@ -252,12 +252,7 @@ void main() {
     await Rill.awakeEvery(period)
         .take(count)
         .mapAccumulate(0, (acc, o) => (acc + 1, o))
-        .evalMap((
-          tuple,
-        ) {
-          final (i, o) = tuple;
-          return IO.sleep(i == 2 ? period * 5 : 0.seconds).as(o);
-        })
+        .evalMapN((i, o) => IO.sleep(i == 2 ? period * 5 : 0.seconds).as(o))
         .compile
         .toIList
         .map((l) {
@@ -532,15 +527,15 @@ void main() {
     final s1 = s.groupAdjacentBy(f);
     final s2 = s.map(f).changes();
 
-    final res1A = (await s1.map((t) => t.$2).toList).flatMap((ch) => ch.toIList());
+    final res1A = (await s1.mapN((_, chunk) => chunk).toList).flatMap((ch) => ch.toIList());
     final res1B = await s.toList;
 
     expect(res1A, res1B);
 
-    expect(s1.map((t) => t.$1), producesSameAs(s2));
+    expect(s1.mapN((key, _) => key), producesSameAs(s2));
 
     expect(
-      s1.map((tuple) => tuple.$2.forall((i) => f(i) == tuple.$1)),
+      s1.mapN((key, chunk) => chunk.forall((i) => f(i) == key)),
       producesSameAs(s2.as(true)),
     );
   });
@@ -549,7 +544,7 @@ void main() {
     final n = (n0 % 20).abs() + 1;
     final s1 = s.groupAdjacentByLimit(n, (_) => true);
 
-    final res1 = (await s1.map((t) => t.$2).toList).toIList().map((chunk) => chunk.toIList());
+    final res1 = (await s1.mapN((_, chunk) => chunk).toList).toIList().map((chunk) => chunk.toIList());
     final res2 = (await s.toList).grouped(n).toIList();
 
     expect(res1, res2);
@@ -636,7 +631,7 @@ void main() {
   });
 
   test('holdResource', () async {
-    final sourceStream = Rill.awakeEvery(1.second).zipWithIndex().map((t) => t.$2 + 1);
+    final sourceStream = Rill.awakeEvery(1.second).zipWithIndex().mapN((_, idx) => idx + 1);
 
     final program = Ref.of(nil<int>()).flatMap((st) {
       IO<Unit> record(int value) => st.update((st) => st.appended(value));
@@ -811,8 +806,8 @@ void main() {
     final r = s.mapAccumulate(m, (s, i) => (s + i, f(i)));
     final l = await s.toList;
 
-    expect(r.map((t) => t.$1), producesInOrder(l.scanLeft(m, (a, b) => a + b).tail));
-    expect(r.map((t) => t.$2), producesInOrder(l.map(f)));
+    expect(r.mapN((s, _) => s), producesInOrder(l.scanLeft(m, (a, b) => a + b).tail));
+    expect(r.mapN((_, v) => v), producesInOrder(l.map(f)));
   });
 
   group('mapAsync', () {
@@ -1178,9 +1173,7 @@ void main() {
     });
 
     test('eventual success', () {
-      final program = (Counter.create(), Counter.create()).tupled.flatMap((tuple) {
-        final (failures, successes) = tuple;
-
+      final program = (Counter.create(), Counter.create()).tupled.flatMapN((failures, successes) {
         final job = failures.count.flatMap((n) {
           return n == 5
               ? successes.increment.as('success')
@@ -1298,9 +1291,9 @@ void main() {
   group('switchMap', () {
     test('basic', () async {
       Rill<String> inner(int n) =>
-          Rill.awakeEvery(250.milliseconds).zipWithIndex().map((t) => '$n-${t.$2}').take(5);
+          Rill.awakeEvery(250.milliseconds).zipWithIndex().mapN((_, idx) => '$n-$idx').take(5);
 
-      final outer = Rill.awakeEvery(1.second).zipWithIndex().map((t) => t.$2).take(5);
+      final outer = Rill.awakeEvery(1.second).zipWithIndex().mapN((_, idx) => idx).take(5);
 
       final ticked = Ticker.ticked(outer.switchMap(inner).compile.toIList)..tickAll();
       final result = await ticked.outcome;
@@ -1730,7 +1723,7 @@ void main() {
         final producer = IList.range(0, 5).traverseIO_((i) => q.offer(i));
         final consumer = Rill.fromQueueUnterminated(q).take(5).compile.toIList;
 
-        return IO.both(producer, consumer).map((t) => t.$2);
+        return IO.both(producer, consumer).mapN((_, b) => b);
       });
 
       expect(test, ioSucceeded(ilist([0, 1, 2, 3, 4])));
@@ -2091,7 +2084,7 @@ void main() {
   group('parEvalMapUnbounded', () {
     test('maps elements concurrently with no bound', () {
       expect(
-        Rill.range(0, 5).parEvalMapUnbounded(Integer.MaxValue, (i) => IO.pure(i * 2)),
+        Rill.range(0, 5).parEvalMapUnbounded((i) => IO.pure(i * 2)),
         producesUnordered([0, 2, 4, 6, 8]),
       );
     });
@@ -2148,7 +2141,7 @@ void main() {
             Rill.repeatEval(
               IO.sleep(20.milliseconds).as(1),
             ).interruptWhenSignaled(sig).compile.toIList;
-        return IO.both(toggleAfterDelay, stream).map((t) => t.$2);
+        return IO.both(toggleAfterDelay, stream).mapN((_, b) => b);
       });
 
       expect(test.map((l) => l.size < 20), ioSucceeded(isTrue));
@@ -2169,7 +2162,7 @@ void main() {
               IO.sleep(30.milliseconds).as(1),
             ).interruptAfter(500.milliseconds).pauseWhenSignal(sig).compile.toIList;
 
-        return IO.both(pause, stream).map((t) => t.$2);
+        return IO.both(pause, stream).mapN((_, b) => b);
       });
 
       // Should have produced some elements before pause and some after resume,

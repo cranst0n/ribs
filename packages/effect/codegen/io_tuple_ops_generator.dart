@@ -30,6 +30,7 @@ final class IOTupleOpsGenerator {
             ..on = (refer(onType))
             ..methods.addAll([
               flatMapN(size),
+              flatTapN(size),
               mapN(size),
             ]),
     );
@@ -57,6 +58,29 @@ final class IOTupleOpsGenerator {
             ..requiredParameters.add(param)
             ..returns = refer(returnType)
             ..body = const Code('flatMap(f.tupled)')
+            ..lambda = true,
+    );
+  }
+
+  static Method flatTapN(int size) {
+    final returnType = 'IO<(${typeParams(size).join(', ')})>';
+
+    final paramType = 'Function$size<${typeParams(size).join(', ')}, IO<T${size + 1}>>';
+    final param = Parameter(
+      (b) =>
+          b
+            ..name = 'f'
+            ..type = refer(paramType),
+    );
+
+    return Method(
+      (b) =>
+          b
+            ..name = 'flatTapN'
+            ..types.add(refer('T${size + 1}'))
+            ..requiredParameters.add(param)
+            ..returns = refer(returnType)
+            ..body = const Code('flatTap(f.tupled)')
             ..lambda = true,
     );
   }

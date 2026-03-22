@@ -4,12 +4,16 @@ part of '../io.dart';
 extension IOTuple2Ops<T1, T2> on IO<(T1, T2)> {
   IO<T3> flatMapN<T3>(Function2<T1, T2, IO<T3>> f) => flatMap(f.tupled);
 
+  IO<(T1, T2)> flatTapN<T3>(Function2<T1, T2, IO<T3>> f) => flatTap(f.tupled);
+
   IO<T3> mapN<T3>(Function2<T1, T2, T3> f) => map(f.tupled);
 }
 
 /// Provides additional functions on an IO of a 3 element tuple.
 extension IOTuple3Ops<T1, T2, T3> on IO<(T1, T2, T3)> {
   IO<T4> flatMapN<T4>(Function3<T1, T2, T3, IO<T4>> f) => flatMap(f.tupled);
+
+  IO<(T1, T2, T3)> flatTapN<T4>(Function3<T1, T2, T3, IO<T4>> f) => flatTap(f.tupled);
 
   IO<T4> mapN<T4>(Function3<T1, T2, T3, T4> f) => map(f.tupled);
 }
@@ -18,12 +22,17 @@ extension IOTuple3Ops<T1, T2, T3> on IO<(T1, T2, T3)> {
 extension IOTuple4Ops<T1, T2, T3, T4> on IO<(T1, T2, T3, T4)> {
   IO<T5> flatMapN<T5>(Function4<T1, T2, T3, T4, IO<T5>> f) => flatMap(f.tupled);
 
+  IO<(T1, T2, T3, T4)> flatTapN<T5>(Function4<T1, T2, T3, T4, IO<T5>> f) => flatTap(f.tupled);
+
   IO<T5> mapN<T5>(Function4<T1, T2, T3, T4, T5> f) => map(f.tupled);
 }
 
 /// Provides additional functions on an IO of a 5 element tuple.
 extension IOTuple5Ops<T1, T2, T3, T4, T5> on IO<(T1, T2, T3, T4, T5)> {
   IO<T6> flatMapN<T6>(Function5<T1, T2, T3, T4, T5, IO<T6>> f) => flatMap(f.tupled);
+
+  IO<(T1, T2, T3, T4, T5)> flatTapN<T6>(Function5<T1, T2, T3, T4, T5, IO<T6>> f) =>
+      flatTap(f.tupled);
 
   IO<T6> mapN<T6>(Function5<T1, T2, T3, T4, T5, T6> f) => map(f.tupled);
 }
@@ -32,6 +41,9 @@ extension IOTuple5Ops<T1, T2, T3, T4, T5> on IO<(T1, T2, T3, T4, T5)> {
 extension IOTuple6Ops<T1, T2, T3, T4, T5, T6> on IO<(T1, T2, T3, T4, T5, T6)> {
   IO<T7> flatMapN<T7>(Function6<T1, T2, T3, T4, T5, T6, IO<T7>> f) => flatMap(f.tupled);
 
+  IO<(T1, T2, T3, T4, T5, T6)> flatTapN<T7>(Function6<T1, T2, T3, T4, T5, T6, IO<T7>> f) =>
+      flatTap(f.tupled);
+
   IO<T7> mapN<T7>(Function6<T1, T2, T3, T4, T5, T6, T7> f) => map(f.tupled);
 }
 
@@ -39,12 +51,19 @@ extension IOTuple6Ops<T1, T2, T3, T4, T5, T6> on IO<(T1, T2, T3, T4, T5, T6)> {
 extension IOTuple7Ops<T1, T2, T3, T4, T5, T6, T7> on IO<(T1, T2, T3, T4, T5, T6, T7)> {
   IO<T8> flatMapN<T8>(Function7<T1, T2, T3, T4, T5, T6, T7, IO<T8>> f) => flatMap(f.tupled);
 
+  IO<(T1, T2, T3, T4, T5, T6, T7)> flatTapN<T8>(Function7<T1, T2, T3, T4, T5, T6, T7, IO<T8>> f) =>
+      flatTap(f.tupled);
+
   IO<T8> mapN<T8>(Function7<T1, T2, T3, T4, T5, T6, T7, T8> f) => map(f.tupled);
 }
 
 /// Provides additional functions on an IO of a 8 element tuple.
 extension IOTuple8Ops<T1, T2, T3, T4, T5, T6, T7, T8> on IO<(T1, T2, T3, T4, T5, T6, T7, T8)> {
   IO<T9> flatMapN<T9>(Function8<T1, T2, T3, T4, T5, T6, T7, T8, IO<T9>> f) => flatMap(f.tupled);
+
+  IO<(T1, T2, T3, T4, T5, T6, T7, T8)> flatTapN<T9>(
+    Function8<T1, T2, T3, T4, T5, T6, T7, T8, IO<T9>> f,
+  ) => flatTap(f.tupled);
 
   IO<T9> mapN<T9>(Function8<T1, T2, T3, T4, T5, T6, T7, T8, T9> f) => map(f.tupled);
 }
@@ -55,6 +74,10 @@ extension IOTuple9Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9>
   IO<T10> flatMapN<T10>(Function9<T1, T2, T3, T4, T5, T6, T7, T8, T9, IO<T10>> f) =>
       flatMap(f.tupled);
 
+  IO<(T1, T2, T3, T4, T5, T6, T7, T8, T9)> flatTapN<T10>(
+    Function9<T1, T2, T3, T4, T5, T6, T7, T8, T9, IO<T10>> f,
+  ) => flatTap(f.tupled);
+
   IO<T10> mapN<T10>(Function9<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> f) => map(f.tupled);
 }
 
@@ -63,6 +86,10 @@ extension IOTuple10Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
     on IO<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)> {
   IO<T11> flatMapN<T11>(Function10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, IO<T11>> f) =>
       flatMap(f.tupled);
+
+  IO<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)> flatTapN<T11>(
+    Function10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, IO<T11>> f,
+  ) => flatTap(f.tupled);
 
   IO<T11> mapN<T11>(Function10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> f) => map(f.tupled);
 }
@@ -73,6 +100,10 @@ extension IOTuple11Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
   IO<T12> flatMapN<T12>(Function11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, IO<T12>> f) =>
       flatMap(f.tupled);
 
+  IO<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)> flatTapN<T12>(
+    Function11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, IO<T12>> f,
+  ) => flatTap(f.tupled);
+
   IO<T12> mapN<T12>(Function11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> f) =>
       map(f.tupled);
 }
@@ -82,6 +113,10 @@ extension IOTuple12Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
     on IO<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)> {
   IO<T13> flatMapN<T13>(Function12<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, IO<T13>> f) =>
       flatMap(f.tupled);
+
+  IO<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)> flatTapN<T13>(
+    Function12<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, IO<T13>> f,
+  ) => flatTap(f.tupled);
 
   IO<T13> mapN<T13>(Function12<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> f) =>
       map(f.tupled);
@@ -94,6 +129,10 @@ extension IOTuple13Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>
     Function13<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, IO<T14>> f,
   ) => flatMap(f.tupled);
 
+  IO<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)> flatTapN<T14>(
+    Function13<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, IO<T14>> f,
+  ) => flatTap(f.tupled);
+
   IO<T14> mapN<T14>(Function13<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> f) =>
       map(f.tupled);
 }
@@ -104,6 +143,10 @@ extension IOTuple14Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T
   IO<T15> flatMapN<T15>(
     Function14<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, IO<T15>> f,
   ) => flatMap(f.tupled);
+
+  IO<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)> flatTapN<T15>(
+    Function14<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, IO<T15>> f,
+  ) => flatTap(f.tupled);
 
   IO<T15> mapN<T15>(
     Function14<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> f,
@@ -117,6 +160,10 @@ extension IOTuple15Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T
     Function15<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, IO<T16>> f,
   ) => flatMap(f.tupled);
 
+  IO<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)> flatTapN<T16>(
+    Function15<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, IO<T16>> f,
+  ) => flatTap(f.tupled);
+
   IO<T16> mapN<T16>(
     Function15<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> f,
   ) => map(f.tupled);
@@ -128,6 +175,10 @@ extension IOTuple16Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T
   IO<T17> flatMapN<T17>(
     Function16<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, IO<T17>> f,
   ) => flatMap(f.tupled);
+
+  IO<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)> flatTapN<T17>(
+    Function16<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, IO<T17>> f,
+  ) => flatTap(f.tupled);
 
   IO<T17> mapN<T17>(
     Function16<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> f,
@@ -141,6 +192,11 @@ extension IOTuple17Ops<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T
     Function17<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, IO<T18>>
     f,
   ) => flatMap(f.tupled);
+
+  IO<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)> flatTapN<T18>(
+    Function17<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, IO<T18>>
+    f,
+  ) => flatTap(f.tupled);
 
   IO<T18> mapN<T18>(
     Function17<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> f,
@@ -193,6 +249,32 @@ extension IOTuple18Ops<
     >
     f,
   ) => flatMap(f.tupled);
+
+  IO<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)>
+  flatTapN<T19>(
+    Function18<
+      T1,
+      T2,
+      T3,
+      T4,
+      T5,
+      T6,
+      T7,
+      T8,
+      T9,
+      T10,
+      T11,
+      T12,
+      T13,
+      T14,
+      T15,
+      T16,
+      T17,
+      T18,
+      IO<T19>
+    >
+    f,
+  ) => flatTap(f.tupled);
 
   IO<T19> mapN<T19>(
     Function18<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>
@@ -248,6 +330,33 @@ extension IOTuple19Ops<
     >
     f,
   ) => flatMap(f.tupled);
+
+  IO<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)>
+  flatTapN<T20>(
+    Function19<
+      T1,
+      T2,
+      T3,
+      T4,
+      T5,
+      T6,
+      T7,
+      T8,
+      T9,
+      T10,
+      T11,
+      T12,
+      T13,
+      T14,
+      T15,
+      T16,
+      T17,
+      T18,
+      T19,
+      IO<T20>
+    >
+    f,
+  ) => flatTap(f.tupled);
 
   IO<T20> mapN<T20>(
     Function19<
@@ -350,6 +459,34 @@ extension IOTuple20Ops<
     >
     f,
   ) => flatMap(f.tupled);
+
+  IO<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)>
+  flatTapN<T21>(
+    Function20<
+      T1,
+      T2,
+      T3,
+      T4,
+      T5,
+      T6,
+      T7,
+      T8,
+      T9,
+      T10,
+      T11,
+      T12,
+      T13,
+      T14,
+      T15,
+      T16,
+      T17,
+      T18,
+      T19,
+      T20,
+      IO<T21>
+    >
+    f,
+  ) => flatTap(f.tupled);
 
   IO<T21> mapN<T21>(
     Function20<
@@ -456,6 +593,37 @@ extension IOTuple21Ops<
     >
     f,
   ) => flatMap(f.tupled);
+
+  IO<
+    (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+  >
+  flatTapN<T22>(
+    Function21<
+      T1,
+      T2,
+      T3,
+      T4,
+      T5,
+      T6,
+      T7,
+      T8,
+      T9,
+      T10,
+      T11,
+      T12,
+      T13,
+      T14,
+      T15,
+      T16,
+      T17,
+      T18,
+      T19,
+      T20,
+      T21,
+      IO<T22>
+    >
+    f,
+  ) => flatTap(f.tupled);
 
   IO<T22> mapN<T22>(
     Function21<
@@ -566,6 +734,61 @@ extension IOTuple22Ops<
     >
     f,
   ) => flatMap(f.tupled);
+
+  IO<
+    (
+      T1,
+      T2,
+      T3,
+      T4,
+      T5,
+      T6,
+      T7,
+      T8,
+      T9,
+      T10,
+      T11,
+      T12,
+      T13,
+      T14,
+      T15,
+      T16,
+      T17,
+      T18,
+      T19,
+      T20,
+      T21,
+      T22,
+    )
+  >
+  flatTapN<T23>(
+    Function22<
+      T1,
+      T2,
+      T3,
+      T4,
+      T5,
+      T6,
+      T7,
+      T8,
+      T9,
+      T10,
+      T11,
+      T12,
+      T13,
+      T14,
+      T15,
+      T16,
+      T17,
+      T18,
+      T19,
+      T20,
+      T21,
+      T22,
+      IO<T23>
+    >
+    f,
+  ) => flatTap(f.tupled);
 
   IO<T23> mapN<T23>(
     Function22<

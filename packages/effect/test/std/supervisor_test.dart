@@ -79,10 +79,9 @@ void main() {
     });
 
     test('supervise after finalization raises error', () {
-      final test = Supervisor.create().allocated().flatMap((tuple) {
-        final (supervisor, close) = tuple;
-        return close.productR(() => supervisor.supervise(IO.pure(1)).voided());
-      });
+      final test = Supervisor.create().allocated().flatMapN(
+        (supervisor, close) => close.productR(() => supervisor.supervise(IO.pure(1)).voided()),
+      );
 
       expect(test, ioErrored());
     });

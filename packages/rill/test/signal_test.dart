@@ -192,7 +192,7 @@ void main() {
       test('returns current value', () {
         expect(
           SignallingRef.of(55).flatMap((ref) {
-            return ref.access().map((t) => t.$1);
+            return ref.access().mapN((a, _) => a);
           }),
           ioSucceeded(55),
         );
@@ -218,7 +218,7 @@ void main() {
                   .productR(() => ref.setValue(1))
                   .productR(() => IO.sleep(10.milliseconds))
                   .productR(() => ref.setValue(2));
-              return IO.both(updates, changes).map((t) => t.$1);
+              return IO.both(updates, changes).mapN((a, _) => a);
             }).unsafeRunFuture();
 
         expect(result, ilist([0, 1, 2]));
@@ -263,7 +263,7 @@ void main() {
                   .productR(() => ref.setValue(1)) // same value — filtered out
                   .productR(() => IO.sleep(10.milliseconds))
                   .productR(() => ref.setValue(2));
-              return IO.both(stream, writes).map((t) => t.$1);
+              return IO.both(stream, writes).mapN((a, _) => a);
             }).unsafeRunFuture();
 
         // 0 (initial), 1 (first change), 2 (third write, second distinct change)
