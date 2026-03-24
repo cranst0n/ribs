@@ -465,7 +465,7 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
       final it = iterator;
 
       while (it.hasNext) {
-        v = v.prepended(it.next());
+        v = v.appended(it.next());
       }
       return v;
     } else {

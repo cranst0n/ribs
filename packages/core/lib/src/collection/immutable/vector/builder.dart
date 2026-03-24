@@ -279,7 +279,7 @@ final class IVectorBuilder<A> {
         shrinkOffsetIfToLarge(_WIDTH4);
         if ((_lenRest >>> _BITS4) == 0) _depth = 4;
       } else {
-        if (i > 0) a = Array.copyOfRange(a!, i, _WIDTH);
+        if (i > 0) a = _arrCast5(Array.copyOfRange(a!, i, _WIDTH));
         aParent![0] = a;
       }
       aParent = a;
@@ -295,7 +295,7 @@ final class IVectorBuilder<A> {
         shrinkOffsetIfToLarge(_WIDTH3);
         if ((_lenRest >>> _BITS3) == 0) _depth = 3;
       } else {
-        if (i > 0) a = Array.copyOfRange(a!, i, _WIDTH);
+        if (i > 0) a = _arrCast4(Array.copyOfRange(a!, i, _WIDTH));
         aParent![0] = a;
       }
       aParent = a;
@@ -311,7 +311,7 @@ final class IVectorBuilder<A> {
         shrinkOffsetIfToLarge(_WIDTH2);
         if ((_lenRest >>> _BITS2) == 0) _depth = 2;
       } else {
-        if (i > 0) a = Array.copyOfRange(a!, i, _WIDTH);
+        if (i > 0) a = _arrCast3(Array.copyOfRange(a!, i, _WIDTH));
         aParent![0] = a;
       }
       aParent = a;
@@ -327,7 +327,7 @@ final class IVectorBuilder<A> {
         shrinkOffsetIfToLarge(_WIDTH);
         if ((_lenRest >>> _BITS) == 0) _depth = 1;
       } else {
-        if (i > 0) a = Array.copyOfRange(a!, i, _WIDTH);
+        if (i > 0) a = _arrCast2(Array.copyOfRange(a!, i, _WIDTH));
         aParent![0] = a;
       }
       aParent = a;

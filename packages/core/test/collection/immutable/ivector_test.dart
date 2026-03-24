@@ -8,14 +8,6 @@ void main() {
     // 0, 2^5, 2^10, 2^15, 2^20
     final vectorNBounds = [0, 32, 1024, 32768, 1048576].expand((n) => [n, n + 1]);
 
-    test('sandbox', () {
-      vectorNBounds.forEach((n) {
-        final v = IVector.fill(n, 0);
-        // ignore: avoid_print
-        print('($n) ${v.runtimeType}');
-      });
-    }, skip: true);
-
     test('fill / toList', () {
       for (final n in vectorNBounds) {
         expect(IVector.fill(n, 0).toList().length, n);
@@ -600,6 +592,365 @@ void main() {
       final v = ivec([1, 2, 3]).tapEach(seen.add);
       expect(seen, [1, 2, 3]);
       expect(v.toList(), [1, 2, 3]); // returns this
+    });
+
+    test('fill4', () {
+      final v = IVector.fill4(2, 3, 4, 5, 0);
+      expect(v.length, 2);
+      expect(v[0].length, 3);
+      expect(v[0][0].length, 4);
+      expect(v[0][0][0].length, 5);
+      expect(v[0][0][0][0], 0);
+    });
+
+    test('fill5', () {
+      final v = IVector.fill5(2, 2, 2, 2, 3, 0);
+      expect(v.length, 2);
+      expect(v[0].length, 2);
+      expect(v[0][0].length, 2);
+      expect(v[0][0][0].length, 2);
+      expect(v[0][0][0][0].length, 3);
+      expect(v[0][0][0][0][0], 0);
+    });
+
+    test('tabulate4', () {
+      final v = IVector.tabulate4(2, 3, 4, 2, (i, j, k, l) => i * 1000 + j * 100 + k * 10 + l);
+      expect(v.length, 2);
+      expect(v[0].length, 3);
+      expect(v[0][0].length, 4);
+      expect(v[0][0][0].toList(), [0, 1]);
+      expect(v[1][2][3].toList(), [1230, 1231]);
+    });
+
+    test('tabulate5', () {
+      final v = IVector.tabulate5(2, 2, 2, 2, 2, (i, j, k, l, m) => i + j + k + l + m);
+      expect(v.length, 2);
+      expect(v[0][0][0][0].toList(), [0, 1]);
+      expect(v[1][1][1][1].toList(), [4, 5]);
+    });
+
+    test('Vector1 init of single-element vector is empty', () {
+      final v = ivec([42]);
+      expect(v.init.isEmpty, isTrue);
+      expect(v.init.length, 0);
+    });
+
+    test('Vector1 tail of single-element vector is empty', () {
+      final v = ivec([42]);
+      expect(v.tail.isEmpty, isTrue);
+      expect(v.tail.length, 0);
+    });
+
+    test('Vector2 tail when prefix1 has exactly 1 element', () {
+      // Build a Vector2 whose prefix1 has length 1 by prepending to a 32-elem vector
+      final base = IVector.tabulate(32, (i) => i);
+      final v = base.prepended(-1); // prefix1 = [-1], rest in data/suffix
+      expect(v.length, 33);
+      final t = v.tail;
+      expect(t.length, 32);
+      expect(t[0], 0);
+    });
+
+    test('Vector2 init when suffix1 has exactly 1 element', () {
+      // After filling to exactly WIDTH+1 elements the suffix1 is length 1
+      final v = IVector.tabulate(33, (i) => i);
+      expect(v.init.length, 32);
+      expect(v.init[31], 31);
+    });
+
+    test('equality with non-RSeq returns false', () {
+      // ignore: unrelated_type_equality_checks
+      expect(ivec([1, 2, 3]) == 'not a sequence', isFalse);
+      // ignore: unrelated_type_equality_checks
+      expect(ivec([1]) == 1, isFalse);
+    });
+
+    test('equality with IList (also a RSeq) works', () {
+      final RSeq<int> asRSeq = ilist([1, 2, 3]);
+      expect(ivec([1, 2, 3]) == asRSeq, isTrue);
+    });
+
+    test('appendedAll with empty suffix returns same instance', () {
+      final v = ivec([1, 2, 3]);
+      expect(v.appendedAll(IVector.empty<int>()), same(v));
+    });
+
+    test('prependedAll with empty prefix returns same instance', () {
+      final v = ivec([1, 2, 3]);
+      expect(v.prependedAll(IVector.empty<int>()), same(v));
+    });
+
+    test('dropWhile always-true predicate returns empty', () {
+      expect(ivec([1, 2, 3]).dropWhile((_) => true).isEmpty, isTrue);
+    });
+
+    test('dropWhile never-true predicate returns same elements', () {
+      expect(ivec([1, 2, 3]).dropWhile((_) => false).toList(), [1, 2, 3]);
+    });
+
+    test('takeWhile always-true predicate returns all elements', () {
+      expect(ivec([1, 2, 3]).takeWhile((_) => true).toList(), [1, 2, 3]);
+    });
+
+    test('takeWhile never-true predicate returns empty', () {
+      expect(ivec([1, 2, 3]).takeWhile((_) => false).isEmpty, isTrue);
+    });
+
+    test('span on empty vector', () {
+      final (a, b) = IVector.empty<int>().span((_) => true);
+      expect(a.isEmpty, isTrue);
+      expect(b.isEmpty, isTrue);
+    });
+
+    test('span always-true predicate: suffix is empty', () {
+      final (prefix, suffix) = ivec([1, 2, 3]).span((_) => true);
+      expect(prefix.toList(), [1, 2, 3]);
+      expect(suffix.isEmpty, isTrue);
+    });
+
+    test('span never-true predicate: prefix is empty', () {
+      final (prefix, suffix) = ivec([1, 2, 3]).span((_) => false);
+      expect(prefix.isEmpty, isTrue);
+      expect(suffix.toList(), [1, 2, 3]);
+    });
+
+    test('appendedAll: small.appendedAll(large) uses reverse-prepend fast path', () {
+      // size < (k >>> _Log2ConcatFaster) triggers reverse-prepend onto suffix
+      final small = ivec([0, 1, 2]); // size 3
+      final large = IVector.tabulate(1024, (i) => i + 10); // k=1024, 3 < 1024>>>5=32
+      final result = small.appendedAll(large);
+      expect(result.length, 1027);
+      expect(result[0], 0);
+      expect(result[2], 2);
+      expect(result[3], 10);
+      expect(result[1026], 1033);
+    });
+
+    test('appendedAll: both large uses builder fast path', () {
+      final a = IVector.tabulate(500, (i) => i);
+      final b = IVector.tabulate(500, (i) => i + 500);
+      final result = a.appendedAll(b);
+      expect(result.length, 1000);
+      expect(result[0], 0);
+      expect(result[499], 499);
+      expect(result[500], 500);
+      expect(result[999], 999);
+    });
+
+    test('prependedAll: large prefix onto small uses builder fast path', () {
+      final small = ivec([100, 101, 102]);
+      final large = IVector.tabulate(1024, (i) => i);
+      final result = small.prependedAll(large);
+      expect(result.length, 1027);
+      expect(result[0], 0);
+      expect(result[1023], 1023);
+      expect(result[1024], 100);
+      expect(result[1026], 102);
+    });
+
+    test('builder result on fresh builder returns empty vector', () {
+      final b = IVector.builder<int>();
+      expect(b.result().isEmpty, isTrue);
+    });
+
+    test('builder addAll with non-IVector iterator on empty builder', () {
+      final b = IVector.builder<int>();
+      final it = ivec([1, 2, 3]).iterator; // RIterator, not IVector
+      b.addAll(it);
+      expect(b.result().toList(), [1, 2, 3]);
+    });
+
+    test('builder addAll IVector to already non-empty builder uses _addVector', () {
+      final b = IVector.builder<int>()..addOne(0);
+      b.addAll(ivec([1, 2, 3]));
+      expect(b.result().toList(), [0, 1, 2, 3]);
+    });
+
+    test('builder addAll large IVector to non-empty builder', () {
+      final b = IVector.builder<int>()..addOne(0);
+      b.addAll(IVector.tabulate(100, (i) => i + 1));
+      final result = b.result();
+      expect(result.length, 101);
+      expect(result[0], 0);
+      expect(result[100], 100);
+    });
+
+    test('builder can be reused after result via clear', () {
+      final b =
+          IVector.builder<int>()
+            ..addOne(1)
+            ..addOne(2);
+      final r1 = b.result();
+      b.clear();
+      b.addOne(9);
+      final r2 = b.result();
+      expect(r1.toList(), [1, 2]);
+      expect(r2.toList(), [9]);
+    });
+
+    // -------------------------------------------------------------------------
+    // builder.size() — line 36 (alias for knownSize)
+    // -------------------------------------------------------------------------
+
+    test('builder size() is an alias for knownSize()', () {
+      final b = IVector.builder<int>();
+      expect(b.size(), 0);
+      b.addOne(1);
+      b.addOne(2);
+      expect(b.size(), 2);
+    });
+
+    // -------------------------------------------------------------------------
+    // _initFromVector case 0 — lines 95-97 (addAll empty IVector to fresh builder)
+    // -------------------------------------------------------------------------
+
+    test('builder addAll empty IVector on fresh builder hits _initFromVector case 0', () {
+      final b = IVector.builder<int>();
+      b.addAll(IVector.empty<int>()); // triggers _initFromVector(Vector0)
+      expect(b.result().isEmpty, isTrue);
+    });
+
+    test('builder addAll empty IVector then more elements', () {
+      final b =
+          IVector.builder<int>()
+            ..addAll(IVector.empty<int>()) // _initFromVector case 0
+            ..addAll(ivec([1, 2, 3])); // _addVector path
+      expect(b.result().toList(), [1, 2, 3]);
+    });
+
+    test('appendedAll align path (Vector2 suffix, depth 3 _leftAlignPrefix)', () {
+      final small = IVector.tabulate(200, (i) => i);
+      final large = IVector.tabulate(1000, (i) => i + 200);
+      final result = small.appendedAll(large);
+      expect(result.length, 1200);
+      expect(result[0], 0);
+      expect(result[199], 199);
+      expect(result[200], 200);
+      expect(result[1199], 1199);
+    });
+
+    test('appendedAll align path (Vector3 suffix, depth 4 _leftAlignPrefix)', () {
+      final small = IVector.tabulate(2000, (i) => i);
+      final large = IVector.tabulate(32000, (i) => i + 2000);
+      final result = small.appendedAll(large);
+      expect(result.length, 34000);
+      expect(result[0], 0);
+      expect(result[1999], 1999);
+      expect(result[2000], 2000);
+      expect(result[33999], 33999);
+    });
+
+    test(
+      'prependedAll else branch with Vector1 triggers _alignTo maxPrefixLength==1 early return',
+      () {
+        // this = exactly 32 elements (Vector1), prefix = 1000 elements (Vector2)
+        final small = IVector.tabulate(32, (i) => i);
+        final prefix = IVector.tabulate(1000, (i) => i + 100);
+        final result = small.prependedAll(prefix);
+        expect(result.length, 1032);
+        expect(result[0], 100); // first of prefix
+        expect(result[999], 1099); // last of prefix
+        expect(result[1000], 0); // first of small
+        expect(result[1031], 31); // last of small
+      },
+    );
+
+    test('IVector.from with non-IVector RIterableOnce', () {
+      final it = ilist([1, 2, 3]); // IList implements RIterableOnce but not IVector
+      final v = IVector.from(it);
+      expect(v.toList(), [1, 2, 3]);
+    });
+
+    test('updated does not mutate original', () {
+      final original = ivec([1, 2, 3]);
+      final modified = original.updated(1, 99);
+      expect(original.toList(), [1, 2, 3]);
+      expect(modified.toList(), [1, 99, 3]);
+    });
+
+    test('appended does not mutate original', () {
+      final original = ivec([1, 2, 3]);
+      original.appended(4);
+      expect(original.length, 3);
+    });
+
+    test('reverseIterator across all vector sizes', () {
+      for (final n in [0, 1, 32, 33, 1024, 1025]) {
+        final v = IVector.tabulate(n, (i) => i);
+        final rev = v.reverseIterator().toList();
+        expect(rev, List.generate(n, (i) => n - 1 - i));
+      }
+    });
+
+    test('appended grows through all vector types', () {
+      var v = IVector.empty<int>();
+      for (var i = 0; i < 1000; i++) {
+        v = v.appended(i);
+      }
+      expect(v.length, 1000);
+      expect(v[0], 0);
+      expect(v[999], 999);
+    });
+
+    test('prepended grows through all vector types', () {
+      var v = IVector.empty<int>();
+      for (var i = 999; i >= 0; i--) {
+        v = v.prepended(i);
+      }
+      expect(v.length, 1000);
+      expect(v[0], 0);
+      expect(v[999], 999);
+    });
+
+    test('Vector2 map transforms all segments', () {
+      final v = IVector.tabulate(100, (i) => i);
+      final mapped = v.map((x) => x * 2);
+      expect(mapped.length, 100);
+      expect(mapped[0], 0);
+      expect(mapped[31], 62);
+      expect(mapped[50], 100);
+      expect(mapped[99], 198);
+    });
+
+    test('large vector map (Vector5) transforms all elements', () {
+      const n = 1100000;
+      final v = IVector.tabulate(n, (i) => i);
+      final mapped = v.map((x) => x + 1);
+      expect(mapped.length, n);
+      expect(mapped[0], 1);
+      expect(mapped[500000], 500001);
+      expect(mapped[n - 1], n);
+    });
+
+    test('iterator on empty vector has no next', () {
+      final it = IVector.empty<int>().iterator;
+      expect(it.hasNext, isFalse);
+    });
+
+    test('slice with from >= until returns empty', () {
+      expect(ivec([1, 2, 3]).slice(2, 2).isEmpty, isTrue);
+      expect(ivec([1, 2, 3]).slice(3, 1).isEmpty, isTrue);
+    });
+
+    test('slice returning whole vector returns same instance', () {
+      final v = ivec([1, 2, 3]);
+      expect(v.slice(0, 3), same(v));
+    });
+
+    test('drop more than length returns empty', () {
+      expect(ivec([1, 2, 3]).drop(10).isEmpty, isTrue);
+    });
+
+    test('take more than length returns all elements', () {
+      expect(ivec([1, 2, 3]).take(100).toList(), [1, 2, 3]);
+    });
+
+    test('takeRight more than length returns all', () {
+      expect(ivec([1, 2, 3]).takeRight(100).toList(), [1, 2, 3]);
+    });
+
+    test('dropRight more than length returns empty', () {
+      expect(ivec([1, 2, 3]).dropRight(10).isEmpty, isTrue);
     });
   });
 }
