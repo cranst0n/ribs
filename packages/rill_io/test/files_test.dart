@@ -488,6 +488,125 @@ void main() {
       }, testOn: 'vm');
     });
 
+    group('watch', () {
+      test(
+        'emits a created event when a file is created in a watched directory',
+        () {
+          final io = tempDir().use((dir) {
+            final file = dir / 'watched.txt';
+            return Files.watch(dir)
+                .take(1)
+                .concurrently(
+                  Rill.eval(
+                    IO.sleep(const Duration(milliseconds: 100)).productR(() => Files.createFile(file)),
+                  ),
+                )
+                .compile
+                .toIList
+                .flatMap(
+                  (events) => IO.exec(() {
+                    expect(events.length, 1);
+                    expect(events.head, isA<WatcherCreatedEvent>());
+                  }),
+                );
+          });
+
+          expect(io, ioSucceeded());
+        },
+        testOn: 'vm',
+      );
+
+      test(
+        'emits a deleted event when a file is deleted in a watched directory',
+        () {
+          final io = tempDir().use((dir) {
+            final file = dir / 'delete-me.txt';
+            return Files.createFile(file).productR(() {
+              return Files.watch(dir)
+                  .take(1)
+                  .concurrently(
+                    Rill.eval(
+                      IO.sleep(const Duration(milliseconds: 100)).productR(() => Files.delete(file)),
+                    ),
+                  )
+                  .compile
+                  .toIList
+                  .flatMap(
+                    (events) => IO.exec(() {
+                      expect(events.length, 1);
+                      expect(events.head, isA<WatcherDeletedEvent>());
+                    }),
+                  );
+            });
+          });
+
+          expect(io, ioSucceeded());
+        },
+        testOn: 'vm',
+      );
+
+      test(
+        'emits a moved event when a file in a watched directory is renamed',
+        () {
+          final io = tempDir().use((dir) {
+            final src = dir / 'before.txt';
+            final dst = dir / 'after.txt';
+            return Files.createFile(src).productR(() {
+              return Files.watch(dir, types: [WatcherEventType.moved])
+                  .take(1)
+                  .concurrently(
+                    Rill.eval(
+                      IO.sleep(const Duration(milliseconds: 100)).productR(() => Files.move(src, dst)),
+                    ),
+                  )
+                  .compile
+                  .toIList
+                  .flatMap(
+                    (events) => IO.exec(() {
+                      expect(events.length, 1);
+                      expect(events.head, isA<WatcherMovedEvent>());
+                    }),
+                  );
+            });
+          });
+
+          expect(io, ioSucceeded());
+        },
+        testOn: 'vm',
+      );
+
+      test(
+        'emits a modified event when a file in a watched directory is written',
+        () {
+          final io = tempDir().use((dir) {
+            final file = dir / 'modify-me.txt';
+            return Files.createFile(file).productR(() {
+              return Files.watch(dir, types: [WatcherEventType.modified])
+                  .take(1)
+                  .concurrently(
+                    Rill.eval(
+                      IO.sleep(const Duration(milliseconds: 100)).productR(
+                        () => Rill.emits([1, 2, 3]).through(Files.writeAll(file)).compile.drain,
+                      ),
+                    ),
+                  )
+                  .compile
+                  .toIList
+                  .flatMap(
+                    (events) => IO.exec(() {
+                      expect(events.length, 1);
+                      expect(events.head, isA<WatcherModifiedEvent>());
+                    }),
+                  );
+            });
+          });
+
+          expect(io, ioSucceeded());
+        },
+        testOn: 'vm',
+      );
+    });
+
     group('cursors', () {
       test(
         'writeCursor and readCursor seek to the correct offset',
