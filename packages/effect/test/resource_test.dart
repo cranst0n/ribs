@@ -917,6 +917,41 @@ void main() {
     });
   });
 
+  group('useEval', () {
+    test('evaluates the inner IO', () {
+      expect(Resource.eval(IO.pure(IO.pure(42))).useEval(), ioSucceeded(42));
+    });
+  });
+
+  group('attempt with Allocate leaf in bind chain', () {
+    test('captures acquire error', () {
+      const err = 'BOOM';
+      final res = Resource.make(IO.raiseError<int>(err), (_) => IO.unit)
+          .flatMap((_) => Resource.pure(0));
+      // Use isLeft to avoid dynamic type parameter mismatch in equality check
+      expect(res.attempt().use((e) => IO.pure(e.isLeft)), ioSucceeded(true));
+    });
+
+    test('succeeds when acquire succeeds', () {
+      final res = Resource.make(IO.pure(42), (_) => IO.unit)
+          .flatMap((a) => Resource.pure(a * 2));
+      expect(res.attempt().use((e) => IO.pure(e.getOrElse(() => -1))), ioSucceeded(84));
+    });
+  });
+
+  group('guaranteeCase', () {
+    test('re-raises and cleans up when success finalizer errors', () async {
+      const finErr = 'fin-err';
+      bool cleanedUp = false;
+      final res = Resource.make(
+        IO.pure(42),
+        (_) => IO.exec(() => cleanedUp = true),
+      ).guaranteeCase((_) => Resource.eval(IO.raiseError<Unit>(finErr)));
+      await expectLater(res.use(IO.pure), ioErrored(finErr));
+      expect(cleanedUp, isTrue);
+    });
+  });
+
   group('race', () {
     test('returns winner value when left wins', () {
       final left = Resource.make(IO.pure(1), (_) => IO.unit);
@@ -940,6 +975,34 @@ void main() {
         ticker.outcome,
         completion(
           (Outcome<Either<int, int>> oc) => oc == Outcome.succeeded(const Right<int, int>(2)),
+        ),
+      );
+    });
+
+    test('propagates left error', () {
+      final left = Resource.eval(IO.raiseError<int>('left-boom'));
+      final right = Resource.make(IO.sleep(5.seconds).productR(() => IO.pure(2)), (_) => IO.unit);
+      final test = Resource.race(left, right).use(IO.pure);
+      final ticker = test.ticked..tickAll();
+      expect(
+        ticker.outcome,
+        completion(
+          (Outcome<Either<int, int>> oc) =>
+              oc.fold(() => false, (err, _) => err == 'left-boom', (_) => false),
+        ),
+      );
+    });
+
+    test('propagates right error', () {
+      final left = Resource.make(IO.sleep(5.seconds).productR(() => IO.pure(1)), (_) => IO.unit);
+      final right = Resource.eval(IO.raiseError<int>('right-boom'));
+      final test = Resource.race(left, right).use(IO.pure);
+      final ticker = test.ticked..tickAll();
+      expect(
+        ticker.outcome,
+        completion(
+          (Outcome<Either<int, int>> oc) =>
+              oc.fold(() => false, (err, _) => err == 'right-boom', (_) => false),
         ),
       );
     });
