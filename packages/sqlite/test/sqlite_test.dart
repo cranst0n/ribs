@@ -107,6 +107,115 @@ void main() {
 
       expect(result, isNone());
     });
+
+    test('unique errors when 0 rows returned', () async {
+      final result =
+          await ('SELECT name FROM person WHERE name = '.fr + Fragment.param('Ghost', Put.string))
+              .query(Read.string)
+              .unique()
+              .transact(xa)
+              .attempt()
+              .unsafeRunFuture();
+
+      expect(result.isLeft, isTrue);
+    });
+
+    test('unique errors when multiple rows returned', () async {
+      final result =
+          await 'SELECT name FROM person'
+              .query(Read.string)
+              .unique()
+              .transact(xa)
+              .attempt()
+              .unsafeRunFuture();
+
+      expect(result.isLeft, isTrue);
+    });
+
+    test('option errors when multiple rows returned', () async {
+      final result =
+          await 'SELECT name FROM person'
+              .query(Read.string)
+              .option()
+              .transact(xa)
+              .attempt()
+              .unsafeRunFuture();
+
+      expect(result.isLeft, isTrue);
+    });
+
+    test('nel returns NonEmptyIList', () async {
+      final result =
+          await 'SELECT name FROM person ORDER BY name'
+              .query(Read.string)
+              .nel()
+              .transact(xa)
+              .unsafeRunFuture();
+
+      expect(result.head, equals('Alice'));
+      expect(result.toIList().length, equals(3));
+    });
+
+    test('nel errors when 0 rows returned', () async {
+      final result =
+          await ('SELECT name FROM person WHERE name = '.fr + Fragment.param('Ghost', Put.string))
+              .query(Read.string)
+              .nel()
+              .transact(xa)
+              .attempt()
+              .unsafeRunFuture();
+
+      expect(result.isLeft, isTrue);
+    });
+
+    test('ivector returns all rows', () async {
+      final people =
+          await 'SELECT name FROM person ORDER BY name'
+              .query(Read.string)
+              .ivector()
+              .transact(xa)
+              .unsafeRunFuture();
+
+      expect(people.size, equals(3));
+      expect(people[0], equals('Alice'));
+    });
+
+    test('invalid SQL raises an error', () async {
+      final result =
+          await 'NOT VALID SQL !!!!'
+              .query(Read.integer)
+              .ilist()
+              .transact(xa)
+              .attempt()
+              .unsafeRunFuture();
+
+      expect(result.isLeft, isTrue);
+    });
+
+    test('Read.map transforms values', () async {
+      final upper =
+          await 'SELECT name FROM person ORDER BY name'
+              .query(Read.string.map((s) => s.toUpperCase()))
+              .ilist()
+              .transact(xa)
+              .unsafeRunFuture();
+
+      expect(upper.head, equals('ALICE'));
+    });
+
+    test('Read.emap errors for invalid decoded value', () async {
+      final alwaysFails = Read.integer.emap((_) => Either.left<String, int>('always fails'));
+
+      final result =
+          await 'SELECT age FROM person'
+              .query(alwaysFails)
+              .ilist()
+              .transact(xa)
+              .attempt()
+              .unsafeRunFuture();
+
+      expect(result.isLeft, isTrue);
+    });
   });
 
   group('ParameterizedQuery', () {
@@ -343,6 +452,18 @@ void main() {
       await fiber2.join().unsafeRunFuture();
     });
 
+    test('streamQuery works with pool transactor', () async {
+      await _createTable().transact(poolXa).unsafeRunFuture();
+      await _insertPeople().transact(poolXa).unsafeRunFuture();
+
+      final rill = 'SELECT name FROM person ORDER BY name'.query(Read.string).stream().transact(poolXa);
+
+      final names = await rill.compile.toIList.unsafeRunFuture();
+
+      expect(names.length, equals(3));
+      expect(names.head, equals('Alice'));
+    });
+
     test('multiple readers can operate concurrently', () async {
       final r1Acquired = await Deferred.of<Unit>().unsafeRunFuture();
       final r2Acquired = await Deferred.of<Unit>().unsafeRunFuture();
@@ -396,6 +517,93 @@ void main() {
               .unsafeRunFuture();
 
       expect(result, equals('NoNick'));
+    });
+
+    test('Read.optional returns None for a null column', () async {
+      await 'CREATE TABLE nullable_demo (id INTEGER PRIMARY KEY, label TEXT)'
+          .update0
+          .run()
+          .transact(xa)
+          .unsafeRunFuture();
+
+      await 'INSERT INTO nullable_demo (id) VALUES (1)'.update0.run().transact(xa).unsafeRunFuture();
+
+      final result =
+          await 'SELECT label FROM nullable_demo WHERE id = 1'
+              .query(Read.string.optional())
+              .unique()
+              .transact(xa)
+              .unsafeRunFuture();
+
+      expect(result, isNone());
+    });
+
+    test('Write.optional inserts None as null and Some as a value', () async {
+      await 'CREATE TABLE nullable_write (id INTEGER PRIMARY KEY, label TEXT)'
+          .update0
+          .run()
+          .transact(xa)
+          .unsafeRunFuture();
+
+      await 'INSERT INTO nullable_write (id, label) VALUES (?, ?)'
+          .update((Write.integer, Write.string.optional()).tupled)
+          .run((1, none<String>()))
+          .transact(xa)
+          .unsafeRunFuture();
+
+      await 'INSERT INTO nullable_write (id, label) VALUES (?, ?)'
+          .update((Write.integer, Write.string.optional()).tupled)
+          .run((2, const Some('hello')))
+          .transact(xa)
+          .unsafeRunFuture();
+
+      final nullRow =
+          await 'SELECT label FROM nullable_write WHERE id = 1'
+              .query(Read.string.optional())
+              .unique()
+              .transact(xa)
+              .unsafeRunFuture();
+
+      final someRow =
+          await 'SELECT label FROM nullable_write WHERE id = 2'
+              .query(Read.string.optional())
+              .unique()
+              .transact(xa)
+              .unsafeRunFuture();
+
+      expect(nullRow, isNone());
+      expect(someRow, isSome<String>());
+    });
+  });
+
+  group('SqliteTransactor.file', () {
+    late String dbPath;
+
+    setUp(() {
+      dbPath =
+          '${Directory.systemTemp.path}/ribs_sqlite_file_test_${DateTime.now().microsecondsSinceEpoch}.db';
+    });
+
+    tearDown(() {
+      final f = File(dbPath);
+      if (f.existsSync()) f.deleteSync();
+    });
+
+    test('persists data and closes the connection on release', () async {
+      await SqliteTransactor.file(dbPath).use((fileXa) {
+        return _createTable()
+            .transact(fileXa)
+            .productR(
+              () => 'INSERT INTO person (name, age) VALUES (?, ?)'
+                  .update((Write.string, Write.integer).tupled)
+                  .run(('File Person', 42))
+                  .transact(fileXa),
+            )
+            .productR(
+              () => 'SELECT COUNT(*) FROM person'.query(Read.integer).unique().transact(fileXa),
+            )
+            .flatMap((count) => IO.exec(() => expect(count, equals(1))));
+      }).unsafeRunFuture();
     });
   });
 }
