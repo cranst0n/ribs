@@ -627,10 +627,7 @@ void main() {
     expect(bv.unbuffer(), bin('10101010'));
 
     // build by concatenation through buffer
-    final built = BitVector.empty
-        .bufferBy(64)
-        .concat(bin('1111'))
-        .concat(bin('0000'));
+    final built = BitVector.empty.bufferBy(64).concat(bin('1111')).concat(bin('0000'));
     expect(built.unbuffer(), bin('11110000'));
 
     // bufferBy when already _Buffer with large enough chunk is a no-op

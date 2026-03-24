@@ -456,7 +456,10 @@ void main() {
       await _createTable().transact(poolXa).unsafeRunFuture();
       await _insertPeople().transact(poolXa).unsafeRunFuture();
 
-      final rill = 'SELECT name FROM person ORDER BY name'.query(Read.string).stream().transact(poolXa);
+      final rill = 'SELECT name FROM person ORDER BY name'
+          .query(Read.string)
+          .stream()
+          .transact(poolXa);
 
       final names = await rill.compile.toIList.unsafeRunFuture();
 
@@ -520,13 +523,15 @@ void main() {
     });
 
     test('Read.optional returns None for a null column', () async {
-      await 'CREATE TABLE nullable_demo (id INTEGER PRIMARY KEY, label TEXT)'
-          .update0
+      await 'CREATE TABLE nullable_demo (id INTEGER PRIMARY KEY, label TEXT)'.update0
           .run()
           .transact(xa)
           .unsafeRunFuture();
 
-      await 'INSERT INTO nullable_demo (id) VALUES (1)'.update0.run().transact(xa).unsafeRunFuture();
+      await 'INSERT INTO nullable_demo (id) VALUES (1)'.update0
+          .run()
+          .transact(xa)
+          .unsafeRunFuture();
 
       final result =
           await 'SELECT label FROM nullable_demo WHERE id = 1'
@@ -539,8 +544,7 @@ void main() {
     });
 
     test('Write.optional inserts None as null and Some as a value', () async {
-      await 'CREATE TABLE nullable_write (id INTEGER PRIMARY KEY, label TEXT)'
-          .update0
+      await 'CREATE TABLE nullable_write (id INTEGER PRIMARY KEY, label TEXT)'.update0
           .run()
           .transact(xa)
           .unsafeRunFuture();

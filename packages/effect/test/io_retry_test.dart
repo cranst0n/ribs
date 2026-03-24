@@ -63,9 +63,9 @@ void main() {
 
     // both policies want to retry: takes the max delay
     expect(
-      RetryPolicy.constantDelay(1.second)
-          .join(RetryPolicy.constantDelay(2.seconds))
-          .decideOn(RetryStatus.initial()),
+      RetryPolicy.constantDelay(
+        1.second,
+      ).join(RetryPolicy.constantDelay(2.seconds)).decideOn(RetryStatus.initial()),
       RetryDecision.delayAndRetry(2.seconds),
     );
   });
@@ -81,17 +81,17 @@ void main() {
 
     // this retries -> decision deferred to the other policy (which gives up)
     expect(
-      RetryPolicy.constantDelay(500.milliseconds)
-          .followedBy(RetryPolicy.alwaysGiveUp())
-          .decideOn(RetryStatus.initial()),
+      RetryPolicy.constantDelay(
+        500.milliseconds,
+      ).followedBy(RetryPolicy.alwaysGiveUp()).decideOn(RetryStatus.initial()),
       RetryDecision.giveUp(),
     );
 
     // this retries -> decision deferred to the other policy (which also retries)
     expect(
-      RetryPolicy.constantDelay(500.milliseconds)
-          .followedBy(RetryPolicy.constantDelay(1.second))
-          .decideOn(RetryStatus.initial()),
+      RetryPolicy.constantDelay(
+        500.milliseconds,
+      ).followedBy(RetryPolicy.constantDelay(1.second)).decideOn(RetryStatus.initial()),
       RetryDecision.delayAndRetry(1.second),
     );
   });

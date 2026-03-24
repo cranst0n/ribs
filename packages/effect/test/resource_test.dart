@@ -926,15 +926,16 @@ void main() {
   group('attempt with Allocate leaf in bind chain', () {
     test('captures acquire error', () {
       const err = 'BOOM';
-      final res = Resource.make(IO.raiseError<int>(err), (_) => IO.unit)
-          .flatMap((_) => Resource.pure(0));
+      final res = Resource.make(
+        IO.raiseError<int>(err),
+        (_) => IO.unit,
+      ).flatMap((_) => Resource.pure(0));
       // Use isLeft to avoid dynamic type parameter mismatch in equality check
       expect(res.attempt().use((e) => IO.pure(e.isLeft)), ioSucceeded(true));
     });
 
     test('succeeds when acquire succeeds', () {
-      final res = Resource.make(IO.pure(42), (_) => IO.unit)
-          .flatMap((a) => Resource.pure(a * 2));
+      final res = Resource.make(IO.pure(42), (_) => IO.unit).flatMap((a) => Resource.pure(a * 2));
       expect(res.attempt().use((e) => IO.pure(e.getOrElse(() => -1))), ioSucceeded(84));
     });
   });
