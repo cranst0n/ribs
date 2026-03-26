@@ -211,11 +211,13 @@ void main() {
     });
 
     test('rolls back on error', () {
-      final insert = 'INSERT INTO person (name, age) VALUES (?, ?)'
-          .update((Write.string, Write.integer).tupled)
-          .run(('Rollback', 42))
-          .flatMap((_) => ConnectionIO.raiseError<Unit>(Exception('boom')))
-          .transact(xa);
+      final insert =
+          'INSERT INTO person (name, age) VALUES (?, ?)'
+              .update((Write.string, Write.integer).tupled)
+              .run(('Rollback', 42))
+              .flatMap((_) => ConnectionIO.raiseError<Unit>(Exception('boom')))
+              .transact(xa)
+              .attempt();
 
       final count = 'SELECT COUNT(*) FROM person'.query(Read.integer).unique().transact(xa);
 
@@ -232,10 +234,12 @@ void main() {
           .flatMap((_) => ConnectionIO.never<Unit>())
           .transact(xa);
 
+      final canceledInsert = insert.start().flatMap((fiber) => fiber.cancel());
+
       final count = 'SELECT COUNT(*) FROM person'.query(Read.integer).unique().transact(xa);
 
       expect(
-        insert.productR(() => count),
+        canceledInsert.productR(() => count),
         ioSucceeded(0),
       );
     });
@@ -304,6 +308,36 @@ void main() {
 
       expect(test, ioSucceeded());
     });
+
+    test(
+      'connection is returned to pool after stream query fiber cancellation',
+      () async {
+        // A streaming query that blocks for 30 s server-side, holding the pool's
+        // sole connection for the duration unless the fiber is cancelled first.
+        final fiber =
+            await 'SELECT pg_sleep(30)::text'
+                .query(Read.string)
+                .stream()
+                .transact(singleXa)
+                .compile
+                .drain
+                .start()
+                .unsafeRunFuture();
+
+        // Wait briefly so the connection is acquired and the query is executing.
+        await IO.sleep(const Duration(milliseconds: 200)).unsafeRunFuture();
+
+        await fiber.cancel().unsafeRunFuture();
+
+        // With pool size 1, this would hang forever if the connection was not
+        // returned via the Rill.resource cleanup path.
+        final value =
+            await 'SELECT 1'.query(Read.integer).unique().transact(singleXa).unsafeRunFuture();
+
+        expect(value, equals(1));
+      },
+      skip: 'TBD',
+    );
 
     test('connection is held for the duration of a transaction', () async {
       final acquired = await Deferred.of<Unit>().unsafeRunFuture();
