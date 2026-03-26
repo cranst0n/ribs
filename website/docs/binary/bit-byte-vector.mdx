@@ -16,20 +16,19 @@ import BitVectorSnippet from '!!raw-loader!../../snippets/lib/src/binary/bit_vec
 
 Both types support efficient concatenation through an internal tree structure, meaning
 you can build up large vectors from smaller pieces without copying data at every step.
-A `compact()` call materialises the tree into a flat array when you need it.
 
 ## Motivation
 
-Dart's built-in `Uint8List` is mutable and byte-oriented. When you need to:
+Dart's built-in `Uint8List` is mutable and byte-oriented. Working with `Uint8List` can become
+awkward when you need to:
 
 - work at **bit granularity** (protocol frames, codecs, compression)
 - **parse or serialise** binary formats with a clean, composable API
 - build binary data **incrementally** without copy costs
 - encode/decode to/from **hex, base64, binary strings** reliably
 
-…raw `Uint8List` can quickly become awkward. `ByteVector` and `BitVector` give you
-value-semantics (immutable, structurally equal), a rich API, and safe indexed
-access that returns `Option` rather than throwing.
+`ByteVector` and `BitVector` give you value-semantics (immutable, structurally equal), a rich API,
+and safe indexed access that returns `Option` rather than throwing.
 
 ## ByteVector
 
@@ -43,8 +42,8 @@ You can also parse from string representations:
 
 ### Working with ByteVectors
 
-`ByteVector` provides the standard slice/drop/take/split operations you'd expect from an immutable
-collection, plus safe indexed access via `lift`:
+`ByteVector` provides the standard slice / drop / take / split operations you'd expect from an
+immutable collection, plus safe indexed access via `lift`:
 
 <CodeSnippet language="dart" title="ByteVector — slice, concat, index" snippet={BitVectorSnippet} section="bitvector-byte-ops"/>
 

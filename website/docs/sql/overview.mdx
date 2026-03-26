@@ -164,6 +164,6 @@ automatic `ROLLBACK`:
 
 <CodeSnippet language="dart" title="Composing and running a transaction" snippet={SqlSnippet} section="sql-transaction"/>
 
-Because `ConnectionIO` is a monad, operations compose with `flatMap`. The
+Because `ConnectionIO` forms a monad, operations compose with `flatMap`. The
 entire chain runs inside a single transaction, so partial failures roll back all
 work completed so far.

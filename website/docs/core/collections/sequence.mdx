@@ -291,49 +291,6 @@ with the buffer without copying.
 ## Additional Operations on RSeq
 
 All sequence types inherit the full `RIterableOnce` and `RIterable` APIs. In
-addition, `RSeq` provides operations that only make sense on ordered,
-indexed collections:
-
-| Member | Description |
-|--------|-------------|
-| `operator [](i)` | Element at index `i`; throws if out of bounds |
-| `lift(i)` | Element at index `i` as `Some`, or `None` if out of bounds |
-| `length` | Number of elements |
-| `indices()` | A `Range` of all valid indices |
-| `isDefinedAt(i)` | `true` if `i` is a valid index |
-| `indexOf(elem)` | `Some(index)` of first occurrence, or `None` |
-| `indexWhere(p)` | `Some(index)` of first element satisfying `p`, or `None` |
-| `lastIndexOf(elem)` | `Some(index)` of last occurrence, or `None` |
-| `lastIndexWhere(p)` | `Some(index)` of last element satisfying `p`, or `None` |
-| `indexOfSlice(that)` | `Some(index)` of first occurrence of sub-sequence `that`, or `None` |
-| `contains(elem)` | `true` if any element equals `elem` |
-| `containsSlice(that)` | `true` if `that` appears as a contiguous sub-sequence |
-| `startsWith(that)` | `true` if this sequence begins with `that` |
-| `endsWith(that)` | `true` if this sequence ends with `that` |
-| `prepended(elem)` | New sequence with `elem` at the front |
-| `prependedAll(prefix)` | New sequence with `prefix` added at the front |
-| `appended(elem)` | New sequence with `elem` at the back |
-| `appendedAll(suffix)` | New sequence with `suffix` added at the back |
-| `updated(i, elem)` | New sequence with element at `i` replaced |
-| `patch(from, elems, n)` | Replace `n` elements starting at `from` with `elems` |
-| `removeAt(i)` | New sequence with the element at `i` removed |
-| `removeFirst(p)` | New sequence with the first element satisfying `p` removed |
-| `diff(that)` | Elements in this sequence but not in `that` |
-| `intersect(that)` | Elements in both this sequence and `that` |
-| `distinct()` | New sequence with duplicate elements removed |
-| `distinctBy(f)` | New sequence with duplicates removed, keyed by `f` |
-| `intersperse(sep)` | New sequence with `sep` inserted between each pair of elements |
-| `padTo(len, elem)` | Extend to at least `len` elements by appending `elem` |
-| `reverse()` | New sequence with elements in reverse order |
-| `reverseIterator()` | An iterator over elements in reverse order |
-| `sorted(order)` | New sequence sorted by `order` |
-| `sortBy(order, f)` | New sequence sorted by `order` applied to `f(elem)` |
-| `sortWith(lt)` | New sequence sorted using a less-than function |
-| `combinations(n)` | Iterator of all distinct size-`n` combinations |
-| `permutations()` | Iterator of all distinct permutations |
-| `sameElements(that)` | `true` if both sequences have the same elements in the same order |
-| `corresponds(that, p)` | `true` if elements correspond pairwise under `p` |
-| `findLast(p)` | Last element satisfying `p` as `Some`, or `None` |
-| `segmentLength(p, from)` | Length of the longest prefix starting at `from` where all elements satisfy `p` |
-| `traverseEither(f)` | Apply `f` to each element; return `Left` on first failure or `Right` of all results |
-| `traverseOption(f)` | Apply `f` to each element; return `None` on first absent result or `Some` of all |
+addition, `RSeq` provides a rich set of operations that only make sense on
+ordered, indexed collections. The ribs_core API documentation will give you the
+full picture of what's available to you.

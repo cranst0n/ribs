@@ -8,11 +8,10 @@ import CheckSnippet from '!!raw-loader!../../snippets/test/check/property_based_
 # Property-Based Testing
 
 `ribs_check` is Ribs' property-based testing library, inspired by
-[ScalaCheck](https://scalacheck.org/) and
-[QuickCheck](https://hackage.haskell.org/package/QuickCheck).
+[ScalaCheck](https://scalacheck.org/).
 
 Instead of writing individual test cases with hand-picked inputs, you describe
-the *properties* your code must satisfy and let the library generate hundreds of
+the *properties* your code must satisfy and let the ribs_check generate hundreds of
 random inputs automatically — then minimise any failing input to the simplest
 possible counterexample.
 
@@ -79,7 +78,7 @@ package — it integrates directly with the normal test runner.
 
 ## Combining generators
 
-`Gen` is a `Monad` — `map` and `flatMap` let you build complex generators from
+`Gen` forms a `Monad` — `map` and `flatMap` let you build complex generators from
 simple ones. A Dart record of generators provides a multi-parameter `forAll`
 that receives each value as a separate named argument.
 
@@ -117,7 +116,7 @@ from these primitives inherits shrinking for free.
 
 When a property fails, `ribs_check` does not just report the first failing
 input. It *shrinks* — repeatedly tries smaller variants of the failing value
-until it finds the minimal counterexample that still causes the failure.
+until it finds the minimal input that still causes the failure.
 
 <CodeSnippet snippet={CheckSnippet} section="check-shrinking" />
 
