@@ -1187,13 +1187,7 @@ class Rill<O> {
           Option<Either<Object, Unit>> bothStopped((MergeState, MergeState) state) {
             return switch (state) {
               (Some(value: final r1), Some(value: final r2)) => Some(
-                r1.fold(
-                  (err1) => err1.asLeft(),
-                  (_) => r2.fold(
-                    (err2) => err2.asLeft(),
-                    (u) => u.asRight(),
-                  ),
-                ),
+                CompositeFailure.fromResults(r1, r2),
               ),
               _ => none(),
             };

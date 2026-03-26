@@ -1,5 +1,6 @@
 export 'src/channel.dart';
 export 'src/chunk.dart';
+export 'src/composite_failure.dart';
 export 'src/extensions/boolean.dart';
 export 'src/extensions/chunk.dart';
 export 'src/extensions/flatten.dart';

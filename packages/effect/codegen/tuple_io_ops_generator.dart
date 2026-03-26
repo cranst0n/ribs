@@ -30,6 +30,7 @@ final class TupleIOOpsGenerator {
             ..on = (refer(onType))
             ..methods.addAll([
               mapN(size),
+              flatMapN(size),
               parMapN(size),
               tupledN(size),
               parTupledN(size),
@@ -66,6 +67,37 @@ final class TupleIOOpsGenerator {
             ..requiredParameters.add(param)
             ..returns = refer(returnType)
             ..body = const Code('tupled.map(fn.tupled)')
+            ..lambda = true,
+    );
+  }
+
+  static Method flatMapN(int size) {
+    final returnTypeParam = 'T${size + 1}';
+    final returnType = 'IO<$returnTypeParam>';
+
+    final paramType = 'Function$size<${[..._typeParams(size), 'IO<$returnTypeParam>'].join(', ')}>';
+
+    final param = Parameter(
+      (b) =>
+          b
+            ..name = 'fn'
+            ..type = refer(paramType),
+    );
+
+    return Method(
+      (b) =>
+          b
+            ..name = 'flatMapN'
+            ..docs.addAll([
+              '/// Creates a new IO that applies [fn] to the values of each respective tuple',
+              '/// member if all IOs succeed. If **any** item fails or is canceled, the',
+              '/// first instance encountered will be returned. Each item is evaluated',
+              '/// synchronously.',
+            ])
+            ..types.add(refer(returnTypeParam))
+            ..requiredParameters.add(param)
+            ..returns = refer(returnType)
+            ..body = const Code('tupled.flatMap(fn.tupled)')
             ..lambda = true,
     );
   }

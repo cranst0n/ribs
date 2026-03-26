@@ -1,14 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
-
-class CompositeError {
-  final IList<Object> errors;
-
-  const CompositeError(this.errors);
-
-  @override
-  String toString() => 'CompositeError(${errors.mkString(sep: ', ')})';
-}
+import 'package:ribs_rill/ribs_rill.dart';
 
 class Lease {
   final IO<Either<Object, Unit>> cancel;
@@ -35,29 +27,28 @@ class Scope {
   ) : id = count++;
 
   static IO<Scope> create([Scope? parent]) {
-    return IO.ref(nil<Function1<ExitCase, IO<Unit>>>()).flatMap((fins) {
-      return IO.ref(false).flatMap((closed) {
-        return IO.ref(0).flatMap((leaseCount) {
-          return IO.ref(none<ExitCase>()).flatMap((pendingClose) {
-            final newScope = Scope._(parent, fins, closed, leaseCount, pendingClose);
+    return (
+      IO.ref(nil<Function1<ExitCase, IO<Unit>>>()),
+      IO.ref(false),
+      IO.ref(0),
+      IO.ref(none<ExitCase>()),
+    ).flatMapN((fins, closed, leaseCount, pendingClose) {
+      final newScope = Scope._(parent, fins, closed, leaseCount, pendingClose);
 
-            if (parent != null) {
-              return parent
-                  .register((ec) {
-                    return newScope.close(ec).flatMap((closeResult) {
-                      return closeResult.fold(
-                        (err) => IO.raiseError(err),
-                        (_) => IO.unit,
-                      );
-                    });
-                  })
-                  .as(newScope);
-            } else {
-              return IO.pure(newScope);
-            }
-          });
-        });
-      });
+      if (parent != null) {
+        return parent
+            .register((ec) {
+              return newScope.close(ec).flatMap((closeResult) {
+                return closeResult.fold(
+                  (err) => IO.raiseError(err),
+                  (_) => IO.unit,
+                );
+              });
+            })
+            .as(newScope);
+      } else {
+        return IO.pure(newScope);
+      }
     });
   }
 
@@ -105,7 +96,7 @@ class Scope {
       } else {
         return _leaseCount.value().flatMap((leases) {
           if (leases > 0) {
-            return _pendingClose.update((_) => Some(ec)).as(Unit().asRight<Object>());
+            return _pendingClose.setValue(Some(ec)).as(Unit().asRight<Object>());
           } else {
             return _runFinalizers(ec);
           }
@@ -125,15 +116,12 @@ class Scope {
               }),
             ),
           )
-          .map((allErrors) {
-            if (allErrors.isEmpty) {
-              return Unit().asRight<Object>();
-            } else if (allErrors.size == 1) {
-              return allErrors[0].asLeft<Unit>();
-            } else {
-              return CompositeError(allErrors).asLeft<Unit>();
-            }
-          });
+          .map(
+            (allErrors) => CompositeFailure.fromList(allErrors).fold(
+              () => Unit().asRight(),
+              (err) => err.asLeft(),
+            ),
+          );
     });
   }
 }
