@@ -12,7 +12,6 @@ environment:
   sdk: ">=3.7.0 <4.0.0"
 
 dependencies:
-  meta:                    ^1.10.0
   ribs_core:               ^1.0.0-dev.14
   ribs_effect:             ^1.0.0-dev.3
   ribs_rill:               ^1.0.0-dev.1
@@ -25,6 +24,8 @@ dev_dependencies:
   lints: ^6.1.0
   test:  ^1.0.0
 
+# At the time of this writing, build hooks will not respect user defines in this
+# location so these should be placed in the toplevel pubspec.yaml
 #hooks:
 #  user_defines:
 #    sqlite3:

@@ -58,3 +58,10 @@ melos:
     analyze: melos exec -c1 -- dart analyze --fatal-infos .
 
     format: melos exec dart format --show=changed .
+
+# This is specific to the sqlite package, but is placed here because the dart build hook doesn't see
+# the user defines in sqlite/pubspec.yaml
+#hooks:
+#  user_defines:
+#    sqlite3:
+#      source: system # or "process", or "excutable"
