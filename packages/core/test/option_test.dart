@@ -100,8 +100,8 @@ void main() {
     });
 
     test('toLeft', () {
-      expect(testSome.toLeft(() => 'right'), isLeft<int, String>(1));
-      expect(testNone.toLeft(() => 'right'), isRight<int, String>('right'));
+      expect(testSome.toLeft(() => 'right'), isLeft(1));
+      expect(testNone.toLeft(() => 'right'), isRight('right'));
     });
 
     test('toNullable', () {
@@ -110,8 +110,8 @@ void main() {
     });
 
     test('toRight', () {
-      expect(testSome.toRight(() => 'left'), isRight<String, int>(1));
-      expect(testNone.toRight(() => 'left'), isLeft<String, int>('left'));
+      expect(testSome.toRight(() => 'left'), isRight(1));
+      expect(testNone.toRight(() => 'left'), isLeft('left'));
     });
 
     test('toString', () {

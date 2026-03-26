@@ -41,6 +41,8 @@ final class ConnectionIO<A> {
   ConnectionIO<B> flatMap<B>(Function1<A, ConnectionIO<B>> f) =>
       ConnectionIO._((conn) => _run(conn).flatMap((a) => f(a)._run(conn)));
 
+  ConnectionIO<B> productR<B>(Function0<ConnectionIO<B>> that) => flatMap((_) => that());
+
   /// Runs this program using [conn], producing a value wrapped in [IO].
   IO<A> run(SqlConnection conn) => _run(conn);
 

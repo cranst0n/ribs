@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/test_matchers.dart';
 import 'package:ribs_effect/ribs_effect.dart';
+import 'package:ribs_effect/test.dart';
 import 'package:ribs_sql/ribs_sql.dart';
 import 'package:ribs_sqlite/ribs_sqlite.dart';
 import 'package:sqlite3/sqlite3.dart' as sq;
@@ -22,259 +23,209 @@ void main() {
   });
 
   group('DDL', () {
-    test('create table', () async {
-      await _createTable().transact(xa).unsafeRunFuture();
+    test('create table', () {
+      expect(_createTable().transact(xa), ioSucceeded());
     });
   });
 
   group('Update / Insert', () {
-    test('insert single row', () async {
+    setUp(() async {
       await _createTable().transact(xa).unsafeRunFuture();
-
-      final rows =
-          await 'INSERT INTO person (name, age) VALUES (?, ?)'
-              .update((Write.string, Write.integer).tupled)
-              .run(('Alice', 30))
-              .transact(xa)
-              .unsafeRunFuture();
-
-      expect(rows, equals(1));
     });
 
-    test('insert many rows', () async {
-      await _createTable().transact(xa).unsafeRunFuture();
+    test('insert single row', () {
+      final rows = 'INSERT INTO person (name, age) VALUES (?, ?)'
+          .update((Write.string, Write.integer).tupled)
+          .run(('Alice', 30))
+          .transact(xa);
 
+      expect(rows, ioSucceeded(1));
+    });
+
+    test('insert many rows', () {
       final people = [('Alice', 30), ('Bob', 25), ('Carol', 35)];
 
-      await 'INSERT INTO person (name, age) VALUES (?, ?)'
+      final test = 'INSERT INTO person (name, age) VALUES (?, ?)'
           .update((Write.string, Write.integer).tupled)
           .runMany(people)
-          .transact(xa)
-          .unsafeRunFuture();
+          .transact(xa);
+
+      expect(test, ioSucceeded());
     });
   });
 
   group('Query', () {
     setUp(() async {
-      await _createTable().transact(xa).unsafeRunFuture();
-      await _insertPeople().transact(xa).unsafeRunFuture();
+      await _createTable().productR(() => _insertPeople()).transact(xa).unsafeRunFuture();
     });
 
-    test('ilist returns all rows', () async {
-      final people =
-          await 'SELECT name, age FROM person'
-              .query((Read.string, Read.integer).tupled)
-              .ilist()
-              .transact(xa)
-              .unsafeRunFuture();
+    test('ilist returns all rows', () {
+      final people = 'SELECT name, age FROM person'
+          .query((Read.string, Read.integer).tupled)
+          .ilist()
+          .transact(xa);
 
-      expect(people.length, equals(3));
+      expect(people, ioSucceeded(hasLength(3)));
     });
 
-    test('unique returns exactly one row', () async {
-      final (name, age) =
-          await (Fragment.raw('SELECT name, age FROM person WHERE name = ') +
-                  Fragment.param('Alice', Put.string))
-              .query((Read.string, Read.integer).tupled)
-              .unique()
-              .transact(xa)
-              .unsafeRunFuture();
+    test('unique returns exactly one row', () {
+      final result = (Fragment.raw('SELECT name, age FROM person WHERE name = ') +
+              Fragment.param('Alice', Put.string))
+          .query((Read.string, Read.integer).tupled)
+          .unique()
+          .transact(xa);
 
-      expect(name, equals('Alice'));
-      expect(age, equals(30));
+      expect(result, ioSucceeded(('Alice', 30)));
     });
 
-    test('option returns Some for existing row', () async {
+    test('option returns Some for existing row', () {
+      final result = (Fragment.raw('SELECT name, age FROM person WHERE name = ') +
+              Fragment.param('Alice', Put.string))
+          .query((Read.string, Read.integer).tupled)
+          .option()
+          .transact(xa);
+
+      expect(result, ioSucceeded(isSome(('Alice', 30))));
+    });
+
+    test('option returns None for missing row', () {
+      final result = (Fragment.raw('SELECT name, age FROM person WHERE name = ') +
+              Fragment.param('Nobody', Put.string))
+          .query((Read.string, Read.integer).tupled)
+          .option()
+          .transact(xa);
+
+      expect(result, ioSucceeded(isNone()));
+    });
+
+    test('unique errors when 0 rows returned', () {
       final result =
-          await (Fragment.raw('SELECT name, age FROM person WHERE name = ') +
-                  Fragment.param('Alice', Put.string))
-              .query((Read.string, Read.integer).tupled)
-              .option()
-              .transact(xa)
-              .unsafeRunFuture();
-
-      expect(result, isSome<(String, int)>());
-    });
-
-    test('option returns None for missing row', () async {
-      final result =
-          await (Fragment.raw('SELECT name, age FROM person WHERE name = ') +
-                  Fragment.param('Nobody', Put.string))
-              .query((Read.string, Read.integer).tupled)
-              .option()
-              .transact(xa)
-              .unsafeRunFuture();
-
-      expect(result, isNone());
-    });
-
-    test('unique errors when 0 rows returned', () async {
-      final result =
-          await ('SELECT name FROM person WHERE name = '.fr + Fragment.param('Ghost', Put.string))
+          ('SELECT name FROM person WHERE name = '.fr + Fragment.param('Ghost', Put.string))
               .query(Read.string)
               .unique()
               .transact(xa)
-              .attempt()
-              .unsafeRunFuture();
+              .attempt();
 
-      expect(result.isLeft, isTrue);
+      expect(result, ioSucceeded(isLeft()));
     });
 
-    test('unique errors when multiple rows returned', () async {
-      final result =
-          await 'SELECT name FROM person'
-              .query(Read.string)
-              .unique()
-              .transact(xa)
-              .attempt()
-              .unsafeRunFuture();
+    test('unique errors when multiple rows returned', () {
+      final result = 'SELECT name FROM person'.query(Read.string).unique().transact(xa).attempt();
 
-      expect(result.isLeft, isTrue);
+      expect(result, ioSucceeded(isLeft()));
     });
 
-    test('option errors when multiple rows returned', () async {
-      final result =
-          await 'SELECT name FROM person'
-              .query(Read.string)
-              .option()
-              .transact(xa)
-              .attempt()
-              .unsafeRunFuture();
+    test('option errors when multiple rows returned', () {
+      final result = 'SELECT name FROM person'.query(Read.string).option().transact(xa).attempt();
 
-      expect(result.isLeft, isTrue);
+      expect(result, ioSucceeded(isLeft()));
     });
 
-    test('nel returns NonEmptyIList', () async {
+    test('nel returns NonEmptyIList', () {
+      final result = 'SELECT name FROM person ORDER BY name'.query(Read.string).nel().transact(xa);
+
+      expect(result, ioSucceeded(nel('Alice', ['Bob', 'Carol'])));
+    });
+
+    test('nel errors when 0 rows returned', () {
       final result =
-          await 'SELECT name FROM person ORDER BY name'
+          ('SELECT name FROM person WHERE name = '.fr + Fragment.param('Ghost', Put.string))
               .query(Read.string)
               .nel()
               .transact(xa)
-              .unsafeRunFuture();
+              .attempt();
 
-      expect(result.head, equals('Alice'));
-      expect(result.toIList().length, equals(3));
+      expect(result, ioSucceeded(isLeft()));
     });
 
-    test('nel errors when 0 rows returned', () async {
-      final result =
-          await ('SELECT name FROM person WHERE name = '.fr + Fragment.param('Ghost', Put.string))
-              .query(Read.string)
-              .nel()
-              .transact(xa)
-              .attempt()
-              .unsafeRunFuture();
+    test('ivector returns all rows', () {
+      final people = 'SELECT name FROM person ORDER BY name'
+          .query(Read.string)
+          .ivector()
+          .transact(xa);
 
-      expect(result.isLeft, isTrue);
+      expect(people, ioSucceeded(ivec(['Alice', 'Bob', 'Carol'])));
     });
 
-    test('ivector returns all rows', () async {
-      final people =
-          await 'SELECT name FROM person ORDER BY name'
-              .query(Read.string)
-              .ivector()
-              .transact(xa)
-              .unsafeRunFuture();
+    test('invalid SQL raises an error', () {
+      final result = 'NOT VALID SQL !!!!'.query(Read.integer).ilist().transact(xa).attempt();
 
-      expect(people.size, equals(3));
-      expect(people[0], equals('Alice'));
+      expect(result, ioSucceeded(isLeft()));
     });
 
-    test('invalid SQL raises an error', () async {
-      final result =
-          await 'NOT VALID SQL !!!!'
-              .query(Read.integer)
-              .ilist()
-              .transact(xa)
-              .attempt()
-              .unsafeRunFuture();
+    test('Read.map transforms values', () {
+      final upper = 'SELECT name FROM person ORDER BY name'
+          .query(Read.string.map((s) => s.toUpperCase()))
+          .ilist()
+          .transact(xa);
 
-      expect(result.isLeft, isTrue);
+      expect(upper, ioSucceeded(ivec(['ALICE', 'BOB', 'CAROL'])));
     });
 
-    test('Read.map transforms values', () async {
-      final upper =
-          await 'SELECT name FROM person ORDER BY name'
-              .query(Read.string.map((s) => s.toUpperCase()))
-              .ilist()
-              .transact(xa)
-              .unsafeRunFuture();
-
-      expect(upper.head, equals('ALICE'));
-    });
-
-    test('Read.emap errors for invalid decoded value', () async {
+    test('Read.emap errors for invalid decoded value', () {
       final alwaysFails = Read.integer.emap((_) => Either.left<String, int>('always fails'));
+      final result = 'SELECT age FROM person'.query(alwaysFails).ilist().transact(xa).attempt();
 
-      final result =
-          await 'SELECT age FROM person'
-              .query(alwaysFails)
-              .ilist()
-              .transact(xa)
-              .attempt()
-              .unsafeRunFuture();
-
-      expect(result.isLeft, isTrue);
+      expect(result, ioSucceeded(isLeft()));
     });
   });
 
   group('ParameterizedQuery', () {
     setUp(() async {
-      await _createTable().transact(xa).unsafeRunFuture();
-      await _insertPeople().transact(xa).unsafeRunFuture();
+      await _createTable().productR(() => _insertPeople()).transact(xa).unsafeRunFuture();
     });
 
-    test('unique with params', () async {
+    test('unique with params', () {
       final byName = ParameterizedQuery(
         'SELECT name, age FROM person WHERE name = ?',
         (Read.string, Read.integer).tupled,
         Write.string,
       );
 
-      final (name, age) = await byName.unique('Bob').transact(xa).unsafeRunFuture();
-      expect(name, equals('Bob'));
-      expect(age, equals(25));
+      expect(
+        byName.unique('Bob').transact(xa),
+        ioSucceeded(('Bob', 25)),
+      );
     });
 
-    test('ilist with params filters correctly', () async {
+    test('ilist with params filters correctly', () {
       final byMinAge = ParameterizedQuery(
         'SELECT name FROM person WHERE age >= ? ORDER BY name',
         Read.string,
         Write.integer,
       );
 
-      final names = await byMinAge.ilist(30).transact(xa).unsafeRunFuture();
-      expect(names.length, equals(2));
+      expect(
+        byMinAge.ilist(30).transact(xa),
+        ioSucceeded(hasLength(2)),
+      );
     });
   });
 
   group('ConnectionRill / stream', () {
     setUp(() async {
-      await _createTable().transact(xa).unsafeRunFuture();
-      await _insertPeople().transact(xa).unsafeRunFuture();
+      await _createTable().productR(() => _insertPeople()).transact(xa).unsafeRunFuture();
     });
 
-    test('stream returns all rows via Rill', () async {
+    test('stream returns all rows via Rill', () {
       final rill = 'SELECT name, age FROM person'
           .query((Read.string, Read.integer).tupled)
           .stream()
           .transact(xa);
 
-      final people = await rill.compile.toIList.unsafeRunFuture();
-
-      expect(people.length, equals(3));
+      expect(rill.compile.toIList, ioSucceeded(hasLength(3)));
     });
 
-    test('ParameterizedQuery.stream with params', () async {
+    test('ParameterizedQuery.stream with params', () {
       final byMinAge = 'SELECT name FROM person WHERE age >= ? ORDER BY name'.parmeteriedQuery(
         Read.string,
         Write.integer,
       );
 
-      final rill = byMinAge.stream(30).transact(xa);
-
-      final names = await rill.compile.toIList.unsafeRunFuture();
-      expect(names.length, equals(2));
+      expect(
+        byMinAge.stream(30).transact(xa).compile.toIList,
+        ioSucceeded(hasLength(2)),
+      );
     });
   });
 
@@ -283,26 +234,22 @@ void main() {
       await _createTableWithId().transact(xa).unsafeRunFuture();
     });
 
-    test('insert returning id', () async {
-      final id =
-          await 'INSERT INTO item (label) VALUES (?) RETURNING id'
-              .updateReturning(Write.string, Read.integer)
-              .run('Widget')
-              .transact(xa)
-              .unsafeRunFuture();
+    test('insert returning id', () {
+      final id = 'INSERT INTO item (label) VALUES (?) RETURNING id'
+          .updateReturning(Write.string, Read.integer)
+          .run('Widget')
+          .transact(xa);
 
-      expect(id, greaterThan(0));
+      expect(id, ioSucceeded(greaterThan(0)));
     });
 
-    test('insert many returning ids', () async {
-      final ids =
-          await 'INSERT INTO item (label) VALUES (?) RETURNING id'
-              .updateReturning(Write.string, Read.integer)
-              .runMany(ilist(['Alpha', 'Beta', 'Gamma']))
-              .transact(xa)
-              .unsafeRunFuture();
+    test('insert many returning ids', () {
+      final ids = 'INSERT INTO item (label) VALUES (?) RETURNING id'
+          .updateReturning(Write.string, Read.integer)
+          .runMany(ilist(['Alpha', 'Beta', 'Gamma']))
+          .transact(xa);
 
-      expect(ids.length, equals(3));
+      expect(ids, ioSucceeded(hasLength(3)));
     });
   });
 
@@ -311,42 +258,38 @@ void main() {
       await _createTable().transact(xa).unsafeRunFuture();
     });
 
-    test('rolls back on error', () async {
-      final program = 'INSERT INTO person (name, age) VALUES (?, ?)'
-          .update((Write.string, Write.integer).tupled)
-          .run(('Rollback', 42))
-          .flatMap((_) => ConnectionIO.raiseError<Unit>(Exception('boom')))
-          .transact(xa);
-
-      await program.attempt().unsafeRunFuture();
-
-      final count =
-          await 'SELECT COUNT(*) FROM person'
-              .query(Read.integer)
-              .unique()
+    test('rolls back on error', () {
+      final insertAndRollback =
+          'INSERT INTO person (name, age) VALUES (?, ?)'
+              .update((Write.string, Write.integer).tupled)
+              .run(('Rollback', 42))
+              .flatMap((_) => ConnectionIO.raiseError<Unit>(Exception('boom')))
               .transact(xa)
-              .unsafeRunFuture();
+              .attempt();
 
-      expect(count, equals(0));
+      final count = 'SELECT COUNT(*) FROM person'.query(Read.integer).unique().transact(xa);
+
+      expect(
+        insertAndRollback.productR(() => count),
+        ioSucceeded(0),
+      );
     });
 
-    test('rolls back on fiber cancellation', () async {
-      final program = 'INSERT INTO person (name, age) VALUES (?, ?)'
+    test('rolls back on fiber cancellation', () {
+      final insertAndHang = 'INSERT INTO person (name, age) VALUES (?, ?)'
           .update((Write.string, Write.integer).tupled)
           .run(('Rollback', 42))
           .flatMap((_) => ConnectionIO.never<Unit>())
           .transact(xa);
 
-      await program.start().flatMap((fiber) => fiber.cancel()).unsafeRunFuture();
+      final insertAndCancel = insertAndHang.start().flatMap((fiber) => fiber.cancel());
 
-      final count =
-          await 'SELECT COUNT(*) FROM person'
-              .query(Read.integer)
-              .unique()
-              .transact(xa)
-              .unsafeRunFuture();
+      final count = 'SELECT COUNT(*) FROM person'.query(Read.integer).unique().transact(xa);
 
-      expect(count, equals(0));
+      expect(
+        insertAndCancel.productR(() => count),
+        ioSucceeded(0),
+      );
     });
   });
 
@@ -359,6 +302,7 @@ void main() {
       dbFile = File(
         '${Directory.systemTemp.path}/ribs_sqlite_test_${DateTime.now().microsecondsSinceEpoch}.db',
       );
+
       final pool = SqliteConnectionPool.open(
         name: dbFile.path,
         openConnections: () {
@@ -372,6 +316,7 @@ void main() {
           return PoolConnections(open(true), [open(false), open(false)]);
         },
       );
+
       (poolXa, releasePoolXa) =
           await SqlitePoolTransactor.create(pool).allocated().unsafeRunFuture();
     });
@@ -381,33 +326,33 @@ void main() {
       if (dbFile.existsSync()) dbFile.deleteSync();
     });
 
-    test('connection is returned to pool after successful transaction', () async {
-      await 'SELECT 1'.query(Read.integer).unique().transact(poolXa).unsafeRunFuture();
+    test('connection is returned to pool after successful transaction', () {
+      final select1 = 'SELECT 1'.query(Read.integer).unique().transact(poolXa);
+
       // Would hang forever if the connection was not returned.
-      await 'SELECT 1'.query(Read.integer).unique().transact(poolXa).unsafeRunFuture();
+      expect(select1.productR(() => select1), ioSucceeded());
     });
 
-    test('connection is returned to pool after failed transaction', () async {
-      await ConnectionIO.raiseError<Unit>(
-        Exception('boom'),
-      ).transact(poolXa).attempt().unsafeRunFuture();
+    test('connection is returned to pool after failed transaction', () {
+      final raise = ConnectionIO.raiseError<Unit>(Exception('boom')).transact(poolXa).attempt();
+      final select1 = 'SELECT 1'.query(Read.integer).unique().transact(poolXa);
+
       // Would block if the connection leaked on error.
-      await 'SELECT 1'.query(Read.integer).unique().transact(poolXa).unsafeRunFuture();
+      expect(raise.productR(() => select1), ioSucceeded());
     });
 
-    test('connection is returned to pool after fiber cancellation', () async {
-      final acquired = await Deferred.of<Unit>().unsafeRunFuture();
+    test('connection is returned to pool after fiber cancellation', () {
+      final test = Deferred.of<Unit>().flatMap((acquired) {
+        return ConnectionIO.lift(acquired.complete(Unit()))
+            .productR(() => ConnectionIO.never<Unit>())
+            .transact(poolXa)
+            .start()
+            .flatMap((fiber) => acquired.value().productR(() => fiber.cancel()))
+            // Would block if cancellation didn't return the lease to the pool.
+            .productR(() => 'SELECT 1'.query(Read.integer).unique().transact(poolXa));
+      });
 
-      final fiber =
-          await ConnectionIO.lift(
-            acquired.complete(Unit()),
-          ).flatMap((_) => ConnectionIO.never<Unit>()).transact(poolXa).start().unsafeRunFuture();
-
-      await acquired.value().unsafeRunFuture(); // wait until fiber holds the connection
-      await fiber.cancel().unsafeRunFuture();
-
-      // Would block if cancellation didn't return the lease to the pool.
-      await 'SELECT 1'.query(Read.integer).unique().transact(poolXa).unsafeRunFuture();
+      expect(test, ioSucceeded());
     });
 
     test('writer connection is held for the duration of a transaction', () async {
@@ -452,131 +397,130 @@ void main() {
       await fiber2.join().unsafeRunFuture();
     });
 
-    test('streamQuery works with pool transactor', () async {
-      await _createTable().transact(poolXa).unsafeRunFuture();
-      await _insertPeople().transact(poolXa).unsafeRunFuture();
+    test('streamQuery works with pool transactor', () {
+      final setup = _createTable().productR(() => _insertPeople()).transact(poolXa);
 
-      final rill = 'SELECT name FROM person ORDER BY name'
-          .query(Read.string)
-          .stream()
-          .transact(poolXa);
+      final rill =
+          'SELECT name FROM person ORDER BY name'
+              .query(Read.string)
+              .stream()
+              .transact(poolXa)
+              .compile
+              .toIList;
 
-      final names = await rill.compile.toIList.unsafeRunFuture();
+      final test = setup.productR(() => rill);
 
-      expect(names.length, equals(3));
-      expect(names.head, equals('Alice'));
+      expect(test, ioSucceeded(ilist(['Alice', 'Bob', 'Carol'])));
     });
 
-    test('multiple readers can operate concurrently', () async {
-      final r1Acquired = await Deferred.of<Unit>().unsafeRunFuture();
-      final r2Acquired = await Deferred.of<Unit>().unsafeRunFuture();
-      final proceed = await Deferred.of<Unit>().unsafeRunFuture();
+    test('multiple readers can operate concurrently', () {
+      final test = (Deferred.of<Unit>(), Deferred.of<Unit>(), Deferred.of<Unit>()).flatMapN((
+        r1Acquired,
+        r2Acquired,
+        proceed,
+      ) {
+        // Fiber 1: hold reader 1 until 'proceed' fires.
+        final runFiber1 =
+            poolXa
+                .connectReader()
+                .use((conn) => r1Acquired.complete(Unit()).productR(() => proceed.value()))
+                .start();
 
-      // Fiber 1: hold reader 1 until 'proceed' fires.
-      final fiber1 =
-          await poolXa
-              .connectReader()
-              .use((conn) {
-                return r1Acquired.complete(Unit()).flatMap((_) => proceed.value());
-              })
-              .start()
-              .unsafeRunFuture();
+        // Fiber 2: hold reader 2 until 'proceed' fires.
+        final runFiber2 =
+            poolXa
+                .connectReader()
+                .use((conn) => r2Acquired.complete(Unit()).productR(() => proceed.value()))
+                .start();
 
-      // Fiber 2: hold reader 2 until 'proceed' fires.
-      final fiber2 =
-          await poolXa
-              .connectReader()
-              .use((conn) {
-                return r2Acquired.complete(Unit()).flatMap((_) => proceed.value());
-              })
-              .start()
-              .unsafeRunFuture();
+        return runFiber1.product(runFiber2).flatMapN((fiber1, fiber2) {
+          // Both readers must be acquired while fiber 1 still holds its connection.
+          return r1Acquired
+              .value()
+              .product(r2Acquired.value()) // would block if readers were serialized
+              .voided()
+              .product(proceed.complete(Unit()))
+              .product(fiber1.join())
+              .product(fiber2.join())
+              .voided();
+        });
+      });
 
-      // Both readers must be acquired while fiber 1 still holds its connection.
-      await r1Acquired.value().unsafeRunFuture();
-      await r2Acquired.value().unsafeRunFuture(); // would block if readers were serialized
-
-      await proceed.complete(Unit()).unsafeRunFuture();
-      await fiber1.join().unsafeRunFuture();
-      await fiber2.join().unsafeRunFuture();
+      expect(test, ioSucceeded());
     });
   });
 
   group('ReadWrite codec', () {
-    test('optional reads null columns', () async {
-      await _createTable().transact(xa).unsafeRunFuture();
+    test('optional reads null columns', () {
+      final setup = _createTable().transact(xa);
 
-      await 'INSERT INTO person (name, age) VALUES (?, ?)'
+      final insert = 'INSERT INTO person (name, age) VALUES (?, ?)'
           .update((Write.string, Write.integer).tupled)
           .run(('NoNick', 99))
-          .transact(xa)
-          .unsafeRunFuture();
+          .transact(xa);
 
-      final result =
-          await ('SELECT name FROM person WHERE name = '.fr + Fragment.param('NoNick', Put.string))
-              .query(Read.string)
-              .unique()
-              .transact(xa)
-              .unsafeRunFuture();
+      final result = ('SELECT name FROM person WHERE name = '.fr +
+              Fragment.param('NoNick', Put.string))
+          .query(Read.string)
+          .unique()
+          .transact(xa);
 
-      expect(result, equals('NoNick'));
+      expect(
+        setup.product(insert).productR(() => result),
+        ioSucceeded('NoNick'),
+      );
     });
 
-    test('Read.optional returns None for a null column', () async {
-      await 'CREATE TABLE nullable_demo (id INTEGER PRIMARY KEY, label TEXT)'.update0
+    test('Read.optional returns None for a null column', () {
+      final setup = 'CREATE TABLE nullable_demo (id INTEGER PRIMARY KEY, label TEXT)'.update0
           .run()
-          .transact(xa)
-          .unsafeRunFuture();
+          .transact(xa);
 
-      await 'INSERT INTO nullable_demo (id) VALUES (1)'.update0
-          .run()
-          .transact(xa)
-          .unsafeRunFuture();
+      final insert = 'INSERT INTO nullable_demo (id) VALUES (1)'.update0.run().transact(xa);
 
-      final result =
-          await 'SELECT label FROM nullable_demo WHERE id = 1'
-              .query(Read.string.optional())
-              .unique()
-              .transact(xa)
-              .unsafeRunFuture();
+      final result = 'SELECT label FROM nullable_demo WHERE id = 1'
+          .query(Read.string.optional())
+          .unique()
+          .transact(xa);
 
-      expect(result, isNone());
+      expect(
+        setup.product(insert).productR(() => result),
+        ioSucceeded(isNone()),
+      );
     });
 
-    test('Write.optional inserts None as null and Some as a value', () async {
-      await 'CREATE TABLE nullable_write (id INTEGER PRIMARY KEY, label TEXT)'.update0
+    test('Write.optional inserts None as null and Some as a value', () {
+      final setup = 'CREATE TABLE nullable_write (id INTEGER PRIMARY KEY, label TEXT)'.update0
           .run()
-          .transact(xa)
-          .unsafeRunFuture();
+          .transact(xa);
 
-      await 'INSERT INTO nullable_write (id, label) VALUES (?, ?)'
+      final insert1 = 'INSERT INTO nullable_write (id, label) VALUES (?, ?)'
           .update((Write.integer, Write.string.optional()).tupled)
           .run((1, none<String>()))
-          .transact(xa)
-          .unsafeRunFuture();
+          .transact(xa);
 
-      await 'INSERT INTO nullable_write (id, label) VALUES (?, ?)'
+      final insert2 = 'INSERT INTO nullable_write (id, label) VALUES (?, ?)'
           .update((Write.integer, Write.string.optional()).tupled)
           .run((2, const Some('hello')))
-          .transact(xa)
-          .unsafeRunFuture();
+          .transact(xa);
 
-      final nullRow =
-          await 'SELECT label FROM nullable_write WHERE id = 1'
-              .query(Read.string.optional())
-              .unique()
-              .transact(xa)
-              .unsafeRunFuture();
+      final nullRow = 'SELECT label FROM nullable_write WHERE id = 1'
+          .query(Read.string.optional())
+          .unique()
+          .transact(xa);
 
-      final someRow =
-          await 'SELECT label FROM nullable_write WHERE id = 2'
-              .query(Read.string.optional())
-              .unique()
-              .transact(xa)
-              .unsafeRunFuture();
+      final someRow = 'SELECT label FROM nullable_write WHERE id = 2'
+          .query(Read.string.optional())
+          .unique()
+          .transact(xa);
 
-      expect(nullRow, isNone());
-      expect(someRow, isSome<String>());
+      final test = setup
+          .productR(() => insert1)
+          .productR(() => insert2)
+          .productR(() => nullRow)
+          .product(someRow);
+
+      expect(test, ioSucceeded(const (None(), Some('hello'))));
     });
   });
 
@@ -593,8 +537,8 @@ void main() {
       if (f.existsSync()) f.deleteSync();
     });
 
-    test('persists data and closes the connection on release', () async {
-      await SqliteTransactor.file(dbPath).use((fileXa) {
+    test('persists data and closes the connection on release', () {
+      final test = SqliteTransactor.file(dbPath).use((fileXa) {
         return _createTable()
             .transact(fileXa)
             .productR(
@@ -607,7 +551,9 @@ void main() {
               () => 'SELECT COUNT(*) FROM person'.query(Read.integer).unique().transact(fileXa),
             )
             .flatMap((count) => IO.exec(() => expect(count, equals(1))));
-      }).unsafeRunFuture();
+      });
+
+      expect(test, ioSucceeded());
     });
   });
 }

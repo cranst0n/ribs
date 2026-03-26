@@ -171,8 +171,8 @@ void main() {
     });
 
     test('toEither', () {
-      expect(42.valid<String>().toEither(), isRight<String, int>(42));
-      expect('err'.invalid<int>().toEither(), isLeft<String, int>('err'));
+      expect(42.valid<String>().toEither(), isRight(42));
+      expect('err'.invalid<int>().toEither(), isLeft('err'));
     });
 
     test('toIList', () {

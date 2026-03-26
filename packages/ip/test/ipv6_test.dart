@@ -20,8 +20,8 @@ void main() {
     });
 
     test('fromString ::', () {
-      expect(Ipv6Address.fromString('::'), isSome<Ipv6Address>());
-      expect(Ipv6Address.fromString(' :: '), isSome<Ipv6Address>());
+      expect(Ipv6Address.fromString('::'), isSome());
+      expect(Ipv6Address.fromString(' :: '), isSome());
     });
 
     test('fromString :::', () {

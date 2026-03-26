@@ -13,7 +13,7 @@ IO<Unit> expectIO(
 
 Matcher ioSucceeded([Object? matcher]) => _Succeeded(matcher ?? anyOf(isNotNull, isNull));
 
-Matcher ioErrored([Object? matcher]) => _Errored(matcher);
+Matcher ioErrored([Object? matcher]) => _Errored(matcher ?? anyOf(isNotNull, isNull));
 
 Matcher ioCanceled() => _Canceled();
 
@@ -29,43 +29,39 @@ class _Succeeded extends AsyncMatcher {
   dynamic matchAsync(dynamic item) {
     if (item is! IO) {
       return 'was not an IO';
+    } else {
+      return item.unsafeRunFutureOutcome().then((outcome) {
+        return outcome.fold(
+          () => fail('IO did not succeed, but was canceled'),
+          (err, _) => fail('IO did not succeed, but errored: $err'),
+          (a) => expect(a, _matcher),
+        );
+      });
     }
-
-    return item.unsafeRunFutureOutcome().then((outcome) {
-      return outcome.fold(
-        () => fail('IO did not succeed, but was canceled'),
-        (err, _) => fail('IO did not succeed, but errored: $err'),
-        (a) => expect(a, _matcher),
-      );
-    });
   }
 }
 
 class _Errored extends AsyncMatcher {
-  final Object? _matcher;
+  final Object _matcher;
 
   _Errored(this._matcher);
 
   @override
-  Description describe(Description description) {
-    return description.add('errors');
-  }
+  Description describe(Description description) => description.add('errors');
 
   @override
   dynamic matchAsync(dynamic item) {
     if (item is! IO) {
       return 'was not an IO';
+    } else {
+      return item.unsafeRunFutureOutcome().then((outcome) {
+        return outcome.fold(
+          () => fail('IO did not error, but was canceled'),
+          (err, _) => expect(err, _matcher),
+          (a) => fail('IO did not error, but succeeded as: $a'),
+        );
+      });
     }
-
-    return item.unsafeRunFutureOutcome().then((outcome) {
-      return outcome.fold(
-        () => fail('IO was canceled'),
-        (err, _) {
-          if (_matcher != null) expect(err, _matcher);
-        },
-        (a) => fail('IO did not error, but succeeded as: $a'),
-      );
-    });
   }
 }
 
@@ -73,20 +69,20 @@ class _Canceled extends AsyncMatcher {
   _Canceled();
 
   @override
-  Description describe(Description description) => description.add('<Instance of IO<_>>');
+  Description describe(Description description) => description.add('cancels');
 
   @override
   dynamic matchAsync(dynamic item) {
     if (item is! IO) {
       return 'was not an IO';
+    } else {
+      return item.unsafeRunFutureOutcome().then((outcome) {
+        return outcome.fold(
+          () => expect(0, 0),
+          (err, _) => fail('IO was not canceled, but errored: $err'),
+          (a) => fail('IO was not canceled, but succeeded as: $a'),
+        );
+      });
     }
-
-    return item.unsafeRunFutureOutcome().then((outcome) {
-      return outcome.fold(
-        () => expect(0, 0),
-        (err, _) => fail('IO was not canceled, but errored: $err'),
-        (a) => fail('IO was not canceled, but succeeded as: $a'),
-      );
-    });
   }
 }

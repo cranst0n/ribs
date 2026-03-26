@@ -115,7 +115,7 @@ void main() {
     test('find', () {
       final m = imap({1: 1, 2: 2, 3: 3, 4: 4, 5: 5});
 
-      expect(m.find((kv) => kv.$1 + kv.$2 > 5), isSome<(int, int)>());
+      expect(m.find((kv) => kv.$1 + kv.$2 > 5), isSome());
       expect(m.find((kv) => kv.$1 + kv.$2 > 10), isNone());
     });
 

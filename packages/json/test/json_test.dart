@@ -14,10 +14,7 @@ void main() {
     });
 
     test('parseBytes', () {
-      expect(
-        Json.parse('[1, "string", 3.14]'),
-        isRight<ParsingFailure, Json>(),
-      );
+      expect(Json.parse('[1, "string", 3.14]'), isRight());
     });
 
     test('dropNullValues', () {
@@ -146,7 +143,7 @@ void main() {
 
     test('asBoolean', () {
       expect(Json.Null.asBoolean(), isNone());
-      expect(Json.True.asBoolean(), isSome<bool>());
+      expect(Json.True.asBoolean(), isSome());
       expect(Json.number(0).asBoolean(), isNone());
       expect(Json.str('').asBoolean(), isNone());
       expect(Json.arr([]).asBoolean(), isNone());
@@ -154,7 +151,7 @@ void main() {
     });
 
     test('asNull', () {
-      expect(Json.Null.asNull(), isSome<Unit>());
+      expect(Json.Null.asNull(), isSome());
       expect(Json.True.asNull(), isNone());
       expect(Json.number(0).asNull(), isNone());
       expect(Json.str('').asNull(), isNone());
@@ -165,7 +162,7 @@ void main() {
     test('asNumber', () {
       expect(Json.Null.asNumber(), isNone());
       expect(Json.True.asNumber(), isNone());
-      expect(Json.number(0).asNumber(), isSome<num>(0));
+      expect(Json.number(0).asNumber(), isSome(0));
       expect(Json.str('').asNumber(), isNone());
       expect(Json.arr([]).asNumber(), isNone());
       expect(Json.obj([]).asNumber(), isNone());

@@ -9,7 +9,7 @@ import 'arbitraries.dart';
 void main() {
   group('Cursor', () {
     genJson.forAll('focus should return the JSON value in a newly created cursor', (json) {
-      expect(HCursor.fromJson(json).focus(), isSome<Json>());
+      expect(HCursor.fromJson(json).focus(), isSome());
     });
 
     genJson.forAll('top should return from navigation into an object', (json) {

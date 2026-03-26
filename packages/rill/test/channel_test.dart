@@ -1,11 +1,13 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/test_matchers.dart';
 import 'package:ribs_effect/ribs_effect.dart';
+import 'package:ribs_effect/test.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('Channel', () {
-    test('receives elements above capacity and closes', () async {
+    test('receives elements above capacity and closes', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
         final senders = IList.range(0, 10).parTraverseIO_((i) {
           return IO.sleep(Duration(milliseconds: i)).productR(() => chan.send(i));
@@ -19,33 +21,29 @@ void main() {
         return IO.both(senders, cleanup).mapN((_, b) => b);
       });
 
-      final result = await test.unsafeRunFuture();
-
-      expect(result.sorted(Order.ints), IList.range(0, 10));
+      expect(
+        test.map((result) => result.sorted(Order.ints)),
+        ioSucceeded(IList.range(0, 10)),
+      );
     });
 
-    test('send to closed channel returns ChannelClosed', () async {
+    test('send to closed channel returns ChannelClosed', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
         return chan.close().productR(() => chan.send(42));
       });
 
-      final result = await test.unsafeRunFuture();
-
-      expect(result.isLeft, isTrue);
-      expect(result.fold((a) => a, (_) => null), isA<ChannelClosed>());
+      expect(test, ioSucceeded(isLeft()));
     });
 
-    test('rill terminates after close with no elements', () async {
+    test('rill terminates after close with no elements', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
         return chan.close().productR(() => chan.rill.compile.toIList);
       });
 
-      final result = await test.unsafeRunFuture();
-
-      expect(result, nil<int>());
+      expect(test, ioSucceeded(nil<int>()));
     });
 
-    test('rill yields elements then terminates after close', () async {
+    test('rill yields elements then terminates after close', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
         final send = IList.range(0, 3).traverseIO_((i) => chan.send(i));
         final close = chan.close();
@@ -53,84 +51,70 @@ void main() {
         return send.productR(() => close).productR(() => chan.rill.compile.toIList);
       });
 
-      final result = await test.unsafeRunFuture();
-
-      expect(result.sorted(Order.ints), IList.range(0, 3));
+      expect(
+        test.map((result) => result.sorted(Order.ints)),
+        ioSucceeded(IList.range(0, 3)),
+      );
     });
 
-    test('trySend returns Right(true) when capacity available', () async {
+    test('trySend returns Right(true) when capacity available', () {
       final test = Channel.bounded<int>(5).flatMap((chan) => chan.trySend(1));
-      final result = await test.unsafeRunFuture();
 
-      expect(result, const Right<ChannelClosed, bool>(true));
+      expect(test, ioSucceeded(isRight(true)));
     });
 
-    test('trySend returns Right(false) when channel is full', () async {
+    test('trySend returns Right(false) when channel is full', () {
       final test = Channel.bounded<int>(2).flatMap((chan) {
         return chan.trySend(1).productR(() => chan.trySend(2)).productR(() => chan.trySend(3));
       });
 
-      final result = await test.unsafeRunFuture();
-
-      expect(result, const Right<ChannelClosed, bool>(false));
+      expect(test, ioSucceeded(isRight(false)));
     });
 
-    test('trySend returns Left(ChannelClosed) when channel is closed', () async {
+    test('trySend returns Left(ChannelClosed) when channel is closed', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
         return chan.close().productR(() => chan.trySend(42));
       });
 
-      final result = await test.unsafeRunFuture();
-
-      expect(result.isLeft, isTrue);
-      expect(result.fold((a) => a, (_) => null), isA<ChannelClosed>());
+      expect(test, ioSucceeded(isLeft()));
     });
 
-    test('close is idempotent — second close returns ChannelClosed', () async {
+    test('close is idempotent — second close returns ChannelClosed', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
         return chan.close().productR(() => chan.close());
       });
 
-      final result = await test.unsafeRunFuture();
-
-      expect(result.isLeft, isTrue);
-      expect(result.fold((a) => a, (_) => null), isA<ChannelClosed>());
+      expect(test, ioSucceeded(isLeft()));
     });
 
-    test('isClosed reflects open and closed states', () async {
+    test('isClosed reflects open and closed states', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
         return chan.isClosed.flatMap((before) {
           return chan.close().productR(() => chan.isClosed).map((after) => (before, after));
         });
       });
 
-      final result = await test.unsafeRunFuture();
-
-      expect(result.$1, isFalse);
-      expect(result.$2, isTrue);
+      expect(test, ioSucceeded((false, true)));
     });
 
-    test('closed completes after close is called', () async {
+    test('closed completes after close is called', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
         final closeAfterDelay = IO.sleep(50.milliseconds).productR(() => chan.close());
         return IO.both(closeAfterDelay, chan.closed).voided();
       });
 
-      // Should complete without timing out
-      await expectLater(test.unsafeRunFuture(), completes);
+      expect(test, ioSucceeded());
     });
 
-    test('closeWithElement sends element and closes', () async {
+    test('closeWithElement sends element and closes', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
         return chan.closeWithElement(99).productR(() => chan.rill.compile.toIList);
       });
 
-      final result = await test.unsafeRunFuture();
-
-      expect(result, ilist([99]));
+      expect(test, ioSucceeded(ilist([99])));
     });
 
-    test('synchronous channel — send blocks until consumer reads', () async {
+    test('synchronous channel — send blocks until consumer reads', () {
       final test = Channel.synchronous<int>().flatMap((chan) {
         final sender = chan.send(42);
         final receiver = chan.rill.take(1).compile.toIList;
@@ -138,23 +122,22 @@ void main() {
         return IO.both(sender, receiver).mapN((_, b) => b);
       });
 
-      final result = await test.unsafeRunFuture();
-
-      expect(result, ilist([42]));
+      expect(test, ioSucceeded(ilist([42])));
     });
 
-    test('unbounded channel accepts many elements without backpressure', () async {
+    test('unbounded channel accepts many elements without backpressure', () {
       final test = Channel.unbounded<int>().flatMap((chan) {
         final sends = IList.range(0, 100).traverseIO_((i) => chan.send(i));
         return sends.productR(() => chan.close()).productR(() => chan.rill.compile.toIList);
       });
 
-      final result = await test.unsafeRunFuture();
-
-      expect(result.sorted(Order.ints), IList.range(0, 100));
+      expect(
+        test.map((result) => result.sorted(Order.ints)),
+        ioSucceeded(IList.range(0, 100)),
+      );
     });
 
-    test('sendAll pipe delivers all elements and closes channel', () async {
+    test('sendAll pipe delivers all elements and closes channel', () {
       final test = Channel.bounded<int>(10).flatMap((chan) {
         final sending = Rill.emits<int>([1, 2, 3]).through<Never>(chan.sendAll).compile.drain;
         final receiving = chan.rill.compile.toIList;
@@ -162,12 +145,13 @@ void main() {
         return IO.both(sending, receiving).mapN((_, b) => b);
       });
 
-      final result = await test.unsafeRunFuture();
-
-      expect(result.sorted(Order.ints), ilist([1, 2, 3]));
+      expect(
+        test.map((result) => result.sorted(Order.ints)),
+        ioSucceeded(ilist([1, 2, 3])),
+      );
     });
 
-    test('backpressure — producer is suspended when channel is full', () async {
+    test('backpressure — producer is suspended when channel is full', () {
       final test = Channel.bounded<int>(2).flatMap((chan) {
         // Fill the channel, then read to unblock producer
         final slowConsumer = IO
@@ -178,9 +162,10 @@ void main() {
         return IO.both(producer, slowConsumer).mapN((_, b) => b);
       });
 
-      final result = await test.unsafeRunFuture();
-
-      expect(result.sorted(Order.ints), ilist([0, 1, 2]));
+      expect(
+        test.map((result) => result.sorted(Order.ints)),
+        ioSucceeded(ilist([0, 1, 2])),
+      );
     });
   });
 }

@@ -1,4 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_effect/test.dart';
 import 'package:ribs_ip/ribs_ip.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 import 'package:ribs_rill_io/ribs_rill_io.dart';
@@ -31,24 +32,22 @@ void main() {
 
     test(
       'reads - receives multiple written datagrams',
-      () async {
+      () {
         final a = addr(57002);
         final payload = Chunk.fromList([10, 20, 30]);
 
-        final result =
-            await Network.bindDatagramSocket(a).use((socket) {
-              return socket
-                  .write(Datagram(a, payload))
-                  .flatMap((_) => socket.write(Datagram(a, payload)))
-                  .flatMap((_) => socket.write(Datagram(a, payload)))
-                  .flatMap((_) => socket.reads.take(3).compile.toIList);
-            }).unsafeRunFuture();
+        final result = Network.bindDatagramSocket(a).use((socket) {
+          return socket
+              .write(Datagram(a, payload))
+              .flatMap((_) => socket.write(Datagram(a, payload)))
+              .flatMap((_) => socket.write(Datagram(a, payload)))
+              .flatMap((_) => socket.reads.take(3).compile.toIList);
+        });
 
-        expect(result.length, equals(3));
-
-        for (var i = 0; i < result.length; i++) {
-          expect(result[i].bytes, equals(payload));
-        }
+        expect(
+          result.map((grams) => grams.map((gram) => gram.bytes)),
+          ioSucceeded(IList.fill(3, payload)),
+        );
       },
       testOn: 'vm',
     );

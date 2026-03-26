@@ -1,20 +1,20 @@
 import 'package:ribs_core/src/option.dart';
 import 'package:test/test.dart';
 
-Matcher isSome<A>([A? expected]) => _IsSome(expected);
+Matcher isSome([Object? matcher]) => _IsSome(matcher);
 
-Matcher isNone() => const _IsNone();
+Matcher isNone() => isA<None>();
 
-class _IsSome<A> extends Matcher {
-  final A? _expected;
+class _IsSome extends Matcher {
+  final Object? matcher;
 
-  const _IsSome(this._expected);
+  const _IsSome(this.matcher);
 
   @override
   bool matches(Object? item, Map<dynamic, dynamic> matchState) {
-    if (item is Option<A>) {
-      if (_expected != null) {
-        return item.filter((a) => a == _expected).isDefined;
+    if (item is Option) {
+      if (matcher != null) {
+        return item.filter((a) => wrapMatcher(matcher).matches(a, matchState)).isDefined;
       } else {
         return item.isDefined;
       }
@@ -24,21 +24,5 @@ class _IsSome<A> extends Matcher {
   }
 
   @override
-  Description describe(Description description) => description.add('<Instance of Option<$A>>');
-}
-
-class _IsNone extends Matcher {
-  const _IsNone();
-
-  @override
-  bool matches(Object? item, Map<dynamic, dynamic> matchState) {
-    if (item is Option) {
-      return item.isEmpty;
-    } else {
-      return false;
-    }
-  }
-
-  @override
-  Description describe(Description description) => description.add('<Instance of None>');
+  Description describe(Description description) => description.add('<Instance of Option>');
 }

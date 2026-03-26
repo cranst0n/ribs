@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/test_matchers.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/test.dart';
 import 'package:test/test.dart';
@@ -905,7 +906,7 @@ void main() {
 
   test('attempt error', () {
     final io = IO.raiseError<int>('boom').attempt();
-    expect(io, ioSucceeded((Either<Object, int> e) => e.isLeft));
+    expect(io, ioSucceeded(isLeft('boom')));
   });
 
   test('attempt delay success', () {
@@ -1014,11 +1015,9 @@ void main() {
       expect(result, Outcome.succeeded(1));
     });
 
-    test('async callback throwing exception does not crash fiber', () async {
+    test('async callback throwing exception does not crash fiber', () {
       final io = IO.async_<int>((cb) => throw Exception('BOOM'));
-      final result = await io.attempt().unsafeRunFuture();
-
-      expect(result.isLeft, isTrue);
+      expect(io.attempt(), ioSucceeded(isLeft(isA<Exception>())));
     });
 
     test('async - repeated async callback', () {

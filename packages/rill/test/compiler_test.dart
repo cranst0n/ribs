@@ -154,12 +154,11 @@ void main() {
       );
     });
 
-    test('collects bytes into ByteVector', () async {
-      final result = await Rill.emits<int>([1, 2, 3]).compile.toByteVector.unsafeRunFuture();
-      expect(result.size, 3);
-      expect(result[0], 1);
-      expect(result[1], 2);
-      expect(result[2], 3);
+    test('collects bytes into ByteVector', () {
+      expect(
+        Rill.emits([1, 2, 3]).compile.toByteVector,
+        ioSucceeded(ByteVector.fromDart([1, 2, 3])),
+      );
     });
   });
 
@@ -308,15 +307,14 @@ void main() {
       });
     });
 
-    test('resource finalizers run after compile', () async {
-      final released =
-          await IO.ref(false).flatMap((ref) {
-            final r = Resource.make(IO.unit, (_) => ref.setValue(true));
-            final rill = Rill.resource(r).evalMap((_) => IO.pure(42));
-            return rill.compile.resource.toIList.use(IO.pure).productR(() => ref.value());
-          }).unsafeRunFuture();
+    test('resource finalizers run after compile', () {
+      final released = IO.ref(false).flatMap((ref) {
+        final r = Resource.make(IO.unit, (_) => ref.setValue(true));
+        final rill = Rill.resource(r).evalMap((_) => IO.pure(42));
+        return rill.compile.resource.toIList.use(IO.pure).productR(() => ref.value());
+      });
 
-      expect(released, isTrue);
+      expect(released, ioSucceeded(true));
     });
   });
 }

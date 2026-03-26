@@ -27,7 +27,7 @@ void main() {
         if (a.isFinite) {
           expect(
             Codec.dubble.decode(Codec.dubble.encode(a)),
-            isRight<DecodingFailure, double>(a),
+            isRight(a),
           );
         } else {
           Codec.dubble
@@ -322,7 +322,7 @@ void testCodec<A>(String description, Gen<A> gen, Codec<A> codec) {
   gen.forAll(description, (a) {
     expect(
       codec.decode(codec.encode(a)),
-      isRight<DecodingFailure, A>(a),
+      isRight(a),
     );
   });
 }

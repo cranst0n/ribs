@@ -165,28 +165,26 @@ void main() {
     });
 
     group('access', () {
-      test('setter returns true when state is unchanged', () async {
-        final result =
-            await SignallingRef.of(0).flatMap((ref) {
-              return ref.access().flatMap((t) {
-                final (_, setter) = t;
-                return setter(42);
-              });
-            }).unsafeRunFuture();
+      test('setter returns true when state is unchanged', () {
+        final result = SignallingRef.of(0).flatMap((ref) {
+          return ref.access().flatMap((t) {
+            final (_, setter) = t;
+            return setter(42);
+          });
+        });
 
-        expect(result, isTrue);
+        expect(result, ioSucceeded(true));
       });
 
-      test('setter returns false when state was modified between access and set', () async {
-        final result =
-            await SignallingRef.of(0).flatMap((ref) {
-              return ref.access().flatMap((t) {
-                final (_, setter) = t;
-                return ref.update((n) => n + 1).productR(() => setter(42));
-              });
-            }).unsafeRunFuture();
+      test('setter returns false when state was modified between access and set', () {
+        final result = SignallingRef.of(0).flatMap((ref) {
+          return ref.access().flatMap((t) {
+            final (_, setter) = t;
+            return ref.update((n) => n + 1).productR(() => setter(42));
+          });
+        });
 
-        expect(result, isFalse);
+        expect(result, ioSucceeded(false));
       });
 
       test('returns current value', () {
@@ -200,91 +198,86 @@ void main() {
     });
 
     group('discrete', () {
-      test('emits initial value immediately', () async {
-        final result =
-            await SignallingRef.of(10).flatMap((ref) {
-              return ref.discrete.take(1).compile.toIList;
-            }).unsafeRunFuture();
+      test('emits initial value immediately', () {
+        final result = SignallingRef.of(10).flatMap((ref) {
+          return ref.discrete.take(1).compile.toIList;
+        });
 
-        expect(result, ilist([10]));
+        expect(result, ioSucceeded(ilist([10])));
       });
 
-      test('emits updated values after changes', () async {
-        final result =
-            await SignallingRef.of(0).flatMap((ref) {
-              final updates = ref.discrete.take(3).compile.toIList;
-              final changes = IO
-                  .sleep(10.milliseconds)
-                  .productR(() => ref.setValue(1))
-                  .productR(() => IO.sleep(10.milliseconds))
-                  .productR(() => ref.setValue(2));
-              return IO.both(updates, changes).mapN((a, _) => a);
-            }).unsafeRunFuture();
+      test('emits updated values after changes', () {
+        final result = SignallingRef.of(0).flatMap((ref) {
+          final updates = ref.discrete.take(3).compile.toIList;
 
-        expect(result, ilist([0, 1, 2]));
+          final changes = IO
+              .sleep(10.milliseconds)
+              .productR(() => ref.setValue(1))
+              .productR(() => IO.sleep(10.milliseconds))
+              .productR(() => ref.setValue(2));
+
+          return IO.both(updates, changes).mapN((a, _) => a);
+        });
+
+        expect(result, ioSucceeded(ilist([0, 1, 2])));
       });
     });
 
     group('continuous', () {
-      test('emits the current value on every poll', () async {
-        final result =
-            await SignallingRef.of(5).flatMap((ref) {
-              return ref.continuous.take(3).compile.toIList;
-            }).unsafeRunFuture();
+      test('emits the current value on every poll', () {
+        final result = SignallingRef.of(5).flatMap((ref) {
+          return ref.continuous.take(3).compile.toIList;
+        });
 
-        expect(result, ilist([5, 5, 5]));
+        expect(result, ioSucceeded(ilist([5, 5, 5])));
       });
 
-      test('reflects latest value after update', () async {
-        final result =
-            await SignallingRef.of(0).flatMap((ref) {
-              return ref
-                  .setValue(99)
-                  .productR(
-                    () => ref.continuous.take(1).compile.toIList,
-                  );
-            }).unsafeRunFuture();
+      test('reflects latest value after update', () {
+        final result = SignallingRef.of(0).flatMap((ref) {
+          return ref
+              .setValue(99)
+              .productR(
+                () => ref.continuous.take(1).compile.toIList,
+              );
+        });
 
-        expect(result, ilist([99]));
+        expect(result, ioSucceeded(ilist([99])));
       });
     });
 
     group('changes', () {
-      test('changes() signal filters consecutive duplicate values', () async {
+      test('changes() signal filters consecutive duplicate values', () {
         // ref.changes() wraps discrete with filterWithPrevious((a,b) => a!=b),
         // so writes of the same value are suppressed.
-        final result =
-            await SignallingRef.of(0).flatMap((ref) {
-              final stream = ref.changes().discrete.take(3).compile.toIList;
-              final writes = IO
-                  .sleep(10.milliseconds)
-                  .productR(() => ref.setValue(1))
-                  .productR(() => IO.sleep(10.milliseconds))
-                  .productR(() => ref.setValue(1)) // same value — filtered out
-                  .productR(() => IO.sleep(10.milliseconds))
-                  .productR(() => ref.setValue(2));
-              return IO.both(stream, writes).mapN((a, _) => a);
-            }).unsafeRunFuture();
+        final result = SignallingRef.of(0).flatMap((ref) {
+          final stream = ref.changes().discrete.take(3).compile.toIList;
+          final writes = IO
+              .sleep(10.milliseconds)
+              .productR(() => ref.setValue(1))
+              .productR(() => IO.sleep(10.milliseconds))
+              .productR(() => ref.setValue(1)) // same value — filtered out
+              .productR(() => IO.sleep(10.milliseconds))
+              .productR(() => ref.setValue(2));
+          return IO.both(stream, writes).mapN((a, _) => a);
+        });
 
         // 0 (initial), 1 (first change), 2 (third write, second distinct change)
-        expect(result, ilist([0, 1, 2]));
+        expect(result, ioSucceeded(ilist([0, 1, 2])));
       });
     });
 
     group('getAndDiscreteUpdates', () {
-      test('returns current value paired with update stream', () async {
-        final result =
-            await SignallingRef.of(42).flatMap((ref) {
-              return ref.getAndDiscreteUpdates().use((t) {
-                final (initial, updates) = t;
-                final recv = updates.take(1).compile.toIList.map((l) => (initial, l));
-                final write = IO.sleep(10.milliseconds).productR(() => ref.setValue(99));
-                return IO.both(recv, write).map((t2) => t2.$1);
-              });
-            }).unsafeRunFuture();
+      test('returns current value paired with update stream', () {
+        final result = SignallingRef.of(42).flatMap((ref) {
+          return ref.getAndDiscreteUpdates().use((t) {
+            final (initial, updates) = t;
+            final recv = updates.take(1).compile.toIList.map((l) => (initial, l));
+            final write = IO.sleep(10.milliseconds).productR(() => ref.setValue(99));
+            return IO.both(recv, write).map((t2) => t2.$1);
+          });
+        });
 
-        expect(result.$1, 42);
-        expect(result.$2, ilist([99]));
+        expect(result, ioSucceeded((42, ilist([99]))));
       });
     });
 
@@ -296,7 +289,7 @@ void main() {
         );
       });
 
-      test('blocks until predicate becomes true', () async {
+      test('blocks until predicate becomes true', () {
         final test = SignallingRef.of(0).flatMap((ref) {
           final wait = ref.waitUntil((n) => n >= 3);
           final increments = IO
@@ -309,55 +302,49 @@ void main() {
           return IO.both(wait, increments).voided();
         });
 
-        await expectLater(test.unsafeRunFuture(), completes);
+        expect(test, ioSucceeded());
       });
     });
   });
 
   group('Signal.map extension', () {
-    test('maps values from discrete', () async {
-      final result =
-          await SignallingRef.of(3).flatMap((ref) {
-            final mapped = ref.map((n) => n * 10);
-            final recv = mapped.discrete.take(1).compile.toIList;
-            return recv;
-          }).unsafeRunFuture();
+    test('maps values from discrete', () {
+      final result = SignallingRef.of(3).flatMap((ref) {
+        final mapped = ref.map((n) => n * 10);
+        final recv = mapped.discrete.take(1).compile.toIList;
+        return recv;
+      });
 
-      expect(result, ilist([30]));
+      expect(result, ioSucceeded(ilist([30])));
     });
 
     test('maps value()', () {
       expect(
-        SignallingRef.of(7).flatMap((ref) {
-          return ref.map((n) => '$n').value();
-        }),
+        SignallingRef.of(7).flatMap((ref) => ref.map((n) => '$n').value()),
         ioSucceeded('7'),
       );
     });
 
-    test('maps continuous emissions', () async {
-      final result =
-          await SignallingRef.of(4).flatMap((ref) {
-            return ref.map((n) => n * 2).continuous.take(2).compile.toIList;
-          }).unsafeRunFuture();
+    test('maps continuous emissions', () {
+      final result = SignallingRef.of(4).flatMap((ref) {
+        return ref.map((n) => n * 2).continuous.take(2).compile.toIList;
+      });
 
-      expect(result, ilist([8, 8]));
+      expect(result, ioSucceeded(ilist([8, 8])));
     });
 
-    test('getAndDiscreteUpdates maps initial and updates', () async {
-      final result =
-          await SignallingRef.of(5).flatMap((ref) {
-            final mapped = ref.map((n) => n * 10);
-            return mapped.getAndDiscreteUpdates().use((t) {
-              final (initial, updates) = t;
-              final recv = updates.take(1).compile.toIList.map((l) => (initial, l));
-              final write = IO.sleep(10.milliseconds).productR(() => ref.setValue(9));
-              return IO.both(recv, write).map((pair) => pair.$1);
-            });
-          }).unsafeRunFuture();
+    test('getAndDiscreteUpdates maps initial and updates', () {
+      final result = SignallingRef.of(5).flatMap((ref) {
+        final mapped = ref.map((n) => n * 10);
+        return mapped.getAndDiscreteUpdates().use((t) {
+          final (initial, updates) = t;
+          final recv = updates.take(1).compile.toIList.map((l) => (initial, l));
+          final write = IO.sleep(10.milliseconds).productR(() => ref.setValue(9));
+          return IO.both(recv, write).map((pair) => pair.$1);
+        });
+      });
 
-      expect(result.$1, 50);
-      expect(result.$2, ilist([90]));
+      expect(result, ioSucceeded((50, ilist([90]))));
     });
   });
 }

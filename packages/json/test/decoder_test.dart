@@ -33,10 +33,7 @@ void main() {
         ilist([0]).asRight<DecodingFailure>(),
       );
 
-      expect(
-        d.decode(Json.True),
-        isLeft<DecodingFailure, List<int>>(),
-      );
+      expect(d.decode(Json.True), isLeft());
     });
 
     test('or', () {
@@ -49,16 +46,16 @@ void main() {
       final c = a.or(b);
 
       expect(a.decode(one), 'one'.asRight<DecodingFailure>());
-      expect(b.decode(one), isLeft<DecodingFailure, String>());
+      expect(b.decode(one), isLeft());
       expect(c.decode(one), 'one'.asRight<DecodingFailure>());
 
-      expect(a.decode(two), isLeft<DecodingFailure, String>());
+      expect(a.decode(two), isLeft());
       expect(b.decode(two), 'two'.asRight<DecodingFailure>());
       expect(c.decode(two), 'two'.asRight<DecodingFailure>());
 
-      expect(a.decode(three), isLeft<DecodingFailure, String>());
-      expect(b.decode(three), isLeft<DecodingFailure, String>());
-      expect(c.decode(three), isLeft<DecodingFailure, String>());
+      expect(a.decode(three), isLeft());
+      expect(b.decode(three), isLeft());
+      expect(c.decode(three), isLeft());
     });
 
     test('prepared', () {

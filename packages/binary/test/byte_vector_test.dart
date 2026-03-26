@@ -519,13 +519,13 @@ void main() {
 
     byteVector.forAll('acquire', (bv) {
       if (bv.isEmpty) {
-        expect(bv.acquire(1), isLeft<String, ByteVector>());
+        expect(bv.acquire(1), isLeft());
       } else {
-        expect(bv.acquire(1), isRight<String, ByteVector>());
+        expect(bv.acquire(1), isRight());
       }
 
-      expect(bv.acquire(bv.size), isRight<String, ByteVector>());
-      expect(bv.acquire(bv.size + 1), isLeft<String, ByteVector>());
+      expect(bv.acquire(bv.size), isRight());
+      expect(bv.acquire(bv.size + 1), isLeft());
     });
 
     (

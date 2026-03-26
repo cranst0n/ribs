@@ -1,20 +1,23 @@
 import 'package:ribs_core/src/either.dart';
 import 'package:test/test.dart';
 
-Matcher isLeft<A, B>([A? expected]) => _IsLeft<A, B>(expected);
+Matcher isLeft([Object? matcher]) => _IsLeft(matcher);
 
-Matcher isRight<A, B>([B? expected]) => _IsRight<A, B>(expected);
+Matcher isRight([Object? matcher]) => _IsRight(matcher);
 
-class _IsLeft<A, B> extends Matcher {
-  final A? _expected;
+class _IsLeft extends Matcher {
+  final Object? matcher;
 
-  const _IsLeft(this._expected);
+  const _IsLeft(this.matcher);
 
   @override
   bool matches(Object? item, Map<dynamic, dynamic> matchState) {
-    if (item is Either<A, B>) {
-      if (_expected != null) {
-        return item.fold((a) => a == _expected, (_) => false);
+    if (item is Either) {
+      if (matcher != null) {
+        return item.fold(
+          (a) => wrapMatcher(matcher).matches(a, matchState),
+          (_) => false,
+        );
       } else {
         return item.isLeft;
       }
@@ -25,24 +28,23 @@ class _IsLeft<A, B> extends Matcher {
 
   @override
   Description describe(Description description) {
-    if (_expected != null) {
-      return description.add(Either.left<A, B>(_expected).toString());
-    } else {
-      return description.add('Left<$A, $B>()');
-    }
+    return description.add('isLeft ').addDescriptionOf(matcher);
   }
 }
 
-class _IsRight<A, B> extends Matcher {
-  final B? _expected;
+class _IsRight extends Matcher {
+  final Object? matcher;
 
-  const _IsRight(this._expected);
+  const _IsRight(this.matcher);
 
   @override
   bool matches(Object? item, Map<dynamic, dynamic> matchState) {
-    if (item is Either<A, B>) {
-      if (_expected != null) {
-        return item.fold((_) => false, (b) => b == _expected);
+    if (item is Either) {
+      if (matcher != null) {
+        return item.fold(
+          (_) => false,
+          (b) => wrapMatcher(matcher).matches(b, matchState),
+        );
       } else {
         return item.isRight;
       }
@@ -53,10 +55,6 @@ class _IsRight<A, B> extends Matcher {
 
   @override
   Description describe(Description description) {
-    if (_expected != null) {
-      return description.add(Either.right<A, B>(_expected).toString());
-    } else {
-      return description.add('Right<$A, $B>()');
-    }
+    return description.add('isRight ').addDescriptionOf(matcher);
   }
 }

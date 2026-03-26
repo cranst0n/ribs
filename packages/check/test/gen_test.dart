@@ -109,7 +109,7 @@ void main() {
   });
 
   Gen.some(Gen.positiveInt).forAll('some', (i) {
-    expect(i, isSome<int>());
+    expect(i, isSome());
   });
 
   Gen.chooseInt(0, 0).forAll('Choose.integer(0, 0)', (i) {
