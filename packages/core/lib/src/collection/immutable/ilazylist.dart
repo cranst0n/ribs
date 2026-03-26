@@ -622,7 +622,6 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     }
   }
 
-  @override
   ILazyList<A> removeFirst(Function1<A, bool> p) {
     if (knownIsEmpty) {
       return this;
@@ -658,7 +657,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     var b = that;
 
     while (a.nonEmpty && b.nonEmpty) {
-      if (a == b) return true;
+      if (identical(a, b)) return true;
       if (a.head != b.head) return false;
 
       a = a.tail;
@@ -962,34 +961,37 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       b.write(head);
 
       var cursor = this;
-      var scout = tail;
 
-      void appendCursorElement() =>
+      void appendHead(ILazyList<A> c) =>
           b
             ..write(sep)
-            ..write(cursor.head);
+            ..write(c.head);
 
-      bool scoutNonEmpty() => scout._stateEvaluated && !scout.isEmpty;
+      var scout = tail;
 
-      if ((cursor != scout) && (!scout._stateEvaluated || (cursor._state != scout._state))) {
+      if (!identical(cursor, scout)) {
         cursor = scout;
-        if (scoutNonEmpty()) {
+
+        if (scout.knownNonEmpty) {
           scout = scout.tail;
+
           // Use 2x 1x iterator trick for cycle detection; slow iterator can add strings
-          while ((cursor != scout) && scoutNonEmpty() && (cursor._state != scout._state)) {
-            appendCursorElement();
+          while (!identical(cursor, scout) && scout.knownNonEmpty) {
+            appendHead(cursor);
             cursor = cursor.tail;
             scout = scout.tail;
-            if (scoutNonEmpty()) scout = scout.tail;
+            if (scout.knownNonEmpty) scout = scout.tail;
           }
         }
       }
-      if (!scoutNonEmpty()) {
-        // Not a cycle, scout hit an end
-        while (cursor != scout) {
-          appendCursorElement();
+
+      if (!scout.knownNonEmpty) {
+        // Not a cycle, scout hit an end (empty or non-evaluated)
+        while (!identical(cursor, scout)) {
+          appendHead(cursor);
           cursor = cursor.tail;
         }
+
         // if cursor (eq scout) has state defined, it is empty; else unknown state
         if (!cursor._stateEvaluated) {
           b
@@ -997,39 +999,20 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
             ..write('<not computed>');
         }
       } else {
-        bool same(ILazyList<A> a, ILazyList<A> b) => a == b || a._state == b._state;
+        if (!identical(cursor, this)) {
+          var runner = this;
+          while (!identical(runner, scout)) {
+            runner = runner.tail;
+            scout = scout.tail;
+          }
 
-        // Cycle.
-        // If we have a prefix of length P followed by a cycle of length C,
-        // the scout will be at position (P%C) in the cycle when the cursor
-        // enters it at P.  They'll then collide when the scout advances another
-        // C - (P%C) ahead of the cursor.
-        // If we run the scout P farther, then it will be at the start of
-        // the cycle: (C - (P%C) + (P%C)) == C == 0.  So if another runner
-        // starts at the beginning of the prefix, they'll collide exactly at
-        // the start of the loop.
+          do {
+            final ct = cursor.tail;
 
-        var runner = this;
-        var k = 0;
-        while (!same(runner, scout)) {
-          runner = runner.tail;
-          scout = scout.tail;
-          k += 1;
-        }
+            if (!identical(ct, scout)) appendHead(cursor);
 
-        // Now runner and scout are at the beginning of the cycle.  Advance
-        // cursor, adding to string, until it hits; then we'll have covered
-        // everything once.  If cursor is already at beginning, we'd better
-        // advance one first unless runner didn't go anywhere (in which case
-        // we've already looped once).
-
-        if (same(cursor, scout) && (k > 0)) {
-          appendCursorElement();
-          cursor = cursor.tail;
-        }
-        while (!same(cursor, scout)) {
-          appendCursorElement();
-          cursor = cursor.tail;
+            cursor = ct;
+          } while (!identical(cursor, scout));
         }
 
         b
@@ -1038,8 +1021,7 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
       }
     }
 
-    b.write(end);
-    return b;
+    return b..write(end);
   }
 }
 

@@ -11,6 +11,8 @@
 // See the NOTICE file distributed with this work for
 // additional information regarding copyright ownership.
 
+import 'dart:math';
+
 import 'package:ribs_core/ribs_core.dart';
 
 mixin RIterableOnce<A> {
@@ -94,6 +96,19 @@ mixin RIterableOnce<A> {
     }
 
     return none();
+  }
+
+  int copyToArray(Array<A> xs, [int start = 0, int? n]) {
+    final it = iterator;
+    final end = start + min(n ?? Integer.maxValue, xs.length - start);
+    var i = start;
+
+    while (i < end && it.hasNext) {
+      xs[i] = it.next();
+      i += 1;
+    }
+
+    return i - start;
   }
 
   /// Returns true if this collection has the same size as [that] and each

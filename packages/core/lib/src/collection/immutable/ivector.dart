@@ -308,8 +308,7 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
   @override
   IVector<A> removeAt(int idx) => super.removeAt(idx).toIVector();
 
-  @override
-  IVector<A> removeFirst(Function1<A, bool> p) => super.removeFirst(p).toIVector();
+  IVector<A> removeFirst(Function1<A, bool> p) => indexWhere(p).fold(() => this, removeAt);
 
   @override
   IVector<A> reverse() {

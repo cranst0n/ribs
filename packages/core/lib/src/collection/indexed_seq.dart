@@ -141,6 +141,12 @@ mixin IndexedSeq<A> on RIterable<A>, RSeq<A> {
 
   @override
   IndexedSeq<(A, int)> zipWithIndex() => super.zipWithIndex().toIndexedSeq();
+
+  @override
+  bool canEqual(Object other) => switch (other) {
+    final RSeq<A> that => length == that.length && super.canEqual(that),
+    _ => super.canEqual(other),
+  };
 }
 
 extension IndexedSeqTuple2Ops<A, B> on IndexedSeq<(A, B)> {

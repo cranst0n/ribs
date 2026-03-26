@@ -201,8 +201,7 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
   @override
   Chunk<O> removeAt(int idx) => from(super.removeAt(idx));
 
-  @override
-  Chunk<O> removeFirst(Function1<O, bool> p) => from(super.removeFirst(p));
+  Chunk<O> removeFirst(Function1<O, bool> p) => indexWhere(p).fold(() => this, removeAt);
 
   @override
   Chunk<O> reverse() => fromDart(toDartList().reversed);

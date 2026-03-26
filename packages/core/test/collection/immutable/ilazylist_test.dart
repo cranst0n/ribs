@@ -10,11 +10,7 @@ void main() {
     test('equality', () {
       final s = ILazyList.ints(0);
 
-      expect(s == s, isTrue);
-      //   expect(
-      //     s.prepended(1).prepended(0) == s.prepended(1).prepended(0),
-      //     isTrue,
-      //   );
+      expect(s.prepended(1).prepended(0), s.prepended(1).prepended(0));
     });
 
     test('does not not force head', () {
@@ -27,122 +23,125 @@ void main() {
       expect(i, 0);
     });
 
-    test('empty toString', () {
-      expect(ILazyList.empty<int>().toString(), 'ILazyList()');
-    });
+    group('toString', () {
+      test('empty toString', () {
+        expect(ILazyList.empty<int>().toString(), 'ILazyList()');
+      });
 
-    test('toString when head and tail both are not evaluated', () {
-      final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
-      expect(l.toString(), 'ILazyList(<not computed>)');
-    });
+      test('toString when head and tail both are not evaluated', () {
+        final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
+        expect(l.toString(), 'ILazyList(<not computed>)');
+      });
 
-    test('toString when only head is evaluated', () {
-      final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
-      l.head;
+      test('toString when only head is evaluated', () {
+        final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
+        l.head;
 
-      expect(l.toString(), 'ILazyList(1, <not computed>)');
-    });
+        // expect(l.head, 1);
+        expect(l.toString(), 'ILazyList(1, <not computed>)');
+      });
 
-    test('toString when head and tail is evaluated', () {
-      final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
-      l.head;
-      l.tail;
+      test('toString when head and tail is evaluated', () {
+        final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
+        l.head;
+        l.tail;
 
-      expect(l.toString(), 'ILazyList(1, <not computed>)');
-    });
+        expect(l.toString(), 'ILazyList(1, <not computed>)');
+      });
 
-    test('toString when head and tail head is evaluated', () {
-      final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
-      l.head;
-      l.tail.head;
+      test('toString when head and tail head is evaluated', () {
+        final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
+        l.head;
+        l.tail.head;
 
-      expect(l.toString(), 'ILazyList(1, 2, <not computed>)');
-    });
+        expect(l.toString(), 'ILazyList(1, 2, <not computed>)');
+      });
 
-    test('toString when head is not evaluated and only tail is evaluated', () {
-      final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
-      l.tail;
+      test('toString when head is not evaluated and only tail is evaluated', () {
+        final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
+        l.tail;
 
-      expect(l.toString(), 'ILazyList(1, <not computed>)');
-    });
+        expect(l.toString(), 'ILazyList(1, <not computed>)');
+      });
 
-    test('toString when head is not evaluated and tail head is evaluated', () {
-      final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
-      l.tail.head;
+      test('toString when head is not evaluated and tail head is evaluated', () {
+        final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
+        l.tail.head;
 
-      expect(l.toString(), 'ILazyList(1, 2, <not computed>)');
-    });
+        expect(l.toString(), 'ILazyList(1, 2, <not computed>)');
+      });
 
-    test('toString when head is not evaluated and tail.tail is evaluated', () {
-      final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
-      l.tail.tail;
+      test('toString when head is not evaluated and tail.tail is evaluated', () {
+        final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
+        l.tail.tail;
 
-      expect(l.toString(), 'ILazyList(1, 2, <not computed>)');
-    });
+        expect(l.toString(), 'ILazyList(1, 2, <not computed>)');
+      });
 
-    test('toString when head is not evaluated and tail.tail.head is evaluated', () {
-      final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
-      l.tail.tail.head;
+      test('toString when head is not evaluated and tail.tail.head is evaluated', () {
+        final l = ILazyList.from(ilist([1, 2, 3, 4, 5]));
+        l.tail.tail.head;
 
-      expect(l.toString(), 'ILazyList(1, 2, 3, <not computed>)');
-    });
+        expect(l.toString(), 'ILazyList(1, 2, 3, <not computed>)');
+      });
 
-    test('toString when lazy list is forced to list', () {
-      final l = ILazyList.empty<int>()
-          .prependedLazy(() => 4)
-          .prependedLazy(() => 3)
-          .prependedLazy(() => 2)
-          .prependedLazy(() => 1);
+      test('toString when lazy list is forced to list', () {
+        final l = ILazyList.empty<int>()
+            .prependedLazy(() => 4)
+            .prependedLazy(() => 3)
+            .prependedLazy(() => 2)
+            .prependedLazy(() => 1);
 
-      l.toIList();
+        l.toIList();
 
-      expect(l.toString(), 'ILazyList(1, 2, 3, 4)');
-    });
+        expect(l.toString(), 'ILazyList(1, 2, 3, 4)');
+      });
 
-    test('toString when ILazyList is empty', () {
-      // cached empty
-      final l1 = ILazyList.empty<int>();
-      expect(l1.toString(), 'ILazyList()');
+      test('toString when ILazyList is empty', () {
+        // cached empty
+        final l1 = ILazyList.empty<int>();
+        expect(l1.toString(), 'ILazyList()');
 
-      // non-cached empty
-      final l2 = ILazyList.unfold(0, (_) => none());
-      expect(l2.toString(), 'ILazyList(<not computed>)');
-    });
+        // non-cached empty
+        final l2 = ILazyList.unfold(0, (_) => none());
+        expect(l2.toString(), 'ILazyList(<not computed>)');
+      });
 
-    test('toString for single element list', () {
-      final l = ILazyList.from(ilist([1]));
-      l.force();
+      test('toString for single element list', () {
+        final l = ILazyList.from(ilist([1]));
+        l.force();
 
-      expect(l.toString(), 'ILazyList(1)');
-    });
+        expect(l.toString(), 'ILazyList(1)');
+      });
 
-    test('toString when ILazyList has cyclic reference', () {
-      late ILazyList<int> cyc;
+      test('toString when ILazyList has cyclic reference', () {
+        late ILazyList<int> cyc;
 
-      cyc = ILazyList.from(
-        ilist([1]),
-      ).appended(2).appended(3).appended(4).lazyAppendedAll(() => cyc);
+        cyc = ILazyList.from(
+          ilist([1]),
+        ).appended(2).appended(3).appended(4).lazyAppendedAll(() => cyc);
 
-      final l = cyc;
-      expect(l.toString(), 'ILazyList(<not computed>)');
+        final l = cyc;
+        expect(l.toString(), 'ILazyList(<not computed>)');
 
-      l.head;
-      expect(l.toString(), 'ILazyList(1, <not computed>)');
+        l.head;
+        expect(l.toString(), 'ILazyList(1, <not computed>)');
 
-      l.tail;
-      expect(l.toString(), 'ILazyList(1, <not computed>)');
+        l.tail;
+        expect(l.toString(), 'ILazyList(1, <not computed>)');
 
-      l.tail.head;
-      expect(l.toString(), 'ILazyList(1, 2, <not computed>)');
+        l.tail.head;
+        expect(l.toString(), 'ILazyList(1, 2, <not computed>)');
 
-      l.tail.tail.head;
-      expect(l.toString(), 'ILazyList(1, 2, 3, <not computed>)');
+        l.tail.tail.head;
+        expect(l.toString(), 'ILazyList(1, 2, 3, <not computed>)');
 
-      l.tail.tail.tail.head;
-      expect(l.toString(), 'ILazyList(1, 2, 3, 4, <not computed>)');
+        l.tail.tail.tail.head;
+        expect(l.toString(), 'ILazyList(1, 2, 3, 4, <not computed>)');
 
-      l.tail.tail.tail.tail.head;
-      expect(l.toString(), 'ILazyList(1, 2, 3, 4, <cycle>)');
+        l.tail.tail.tail.tail.head;
+        expect(l.toString(), 'ILazyList(1, 2, 3, 4, <cycle>)');
+      });
     });
 
     test('drop', () {

@@ -530,8 +530,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   @override
   IList<A> removeAt(int idx) => super.removeAt(idx).toIList();
 
-  @override
-  IList<A> removeFirst(Function1<A, bool> p) => super.removeFirst(p).toIList();
+  IList<A> removeFirst(Function1<A, bool> p) => indexWhere(p).fold(() => this, removeAt);
 
   @override
   IList<A> reverse() {

@@ -343,9 +343,5 @@ void main() {
     test('hashCode consistent with equality', () {
       expect(iqueue([1, 2, 3]).hashCode, iqueue([1, 2, 3]).hashCode);
     });
-
-    test('equality with non-IQueue returns false', () {
-      expect((iqueue([1, 2, 3]) as Object) == ilist([1, 2, 3]), isFalse);
-    });
   });
 }

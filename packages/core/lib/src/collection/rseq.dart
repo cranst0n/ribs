@@ -375,8 +375,6 @@ mixin RSeq<A> on RIterable<A> {
     }
   }
 
-  RSeq<A> removeFirst(Function1<A, bool> p) => indexWhere(p).fold(() => this, removeAt);
-
   /// Returns a new collection with the order of the elements reversed.
   RSeq<A> reverse();
 
@@ -534,6 +532,20 @@ mixin RSeq<A> on RIterable<A> {
 
   @override
   RSeq<(A, int)> zipWithIndex() => super.zipWithIndex().toSeq();
+
+  @override
+  int get hashCode => MurmurHash3.seqHash(this);
+
+  bool canEqual(Object other) => true;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        switch (other) {
+          final RSeq<A> that => canEqual(that) && sameElements(that),
+          _ => false,
+        };
+  }
 }
 
 class _PermutationsItr<A> extends RIterator<RSeq<A>> {

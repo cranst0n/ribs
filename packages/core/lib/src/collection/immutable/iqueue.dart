@@ -207,8 +207,7 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   @override
   IQueue<A> removeAt(int idx) => from(super.removeAt(idx));
 
-  @override
-  IQueue<A> removeFirst(Function1<A, bool> p) => from(super.removeFirst(p));
+  IQueue<A> removeFirst(Function1<A, bool> p) => from(indexWhere(p).fold(() => this, removeAt));
 
   @override
   IQueue<A> reverse() => IQueue._(_out, _in);

@@ -187,7 +187,6 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   @override
   IList<A> removeAt(int idx) => toIList().removeAt(idx);
 
-  @override
   IList<A> removeFirst(Function1<A, bool> p) => toIList().removeFirst(p);
 
   @override
