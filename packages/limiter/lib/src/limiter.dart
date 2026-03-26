@@ -9,8 +9,8 @@ abstract class Limiter {
     int? maxConcurrent,
     int? maxQueued,
   }) {
-    final maxConcurrent0 = maxConcurrent ?? Integer.MaxValue;
-    final maxQueued0 = maxQueued ?? Integer.MaxValue;
+    final maxConcurrent0 = maxConcurrent ?? Integer.maxValue;
+    final maxQueued0 = maxQueued ?? Integer.maxValue;
 
     assert(maxQueued0 > 0, "maxQueued must be > 0, was $maxQueued");
     assert(maxConcurrent0 > 0, "maxConcurrent must be > 0, was $maxConcurrent");
