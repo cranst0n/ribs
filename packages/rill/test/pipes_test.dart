@@ -12,6 +12,16 @@ import 'arbitraries.dart';
 import 'matchers.dart';
 
 void main() {
+  group('compression', () {
+    intRill.forAll('gzip roundtrip', (rill) {
+      final bytes = rill.map((i) => i & 0xff);
+      final roundtrip = bytes
+          .through(Pipes.compression.gzip.encode)
+          .through(Pipes.compression.gzip.decode);
+
+      expect(roundtrip, producesSameAs(bytes));
+    });
+  });
   group('text', () {
     group('lines / linesLimited', () {
       stringRill.forAll('newlines appear in between chunks', (lines) {
