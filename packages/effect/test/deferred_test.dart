@@ -1,5 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/test_matchers.dart';
+import 'package:ribs_core/test.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/test.dart';
 import 'package:test/test.dart';
@@ -13,7 +13,7 @@ void main() {
 
     expect(
       (writeA, writeB, d.value()).parTupled,
-      ioSucceeded((true, false, 42)),
+      succeeds((true, false, 42)),
     );
   });
 
@@ -56,7 +56,7 @@ void main() {
       return op.tryValue();
     });
 
-    expect(test, ioSucceeded(isNone()));
+    expect(test, succeeds(isNone()));
   });
 
   test('tryValue return Some() for set Deferred', () {
@@ -66,6 +66,6 @@ void main() {
       });
     });
 
-    expect(test, ioSucceeded(isSome(Unit())));
+    expect(test, succeeds(isSome(Unit())));
   });
 }

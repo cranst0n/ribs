@@ -64,22 +64,22 @@ void main() {
   group('embed', () {
     test('succeeded', () {
       final test = Outcome.succeeded(42).embed(IO.pure(0));
-      expect(test, ioSucceeded(42));
+      expect(test, succeeds(42));
     });
 
     test('errored', () {
       final test = Outcome.errored<int>('').embed(IO.pure(0));
-      expect(test, ioErrored());
+      expect(test, errors());
     });
 
     test('canceled', () {
       final test = Outcome.canceled<int>().embed(IO.pure(0));
-      expect(test, ioSucceeded(0));
+      expect(test, succeeds(0));
     });
 
     test('never', () {
       final test = Outcome.canceled<int>().embed(IO.pure(0));
-      expect(test, ioSucceeded(0));
+      expect(test, succeeds(0));
     });
   });
 }

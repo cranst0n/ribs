@@ -1,5 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/test_matchers.dart';
+import 'package:ribs_core/test.dart';
 import 'package:ribs_optics/ribs_optics.dart';
 import 'package:test/test.dart';
 

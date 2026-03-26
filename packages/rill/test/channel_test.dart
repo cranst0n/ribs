@@ -1,5 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/test_matchers.dart';
+import 'package:ribs_core/test.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/test.dart';
 import 'package:ribs_rill/ribs_rill.dart';
@@ -23,7 +23,7 @@ void main() {
 
       expect(
         test.map((result) => result.sorted(Order.ints)),
-        ioSucceeded(IList.range(0, 10)),
+        succeeds(IList.range(0, 10)),
       );
     });
 
@@ -32,7 +32,7 @@ void main() {
         return chan.close().productR(() => chan.send(42));
       });
 
-      expect(test, ioSucceeded(isLeft()));
+      expect(test, succeeds(isLeft()));
     });
 
     test('rill terminates after close with no elements', () {
@@ -40,7 +40,7 @@ void main() {
         return chan.close().productR(() => chan.rill.compile.toIList);
       });
 
-      expect(test, ioSucceeded(nil<int>()));
+      expect(test, succeeds(nil<int>()));
     });
 
     test('rill yields elements then terminates after close', () {
@@ -53,14 +53,14 @@ void main() {
 
       expect(
         test.map((result) => result.sorted(Order.ints)),
-        ioSucceeded(IList.range(0, 3)),
+        succeeds(IList.range(0, 3)),
       );
     });
 
     test('trySend returns Right(true) when capacity available', () {
       final test = Channel.bounded<int>(5).flatMap((chan) => chan.trySend(1));
 
-      expect(test, ioSucceeded(isRight(true)));
+      expect(test, succeeds(isRight(true)));
     });
 
     test('trySend returns Right(false) when channel is full', () {
@@ -68,7 +68,7 @@ void main() {
         return chan.trySend(1).productR(() => chan.trySend(2)).productR(() => chan.trySend(3));
       });
 
-      expect(test, ioSucceeded(isRight(false)));
+      expect(test, succeeds(isRight(false)));
     });
 
     test('trySend returns Left(ChannelClosed) when channel is closed', () {
@@ -76,7 +76,7 @@ void main() {
         return chan.close().productR(() => chan.trySend(42));
       });
 
-      expect(test, ioSucceeded(isLeft()));
+      expect(test, succeeds(isLeft()));
     });
 
     test('close is idempotent — second close returns ChannelClosed', () {
@@ -84,7 +84,7 @@ void main() {
         return chan.close().productR(() => chan.close());
       });
 
-      expect(test, ioSucceeded(isLeft()));
+      expect(test, succeeds(isLeft()));
     });
 
     test('isClosed reflects open and closed states', () {
@@ -94,7 +94,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded((false, true)));
+      expect(test, succeeds((false, true)));
     });
 
     test('closed completes after close is called', () {
@@ -103,7 +103,7 @@ void main() {
         return IO.both(closeAfterDelay, chan.closed).voided();
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test('closeWithElement sends element and closes', () {
@@ -111,7 +111,7 @@ void main() {
         return chan.closeWithElement(99).productR(() => chan.rill.compile.toIList);
       });
 
-      expect(test, ioSucceeded(ilist([99])));
+      expect(test, succeeds(ilist([99])));
     });
 
     test('synchronous channel — send blocks until consumer reads', () {
@@ -122,7 +122,7 @@ void main() {
         return IO.both(sender, receiver).mapN((_, b) => b);
       });
 
-      expect(test, ioSucceeded(ilist([42])));
+      expect(test, succeeds(ilist([42])));
     });
 
     test('unbounded channel accepts many elements without backpressure', () {
@@ -133,7 +133,7 @@ void main() {
 
       expect(
         test.map((result) => result.sorted(Order.ints)),
-        ioSucceeded(IList.range(0, 100)),
+        succeeds(IList.range(0, 100)),
       );
     });
 
@@ -147,7 +147,7 @@ void main() {
 
       expect(
         test.map((result) => result.sorted(Order.ints)),
-        ioSucceeded(ilist([1, 2, 3])),
+        succeeds(ilist([1, 2, 3])),
       );
     });
 
@@ -164,7 +164,7 @@ void main() {
 
       expect(
         test.map((result) => result.sorted(Order.ints)),
-        ioSucceeded(ilist([0, 1, 2])),
+        succeeds(ilist([0, 1, 2])),
       );
     });
   });

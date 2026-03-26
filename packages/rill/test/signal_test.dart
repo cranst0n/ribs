@@ -30,7 +30,7 @@ void main() {
             });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     },
   );
 
@@ -39,7 +39,7 @@ void main() {
       test('returns the initial value', () {
         expect(
           SignallingRef.of(42).flatMap((ref) => ref.value()),
-          ioSucceeded(42),
+          succeeds(42),
         );
       });
     });
@@ -50,7 +50,7 @@ void main() {
           SignallingRef.of(0).flatMap((ref) {
             return ref.setValue(99).productR(() => ref.value());
           }),
-          ioSucceeded(99),
+          succeeds(99),
         );
       });
     });
@@ -61,7 +61,7 @@ void main() {
           SignallingRef.of(10).flatMap((ref) {
             return ref.update((n) => n * 2).productR(() => ref.value());
           }),
-          ioSucceeded(20),
+          succeeds(20),
         );
       });
     });
@@ -74,7 +74,7 @@ void main() {
               return ref.value().map((current) => (old, current));
             });
           }),
-          ioSucceeded((1, 2)),
+          succeeds((1, 2)),
         );
       });
     });
@@ -87,7 +87,7 @@ void main() {
               return ref.value().map((current) => (old, current));
             });
           }),
-          ioSucceeded((5, 6)),
+          succeeds((5, 6)),
         );
       });
     });
@@ -96,7 +96,7 @@ void main() {
       test('returns new value after applying function', () {
         expect(
           SignallingRef.of(3).flatMap((ref) => ref.updateAndGet((n) => n * 3)),
-          ioSucceeded(9),
+          succeeds(9),
         );
       });
     });
@@ -107,7 +107,7 @@ void main() {
           SignallingRef.of(10).flatMap((ref) {
             return ref.modify((n) => (n + 5, 'was $n'));
           }),
-          ioSucceeded('was 10'),
+          succeeds('was 10'),
         );
       });
 
@@ -116,7 +116,7 @@ void main() {
           SignallingRef.of(10).flatMap((ref) {
             return ref.modify((n) => (n + 5, n)).productR(() => ref.value());
           }),
-          ioSucceeded(15),
+          succeeds(15),
         );
       });
     });
@@ -125,7 +125,7 @@ void main() {
       test('returns true when update succeeds', () {
         expect(
           SignallingRef.of(0).flatMap((ref) => ref.tryUpdate((n) => n + 1)),
-          ioSucceeded(isTrue),
+          succeeds(isTrue),
         );
       });
 
@@ -134,7 +134,7 @@ void main() {
           SignallingRef.of(0).flatMap((ref) {
             return ref.tryUpdate((n) => n + 1).productR(() => ref.value());
           }),
-          ioSucceeded(1),
+          succeeds(1),
         );
       });
     });
@@ -145,7 +145,7 @@ void main() {
           SignallingRef.of(0).flatMap((ref) {
             return ref.flatModify((n) => (n + 1, ref.value()));
           }),
-          ioSucceeded(1),
+          succeeds(1),
         );
       });
     });
@@ -159,7 +159,7 @@ void main() {
               return (n * 2, ref.value());
             });
           }),
-          ioSucceeded(14),
+          succeeds(14),
         );
       });
     });
@@ -173,7 +173,7 @@ void main() {
           });
         });
 
-        expect(result, ioSucceeded(true));
+        expect(result, succeeds(true));
       });
 
       test('setter returns false when state was modified between access and set', () {
@@ -184,7 +184,7 @@ void main() {
           });
         });
 
-        expect(result, ioSucceeded(false));
+        expect(result, succeeds(false));
       });
 
       test('returns current value', () {
@@ -192,7 +192,7 @@ void main() {
           SignallingRef.of(55).flatMap((ref) {
             return ref.access().mapN((a, _) => a);
           }),
-          ioSucceeded(55),
+          succeeds(55),
         );
       });
     });
@@ -203,7 +203,7 @@ void main() {
           return ref.discrete.take(1).compile.toIList;
         });
 
-        expect(result, ioSucceeded(ilist([10])));
+        expect(result, succeeds(ilist([10])));
       });
 
       test('emits updated values after changes', () {
@@ -219,7 +219,7 @@ void main() {
           return IO.both(updates, changes).mapN((a, _) => a);
         });
 
-        expect(result, ioSucceeded(ilist([0, 1, 2])));
+        expect(result, succeeds(ilist([0, 1, 2])));
       });
     });
 
@@ -229,7 +229,7 @@ void main() {
           return ref.continuous.take(3).compile.toIList;
         });
 
-        expect(result, ioSucceeded(ilist([5, 5, 5])));
+        expect(result, succeeds(ilist([5, 5, 5])));
       });
 
       test('reflects latest value after update', () {
@@ -241,7 +241,7 @@ void main() {
               );
         });
 
-        expect(result, ioSucceeded(ilist([99])));
+        expect(result, succeeds(ilist([99])));
       });
     });
 
@@ -262,7 +262,7 @@ void main() {
         });
 
         // 0 (initial), 1 (first change), 2 (third write, second distinct change)
-        expect(result, ioSucceeded(ilist([0, 1, 2])));
+        expect(result, succeeds(ilist([0, 1, 2])));
       });
     });
 
@@ -277,7 +277,7 @@ void main() {
           });
         });
 
-        expect(result, ioSucceeded((42, ilist([99]))));
+        expect(result, succeeds((42, ilist([99]))));
       });
     });
 
@@ -285,7 +285,7 @@ void main() {
       test('completes immediately when predicate is already true', () {
         expect(
           SignallingRef.of(10).flatMap((ref) => ref.waitUntil((n) => n > 5)),
-          ioSucceeded(Unit()),
+          succeeds(Unit()),
         );
       });
 
@@ -302,7 +302,7 @@ void main() {
           return IO.both(wait, increments).voided();
         });
 
-        expect(test, ioSucceeded());
+        expect(test, succeeds());
       });
     });
   });
@@ -315,13 +315,13 @@ void main() {
         return recv;
       });
 
-      expect(result, ioSucceeded(ilist([30])));
+      expect(result, succeeds(ilist([30])));
     });
 
     test('maps value()', () {
       expect(
         SignallingRef.of(7).flatMap((ref) => ref.map((n) => '$n').value()),
-        ioSucceeded('7'),
+        succeeds('7'),
       );
     });
 
@@ -330,7 +330,7 @@ void main() {
         return ref.map((n) => n * 2).continuous.take(2).compile.toIList;
       });
 
-      expect(result, ioSucceeded(ilist([8, 8])));
+      expect(result, succeeds(ilist([8, 8])));
     });
 
     test('getAndDiscreteUpdates maps initial and updates', () {
@@ -344,7 +344,7 @@ void main() {
         });
       });
 
-      expect(result, ioSucceeded((50, ilist([90]))));
+      expect(result, succeeds((50, ilist([90]))));
     });
   });
 }

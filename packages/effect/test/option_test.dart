@@ -8,12 +8,12 @@ void main() {
     test('traverseIO', () {
       expect(
         const Some(1).traverseIO((a) => IO.pure(a * 2)),
-        ioSucceeded(const Some(2)),
+        succeeds(const Some(2)),
       );
 
       expect(
         none<int>().traverseIO((a) => IO.pure(a * 2)),
-        ioSucceeded(none<int>()),
+        succeeds(none<int>()),
       );
     });
 
@@ -22,13 +22,13 @@ void main() {
 
       await expectLater(
         const Some(1).traverseIO((a) => IO.exec(() => count += 1)),
-        ioSucceeded(),
+        succeeds(),
       );
       expect(count, 1);
 
       await expectLater(
         none<int>().traverseIO_((a) => IO.exec(() => count += 1)),
-        ioSucceeded(),
+        succeeds(),
       );
       expect(count, 1);
     });

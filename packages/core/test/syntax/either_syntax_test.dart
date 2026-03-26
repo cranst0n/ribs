@@ -1,5 +1,5 @@
 import 'package:ribs_core/src/syntax/all.dart';
-import 'package:ribs_core/test_matchers.dart';
+import 'package:ribs_core/test.dart';
 import 'package:test/test.dart';
 
 void main() {

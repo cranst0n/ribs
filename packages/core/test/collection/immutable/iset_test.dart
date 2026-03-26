@@ -1,7 +1,7 @@
 import 'package:ribs_check/ribs_check.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/immutable/set/hash_set.dart';
-import 'package:ribs_core/test_matchers.dart';
+import 'package:ribs_core/test.dart';
 import 'package:test/test.dart';
 
 void main() {

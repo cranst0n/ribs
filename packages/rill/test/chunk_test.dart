@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/test_matchers.dart';
+import 'package:ribs_core/test.dart';
 import 'package:ribs_rill/src/chunk.dart';
 import 'package:test/test.dart';
 

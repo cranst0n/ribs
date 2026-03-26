@@ -1,5 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/test_matchers.dart';
+import 'package:ribs_core/test.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/test.dart';
 import 'package:ribs_rill/ribs_rill.dart';
@@ -16,7 +16,7 @@ void main() {
   group('Scope', () {
     group('create / isRoot', () {
       test('root scope has no parent', () {
-        expect(Scope.create().map((s) => s.isRoot), ioSucceeded(isTrue));
+        expect(Scope.create().map((s) => s.isRoot), succeeds(isTrue));
       });
 
       test('child scope is not root', () {
@@ -24,7 +24,7 @@ void main() {
           Scope.create().flatMap((parent) {
             return Scope.create(parent).map((child) => child.isRoot);
           }),
-          ioSucceeded(isFalse),
+          succeeds(isFalse),
         );
       });
 
@@ -42,7 +42,7 @@ void main() {
           });
         });
 
-        expect(test, ioSucceeded(isTrue));
+        expect(test, succeeds(isTrue));
       });
     });
 
@@ -57,7 +57,7 @@ void main() {
           });
         });
 
-        expect(test, ioSucceeded(isTrue));
+        expect(test, succeeds(isTrue));
       });
 
       test('finalizer receives the ExitCase passed to close', () {
@@ -70,7 +70,7 @@ void main() {
           });
         });
 
-        expect(test.map((ec) => ec!.isError), ioSucceeded(isTrue));
+        expect(test.map((ec) => ec!.isError), succeeds(isTrue));
       });
 
       test('multiple finalizers all run on close', () {
@@ -86,7 +86,7 @@ void main() {
         });
 
         // Finalizers run LIFO: last registered runs first
-        expect(test, ioSucceeded(ilist([3, 2, 1])));
+        expect(test, succeeds(ilist([3, 2, 1])));
       });
 
       test('registering on a closed scope immediately invokes with Canceled', () {
@@ -99,14 +99,14 @@ void main() {
           });
         });
 
-        expect(test.map((ec) => ec!.isCanceled), ioSucceeded(isTrue));
+        expect(test.map((ec) => ec!.isCanceled), succeeds(isTrue));
       });
     });
 
     group('close', () {
       test('returns Right(Unit) when no finalizers throw', () {
         final result = Scope.create().flatMap((scope) => scope.close(ExitCase.succeeded()));
-        expect(result, ioSucceeded(isRight()));
+        expect(result, succeeds(isRight()));
       });
 
       test('is idempotent — second close returns Right(Unit) without re-running finalizers', () {
@@ -120,7 +120,7 @@ void main() {
           });
         });
 
-        expect(test, ioSucceeded(1));
+        expect(test, succeeds(1));
       });
 
       test('single failing finalizer returns Left with that error', () {
@@ -132,7 +132,7 @@ void main() {
               .productR(() => scope.close(ExitCase.succeeded()));
         });
 
-        expect(result, ioSucceeded(isLeft(err)));
+        expect(result, succeeds(isLeft(err)));
       });
 
       test('multiple failing finalizers returns Left(CompositeError)', () {
@@ -143,7 +143,7 @@ void main() {
               .productR(() => scope.close(ExitCase.succeeded()));
         });
 
-        expect(result, ioSucceeded(isLeft()));
+        expect(result, succeeds(isLeft()));
       });
 
       test('all finalizers run even when some throw — errors are collected', () async {
@@ -158,7 +158,7 @@ void main() {
               .productR(() => scope.close(ExitCase.succeeded()));
         });
 
-        await expectLater(result, ioSucceeded(isLeft()));
+        await expectLater(result, succeeds(isLeft()));
 
         // Finalizers run LIFO: 3 ran, middle threw, 1 ran. All three were attempted.
         expect(ran, containsAll([1, 3]));
@@ -169,7 +169,7 @@ void main() {
       test('returns a Lease on an open scope', () {
         expect(
           Scope.create().flatMap((scope) => scope.lease()),
-          ioSucceeded(isA<Lease>()),
+          succeeds(isA<Lease>()),
         );
       });
 
@@ -178,7 +178,7 @@ void main() {
           Scope.create().flatMap((scope) {
             return scope.close(ExitCase.succeeded()).productR(() => scope.lease());
           }),
-          ioErrored(),
+          errors(),
         );
       });
 
@@ -202,7 +202,7 @@ void main() {
         });
 
         // Finalizer should NOT have run before the lease is released
-        expect(test, ioSucceeded((false, true)));
+        expect(test, succeeds((false, true)));
       });
 
       test('finalizers run only after the last lease is released', () {
@@ -227,7 +227,7 @@ void main() {
         });
 
         // Finalizer counter is 0 after first lease release, 1 after last
-        expect(test, ioSucceeded((0, 1)));
+        expect(test, succeeds((0, 1)));
       });
 
       test('cancel on released lease returns Right when no pending close', () {
@@ -235,7 +235,7 @@ void main() {
           return scope.lease().flatMap((lease) => lease.cancel);
         });
 
-        expect(result, ioSucceeded(isRight()));
+        expect(result, succeeds(isRight()));
       });
     });
   });

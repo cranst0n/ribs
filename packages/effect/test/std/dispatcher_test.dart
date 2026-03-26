@@ -18,7 +18,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(42));
+      expect(test, succeeds(42));
     });
 
     test('unsafeToFuture returns correct result', () {
@@ -26,7 +26,7 @@ void main() {
         return IO.fromFutureF(() => dispatcher.unsafeToFuture(IO.pure(99)));
       });
 
-      expect(test, ioSucceeded(99));
+      expect(test, succeeds(99));
     });
 
     test('unsafeToFuture propagates errors', () {
@@ -38,7 +38,7 @@ void main() {
         );
       });
 
-      expect(test, ioSucceeded(-2));
+      expect(test, succeeds(-2));
     });
 
     test('unsafeToFutureCancelable can cancel in-flight effect', () {
@@ -59,7 +59,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(Unit()));
+      expect(test, succeeds(Unit()));
     });
 
     test('multiple effects run concurrently', () {
@@ -82,7 +82,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(3));
+      expect(test, succeeds(3));
     });
 
     test('waitForAll=true: finalization waits for active effects', () {
@@ -98,7 +98,7 @@ void main() {
             .productR(() => done.value());
       });
 
-      expect(test, ioSucceeded(true));
+      expect(test, succeeds(true));
     });
 
     test('waitForAll=false: finalization cancels active effects', () {
@@ -114,7 +114,7 @@ void main() {
             .productR(() => canceled.value());
       });
 
-      expect(test, ioSucceeded(true));
+      expect(test, succeeds(true));
     });
   });
 
@@ -130,7 +130,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(42));
+      expect(test, succeeds(42));
     });
 
     test('unsafeToFuture returns correct result', () {
@@ -138,7 +138,7 @@ void main() {
         return IO.fromFutureF(() => dispatcher.unsafeToFuture(IO.pure(77)));
       });
 
-      expect(test, ioSucceeded(77));
+      expect(test, succeeds(77));
     });
 
     test('tasks run in FIFO order', () {
@@ -155,7 +155,7 @@ void main() {
       });
 
       // Prepend produces reverse order
-      expect(test, ioSucceeded(ilist([3, 2, 1])));
+      expect(test, succeeds(ilist([3, 2, 1])));
     });
 
     test('worker survives a task error', () {
@@ -173,7 +173,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(42));
+      expect(test, succeeds(42));
     });
 
     test('cancel prevents pending task from completing', () {
@@ -197,7 +197,7 @@ void main() {
       });
 
       // The canceled task should fail (true = error occurred).
-      expect(test, ioSucceeded(true));
+      expect(test, succeeds(true));
     });
 
     test('waitForAll=true: finalization drains pending tasks', () {
@@ -213,7 +213,7 @@ void main() {
             .productR(() => done.value());
       });
 
-      expect(test, ioSucceeded(true));
+      expect(test, succeeds(true));
     });
 
     test('waitForAll=false: finalization stops without draining', () {
@@ -229,7 +229,7 @@ void main() {
             .productR(() => done.value());
       });
 
-      expect(test, ioSucceeded(false));
+      expect(test, succeeds(false));
     });
   });
 }

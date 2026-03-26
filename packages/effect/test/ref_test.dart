@@ -14,7 +14,7 @@ void main() {
         });
       });
 
-      expect(op, ioSucceeded(true));
+      expect(op, succeeds(true));
     });
 
     test('get and update successfully', () {
@@ -26,7 +26,7 @@ void main() {
         });
       });
 
-      expect(op, ioSucceeded(true));
+      expect(op, succeeds(true));
     });
 
     test('update and get successfully', () {
@@ -38,7 +38,7 @@ void main() {
         });
       });
 
-      expect(op, ioSucceeded(true));
+      expect(op, succeeds(true));
     });
 
     test('access successfully', () {
@@ -53,7 +53,7 @@ void main() {
         });
       });
 
-      expect(op, ioSucceeded(true));
+      expect(op, succeeds(true));
     });
 
     test('access - setter should fail if value is modified before setter is called', () {
@@ -70,7 +70,7 @@ void main() {
         });
       });
 
-      expect(op, ioSucceeded(true));
+      expect(op, succeeds(true));
     });
 
     test('tryUpdate - modification occurs successfully', () {
@@ -82,7 +82,7 @@ void main() {
         });
       });
 
-      expect(op, ioSucceeded(true));
+      expect(op, succeeds(true));
     });
 
     test('flatModify - finalizer should be uncancelable', () async {
@@ -101,7 +101,7 @@ void main() {
             });
       });
 
-      await expectLater(op, ioSucceeded(true));
+      await expectLater(op, succeeds(true));
       expect(passed, isTrue);
     });
 
@@ -130,7 +130,7 @@ void main() {
             });
       });
 
-      await expectLater(op, ioSucceeded(true));
+      await expectLater(op, succeeds(true));
       expect(passed, isTrue);
       expect(failed, isFalse);
     });
@@ -139,13 +139,13 @@ void main() {
   test('getAndUpdate', () {
     final test = Ref.of(0).flatMap((ref) => ref.getAndUpdate((a) => a + 1).product(ref.value()));
 
-    expect(test, ioSucceeded((0, 1)));
+    expect(test, succeeds((0, 1)));
   });
 
   test('getAndSet', () {
     final test = Ref.of(0).flatMap((ref) => ref.getAndSet(42).product(ref.value()));
 
-    expect(test, ioSucceeded((0, 42)));
+    expect(test, succeeds((0, 42)));
   });
 
   test('access successful set', () {
@@ -153,7 +153,7 @@ void main() {
       0,
     ).flatMap((ref) => ref.access().flatMap((t) => t.$2(42)).product(ref.value()));
 
-    expect(test, ioSucceeded((true, 42)));
+    expect(test, succeeds((true, 42)));
   });
 
   test('access failed set', () {
@@ -164,7 +164,7 @@ void main() {
           .product(ref.value()),
     );
 
-    expect(test, ioSucceeded((false, 10)));
+    expect(test, succeeds((false, 10)));
   });
 
   test('tryModify', () {
@@ -172,6 +172,6 @@ void main() {
       0,
     ).flatMap((ref) => ref.tryModify((x) => (x + 3, x.toString())).product(ref.value()));
 
-    expect(test, ioSucceeded(('0'.some, 3)));
+    expect(test, succeeds(('0'.some, 3)));
   });
 }

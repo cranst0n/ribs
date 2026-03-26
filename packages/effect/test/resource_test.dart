@@ -12,7 +12,7 @@ void main() {
               .foldLeft(Resource.eval(IO.unit), (r, _) => r.flatMap((_) => Resource.eval(IO.unit)))
               .use_();
 
-      expect(r, ioSucceeded(Unit()));
+      expect(r, succeeds(Unit()));
     });
 
     test('use (2)', () {
@@ -27,7 +27,7 @@ void main() {
         });
       }
 
-      expect(p(n).use(IO.pure), ioSucceeded(n));
+      expect(p(n).use(IO.pure), succeeds(n));
     });
 
     test('attempt', () {
@@ -36,7 +36,7 @@ void main() {
               .foldLeft(Resource.eval(IO.unit), (r, _) => r.flatMap((_) => Resource.eval(IO.unit)))
               .attempt();
 
-      expect(r.use_(), ioSucceeded(Unit()));
+      expect(r.use_(), succeeds(Unit()));
     });
 
     test('allocatedCase', () {
@@ -46,7 +46,7 @@ void main() {
         50000,
       ).foldLeft(res, (r, _) => r.flatMap((_) => res)).allocatedCase().mapN((a, _) => a);
 
-      expect(r, ioSucceeded(Unit()));
+      expect(r, succeeds(Unit()));
     });
   });
 
@@ -203,7 +203,7 @@ void main() {
 
     final test = res.use((a) => IO.pure('${a}123'));
 
-    expect(test, ioSucceeded('abc123'));
+    expect(test, succeeds('abc123'));
   });
 
   test('eval - interruption', () {
@@ -224,7 +224,7 @@ void main() {
       });
     });
 
-    expect(p, ioSucceeded(1));
+    expect(p, succeeds(1));
   });
 
   test('evalTap with error fails during use', () {
@@ -232,7 +232,7 @@ void main() {
 
     expect(
       Resource.eval(IO.pure(0)).evalTap((_) => IO.raiseError<Unit>(error)).voided().use(IO.pure),
-      ioErrored(error),
+      errors(error),
     );
   });
 
@@ -248,7 +248,7 @@ void main() {
         .allocated()
         .flatMap((tuple) => tuple.$2);
 
-    await expectLater(test, ioSucceeded(Unit()));
+    await expectLater(test, succeeds(Unit()));
     expect(a, isTrue);
     expect(b, isTrue);
   });
@@ -297,13 +297,13 @@ void main() {
           });
         }).voided();
 
-    expect(test, ioSucceeded(Unit()));
+    expect(test, succeeds(Unit()));
   });
 
   test('safe attempt suspended resource', () {
     const err = 'BOOM';
     final suspend = Resource.suspend(IO.raiseError(err));
-    expect(suspend.use_(), ioErrored(err));
+    expect(suspend.use_(), errors(err));
   });
 
   group('both', () {
@@ -318,7 +318,7 @@ void main() {
 
       final test = res.use((a) => IO.pure(a.$1 + a.$2));
 
-      await expectLater(test, ioSucceeded(85));
+      await expectLater(test, succeeds(85));
       expect(aReleased, isTrue);
       expect(bReleased, isTrue);
     });
@@ -459,7 +459,7 @@ void main() {
         ExitCase? got;
         final r = Resource.unit.onFinalizeCase((ec) => IO.exec(() => got = ec));
 
-        await expectLater(Resource.both(r, Resource.unit).use_(), ioSucceeded(Unit()));
+        await expectLater(Resource.both(r, Resource.unit).use_(), succeeds(Unit()));
         expect(got, ExitCase.succeeded());
       });
 
@@ -467,7 +467,7 @@ void main() {
         ExitCase? got;
         final r = Resource.unit.onFinalizeCase((ec) => IO.exec(() => got = ec));
 
-        await expectLater(Resource.both(Resource.unit, r).use_(), ioSucceeded(Unit()));
+        await expectLater(Resource.both(Resource.unit, r).use_(), succeeds(Unit()));
         expect(got, ExitCase.succeeded());
       });
 
@@ -479,7 +479,7 @@ void main() {
 
         await expectLater(
           Resource.both(Resource.unit, r).use((_) => IO.raiseError<Unit>(error)),
-          ioErrored(error),
+          errors(error),
         );
 
         expect(got, ExitCase.errored(error));
@@ -493,7 +493,7 @@ void main() {
 
         await expectLater(
           Resource.both(r, Resource.unit).use((_) => IO.raiseError<Unit>(error)),
-          ioErrored(error),
+          errors(error),
         );
 
         expect(got, ExitCase.errored(error));
@@ -510,7 +510,7 @@ void main() {
             r,
             Resource.eval(IO.sleep(1.second).productR(() => IO.raiseError<Unit>(error))),
           ).use_(),
-          ioErrored(error),
+          errors(error),
         );
 
         expect(got, ExitCase.errored(error));
@@ -527,7 +527,7 @@ void main() {
             Resource.eval(IO.sleep(1.second).productR(() => IO.raiseError<Unit>(error))),
             r,
           ).use_(),
-          ioErrored(error),
+          errors(error),
         );
 
         expect(got, ExitCase.errored(error));
@@ -537,7 +537,7 @@ void main() {
         ExitCase? got;
         final r = Resource.unit.onFinalizeCase((ec) => IO.exec(() => got = ec));
 
-        await expectLater(Resource.both(r, Resource.unit).use((_) => IO.canceled), ioCanceled());
+        await expectLater(Resource.both(r, Resource.unit).use((_) => IO.canceled), cancels());
         expect(got, ExitCase.canceled());
       });
 
@@ -545,7 +545,7 @@ void main() {
         ExitCase? got;
         final r = Resource.unit.onFinalizeCase((ec) => IO.exec(() => got = ec));
 
-        await expectLater(Resource.both(Resource.unit, r).use((_) => IO.canceled), ioCanceled());
+        await expectLater(Resource.both(Resource.unit, r).use((_) => IO.canceled), cancels());
         expect(got, ExitCase.canceled());
       });
 
@@ -558,7 +558,7 @@ void main() {
             Resource.eval(IO.sleep(1.second).productR(() => IO.canceled)),
             r,
           ).use((_) => IO.canceled),
-          ioCanceled(),
+          cancels(),
         );
         expect(got, ExitCase.canceled());
       });
@@ -572,7 +572,7 @@ void main() {
             r,
             Resource.eval(IO.sleep(1.second).productR(() => IO.canceled)),
           ).use((_) => IO.canceled),
-          ioCanceled(),
+          cancels(),
         );
         expect(got, ExitCase.canceled());
       });
@@ -602,7 +602,7 @@ void main() {
 
     final test = res.attempt().use_();
 
-    await expectLater(test, ioSucceeded(Unit()));
+    await expectLater(test, succeeds(Unit()));
     expect(released, isTrue);
   });
 
@@ -616,32 +616,32 @@ void main() {
 
     final test = res.attempt().use_();
 
-    await expectLater(test, ioSucceeded(Unit()));
+    await expectLater(test, succeeds(Unit()));
     expect(released, isFalse);
   });
 
   group('as', () {
     test('replaces the resource value', () {
-      expect(Resource.pure(42).as('hello').use(IO.pure), ioSucceeded('hello'));
+      expect(Resource.pure(42).as('hello').use(IO.pure), succeeds('hello'));
     });
 
     test('finalizer still runs after as', () async {
       var released = false;
       final res = Resource.make(IO.pure(42), (_) => IO.exec(() => released = true)).as('hello');
-      await expectLater(res.use(IO.pure), ioSucceeded('hello'));
+      await expectLater(res.use(IO.pure), succeeds('hello'));
       expect(released, isTrue);
     });
   });
 
   group('voided', () {
     test('discards resource value', () {
-      expect(Resource.pure(42).voided().use(IO.pure), ioSucceeded(Unit()));
+      expect(Resource.pure(42).voided().use(IO.pure), succeeds(Unit()));
     });
 
     test('finalizer still runs after voided', () async {
       var released = false;
       final res = Resource.make(IO.pure(42), (_) => IO.exec(() => released = true)).voided();
-      await expectLater(res.use(IO.pure), ioSucceeded(Unit()));
+      await expectLater(res.use(IO.pure), succeeds(Unit()));
       expect(released, isTrue);
     });
   });
@@ -652,7 +652,7 @@ void main() {
       final res = Resource.pure(42).flatTap(
         (a) => Resource.eval(IO.exec(() => tapped = a)),
       );
-      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      await expectLater(res.use(IO.pure), succeeds(42));
       expect(tapped, 42);
     });
 
@@ -662,7 +662,7 @@ void main() {
       final res = Resource.make(IO.pure(1), (_) => IO.exec(() => aReleased = true)).flatTap(
         (_) => Resource.make(IO.pure(2), (_) => IO.exec(() => bReleased = true)),
       );
-      await expectLater(res.use(IO.pure), ioSucceeded(1));
+      await expectLater(res.use(IO.pure), succeeds(1));
       expect(aReleased, isTrue);
       expect(bReleased, isTrue);
     });
@@ -670,13 +670,13 @@ void main() {
 
   group('evalMap', () {
     test('applies IO function to resource value', () {
-      expect(Resource.pure(21).evalMap((a) => IO.pure(a * 2)).use(IO.pure), ioSucceeded(42));
+      expect(Resource.pure(21).evalMap((a) => IO.pure(a * 2)).use(IO.pure), succeeds(42));
     });
 
     test('propagates IO error', () {
       expect(
         Resource.pure(0).evalMap((_) => IO.raiseError<int>('oops')).use(IO.pure),
-        ioErrored('oops'),
+        errors('oops'),
       );
     });
   });
@@ -684,7 +684,7 @@ void main() {
   group('handleErrorWith', () {
     test('recovers from acquire error', () {
       final res = Resource.raiseError<int>('boom').handleErrorWith((_) => Resource.pure(42));
-      expect(res.use(IO.pure), ioSucceeded(42));
+      expect(res.use(IO.pure), succeeds(42));
     });
 
     test('does not invoke handler on success', () async {
@@ -693,7 +693,7 @@ void main() {
         handlerCalled = true;
         return Resource.pure(0);
       });
-      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      await expectLater(res.use(IO.pure), succeeds(42));
       expect(handlerCalled, isFalse);
     });
 
@@ -702,7 +702,7 @@ void main() {
       final res = Resource.raiseError<int>('boom').handleErrorWith(
         (_) => Resource.make(IO.pure(42), (_) => IO.exec(() => released = true)),
       );
-      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      await expectLater(res.use(IO.pure), succeeds(42));
       expect(released, isTrue);
     });
   });
@@ -711,7 +711,7 @@ void main() {
     test('runs finalizer on success', () async {
       var finalized = false;
       final res = Resource.pure(42).onFinalize(IO.exec(() => finalized = true));
-      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      await expectLater(res.use(IO.pure), succeeds(42));
       expect(finalized, isTrue);
     });
 
@@ -720,7 +720,7 @@ void main() {
       final res = Resource.pure(
         42,
       ).onFinalize(IO.exec(() => finalized = true)).evalMap((_) => IO.raiseError<int>('boom'));
-      await expectLater(res.use(IO.pure), ioErrored('boom'));
+      await expectLater(res.use(IO.pure), errors('boom'));
       expect(finalized, isTrue);
     });
   });
@@ -750,13 +750,13 @@ void main() {
         (_) => IO.exec(() => order.add('release')),
       ).preAllocate(IO.exec(() => order.add('pre')));
 
-      await expectLater(res.use_(), ioSucceeded(Unit()));
+      await expectLater(res.use_(), succeeds(Unit()));
       expect(order, ['pre', 'acquire', 'release']);
     });
 
     test('propagates preAllocate error', () {
       final res = Resource.pure(42).preAllocate(IO.raiseError<Unit>('pre-error'));
-      expect(res.use(IO.pure), ioErrored('pre-error'));
+      expect(res.use(IO.pure), errors('pre-error'));
     });
   });
 
@@ -766,7 +766,7 @@ void main() {
       final res = Resource.pure(42).guaranteeCase(
         (oc) => Resource.eval(IO.exec(() => got = oc)),
       );
-      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      await expectLater(res.use(IO.pure), succeeds(42));
       expect(got, Outcome.succeeded(42));
     });
 
@@ -776,7 +776,7 @@ void main() {
       final res = Resource.raiseError<int>(err).guaranteeCase(
         (oc) => Resource.eval(IO.exec(() => got = oc)),
       );
-      await expectLater(res.use(IO.pure), ioErrored(err));
+      await expectLater(res.use(IO.pure), errors(err));
       expect(got, Outcome.errored<int>(err));
     });
 
@@ -787,7 +787,7 @@ void main() {
           .guaranteeCase(
             (oc) => Resource.eval(IO.exec(() => got = oc)),
           );
-      await expectLater(res.use(IO.pure), ioCanceled());
+      await expectLater(res.use(IO.pure), cancels());
       expect(got, Outcome.canceled<int>());
     });
   });
@@ -795,24 +795,24 @@ void main() {
   group('ref', () {
     test('creates a Ref with initial value', () {
       final test = Resource.ref(42).use((ref) => ref.value());
-      expect(test, ioSucceeded(42));
+      expect(test, succeeds(42));
     });
 
     test('Ref can be updated within use', () {
       final test = Resource.ref(0).use((ref) => ref.setValue(99).flatMap((_) => ref.value()));
-      expect(test, ioSucceeded(99));
+      expect(test, succeeds(99));
     });
   });
 
   group('raiseError', () {
     test('injects error into resource evaluation', () {
-      expect(Resource.raiseError<int>('oops').use(IO.pure), ioErrored('oops'));
+      expect(Resource.raiseError<int>('oops').use(IO.pure), errors('oops'));
     });
 
     test('is recoverable via handleErrorWith', () {
       expect(
         Resource.raiseError<int>('oops').handleErrorWith((_) => Resource.pure(0)).use(IO.pure),
-        ioSucceeded(0),
+        succeeds(0),
       );
     });
   });
@@ -833,13 +833,13 @@ void main() {
 
   group('canceled', () {
     test('immediately canceled resource cancels use', () {
-      expect(Resource.canceled.use_(), ioCanceled());
+      expect(Resource.canceled.use_(), cancels());
     });
   });
 
   group('cede', () {
     test('introduces async boundary without error', () {
-      expect(Resource.cede.use_(), ioSucceeded(Unit()));
+      expect(Resource.cede.use_(), succeeds(Unit()));
     });
   });
 
@@ -849,7 +849,7 @@ void main() {
       final res = Resource.apply(
         IO.pure((42, IO.exec(() => released = true))),
       );
-      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      await expectLater(res.use(IO.pure), succeeds(42));
       expect(released, isTrue);
     });
   });
@@ -860,7 +860,7 @@ void main() {
       final res = Resource.applyCase(
         IO.pure((42, (ExitCase ec) => IO.exec(() => got = ec))),
       );
-      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      await expectLater(res.use(IO.pure), succeeds(42));
       expect(got, ExitCase.succeeded());
     });
 
@@ -872,7 +872,7 @@ void main() {
       );
       await expectLater(
         res.use((_) => IO.raiseError<int>(err)),
-        ioErrored(err),
+        errors(err),
       );
       expect(got, ExitCase.errored(err));
     });
@@ -885,7 +885,7 @@ void main() {
         (poll) => poll(IO.pure(42)),
         (a, ec) => IO.exec(() => got = ec),
       );
-      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      await expectLater(res.use(IO.pure), succeeds(42));
       expect(got, ExitCase.succeeded());
     });
   });
@@ -897,7 +897,7 @@ void main() {
         (poll) => poll(IO.pure(42)),
         (_) => IO.exec(() => released = true),
       );
-      await expectLater(res.use(IO.pure), ioSucceeded(42));
+      await expectLater(res.use(IO.pure), succeeds(42));
       expect(released, isTrue);
     });
   });
@@ -919,7 +919,7 @@ void main() {
 
   group('useEval', () {
     test('evaluates the inner IO', () {
-      expect(Resource.eval(IO.pure(IO.pure(42))).useEval(), ioSucceeded(42));
+      expect(Resource.eval(IO.pure(IO.pure(42))).useEval(), succeeds(42));
     });
   });
 
@@ -931,12 +931,12 @@ void main() {
         (_) => IO.unit,
       ).flatMap((_) => Resource.pure(0));
       // Use isLeft to avoid dynamic type parameter mismatch in equality check
-      expect(res.attempt().use((e) => IO.pure(e.isLeft)), ioSucceeded(true));
+      expect(res.attempt().use((e) => IO.pure(e.isLeft)), succeeds(true));
     });
 
     test('succeeds when acquire succeeds', () {
       final res = Resource.make(IO.pure(42), (_) => IO.unit).flatMap((a) => Resource.pure(a * 2));
-      expect(res.attempt().use((e) => IO.pure(e.getOrElse(() => -1))), ioSucceeded(84));
+      expect(res.attempt().use((e) => IO.pure(e.getOrElse(() => -1))), succeeds(84));
     });
   });
 
@@ -948,7 +948,7 @@ void main() {
         IO.pure(42),
         (_) => IO.exec(() => cleanedUp = true),
       ).guaranteeCase((_) => Resource.eval(IO.raiseError<Unit>(finErr)));
-      await expectLater(res.use(IO.pure), ioErrored(finErr));
+      await expectLater(res.use(IO.pure), errors(finErr));
       expect(cleanedUp, isTrue);
     });
   });

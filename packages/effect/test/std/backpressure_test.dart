@@ -14,7 +14,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(true));
+      expect(test, succeeds(true));
     });
 
     test('Lossless Strategy should complete effects even when no permits are available', () {
@@ -35,7 +35,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded((const Some(1), const Some(2))));
+      expect(test, succeeds((const Some(1), const Some(2))));
     });
   });
 }

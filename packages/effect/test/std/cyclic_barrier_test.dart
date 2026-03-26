@@ -15,7 +15,7 @@ void main() {
     test('await is cancelable', () {
       final test = newBarrier(2).flatMap((barrier) => barrier.await()).timeoutTo(1.second, IO.unit);
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test('await releases all fibers', () {
@@ -23,7 +23,7 @@ void main() {
         return (barrier.await(), barrier.await()).parTupled.voided();
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test('should reset once full', () {
@@ -45,7 +45,7 @@ void main() {
     test('barrier of capacity 1 is a no op', () {
       expect(
         newBarrier(1).flatMap((barrier) => barrier.await()),
-        ioSucceeded(),
+        succeeds(),
       );
     });
 
@@ -63,7 +63,7 @@ void main() {
         });
       });
 
-      expect(IList.fill(iterations, run).sequence(), ioSucceeded());
+      expect(IList.fill(iterations, run).sequence(), succeeds());
     });
   });
 }

@@ -1,6 +1,6 @@
 import 'package:postgres/postgres.dart' as pg;
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/test_matchers.dart';
+import 'package:ribs_core/test.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/test.dart';
 import 'package:ribs_postgres/ribs_postgres.dart';
@@ -44,7 +44,7 @@ void main() {
 
   group('DDL', () {
     test('create table', () {
-      expect(_createTable().transact(xa), ioSucceeded());
+      expect(_createTable().transact(xa), succeeds());
     });
   });
 
@@ -59,7 +59,7 @@ void main() {
           .run(('Alice', 30))
           .transact(xa);
 
-      expect(rows, ioSucceeded(1));
+      expect(rows, succeeds(1));
     });
 
     test('insert many rows', () {
@@ -70,7 +70,7 @@ void main() {
           .runMany(people)
           .transact(xa);
 
-      expect(insertMany, ioSucceeded());
+      expect(insertMany, succeeds());
     });
   });
 
@@ -85,7 +85,7 @@ void main() {
           .ilist()
           .transact(xa);
 
-      expect(people, ioSucceeded(hasLength(3)));
+      expect(people, succeeds(hasLength(3)));
     });
 
     test('unique returns exactly one row', () {
@@ -95,7 +95,7 @@ void main() {
           .unique()
           .transact(xa);
 
-      expect(test, ioSucceeded(('Alice', 30)));
+      expect(test, succeeds(('Alice', 30)));
     });
 
     test('option returns Some for existing row', () {
@@ -105,7 +105,7 @@ void main() {
           .option()
           .transact(xa);
 
-      expect(result, ioSucceeded(isSome()));
+      expect(result, succeeds(isSome()));
     });
 
     test('option returns None for missing row', () {
@@ -115,7 +115,7 @@ void main() {
           .option()
           .transact(xa);
 
-      expect(result, ioSucceeded(isNone()));
+      expect(result, succeeds(isNone()));
     });
   });
 
@@ -133,7 +133,7 @@ void main() {
 
       expect(
         byName.unique('Bob').transact(xa),
-        ioSucceeded(('Bob', 25)),
+        succeeds(('Bob', 25)),
       );
     });
 
@@ -146,7 +146,7 @@ void main() {
 
       expect(
         byMinAge.ilist(30).transact(xa),
-        ioSucceeded(hasLength(2)),
+        succeeds(hasLength(2)),
       );
     });
   });
@@ -164,7 +164,7 @@ void main() {
 
       expect(
         rill.compile.toIList,
-        ioSucceeded(hasLength(3)),
+        succeeds(hasLength(3)),
       );
     });
 
@@ -176,7 +176,7 @@ void main() {
 
       expect(
         byMinAge.stream(30).transact(xa).compile.toIList,
-        ioSucceeded(hasLength(2)),
+        succeeds(hasLength(2)),
       );
     });
   });
@@ -192,7 +192,7 @@ void main() {
           .run('Widget')
           .transact(xa);
 
-      expect(id, ioSucceeded(greaterThan(0)));
+      expect(id, succeeds(greaterThan(0)));
     });
 
     test('insert many returning ids', () {
@@ -201,7 +201,7 @@ void main() {
           .runMany(ilist(['Alpha', 'Beta', 'Gamma']))
           .transact(xa);
 
-      expect(ids, ioSucceeded(hasLength(3)));
+      expect(ids, succeeds(hasLength(3)));
     });
   });
 
@@ -223,7 +223,7 @@ void main() {
 
       expect(
         insert.productR(() => count),
-        ioSucceeded(0),
+        succeeds(0),
       );
     });
 
@@ -240,7 +240,7 @@ void main() {
 
       expect(
         canceledInsert.productR(() => count),
-        ioSucceeded(0),
+        succeeds(0),
       );
     });
   });
@@ -278,7 +278,7 @@ void main() {
       expect(
         // Would hang forever if the connection was not returned.
         select1.productR(() => select1),
-        ioSucceeded(),
+        succeeds(),
       );
     });
 
@@ -290,7 +290,7 @@ void main() {
       expect(
         // Would block if the connection leaked on error.
         raise.productR(() => select1),
-        ioSucceeded(),
+        succeeds(),
       );
     });
 
@@ -306,7 +306,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test(
@@ -398,7 +398,7 @@ void main() {
 
       expect(
         insert.productR(() => result),
-        ioSucceeded('NoNick'),
+        succeeds('NoNick'),
       );
     });
   });

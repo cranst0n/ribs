@@ -4,18 +4,18 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:test/test.dart';
 
+Matcher succeeds([Object? matcher]) => _Succeeded(matcher ?? anyOf(isNotNull, isNull));
+
+Matcher errors([Object? matcher]) => _Errored(matcher ?? anyOf(isNotNull, isNull));
+
+Matcher cancels() => _Canceled();
+
 IO<Unit> expectIO(
   dynamic actual,
   dynamic matcher, {
   String? reason,
   Object? skip,
 }) => IO.fromFutureF(() => expectLater(actual, matcher, reason: reason, skip: skip)).voided();
-
-Matcher ioSucceeded([Object? matcher]) => _Succeeded(matcher ?? anyOf(isNotNull, isNull));
-
-Matcher ioErrored([Object? matcher]) => _Errored(matcher ?? anyOf(isNotNull, isNull));
-
-Matcher ioCanceled() => _Canceled();
 
 class _Succeeded extends AsyncMatcher {
   final Object _matcher;
@@ -32,7 +32,7 @@ class _Succeeded extends AsyncMatcher {
     } else {
       return item.unsafeRunFutureOutcome().then((outcome) {
         return outcome.fold(
-          () => fail('IO did not succeed, but was canceled'),
+          () => fail('IO did not succeed, but canceled'),
           (err, _) => fail('IO did not succeed, but errored: $err'),
           (a) => expect(a, _matcher),
         );
@@ -56,7 +56,7 @@ class _Errored extends AsyncMatcher {
     } else {
       return item.unsafeRunFutureOutcome().then((outcome) {
         return outcome.fold(
-          () => fail('IO did not error, but was canceled'),
+          () => fail('IO did not error, but canceled'),
           (err, _) => expect(err, _matcher),
           (a) => fail('IO did not error, but succeeded as: $a'),
         );

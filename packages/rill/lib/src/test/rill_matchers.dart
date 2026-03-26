@@ -1,9 +1,10 @@
+// ignore: implementation_imports
 import 'package:matcher/src/expect/async_matcher.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_rill/src/rill.dart';
 import 'package:test/test.dart';
 
-Matcher producesError([Object? matcher]) => _ProducesError(matcher);
+Matcher producesError([Object? matcher]) => _ProducesError(matcher ?? anyOf(isNotNull, isNull));
 Matcher producesInOrder(Object expected) => _ProducesInOrder(expected);
 Matcher producesNothing() => _ProducesNothing();
 Matcher producesOnly<A>(A a) => _ProducesInOrder([a]);
@@ -11,7 +12,7 @@ Matcher producesSameAs<A>(Rill<A> expected) => _ProducesSameAs(expected);
 Matcher producesUnordered(Object expected) => _ProducesUnordered(expected);
 
 class _ProducesError extends AsyncMatcher {
-  final Object? matcher;
+  final Object matcher;
 
   _ProducesError(this.matcher);
 
@@ -27,11 +28,7 @@ class _ProducesError extends AsyncMatcher {
     return item.compile.toIList.unsafeRunFutureOutcome().then((outcome) {
       return outcome.fold(
         () => fail('Rill did not succeed, but was canceled'),
-        (err, _) {
-          if (matcher != null) {
-            expect(err, matcher);
-          }
-        },
+        (err, _) => expect(err, matcher),
         (a) => fail('Rill did not error, but was succeeded: $a'),
       );
     });

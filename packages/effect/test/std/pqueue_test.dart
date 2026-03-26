@@ -1,5 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/test_matchers.dart';
+import 'package:ribs_core/test.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/src/std/internal/list_queue.dart';
 import 'package:ribs_effect/test.dart';
@@ -23,7 +23,7 @@ void main() {
       });
     });
 
-    expect(test, ioSucceeded());
+    expect(test, succeeds());
   });
 
   test('async take with zero capacity', () {
@@ -50,7 +50,7 @@ void main() {
       });
     });
 
-    expect(test, ioSucceeded());
+    expect(test, succeeds());
   });
 
   test('offer/take with zero capacity', () {
@@ -76,7 +76,7 @@ void main() {
       });
     });
 
-    expect(test, ioSucceeded());
+    expect(test, succeeds());
   });
 
   QueueTests.tryOfferOnFullTests(

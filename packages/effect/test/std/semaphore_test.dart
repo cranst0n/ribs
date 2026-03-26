@@ -14,12 +14,12 @@ void main() {
 
     test('tryPermit returns true if permit is available for it', () {
       final test = sc(1).flatMap((sem) => sem.tryPermit().use(IO.pure));
-      expect(test, ioSucceeded(true));
+      expect(test, succeeds(true));
     });
 
     test('tryPermit returns false if no permit is available for it', () {
       final test = sc(0).flatMap((sem) => sem.tryPermit().use(IO.pure));
-      expect(test, ioSucceeded(false));
+      expect(test, succeeds(false));
     });
 
     test('unblock when permit is released', () {
@@ -39,7 +39,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(true));
+      expect(test, succeeds(true));
     });
 
     test('release permit if permit errors', () {
@@ -49,7 +49,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(Unit()));
+      expect(test, succeeds(Unit()));
     });
 
     test('release permit if tryPermit errors', () {
@@ -59,7 +59,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(Unit()));
+      expect(test, succeeds(Unit()));
     });
 
     test('release permit if permit completes', () {
@@ -69,7 +69,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(Unit()));
+      expect(test, succeeds(Unit()));
     });
 
     test('release permit if tryPermit completes', () {
@@ -79,7 +79,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(Unit()));
+      expect(test, succeeds(Unit()));
     });
 
     test('not release permit if tryPermit completes without acquiring a permit', () {
@@ -103,7 +103,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(Unit()));
+      expect(test, succeeds(Unit()));
     });
 
     test('release tryPermit if action gets canceled', () {
@@ -117,7 +117,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(Unit()));
+      expect(test, succeeds(Unit()));
     });
 
     test('allow cancelation if blocked waiting for permit', () {
@@ -133,7 +133,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(true));
+      expect(test, succeeds(true));
     });
 
     test('not release permit when an acquire gets canceled', () {
@@ -152,7 +152,7 @@ void main() {
         return IList.range(0, n).traverseIO_((_) => sem.acquire()).productR(() => sem.available());
       });
 
-      expect(op, ioSucceeded(0));
+      expect(op, succeeds(0));
     });
 
     test('acquireN does not leak permits upon cancelation', () {
@@ -160,7 +160,7 @@ void main() {
         return sem.acquireN(2).timeout(1.second).attempt().productR(() => sem.acquire());
       });
 
-      expect(op, ioSucceeded(Unit()));
+      expect(op, succeeds(Unit()));
     });
 
     test('available with no available permits', () {
@@ -177,7 +177,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded((-1, 0)));
+      expect(test, succeeds((-1, 0)));
     });
 
     test('tryAcquire with available permits', () {
@@ -189,7 +189,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(true));
+      expect(test, succeeds(true));
     });
 
     test('tryAcquire with no available permits', () {
@@ -201,7 +201,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(false));
+      expect(test, succeeds(false));
     });
 
     test('tryAcquireN all available permits', () {
@@ -211,7 +211,7 @@ void main() {
         return sem.tryAcquireN(n);
       });
 
-      expect(test, ioSucceeded(true));
+      expect(test, succeeds(true));
     });
 
     test('offsetting acquires/releases - acquires parallel with releases', () {
@@ -224,7 +224,7 @@ void main() {
         ).parTupled.productR(() => sem.count());
       });
 
-      expect(test, ioSucceeded(0));
+      expect(test, succeeds(0));
     });
 
     test('offsetting acquires/releases - individual acquires/increment in parallel', () {
@@ -237,13 +237,13 @@ void main() {
         ).parTupled.productR(() => sem.count());
       });
 
-      expect(test, ioSucceeded(0));
+      expect(test, succeeds(0));
     });
 
     test('available with available permits', () {
       final test = sc(20).flatMap((sem) => sem.acquireN(19).flatMap((_) => sem.available()));
 
-      expect(test, ioSucceeded(1));
+      expect(test, succeeds(1));
     });
 
     test('available with 0 available permits', () {
@@ -251,7 +251,7 @@ void main() {
         20,
       ).flatMap((sem) => sem.acquireN(20).flatMap((_) => IO.cede.productR(() => sem.available())));
 
-      expect(test, ioSucceeded(0));
+      expect(test, succeeds(0));
     });
 
     test('count with available permits', () {
@@ -267,7 +267,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test('count with no available permits', () {
@@ -281,13 +281,13 @@ void main() {
             );
       });
 
-      expect(test, ioSucceeded(-n));
+      expect(test, succeeds(-n));
     });
 
     test('count with 0 available permits', () {
       final test = sc(20).flatMap((sem) => sem.acquireN(20).productR(() => sem.count()));
 
-      expect(test, ioSucceeded(0));
+      expect(test, succeeds(0));
     });
   });
 }

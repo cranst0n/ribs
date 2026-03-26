@@ -1,5 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/test_matchers.dart';
+import 'package:ribs_core/test.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/test.dart';
 import 'package:ribs_rill/ribs_rill.dart';
@@ -14,7 +14,7 @@ void main() {
       return subscriber.concurrently(publisher).compile.toIList;
     });
 
-    expect(test, ioSucceeded(ilist(['1', '1', '1', '1'])));
+    expect(test, succeeds(ilist(['1', '1', '1', '1'])));
   });
 
   group('publish1', () {
@@ -23,7 +23,7 @@ void main() {
         return topic.publish1(42);
       });
 
-      expect(result, ioSucceeded(isRight()));
+      expect(result, succeeds(isRight()));
     });
 
     test('returns Left(TopicClosed) when topic is closed', () {
@@ -31,7 +31,7 @@ void main() {
         return topic.close.productR(() => topic.publish1(42));
       });
 
-      expect(result, ioSucceeded(isLeft()));
+      expect(result, succeeds(isLeft()));
     });
 
     test('delivers message to all active subscribers', () {
@@ -42,14 +42,14 @@ void main() {
         return IO.both(IO.both(sub1, sub2), publish).mapN((a, _) => a);
       });
 
-      expect(result, ioSucceeded((ilist([99]), ilist([99]))));
+      expect(result, succeeds((ilist([99]), ilist([99]))));
     });
   });
 
   group('close', () {
     test('returns Right(Unit) on first close', () {
       final result = Topic.create<int>().flatMap((t) => t.close);
-      expect(result, ioSucceeded(isRight()));
+      expect(result, succeeds(isRight()));
     });
 
     test('returns Left(TopicClosed) on second close', () {
@@ -57,7 +57,7 @@ void main() {
         return topic.close.productR(() => topic.close);
       });
 
-      expect(result, ioSucceeded(isLeft()));
+      expect(result, succeeds(isLeft()));
     });
 
     test('terminates subscriber rill after close', () {
@@ -67,7 +67,7 @@ void main() {
         return IO.both(sub, closeAfterDelay).mapN((a, _) => a);
       });
 
-      expect(result, ioSucceeded(nil<int>()));
+      expect(result, succeeds(nil<int>()));
     });
 
     test('subscriber rill delivers buffered elements then terminates on close', () {
@@ -80,7 +80,7 @@ void main() {
         return IO.both(sub, sendAndClose).mapN((a, _) => a);
       });
 
-      expect(result, ioSucceeded(ilist([1, 2])));
+      expect(result, succeeds(ilist([1, 2])));
     });
   });
 
@@ -88,7 +88,7 @@ void main() {
     test('false when topic is open', () {
       expect(
         Topic.create<int>().flatMap((t) => t.isClosed),
-        ioSucceeded(isFalse),
+        succeeds(isFalse),
       );
     });
 
@@ -97,7 +97,7 @@ void main() {
         Topic.create<int>().flatMap((topic) {
           return topic.close.productR(() => topic.isClosed);
         }),
-        ioSucceeded(isTrue),
+        succeeds(isTrue),
       );
     });
   });
@@ -109,7 +109,7 @@ void main() {
         return IO.both(closeAfterDelay, topic.closed).voided();
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
   });
 
@@ -130,7 +130,7 @@ void main() {
         });
       });
 
-      expect(result, ioSucceeded(ilist([1])));
+      expect(result, succeeds(ilist([1])));
     });
 
     test('decrements when subscriber is released', () {
@@ -141,7 +141,7 @@ void main() {
         );
       });
 
-      expect(result, ioSucceeded(ilist([0])));
+      expect(result, succeeds(ilist([0])));
     });
   });
 
@@ -157,7 +157,7 @@ void main() {
         return IO.both(sub, produce).mapN((a, _) => a);
       });
 
-      expect(result, ioSucceeded(ilist([1, 2, 3])));
+      expect(result, succeeds(ilist([1, 2, 3])));
     });
   });
 
@@ -174,7 +174,7 @@ void main() {
         });
       });
 
-      expect(result, ioSucceeded(ilist([10, 20])));
+      expect(result, succeeds(ilist([10, 20])));
     });
 
     test('subscribing to a closed topic returns empty rill', () {
@@ -184,7 +184,7 @@ void main() {
         );
       });
 
-      expect(result, ioSucceeded(nil<int>()));
+      expect(result, succeeds(nil<int>()));
     });
 
     test('two independent subscriptions each receive all messages', () {
@@ -203,7 +203,7 @@ void main() {
         });
       });
 
-      expect(result, ioSucceeded((ilist([1, 2, 3]), ilist([1, 2, 3]))));
+      expect(result, succeeds((ilist([1, 2, 3]), ilist([1, 2, 3]))));
     });
   });
 
@@ -220,7 +220,7 @@ void main() {
         });
       });
 
-      expect(result, ioSucceeded(ilist([7, 8])));
+      expect(result, succeeds(ilist([7, 8])));
     });
   });
 
@@ -231,7 +231,7 @@ void main() {
         return publishing.productR(() => topic.isClosed);
       });
 
-      expect(result, ioSucceeded(true));
+      expect(result, succeeds(true));
     });
 
     test('terminates when topic is already closed', () {
@@ -241,7 +241,7 @@ void main() {
         );
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
   });
 }

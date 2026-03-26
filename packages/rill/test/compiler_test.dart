@@ -1,6 +1,6 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/test_matchers.dart';
+import 'package:ribs_core/test.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/test.dart';
 import 'package:ribs_rill/ribs_rill.dart';
@@ -13,17 +13,17 @@ void main() {
   group('RillCompile (IO)', () {
     group('fold', () {
       test('empty stream returns init', () {
-        expect(Rill.empty<int>().compile.fold(0, (a, b) => a + b), ioSucceeded(0));
+        expect(Rill.empty<int>().compile.fold(0, (a, b) => a + b), succeeds(0));
       });
 
       test('sums elements', () {
-        expect(ints([1, 2, 3, 4]).compile.fold(0, (a, b) => a + b), ioSucceeded(10));
+        expect(ints([1, 2, 3, 4]).compile.fold(0, (a, b) => a + b), succeeds(10));
       });
 
       test('collects into list', () {
         expect(
           ints([1, 2, 3]).compile.fold(<int>[], (acc, x) => [...acc, x]),
-          ioSucceeded([1, 2, 3]),
+          succeeds([1, 2, 3]),
         );
       });
     });
@@ -32,83 +32,83 @@ void main() {
       test('empty stream returns init', () {
         expect(
           Rill.empty<int>().compile.foldChunks(0, (acc, c) => acc + c.size),
-          ioSucceeded(0),
+          succeeds(0),
         );
       });
 
       test('receives all chunks', () {
         expect(
           ints([1, 2, 3]).compile.foldChunks(0, (acc, c) => acc + c.size),
-          ioSucceeded(3),
+          succeeds(3),
         );
       });
     });
 
     group('last', () {
       test('empty stream returns None', () {
-        expect(Rill.empty<int>().compile.last, ioSucceeded(none<int>()));
+        expect(Rill.empty<int>().compile.last, succeeds(none<int>()));
       });
 
       test('single-element stream returns Some', () {
-        expect(Rill.emit(42).compile.last, ioSucceeded(isSome(42)));
+        expect(Rill.emit(42).compile.last, succeeds(isSome(42)));
       });
 
       test('multi-element stream returns last element', () {
-        expect(ints([1, 2, 3]).compile.last, ioSucceeded(isSome(3)));
+        expect(ints([1, 2, 3]).compile.last, succeeds(isSome(3)));
       });
     });
 
     group('lastOrError', () {
       test('empty stream raises error', () {
-        expect(Rill.empty<int>().compile.lastOrError, ioErrored());
+        expect(Rill.empty<int>().compile.lastOrError, errors());
       });
 
       test('returns last element', () {
-        expect(ints([10, 20, 30]).compile.lastOrError, ioSucceeded(30));
+        expect(ints([10, 20, 30]).compile.lastOrError, succeeds(30));
       });
     });
 
     group('onlyOrError', () {
       test('empty stream raises error', () {
-        expect(Rill.empty<int>().compile.onlyOrError, ioErrored());
+        expect(Rill.empty<int>().compile.onlyOrError, errors());
       });
 
       test('single element succeeds', () {
-        expect(Rill.emit(99).compile.onlyOrError, ioSucceeded(99));
+        expect(Rill.emit(99).compile.onlyOrError, succeeds(99));
       });
 
       test('multiple elements raises error', () {
-        expect(ints([1, 2]).compile.onlyOrError, ioErrored());
+        expect(ints([1, 2]).compile.onlyOrError, errors());
       });
     });
 
     group('count', () {
       test('empty stream is 0', () {
-        expect(Rill.empty<int>().compile.count, ioSucceeded(0));
+        expect(Rill.empty<int>().compile.count, succeeds(0));
       });
 
       test('counts all elements', () {
-        expect(ints([1, 2, 3, 4, 5]).compile.count, ioSucceeded(5));
+        expect(ints([1, 2, 3, 4, 5]).compile.count, succeeds(5));
       });
     });
 
     group('drain', () {
       test('empty stream completes', () {
-        expect(Rill.empty<int>().compile.drain, ioSucceeded(Unit()));
+        expect(Rill.empty<int>().compile.drain, succeeds(Unit()));
       });
 
       test('discards all elements', () {
-        expect(ints([1, 2, 3]).compile.drain, ioSucceeded(Unit()));
+        expect(ints([1, 2, 3]).compile.drain, succeeds(Unit()));
       });
     });
 
     group('toIList', () {
       test('empty stream returns nil', () {
-        expect(Rill.empty<int>().compile.toIList, ioSucceeded(nil<int>()));
+        expect(Rill.empty<int>().compile.toIList, succeeds(nil<int>()));
       });
 
       test('preserves order', () {
-        expect(ints([3, 1, 2]).compile.toIList, ioSucceeded(ilist([3, 1, 2])));
+        expect(ints([3, 1, 2]).compile.toIList, succeeds(ilist([3, 1, 2])));
       });
     });
 
@@ -116,14 +116,14 @@ void main() {
       test('empty stream returns empty vector', () {
         expect(
           Rill.empty<int>().compile.toIVector,
-          ioSucceeded(IVector.empty<int>()),
+          succeeds(IVector.empty<int>()),
         );
       });
 
       test('preserves order', () {
         expect(
           ints([1, 2, 3]).compile.toIVector,
-          ioSucceeded(IVector.fromDart([1, 2, 3])),
+          succeeds(IVector.fromDart([1, 2, 3])),
         );
       });
     });
@@ -131,18 +131,18 @@ void main() {
 
   group('RillCompilerStringOps', () {
     test('empty stream returns empty string', () {
-      expect(Rill.empty<String>().compile.string, ioSucceeded(''));
+      expect(Rill.empty<String>().compile.string, succeeds(''));
     });
 
     test('concatenates all string elements', () {
       expect(
         Rill.emits<String>(['hello', ' ', 'world']).compile.string,
-        ioSucceeded('hello world'),
+        succeeds('hello world'),
       );
     });
 
     test('single element', () {
-      expect(Rill.emit('foo').compile.string, ioSucceeded('foo'));
+      expect(Rill.emit('foo').compile.string, succeeds('foo'));
     });
   });
 
@@ -150,14 +150,14 @@ void main() {
     test('empty stream returns empty ByteVector', () {
       expect(
         Rill.empty<int>().compile.toByteVector,
-        ioSucceeded(ByteVector.empty),
+        succeeds(ByteVector.empty),
       );
     });
 
     test('collects bytes into ByteVector', () {
       expect(
         Rill.emits([1, 2, 3]).compile.toByteVector,
-        ioSucceeded(ByteVector.fromDart([1, 2, 3])),
+        succeeds(ByteVector.fromDart([1, 2, 3])),
       );
     });
   });
@@ -167,14 +167,14 @@ void main() {
       test('empty stream returns init', () {
         expect(
           Rill.empty<int>().compile.resource.fold(0, (a, b) => a + b).use(IO.pure),
-          ioSucceeded(0),
+          succeeds(0),
         );
       });
 
       test('sums elements', () {
         expect(
           ints([1, 2, 3]).compile.resource.fold(0, (a, b) => a + b).use(IO.pure),
-          ioSucceeded(6),
+          succeeds(6),
         );
       });
     });
@@ -183,7 +183,7 @@ void main() {
       test('counts chunk sizes', () {
         expect(
           ints([1, 2, 3]).compile.resource.foldChunks(0, (acc, c) => acc + c.size).use(IO.pure),
-          ioSucceeded(3),
+          succeeds(3),
         );
       });
     });
@@ -192,14 +192,14 @@ void main() {
       test('empty stream is 0', () {
         expect(
           Rill.empty<int>().compile.resource.count.use(IO.pure),
-          ioSucceeded(0),
+          succeeds(0),
         );
       });
 
       test('counts all elements', () {
         expect(
           ints([1, 2, 3, 4]).compile.resource.count.use(IO.pure),
-          ioSucceeded(4),
+          succeeds(4),
         );
       });
     });
@@ -208,14 +208,14 @@ void main() {
       test('empty stream completes', () {
         expect(
           Rill.empty<int>().compile.resource.drain.use(IO.pure),
-          ioSucceeded(Unit()),
+          succeeds(Unit()),
         );
       });
 
       test('discards all elements', () {
         expect(
           ints([1, 2, 3]).compile.resource.drain.use(IO.pure),
-          ioSucceeded(Unit()),
+          succeeds(Unit()),
         );
       });
     });
@@ -224,14 +224,14 @@ void main() {
       test('empty stream returns None', () {
         expect(
           Rill.empty<int>().compile.resource.last.use(IO.pure),
-          ioSucceeded(none<int>()),
+          succeeds(none<int>()),
         );
       });
 
       test('returns last element', () {
         expect(
           ints([10, 20, 30]).compile.resource.last.use(IO.pure),
-          ioSucceeded(isSome(30)),
+          succeeds(isSome(30)),
         );
       });
     });
@@ -240,14 +240,14 @@ void main() {
       test('empty stream raises error', () {
         expect(
           Rill.empty<int>().compile.resource.lastOrError.use(IO.pure),
-          ioErrored(),
+          errors(),
         );
       });
 
       test('returns last element', () {
         expect(
           ints([5, 10, 15]).compile.resource.lastOrError.use(IO.pure),
-          ioSucceeded(15),
+          succeeds(15),
         );
       });
     });
@@ -256,21 +256,21 @@ void main() {
       test('empty stream raises error', () {
         expect(
           Rill.empty<int>().compile.resource.onlyOrError.use(IO.pure),
-          ioErrored(),
+          errors(),
         );
       });
 
       test('single element succeeds', () {
         expect(
           Rill.emit(7).compile.resource.onlyOrError.use(IO.pure),
-          ioSucceeded(7),
+          succeeds(7),
         );
       });
 
       test('multiple elements raises error', () {
         expect(
           ints([1, 2]).compile.resource.onlyOrError.use(IO.pure),
-          ioErrored(),
+          errors(),
         );
       });
     });
@@ -279,14 +279,14 @@ void main() {
       test('empty stream returns nil', () {
         expect(
           Rill.empty<int>().compile.resource.toIList.use(IO.pure),
-          ioSucceeded(nil<int>()),
+          succeeds(nil<int>()),
         );
       });
 
       test('preserves order', () {
         expect(
           ints([3, 1, 2]).compile.resource.toIList.use(IO.pure),
-          ioSucceeded(ilist([3, 1, 2])),
+          succeeds(ilist([3, 1, 2])),
         );
       });
     });
@@ -295,14 +295,14 @@ void main() {
       test('empty stream returns empty vector', () {
         expect(
           Rill.empty<int>().compile.resource.toIVector.use(IO.pure),
-          ioSucceeded(IVector.empty<int>()),
+          succeeds(IVector.empty<int>()),
         );
       });
 
       test('preserves order', () {
         expect(
           ints([1, 2, 3]).compile.resource.toIVector.use(IO.pure),
-          ioSucceeded(IVector.fromDart([1, 2, 3])),
+          succeeds(IVector.fromDart([1, 2, 3])),
         );
       });
     });
@@ -314,7 +314,7 @@ void main() {
         return rill.compile.resource.toIList.use(IO.pure).productR(() => ref.value());
       });
 
-      expect(released, ioSucceeded(true));
+      expect(released, succeeds(true));
     });
   });
 }

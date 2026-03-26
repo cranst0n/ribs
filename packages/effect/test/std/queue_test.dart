@@ -1,5 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/test_matchers.dart';
+import 'package:ribs_core/test.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/src/std/internal/list_queue.dart';
 import 'package:ribs_effect/test.dart';
@@ -83,7 +83,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     IO<Queue<int>> constructor(int n) => Queue.circularBuffer<int>(n);
@@ -129,7 +129,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     IO<Queue<int>> constructor(int n) => Queue.dropping<int>(n);
@@ -198,7 +198,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test('respect fifo order', () {
@@ -217,7 +217,7 @@ void main() {
             });
       });
 
-      expect(test, ioSucceeded(ilist([0, 1, 2, 3, 4])));
+      expect(test, succeeds(ilist([0, 1, 2, 3, 4])));
     });
 
     test('not lose offer when taker is canceled during exchange', () {
@@ -257,7 +257,7 @@ void main() {
         });
       });
 
-      expect(test.parReplicate(1000), ioSucceeded());
+      expect(test.parReplicate(1000), succeeds());
     });
   });
 
@@ -320,7 +320,7 @@ class QueueTests {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
   }
 
@@ -341,7 +341,7 @@ class QueueTests {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
   }
 
@@ -368,7 +368,7 @@ class QueueTests {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test('take batches for all records when maxN is provided', () {
@@ -388,7 +388,7 @@ class QueueTests {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test('take all records when maxN > queue size', () {
@@ -408,7 +408,7 @@ class QueueTests {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test('be empty when queue is empty', () {
@@ -418,7 +418,7 @@ class QueueTests {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test('release one offerer when queue is full', () {
@@ -445,7 +445,7 @@ class QueueTests {
         });
       });
 
-      expect(test.parReplicate_(10), ioSucceeded());
+      expect(test.parReplicate_(10), succeeds());
     });
 
     test('release all offerers when queue is full', () {
@@ -473,7 +473,7 @@ class QueueTests {
         });
       });
 
-      expect(test.parReplicate(10), ioSucceeded());
+      expect(test.parReplicate(10), succeeds());
     });
   }
 
@@ -494,7 +494,7 @@ class QueueTests {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
   }
 
@@ -525,7 +525,7 @@ class QueueTests {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test('ensure offerers are awakened under all circumstances', () {
@@ -556,7 +556,7 @@ class QueueTests {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
   }
 
@@ -602,7 +602,7 @@ class QueueTests {
             });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
   }
 
@@ -659,7 +659,7 @@ class QueueTests {
 
       final prog = loop(0).replicate_(100).as(Unit());
 
-      expect(prog, ioSucceeded());
+      expect(prog, succeeds());
     });
 
     test('ensure takers are awakened under all circumstances', () {
@@ -691,7 +691,7 @@ class QueueTests {
             });
           }).voided();
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
   }
 
@@ -739,7 +739,7 @@ class QueueTests {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
   }
 
@@ -764,7 +764,7 @@ class QueueTests {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test('should return None on tryTake when the queue is empty', () {
@@ -774,7 +774,7 @@ class QueueTests {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test('demonstrate sequential offer and take', () {
@@ -790,7 +790,7 @@ class QueueTests {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test('demonstrate cancelable take', () {
@@ -806,7 +806,7 @@ class QueueTests {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test('async take', () {
@@ -834,7 +834,7 @@ class QueueTests {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test('should return the queue size when take precedes offer', () {
@@ -848,7 +848,7 @@ class QueueTests {
         );
       });
 
-      expect(test, ioSucceeded(0));
+      expect(test, succeeds(0));
     });
 
     test('should return the queue size when take precedes tryOffer', () {
@@ -862,7 +862,7 @@ class QueueTests {
         );
       });
 
-      expect(test, ioSucceeded(0));
+      expect(test, succeeds(0));
     });
   }
 }

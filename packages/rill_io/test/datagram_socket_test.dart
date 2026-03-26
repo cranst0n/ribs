@@ -46,7 +46,7 @@ void main() {
 
         expect(
           result.map((grams) => grams.map((gram) => gram.bytes)),
-          ioSucceeded(IList.fill(3, payload)),
+          succeeds(IList.fill(3, payload)),
         );
       },
       testOn: 'vm',

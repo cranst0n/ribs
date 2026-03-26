@@ -3,11 +3,11 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/test.dart';
 import 'package:ribs_rill/ribs_rill.dart';
+import 'package:ribs_rill/test.dart';
 import 'package:test/test.dart';
 
 import 'arbitraries.dart';
 import 'counter.dart';
-import 'matchers.dart';
 
 // yolo-mode
 extension<A> on Rill<A> {
@@ -18,13 +18,13 @@ void main() {
   test('stack safety - stepPull deeply nested flatMap', () {
     const n = 2000000;
     final test = Rill.chunk(Chunk.fill(n, 0)).flatMap((x) => Rill.emit(x + 1)).compile.drain;
-    expect(test, ioSucceeded(Unit()));
+    expect(test, succeeds(Unit()));
   });
 
   test('stack safety - stepPull deeply nested flatMap with type change', () {
     const n = 2000000;
     final test = Rill.chunk(Chunk.fill(n, 42)).flatMap((x) => Rill.emit('v=$x')).compile.count;
-    expect(test, ioSucceeded(n));
+    expect(test, succeeds(n));
   });
 
   group('bracket', () {
@@ -47,7 +47,7 @@ void main() {
             return Rill.emit(s);
           });
 
-      await expectLater(test.compile.drain, ioSucceeded(Unit()));
+      await expectLater(test.compile.drain, succeeds(Unit()));
       expect(buffer.toString().split('\n').where((l) => l.isNotEmpty), [
         'Acquired',
         'Used',
@@ -71,7 +71,7 @@ void main() {
             .flatMap((_) => counter.count);
       });
 
-      expect(test, ioSucceeded(0));
+      expect(test, succeeds(0));
     });
 
     group('finalizer are run in LIFO order', () {
@@ -90,7 +90,7 @@ void main() {
               .flatMap((_) => track.value());
         });
 
-        expect(test, ioSucceeded(ilist([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])));
+        expect(test, succeeds(ilist([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])));
       });
 
       test('scope closure', () {
@@ -109,7 +109,7 @@ void main() {
               .flatMap((_) => track.value());
         });
 
-        expect(test, ioSucceeded(ilist([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])));
+        expect(test, succeeds(ilist([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])));
       });
     });
 
@@ -117,8 +117,8 @@ void main() {
       final s1 = Rill.bracket(IO.pure(1), (_) => IO.unit);
       final s2 = Rill.bracket(IO.pure('a'), (_) => IO.raiseError('BOOM'));
 
-      expect(s1.zip(s2).compile.drain, ioErrored('BOOM'));
-      expect(s2.zip(s1).compile.drain, ioErrored('BOOM'));
+      expect(s1.zip(s2).compile.drain, errors('BOOM'));
+      expect(s2.zip(s1).compile.drain, errors('BOOM'));
     });
   });
 
@@ -516,7 +516,7 @@ void main() {
             .flatMap((_) => s1.compile.toIList);
       });
 
-      expect(test, ioSucceeded(ilist([1, 2, 3, 4, 5])));
+      expect(test, succeeds(ilist([1, 2, 3, 4, 5])));
     });
   });
 
@@ -632,7 +632,7 @@ void main() {
     expect(rill.handleErrorWith((_) => Rill.emit(42)), producesInOrder([1, 2, 42]));
   });
 
-  test('holdResource', () async {
+  test('holdResource', () {
     final sourceStream = Rill.awakeEvery(1.second).zipWithIndex().mapN((_, idx) => idx + 1);
 
     final program = Ref.of(nil<int>()).flatMap((st) {
@@ -662,7 +662,7 @@ void main() {
 
     final ticker = Ticker.ticked(program)..tickAll();
 
-    expect(await ticker.outcome, Outcome.succeeded(ilist([0, 2, 4])));
+    expect(ticker.outcome, completion(Outcome.succeeded(ilist([0, 2, 4]))));
   });
 
   group('ifEmpty', () {
@@ -1002,7 +1002,7 @@ void main() {
       return rill.flatMap((_) => io).flatMap((_) => st.value());
     });
 
-    expect(test, ioSucceeded(expected));
+    expect(test, succeeds(expected));
   });
 
   test('onlyOrError', () {
@@ -1010,9 +1010,9 @@ void main() {
     final b = Rill.emit(1);
     final c = Rill.emits([1, 2]);
 
-    expect(a.compile.onlyOrError, ioErrored());
-    expect(b.compile.onlyOrError, ioSucceeded(1));
-    expect(c.compile.onlyOrError, ioErrored());
+    expect(a.compile.onlyOrError, errors());
+    expect(b.compile.onlyOrError, succeeds(1));
+    expect(c.compile.onlyOrError, errors());
   });
 
   test('parJoin', () {
@@ -1042,7 +1042,7 @@ void main() {
 
     expect(
       test.map((log) => log.last),
-      ioSucceeded('outer-released'),
+      succeeds('outer-released'),
     );
   });
 
@@ -1147,7 +1147,7 @@ void main() {
         'done',
       ]);
 
-      expect(test, ioSucceeded(expected));
+      expect(test, succeeds(expected));
     });
 
     test('append', () {
@@ -1171,7 +1171,7 @@ void main() {
         ).compile.lastOrError.productR(() => attempts.count);
       });
 
-      expect(program, ioSucceeded(1));
+      expect(program, succeeds(1));
     });
 
     test('eventual success', () {
@@ -1190,7 +1190,7 @@ void main() {
         ).compile.lastOrError.flatMap((_) => (failures.count, successes.count).tupled);
       });
 
-      expect(program, ioSucceeded((5, 1)));
+      expect(program, succeeds((5, 1)));
     });
 
     test('max retries', () {
@@ -1211,7 +1211,7 @@ void main() {
         );
       });
 
-      expect(program, ioSucceeded());
+      expect(program, succeeds());
     });
   });
 
@@ -1603,7 +1603,7 @@ void main() {
 
         expect(
           test,
-          ioSucceeded(
+          succeeds(
             ilist([
               'rill - start',
               'rill - done',
@@ -1629,7 +1629,7 @@ void main() {
 
       expect(
         test.map((ec) => ec!.isSuccess),
-        ioSucceeded(isTrue),
+        succeeds(isTrue),
       );
     });
 
@@ -1645,7 +1645,7 @@ void main() {
 
       expect(
         test.map((ec) => ec!.isError),
-        ioSucceeded(isTrue),
+        succeeds(isTrue),
       );
     });
   });
@@ -1659,7 +1659,7 @@ void main() {
         ).compile.toIList.productR(() => released.value());
       });
 
-      expect(test, ioSucceeded(isTrue));
+      expect(test, succeeds(isTrue));
     });
   });
 
@@ -1728,7 +1728,7 @@ void main() {
         return IO.both(producer, consumer).mapN((_, b) => b);
       });
 
-      expect(test, ioSucceeded(ilist([0, 1, 2, 3, 4])));
+      expect(test, succeeds(ilist([0, 1, 2, 3, 4])));
     });
   });
 
@@ -1849,7 +1849,7 @@ void main() {
         return Rill.emit(1).onFinalizeCase(ref.setValue).compile.drain.productR(() => ref.value());
       });
 
-      expect(test.map((ec) => ec!.isSuccess), ioSucceeded(isTrue));
+      expect(test.map((ec) => ec!.isSuccess), succeeds(isTrue));
     });
 
     test('receives errored ExitCase on stream error', () {
@@ -1859,7 +1859,7 @@ void main() {
         ).onFinalizeCase(ref.setValue).compile.drain.attempt().productR(() => ref.value());
       });
 
-      expect(test.map((ec) => ec!.isError), ioSucceeded(isTrue));
+      expect(test.map((ec) => ec!.isError), succeeds(isTrue));
     });
   });
 
@@ -1962,7 +1962,7 @@ void main() {
     test('interrupts the stream after the given duration', () {
       // timeout is identical in implementation to interruptAfter.
       final r = Rill.repeatEval(IO.sleep(50.milliseconds).as(1)).timeout(200.milliseconds);
-      expect(r.compile.toIList.map((l) => l.size < 10), ioSucceeded(isTrue));
+      expect(r.compile.toIList.map((l) => l.size < 10), succeeds(isTrue));
     });
   });
 
@@ -1989,7 +1989,7 @@ void main() {
             .productR(() => ref.value());
       });
 
-      expect(test, ioSucceeded(ilist([1, 2, 3])));
+      expect(test, succeeds(ilist([1, 2, 3])));
     });
   });
 
@@ -2146,7 +2146,7 @@ void main() {
         return IO.both(toggleAfterDelay, stream).mapN((_, b) => b);
       });
 
-      expect(test.map((l) => l.size < 20), ioSucceeded(isTrue));
+      expect(test.map((l) => l.size < 20), succeeds(isTrue));
     });
   });
 
@@ -2169,7 +2169,7 @@ void main() {
 
       // Should have produced some elements before pause and some after resume,
       // fewer than if unpaused for the full duration.
-      expect(test.map((l) => l.size < 15), ioSucceeded(isTrue));
+      expect(test.map((l) => l.size < 15), succeeds(isTrue));
     });
   });
 }

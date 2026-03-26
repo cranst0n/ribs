@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/test_matchers.dart';
+import 'package:ribs_core/test.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/test.dart';
 import 'package:ribs_sql/ribs_sql.dart';
@@ -24,7 +24,7 @@ void main() {
 
   group('DDL', () {
     test('create table', () {
-      expect(_createTable().transact(xa), ioSucceeded());
+      expect(_createTable().transact(xa), succeeds());
     });
   });
 
@@ -39,7 +39,7 @@ void main() {
           .run(('Alice', 30))
           .transact(xa);
 
-      expect(rows, ioSucceeded(1));
+      expect(rows, succeeds(1));
     });
 
     test('insert many rows', () {
@@ -50,7 +50,7 @@ void main() {
           .runMany(people)
           .transact(xa);
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
   });
 
@@ -65,7 +65,7 @@ void main() {
           .ilist()
           .transact(xa);
 
-      expect(people, ioSucceeded(hasLength(3)));
+      expect(people, succeeds(hasLength(3)));
     });
 
     test('unique returns exactly one row', () {
@@ -75,7 +75,7 @@ void main() {
           .unique()
           .transact(xa);
 
-      expect(result, ioSucceeded(('Alice', 30)));
+      expect(result, succeeds(('Alice', 30)));
     });
 
     test('option returns Some for existing row', () {
@@ -85,7 +85,7 @@ void main() {
           .option()
           .transact(xa);
 
-      expect(result, ioSucceeded(isSome(('Alice', 30))));
+      expect(result, succeeds(isSome(('Alice', 30))));
     });
 
     test('option returns None for missing row', () {
@@ -95,7 +95,7 @@ void main() {
           .option()
           .transact(xa);
 
-      expect(result, ioSucceeded(isNone()));
+      expect(result, succeeds(isNone()));
     });
 
     test('unique errors when 0 rows returned', () {
@@ -106,25 +106,25 @@ void main() {
               .transact(xa)
               .attempt();
 
-      expect(result, ioSucceeded(isLeft()));
+      expect(result, succeeds(isLeft()));
     });
 
     test('unique errors when multiple rows returned', () {
       final result = 'SELECT name FROM person'.query(Read.string).unique().transact(xa).attempt();
 
-      expect(result, ioSucceeded(isLeft()));
+      expect(result, succeeds(isLeft()));
     });
 
     test('option errors when multiple rows returned', () {
       final result = 'SELECT name FROM person'.query(Read.string).option().transact(xa).attempt();
 
-      expect(result, ioSucceeded(isLeft()));
+      expect(result, succeeds(isLeft()));
     });
 
     test('nel returns NonEmptyIList', () {
       final result = 'SELECT name FROM person ORDER BY name'.query(Read.string).nel().transact(xa);
 
-      expect(result, ioSucceeded(nel('Alice', ['Bob', 'Carol'])));
+      expect(result, succeeds(nel('Alice', ['Bob', 'Carol'])));
     });
 
     test('nel errors when 0 rows returned', () {
@@ -135,7 +135,7 @@ void main() {
               .transact(xa)
               .attempt();
 
-      expect(result, ioSucceeded(isLeft()));
+      expect(result, succeeds(isLeft()));
     });
 
     test('ivector returns all rows', () {
@@ -144,13 +144,13 @@ void main() {
           .ivector()
           .transact(xa);
 
-      expect(people, ioSucceeded(ivec(['Alice', 'Bob', 'Carol'])));
+      expect(people, succeeds(ivec(['Alice', 'Bob', 'Carol'])));
     });
 
     test('invalid SQL raises an error', () {
       final result = 'NOT VALID SQL !!!!'.query(Read.integer).ilist().transact(xa).attempt();
 
-      expect(result, ioSucceeded(isLeft()));
+      expect(result, succeeds(isLeft()));
     });
 
     test('Read.map transforms values', () {
@@ -159,14 +159,14 @@ void main() {
           .ilist()
           .transact(xa);
 
-      expect(upper, ioSucceeded(ivec(['ALICE', 'BOB', 'CAROL'])));
+      expect(upper, succeeds(ivec(['ALICE', 'BOB', 'CAROL'])));
     });
 
     test('Read.emap errors for invalid decoded value', () {
       final alwaysFails = Read.integer.emap((_) => Either.left<String, int>('always fails'));
       final result = 'SELECT age FROM person'.query(alwaysFails).ilist().transact(xa).attempt();
 
-      expect(result, ioSucceeded(isLeft()));
+      expect(result, succeeds(isLeft()));
     });
   });
 
@@ -184,7 +184,7 @@ void main() {
 
       expect(
         byName.unique('Bob').transact(xa),
-        ioSucceeded(('Bob', 25)),
+        succeeds(('Bob', 25)),
       );
     });
 
@@ -197,7 +197,7 @@ void main() {
 
       expect(
         byMinAge.ilist(30).transact(xa),
-        ioSucceeded(hasLength(2)),
+        succeeds(hasLength(2)),
       );
     });
   });
@@ -213,7 +213,7 @@ void main() {
           .stream()
           .transact(xa);
 
-      expect(rill.compile.toIList, ioSucceeded(hasLength(3)));
+      expect(rill.compile.toIList, succeeds(hasLength(3)));
     });
 
     test('ParameterizedQuery.stream with params', () {
@@ -224,7 +224,7 @@ void main() {
 
       expect(
         byMinAge.stream(30).transact(xa).compile.toIList,
-        ioSucceeded(hasLength(2)),
+        succeeds(hasLength(2)),
       );
     });
   });
@@ -240,7 +240,7 @@ void main() {
           .run('Widget')
           .transact(xa);
 
-      expect(id, ioSucceeded(greaterThan(0)));
+      expect(id, succeeds(greaterThan(0)));
     });
 
     test('insert many returning ids', () {
@@ -249,7 +249,7 @@ void main() {
           .runMany(ilist(['Alpha', 'Beta', 'Gamma']))
           .transact(xa);
 
-      expect(ids, ioSucceeded(hasLength(3)));
+      expect(ids, succeeds(hasLength(3)));
     });
   });
 
@@ -271,7 +271,7 @@ void main() {
 
       expect(
         insertAndRollback.productR(() => count),
-        ioSucceeded(0),
+        succeeds(0),
       );
     });
 
@@ -288,7 +288,7 @@ void main() {
 
       expect(
         insertAndCancel.productR(() => count),
-        ioSucceeded(0),
+        succeeds(0),
       );
     });
   });
@@ -330,7 +330,7 @@ void main() {
       final select1 = 'SELECT 1'.query(Read.integer).unique().transact(poolXa);
 
       // Would hang forever if the connection was not returned.
-      expect(select1.productR(() => select1), ioSucceeded());
+      expect(select1.productR(() => select1), succeeds());
     });
 
     test('connection is returned to pool after failed transaction', () {
@@ -338,7 +338,7 @@ void main() {
       final select1 = 'SELECT 1'.query(Read.integer).unique().transact(poolXa);
 
       // Would block if the connection leaked on error.
-      expect(raise.productR(() => select1), ioSucceeded());
+      expect(raise.productR(() => select1), succeeds());
     });
 
     test('connection is returned to pool after fiber cancellation', () {
@@ -352,7 +352,7 @@ void main() {
             .productR(() => 'SELECT 1'.query(Read.integer).unique().transact(poolXa));
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
 
     test('writer connection is held for the duration of a transaction', () async {
@@ -410,7 +410,7 @@ void main() {
 
       final test = setup.productR(() => rill);
 
-      expect(test, ioSucceeded(ilist(['Alice', 'Bob', 'Carol'])));
+      expect(test, succeeds(ilist(['Alice', 'Bob', 'Carol'])));
     });
 
     test('multiple readers can operate concurrently', () {
@@ -446,7 +446,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
   });
 
@@ -467,7 +467,7 @@ void main() {
 
       expect(
         setup.product(insert).productR(() => result),
-        ioSucceeded('NoNick'),
+        succeeds('NoNick'),
       );
     });
 
@@ -485,7 +485,7 @@ void main() {
 
       expect(
         setup.product(insert).productR(() => result),
-        ioSucceeded(isNone()),
+        succeeds(isNone()),
       );
     });
 
@@ -520,7 +520,7 @@ void main() {
           .productR(() => nullRow)
           .product(someRow);
 
-      expect(test, ioSucceeded(const (None(), Some('hello'))));
+      expect(test, succeeds(const (None(), Some('hello'))));
     });
   });
 
@@ -553,7 +553,7 @@ void main() {
             .flatMap((count) => IO.exec(() => expect(count, equals(1))));
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
   });
 }

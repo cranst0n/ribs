@@ -28,7 +28,7 @@ void main() {
                 .productR(() => Files.readAll(path).compile.toIList);
           });
 
-          expect(result, ioSucceeded(ilist(bytes)));
+          expect(result, succeeds(ilist(bytes)));
         },
         testOn: 'vm',
       );
@@ -50,7 +50,7 @@ void main() {
                 );
           });
 
-          expect(result, ioSucceeded(text));
+          expect(result, succeeds(text));
         },
         testOn: 'vm',
       );
@@ -70,7 +70,7 @@ void main() {
                 );
           });
 
-          expect(result, ioSucceeded(ilist(lines)));
+          expect(result, succeeds(ilist(lines)));
         },
         testOn: 'vm',
       );
@@ -97,7 +97,7 @@ void main() {
                 .productR(() => Files.readAll(path).compile.toIList);
           });
 
-          expect(result, ioSucceeded(ilist([...first, ...second])));
+          expect(result, succeeds(ilist([...first, ...second])));
         },
         testOn: 'vm',
       );
@@ -109,7 +109,7 @@ void main() {
         () {
           expect(
             tempDir().use((dir) => Files.exists(dir / 'ghost.txt')),
-            ioSucceeded(false),
+            succeeds(false),
           );
         },
         testOn: 'vm',
@@ -120,7 +120,7 @@ void main() {
         () {
           expect(
             Files.tempFile.use(Files.exists),
-            ioSucceeded(true),
+            succeeds(true),
           );
         },
         testOn: 'vm',
@@ -135,7 +135,7 @@ void main() {
           ).through(Files.writeAll(path)).compile.drain.productR(() => Files.size(path)),
         );
 
-        expect(result, ioSucceeded(5));
+        expect(result, succeeds(5));
       }, testOn: 'vm');
 
       test(
@@ -147,7 +147,7 @@ void main() {
             });
           });
 
-          expect(result, ioSucceeded((true, false)));
+          expect(result, succeeds((true, false)));
         },
         testOn: 'vm',
       );
@@ -161,7 +161,7 @@ void main() {
             });
           });
 
-          expect(result, ioSucceeded((true, false)));
+          expect(result, succeeds((true, false)));
         },
         testOn: 'vm',
       );
@@ -185,7 +185,7 @@ void main() {
                 .productR(() => Files.readAll(dst).compile.toIList);
           });
 
-          expect(result, ioSucceeded(ilist(bytes)));
+          expect(result, succeeds(ilist(bytes)));
         },
         testOn: 'vm',
       );
@@ -209,7 +209,7 @@ void main() {
                 );
           });
 
-          expect(result, ioSucceeded((false, ilist(bytes))));
+          expect(result, succeeds((false, ilist(bytes))));
         },
         testOn: 'vm',
       );
@@ -224,7 +224,7 @@ void main() {
             ).productR(() => Files.delete(file)).productR(() => Files.exists(file));
           });
 
-          expect(result, ioSucceeded(false));
+          expect(result, succeeds(false));
         },
         testOn: 'vm',
       );
@@ -234,7 +234,7 @@ void main() {
         () {
           expect(
             tempDir().use((dir) => Files.deleteIfExists(dir / 'nobody.txt')),
-            ioSucceeded(false),
+            succeeds(false),
           );
         },
         testOn: 'vm',
@@ -248,7 +248,7 @@ void main() {
           return Files.createDirectory(newDir).productR(() => Files.isDirectory(newDir));
         });
 
-        expect(result, ioSucceeded(true));
+        expect(result, succeeds(true));
       }, testOn: 'vm');
 
       test(
@@ -263,7 +263,7 @@ void main() {
             ).productR(() => Files.isDirectory(nested));
           });
 
-          expect(result, ioSucceeded(true));
+          expect(result, succeeds(true));
         },
         testOn: 'vm',
       );
@@ -280,7 +280,7 @@ void main() {
               })
               .map((list) => list.length);
 
-          expect(result, ioSucceeded(3));
+          expect(result, succeeds(3));
         },
         testOn: 'vm',
       );
@@ -292,7 +292,7 @@ void main() {
         () {
           expect(
             Files.tempFile.use((path) => Files.isSameFile(path, path)),
-            ioSucceeded(true),
+            succeeds(true),
           );
         },
         testOn: 'vm',
@@ -304,7 +304,7 @@ void main() {
           final result = Files.tempFile.use(
             (a) => Files.tempFile.use((b) => Files.isSameFile(a, b)),
           );
-          expect(result, ioSucceeded(false));
+          expect(result, succeeds(false));
         },
         testOn: 'vm',
       );
@@ -316,7 +316,7 @@ void main() {
         () {
           expect(
             Files.tempFile.use(Files.isSymbolicLink),
-            ioSucceeded(false),
+            succeeds(false),
           );
         },
         testOn: 'vm',
@@ -336,7 +336,7 @@ void main() {
             });
           });
 
-          expect(result, ioSucceeded(true));
+          expect(result, succeeds(true));
         },
         testOn: 'vm',
       );
@@ -355,7 +355,7 @@ void main() {
               })
               .flatMap((_) => Files.exists(captured));
 
-          expect(result, ioSucceeded(false));
+          expect(result, succeeds(false));
         },
         testOn: 'vm',
       );
@@ -373,7 +373,7 @@ void main() {
                 .productR(() => Files.size(path));
           });
 
-          expect(result, ioSucceeded(0));
+          expect(result, succeeds(0));
         },
         testOn: 'vm',
       );
@@ -413,7 +413,7 @@ void main() {
 
           expect(
             result,
-            ioSucceeded(
+            succeeds(
               ilist([
                 ilist([0, 1, 2]),
                 ilist([3, 4, 5]),
@@ -457,7 +457,7 @@ void main() {
 
           expect(
             result,
-            ioSucceeded(
+            succeeds(
               ilist([
                 ilist([10, 20]),
                 ilist([30, 40]),
@@ -484,7 +484,7 @@ void main() {
               );
         });
 
-        expect(result, ioSucceeded(ilist([2, 3, 4, 5])));
+        expect(result, succeeds(ilist([2, 3, 4, 5])));
       }, testOn: 'vm');
     });
 
@@ -513,7 +513,7 @@ void main() {
                 );
           });
 
-          expect(io, ioSucceeded());
+          expect(io, succeeds());
         },
         testOn: 'vm',
       );
@@ -544,7 +544,7 @@ void main() {
             });
           });
 
-          expect(io, ioSucceeded());
+          expect(io, succeeds());
         },
         testOn: 'vm',
       );
@@ -576,7 +576,7 @@ void main() {
             });
           });
 
-          expect(io, ioSucceeded());
+          expect(io, succeeds());
         },
         testOn: 'vm',
       );
@@ -609,7 +609,7 @@ void main() {
             });
           });
 
-          expect(io, ioSucceeded());
+          expect(io, succeeds());
         },
         testOn: 'vm',
       );
@@ -636,7 +636,7 @@ void main() {
               })
               .map((opt) => opt.map((tuple) => tuple.$2));
 
-          expect(result, ioSucceeded(Some(second)));
+          expect(result, succeeds(Some(second)));
         },
         testOn: 'vm',
       );

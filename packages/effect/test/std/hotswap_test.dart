@@ -11,7 +11,7 @@ void main() {
           Hotswap.create(Resource.pure(42)).use((hotswap) {
             return hotswap.current.use(IO.pure);
           }),
-          ioSucceeded(42),
+          succeeds(42),
         );
       });
 
@@ -21,7 +21,7 @@ void main() {
           return Hotswap.create(resource).use((_) => IO.unit).productR(() => finalized.value());
         });
 
-        expect(test, ioSucceeded(isTrue));
+        expect(test, succeeds(isTrue));
       });
     });
 
@@ -29,7 +29,7 @@ void main() {
       test('starts with None as the current value', () {
         expect(
           Hotswap.empty<int>().use((hotswap) => hotswap.current.use(IO.pure)),
-          ioSucceeded(none<int>()),
+          succeeds(none<int>()),
         );
       });
 
@@ -40,7 +40,7 @@ void main() {
                 .swap(Resource.pure(const Some(99)))
                 .productR(() => hotswap.current.use(IO.pure));
           }),
-          ioSucceeded(const Some(99)),
+          succeeds(const Some(99)),
         );
       });
     });
@@ -49,7 +49,7 @@ void main() {
       test('reflects the value set at creation', () {
         expect(
           Hotswap.create(Resource.pure('hello')).use((hotswap) => hotswap.current.use(IO.pure)),
-          ioSucceeded('hello'),
+          succeeds('hello'),
         );
       });
 
@@ -58,7 +58,7 @@ void main() {
           Hotswap.create(Resource.pure(1)).use((hotswap) {
             return hotswap.swap(Resource.pure(2)).productR(() => hotswap.current.use(IO.pure));
           }),
-          ioSucceeded(2),
+          succeeds(2),
         );
       });
 
@@ -69,7 +69,7 @@ void main() {
                 .use(IO.pure)
                 .flatMap((a) => hotswap.current.use(IO.pure).map((b) => (a, b)));
           }),
-          ioSucceeded((10, 10)),
+          succeeds((10, 10)),
         );
       });
 
@@ -82,7 +82,7 @@ void main() {
         }).unsafeRunFuture();
 
         // The hotswap resource is now finalized
-        expect(captured.current.use(IO.pure), ioErrored());
+        expect(captured.current.use(IO.pure), errors());
       });
     });
 
@@ -92,7 +92,7 @@ void main() {
           Hotswap.create(Resource.pure('a')).use((hotswap) {
             return hotswap.swap(Resource.pure('b')).productR(() => hotswap.current.use(IO.pure));
           }),
-          ioSucceeded('b'),
+          succeeds('b'),
         );
       });
 
@@ -105,7 +105,7 @@ void main() {
           });
         });
 
-        expect(test, ioSucceeded(isTrue));
+        expect(test, succeeds(isTrue));
       });
 
       test('new resource finalizer runs when hotswap closes', () {
@@ -117,7 +117,7 @@ void main() {
           ).use((hotswap) => hotswap.swap(r2)).productR(() => newFinalized.value());
         });
 
-        expect(test, ioSucceeded(isTrue));
+        expect(test, succeeds(isTrue));
       });
 
       test('multiple swaps run each intermediate finalizer', () {
@@ -135,7 +135,7 @@ void main() {
 
         // 1 finalized when swapped out for 2, 2 finalized when swapped out for 3
         // 3 is finalized when hotswap closes but we check before close
-        expect(test, ioSucceeded(ilist([1, 2])));
+        expect(test, succeeds(ilist([1, 2])));
       });
 
       test('new resource finalizer runs after last swap when hotswap closes', () {
@@ -149,7 +149,7 @@ void main() {
         });
 
         // 1 finalized on first swap, 2 on second swap, 3 finalized when hotswap closes
-        expect(test, ioSucceeded(ilist([1, 2, 3])));
+        expect(test, succeeds(ilist([1, 2, 3])));
       });
 
       test('raises error when called after finalization', () async {
@@ -160,7 +160,7 @@ void main() {
           return IO.unit;
         }).unsafeRunFuture();
 
-        expect(captured.swap(Resource.pure(2)), ioErrored());
+        expect(captured.swap(Resource.pure(2)), errors());
       });
 
       test('swap to same value works correctly', () {
@@ -168,7 +168,7 @@ void main() {
           Hotswap.create(Resource.pure(7)).use((hotswap) {
             return hotswap.swap(Resource.pure(7)).productR(() => hotswap.current.use(IO.pure));
           }),
-          ioSucceeded(7),
+          succeeds(7),
         );
       });
     });
@@ -182,7 +182,7 @@ void main() {
               hotswap.current.use(IO.pure),
             );
           }),
-          ioSucceeded((1, 1)),
+          succeeds((1, 1)),
         );
       });
 

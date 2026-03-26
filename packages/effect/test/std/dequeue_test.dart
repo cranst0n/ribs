@@ -171,7 +171,7 @@ class DequeueTests {
         });
       });
 
-      expect(test, ioSucceeded());
+      expect(test, succeeds());
     });
   }
 }
@@ -200,7 +200,7 @@ void boundedDequeueTests<Q extends Dequeue<int>>(
       });
     });
 
-    expect(test, ioSucceeded());
+    expect(test, succeeds());
   });
 
   test('async take with zero capacity', () {
@@ -220,7 +220,7 @@ void boundedDequeueTests<Q extends Dequeue<int>>(
       });
     });
 
-    expect(test, ioSucceeded());
+    expect(test, succeeds());
   });
 
   test('offer/take with zero capacity', () {
@@ -246,7 +246,7 @@ void boundedDequeueTests<Q extends Dequeue<int>>(
       });
     });
 
-    expect(test, ioSucceeded());
+    expect(test, succeeds());
   });
 }
 

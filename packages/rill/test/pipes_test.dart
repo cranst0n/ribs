@@ -6,10 +6,10 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/test.dart';
 import 'package:ribs_rill/ribs_rill.dart';
+import 'package:ribs_rill/test.dart';
 import 'package:test/test.dart';
 
 import 'arbitraries.dart';
-import 'matchers.dart';
 
 void main() {
   group('compression', () {
@@ -127,7 +127,7 @@ void main() {
               .map((bytes) => ByteVector.view(Uint8List.fromList(bytes)))
               .foldLeft(ByteVector.empty, (acc, elem) => acc.concat(elem));
 
-          expect(actual.compile.toIList.map(ByteVector.from), ioSucceeded(expected));
+          expect(actual.compile.toIList.map(ByteVector.from), succeeds(expected));
         },
       );
 
@@ -145,7 +145,7 @@ void main() {
               .map((bytes) => ByteVector.view(Uint8List.fromList(bytes)))
               .foldLeft(ByteVector.empty, (acc, elem) => acc.concat(elem));
 
-          expect(actual.compile.toIList.map(ByteVector.from), ioSucceeded(expected));
+          expect(actual.compile.toIList.map(ByteVector.from), succeeds(expected));
         },
       );
     });

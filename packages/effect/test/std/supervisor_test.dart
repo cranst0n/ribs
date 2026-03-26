@@ -10,7 +10,7 @@ void main() {
         (supervisor) => supervisor.supervise(IO.pure(42)).flatMap((fiber) => fiber.joinWithNever()),
       );
 
-      expect(test, ioSucceeded(42));
+      expect(test, succeeds(42));
     });
 
     test('supervised fiber error propagates via join', () {
@@ -21,7 +21,7 @@ void main() {
             .map((Outcome<int> outcome) => outcome.isError);
       });
 
-      expect(test, ioSucceeded(true));
+      expect(test, succeeds(true));
     });
 
     test('fiber error does not affect supervisor - subsequent supervise works', () {
@@ -33,7 +33,7 @@ void main() {
             .flatMap((fiber) => fiber.joinWithNever());
       });
 
-      expect(test, ioSucceeded(99));
+      expect(test, succeeds(99));
     });
 
     test('multiple supervised fibers all complete', () {
@@ -47,7 +47,7 @@ void main() {
         });
       });
 
-      expect(test, ioSucceeded(3));
+      expect(test, succeeds(3));
     });
 
     test('waitForAll=true: finalization waits for in-flight fibers', () {
@@ -61,7 +61,7 @@ void main() {
             .productR(() => completed.value());
       });
 
-      expect(test, ioSucceeded(true));
+      expect(test, succeeds(true));
     });
 
     test('waitForAll=false: finalization cancels in-flight fibers', () {
@@ -75,7 +75,7 @@ void main() {
             .productR(() => canceled.value());
       });
 
-      expect(test, ioSucceeded(true));
+      expect(test, succeeds(true));
     });
 
     test('supervise after finalization raises error', () {
@@ -83,7 +83,7 @@ void main() {
         (supervisor, close) => close.productR(() => supervisor.supervise(IO.pure(1)).voided()),
       );
 
-      expect(test, ioErrored());
+      expect(test, errors());
     });
 
     test('supervised fiber removes itself from tracking when complete', () {
@@ -97,7 +97,7 @@ void main() {
             .as(true);
       });
 
-      expect(test, ioSucceeded(true));
+      expect(test, succeeds(true));
     });
   });
 }

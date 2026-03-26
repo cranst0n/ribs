@@ -9,27 +9,27 @@ import 'package:test/test.dart';
 void matchersTests() {
   // ioSucceeded asserts the IO completes with a value matching the given matcher.
   test('IO succeeds with 42', () {
-    expect(IO.pure(42), ioSucceeded(42));
+    expect(IO.pure(42), succeeds(42));
   });
 
   // ioSucceeded() with no argument only checks that the IO succeeds.
   test('IO succeeds (value unchecked)', () {
-    expect(IO.print('hello'), ioSucceeded());
+    expect(IO.print('hello'), succeeds());
   });
 
   // ioErrored asserts the IO raises an error.
   test('IO fails with expected error', () {
-    expect(IO.raiseError<int>('boom'), ioErrored('boom'));
+    expect(IO.raiseError<int>('boom'), errors('boom'));
   });
 
   // ioErrored() with no argument only checks that the IO errored.
   test('IO fails (error unchecked)', () {
-    expect(IO.raiseError<int>(Exception('oops')), ioErrored());
+    expect(IO.raiseError<int>(Exception('oops')), errors());
   });
 
   // ioCanceled asserts the IO was canceled before completing.
   test('IO is canceled', () {
-    expect(IO.canceled, ioCanceled());
+    expect(IO.canceled, cancels());
   });
 }
 // testing-matchers
@@ -38,17 +38,17 @@ void matchersTests() {
 void advancedMatchersTests() {
   // ioSucceeded accepts *any* standard test Matcher for the value.
   test('result satisfies a condition', () {
-    expect(IO.pure(ilist([1, 2, 3])).map((xs) => xs.length), ioSucceeded(greaterThan(2)));
+    expect(IO.pure(ilist([1, 2, 3])).map((xs) => xs.length), succeeds(greaterThan(2)));
   });
 
   test('result is the right type', () {
-    expect(IO.pure(42).map((n) => n.toString()), ioSucceeded(isA<String>()));
+    expect(IO.pure(42).map((n) => n.toString()), succeeds(isA<String>()));
   });
 
   // ioErrored also accepts a matcher for the raised error.
   test('error message contains keyword', () {
     final io = IO.raiseError<Unit>('connection refused: timeout');
-    expect(io, ioErrored(contains('timeout')));
+    expect(io, errors(contains('timeout')));
   });
 }
 // testing-matchers-advanced

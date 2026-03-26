@@ -33,7 +33,7 @@ void main() {
             .flatMap((_) => exitRef.value());
       });
 
-      expect(test, ioSucceeded(ExitCase.errored('BOOM')));
+      expect(test, succeeds(ExitCase.errored('BOOM')));
     },
   );
 
