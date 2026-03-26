@@ -227,6 +227,18 @@ void main() {
         succeeds(hasLength(2)),
       );
     });
+
+    test('stream with chunkSize smaller than result set returns all rows', () {
+      final rill = xa.stream(
+        'SELECT name FROM person ORDER BY name'.query(Read.string),
+        chunkSize: 1,
+      );
+
+      expect(
+        rill.compile.toIList,
+        succeeds(ilist(['Alice', 'Bob', 'Carol'])),
+      );
+    });
   });
 
   group('UpdateReturning', () {

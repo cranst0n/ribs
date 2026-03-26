@@ -11,8 +11,9 @@ import 'package:ribs_sql/ribs_sql.dart';
 /// with [transact].
 final class ConnectionRill<A> {
   final Query<A> query;
+  final int chunkSize;
 
-  const ConnectionRill(this.query);
+  const ConnectionRill(this.query, {this.chunkSize = 64});
 
-  Rill<A> transact(Transactor xa) => xa.stream(query);
+  Rill<A> transact(Transactor xa) => xa.stream(query, chunkSize: chunkSize);
 }

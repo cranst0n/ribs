@@ -99,7 +99,7 @@ final class Query<A> {
   /// final rill = query.stream().transact(xa);
   /// await rill.compile.toList().unsafeRunFuture();
   /// ```
-  ConnectionRill<A> stream() => ConnectionRill(this);
+  ConnectionRill<A> stream({int chunkSize = 64}) => ConnectionRill(this, chunkSize: chunkSize);
 }
 
 /// Extension to construct a [Query] from a plain SQL string with no parameters.

@@ -4,7 +4,6 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 import 'package:ribs_sql/ribs_sql.dart';
-import 'package:ribs_sqlite/src/sqlite_rill.dart';
 import 'package:sqlite3_connection_pool/sqlite3_connection_pool.dart';
 
 /// A [Transactor] backed by a SQLite connection pool via the
@@ -127,11 +126,16 @@ final class _SqliteLeaseConnection extends SqlConnection {
       IO.fromFutureF(() => _lease.execute(sql, params.toList)).map((res) => res.changes);
 
   @override
-  Rill<Row> streamQuery(String sql, StatementParameters params) {
+  Rill<Row> streamQuery(String sql, StatementParameters params, {int chunkSize = 64}) {
     return Rill.bracket(
       IO.delay(() => _lease.unsafeRawConnection.database.prepare(sql)),
       (stmt) => IO.exec(() => stmt.close()),
-    ).flatMap((stmt) => rillFromSqliteCursor(stmt.selectCursor(params.toList)));
+    ).flatMap(
+      (stmt) => Rill.fromIterator(
+        stmt.selectCursor(params.toList),
+        chunkSize: chunkSize,
+      ).map((x) => Row(x.values.toIList())),
+    );
   }
 
   @override

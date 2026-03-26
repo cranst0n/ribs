@@ -33,10 +33,13 @@ abstract class Transactor {
 
   /// Streams results from [query], keeping a connection open for the duration
   /// of the stream. The connection is released when the [Rill] terminates.
-  Rill<A> stream<A>(Query<A> query) {
+  ///
+  /// The returned rill will attempt to pull rows from the result in chunks sized
+  /// up to [chunkSize].
+  Rill<A> stream<A>(Query<A> query, {int chunkSize = 64}) {
     return Rill.resource(connectReader()).flatMap(
       (conn) => conn
-          .streamQuery(query.fragment.sql, query.fragment.params)
+          .streamQuery(query.fragment.sql, query.fragment.params, chunkSize: chunkSize)
           .map((row) => query.read.unsafeGet(row, 0)),
     );
   }

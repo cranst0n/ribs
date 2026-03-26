@@ -2,7 +2,6 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 import 'package:ribs_sql/ribs_sql.dart';
-import 'package:ribs_sqlite/src/sqlite_rill.dart';
 import 'package:sqlite3/sqlite3.dart' as sqlite;
 
 final class SqliteConnection extends SqlConnection {
@@ -26,11 +25,16 @@ final class SqliteConnection extends SqlConnection {
   });
 
   @override
-  Rill<Row> streamQuery(String sql, StatementParameters params) {
+  Rill<Row> streamQuery(String sql, StatementParameters params, {int chunkSize = 64}) {
     return Rill.bracket(
       IO.delay(() => _db.prepare(sql)),
       (stmt) => IO.exec(() => stmt.close()),
-    ).flatMap((stmt) => rillFromSqliteCursor(stmt.selectCursor(params.toList)));
+    ).flatMap(
+      (stmt) => Rill.fromIterator(
+        stmt.selectCursor(params.toList),
+        chunkSize: chunkSize,
+      ).map((x) => Row(x.values.toIList())),
+    );
   }
 
   @override

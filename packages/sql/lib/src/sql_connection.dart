@@ -25,7 +25,9 @@ abstract class SqlConnection {
 
   /// Streams rows from a SELECT query, emitting each [Row].
   /// Suitable for large result sets that should not be fully buffered.
-  Rill<Row> streamQuery(String sql, StatementParameters params);
+  ///
+  /// The returned rill will attempt to pull chunks from the result sized up to [chunkSize].
+  Rill<Row> streamQuery(String sql, StatementParameters params, {int chunkSize = 64});
 
   /// Closes this connection and releases any associated resources.
   IO<Unit> close();
