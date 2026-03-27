@@ -15,7 +15,7 @@ void main() {
           return q.take().start().flatMap((f) {
             return q.offer(2).flatMap((_) {
               return f.joinWithNever().flatMap((v2) {
-                return expectIO(v1, 1).productR(() => expectIO(v2, 2));
+                return expectIO(v1, 1).productR(expectIO(v2, 2));
               });
             });
           });
@@ -41,7 +41,7 @@ void main() {
 
                   return q.offer(2).flatMap((_) {
                     return IO.fromFuture(IO.pure(f)).flatMap((v2) {
-                      return expectIO(v1, 1).productR(() => expectIO(v2, isSome(2)));
+                      return expectIO(v1, 1).productR(expectIO(v2, isSome(2)));
                     });
                   });
                 });
@@ -57,7 +57,7 @@ void main() {
     const count = 1000;
 
     IO<Unit> producer(PQueue<int> q, int n) =>
-        n > 0 ? q.offer(count - n).productR(() => producer(q, n - 1)) : IO.unit;
+        n > 0 ? q.offer(count - n).productR(producer(q, n - 1)) : IO.unit;
 
     IO<int> consumer(PQueue<int> q, int n, ListQueue<int> acc) =>
         n > 0

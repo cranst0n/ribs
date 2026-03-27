@@ -86,7 +86,7 @@ IO<Unit> chunkReshape() {
         ),
       ); // IList(3, 3, 1)
 
-  return fixedSize.productR(() => allInOne).productR(() => capped);
+  return fixedSize.productR(allInOne).productR(capped);
 }
 // chunk-rill-reshape
 

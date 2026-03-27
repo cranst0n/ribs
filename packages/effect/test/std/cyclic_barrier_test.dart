@@ -28,7 +28,7 @@ void main() {
 
     test('should reset once full', () {
       final test = newBarrier(2).flatMap((barrier) {
-        return (barrier.await(), barrier.await()).parTupled.productR(() => barrier.await());
+        return (barrier.await(), barrier.await()).parTupled.productR(barrier.await());
       });
 
       expect(test.ticked.nonTerminating(), isTrue);
@@ -36,7 +36,7 @@ void main() {
 
     test('should clean up upon cancelation of await', () {
       final test = newBarrier(2).flatMap((barrier) {
-        return barrier.await().timeoutTo(1.second, IO.unit).productR(() => barrier.await());
+        return barrier.await().timeoutTo(1.second, IO.unit).productR(barrier.await());
       });
 
       expect(test.ticked.nonTerminating(), isTrue);

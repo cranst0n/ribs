@@ -31,7 +31,7 @@ class RibsPingPongBenchmark extends AsyncBenchmarkBase {
     if (n <= 0) {
       return IO.unit;
     } else {
-      return IO.cede.productR(() => _pingPong(n - 1));
+      return IO.cede.productR(_pingPong(n - 1));
     }
   }
 }

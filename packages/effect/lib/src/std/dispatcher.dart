@@ -98,11 +98,11 @@ abstract class Dispatcher {
               // Yield first so any pending unsafeRunFuture offer calls can
               // complete and their tasks are in the queue before the sentinel.
               return IO.cede.productR(
-                () => Deferred.of<Unit>().flatMap((sentinel) {
+                Deferred.of<Unit>().flatMap((sentinel) {
                   return queue
                       .offer(sentinel.complete(Unit()).voided())
-                      .productR(() => sentinel.value())
-                      .productR(() => workerFiber.cancel());
+                      .productR(sentinel.value())
+                      .productR(workerFiber.cancel());
                 }),
               );
             }
@@ -188,7 +188,7 @@ class _SequentialDispatcher extends Dispatcher {
         skipRef
             .setValue(true)
             .productR(
-              () => resultDeferred.complete(Left(Exception('Dispatcher task canceled'))).voided(),
+              resultDeferred.complete(Left(Exception('Dispatcher task canceled'))).voided(),
             )
             .unsafeRunFuture();
 

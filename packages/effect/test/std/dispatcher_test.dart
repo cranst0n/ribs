@@ -14,7 +14,7 @@ void main() {
               .delay(
                 () => dispatcher.unsafeRunAndForget(IO.pure(42).flatMap(latch.complete).voided()),
               )
-              .productR(() => latch.value());
+              .productR(latch.value());
         });
       });
 
@@ -47,14 +47,14 @@ void main() {
           return IO
               .delay(() {
                 final (future, cancel) = dispatcher.unsafeToFutureCancelable(
-                  started.complete(Unit()).voided().productR(() => IO.never<int>()),
+                  started.complete(Unit()).voided().productR(IO.never<int>()),
                 );
                 // Silence the future: it will reject once canceled.
                 future.catchError((_) => 0);
                 return cancel;
               })
               .flatMap((Function0<Future<Unit>> cancel) {
-                return started.value().productR(() => IO.fromFutureF(cancel));
+                return started.value().productR(IO.fromFutureF(cancel));
               });
         });
       });
@@ -72,7 +72,7 @@ void main() {
           return IO
               .fromFutureF(() => gate.complete(Unit()).unsafeRunFuture())
               .productR(
-                () => IO.fromFutureF(
+                IO.fromFutureF(
                   () async {
                     final results = await Future.wait([f1, f2]);
                     return results[0] + results[1];
@@ -91,11 +91,11 @@ void main() {
             .use((dispatcher) {
               return IO.delay(() {
                 dispatcher.unsafeRunAndForget(
-                  IO.sleep(100.milliseconds).productR(() => done.setValue(true)),
+                  IO.sleep(100.milliseconds).productR(done.setValue(true)),
                 );
               });
             })
-            .productR(() => done.value());
+            .productR(done.value());
       });
 
       expect(test, succeeds(true));
@@ -111,7 +111,7 @@ void main() {
                 );
               });
             })
-            .productR(() => canceled.value());
+            .productR(canceled.value());
       });
 
       expect(test, succeeds(true));
@@ -126,7 +126,7 @@ void main() {
               .delay(
                 () => dispatcher.unsafeRunAndForget(IO.pure(42).flatMap(latch.complete).voided()),
               )
-              .productR(() => latch.value());
+              .productR(latch.value());
         });
       });
 
@@ -150,7 +150,7 @@ void main() {
                 await dispatcher.unsafeToFuture(log.update((l) => l.prepended(2)));
                 await dispatcher.unsafeToFuture(log.update((l) => l.prepended(3)));
               })
-              .productR(() => log.value());
+              .productR(log.value());
         });
       });
 
@@ -191,8 +191,8 @@ void main() {
           // Cancel the second task, then unblock the worker.
           return IO
               .fromFutureF(cancel)
-              .productR(() => block.complete(Unit()).voided())
-              .productR(() => IO.fromFutureF(() => handledFuture));
+              .productR(block.complete(Unit()).voided())
+              .productR(IO.fromFutureF(() => handledFuture));
         });
       });
 
@@ -206,11 +206,11 @@ void main() {
             .use((dispatcher) {
               return IO.delay(() {
                 dispatcher.unsafeRunAndForget(
-                  IO.sleep(50.milliseconds).productR(() => done.setValue(true)),
+                  IO.sleep(50.milliseconds).productR(done.setValue(true)),
                 );
               });
             })
-            .productR(() => done.value());
+            .productR(done.value());
       });
 
       expect(test, succeeds(true));
@@ -222,11 +222,11 @@ void main() {
             .use((dispatcher) {
               return IO.delay(() {
                 dispatcher.unsafeRunAndForget(
-                  IO.sleep(1.second).productR(() => done.setValue(true)),
+                  IO.sleep(1.second).productR(done.setValue(true)),
                 );
               });
             })
-            .productR(() => done.value());
+            .productR(done.value());
       });
 
       expect(test, succeeds(false));

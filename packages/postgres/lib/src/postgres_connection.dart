@@ -48,7 +48,7 @@ final class PostgresConnection extends SqlConnection {
           return IO
               .fromFutureF(() => _session.close(force: true))
               .attempt()
-              .productR(() => dispose);
+              .productR(dispose);
         }
       },
     ).flatMap((statement) {

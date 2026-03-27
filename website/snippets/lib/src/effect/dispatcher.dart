@@ -18,7 +18,7 @@ IO<Unit> parallelFireAndForget() => Dispatcher.parallel().use((dispatcher) {
         dispatcher.unsafeRunAndForget(IO.print('background work'));
         return Unit();
       })
-      .productR(() => IO.sleep(10.milliseconds));
+      .productR(IO.sleep(10.milliseconds));
 });
 // dispatcher-parallel
 
@@ -34,7 +34,7 @@ IO<IList<int>> sequentialFifo() => IO.ref(nil<int>()).flatMap((log) {
           await dispatcher.unsafeToFuture(log.update((IList<int> l) => l.prepended(3)));
           return Unit();
         })
-        .productR(() => log.value());
+        .productR(log.value());
   });
 });
 // dispatcher-sequential

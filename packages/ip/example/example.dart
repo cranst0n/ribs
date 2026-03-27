@@ -33,7 +33,7 @@ void main() async {
 
     // Combine with asynchronous DNS effects
     return printDetails.productR(
-      () => Dns.resolve(hostname).flatMap((ips) {
+      Dns.resolve(hostname).flatMap((ips) {
         print('--- DNS lookup for $hostname ---');
         ips.foreach((ip) => print('Resolved IP: $ip'));
 

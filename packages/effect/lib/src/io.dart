@@ -54,13 +54,13 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
       (winner) => winner.fold(
         (aWon) => aWon((oca, f) {
           return oca.fold(
-            () => f.cancel()._productR(() => poll(IO.canceled))._productR(() => IO._never()),
-            (err, st) => f.cancel()._productR(() => IO._raiseError(err, st)),
+            () => f.cancel()._productR(poll(IO.canceled))._productR(IO._never()),
+            (err, st) => f.cancel()._productR(IO._raiseError(err, st)),
             (a) => poll(f.join())
                 ._onCancel(f.cancel())
                 ._flatMap(
                   (ocb) => ocb.fold(
-                    () => poll(IO.canceled)._productR(() => IO._never()),
+                    () => poll(IO.canceled)._productR(IO._never()),
                     (err, st) => IO._raiseError(err, st),
                     (b) => IO.pure((a, b)),
                   ),
@@ -69,13 +69,13 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
         }),
         (bWon) => bWon((f, ocb) {
           return ocb.fold(
-            () => f.cancel()._productR(() => poll(IO.canceled))._productR(() => IO._never()),
-            (err, st) => f.cancel()._productR(() => IO._raiseError(err, st)),
+            () => f.cancel()._productR(poll(IO.canceled))._productR(IO._never()),
+            (err, st) => f.cancel()._productR(IO._raiseError(err, st)),
             (b) => poll(f.join())
                 ._onCancel(f.cancel())
                 ._flatMap(
                   (oca) => oca.fold(
-                    () => poll(IO.canceled)._productR(() => IO._never()),
+                    () => poll(IO.canceled)._productR(IO._never()),
                     (err, st) => IO._raiseError(err, st),
                     (a) => IO.pure((a, b)),
                   ),
@@ -225,15 +225,15 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
             return oca.fold(
               () => fiberB
                   .cancel()
-                  ._productR(() => fiberB.join())
+                  ._productR(fiberB.join())
                   ._flatMap(
                     (ocb) => ocb.fold(
-                      () => poll(IO.canceled)._productR(() => IO._never()),
+                      () => poll(IO.canceled)._productR(IO._never()),
                       (err, st) => IO._raiseError(err, st),
                       (b) => IO.pure(Right(b)),
                     ),
                   ),
-              (err, st) => fiberB.cancel()._productR(() => IO._raiseError(err)),
+              (err, st) => fiberB.cancel()._productR(IO._raiseError(err)),
               (a) => fiberB.cancel()._as(Left(a)),
             );
           }),
@@ -241,15 +241,15 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
             return ocb.fold(
               () => fiberA
                   .cancel()
-                  ._productR(() => fiberA.join())
+                  ._productR(fiberA.join())
                   ._flatMap(
                     (oca) => oca.fold(
-                      () => poll(IO.canceled)._productR(() => IO._never()),
+                      () => poll(IO.canceled)._productR(IO._never()),
                       (err, st) => IO._raiseError(err, st),
                       (a) => IO.pure(Left(a)),
                     ),
                   ),
-              (err, st) => fiberA.cancel()._productR(() => IO._raiseError(err, st)),
+              (err, st) => fiberA.cancel()._productR(IO._raiseError(err, st)),
               (b) => fiberA.cancel()._as(Right(b)),
             );
           }),
@@ -388,7 +388,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
     return _start()._flatMap((fiber) {
       return poll(fiber.join())
           ._onCancel(fin._guarantee(fiber.cancel()))
-          ._flatMap((oc) => oc.embed(poll(canceled._productR(() => IO._never()))));
+          ._flatMap((oc) => oc.embed(poll(canceled._productR(IO._never()))));
     });
   });
 
@@ -404,7 +404,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// Return an IO that will wait the specified [duration] **before** evaluating
   /// and then return the result.
   IO<A> delayBy(Duration duration) => _delayBy(duration).traced('delayBy');
-  IO<A> _delayBy(Duration duration) => IO._sleep(duration)._productR(() => this);
+  IO<A> _delayBy(Duration duration) => IO._sleep(duration)._productR(this);
 
   /// Sequences the evaluation of this IO and the provided function [f] that
   /// will create the next [IO] to be evaluated.
@@ -419,7 +419,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   /// Continually re-evaluate this [IO] forever, until an error or cancelation.
   IO<Never> foreverM() => _foreverM().traced('foreverM');
-  IO<Never> _foreverM() => _productR(() => _foreverM());
+  IO<Never> _foreverM() => _flatMap((_) => _foreverM());
 
   /// Executes the provided finalizer [fin] regardless of the [Outcome] of
   /// evaluating this [IO].
@@ -427,7 +427,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   IO<A> _guarantee(IO<Unit> fin) => IO._uncancelable(
     (poll) => poll(
       this,
-    )._onCancel(fin)._onError((e) => fin._productR(() => IO._raiseError(e)))._flatTap((_) => fin),
+    )._onCancel(fin)._onError((e) => fin._productR(IO._raiseError(e)))._flatTap((_) => fin),
   );
 
   /// Executes the provided finalizer [fin] which can decide what action to
@@ -484,7 +484,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   IO<A> onError(Function1<Object, IO<Unit>> f) => _onError(f).traced('onError');
   IO<A> _onError(Function1<Object, IO<Unit>> f) => _HandleErrorWith(
     this,
-    Fn2((e, st) => f(e)._attempt()._productR(() => IO._raiseError<A>(e, st))),
+    Fn2((e, st) => f(e)._attempt()._productR(IO._raiseError<A>(e, st))),
   );
 
   /// Replaces any failures from this IO with [None]. A successful value is
@@ -518,13 +518,13 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   /// Sequentially evaluate this [IO], then [that], returning the value
   /// producted by this, discarding that value from [that].
-  IO<A> productL<B>(Function0<IO<B>> that) => _productL(that).traced('productL');
-  IO<A> _productL<B>(Function0<IO<B>> that) => _flatMap((a) => that()._as(a));
+  IO<A> productL<B>(IO<B> that) => _productL(that).traced('productL');
+  IO<A> _productL<B>(IO<B> that) => _flatMap((a) => that._as(a));
 
   /// Sequentially evaluate this [IO], then [that], returning the value
   /// producted by [that], discarding the value from this.
-  IO<B> productR<B>(Function0<IO<B>> that) => _productR(that).traced('productR');
-  IO<B> _productR<B>(Function0<IO<B>> that) => _flatMap((_) => that());
+  IO<B> productR<B>(IO<B> that) => _productR(that).traced('productR');
+  IO<B> _productR<B>(IO<B> that) => _flatMap((_) => that);
 
   /// Returns the value created from [recover] or [map], depending on whether
   /// this [IO] results in an error or is successful.
@@ -582,14 +582,14 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
         (aWon) {
           final (oc, f) = aWon;
           return poll(
-            f.cancel()._productR(() => oc.embed(poll(IO.canceled)._productR(() => IO._never<A>()))),
+            f.cancel()._productR(oc.embed(poll(IO.canceled)._productR(IO._never<A>()))),
           );
         },
         (bWon) {
           final (f, _) = bWon;
 
           return f.cancel()._start()._productR(
-            () => IO._raiseError<A>(TimeoutException(duration.toString())),
+            IO._raiseError<A>(TimeoutException(duration.toString())),
           );
         },
       ),
@@ -649,7 +649,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// repetition.
   IO<Unit> untilM_(IO<bool> cond) => _untilM_(cond).traced('untilM_');
   IO<Unit> _untilM_(IO<bool> cond) =>
-      _productR(() => cond._ifM(() => IO.unit, () => _untilM_(cond)));
+      _flatMap((_) => cond._ifM(() => IO.unit, () => _untilM_(cond)));
 
   /// Discards the value of this IO and replaces it with [Unit].
   IO<Unit> voided() => _voided();
@@ -684,7 +684,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// repitition.
   IO<Unit> whileM_(IO<bool> cond) => _whileM_(cond).traced('whileM_');
   IO<Unit> _whileM_(IO<bool> cond) => cond.ifM(
-    () => _productR(() => _whileM_(cond)),
+    () => _flatMap((_) => _whileM_(cond)),
     () => IO.unit,
   );
 

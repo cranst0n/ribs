@@ -133,7 +133,7 @@ class _BoundedDequeue<A> extends Dequeue<A> {
               _State(queue, size, takers, offerers.enqueue(offerer)),
               poll(
                 offerer.value(),
-              ).productR(() => poll(_offer(a, update))).onCancel(cleanup.flatten()),
+              ).productR(poll(_offer(a, update))).onCancel(cleanup.flatten()),
             );
           }
         }).flatten();
@@ -219,13 +219,13 @@ class _BoundedDequeue<A> extends Dequeue<A> {
 
             final awaiter = poll(taker.value())
                 .onCancel(cleanup.flatten())
-                .productR(() => poll(_take(dequeue)).onCancel(_notifyNextTaker().flatten()));
+                .productR(poll(_take(dequeue)).onCancel(_notifyNextTaker().flatten()));
 
             final (fulfill, offerer2) =
                 s.offerers.isEmpty
                     ? (awaiter, s.offerers)
                     : s.offerers.dequeue()(
-                      (release, rest) => (release.complete(Unit()).productR(() => awaiter), rest),
+                      (release, rest) => (release.complete(Unit()).productR(awaiter), rest),
                     );
 
             return (_State(s.queue, s.size, s.takers.enqueue(taker), offerer2), fulfill);

@@ -99,7 +99,7 @@ final class _BoundedChannel<A> with Channel<A> {
       } else {
         return (
           _State(s.values, s.size, none(), s.producers, true),
-          notifyStream(s.waiting).as(_rightUnit).productL(() => signalClosure()),
+          notifyStream(s.waiting).as(_rightUnit).productL(signalClosure()),
         );
       }
     });
@@ -159,14 +159,14 @@ final class _BoundedChannel<A> with Channel<A> {
         } else if (s.size < capacity) {
           return (
             _State(s.values.prepended(a), s.size + 1, s.waiting, s.producers, close),
-            signalClose.productR(() => notifyStream(s.waiting).as(_rightUnit)),
+            signalClose.productR(notifyStream(s.waiting).as(_rightUnit)),
           );
         } else {
           return (
             _State(s.values, s.size, none(), s.producers.prepended((a, producer)), close),
             signalClose
-                .productR(() => notifyStream(s.waiting).as(_rightUnit))
-                .productL(() => IO.unlessA(close, () => waitOnBound(producer, poll))),
+                .productR(notifyStream(s.waiting).as(_rightUnit))
+                .productL(IO.unlessA(close, () => waitOnBound(producer, poll))),
           );
         }
       });
@@ -197,7 +197,7 @@ final class _BoundedChannel<A> with Channel<A> {
                   producers.foreachN((value, producer) {
                     size += 1;
                     tailValues.addOne(value);
-                    unblock = unblock.productL(() => producer.complete(Unit()));
+                    unblock = unblock.productL(producer.complete(Unit()));
                   });
 
                   final toEmit = makeChunk(initValues, tailValues.toIList(), size);

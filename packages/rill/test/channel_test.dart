@@ -10,13 +10,13 @@ void main() {
     test('receives elements above capacity and closes', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
         final senders = IList.range(0, 10).parTraverseIO_((i) {
-          return IO.sleep(Duration(milliseconds: i)).productR(() => chan.send(i));
+          return IO.sleep(Duration(milliseconds: i)).productR(chan.send(i));
         });
 
         final cleanup = IO
             .sleep(200.milliseconds)
-            .productR(() => chan.close())
-            .productR(() => chan.rill.compile.toIList);
+            .productR(chan.close())
+            .productR(chan.rill.compile.toIList);
 
         return IO.both(senders, cleanup).mapN((_, b) => b);
       });
@@ -29,7 +29,7 @@ void main() {
 
     test('send to closed channel returns ChannelClosed', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
-        return chan.close().productR(() => chan.send(42));
+        return chan.close().productR(chan.send(42));
       });
 
       expect(test, succeeds(isLeft()));
@@ -37,7 +37,7 @@ void main() {
 
     test('rill terminates after close with no elements', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
-        return chan.close().productR(() => chan.rill.compile.toIList);
+        return chan.close().productR(chan.rill.compile.toIList);
       });
 
       expect(test, succeeds(nil<int>()));
@@ -48,7 +48,7 @@ void main() {
         final send = IList.range(0, 3).traverseIO_((i) => chan.send(i));
         final close = chan.close();
 
-        return send.productR(() => close).productR(() => chan.rill.compile.toIList);
+        return send.productR(close).productR(chan.rill.compile.toIList);
       });
 
       expect(
@@ -65,7 +65,7 @@ void main() {
 
     test('trySend returns Right(false) when channel is full', () {
       final test = Channel.bounded<int>(2).flatMap((chan) {
-        return chan.trySend(1).productR(() => chan.trySend(2)).productR(() => chan.trySend(3));
+        return chan.trySend(1).productR(chan.trySend(2)).productR(chan.trySend(3));
       });
 
       expect(test, succeeds(isRight(false)));
@@ -73,7 +73,7 @@ void main() {
 
     test('trySend returns Left(ChannelClosed) when channel is closed', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
-        return chan.close().productR(() => chan.trySend(42));
+        return chan.close().productR(chan.trySend(42));
       });
 
       expect(test, succeeds(isLeft()));
@@ -81,7 +81,7 @@ void main() {
 
     test('close is idempotent — second close returns ChannelClosed', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
-        return chan.close().productR(() => chan.close());
+        return chan.close().productR(chan.close());
       });
 
       expect(test, succeeds(isLeft()));
@@ -90,7 +90,7 @@ void main() {
     test('isClosed reflects open and closed states', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
         return chan.isClosed.flatMap((before) {
-          return chan.close().productR(() => chan.isClosed).map((after) => (before, after));
+          return chan.close().productR(chan.isClosed).map((after) => (before, after));
         });
       });
 
@@ -99,7 +99,7 @@ void main() {
 
     test('closed completes after close is called', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
-        final closeAfterDelay = IO.sleep(50.milliseconds).productR(() => chan.close());
+        final closeAfterDelay = IO.sleep(50.milliseconds).productR(chan.close());
         return IO.both(closeAfterDelay, chan.closed).voided();
       });
 
@@ -108,7 +108,7 @@ void main() {
 
     test('closeWithElement sends element and closes', () {
       final test = Channel.bounded<int>(5).flatMap((chan) {
-        return chan.closeWithElement(99).productR(() => chan.rill.compile.toIList);
+        return chan.closeWithElement(99).productR(chan.rill.compile.toIList);
       });
 
       expect(test, succeeds(ilist([99])));
@@ -128,7 +128,7 @@ void main() {
     test('unbounded channel accepts many elements without backpressure', () {
       final test = Channel.unbounded<int>().flatMap((chan) {
         final sends = IList.range(0, 100).traverseIO_((i) => chan.send(i));
-        return sends.productR(() => chan.close()).productR(() => chan.rill.compile.toIList);
+        return sends.productR(chan.close()).productR(chan.rill.compile.toIList);
       });
 
       expect(
@@ -156,7 +156,7 @@ void main() {
         // Fill the channel, then read to unblock producer
         final slowConsumer = IO
             .sleep(50.milliseconds)
-            .productR(() => chan.rill.take(3).compile.toIList);
+            .productR(chan.rill.take(3).compile.toIList);
         final producer = IList.range(0, 3).traverseIO_((i) => chan.send(i));
 
         return IO.both(producer, slowConsumer).mapN((_, b) => b);

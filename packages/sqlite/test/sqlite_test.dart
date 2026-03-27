@@ -56,7 +56,7 @@ void main() {
 
   group('Query', () {
     setUp(() async {
-      await _createTable().productR(() => _insertPeople()).transact(xa).unsafeRunFuture();
+      await _createTable().productR(_insertPeople()).transact(xa).unsafeRunFuture();
     });
 
     test('ilist returns all rows', () {
@@ -172,7 +172,7 @@ void main() {
 
   group('ParameterizedQuery', () {
     setUp(() async {
-      await _createTable().productR(() => _insertPeople()).transact(xa).unsafeRunFuture();
+      await _createTable().productR(_insertPeople()).transact(xa).unsafeRunFuture();
     });
 
     test('unique with params', () {
@@ -204,7 +204,7 @@ void main() {
 
   group('ConnectionRill / stream', () {
     setUp(() async {
-      await _createTable().productR(() => _insertPeople()).transact(xa).unsafeRunFuture();
+      await _createTable().productR(_insertPeople()).transact(xa).unsafeRunFuture();
     });
 
     test('stream returns all rows via Rill', () {
@@ -282,7 +282,7 @@ void main() {
       final count = 'SELECT COUNT(*) FROM person'.query(Read.integer).unique().transact(xa);
 
       expect(
-        insertAndRollback.productR(() => count),
+        insertAndRollback.productR(count),
         succeeds(0),
       );
     });
@@ -299,7 +299,7 @@ void main() {
       final count = 'SELECT COUNT(*) FROM person'.query(Read.integer).unique().transact(xa);
 
       expect(
-        insertAndCancel.productR(() => count),
+        insertAndCancel.productR(count),
         succeeds(0),
       );
     });
@@ -342,7 +342,7 @@ void main() {
       final select1 = 'SELECT 1'.query(Read.integer).unique().transact(poolXa);
 
       // Would hang forever if the connection was not returned.
-      expect(select1.productR(() => select1), succeeds());
+      expect(select1.productR(select1), succeeds());
     });
 
     test('connection is returned to pool after failed transaction', () {
@@ -350,18 +350,18 @@ void main() {
       final select1 = 'SELECT 1'.query(Read.integer).unique().transact(poolXa);
 
       // Would block if the connection leaked on error.
-      expect(raise.productR(() => select1), succeeds());
+      expect(raise.productR(select1), succeeds());
     });
 
     test('connection is returned to pool after fiber cancellation', () {
       final test = Deferred.of<Unit>().flatMap((acquired) {
         return ConnectionIO.lift(acquired.complete(Unit()))
-            .productR(() => ConnectionIO.never<Unit>())
+            .productR(ConnectionIO.never<Unit>())
             .transact(poolXa)
             .start()
-            .flatMap((fiber) => acquired.value().productR(() => fiber.cancel()))
+            .flatMap((fiber) => acquired.value().productR(fiber.cancel()))
             // Would block if cancellation didn't return the lease to the pool.
-            .productR(() => 'SELECT 1'.query(Read.integer).unique().transact(poolXa));
+            .productR('SELECT 1'.query(Read.integer).unique().transact(poolXa));
       });
 
       expect(test, succeeds());
@@ -410,7 +410,7 @@ void main() {
     });
 
     test('streamQuery works with pool transactor', () {
-      final setup = _createTable().productR(() => _insertPeople()).transact(poolXa);
+      final setup = _createTable().productR(_insertPeople()).transact(poolXa);
 
       final rill =
           'SELECT name FROM person ORDER BY name'
@@ -420,7 +420,7 @@ void main() {
               .compile
               .toIList;
 
-      final test = setup.productR(() => rill);
+      final test = setup.productR(rill);
 
       expect(test, succeeds(ilist(['Alice', 'Bob', 'Carol'])));
     });
@@ -435,14 +435,14 @@ void main() {
         final runFiber1 =
             poolXa
                 .connectReader()
-                .use((conn) => r1Acquired.complete(Unit()).productR(() => proceed.value()))
+                .use((conn) => r1Acquired.complete(Unit()).productR(proceed.value()))
                 .start();
 
         // Fiber 2: hold reader 2 until 'proceed' fires.
         final runFiber2 =
             poolXa
                 .connectReader()
-                .use((conn) => r2Acquired.complete(Unit()).productR(() => proceed.value()))
+                .use((conn) => r2Acquired.complete(Unit()).productR(proceed.value()))
                 .start();
 
         return runFiber1.product(runFiber2).flatMapN((fiber1, fiber2) {
@@ -478,7 +478,7 @@ void main() {
           .transact(xa);
 
       expect(
-        setup.product(insert).productR(() => result),
+        setup.product(insert).productR(result),
         succeeds('NoNick'),
       );
     });
@@ -496,7 +496,7 @@ void main() {
           .transact(xa);
 
       expect(
-        setup.product(insert).productR(() => result),
+        setup.product(insert).productR(result),
         succeeds(isNone()),
       );
     });
@@ -527,9 +527,9 @@ void main() {
           .transact(xa);
 
       final test = setup
-          .productR(() => insert1)
-          .productR(() => insert2)
-          .productR(() => nullRow)
+          .productR(insert1)
+          .productR(insert2)
+          .productR(nullRow)
           .product(someRow);
 
       expect(test, succeeds(const (None(), Some('hello'))));
@@ -554,13 +554,13 @@ void main() {
         return _createTable()
             .transact(fileXa)
             .productR(
-              () => 'INSERT INTO person (name, age) VALUES (?, ?)'
+              'INSERT INTO person (name, age) VALUES (?, ?)'
                   .update((Write.string, Write.integer).tupled)
                   .run(('File Person', 42))
                   .transact(fileXa),
             )
             .productR(
-              () => 'SELECT COUNT(*) FROM person'.query(Read.integer).unique().transact(fileXa),
+              'SELECT COUNT(*) FROM person'.query(Read.integer).unique().transact(fileXa),
             )
             .flatMap((count) => IO.exec(() => expect(count, equals(1))));
       });

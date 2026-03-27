@@ -75,7 +75,7 @@ class _BoundedPQueue<A> extends PQueue<A> {
 
             return (
               _State(heap, size, takers, offerers.enqueue(offerer)),
-              poll(offerer.value().productR(() => poll(offer(a))).onCancel(cleanup.flatten())),
+              poll(offerer.value().productR(poll(offer(a))).onCancel(cleanup.flatten())),
             );
           }
         }).flatten();
@@ -111,7 +111,7 @@ class _BoundedPQueue<A> extends PQueue<A> {
             });
 
             final awaiter = poll(
-              taker.value().productR(() => poll(take())),
+              taker.value().productR(poll(take())),
             ).onCancel(cleanup.flatten());
 
             final IO<A> fulfill;
@@ -122,7 +122,7 @@ class _BoundedPQueue<A> extends PQueue<A> {
               offerers2 = s.offerers;
             } else {
               final (release, rest) = s.offerers.dequeue();
-              fulfill = release.complete(Unit()).productR(() => awaiter);
+              fulfill = release.complete(Unit()).productR(awaiter);
               offerers2 = rest;
             }
 

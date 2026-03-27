@@ -154,7 +154,7 @@ void main() {
   test('RetryPolicy.giveUpAfterCumulativeDelay (fail)', () async {
     int attempts = 0;
 
-    final io = IO.delay(() => attempts += 1).productR(() => IO.raiseError<int>('fail'));
+    final io = IO.delay(() => attempts += 1).productR(IO.raiseError<int>('fail'));
 
     // zero-limit gives up immediately (0 >= 0)
     final retryable = io.retrying(

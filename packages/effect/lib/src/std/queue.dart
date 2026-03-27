@@ -81,7 +81,7 @@ final class _SyncQueue<A> extends Queue<A> {
           if (s.takers.nonEmpty) {
             final (taker, tail) = s.takers.dequeue();
 
-            final finish = taker.complete((a, latch)).productR(() => checkCommit);
+            final finish = taker.complete((a, latch)).productR(checkCommit);
 
             return (_SyncState(s.offerers, tail), finish);
           } else {
@@ -168,7 +168,7 @@ final class _SyncQueue<A> extends Queue<A> {
 
         final commitF = Deferred.of<bool>().flatMap((latch) {
           return IO.uncancelable((poll) {
-            return taker.complete((a, latch)).productR(() => poll(latch.value()));
+            return taker.complete((a, latch)).productR(poll(latch.value()));
           });
         });
 
@@ -307,13 +307,13 @@ abstract class _AbstractQueue<A> extends Queue<A> {
 
             final awaitF = poll(taker.value())
                 .onCancel(cleanup.flatten())
-                .productR(() => poll(take()).onCancel(_notifyNextTaker().flatten()));
+                .productR(poll(take()).onCancel(_notifyNextTaker().flatten()));
 
             final (fulfill, offerers2) =
                 st.offerers.isEmpty
                     ? (awaitF, st.offerers)
                     : st.offerers.dequeue()(
-                      (release, rest) => (release.complete(Unit()).productR(() => awaitF), rest),
+                      (release, rest) => (release.complete(Unit()).productR(awaitF), rest),
                     );
 
             return (
@@ -409,7 +409,7 @@ final class _BoundedQueue<A> extends _AbstractQueue<A> {
 
     return (
       _State(queue, size, takers, offerers.enqueue(offerer)),
-      poll(offerer.value()).productR(() => poll(recurse())).onCancel(cleanup.flatten()),
+      poll(offerer.value()).productR(poll(recurse())).onCancel(cleanup.flatten()),
     );
   }
 

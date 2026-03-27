@@ -27,7 +27,7 @@ IO<Unit> backpressureExample() => Queue.bounded<int>(2).flatMap((queue) {
   final consumer =
       IO
           .sleep(100.milliseconds)
-          .productR(() => queue.take())
+          .productR(queue.take())
           .flatMap((n) => IO.print('took: $n'))
           .replicate_(3)
           .voided();

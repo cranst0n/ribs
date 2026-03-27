@@ -19,11 +19,11 @@ void main() {
 
     test('Lossless Strategy should complete effects even when no permits are available', () {
       final test = Backpressure.lossless(1).flatMap((backpressure) {
-        return backpressure.metered(IO.sleep(1.second).productR(() => IO.pure(1))).start().flatMap((
+        return backpressure.metered(IO.sleep(1.second).productR(IO.pure(1))).start().flatMap((
           f1,
         ) {
           return backpressure
-              .metered(IO.sleep(1.second).productR(() => IO.pure(2)))
+              .metered(IO.sleep(1.second).productR(IO.pure(2)))
               .start()
               .flatMap((f2) {
                 return f1.joinWithNever().flatMap((res1) {

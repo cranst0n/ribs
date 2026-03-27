@@ -53,7 +53,7 @@ class HotswapImpl<R> extends Hotswap<R> {
     return Resource.makeFull(
       (poll) {
         return poll(semaphore.acquire()).productR(
-          () => state.value().flatMap((st) {
+          state.value().flatMap((st) {
             return switch (st) {
               Acquired(:final r) => IO.pure(r),
               Finalized() => IO.raiseError('Hotswap already finalized'),
@@ -86,7 +86,7 @@ class HotswapImpl<R> extends Hotswap<R> {
             Finalized() => IO.unit,
           };
 
-          return (Finalized(), fin.productR(() => IO.raiseError('Cannot swap after finalization')));
+          return (Finalized(), fin.productR(IO.raiseError('Cannot swap after finalization')));
       }
     });
   }

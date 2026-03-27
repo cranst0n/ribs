@@ -66,7 +66,7 @@ void tickerTests() {
   // tickAll() advances through every scheduled sleep without waiting real time.
   // The IO below would take 10 hours on a real clock; with Ticker it is instant.
   test('IO.sleep fast-forwards with tickAll', () async {
-    final ticker = IO.sleep(10.hours).productR(() => IO.pure('woke up')).ticked..tickAll();
+    final ticker = IO.sleep(10.hours).productR(IO.pure('woke up')).ticked..tickAll();
 
     await expectLater(ticker.outcome, completion(Outcome.succeeded('woke up')));
   });
@@ -79,7 +79,7 @@ void tickerTests() {
 IO<A> pollUntil<A>(IO<Option<A>> check, {Duration interval = const Duration(seconds: 1)}) =>
     check.flatMap(
       (result) => result.fold(
-        () => IO.sleep(interval).productR(() => pollUntil(check, interval: interval)),
+        () => IO.sleep(interval).productR(pollUntil(check, interval: interval)),
         IO.pure,
       ),
     );

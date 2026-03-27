@@ -21,8 +21,8 @@ IO<Unit> signalBasics() {
     final Signal<String> label = counter.map((int n) => 'count=$n');
 
     return increment
-        .productR(() => increment)
-        .productR(() => readOnce)
+        .productR(increment)
+        .productR(readOnce)
         .flatMap((int n) => IO.print('value after two increments: $n'));
     // value after two increments: 2
   });
@@ -126,19 +126,19 @@ IO<int> pauseableProcessor() {
         // processed. Uses waitUntil to block until the condition holds.
         final watchdog = itemCount
             .waitUntil((int n) => n >= 100)
-            .productR(() => stop.setValue(true));
+            .productR(stop.setValue(true));
 
         // Demonstrate pause: briefly pause then resume after 50 items.
         final pauseController = itemCount
             .waitUntil((int n) => n >= 50)
-            .productR(() => paused.setValue(true))
-            .productR(() => paused.setValue(false));
+            .productR(paused.setValue(true))
+            .productR(paused.setValue(false));
 
         final work = IO.both<Unit, Unit>(processor, logger).voided();
 
         final control = IO.both<Unit, Unit>(watchdog, pauseController).voided();
 
-        return IO.both<Unit, Unit>(work, control).productR(() => itemCount.value());
+        return IO.both<Unit, Unit>(work, control).productR(itemCount.value());
         // => 100 (or slightly more due to scheduling)
       });
     });

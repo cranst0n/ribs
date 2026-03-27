@@ -76,7 +76,7 @@ void main() {
 
   group('Query', () {
     setUp(() async {
-      await _resetTable().productR(() => _insertPeople()).transact(xa).unsafeRunFuture();
+      await _resetTable().productR(_insertPeople()).transact(xa).unsafeRunFuture();
     });
 
     test('ilist returns all rows', () {
@@ -121,7 +121,7 @@ void main() {
 
   group('ParameterizedQuery', () {
     setUp(() async {
-      await _resetTable().productR(() => _insertPeople()).transact(xa).unsafeRunFuture();
+      await _resetTable().productR(_insertPeople()).transact(xa).unsafeRunFuture();
     });
 
     test('unique with params', () {
@@ -153,7 +153,7 @@ void main() {
 
   group('ConnectionRill / stream', () {
     setUp(() async {
-      await _resetTable().productR(() => _insertPeople()).transact(xa).unsafeRunFuture();
+      await _resetTable().productR(_insertPeople()).transact(xa).unsafeRunFuture();
     });
 
     test('stream returns all rows via Rill', () {
@@ -234,7 +234,7 @@ void main() {
       final count = 'SELECT COUNT(*) FROM person'.query(Read.integer).unique().transact(xa);
 
       expect(
-        insert.productR(() => count),
+        insert.productR(count),
         succeeds(0),
       );
     });
@@ -251,7 +251,7 @@ void main() {
       final count = 'SELECT COUNT(*) FROM person'.query(Read.integer).unique().transact(xa);
 
       expect(
-        canceledInsert.productR(() => count),
+        canceledInsert.productR(count),
         succeeds(0),
       );
     });
@@ -289,7 +289,7 @@ void main() {
 
       expect(
         // Would hang forever if the connection was not returned.
-        select1.productR(() => select1),
+        select1.productR(select1),
         succeeds(),
       );
     });
@@ -301,7 +301,7 @@ void main() {
 
       expect(
         // Would block if the connection leaked on error.
-        raise.productR(() => select1),
+        raise.productR(select1),
         succeeds(),
       );
     });
@@ -311,10 +311,10 @@ void main() {
         return ConnectionIO.lift(
           acquired.complete(Unit()),
         ).flatMap((_) => ConnectionIO.never<Unit>()).transact(singleXa).start().flatMap((fiber) {
-          return acquired.value().productR(() => fiber.cancel()).productR(() {
+          return acquired.value().productR(fiber.cancel()).productR(
             // Would block if cancellation didn't trigger the signalDone Completer.
-            return 'SELECT 1'.query(Read.integer).unique().transact(singleXa);
-          });
+            'SELECT 1'.query(Read.integer).unique().transact(singleXa),
+          );
         });
       });
 
@@ -408,7 +408,7 @@ void main() {
           .transact(xa);
 
       expect(
-        insert.productR(() => result),
+        insert.productR(result),
         succeeds('NoNick'),
       );
     });

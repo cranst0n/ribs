@@ -143,10 +143,10 @@ class TopicImpl<A> implements Topic<A> {
             // something.
             final drainChannel = subscribers
                 .get(id)
-                .traverseIO_((chan) => chan.close().productR(() => chan.rill.compile.drain));
+                .traverseIO_((chan) => chan.close().productR(chan.rill.compile.drain));
 
             final newState = Active(subscribers - id, nextId);
-            final action = drainChannel.productR(() => subscriberCount.update((c) => c - 1));
+            final action = drainChannel.productR(subscriberCount.update((c) => c - 1));
 
             return (newState, action);
           case Closed():

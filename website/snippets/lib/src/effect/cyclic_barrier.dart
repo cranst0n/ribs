@@ -9,9 +9,9 @@ import 'package:ribs_effect/ribs_effect.dart';
 IO<Unit> cyclicBarrierBasic() => CyclicBarrier.withCapacity(2).flatMap((barrier) {
   IO<Unit> worker(int id) => IO
       .sleep((id * 30).milliseconds)
-      .productR(() => IO.print('worker $id: reached barrier'))
-      .productR(() => barrier.await())
-      .productR(() => IO.print('worker $id: released'));
+      .productR(IO.print('worker $id: reached barrier'))
+      .productR(barrier.await())
+      .productR(IO.print('worker $id: released'));
 
   return ilist([worker(1), worker(2)]).parSequence_();
 });
@@ -23,9 +23,9 @@ IO<Unit> cyclicBarrierBasic() => CyclicBarrier.withCapacity(2).flatMap((barrier)
 IO<Unit> cyclicBarrierReuse() => CyclicBarrier.withCapacity(3).flatMap((barrier) {
   IO<Unit> worker(int id) => barrier
       .await()
-      .productR(() => IO.print('round 1: worker $id released'))
-      .productR(() => barrier.await())
-      .productR(() => IO.print('round 2: worker $id released'));
+      .productR(IO.print('round 1: worker $id released'))
+      .productR(barrier.await())
+      .productR(IO.print('round 2: worker $id released'));
 
   return ilist([worker(1), worker(2), worker(3)]).parSequence_();
 });
@@ -40,12 +40,12 @@ IO<Unit> cyclicBarrierCancel() => CyclicBarrier.withCapacity(2).flatMap((barrier
 
   // After the impatient fiber cancels, the barrier is back to capacity 2,
   // so we need a second fiber to arrive alongside the patient one.
-  final patient = IO.sleep(100.milliseconds).productR(() => barrier.await());
+  final patient = IO.sleep(100.milliseconds).productR(barrier.await());
 
   final secondArrival = IO
       .sleep(150.milliseconds)
-      .productR(() => barrier.await())
-      .productR(() => IO.print('both patient fibers released'));
+      .productR(barrier.await())
+      .productR(IO.print('both patient fibers released'));
 
   return ilist([impatient, patient, secondArrival]).parSequence_();
 });
@@ -62,11 +62,11 @@ IO<Unit> pipelineStages() => CyclicBarrier.withCapacity(3).flatMap((barrier) {
   IO<Unit> stage(String name, Duration workTime) {
     IO<Unit> processChunk(int chunk) => IO
         .sleep(workTime)
-        .productR(() => IO.print('[$name] chunk $chunk done — waiting'))
-        .productR(() => barrier.await())
-        .productR(() => IO.print('[$name] chunk $chunk committed'));
+        .productR(IO.print('[$name] chunk $chunk done — waiting'))
+        .productR(barrier.await())
+        .productR(IO.print('[$name] chunk $chunk committed'));
 
-    return processChunk(1).productR(() => processChunk(2)).productR(() => processChunk(3));
+    return processChunk(1).productR(processChunk(2)).productR(processChunk(3));
   }
 
   return ilist([

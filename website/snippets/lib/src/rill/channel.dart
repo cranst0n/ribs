@@ -52,7 +52,7 @@ IO<Unit> channelSend() {
     // Consume both values, then we are done.
     final consume = channel.rill.take(2).compile.drain;
 
-    return sendOne.productR(() => sendFinal).productR(() => consume);
+    return sendOne.productR(sendFinal).productR(consume);
   });
 }
 
@@ -133,7 +133,7 @@ IO<IList<String>> aggregateLogs() {
 
     // Run producers and consumer together. Close the channel as soon as
     // all producers finish so the consumer knows when to stop.
-    return IO.both(producers.productR(() => channel.close()), consumer).map((t) => t.$2);
+    return IO.both(producers.productR(channel.close()), consumer).map((t) => t.$2);
     // Returns all 8 log lines (order varies by scheduling).
   });
 }

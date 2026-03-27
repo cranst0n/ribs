@@ -311,7 +311,7 @@ void main() {
       final released = IO.ref(false).flatMap((ref) {
         final r = Resource.make(IO.unit, (_) => ref.setValue(true));
         final rill = Rill.resource(r).evalMap((_) => IO.pure(42));
-        return rill.compile.resource.toIList.use(IO.pure).productR(() => ref.value());
+        return rill.compile.resource.toIList.use(IO.pure).productR(ref.value());
       });
 
       expect(released, succeeds(true));

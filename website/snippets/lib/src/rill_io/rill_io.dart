@@ -81,7 +81,7 @@ IO<Unit> loggingEchoServer({int port = 9090, int maxConnections = 100}) => IO.re
 
     return IO
         .print('$tag connected')
-        .productR(() => socket.reads.through(socket.writes).compile.drain)
+        .productR(socket.reads.through(socket.writes).compile.drain)
         .guarantee(IO.print('$tag disconnected'));
   });
 

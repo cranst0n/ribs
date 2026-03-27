@@ -57,7 +57,7 @@ void main() {
       return Resource.make(
         fa,
         (_) => IO.unit,
-      ).use_().timeout(1.second).attempt().productR(() => interrupted.value());
+      ).use_().timeout(1.second).attempt().productR(interrupted.value());
     });
 
     final ticker = test.ticked;
@@ -78,7 +78,7 @@ void main() {
       return Resource.make(
         fa,
         (_) => IO.unit,
-      ).use_().timeout(1.second).attempt().productR(() => interrupted.value());
+      ).use_().timeout(1.second).attempt().productR(interrupted.value());
     });
 
     final ticker = test.ticked..tickAll();
@@ -103,7 +103,7 @@ void main() {
           .surround(IO.sleep(4.seconds))
           .timeout(2.seconds)
           .attempt()
-          .productR(() => (acquireFin.value(), resourceFin.value()).tupled);
+          .productR((acquireFin.value(), resourceFin.value()).tupled);
     });
 
     final ticker = test.ticked..tickAll();
@@ -128,7 +128,7 @@ void main() {
           .use_()
           .timeout(1.second)
           .attempt()
-          .productR(() => (acquireFin.value(), resourceFin.value()).tupled);
+          .productR((acquireFin.value(), resourceFin.value()).tupled);
     });
 
     final ticker = test.ticked..tickAll();
@@ -149,7 +149,7 @@ void main() {
 
       final io = IO.uncancelable(
         (poll) =>
-            sleep.onCancel(a.setValue(true)).productR(() => poll(sleep).onCancel(b.setValue(true))),
+            sleep.onCancel(a.setValue(true)).productR(poll(sleep).onCancel(b.setValue(true))),
       );
 
       final resource = Resource.makeFull(
@@ -161,7 +161,7 @@ void main() {
           .use_()
           .timeout(timeout)
           .attempt()
-          .productR(() => (a.value(), b.value(), acquireFin.value(), resourceFin.value()).tupled);
+          .productR((a.value(), b.value(), acquireFin.value(), resourceFin.value()).tupled);
     });
 
     final ticker = test.ticked..tickAll();
@@ -180,14 +180,14 @@ void main() {
     final sleep = IO.sleep(1.second);
 
     final test = flag.flatMap((releaseComplete) {
-      final release = sleep.productR(() => releaseComplete.setValue(true));
+      final release = sleep.productR(releaseComplete.setValue(true));
       final resource = Resource.applyFull((poll) => IO.delay(() => (Unit(), (_) => poll(release))));
 
       return resource
           .use_()
           .timeout(500.milliseconds)
           .attempt()
-          .productR(() => releaseComplete.value());
+          .productR(releaseComplete.value());
     });
 
     final ticker = test.ticked..tickAll();
@@ -266,7 +266,7 @@ void main() {
 
         return Resource.make(
           IO.pure(a),
-          (a) => IO.delay(() => released = released.prepended(a)).productR(() => IO.fromEither(e)),
+          (a) => IO.delay(() => released = released.prepended(a)).productR(IO.fromEither(e)),
         );
       });
 
@@ -340,7 +340,7 @@ void main() {
           return Resource.make(
             IO.pure(a),
             (a) =>
-                IO.delay(() => released = released.prepended(a)).productR(() => IO.fromEither(e)),
+                IO.delay(() => released = released.prepended(a)).productR(IO.fromEither(e)),
           );
         });
 
@@ -365,19 +365,19 @@ void main() {
       final wait = IO.sleep(1.second);
 
       final lhs = Resource.make(
-        wait.productR(() => IO.exec(() => leftAllocated = true)),
+        wait.productR(IO.exec(() => leftAllocated = true)),
         (_) => IO
             .exec(() => leftReleasing = true)
-            .productR(() => wait)
-            .productR(() => IO.exec(() => leftReleased = true)),
+            .productR(wait)
+            .productR(IO.exec(() => leftReleased = true)),
       );
 
       final rhs = Resource.make(
-        wait.productR(() => IO.exec(() => rightAllocated = true)),
+        wait.productR(IO.exec(() => rightAllocated = true)),
         (_) => IO
             .exec(() => rightReleasing = true)
-            .productR(() => wait)
-            .productR(() => IO.exec(() => rightReleased = true)),
+            .productR(wait)
+            .productR(IO.exec(() => rightReleased = true)),
       );
 
       final ticker = Resource.both(lhs, rhs).use((_) => wait).ticked;
@@ -415,19 +415,19 @@ void main() {
       IO<Unit> wait(int secs) => IO.sleep(secs.second);
 
       final lhs = Resource.make(
-        wait(1).productR(() => IO.exec(() => leftAllocated = true)),
+        wait(1).productR(IO.exec(() => leftAllocated = true)),
         (_) => IO
             .exec(() => leftReleasing = true)
-            .productR(() => wait(1))
-            .productR(() => IO.exec(() => leftReleased = true)),
-      ).flatMap((_) => Resource.eval(wait(1).productR(() => IO.raiseError<Unit>('BOOM'))));
+            .productR(wait(1))
+            .productR(IO.exec(() => leftReleased = true)),
+      ).flatMap((_) => Resource.eval(wait(1).productR(IO.raiseError<Unit>('BOOM'))));
 
       final rhs = Resource.make(
-        wait(1).productR(() => IO.exec(() => rightAllocated = true)),
+        wait(1).productR(IO.exec(() => rightAllocated = true)),
         (_) => IO
             .exec(() => rightReleasing = true)
-            .productR(() => wait(1))
-            .productR(() => IO.exec(() => rightReleased = true)),
+            .productR(wait(1))
+            .productR(IO.exec(() => rightReleased = true)),
       ).flatMap((_) => Resource.eval(wait(2)));
 
       final ticker = Resource.both(lhs, rhs).use_().handleError((_) => Unit()).ticked;
@@ -508,7 +508,7 @@ void main() {
         await expectLater(
           Resource.both(
             r,
-            Resource.eval(IO.sleep(1.second).productR(() => IO.raiseError<Unit>(error))),
+            Resource.eval(IO.sleep(1.second).productR(IO.raiseError<Unit>(error))),
           ).use_(),
           errors(error),
         );
@@ -524,7 +524,7 @@ void main() {
 
         await expectLater(
           Resource.both(
-            Resource.eval(IO.sleep(1.second).productR(() => IO.raiseError<Unit>(error))),
+            Resource.eval(IO.sleep(1.second).productR(IO.raiseError<Unit>(error))),
             r,
           ).use_(),
           errors(error),
@@ -555,7 +555,7 @@ void main() {
 
         await expectLater(
           Resource.both(
-            Resource.eval(IO.sleep(1.second).productR(() => IO.canceled)),
+            Resource.eval(IO.sleep(1.second).productR(IO.canceled)),
             r,
           ).use((_) => IO.canceled),
           cancels(),
@@ -570,7 +570,7 @@ void main() {
         await expectLater(
           Resource.both(
             r,
-            Resource.eval(IO.sleep(1.second).productR(() => IO.canceled)),
+            Resource.eval(IO.sleep(1.second).productR(IO.canceled)),
           ).use((_) => IO.canceled),
           cancels(),
         );
@@ -733,7 +733,7 @@ void main() {
             (_) => Resource.eval(canceled.setValue(true)),
           ),
         );
-        return res.use_().timeout(1.second).attempt().productR(() => canceled.value());
+        return res.use_().timeout(1.second).attempt().productR(canceled.value());
       });
 
       final ticker = test.ticked..tickAll();
@@ -908,7 +908,7 @@ void main() {
         final res = Resource.make(IO.unit, (_) => released.setValue(true));
         return res.useForever().start().flatMap(
           (fiber) =>
-              IO.sleep(1.second).flatMap((_) => fiber.cancel()).productR(() => released.value()),
+              IO.sleep(1.second).flatMap((_) => fiber.cancel()).productR(released.value()),
         );
       });
 
@@ -956,7 +956,7 @@ void main() {
   group('race', () {
     test('returns winner value when left wins', () {
       final left = Resource.make(IO.pure(1), (_) => IO.unit);
-      final right = Resource.make(IO.sleep(5.seconds).productR(() => IO.pure(2)), (_) => IO.unit);
+      final right = Resource.make(IO.sleep(5.seconds).productR(IO.pure(2)), (_) => IO.unit);
       final test = Resource.race(left, right).use(IO.pure);
       final ticker = test.ticked..tickAll();
       expect(
@@ -968,7 +968,7 @@ void main() {
     });
 
     test('returns winner value when right wins', () {
-      final left = Resource.make(IO.sleep(5.seconds).productR(() => IO.pure(1)), (_) => IO.unit);
+      final left = Resource.make(IO.sleep(5.seconds).productR(IO.pure(1)), (_) => IO.unit);
       final right = Resource.make(IO.pure(2), (_) => IO.unit);
       final test = Resource.race(left, right).use(IO.pure);
       final ticker = test.ticked..tickAll();
@@ -982,7 +982,7 @@ void main() {
 
     test('propagates left error', () {
       final left = Resource.eval(IO.raiseError<int>('left-boom'));
-      final right = Resource.make(IO.sleep(5.seconds).productR(() => IO.pure(2)), (_) => IO.unit);
+      final right = Resource.make(IO.sleep(5.seconds).productR(IO.pure(2)), (_) => IO.unit);
       final test = Resource.race(left, right).use(IO.pure);
       final ticker = test.ticked..tickAll();
       expect(
@@ -995,7 +995,7 @@ void main() {
     });
 
     test('propagates right error', () {
-      final left = Resource.make(IO.sleep(5.seconds).productR(() => IO.pure(1)), (_) => IO.unit);
+      final left = Resource.make(IO.sleep(5.seconds).productR(IO.pure(1)), (_) => IO.unit);
       final right = Resource.eval(IO.raiseError<int>('right-boom'));
       final test = Resource.race(left, right).use(IO.pure);
       final ticker = test.ticked..tickAll();

@@ -55,10 +55,10 @@ void main() {
         return Supervisor.create(waitForAll: true)
             .use((supervisor) {
               return supervisor.supervise(
-                IO.sleep(100.milliseconds).productR(() => completed.setValue(true)),
+                IO.sleep(100.milliseconds).productR(completed.setValue(true)),
               );
             })
-            .productR(() => completed.value());
+            .productR(completed.value());
       });
 
       expect(test, succeeds(true));
@@ -72,7 +72,7 @@ void main() {
                 IO.never<Unit>().onCancel(canceled.setValue(true)),
               );
             })
-            .productR(() => canceled.value());
+            .productR(canceled.value());
       });
 
       expect(test, succeeds(true));
@@ -80,7 +80,7 @@ void main() {
 
     test('supervise after finalization raises error', () {
       final test = Supervisor.create().allocated().flatMapN(
-        (supervisor, close) => close.productR(() => supervisor.supervise(IO.pure(1)).voided()),
+        (supervisor, close) => close.productR(supervisor.supervise(IO.pure(1)).voided()),
       );
 
       expect(test, errors());

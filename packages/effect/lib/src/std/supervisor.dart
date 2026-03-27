@@ -109,7 +109,7 @@ class _SupervisorImpl extends Supervisor {
               .start()
               .voided();
 
-      return register.productR(() => cleanup);
+      return register.productR(cleanup);
     });
   }
 }

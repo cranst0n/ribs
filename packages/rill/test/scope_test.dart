@@ -36,8 +36,8 @@ void main() {
             return Scope.create(parent).flatMap((child) {
               return child
                   .register((_) => childFinalized.setValue(true))
-                  .productR(() => parent.close(ExitCase.succeeded()))
-                  .productR(() => childFinalized.value());
+                  .productR(parent.close(ExitCase.succeeded()))
+                  .productR(childFinalized.value());
             });
           });
         });
@@ -52,8 +52,8 @@ void main() {
           return Scope.create().flatMap((scope) {
             return scope
                 .register((_) => ran.setValue(true))
-                .productR(() => scope.close(ExitCase.succeeded()))
-                .productR(() => ran.value());
+                .productR(scope.close(ExitCase.succeeded()))
+                .productR(ran.value());
           });
         });
 
@@ -65,8 +65,8 @@ void main() {
           return Scope.create().flatMap((scope) {
             return scope
                 .register(ref.setValue)
-                .productR(() => scope.close(ExitCase.errored('boom')))
-                .productR(() => ref.value());
+                .productR(scope.close(ExitCase.errored('boom')))
+                .productR(ref.value());
           });
         });
 
@@ -78,10 +78,10 @@ void main() {
           return Scope.create().flatMap((scope) {
             return scope
                 .register((_) => ref.update((l) => l.appended(1)))
-                .productR(() => scope.register((_) => ref.update((l) => l.appended(2))))
-                .productR(() => scope.register((_) => ref.update((l) => l.appended(3))))
-                .productR(() => scope.close(ExitCase.succeeded()))
-                .productR(() => ref.value());
+                .productR(scope.register((_) => ref.update((l) => l.appended(2))))
+                .productR(scope.register((_) => ref.update((l) => l.appended(3))))
+                .productR(scope.close(ExitCase.succeeded()))
+                .productR(ref.value());
           });
         });
 
@@ -94,8 +94,8 @@ void main() {
           return Scope.create().flatMap((scope) {
             return scope
                 .close(ExitCase.succeeded())
-                .productR(() => scope.register(ref.setValue))
-                .productR(() => ref.value());
+                .productR(scope.register(ref.setValue))
+                .productR(ref.value());
           });
         });
 
@@ -114,9 +114,9 @@ void main() {
           return Scope.create().flatMap((scope) {
             return scope
                 .register((_) => counter.update((n) => n + 1))
-                .productR(() => scope.close(ExitCase.succeeded()))
-                .productR(() => scope.close(ExitCase.succeeded()))
-                .productR(() => counter.value());
+                .productR(scope.close(ExitCase.succeeded()))
+                .productR(scope.close(ExitCase.succeeded()))
+                .productR(counter.value());
           });
         });
 
@@ -129,7 +129,7 @@ void main() {
         final result = Scope.create().flatMap((scope) {
           return scope
               .register((_) => IO.raiseError(err))
-              .productR(() => scope.close(ExitCase.succeeded()));
+              .productR(scope.close(ExitCase.succeeded()));
         });
 
         expect(result, succeeds(isLeft(err)));
@@ -139,8 +139,8 @@ void main() {
         final result = Scope.create().flatMap((scope) {
           return scope
               .register((_) => IO.raiseError(Exception('first')))
-              .productR(() => scope.register((_) => IO.raiseError(Exception('second'))))
-              .productR(() => scope.close(ExitCase.succeeded()));
+              .productR(scope.register((_) => IO.raiseError(Exception('second'))))
+              .productR(scope.close(ExitCase.succeeded()));
         });
 
         expect(result, succeeds(isLeft()));
@@ -152,10 +152,10 @@ void main() {
           return scope
               .register((_) => IO.exec(() => ran.add(1)))
               .productR(
-                () => scope.register((_) => IO.raiseError<Unit>(Exception('middle fails'))),
+                scope.register((_) => IO.raiseError<Unit>(Exception('middle fails'))),
               )
-              .productR(() => scope.register((_) => IO.exec(() => ran.add(3))))
-              .productR(() => scope.close(ExitCase.succeeded()));
+              .productR(scope.register((_) => IO.exec(() => ran.add(3))))
+              .productR(scope.close(ExitCase.succeeded()));
         });
 
         await expectLater(result, succeeds(isLeft()));
@@ -176,7 +176,7 @@ void main() {
       test('raises StateError when scope is already closed', () {
         expect(
           Scope.create().flatMap((scope) {
-            return scope.close(ExitCase.succeeded()).productR(() => scope.lease());
+            return scope.close(ExitCase.succeeded()).productR(scope.lease());
           }),
           errors(),
         );

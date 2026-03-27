@@ -18,7 +18,7 @@ void main() {
       test('initial resource finalizer runs when hotswap is closed', () {
         final test = IO.ref(false).flatMap((finalized) {
           final resource = Resource.make(IO.pure(1), (_) => finalized.setValue(true));
-          return Hotswap.create(resource).use((_) => IO.unit).productR(() => finalized.value());
+          return Hotswap.create(resource).use((_) => IO.unit).productR(finalized.value());
         });
 
         expect(test, succeeds(isTrue));
@@ -38,7 +38,7 @@ void main() {
           Hotswap.empty<int>().use((hotswap) {
             return hotswap
                 .swap(Resource.pure(const Some(99)))
-                .productR(() => hotswap.current.use(IO.pure));
+                .productR(hotswap.current.use(IO.pure));
           }),
           succeeds(const Some(99)),
         );
@@ -56,7 +56,7 @@ void main() {
       test('reflects updated value after swap', () {
         expect(
           Hotswap.create(Resource.pure(1)).use((hotswap) {
-            return hotswap.swap(Resource.pure(2)).productR(() => hotswap.current.use(IO.pure));
+            return hotswap.swap(Resource.pure(2)).productR(hotswap.current.use(IO.pure));
           }),
           succeeds(2),
         );
@@ -90,7 +90,7 @@ void main() {
       test('replaces current resource value', () {
         expect(
           Hotswap.create(Resource.pure('a')).use((hotswap) {
-            return hotswap.swap(Resource.pure('b')).productR(() => hotswap.current.use(IO.pure));
+            return hotswap.swap(Resource.pure('b')).productR(hotswap.current.use(IO.pure));
           }),
           succeeds('b'),
         );
@@ -101,7 +101,7 @@ void main() {
           final r1 = Resource.make(IO.pure(1), (_) => oldFinalized.setValue(true));
 
           return Hotswap.create(r1).use((hotswap) {
-            return hotswap.swap(Resource.pure(2)).productR(() => oldFinalized.value());
+            return hotswap.swap(Resource.pure(2)).productR(oldFinalized.value());
           });
         });
 
@@ -114,7 +114,7 @@ void main() {
 
           return Hotswap.create(
             Resource.pure(1),
-          ).use((hotswap) => hotswap.swap(r2)).productR(() => newFinalized.value());
+          ).use((hotswap) => hotswap.swap(r2)).productR(newFinalized.value());
         });
 
         expect(test, succeeds(isTrue));
@@ -128,8 +128,8 @@ void main() {
           return Hotswap.create(tracked(1)).use((hotswap) {
             return hotswap
                 .swap(tracked(2))
-                .productR(() => hotswap.swap(tracked(3)))
-                .productR(() => log.value());
+                .productR(hotswap.swap(tracked(3)))
+                .productR(log.value());
           });
         });
 
@@ -144,8 +144,8 @@ void main() {
               Resource.make(IO.pure(n), (i) => log.update((l) => l.appended(i)));
 
           return Hotswap.create(tracked(1))
-              .use((hotswap) => hotswap.swap(tracked(2)).productR(() => hotswap.swap(tracked(3))))
-              .productR(() => log.value());
+              .use((hotswap) => hotswap.swap(tracked(2)).productR(hotswap.swap(tracked(3))))
+              .productR(log.value());
         });
 
         // 1 finalized on first swap, 2 on second swap, 3 finalized when hotswap closes
@@ -166,7 +166,7 @@ void main() {
       test('swap to same value works correctly', () {
         expect(
           Hotswap.create(Resource.pure(7)).use((hotswap) {
-            return hotswap.swap(Resource.pure(7)).productR(() => hotswap.current.use(IO.pure));
+            return hotswap.swap(Resource.pure(7)).productR(hotswap.current.use(IO.pure));
           }),
           succeeds(7),
         );
@@ -193,13 +193,13 @@ void main() {
                 // Acquire current resource and hold it open briefly
                 return hotswap.current.allocated().flatMapN((_, release) {
                   // Start swap concurrently; it must wait for the held current to release
-                  final swapFiber = IO.sleep(50.milliseconds).productR(() => release).start();
+                  final swapFiber = IO.sleep(50.milliseconds).productR(release).start();
                   return IO
                       .both(
                         swapFiber,
-                        hotswap.swap(Resource.pure(2)).productR(() => swapped.setValue(true)),
+                        hotswap.swap(Resource.pure(2)).productR(swapped.setValue(true)),
                       )
-                      .productR(() => swapped.value());
+                      .productR(swapped.value());
                 });
               });
             }).unsafeRunFuture();

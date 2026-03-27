@@ -65,7 +65,7 @@ extension ParJoinOps<O> on Rill<Rill<O>> {
         IO<Unit> runInner(Rill<O> inner, Scope outerScope) {
           return IO.uncancelable((_) {
             return outerScope.lease().flatMap((lease) {
-              return available.acquire().productR(() => incrementRunning).flatMap((_) {
+              return available.acquire().productR(incrementRunning).flatMap((_) {
                 return inner
                     .chunks()
                     .evalMap((chunk) => output.send(chunk).voided())
@@ -76,7 +76,7 @@ extension ParJoinOps<O> on Rill<Rill<O>> {
                       return lease.cancel
                           .flatMap((cancelResult) => onOutcome(oc, cancelResult))
                           .guarantee(
-                            available.release().productR(() => decrementRunning),
+                            available.release().productR(decrementRunning),
                           );
                     })
                     .voidError()
@@ -100,7 +100,7 @@ extension ParJoinOps<O> on Rill<Rill<O>> {
                 .compile
                 .drain
                 .guaranteeCase(
-                  (oc) => onOutcome(oc, Right(Unit())).productR(() => decrementRunning),
+                  (oc) => onOutcome(oc, Right(Unit())).productR(decrementRunning),
                 )
                 .voidError();
           });
@@ -109,9 +109,9 @@ extension ParJoinOps<O> on Rill<Rill<O>> {
         IO<Unit> outcomeJoiner() {
           return outcomes.rill.compile.drain.guaranteeCase((oc) {
             return oc.fold(
-              () => stop(none()).productR(() => output.close().voided()),
-              (err, st) => stop(Some(err)).productR(() => output.close().voided()),
-              (fu) => stop(none()).productR(() => output.close().voided()),
+              () => stop(none()).productR(output.close().voided()),
+              (err, st) => stop(Some(err)).productR(output.close().voided()),
+              (fu) => stop(none()).productR(output.close().voided()),
             );
           }).voidError();
         }
@@ -126,14 +126,13 @@ extension ParJoinOps<O> on Rill<Rill<O>> {
         }
 
         return Rill.bracket(
-          runOuter().start().productR(() => outcomeJoiner().start()),
+          runOuter().start().productR(outcomeJoiner().start()),
           (fiber) {
             return stop(none()).productR(
-              () =>
               // in case of short-circuiting, the `fiberJoiner` would not have had a chance
               // to wait until all fibers have been joined, so we need to do it manually
               // by waiting on the counter
-              running.waitUntil((n) => n == 0).productR(() => signalResult(fiber)),
+              running.waitUntil((n) => n == 0).productR(signalResult(fiber)),
             );
           },
         ).flatMap((_) => output.rill.flatMap((o) => Rill.chunk(o)));

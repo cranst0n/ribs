@@ -192,7 +192,7 @@ void boundedDequeueTests<Q extends Dequeue<int>>(
           return take(q).start().flatMap((f) {
             return offer(q, 2).flatMap((_) {
               return f.joinWithNever().flatMap((v2) {
-                return expectIO(v1, 1).productR(() => expectIO(v2, 2));
+                return expectIO(v1, 1).productR(expectIO(v2, 2));
               });
             });
           });
@@ -211,7 +211,7 @@ void boundedDequeueTests<Q extends Dequeue<int>>(
             return ff.joinWithNever().flatMap((f) {
               return offer(q, 2).flatMap((_) {
                 return IO.fromFuture(IO.pure(f)).flatMap((v2) {
-                  return expectIO(v1, 1).productR(() => expectIO(v2, 2));
+                  return expectIO(v1, 1).productR(expectIO(v2, 2));
                 });
               });
             });
@@ -227,7 +227,7 @@ void boundedDequeueTests<Q extends Dequeue<int>>(
     const count = 1000;
 
     IO<Unit> producer(Q q, int n) =>
-        n > 0 ? offer(q, count - n).productR(() => producer(q, n - 1)) : IO.unit;
+        n > 0 ? offer(q, count - n).productR(producer(q, n - 1)) : IO.unit;
 
     IO<int> consumer(Q q, int n, ListQueue<int> acc) =>
         n > 0

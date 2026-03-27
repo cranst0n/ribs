@@ -54,7 +54,7 @@ IO<Unit> rillEffects() =>
 // rill-resource
 IO<Unit> rillResource() => Rill.bracket(
       // acquire: runs when the stream starts
-      IO.print('opened connection').productR(() => IO.pure('conn')),
+      IO.print('opened connection').productR(IO.pure('conn')),
       // release: always runs when the stream ends — success, error, or cancellation
       (String conn) => IO.print('closed: $conn'),
     )
@@ -89,7 +89,7 @@ IO<IList<int>> interruptWhenExample() => IO.deferred<Unit>().flatMap((stop) {
       .interruptWhen(stop.value()); // halts as soon as stop is completed
 
   // Complete `stop` from outside after 3 elements have had time to arrive
-  final trigger = IO.sleep(70.milliseconds).productR(() => stop.complete(Unit()));
+  final trigger = IO.sleep(70.milliseconds).productR(stop.complete(Unit()));
 
   return IO.both(source.compile.toIList, trigger).map((t) => t.$1);
 });
@@ -147,7 +147,7 @@ IO<IList<String>> dynamicParJoin() =>
 
 /// Simulate an async lookup — in practice an HTTP call or database query.
 IO<String> fetchRecord(int id) =>
-    IO.sleep(Duration(milliseconds: 20 + (id * 7) % 50)).productR(() => IO.pure('record_$id'));
+    IO.sleep(Duration(milliseconds: 20 + (id * 7) % 50)).productR(IO.pure('record_$id'));
 
 /// Fetch [count] records with at most [maxConcurrent] in-flight at once.
 ///

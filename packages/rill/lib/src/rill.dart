@@ -575,7 +575,7 @@ class Rill<O> {
                 // IF result of back-stream was failed, interrupt fore. Otherwise, let it be
                 (error, _) => backResult
                     .complete(error.asLeft())
-                    .productR(() => interrupt.complete(Unit()).voided()),
+                    .productR(interrupt.complete(Unit()).voided()),
                 (_) => backResult.complete(Unit().asRight()).voided(),
               );
             }).voidError();
@@ -585,7 +585,7 @@ class Rill<O> {
         // val stopBack: F2[Unit] = interrupt.complete(()) >> backResult.get.flatMap(F.fromEither)
         final stopBack = interrupt
             .complete(Unit())
-            .productR(() => backResult.value().flatMap(IO.fromEither));
+            .productR(backResult.value().flatMap(IO.fromEither));
 
         return (Rill.bracket(compileBack.start(), (_) => stopBack), watch(this));
       });
@@ -612,7 +612,7 @@ class Rill<O> {
 
         IO<Unit> sendItem(O o) => ref.getAndSet(Some(o)).flatMap((prev) {
           if (prev.isEmpty) {
-            return IO.sleep(d).productR(() => sendLatest).start().voided();
+            return IO.sleep(d).productR(sendLatest).start().voided();
           } else {
             return IO.unit;
           }
@@ -621,7 +621,7 @@ class Rill<O> {
         Pull<Never, Unit> go(Pull<O, Unit> pull) {
           return pull.uncons.flatMap((hdtl) {
             return hdtl.foldN(
-              () => Pull.eval(sendLatest.productR(chan.close).voided()),
+              () => Pull.eval(sendLatest.productR(chan.close()).voided()),
               (hd, tl) => Pull.eval(sendItem(hd.last)).append(() => go(tl)),
             );
           });
@@ -1081,12 +1081,12 @@ class Rill<O> {
               (_) => Unit().asRight(),
             );
 
-            return backResult.complete(r).productR(() => interruptL.complete(Unit()).voided());
+            return backResult.complete(r).productR(interruptL.complete(Unit()).voided());
           }).voidError();
 
       final stopWatch = interruptR
           .complete(Unit())
-          .productR(() => backResult.value().flatMap(IO.fromEither));
+          .productR(backResult.value().flatMap(IO.fromEither));
 
       final backWatch = Rill.bracket(wakeWatch.start(), (_) => stopWatch);
 
@@ -1197,7 +1197,7 @@ class Rill<O> {
             return Semaphore.permits(1).flatMap((guard) {
               IO<Unit> sendChunk(Chunk<O> chunk) => output
                   .send(f(Rill.chunk(chunk), guard.release()))
-                  .productR(() => guard.acquire());
+                  .productR(guard.acquire());
 
               return Rill.exec<Unit>(guard.acquire())
                   .append(() => s.chunks().foreach(sendChunk))
@@ -1207,7 +1207,7 @@ class Rill<O> {
                   .attempt()
                   .flatMap((r) {
                     return r.fold(
-                      (_) => complete(r).productR(() => signalStop),
+                      (_) => complete(r).productR(signalStop),
                       (_) => complete(r),
                     );
                   });
@@ -1224,11 +1224,11 @@ class Rill<O> {
 
           final setup = run(
             this,
-          ).start().productR(() => run(that).start()).productR(() => waitForBoth.start());
+          ).start().productR(run(that).start()).productR(waitForBoth.start());
 
           return Rill.bracket(
             setup,
-            (wfb) => signalStop.productR(() => wfb.joinWithUnit()),
+            (wfb) => signalStop.productR(wfb.joinWithUnit()),
           ).flatMap((_) {
             return output.rill.flatten().interruptWhen(stop);
           });
@@ -1312,31 +1312,31 @@ class Rill<O> {
                     (el) => v.complete(el).voided();
 
                 return Deferred.of<Either<Object, O2>>()
-                    .flatTap((value) => channel.send(release.productR(() => value.value())))
+                    .flatTap((value) => channel.send(release.productR(value.value())))
                     .map(send);
               }
 
               Function1<Either<Object, O2>, IO<Unit>> unordered() {
-                return (el) => channel.send(IO.pure(el)).productR(() => release);
+                return (el) => channel.send(IO.pure(el)).productR(release);
               }
 
               return isOrdered ? ordered() : IO.pure(unordered());
             }
 
-            final releaseAndCheckCompletion = semaphore.release().productR(() {
-              return semaphore.available().flatMap((available) {
+            final releaseAndCheckCompletion = semaphore.release().productR(
+              semaphore.available().flatMap((available) {
                 if (available == concurrency) {
-                  return channel.close().productR(() => end.complete(Unit()).voided());
+                  return channel.close().productR(end.complete(Unit()).voided());
                 } else {
                   return IO.unit;
                 }
-              });
-            });
+              }),
+            );
 
             IO<Unit> forkOnElem(O el) {
               return IO.uncancelable((poll) {
-                return poll(semaphore.acquire()).productL(() {
-                  return Deferred.of<Unit>().flatMap((pushed) {
+                return poll(semaphore.acquire()).productL(
+                  Deferred.of<Unit>().flatMap((pushed) {
                     final init = initFork(pushed.complete(Unit()).voided());
 
                     return poll(init).onCancel(releaseAndCheckCompletion).flatMap((send) {
@@ -1345,13 +1345,13 @@ class Rill<O> {
                           .flatten()
                           .attempt()
                           .flatMap(send)
-                          .productR(() => pushed.value());
+                          .productR(pushed.value());
 
                       if (isOrdered) {
                         return IO
                             .race(stop.value(), action)
                             .start()
-                            .productR(() => releaseAndCheckCompletion);
+                            .productR(releaseAndCheckCompletion);
                       } else {
                         return IO
                             .race(stop.value(), action)
@@ -1360,8 +1360,8 @@ class Rill<O> {
                             .voided();
                       }
                     });
-                  });
-                });
+                  }),
+                );
               });
             }
 
@@ -1370,8 +1370,8 @@ class Rill<O> {
                 stop.value().map((u) => u.asRight<Object>()),
               ).foreach(forkOnElem).onFinalizeCase((exitCase) {
                 return exitCase.fold(
-                  () => stop.complete(Unit()).productR(() => releaseAndCheckCompletion),
-                  (_, _) => stop.complete(Unit()).productR(() => releaseAndCheckCompletion),
+                  () => stop.complete(Unit()).productR(releaseAndCheckCompletion),
+                  (_, _) => stop.complete(Unit()).productR(releaseAndCheckCompletion),
                   () => releaseAndCheckCompletion,
                 );
               });
@@ -1380,7 +1380,7 @@ class Rill<O> {
             final foreground = channel.rill.evalMap((x) => x.rethrowError());
 
             return foreground
-                .onFinalize(stop.complete(Unit()).productR(() => end.value()))
+                .onFinalize(stop.complete(Unit()).productR(end.value()))
                 .concurrently(background);
           });
         });
@@ -1738,11 +1738,11 @@ class Rill<O> {
           }
 
           IO<Unit> runLeft() => evalMap(
-            (o) => refLeft.setValue(Some(o)).productL(tryEmit),
+            (o) => refLeft.setValue(Some(o)).productL(tryEmit()),
           ).compile.drain.handleErrorWith((err) => queue.offer(Left(err)));
 
           IO<Unit> runRight() => that
-              .evalMap((o2) => refRight.setValue(Some(o2)).productL(tryEmit))
+              .evalMap((o2) => refRight.setValue(Some(o2)).productL(tryEmit()))
               .compile
               .drain
               .handleErrorWith((err) => queue.offer(Left(err)));

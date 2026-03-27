@@ -18,7 +18,7 @@ void main(List<String> args) async {
       )
       .timed()
       .start()
-      // .flatTap((fiber) => IO.cede.productR(() => fiber.cancel()))
+      // .flatTap((fiber) => IO.cede.productR(fiber.cancel()))
       .flatMap((fiber) => fiber.join())
       .debug(prefix: 'Outcome');
 

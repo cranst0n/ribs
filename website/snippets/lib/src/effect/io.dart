@@ -169,7 +169,7 @@ void combinatorsSnippet() {
   final logged = IO.pure(42).flatTap((n) => IO.print('computed: $n')); // IO(42)
 
   // productR: run two IOs in sequence, keep only the second result
-  final init = IO.print('setup').productR(() => IO.pure(42)); // IO(42)
+  final init = IO.print('setup').productR(IO.pure(42)); // IO(42)
 
   // attempt: pull a potential error into an Either instead of raising it
   final safe = IO.raiseError<int>('oops').attempt(); // IO<Either<Object, int>>
@@ -195,8 +195,8 @@ void concurrencySnippet() {
 
   // io-race
 
-  final fast = IO.sleep(100.milliseconds).productR(() => IO.pure('fast result'));
-  final slow = IO.sleep(500.milliseconds).productR(() => IO.pure('slow result'));
+  final fast = IO.sleep(100.milliseconds).productR(IO.pure('fast result'));
+  final slow = IO.sleep(500.milliseconds).productR(IO.pure('slow result'));
 
   // The winner is returned as Either<A, B>; the loser is automatically canceled
   final race = IO
@@ -210,7 +210,7 @@ void timingSnippet() {
   // io-timing
 
   // sleep: deliberate async delay
-  final delayed = IO.sleep(200.milliseconds).productR(() => IO.pure(42));
+  final delayed = IO.sleep(200.milliseconds).productR(IO.pure(42));
 
   // timed: measure how long an IO takes
   final measured = IO.pure(42).timed(); // IO<(Duration, int)>
@@ -221,7 +221,7 @@ void timingSnippet() {
   // timeoutTo: return a fallback IO instead of raising
   final withFallback = IO
       .sleep(5.seconds)
-      .productR(() => IO.pure(42))
+      .productR(IO.pure(42))
       .timeoutTo(1.seconds, IO.pure(-1));
 
   // io-timing

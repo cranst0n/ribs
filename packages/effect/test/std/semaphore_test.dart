@@ -27,7 +27,7 @@ void main() {
         return IO.ref(false).flatMap((ref) {
           return sem
               .permit()
-              .surround(IO.sleep(1.second).productR(() => ref.setValue(true)))
+              .surround(IO.sleep(1.second).productR(ref.setValue(true)))
               .start()
               .flatMap((_) {
                 return IO.sleep(500.milliseconds).flatMap((_) {
@@ -149,7 +149,7 @@ void main() {
     test('acquire n synchronosly', () {
       const n = 20;
       final op = sc(n).flatMap((sem) {
-        return IList.range(0, n).traverseIO_((_) => sem.acquire()).productR(() => sem.available());
+        return IList.range(0, n).traverseIO_((_) => sem.acquire()).productR(sem.available());
       });
 
       expect(op, succeeds(0));
@@ -157,7 +157,7 @@ void main() {
 
     test('acquireN does not leak permits upon cancelation', () {
       final op = sc(1).flatMap((sem) {
-        return sem.acquireN(2).timeout(1.second).attempt().productR(() => sem.acquire());
+        return sem.acquireN(2).timeout(1.second).attempt().productR(sem.acquire());
       });
 
       expect(op, succeeds(Unit()));
@@ -221,7 +221,7 @@ void main() {
         return (
           permits.traverseIO_(sem.acquireN),
           permits.reverse().traverseIO_(sem.releaseN),
-        ).parTupled.productR(() => sem.count());
+        ).parTupled.productR(sem.count());
       });
 
       expect(test, succeeds(0));
@@ -234,7 +234,7 @@ void main() {
         return (
           permits.parTraverseIO_(sem.acquireN),
           permits.reverse().parTraverseIO_(sem.releaseN),
-        ).parTupled.productR(() => sem.count());
+        ).parTupled.productR(sem.count());
       });
 
       expect(test, succeeds(0));
@@ -249,7 +249,7 @@ void main() {
     test('available with 0 available permits', () {
       final test = sc(
         20,
-      ).flatMap((sem) => sem.acquireN(20).flatMap((_) => IO.cede.productR(() => sem.available())));
+      ).flatMap((sem) => sem.acquireN(20).flatMap((_) => IO.cede.productR(sem.available())));
 
       expect(test, succeeds(0));
     });
@@ -277,7 +277,7 @@ void main() {
         return sem
             .acquireN(n)
             .productR(
-              () => sem.acquireN(n).background().use((_) => sem.count().iterateUntil((x) => x < 0)),
+              sem.acquireN(n).background().use((_) => sem.count().iterateUntil((x) => x < 0)),
             );
       });
 
@@ -285,7 +285,7 @@ void main() {
     });
 
     test('count with 0 available permits', () {
-      final test = sc(20).flatMap((sem) => sem.acquireN(20).productR(() => sem.count()));
+      final test = sc(20).flatMap((sem) => sem.acquireN(20).productR(sem.count()));
 
       expect(test, succeeds(0));
     });

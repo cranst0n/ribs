@@ -90,7 +90,7 @@ void main() {
 
       final op = IO.ref(0).flatMap((r) {
         return r
-            .flatModify((_) => (1, IO.canceled.productR(() => IO.exec(() => passed = true))))
+            .flatModify((_) => (1, IO.canceled.productR(IO.exec(() => passed = true))))
             .start()
             .flatMap((f) => f.join())
             .voided()
@@ -116,7 +116,7 @@ void main() {
               return (
                 1,
                 poll(
-                  IO.canceled.productR(() => IO.exec(() => failed = true)),
+                  IO.canceled.productR(IO.exec(() => failed = true)),
                 ).onCancel(IO.exec(() => passed = true)),
               );
             })

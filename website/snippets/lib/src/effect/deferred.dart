@@ -13,7 +13,7 @@ IO<Unit> deferredBasic() => Deferred.of<int>().flatMap(
             // Producer: completes the Deferred after a short delay
             IO
                 .sleep(100.milliseconds)
-                .productR(() => d.complete(42))
+                .productR(d.complete(42))
                 .flatMap((won) => IO.print('completed: $won')), // completed: true
           )
           .voided(),
@@ -42,8 +42,8 @@ IO<Unit> serviceReadyGate() => Deferred.of<String>().flatMap((ready) {
 
   final service = IO
       .sleep(200.milliseconds)
-      .productR(() => ready.complete('https://api.example.com'))
-      .productR(() => IO.print('service: startup complete, clients unblocked'));
+      .productR(ready.complete('https://api.example.com'))
+      .productR(IO.print('service: startup complete, clients unblocked'));
 
   return ilist([client(1), client(2), client(3), service]).parSequence_();
 });

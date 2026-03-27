@@ -226,15 +226,15 @@ void main() {
           return IO.ref(false).flatMap((offererDone) {
             return latch
                 .release()
-                .productR(() => latch.await())
-                .productR(() => q.offer(Unit()))
+                .productR(latch.await())
+                .productR(q.offer(Unit()))
                 .guarantee(offererDone.setValue(true))
                 .start()
                 .flatMap((_) {
                   return latch
                       .release()
-                      .productR(() => latch.await())
-                      .productR(() => q.take())
+                      .productR(latch.await())
+                      .productR(q.take())
                       .start()
                       .flatMap((taker) {
                         return latch.await().flatMap((_) {
@@ -244,7 +244,7 @@ void main() {
                                 return offererDone
                                     .value()
                                     .flatMap((b) => expectIO(b, false))
-                                    .productR(() => q.take());
+                                    .productR(q.take());
                               } else {
                                 return IO.unit;
                               }
@@ -428,8 +428,8 @@ class QueueTests {
             return CountDownLatch.create(1).flatMap((expected) {
               return latch
                   .complete(Unit())
-                  .productR(() => offer(q, 0))
-                  .productR(() => expected.release())
+                  .productR(offer(q, 0))
+                  .productR(expected.release())
                   .start()
                   .flatMap((_) {
                     return latch.value().flatMap((_) {
@@ -455,8 +455,8 @@ class QueueTests {
             return CountDownLatch.create(5).flatMap((expected) {
               return latch
                   .release()
-                  .productR(() => offer(q, 0))
-                  .productR(() => expected.release())
+                  .productR(offer(q, 0))
+                  .productR(expected.release())
                   .start()
                   .replicate_(5)
                   .flatMap((_) {
@@ -514,7 +514,7 @@ class QueueTests {
                   return take(q).flatMap((v1) {
                     return take(q).flatMap((_) {
                       return tryTake(q).flatMap((v2) {
-                        return expectIO(v1, 1).productR(() => expectIO(v2, isNone()));
+                        return expectIO(v1, 1).productR(expectIO(v2, isNone()));
                       });
                     });
                   });
@@ -578,7 +578,7 @@ class QueueTests {
                     (n) =>
                         IO
                             .sleep(Duration(milliseconds: n * 10))
-                            .productR(() => offer(q, 10 + n))
+                            .productR(offer(q, 10 + n))
                             .start(),
                   )
                   .flatMap((offerers) {
@@ -591,7 +591,7 @@ class QueueTests {
                                 return expectIO(
                                   taken1,
                                   ilist([0, 1, 2, 3]),
-                                ).productR(() => expectIO(taken2, ilist([10, 12, 13, 20])));
+                                ).productR(expectIO(taken2, ilist([10, 12, 13, 20])));
                               });
                             });
                           });
@@ -616,7 +616,7 @@ class QueueTests {
         return IList.range(
           0,
           100,
-        ).traverseIO_((n) => offer(q, n).productR(() => IO.cede)).start().flatMap((_) {
+        ).traverseIO_((n) => offer(q, n).productR(IO.cede)).start().flatMap((_) {
           return IO.ref(-1).flatMap((results) {
             return IO.deferred<Unit>().flatMap((latch) {
               final consumer = latch.complete(Unit()).flatMap((_) {
@@ -707,7 +707,7 @@ class QueueTests {
         if (n > 0) {
           return tryOffer(q, count - n).ifM(
             () => producer(q, n - 1),
-            () => IO.cede.productR(() => producer(q, n)),
+            () => IO.cede.productR(producer(q, n)),
           );
         } else {
           return IO.unit;
@@ -718,7 +718,7 @@ class QueueTests {
         if (n > 0) {
           return tryTake(q).flatMap(
             (a) => a.fold(
-              () => IO.cede.productR(() => consumer(q, n, acc)),
+              () => IO.cede.productR(consumer(q, n, acc)),
               (a) => consumer(q, n - 1, acc.enqueue(a)),
             ),
           );
@@ -842,9 +842,9 @@ class QueueTests {
         return take(q).background().use(
           (took) => IO
               .sleep(1.second)
-              .productR(() => offer(q, 1))
-              .productR(() => took)
-              .productR(() => size(q)),
+              .productR(offer(q, 1))
+              .productR(took)
+              .productR(size(q)),
         );
       });
 
@@ -856,9 +856,9 @@ class QueueTests {
         return take(q).background().use(
           (took) => IO
               .sleep(1.second)
-              .productR(() => tryOffer(q, 1))
-              .productR(() => took)
-              .productR(() => size(q)),
+              .productR(tryOffer(q, 1))
+              .productR(took)
+              .productR(size(q)),
         );
       });
 

@@ -382,9 +382,9 @@ extension RetryOps<A> on IO<A> {
         .ifM(
           () => IO.raiseError('Retry giving up.'),
           () => beforeRecurse(details)
-              .productR(() => IO.sleep(decision.delay))
-              .productR(
-                () => _retryingImpl(
+              .productR(IO.sleep(decision.delay))
+              .flatMap(
+                (_) => _retryingImpl(
                   policy,
                   wasSuccessful,
                   isWorthRetrying,

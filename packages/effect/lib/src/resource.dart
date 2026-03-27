@@ -49,7 +49,7 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
         r,
         IO.pure,
         (release, _) => storeFinalizer(
-          (fin) => (ec) => IO.unit.productR(() => fin(ec).guarantee(release(ec))),
+          (fin) => (ec) => IO.unit.productR(fin(ec).guarantee(release(ec))),
         ),
       );
     }
@@ -110,7 +110,7 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
     return Resource.applyFull((poll) {
       IO<Unit> cancelLoser<C>(IOFiber<(C, Function1<ExitCase, IO<Unit>>)> f) {
         return f.cancel().productR(
-          () => f.join().flatMap(
+          f.join().flatMap(
             (ec) => ec.fold(
               () => IO.unit,
               (_, _) => IO.unit,
@@ -126,9 +126,9 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
             final (oc, f) = leftTuple;
 
             return oc.fold(
-              () => f.cancel().productR(() => f.join()).flatMap((oc) {
+              () => f.cancel().productR(f.join()).flatMap((oc) {
                 return oc.fold(
-                  () => poll(IO.canceled).productR(() => IO.never()),
+                  () => poll(IO.canceled).productR(IO.never()),
                   (err, _) => IO.raiseError(err),
                   (b) => IO.pure((b.$1.asRight(), b.$2)),
                 );
@@ -152,9 +152,9 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
             final (f, oc) = rightTuple;
 
             return oc.fold(
-              () => f.cancel().productR(() => f.join()).flatMap((oc) {
+              () => f.cancel().productR(f.join()).flatMap((oc) {
                 return oc.fold(
-                  () => poll(IO.canceled).productR(() => IO.never()),
+                  () => poll(IO.canceled).productR(IO.never()),
                   (err, _) => IO.raiseError(err),
                   (b) => IO.pure((b.$1.asLeft(), b.$2)),
                 );
@@ -297,7 +297,7 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
             return fin(Outcome.succeeded(a)).use_().handleErrorWith(
               (err) => finEC(
                 ExitCase.errored(err),
-              ).handleError((_) => Unit()).productR(() => IO.raiseError(err)),
+              ).handleError((_) => Unit()).productR(IO.raiseError(err)),
             );
           },
         );
@@ -397,7 +397,7 @@ IO<(A, Function1<ExitCase, IO<Unit>>)> _interpretAllocatedCase<A>(
 
         return (
           b,
-          (ExitCase ec) => rel(ec).guarantee(IO.unit.productR(() => release(ec))),
+          (ExitCase ec) => rel(ec).guarantee(IO.unit.productR(release(ec))),
         );
       });
     }),

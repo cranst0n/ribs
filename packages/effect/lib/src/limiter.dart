@@ -13,7 +13,7 @@
 //   IO<A> submit<A>(IO<A> job) {
 //     IO<A> run() => nextAllowable
 //         .setValue(Some(DateTime.now().add(interval)))
-//         .productR(() => job);
+//         .productR(job);
 
 //     final x = nextAllowable.value().flatMap((nextOpt) {
 //       return nextOpt.fold(
@@ -43,10 +43,10 @@
 //   Task._(this.task, this.result, this.stopSignal);
 
 //   IO<A> awaitResult() => result.value().flatMap(
-//       (outcome) => outcome.embed(IO.canceled.productR(() => IO.never())));
+//       (outcome) => outcome.embed(IO.canceled.productR(IO.never())));
 
 //   IO<Unit> cancel() => IO.uncancelable((_) =>
-//       stopSignal.complete(Unit()).productR(() => result.value().voided()));
+//       stopSignal.complete(Unit()).productR(result.value().voided()));
 
 //   IO<Unit> executable() {
 //     return IO.uncancelable((poll) {
@@ -59,7 +59,7 @@
 
 //                 return waitForStopSignal
 //                     .cancel()
-//                     .productR(() => result.complete(taskResult));
+//                     .productR(result.complete(taskResult));
 //               },
 //               (bWon) {
 //                 final (runningTask, _) = bWon;

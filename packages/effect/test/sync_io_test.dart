@@ -50,11 +50,11 @@ void main() {
   });
 
   test('productL', () {
-    expect(SyncIO.pure(42).productL(() => SyncIO.pure(0)).unsafeRunSync(), 42);
+    expect(SyncIO.pure(42).productL(SyncIO.pure(0)).unsafeRunSync(), 42);
   });
 
   test('productR', () {
-    expect(SyncIO.pure(42).productR(() => SyncIO.pure(0)).unsafeRunSync(), 0);
+    expect(SyncIO.pure(42).productR(SyncIO.pure(0)).unsafeRunSync(), 0);
   });
 
   test('redeem', () {

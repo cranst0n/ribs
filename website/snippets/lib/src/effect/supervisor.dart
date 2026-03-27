@@ -13,7 +13,7 @@ IO<int> supervisorBasic() => Supervisor.create().use(
 /// Supervised fibers don't need to be joined.
 /// When the supervisor's scope closes, all still-running fibers are canceled.
 IO<Unit> fireAndForget() => Supervisor.create().use((supervisor) {
-  return supervisor.supervise(IO.sleep(1.seconds).productR(() => IO.print('done'))).voided();
+  return supervisor.supervise(IO.sleep(1.seconds).productR(IO.print('done'))).voided();
 });
 // supervisor-fire-forget
 
@@ -25,11 +25,11 @@ IO<Unit> supervisorWaitForAll() => IO.ref(false).flatMap((completed) {
       .use((supervisor) {
         return supervisor
             .supervise(
-              IO.sleep(200.milliseconds).productR(() => completed.setValue(true)),
+              IO.sleep(200.milliseconds).productR(completed.setValue(true)),
             )
             .voided();
       })
-      .productR(() => completed.value())
+      .productR(completed.value())
       .flatMap((v) => IO.print('completed: $v')); // completed: true
 });
 // supervisor-waitforall
@@ -41,7 +41,7 @@ IO<Unit> supervisorWaitForAll() => IO.ref(false).flatMap((completed) {
 /// When the [Resource] is released the [Supervisor] cancels the loop
 /// automatically — no manual fiber management required.
 Resource<Unit> withHealthCheck(IO<Unit> check, Duration interval) {
-  final loop = check.productR(() => IO.sleep(interval)).foreverM();
+  final loop = check.productR(IO.sleep(interval)).foreverM();
   return Supervisor.create().flatMap(
     (supervisor) => Resource.eval(supervisor.supervise(loop).voided()),
   );
@@ -51,12 +51,12 @@ IO<Unit> healthCheckExample() => IO.ref(0).flatMap((counter) {
   final check = counter
       .update((n) => n + 1)
       .productR(
-        () => counter.value().flatMap((n) => IO.print('check #$n')),
+        counter.value().flatMap((n) => IO.print('check #$n')),
       );
 
   return withHealthCheck(check, 100.milliseconds)
       .use((_) => IO.sleep(350.milliseconds))
-      .productR(() => counter.value())
+      .productR(counter.value())
       .flatMap((n) => IO.print('ran $n checks'));
   // prints: check #1, check #2, check #3, ran 3 checks
 });

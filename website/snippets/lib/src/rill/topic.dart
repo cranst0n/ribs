@@ -49,7 +49,7 @@ IO<(IList<String>, IList<String>)> topicMultiSubscriber() {
 
           final publish = messages.through(topic.publish).compile.drain;
 
-          return IO.both<IList<String>, IList<String>>(collect1, collect2).productL(() => publish);
+          return IO.both<IList<String>, IList<String>>(collect1, collect2).productL(publish);
           // Both sub1 and sub2 receive: IList('alpha', 'beta', 'gamma')
         });
   });
@@ -77,7 +77,7 @@ IO<Unit> topicPublish1() {
     });
 
     return IO
-        .both<IList<int>, Unit>(subscriber, producer.productR(() => topic.close.voided()))
+        .both<IList<int>, Unit>(subscriber, producer.productR(topic.close.voided()))
         .voided();
   });
 }
@@ -110,7 +110,7 @@ IO<(IList<String>, IList<String>)> temperatureMonitor() {
     final publisher = Rill.emits(readings.toList()).through(topic.publish).compile.drain;
 
     // Run all three concurrently and collect both subscriber outputs.
-    return IO.both<IList<String>, IList<String>>(logger, alerter).productL<Unit>(() => publisher);
+    return IO.both<IList<String>, IList<String>>(logger, alerter).productL<Unit>(publisher);
     // logger  => IList('temp: 18.5°C', 'temp: 19.0°C', ...)
     // alerter => IList('ALERT: high temp 31.7°C', 'ALERT: high temp 29.1°C')
   });

@@ -1167,7 +1167,7 @@ void main() {
           100.milliseconds,
           (x) => x,
           100,
-        ).compile.lastOrError.productR(() => attempts.count);
+        ).compile.lastOrError.productR(attempts.count);
       });
 
       expect(program, succeeds(1));
@@ -1178,7 +1178,7 @@ void main() {
         final job = failures.count.flatMap((n) {
           return n == 5
               ? successes.increment.as('success')
-              : failures.increment.productR(() => IO.raiseError<String>('retry error'));
+              : failures.increment.productR(IO.raiseError<String>('retry error'));
         });
 
         return Rill.retry(
@@ -1195,7 +1195,7 @@ void main() {
     test('max retries', () {
       final program = Counter.create().flatMap((failures) {
         final job = failures.increment
-            .productR(() => failures.count)
+            .productR(failures.count)
             .flatMap((v) => IO.raiseError<Unit>(v));
 
         return Rill.retry(
@@ -1423,7 +1423,7 @@ void main() {
     final xs = Rill.emits([1, 2, 3, 4]);
     final as = Rill.emits(['a', 'b', 'c']);
 
-    IO<A> pureAndCede<A>(A a) => IO.pure(a).productL(() => IO.cede);
+    IO<A> pureAndCede<A>(A a) => IO.pure(a).productL(IO.cede);
 
     expect(xs.zipLatest(as), producesInOrder([(4, 'a'), (4, 'b'), (4, 'c')]));
 
@@ -1597,7 +1597,7 @@ void main() {
             'resource - start',
           ).onFinalize(record('resource - done')).compile.resource.lastOrError.use(record);
 
-          return rill.productR(() => io).productR(() => resource).productR(() => st.value());
+          return rill.productR(io).productR(resource).productR(st.value());
         });
 
         expect(
@@ -1623,7 +1623,7 @@ void main() {
         return Rill.bracketCase(
           IO.pure(42),
           (_, ec) => ref.setValue(ec),
-        ).compile.drain.productR(() => ref.value());
+        ).compile.drain.productR(ref.value());
       });
 
       expect(
@@ -1639,7 +1639,7 @@ void main() {
             .compile
             .drain
             .attempt()
-            .productR(() => ref.value());
+            .productR(ref.value());
       });
 
       expect(
@@ -1655,7 +1655,7 @@ void main() {
         return Rill.bracketFull(
           (_) => IO.pure(1),
           (_, _) => released.setValue(true),
-        ).compile.toIList.productR(() => released.value());
+        ).compile.toIList.productR(released.value());
       });
 
       expect(test, succeeds(isTrue));
@@ -1845,7 +1845,7 @@ void main() {
   group('onFinalizeCase', () {
     test('receives succeeded ExitCase on normal completion', () {
       final test = IO.ref<ExitCase?>(null).flatMap((ref) {
-        return Rill.emit(1).onFinalizeCase(ref.setValue).compile.drain.productR(() => ref.value());
+        return Rill.emit(1).onFinalizeCase(ref.setValue).compile.drain.productR(ref.value());
       });
 
       expect(test.map((ec) => ec!.isSuccess), succeeds(isTrue));
@@ -1855,7 +1855,7 @@ void main() {
       final test = IO.ref<ExitCase?>(null).flatMap((ref) {
         return Rill.raiseError<int>(
           'BOOM',
-        ).onFinalizeCase(ref.setValue).compile.drain.attempt().productR(() => ref.value());
+        ).onFinalizeCase(ref.setValue).compile.drain.attempt().productR(ref.value());
       });
 
       expect(test.map((ec) => ec!.isError), succeeds(isTrue));
@@ -1985,7 +1985,7 @@ void main() {
             .foreach((x) => ref.update((l) => l.appended(x)))
             .compile
             .drain
-            .productR(() => ref.value());
+            .productR(ref.value());
       });
 
       expect(test, succeeds(ilist([1, 2, 3])));
@@ -2049,7 +2049,7 @@ void main() {
 
   group('zipLatestWith', () {
     test('combines using function', () {
-      IO<A> cede<A>(A a) => IO.pure(a).productL(() => IO.cede);
+      IO<A> cede<A>(A a) => IO.pure(a).productL(IO.cede);
       expect(
         Rill.emits<int>([1, 2])
             .evalMap(cede)
@@ -2137,7 +2137,7 @@ void main() {
   group('interruptWhenSignaled', () {
     test('interrupts when Signal<bool> becomes true', () {
       final test = SignallingRef.of(false).flatMap((sig) {
-        final toggleAfterDelay = IO.sleep(100.milliseconds).productR(() => sig.setValue(true));
+        final toggleAfterDelay = IO.sleep(100.milliseconds).productR(sig.setValue(true));
         final stream =
             Rill.repeatEval(
               IO.sleep(20.milliseconds).as(1),
@@ -2154,9 +2154,9 @@ void main() {
       final test = SignallingRef.of(false).flatMap((sig) {
         final pause = IO
             .sleep(50.milliseconds)
-            .productR(() => sig.setValue(true))
-            .productR(() => IO.sleep(200.milliseconds))
-            .productR(() => sig.setValue(false));
+            .productR(sig.setValue(true))
+            .productR(IO.sleep(200.milliseconds))
+            .productR(sig.setValue(false));
 
         final stream =
             Rill.repeatEval(

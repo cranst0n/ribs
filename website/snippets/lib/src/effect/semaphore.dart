@@ -8,7 +8,7 @@ import 'package:ribs_effect/ribs_effect.dart';
 /// The third `acquire` suspends until one of the first two calls `release`.
 IO<Unit> semaphoreBasic() => Semaphore.permits(2).flatMap((sem) {
   IO<Unit> task(String name) =>
-      sem.acquire().productR(() => IO.print('$name: running')).guarantee(sem.release());
+      sem.acquire().productR(IO.print('$name: running')).guarantee(sem.release());
 
   return ilist([task('A'), task('B'), task('C')]).parSequence_();
 });
@@ -36,8 +36,8 @@ IO<Unit> rateLimitedFetches({int count = 10, int maxConcurrent = 3}) =>
       IO<Unit> fetch(int id) => sem.permit().surround(
         IO
             .print('fetch $id: start')
-            .productR(() => IO.sleep(50.milliseconds))
-            .productR(() => IO.print('fetch $id: done')),
+            .productR(IO.sleep(50.milliseconds))
+            .productR(IO.print('fetch $id: done')),
       );
 
       return ilist(List.generate(count, (int i) => i + 1)).parTraverseIO_(fetch);

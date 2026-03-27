@@ -25,7 +25,7 @@ void main() {
                 .through(Files.writeAll(path))
                 .compile
                 .drain
-                .productR(() => Files.readAll(path).compile.toIList);
+                .productR(Files.readAll(path).compile.toIList);
           });
 
           expect(result, succeeds(ilist(bytes)));
@@ -44,7 +44,7 @@ void main() {
                 .compile
                 .drain
                 .productR(
-                  () => Files.readUtf8(path).compile.toIList.map(
+                  Files.readUtf8(path).compile.toIList.map(
                     (chunks) => chunks.toList().join(),
                   ),
                 );
@@ -66,7 +66,7 @@ void main() {
                 .compile
                 .drain
                 .productR(
-                  () => Files.readUtf8Lines(path).filter((line) => line.isNotEmpty).compile.toIList,
+                  Files.readUtf8Lines(path).filter((line) => line.isNotEmpty).compile.toIList,
                 );
           });
 
@@ -89,12 +89,11 @@ void main() {
                 .compile
                 .drain
                 .productR(
-                  () =>
-                      Rill.emits(
-                        second,
-                      ).through(Files.writeAll(path, flags: Flags.Append)).compile.drain,
+                  Rill.emits(
+                    second,
+                  ).through(Files.writeAll(path, flags: Flags.Append)).compile.drain,
                 )
-                .productR(() => Files.readAll(path).compile.toIList);
+                .productR(Files.readAll(path).compile.toIList);
           });
 
           expect(result, succeeds(ilist([...first, ...second])));
@@ -132,7 +131,7 @@ void main() {
         final result = Files.tempFile.use(
           (path) => Rill.emits(
             bytes,
-          ).through(Files.writeAll(path)).compile.drain.productR(() => Files.size(path)),
+          ).through(Files.writeAll(path)).compile.drain.productR(Files.size(path)),
         );
 
         expect(result, succeeds(5));
@@ -181,8 +180,8 @@ void main() {
                 .through(Files.writeAll(src))
                 .compile
                 .drain
-                .productR(() => Files.copy(src, dst))
-                .productR(() => Files.readAll(dst).compile.toIList);
+                .productR(Files.copy(src, dst))
+                .productR(Files.readAll(dst).compile.toIList);
           });
 
           expect(result, succeeds(ilist(bytes)));
@@ -203,9 +202,9 @@ void main() {
                 .through(Files.writeAll(src))
                 .compile
                 .drain
-                .productR(() => Files.move(src, dst))
+                .productR(Files.move(src, dst))
                 .productR<(bool, IList<int>)>(
-                  () => Files.exists(src).product(Files.readAll(dst).compile.toIList),
+                  Files.exists(src).product(Files.readAll(dst).compile.toIList),
                 );
           });
 
@@ -221,7 +220,7 @@ void main() {
             final file = dir / 'to-delete.txt';
             return Files.createFile(
               file,
-            ).productR(() => Files.delete(file)).productR(() => Files.exists(file));
+            ).productR(Files.delete(file)).productR(Files.exists(file));
           });
 
           expect(result, succeeds(false));
@@ -245,7 +244,7 @@ void main() {
       test('createDirectory creates a directory', () {
         final result = tempDir().use((parent) {
           final newDir = parent / 'subdir';
-          return Files.createDirectory(newDir).productR(() => Files.isDirectory(newDir));
+          return Files.createDirectory(newDir).productR(Files.isDirectory(newDir));
         });
 
         expect(result, succeeds(true));
@@ -260,7 +259,7 @@ void main() {
             return Files.createDirectory(
               nested,
               recursive: true,
-            ).productR(() => Files.isDirectory(nested));
+            ).productR(Files.isDirectory(nested));
           });
 
           expect(result, succeeds(true));
@@ -274,9 +273,9 @@ void main() {
           final result = tempDir()
               .use((dir) {
                 return Files.createFile(dir / 'a.txt')
-                    .productR(() => Files.createFile(dir / 'b.txt'))
-                    .productR(() => Files.createFile(dir / 'c.txt'))
-                    .productR(() => Files.list(dir).compile.toIList);
+                    .productR(Files.createFile(dir / 'b.txt'))
+                    .productR(Files.createFile(dir / 'c.txt'))
+                    .productR(Files.list(dir).compile.toIList);
               })
               .map((list) => list.length);
 
@@ -332,7 +331,7 @@ void main() {
               return Files.createSymbolicLink(
                 link,
                 target,
-              ).productR(() => Files.isSymbolicLink(link));
+              ).productR(Files.isSymbolicLink(link));
             });
           });
 
@@ -370,7 +369,7 @@ void main() {
                 .through(Files.writeUtf8Lines(path))
                 .compile
                 .drain
-                .productR(() => Files.size(path));
+                .productR(Files.size(path));
           });
 
           expect(result, succeeds(0));
@@ -402,7 +401,7 @@ void main() {
                 .compile
                 .drain
                 .productR(
-                  () => IO
+                  IO
                       .delay(() => paths)
                       .flatMap(
                         (ps) =>
@@ -446,7 +445,7 @@ void main() {
                 .compile
                 .drain
                 .productR(
-                  () => IO
+                  IO
                       .delay(() => paths)
                       .flatMap(
                         (ps) =>
@@ -480,7 +479,7 @@ void main() {
               .compile
               .drain
               .productR(
-                () => Files.readRange(path, start: 2, end: 6).compile.toIList,
+                Files.readRange(path, start: 2, end: 6).compile.toIList,
               );
         });
 
@@ -500,7 +499,7 @@ void main() {
                   Rill.eval(
                     IO
                         .sleep(const Duration(milliseconds: 100))
-                        .productR(() => Files.createFile(file)),
+                        .productR(Files.createFile(file)),
                   ),
                 )
                 .compile
@@ -523,14 +522,14 @@ void main() {
         () {
           final io = tempDir().use((dir) {
             final file = dir / 'delete-me.txt';
-            return Files.createFile(file).productR(() {
-              return Files.watch(dir)
+            return Files.createFile(file).productR(
+              Files.watch(dir)
                   .take(1)
                   .concurrently(
                     Rill.eval(
                       IO
                           .sleep(const Duration(milliseconds: 100))
-                          .productR(() => Files.delete(file)),
+                          .productR(Files.delete(file)),
                     ),
                   )
                   .compile
@@ -540,8 +539,8 @@ void main() {
                       expect(events.length, 1);
                       expect(events.head, isA<WatcherDeletedEvent>());
                     }),
-                  );
-            });
+                  ),
+            );
           });
 
           expect(io, succeeds());
@@ -555,14 +554,14 @@ void main() {
           final io = tempDir().use((dir) {
             final src = dir / 'before.txt';
             final dst = dir / 'after.txt';
-            return Files.createFile(src).productR(() {
-              return Files.watch(dir, types: [WatcherEventType.moved])
+            return Files.createFile(src).productR(
+              Files.watch(dir, types: [WatcherEventType.moved])
                   .take(1)
                   .concurrently(
                     Rill.eval(
                       IO
                           .sleep(const Duration(milliseconds: 100))
-                          .productR(() => Files.move(src, dst)),
+                          .productR(Files.move(src, dst)),
                     ),
                   )
                   .compile
@@ -572,8 +571,8 @@ void main() {
                       expect(events.length, 1);
                       expect(events.head, isA<WatcherMovedEvent>());
                     }),
-                  );
-            });
+                  ),
+            );
           });
 
           expect(io, succeeds());
@@ -586,15 +585,15 @@ void main() {
         () {
           final io = tempDir().use((dir) {
             final file = dir / 'modify-me.txt';
-            return Files.createFile(file).productR(() {
-              return Files.watch(dir, types: [WatcherEventType.modified])
+            return Files.createFile(file).productR(
+              Files.watch(dir, types: [WatcherEventType.modified])
                   .take(1)
                   .concurrently(
                     Rill.eval(
                       IO
                           .sleep(const Duration(milliseconds: 100))
                           .productR(
-                            () => Rill.emits([1, 2, 3]).through(Files.writeAll(file)).compile.drain,
+                            Rill.emits([1, 2, 3]).through(Files.writeAll(file)).compile.drain,
                           ),
                     ),
                   )
@@ -605,8 +604,8 @@ void main() {
                       expect(events.length, 1);
                       expect(events.head, isA<WatcherModifiedEvent>());
                     }),
-                  );
-            });
+                  ),
+            );
           });
 
           expect(io, succeeds());
@@ -628,11 +627,11 @@ void main() {
                     .use((cursor) {
                       return cursor.write(first).flatMap((c2) => c2.write(second));
                     })
-                    .productR(() {
-                      return Files.readCursor(path, Flags.Read).use((cursor) {
+                    .productR(
+                      Files.readCursor(path, Flags.Read).use((cursor) {
                         return cursor.seek(3).read(3);
-                      });
-                    });
+                      }),
+                    );
               })
               .map((opt) => opt.map((tuple) => tuple.$2));
 

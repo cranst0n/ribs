@@ -28,7 +28,7 @@ void main() {
 
     test('returns Left(TopicClosed) when topic is closed', () {
       final result = Topic.create<int>().flatMap((topic) {
-        return topic.close.productR(() => topic.publish1(42));
+        return topic.close.productR(topic.publish1(42));
       });
 
       expect(result, succeeds(isLeft()));
@@ -38,7 +38,7 @@ void main() {
       final result = Topic.create<int>().flatMap((topic) {
         final sub1 = topic.subscribe(10).take(1).compile.toIList;
         final sub2 = topic.subscribe(10).take(1).compile.toIList;
-        final publish = IO.sleep(20.milliseconds).productR(() => topic.publish1(99));
+        final publish = IO.sleep(20.milliseconds).productR(topic.publish1(99));
         return IO.both(IO.both(sub1, sub2), publish).mapN((a, _) => a);
       });
 
@@ -54,7 +54,7 @@ void main() {
 
     test('returns Left(TopicClosed) on second close', () {
       final result = Topic.create<int>().flatMap((topic) {
-        return topic.close.productR(() => topic.close);
+        return topic.close.productR(topic.close);
       });
 
       expect(result, succeeds(isLeft()));
@@ -63,7 +63,7 @@ void main() {
     test('terminates subscriber rill after close', () {
       final result = Topic.create<int>().flatMap((topic) {
         final sub = topic.subscribe(10).compile.toIList;
-        final closeAfterDelay = IO.sleep(50.milliseconds).productR(() => topic.close);
+        final closeAfterDelay = IO.sleep(50.milliseconds).productR(topic.close);
         return IO.both(sub, closeAfterDelay).mapN((a, _) => a);
       });
 
@@ -75,8 +75,8 @@ void main() {
         final sub = topic.subscribe(10).compile.toIList;
         final sendAndClose = topic
             .publish1(1)
-            .productR(() => topic.publish1(2))
-            .productR(() => topic.close);
+            .productR(topic.publish1(2))
+            .productR(topic.close);
         return IO.both(sub, sendAndClose).mapN((a, _) => a);
       });
 
@@ -95,7 +95,7 @@ void main() {
     test('true after topic is closed', () {
       expect(
         Topic.create<int>().flatMap((topic) {
-          return topic.close.productR(() => topic.isClosed);
+          return topic.close.productR(topic.isClosed);
         }),
         succeeds(isTrue),
       );
@@ -105,7 +105,7 @@ void main() {
   group('closed', () {
     test('completes after close is called', () {
       final test = Topic.create<int>().flatMap((topic) {
-        final closeAfterDelay = IO.sleep(50.milliseconds).productR(() => topic.close);
+        final closeAfterDelay = IO.sleep(50.milliseconds).productR(topic.close);
         return IO.both(closeAfterDelay, topic.closed).voided();
       });
 
@@ -137,7 +137,7 @@ void main() {
       final result = Topic.create<int>().flatMap((topic) {
         final acquireAndRelease = topic.subscribeAwait(10).use((_) => IO.unit);
         return acquireAndRelease.productR(
-          () => topic.subscribers.filter((n) => n == 0).take(1).compile.toIList,
+          topic.subscribers.filter((n) => n == 0).take(1).compile.toIList,
         );
       });
 
@@ -151,9 +151,9 @@ void main() {
         final sub = topic.subscribeUnbounded().take(3).compile.toIList;
         final produce = IO
             .sleep(20.milliseconds)
-            .productR(() => topic.publish1(1))
-            .productR(() => topic.publish1(2))
-            .productR(() => topic.publish1(3));
+            .productR(topic.publish1(1))
+            .productR(topic.publish1(2))
+            .productR(topic.publish1(3));
         return IO.both(sub, produce).mapN((a, _) => a);
       });
 
@@ -168,8 +168,8 @@ void main() {
           final recv = sub.take(2).compile.toIList;
           final send = IO
               .sleep(20.milliseconds)
-              .productR(() => topic.publish1(10))
-              .productR(() => topic.publish1(20));
+              .productR(topic.publish1(10))
+              .productR(topic.publish1(20));
           return IO.both(recv, send).mapN((a, _) => a);
         });
       });
@@ -180,7 +180,7 @@ void main() {
     test('subscribing to a closed topic returns empty rill', () {
       final result = Topic.create<int>().flatMap((topic) {
         return topic.close.productR(
-          () => topic.subscribeAwait(10).use((sub) => sub.compile.toIList),
+          topic.subscribeAwait(10).use((sub) => sub.compile.toIList),
         );
       });
 
@@ -195,9 +195,9 @@ void main() {
             final recv2 = sub2.take(3).compile.toIList;
             final send = IO
                 .sleep(20.milliseconds)
-                .productR(() => topic.publish1(1))
-                .productR(() => topic.publish1(2))
-                .productR(() => topic.publish1(3));
+                .productR(topic.publish1(1))
+                .productR(topic.publish1(2))
+                .productR(topic.publish1(3));
             return IO.both(IO.both(recv1, recv2), send).mapN((a, _) => a);
           });
         });
@@ -214,8 +214,8 @@ void main() {
           final recv = sub.take(2).compile.toIList;
           final send = IO
               .sleep(20.milliseconds)
-              .productR(() => topic.publish1(7))
-              .productR(() => topic.publish1(8));
+              .productR(topic.publish1(7))
+              .productR(topic.publish1(8));
           return IO.both(recv, send).mapN((a, _) => a);
         });
       });
@@ -228,7 +228,7 @@ void main() {
     test('closes topic when input stream ends', () {
       final result = Topic.create<int>().flatMap((topic) {
         final publishing = Rill.emits<int>([1, 2, 3]).through<Never>(topic.publish).compile.drain;
-        return publishing.productR(() => topic.isClosed);
+        return publishing.productR(topic.isClosed);
       });
 
       expect(result, succeeds(true));
@@ -237,7 +237,7 @@ void main() {
     test('terminates when topic is already closed', () {
       final test = Topic.create<int>().flatMap((topic) {
         return topic.close.productR(
-          () => Rill.constant(1).through<Never>(topic.publish).compile.drain,
+          Rill.constant(1).through<Never>(topic.publish).compile.drain,
         );
       });
 

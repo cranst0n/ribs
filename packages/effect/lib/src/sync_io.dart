@@ -22,9 +22,9 @@ sealed class SyncIO<A> with Functor<A>, Applicative<A>, Monad<A> {
   @override
   SyncIO<B> map<B>(Function1<A, B> f) => _Map(this, Fn1(f));
 
-  SyncIO<A> productL<B>(Function0<SyncIO<B>> that) => flatMap((a) => that().as(a));
+  SyncIO<A> productL<B>(SyncIO<B> that) => flatMap((a) => that.as(a));
 
-  SyncIO<B> productR<B>(Function0<SyncIO<B>> that) => flatMap((_) => that());
+  SyncIO<B> productR<B>(SyncIO<B> that) => flatMap((_) => that);
 
   SyncIO<B> redeem<B>(Function1<Object, B> recover, Function1<A, B> map) =>
       attempt().map((a) => a.fold(recover, map));

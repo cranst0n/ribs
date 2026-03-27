@@ -135,13 +135,13 @@ final class FilesPlatformImpl implements FilesPlatform {
       final createIfNeeded = flags.contains(Flag.create) ? createFile(path) : IO.unit;
 
       return failIfExists
-          .productR(() => createIfNeeded)
-          .productR(() => IO.fromFutureF(() => path.toFile.open(mode: flags.toFileMode)));
+          .productR(createIfNeeded)
+          .productR(IO.fromFutureF(() => path.toFile.open(mode: flags.toFileMode)));
     }
 
     IO<Unit> release(RandomAccessFile raf) {
       final deleteIfRequested = flags.contains(Flag.deleteOnClose) ? Files.delete(path) : IO.unit;
-      return IO.fromFutureF(() => raf.close()).productR(() => deleteIfRequested);
+      return IO.fromFutureF(() => raf.close()).productR(deleteIfRequested);
     }
 
     return Resource.make(acquire(), release).map((raf) => FileHandleIO(raf));
@@ -242,7 +242,7 @@ class FileHandleIO implements FileHandle {
     } else {
       return IO
           .fromFutureF(() => _raf.setPosition(offset))
-          .productR(() => IO.fromFutureF(() => _raf.read(numBytes)))
+          .productR(IO.fromFutureF(() => _raf.read(numBytes)))
           .map((bytes) => bytes.isNotEmpty ? Some(Chunk.bytes(bytes)) : const None());
     }
   }
@@ -257,7 +257,7 @@ class FileHandleIO implements FileHandle {
   IO<int> write(Chunk<int> bytes, int offset) {
     return IO
         .fromFutureF(() => _raf.setPosition(offset))
-        .productR(() => IO.fromFutureF(() => _raf.writeFrom(bytes.toDartList())))
+        .productR(IO.fromFutureF(() => _raf.writeFrom(bytes.toDartList())))
         .as(bytes.length);
   }
 }

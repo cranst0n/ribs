@@ -48,7 +48,7 @@ void main() {
       test('updates the current value', () {
         expect(
           SignallingRef.of(0).flatMap((ref) {
-            return ref.setValue(99).productR(() => ref.value());
+            return ref.setValue(99).productR(ref.value());
           }),
           succeeds(99),
         );
@@ -59,7 +59,7 @@ void main() {
       test('applies function to current value', () {
         expect(
           SignallingRef.of(10).flatMap((ref) {
-            return ref.update((n) => n * 2).productR(() => ref.value());
+            return ref.update((n) => n * 2).productR(ref.value());
           }),
           succeeds(20),
         );
@@ -114,7 +114,7 @@ void main() {
       test('value is updated after modify', () {
         expect(
           SignallingRef.of(10).flatMap((ref) {
-            return ref.modify((n) => (n + 5, n)).productR(() => ref.value());
+            return ref.modify((n) => (n + 5, n)).productR(ref.value());
           }),
           succeeds(15),
         );
@@ -132,7 +132,7 @@ void main() {
       test('value is updated after tryUpdate', () {
         expect(
           SignallingRef.of(0).flatMap((ref) {
-            return ref.tryUpdate((n) => n + 1).productR(() => ref.value());
+            return ref.tryUpdate((n) => n + 1).productR(ref.value());
           }),
           succeeds(1),
         );
@@ -180,7 +180,7 @@ void main() {
         final result = SignallingRef.of(0).flatMap((ref) {
           return ref.access().flatMap((t) {
             final (_, setter) = t;
-            return ref.update((n) => n + 1).productR(() => setter(42));
+            return ref.update((n) => n + 1).productR(setter(42));
           });
         });
 
@@ -212,9 +212,9 @@ void main() {
 
           final changes = IO
               .sleep(10.milliseconds)
-              .productR(() => ref.setValue(1))
-              .productR(() => IO.sleep(10.milliseconds))
-              .productR(() => ref.setValue(2));
+              .productR(ref.setValue(1))
+              .productR(IO.sleep(10.milliseconds))
+              .productR(ref.setValue(2));
 
           return IO.both(updates, changes).mapN((a, _) => a);
         });
@@ -237,7 +237,7 @@ void main() {
           return ref
               .setValue(99)
               .productR(
-                () => ref.continuous.take(1).compile.toIList,
+                ref.continuous.take(1).compile.toIList,
               );
         });
 
@@ -253,11 +253,11 @@ void main() {
           final stream = ref.changes().discrete.take(3).compile.toIList;
           final writes = IO
               .sleep(10.milliseconds)
-              .productR(() => ref.setValue(1))
-              .productR(() => IO.sleep(10.milliseconds))
-              .productR(() => ref.setValue(1)) // same value — filtered out
-              .productR(() => IO.sleep(10.milliseconds))
-              .productR(() => ref.setValue(2));
+              .productR(ref.setValue(1))
+              .productR(IO.sleep(10.milliseconds))
+              .productR(ref.setValue(1)) // same value — filtered out
+              .productR(IO.sleep(10.milliseconds))
+              .productR(ref.setValue(2));
           return IO.both(stream, writes).mapN((a, _) => a);
         });
 
@@ -272,7 +272,7 @@ void main() {
           return ref.getAndDiscreteUpdates().use((t) {
             final (initial, updates) = t;
             final recv = updates.take(1).compile.toIList.map((l) => (initial, l));
-            final write = IO.sleep(10.milliseconds).productR(() => ref.setValue(99));
+            final write = IO.sleep(10.milliseconds).productR(ref.setValue(99));
             return IO.both(recv, write).map((t2) => t2.$1);
           });
         });
@@ -294,11 +294,11 @@ void main() {
           final wait = ref.waitUntil((n) => n >= 3);
           final increments = IO
               .sleep(20.milliseconds)
-              .productR(() => ref.setValue(1))
-              .productR(() => IO.sleep(20.milliseconds))
-              .productR(() => ref.setValue(2))
-              .productR(() => IO.sleep(20.milliseconds))
-              .productR(() => ref.setValue(3));
+              .productR(ref.setValue(1))
+              .productR(IO.sleep(20.milliseconds))
+              .productR(ref.setValue(2))
+              .productR(IO.sleep(20.milliseconds))
+              .productR(ref.setValue(3));
           return IO.both(wait, increments).voided();
         });
 
@@ -339,7 +339,7 @@ void main() {
         return mapped.getAndDiscreteUpdates().use((t) {
           final (initial, updates) = t;
           final recv = updates.take(1).compile.toIList.map((l) => (initial, l));
-          final write = IO.sleep(10.milliseconds).productR(() => ref.setValue(9));
+          final write = IO.sleep(10.milliseconds).productR(ref.setValue(9));
           return IO.both(recv, write).map((pair) => pair.$1);
         });
       });
