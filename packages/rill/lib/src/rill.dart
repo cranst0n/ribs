@@ -1422,41 +1422,30 @@ class Rill<O> {
     return Rill.suspend(() {
       final rng = Random(seed);
 
-      Pull<O, Unit> loop(Rill<O> s) {
+      Pull<O, Unit> loop(Chunk<O> acc, Rill<O> s) {
         return s.pull.uncons.flatMap((hdtl) {
           return hdtl.foldN(
-            () => Pull.done,
+            () => acc.isEmpty ? Pull.done : Pull.output(acc),
             (hd, tl) {
-              if (hd.isEmpty) {
-                return loop(tl);
+              final newSize =
+                  max(
+                    1.0,
+                    (acc.size + hd.size) * (minFactor + (maxFactor - minFactor) * rng.nextDouble()),
+                  ).toInt();
+              final newAcc = acc.concat(hd);
+
+              if (newAcc.size < newSize) {
+                return loop(newAcc, tl);
               } else {
-                final factor = minFactor + (rng.nextDouble() * (maxFactor - minFactor));
-                final nextSize = max(hd.size * factor, 1).round();
-
-                if (hd.size == nextSize) {
-                  return Pull.output(hd).append(() => loop(tl));
-                } else if (hd.size > nextSize) {
-                  final (toEmit, remainder) = hd.splitAt(nextSize);
-                  return Pull.output(toEmit).append(() => loop(tl.cons(remainder)));
-                } else {
-                  final needed = nextSize - hd.size;
-
-                  return tl.pull.unconsN(needed).flatMap((hdtl) {
-                    return hdtl.foldN(
-                      () => Pull.output(hd),
-                      (nextHd, tl) {
-                        return Pull.output(hd.concat(nextHd)).append(() => loop(tl));
-                      },
-                    );
-                  });
-                }
+                final (toEmit, rest) = newAcc.splitAt(newSize);
+                return Pull.output(toEmit).append(() => loop(rest, tl));
               }
             },
           );
         });
       }
 
-      return loop(this).rillNoScope;
+      return loop(Chunk.empty<O>(), this).rillNoScope;
     });
   }
 

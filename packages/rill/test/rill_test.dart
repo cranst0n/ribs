@@ -1069,7 +1069,7 @@ void main() {
 
   test('rechunkRandomly does not drop elements', () {
     expect(Rill.range(0, 100).rechunkRandomly(), producesInOrder(List.generate(100, (i) => i)));
-  }, skip: 'flaky');
+  });
 
   (intRill, Gen.chooseInt(0, 1000000000)).forAll(
     'rechunkRandomly is deterministic',
@@ -1079,7 +1079,6 @@ void main() {
         producesSameAs(r.rechunkRandomly(seed: seed)),
       );
     },
-    skip: 'flaky',
   );
 
   test('repeat', () {
