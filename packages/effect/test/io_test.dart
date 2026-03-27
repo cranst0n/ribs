@@ -1357,11 +1357,11 @@ void main() {
   test('whenA', () async {
     var count = 0;
 
-    await expectLater(IO.whenA(true, () => IO.exec(() => count += 1)), succeeds());
+    await expectLater(IO.exec(() => count += 1).whenA(true), succeeds());
 
     expect(count, 1);
 
-    await expectLater(IO.whenA(false, () => IO.exec(() => count += 1)), succeeds());
+    await expectLater(IO.exec(() => count += 1).whenA(false), succeeds());
 
     expect(count, 1);
   });

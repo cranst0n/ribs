@@ -29,7 +29,7 @@ abstract class Semaphore {
   Resource<Unit> permit();
 
   Resource<bool> tryPermit() =>
-      Resource.make(tryAcquire(), (acquired) => IO.whenA(acquired, () => release()));
+      Resource.make(tryAcquire(), (acquired) => release().whenA(acquired));
 }
 
 final class _Request {

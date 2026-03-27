@@ -79,7 +79,7 @@ class _SignallingRefImpl<A> extends SignallingRef<A> {
       IO<bool> setter(A newValue) {
         final (newstate, notifyListeners) = updateAndNotify(state, (_) => (newValue, Unit()));
 
-        return set(newstate).flatTap((succeeded) => IO.whenA(succeeded, () => notifyListeners));
+        return set(newstate).flatTap((succeeded) => notifyListeners.whenA(succeeded));
       }
 
       return (state.value, setter);

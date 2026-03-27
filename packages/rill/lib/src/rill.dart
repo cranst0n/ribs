@@ -1401,7 +1401,7 @@ class Rill<O> {
   Rill<O> pauseWhenSignal(Signal<bool> pauseWhneTrue) {
     final waitToResume = pauseWhneTrue.waitUntil((x) => !x);
     final pauseIfNeeded = Rill.exec<O>(
-      pauseWhneTrue.value().flatMap((paused) => IO.whenA(paused, () => waitToResume)),
+      pauseWhneTrue.value().flatMap((paused) => waitToResume.whenA(paused)),
     );
 
     return pauseIfNeeded.append(

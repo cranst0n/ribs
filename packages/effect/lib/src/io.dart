@@ -297,7 +297,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   static IO<Unit> raiseWhen(bool cond, Function0<Object> e) =>
       _raiseWhen(cond, e).traced('raiseWhen');
   static IO<Unit> _raiseWhen(bool cond, Function0<Object> e) =>
-      IO._whenA(cond, () => IO._raiseError<Unit>(e()));
+      cond ? IO._raiseError<Unit>(e())._voided() : IO.unit;
 
   /// Reads a line from stdin. **This is a blocking operation and will
   /// not finish until a full line of input is available from the console.**
@@ -335,13 +335,6 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
       _unlessA(cond, action).traced('unlessA');
   static IO<Unit> _unlessA<A>(bool cond, Function0<IO<A>> action) =>
       cond ? IO.unit : action()._voided();
-
-  /// Returns the [action] argument when [cond] is true, otherwise returns
-  /// [IO.unit].
-  static IO<Unit> whenA<A>(bool cond, Function0<IO<A>> action) =>
-      _whenA(cond, action).traced('whenA');
-  static IO<Unit> _whenA<A>(bool cond, Function0<IO<A>> action) =>
-      cond ? action()._voided() : IO.unit;
 
   /// Return an IO that will wait the specified [duration] **after** evaluating
   /// and then return the result.
@@ -661,6 +654,11 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// Discards the value of this IO and replaces it with [Unit].
   IO<Unit> voided() => _voided();
   IO<Unit> _voided() => _as(Unit());
+
+  /// Evaluates this IO and discards the result when [cond] is true, otherwise
+  /// returns [IO.unit] without evaluating this IO.
+  IO<Unit> whenA(bool cond) => _whenA(cond).traced('whenA');
+  IO<Unit> _whenA(bool cond) => cond ? _voided() : IO.unit;
 
   /// Evaluates this [IO] repeatedly until evaluating [cond] results is `false`.
   /// Results from every evaluation is accumulated in the returned [IList].

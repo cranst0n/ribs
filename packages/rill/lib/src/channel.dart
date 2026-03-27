@@ -152,7 +152,7 @@ final class _BoundedChannel<A> with Channel<A> {
     return IO.deferred<Unit>().flatMap((producer) {
       return state.flatModifyFull((tuple) {
         final (poll, s) = tuple;
-        final signalClose = IO.whenA(close, () => signalClosure().voided());
+        final signalClose = signalClosure().whenA(close);
 
         if (s.closed) {
           return (s, IO.pure(_closed));
