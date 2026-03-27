@@ -311,10 +311,13 @@ void main() {
         return ConnectionIO.lift(
           acquired.complete(Unit()),
         ).flatMap((_) => ConnectionIO.never<Unit>()).transact(singleXa).start().flatMap((fiber) {
-          return acquired.value().productR(fiber.cancel()).productR(
-            // Would block if cancellation didn't trigger the signalDone Completer.
-            'SELECT 1'.query(Read.integer).unique().transact(singleXa),
-          );
+          return acquired
+              .value()
+              .productR(fiber.cancel())
+              .productR(
+                // Would block if cancellation didn't trigger the signalDone Completer.
+                'SELECT 1'.query(Read.integer).unique().transact(singleXa),
+              );
         });
       });
 

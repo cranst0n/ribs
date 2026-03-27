@@ -73,10 +73,7 @@ void main() {
     test('subscriber rill delivers buffered elements then terminates on close', () {
       final result = Topic.create<int>().flatMap((topic) {
         final sub = topic.subscribe(10).compile.toIList;
-        final sendAndClose = topic
-            .publish1(1)
-            .productR(topic.publish1(2))
-            .productR(topic.close);
+        final sendAndClose = topic.publish1(1).productR(topic.publish1(2)).productR(topic.close);
         return IO.both(sub, sendAndClose).mapN((a, _) => a);
       });
 

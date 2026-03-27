@@ -231,27 +231,24 @@ void main() {
                 .guarantee(offererDone.setValue(true))
                 .start()
                 .flatMap((_) {
-                  return latch
-                      .release()
-                      .productR(latch.await())
-                      .productR(q.take())
-                      .start()
-                      .flatMap((taker) {
-                        return latch.await().flatMap((_) {
-                          return taker.cancel().flatMap((_) {
-                            return taker.join().flatMap((oc) {
-                              if (oc.isCanceled) {
-                                return offererDone
-                                    .value()
-                                    .flatMap((b) => expectIO(b, false))
-                                    .productR(q.take());
-                              } else {
-                                return IO.unit;
-                              }
-                            });
+                  return latch.release().productR(latch.await()).productR(q.take()).start().flatMap(
+                    (taker) {
+                      return latch.await().flatMap((_) {
+                        return taker.cancel().flatMap((_) {
+                          return taker.join().flatMap((oc) {
+                            if (oc.isCanceled) {
+                              return offererDone
+                                  .value()
+                                  .flatMap((b) => expectIO(b, false))
+                                  .productR(q.take());
+                            } else {
+                              return IO.unit;
+                            }
                           });
                         });
                       });
+                    },
+                  );
                 });
           });
         });
@@ -576,10 +573,7 @@ class QueueTests {
               return IList.range(0, 4)
                   .traverseIO(
                     (n) =>
-                        IO
-                            .sleep(Duration(milliseconds: n * 10))
-                            .productR(offer(q, 10 + n))
-                            .start(),
+                        IO.sleep(Duration(milliseconds: n * 10)).productR(offer(q, 10 + n)).start(),
                   )
                   .flatMap((offerers) {
                     return IO.cede.flatMap((_) {
@@ -840,11 +834,7 @@ class QueueTests {
     test('should return the queue size when take precedes offer', () {
       final test = constructor(10).flatMap((q) {
         return take(q).background().use(
-          (took) => IO
-              .sleep(1.second)
-              .productR(offer(q, 1))
-              .productR(took)
-              .productR(size(q)),
+          (took) => IO.sleep(1.second).productR(offer(q, 1)).productR(took).productR(size(q)),
         );
       });
 
@@ -854,11 +844,7 @@ class QueueTests {
     test('should return the queue size when take precedes tryOffer', () {
       final test = constructor(10).flatMap((q) {
         return take(q).background().use(
-          (took) => IO
-              .sleep(1.second)
-              .productR(tryOffer(q, 1))
-              .productR(took)
-              .productR(size(q)),
+          (took) => IO.sleep(1.second).productR(tryOffer(q, 1)).productR(took).productR(size(q)),
         );
       });
 

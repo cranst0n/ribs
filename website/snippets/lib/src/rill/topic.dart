@@ -76,9 +76,7 @@ IO<Unit> topicPublish1() {
           );
     });
 
-    return IO
-        .both<IList<int>, Unit>(subscriber, producer.productR(topic.close.voided()))
-        .voided();
+    return IO.both<IList<int>, Unit>(subscriber, producer.productR(topic.close.voided())).voided();
   });
 }
 

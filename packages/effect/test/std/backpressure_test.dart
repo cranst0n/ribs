@@ -22,16 +22,15 @@ void main() {
         return backpressure.metered(IO.sleep(1.second).productR(IO.pure(1))).start().flatMap((
           f1,
         ) {
-          return backpressure
-              .metered(IO.sleep(1.second).productR(IO.pure(2)))
-              .start()
-              .flatMap((f2) {
-                return f1.joinWithNever().flatMap((res1) {
-                  return f2.joinWithNever().map((res2) {
-                    return (res1, res2);
-                  });
-                });
+          return backpressure.metered(IO.sleep(1.second).productR(IO.pure(2))).start().flatMap((
+            f2,
+          ) {
+            return f1.joinWithNever().flatMap((res1) {
+              return f2.joinWithNever().map((res2) {
+                return (res1, res2);
               });
+            });
+          });
         });
       });
 

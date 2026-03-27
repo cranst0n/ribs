@@ -124,9 +124,7 @@ IO<int> pauseableProcessor() {
 
         // Watchdog: fires the stop signal once 100 items have been
         // processed. Uses waitUntil to block until the condition holds.
-        final watchdog = itemCount
-            .waitUntil((int n) => n >= 100)
-            .productR(stop.setValue(true));
+        final watchdog = itemCount.waitUntil((int n) => n >= 100).productR(stop.setValue(true));
 
         // Demonstrate pause: briefly pause then resume after 50 items.
         final pauseController = itemCount

@@ -45,10 +45,7 @@ final class PostgresConnection extends SqlConnection {
         if (!ec.isCanceled || _session is! pg.Connection) {
           return dispose;
         } else {
-          return IO
-              .fromFutureF(() => _session.close(force: true))
-              .attempt()
-              .productR(dispose);
+          return IO.fromFutureF(() => _session.close(force: true)).attempt().productR(dispose);
         }
       },
     ).flatMap((statement) {

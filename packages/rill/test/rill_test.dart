@@ -1981,11 +1981,11 @@ void main() {
   group('foreach', () {
     test('executes IO side-effect for each element', () {
       final test = IO.ref(nil<int>()).flatMap((ref) {
-        return Rill.emits<int>([1, 2, 3])
-            .foreach((x) => ref.update((l) => l.appended(x)))
-            .compile
-            .drain
-            .productR(ref.value());
+        return Rill.emits<int>([
+          1,
+          2,
+          3,
+        ]).foreach((x) => ref.update((l) => l.appended(x))).compile.drain.productR(ref.value());
       });
 
       expect(test, succeeds(ilist([1, 2, 3])));

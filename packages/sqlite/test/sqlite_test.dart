@@ -526,11 +526,7 @@ void main() {
           .unique()
           .transact(xa);
 
-      final test = setup
-          .productR(insert1)
-          .productR(insert2)
-          .productR(nullRow)
-          .product(someRow);
+      final test = setup.productR(insert1).productR(insert2).productR(nullRow).product(someRow);
 
       expect(test, succeeds(const (None(), Some('hello'))));
     });

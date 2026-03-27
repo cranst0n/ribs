@@ -213,8 +213,7 @@ void main() {
         var passed = false;
 
         final test = IO.uncancelable(
-          (poll) =>
-              IO.canceled.productR(poll(IO.unit).onCancel(IO.exec(() => passed = true))),
+          (poll) => IO.canceled.productR(poll(IO.unit).onCancel(IO.exec(() => passed = true))),
         );
 
         await expectLater(test, cancels());
@@ -356,9 +355,8 @@ void main() {
 
         final markStarted = IO.exec(() => started = true);
 
-        IO<Unit> cedeUntilStarted() => IO
-            .delay(() => started)
-            .ifM(() => IO.unit, () => IO.cede.productR(cedeUntilStarted()));
+        IO<Unit> cedeUntilStarted() =>
+            IO.delay(() => started).ifM(() => IO.unit, () => IO.cede.productR(cedeUntilStarted()));
 
         final test =
             markStarted.productR(IO.never<Unit>()).onCancel(IO.never()).start().flatMap((f) {
@@ -398,9 +396,8 @@ void main() {
         final markStarted = IO.exec(() => started = true);
         final markStarted2 = IO.exec(() => started2 = true);
 
-        IO<Unit> cedeUntilStarted() => IO
-            .delay(() => started)
-            .ifM(() => IO.unit, () => IO.cede.productR(cedeUntilStarted()));
+        IO<Unit> cedeUntilStarted() =>
+            IO.delay(() => started).ifM(() => IO.unit, () => IO.cede.productR(cedeUntilStarted()));
 
         IO<Unit> cedeUntilStarted2() => IO
             .delay(() => started2)
@@ -452,9 +449,8 @@ void main() {
 
         final markStarted = IO.exec(() => started = true);
 
-        IO<Unit> cedeUntilStarted() => IO
-            .delay(() => started)
-            .ifM(() => IO.unit, () => IO.cede.productR(cedeUntilStarted()));
+        IO<Unit> cedeUntilStarted() =>
+            IO.delay(() => started).ifM(() => IO.unit, () => IO.cede.productR(cedeUntilStarted()));
 
         final test = IO
             .uncancelable((_) => markStarted.productR(IO.never<Unit>()))
@@ -471,31 +467,28 @@ void main() {
         final markStarted = IO.exec(() => started = true);
         final markStarted2 = IO.exec(() => started2 = true);
 
-        IO<Unit> cedeUntilStarted() => IO
-            .delay(() => started)
-            .ifM(() => IO.unit, () => IO.cede.productR(cedeUntilStarted()));
+        IO<Unit> cedeUntilStarted() =>
+            IO.delay(() => started).ifM(() => IO.unit, () => IO.cede.productR(cedeUntilStarted()));
 
         IO<Unit> cedeUntilStarted2() => IO
             .delay(() => started2)
             .ifM(() => IO.unit, () => IO.cede.productR(cedeUntilStarted2()));
 
-        final test = IO
-            .uncancelable((_) => markStarted.productR(IO.never<Unit>()))
-            .start()
-            .flatMap((first) {
-              return IO
-                  .uncancelable(
-                    (poll) => cedeUntilStarted()
-                        .productR(markStarted2)
-                        .productR(poll(first.cancel())),
-                  )
-                  .start()
-                  .flatMap((second) {
-                    return cedeUntilStarted2().flatMap((_) {
-                      return second.cancel();
-                    });
+        final test = IO.uncancelable((_) => markStarted.productR(IO.never<Unit>())).start().flatMap(
+          (first) {
+            return IO
+                .uncancelable(
+                  (poll) =>
+                      cedeUntilStarted().productR(markStarted2).productR(poll(first.cancel())),
+                )
+                .start()
+                .flatMap((second) {
+                  return cedeUntilStarted2().flatMap((_) {
+                    return second.cancel();
                   });
-            });
+                });
+          },
+        );
 
         expect(test.ticked.nonTerminating(), isTrue);
       });

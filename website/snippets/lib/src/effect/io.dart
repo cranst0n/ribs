@@ -219,10 +219,7 @@ void timingSnippet() {
   final withTimeout = IO.sleep(5.seconds).timeout(1.seconds);
 
   // timeoutTo: return a fallback IO instead of raising
-  final withFallback = IO
-      .sleep(5.seconds)
-      .productR(IO.pure(42))
-      .timeoutTo(1.seconds, IO.pure(-1));
+  final withFallback = IO.sleep(5.seconds).productR(IO.pure(42)).timeoutTo(1.seconds, IO.pure(-1));
 
   // io-timing
 }

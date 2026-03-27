@@ -154,9 +154,7 @@ void main() {
     test('backpressure — producer is suspended when channel is full', () {
       final test = Channel.bounded<int>(2).flatMap((chan) {
         // Fill the channel, then read to unblock producer
-        final slowConsumer = IO
-            .sleep(50.milliseconds)
-            .productR(chan.rill.take(3).compile.toIList);
+        final slowConsumer = IO.sleep(50.milliseconds).productR(chan.rill.take(3).compile.toIList);
         final producer = IList.range(0, 3).traverseIO_((i) => chan.send(i));
 
         return IO.both(producer, slowConsumer).mapN((_, b) => b);

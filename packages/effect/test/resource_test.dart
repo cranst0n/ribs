@@ -148,8 +148,7 @@ void main() {
       final (acquireFin, resourceFin, a, b) = ft;
 
       final io = IO.uncancelable(
-        (poll) =>
-            sleep.onCancel(a.setValue(true)).productR(poll(sleep).onCancel(b.setValue(true))),
+        (poll) => sleep.onCancel(a.setValue(true)).productR(poll(sleep).onCancel(b.setValue(true))),
       );
 
       final resource = Resource.makeFull(
@@ -183,11 +182,7 @@ void main() {
       final release = sleep.productR(releaseComplete.setValue(true));
       final resource = Resource.applyFull((poll) => IO.delay(() => (Unit(), (_) => poll(release))));
 
-      return resource
-          .use_()
-          .timeout(500.milliseconds)
-          .attempt()
-          .productR(releaseComplete.value());
+      return resource.use_().timeout(500.milliseconds).attempt().productR(releaseComplete.value());
     });
 
     final ticker = test.ticked..tickAll();
@@ -339,8 +334,7 @@ void main() {
 
           return Resource.make(
             IO.pure(a),
-            (a) =>
-                IO.delay(() => released = released.prepended(a)).productR(IO.fromEither(e)),
+            (a) => IO.delay(() => released = released.prepended(a)).productR(IO.fromEither(e)),
           );
         });
 
@@ -907,8 +901,7 @@ void main() {
       final test = IO.ref(false).flatMap((released) {
         final res = Resource.make(IO.unit, (_) => released.setValue(true));
         return res.useForever().start().flatMap(
-          (fiber) =>
-              IO.sleep(1.second).flatMap((_) => fiber.cancel()).productR(released.value()),
+          (fiber) => IO.sleep(1.second).flatMap((_) => fiber.cancel()).productR(released.value()),
         );
       });
 

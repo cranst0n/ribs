@@ -1195,9 +1195,8 @@ class Rill<O> {
 
           IO<Unit> run(Rill<O> s) {
             return Semaphore.permits(1).flatMap((guard) {
-              IO<Unit> sendChunk(Chunk<O> chunk) => output
-                  .send(f(Rill.chunk(chunk), guard.release()))
-                  .productR(guard.acquire());
+              IO<Unit> sendChunk(Chunk<O> chunk) =>
+                  output.send(f(Rill.chunk(chunk), guard.release())).productR(guard.acquire());
 
               return Rill.exec<Unit>(guard.acquire())
                   .append(() => s.chunks().foreach(sendChunk))

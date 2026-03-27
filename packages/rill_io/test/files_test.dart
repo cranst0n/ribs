@@ -497,9 +497,7 @@ void main() {
                 .take(1)
                 .concurrently(
                   Rill.eval(
-                    IO
-                        .sleep(const Duration(milliseconds: 100))
-                        .productR(Files.createFile(file)),
+                    IO.sleep(const Duration(milliseconds: 100)).productR(Files.createFile(file)),
                   ),
                 )
                 .compile
@@ -527,9 +525,7 @@ void main() {
                   .take(1)
                   .concurrently(
                     Rill.eval(
-                      IO
-                          .sleep(const Duration(milliseconds: 100))
-                          .productR(Files.delete(file)),
+                      IO.sleep(const Duration(milliseconds: 100)).productR(Files.delete(file)),
                     ),
                   )
                   .compile
@@ -559,9 +555,7 @@ void main() {
                   .take(1)
                   .concurrently(
                     Rill.eval(
-                      IO
-                          .sleep(const Duration(milliseconds: 100))
-                          .productR(Files.move(src, dst)),
+                      IO.sleep(const Duration(milliseconds: 100)).productR(Files.move(src, dst)),
                     ),
                   )
                   .compile
