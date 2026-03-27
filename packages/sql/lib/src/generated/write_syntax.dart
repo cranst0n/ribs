@@ -75,18 +75,7 @@ extension Tuple8WriteOps<A, B, C, D, E, F, G, H>
 }
 
 extension Tuple9WriteOps<A, B, C, D, E, F, G, H, I>
-    on
-        (
-          Write<A>,
-          Write<B>,
-          Write<C>,
-          Write<D>,
-          Write<E>,
-          Write<F>,
-          Write<G>,
-          Write<H>,
-          Write<I>,
-        ) {
+    on (Write<A>, Write<B>, Write<C>, Write<D>, Write<E>, Write<F>, Write<G>, Write<H>, Write<I>) {
   Write<(A, B, C, D, E, F, G, H, I)> get tupled {
     final initWrite = init.tupled;
     return Write.instance(initWrite.puts.concat(last.puts), (params, n, tuple) {
@@ -241,6 +230,230 @@ extension Tuple15WriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>
           Write<O>,
         ) {
   Write<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)> get tupled {
+    final initWrite = init.tupled;
+    return Write.instance(initWrite.puts.concat(last.puts), (params, n, tuple) {
+      final stmtParams = initWrite.setParameter(params, n, tuple.init);
+      return last.setParameter(stmtParams, n + initWrite.length, tuple.last);
+    });
+  }
+}
+
+extension Tuple16WriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>
+    on
+        (
+          Write<A>,
+          Write<B>,
+          Write<C>,
+          Write<D>,
+          Write<E>,
+          Write<F>,
+          Write<G>,
+          Write<H>,
+          Write<I>,
+          Write<J>,
+          Write<K>,
+          Write<L>,
+          Write<M>,
+          Write<N>,
+          Write<O>,
+          Write<P>,
+        ) {
+  Write<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P)> get tupled {
+    final initWrite = init.tupled;
+    return Write.instance(initWrite.puts.concat(last.puts), (params, n, tuple) {
+      final stmtParams = initWrite.setParameter(params, n, tuple.init);
+      return last.setParameter(stmtParams, n + initWrite.length, tuple.last);
+    });
+  }
+}
+
+extension Tuple17WriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>
+    on
+        (
+          Write<A>,
+          Write<B>,
+          Write<C>,
+          Write<D>,
+          Write<E>,
+          Write<F>,
+          Write<G>,
+          Write<H>,
+          Write<I>,
+          Write<J>,
+          Write<K>,
+          Write<L>,
+          Write<M>,
+          Write<N>,
+          Write<O>,
+          Write<P>,
+          Write<Q>,
+        ) {
+  Write<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q)> get tupled {
+    final initWrite = init.tupled;
+    return Write.instance(initWrite.puts.concat(last.puts), (params, n, tuple) {
+      final stmtParams = initWrite.setParameter(params, n, tuple.init);
+      return last.setParameter(stmtParams, n + initWrite.length, tuple.last);
+    });
+  }
+}
+
+extension Tuple18WriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>
+    on
+        (
+          Write<A>,
+          Write<B>,
+          Write<C>,
+          Write<D>,
+          Write<E>,
+          Write<F>,
+          Write<G>,
+          Write<H>,
+          Write<I>,
+          Write<J>,
+          Write<K>,
+          Write<L>,
+          Write<M>,
+          Write<N>,
+          Write<O>,
+          Write<P>,
+          Write<Q>,
+          Write<R>,
+        ) {
+  Write<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R)> get tupled {
+    final initWrite = init.tupled;
+    return Write.instance(initWrite.puts.concat(last.puts), (params, n, tuple) {
+      final stmtParams = initWrite.setParameter(params, n, tuple.init);
+      return last.setParameter(stmtParams, n + initWrite.length, tuple.last);
+    });
+  }
+}
+
+extension Tuple19WriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>
+    on
+        (
+          Write<A>,
+          Write<B>,
+          Write<C>,
+          Write<D>,
+          Write<E>,
+          Write<F>,
+          Write<G>,
+          Write<H>,
+          Write<I>,
+          Write<J>,
+          Write<K>,
+          Write<L>,
+          Write<M>,
+          Write<N>,
+          Write<O>,
+          Write<P>,
+          Write<Q>,
+          Write<R>,
+          Write<S>,
+        ) {
+  Write<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)> get tupled {
+    final initWrite = init.tupled;
+    return Write.instance(initWrite.puts.concat(last.puts), (params, n, tuple) {
+      final stmtParams = initWrite.setParameter(params, n, tuple.init);
+      return last.setParameter(stmtParams, n + initWrite.length, tuple.last);
+    });
+  }
+}
+
+extension Tuple20WriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>
+    on
+        (
+          Write<A>,
+          Write<B>,
+          Write<C>,
+          Write<D>,
+          Write<E>,
+          Write<F>,
+          Write<G>,
+          Write<H>,
+          Write<I>,
+          Write<J>,
+          Write<K>,
+          Write<L>,
+          Write<M>,
+          Write<N>,
+          Write<O>,
+          Write<P>,
+          Write<Q>,
+          Write<R>,
+          Write<S>,
+          Write<T>,
+        ) {
+  Write<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)> get tupled {
+    final initWrite = init.tupled;
+    return Write.instance(initWrite.puts.concat(last.puts), (params, n, tuple) {
+      final stmtParams = initWrite.setParameter(params, n, tuple.init);
+      return last.setParameter(stmtParams, n + initWrite.length, tuple.last);
+    });
+  }
+}
+
+extension Tuple21WriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>
+    on
+        (
+          Write<A>,
+          Write<B>,
+          Write<C>,
+          Write<D>,
+          Write<E>,
+          Write<F>,
+          Write<G>,
+          Write<H>,
+          Write<I>,
+          Write<J>,
+          Write<K>,
+          Write<L>,
+          Write<M>,
+          Write<N>,
+          Write<O>,
+          Write<P>,
+          Write<Q>,
+          Write<R>,
+          Write<S>,
+          Write<T>,
+          Write<U>,
+        ) {
+  Write<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)> get tupled {
+    final initWrite = init.tupled;
+    return Write.instance(initWrite.puts.concat(last.puts), (params, n, tuple) {
+      final stmtParams = initWrite.setParameter(params, n, tuple.init);
+      return last.setParameter(stmtParams, n + initWrite.length, tuple.last);
+    });
+  }
+}
+
+extension Tuple22WriteOps<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>
+    on
+        (
+          Write<A>,
+          Write<B>,
+          Write<C>,
+          Write<D>,
+          Write<E>,
+          Write<F>,
+          Write<G>,
+          Write<H>,
+          Write<I>,
+          Write<J>,
+          Write<K>,
+          Write<L>,
+          Write<M>,
+          Write<N>,
+          Write<O>,
+          Write<P>,
+          Write<Q>,
+          Write<R>,
+          Write<S>,
+          Write<T>,
+          Write<U>,
+          Write<V>,
+        ) {
+  Write<(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)> get tupled {
     final initWrite = init.tupled;
     return Write.instance(initWrite.puts.concat(last.puts), (params, n, tuple) {
       final stmtParams = initWrite.setParameter(params, n, tuple.init);
