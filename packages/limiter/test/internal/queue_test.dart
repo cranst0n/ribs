@@ -17,7 +17,8 @@ void main() {
               .zipWithIndex()
               .evalMap((elemAndIx) => q.enqueue(elemAndIx.$1, priority: elemAndIx.$2))
               .drain()
-              .appendUnsafe(() => q.dequeueAll().take(elems.length));
+              .widen<int>()
+              .append(() => q.dequeueAll().take(elems.length));
         })
         .flatMap((rill) => rill.compile.toIVector);
 
@@ -32,7 +33,7 @@ void main() {
         .map((q) {
           return Rill.emits(
             elems,
-          ).evalMap(q.enqueue).drain().appendUnsafe(() => q.dequeueAll()).take(elems.length);
+          ).evalMap(q.enqueue).drain().widen<int>().append(() => q.dequeueAll()).take(elems.length);
         })
         .flatMap((rill) => rill.compile.toIVector);
 

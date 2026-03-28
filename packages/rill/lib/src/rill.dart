@@ -479,9 +479,6 @@ class Rill<O> {
 
   Rill<O> append(Function0<Rill<O>> s2) => underlying.append(() => s2().underlying).rillNoScope;
 
-  Rill<O2> appendUnsafe<O2>(Function0<Rill<O2>> s2) =>
-      underlying.append(() => s2().underlying).rillNoScope;
-
   Rill<O2> as<O2>(O2 o2) => map((_) => o2);
 
   Rill<Either<Object, O>> attempt() =>
@@ -1837,6 +1834,27 @@ class Rill<O> {
   RillCompile<O> get compile => RillCompile(underlying);
 
   Rill<O2> _mapNoScope<O2>(Function1<O, O2> f) => Pull.mapOutputNoScope(this, f).rillNoScope;
+}
+
+/// Operations only available on a [Rill] that emits no elements — [Rill<Never>].
+extension RillNeverOps on Rill<Never> {
+  /// Widens this [Rill<Never>] to [Rill<O2>].
+  ///
+  /// Useful when an API expects [Rill<O2>] and you have a [Rill<Never>] that
+  /// produces no elements (e.g. after [Rill.drain] or [Rill.foreach]).
+  ///
+  /// **Why this is type-safe**: the ideal signature would use a lower type bound:
+  /// ```dart
+  /// Rill<O2> widen<O2 super O>()
+  /// ```
+  /// where `O2 super O` means "O2 is a supertype of O". Dart does not support
+  /// lower type bounds, so restricting the receiver to [Rill<Never>] encodes
+  /// the same constraint at the type level. [Never] is the bottom type —
+  /// [Never] <: [O2] for every [O2] — so the cast
+  /// `Pull<Never, Unit> as Pull<O2, Unit>` always succeeds at runtime.
+  ///
+  /// See also [Rill.append] for the type-preserving concatenation variant.
+  Rill<O2> widen<O2>() => (underlying as Pull<O2, Unit>).rillNoScope;
 }
 
 sealed class OverflowStrategy {
