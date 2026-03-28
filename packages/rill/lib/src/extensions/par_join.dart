@@ -2,6 +2,12 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
+// Sentinel used to signal clean shutdown when a downstream consumer short-circuits
+// (e.g. via take(n)). Distinct from a real error so signalResult can join without raising.
+class _Interruption {
+  const _Interruption();
+}
+
 extension ParJoinOps<O> on Rill<Rill<O>> {
   Rill<O> parJoinUnbounded() => parJoin(Integer.maxValue);
 
@@ -120,7 +126,7 @@ extension ParJoinOps<O> on Rill<Rill<O>> {
           return done.value().flatMap((opt) {
             return opt.fold(
               () => fiber.join().voided(),
-              (err) => IO.raiseError(err),
+              (err) => err is _Interruption ? fiber.join().voided() : IO.raiseError(err),
             );
           });
         }
@@ -128,12 +134,14 @@ extension ParJoinOps<O> on Rill<Rill<O>> {
         return Rill.bracket(
           runOuter().start().productR(outcomeJoiner().start()),
           (fiber) {
-            return stop(none()).productR(
-              // in case of short-circuiting, the `fiberJoiner` would not have had a chance
-              // to wait until all fibers have been joined, so we need to do it manually
-              // by waiting on the counter
-              running.waitUntil((n) => n == 0).productR(signalResult(fiber)),
-            );
+            return done
+                .update((c) => c.fold(() => const Some(_Interruption()), (prev) => Some(prev)))
+                .productR(
+                  // in case of short-circuiting, the `fiberJoiner` would not have had a chance
+                  // to wait until all fibers have been joined, so we need to do it manually
+                  // by waiting on the counter
+                  running.waitUntil((n) => n == 0).productR(signalResult(fiber)),
+                );
           },
         ).flatMap((_) => output.rill.flatMap((o) => Rill.chunk(o)));
       });

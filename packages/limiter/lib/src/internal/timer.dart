@@ -32,7 +32,6 @@ class TimerImpl extends Timer {
   @override
   IO<Unit> get sleep {
     return IO.now.flatMap((start) {
-      // TODO: This rill doesn't ever seem to complete
       return intervalState.discrete
           .switchMap((interval) {
             final action = IO.now.flatMap((now) {
