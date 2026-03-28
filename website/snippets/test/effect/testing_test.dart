@@ -7,27 +7,27 @@ import 'package:test/test.dart';
 
 // testing-matchers
 void matchersTests() {
-  // ioSucceeded asserts the IO completes with a value matching the given matcher.
+  // succeeds asserts the IO completes with a value matching the given matcher.
   test('IO succeeds with 42', () {
     expect(IO.pure(42), succeeds(42));
   });
 
-  // ioSucceeded() with no argument only checks that the IO succeeds.
+  // succeeds() with no argument only checks that the IO succeeds.
   test('IO succeeds (value unchecked)', () {
     expect(IO.print('hello'), succeeds());
   });
 
-  // ioErrored asserts the IO raises an error.
+  // errors asserts the IO raises an error.
   test('IO fails with expected error', () {
     expect(IO.raiseError<int>('boom'), errors('boom'));
   });
 
-  // ioErrored() with no argument only checks that the IO errored.
+  // errors() with no argument only checks that the IO errored.
   test('IO fails (error unchecked)', () {
     expect(IO.raiseError<int>(Exception('oops')), errors());
   });
 
-  // ioCanceled asserts the IO was canceled before completing.
+  // cancels asserts the IO was canceled before completing.
   test('IO is canceled', () {
     expect(IO.canceled, cancels);
   });
@@ -36,7 +36,7 @@ void matchersTests() {
 
 // testing-matchers-advanced
 void advancedMatchersTests() {
-  // ioSucceeded accepts *any* standard test Matcher for the value.
+  // succeeds accepts *any* standard test Matcher for the value.
   test('result satisfies a condition', () {
     expect(IO.pure(ilist([1, 2, 3])).map((xs) => xs.length), succeeds(greaterThan(2)));
   });
@@ -45,7 +45,7 @@ void advancedMatchersTests() {
     expect(IO.pure(42).map((n) => n.toString()), succeeds(isA<String>()));
   });
 
-  // ioErrored also accepts a matcher for the raised error.
+  // errors also accepts a matcher for the raised error.
   test('error message contains keyword', () {
     final io = IO.raiseError<Unit>('connection refused: timeout');
     expect(io, errors(contains('timeout')));
@@ -55,20 +55,27 @@ void advancedMatchersTests() {
 
 // testing-ticker
 void tickerTests() {
-  // .ticked wraps an IO in a Ticker backed by a deterministic virtual clock.
-  // nonTerminating() fast-forwards all pending timers and returns true if
-  // the IO has still not completed — useful for asserting deadlocks.
-  test('IO waiting on an unset Deferred never terminates', () {
-    final d = Deferred.unsafe<int>();
-    expect(d.value().ticked.nonTerminating(), isTrue);
+  // Pass io.ticked directly to any matcher — the matcher calls tickAll()
+  // automatically, so virtual time advances and the test completes instantly.
+  test('IO.sleep fast-forwards with ticked', () {
+    expect(IO.sleep(10.hours).productR(IO.pure('woke up')).ticked, succeeds('woke up'));
   });
 
-  // tickAll() advances through every scheduled sleep without waiting real time.
-  // The IO below would take 10 hours on a real clock; with Ticker it is instant.
-  test('IO.sleep fast-forwards with tickAll', () async {
-    final ticker = IO.sleep(10.hours).productR(IO.pure('woke up')).ticked..tickAll();
+  // You can also use timed() to assert how much virtual time elapsed.
+  test('IO.sleep takes the right virtual duration', () {
+    expect(IO.sleep(3.seconds).timed().map((t) => t.$1).ticked, succeeds(3.seconds));
+  });
 
-    await expectLater(ticker.outcome, completion(Outcome.succeeded('woke up')));
+  // The nonTerminating matcher accepts IO or Ticker directly.
+  // It fast-forwards all pending timers and asserts the IO has not completed.
+  test('IO waiting on an unset Deferred never terminates', () {
+    final d = Deferred.unsafe<int>();
+    expect(d.value(), nonTerminating);
+  });
+
+  // terminates asserts the IO eventually completes (succeeds, errors, or cancels).
+  test('IO.sleep eventually terminates', () {
+    expect(IO.sleep(1.second), terminates);
   });
 }
 // testing-ticker
@@ -85,7 +92,7 @@ IO<A> pollUntil<A>(IO<Option<A>> check, {Duration interval = const Duration(seco
     );
 
 void realWorldTickerTest() {
-  test('pollUntil retries until state is ready', () async {
+  test('pollUntil retries until state is ready', () {
     int attempts = 0;
 
     // Simulated external check: returns None for the first 4 calls, then Some.
@@ -95,10 +102,8 @@ void realWorldTickerTest() {
     });
 
     // Without Ticker, this would sleep for 4 seconds.
-    // With Ticker, tickAll() advances all virtual sleeps instantaneously.
-    final ticker = pollUntil(mockCheck).ticked..tickAll();
-
-    await expectLater(ticker.outcome, completion(Outcome.succeeded(5)));
+    // Passing .ticked to succeeds() advances all virtual sleeps instantaneously.
+    expect(pollUntil(mockCheck).ticked, succeeds(5));
     expect(attempts, 5);
   });
 }

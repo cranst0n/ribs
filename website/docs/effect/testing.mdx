@@ -19,22 +19,25 @@ ribs_effect ships test utilities in `package:ribs_effect/test.dart`:
 ## IO Matchers
 
 The matchers integrate directly with `package:test`'s `expect`. Each matcher
-runs the `IO` through the default runtime and checks the resulting `Outcome`.
+accepts either a plain `IO` (run on the real runtime) or a `Ticker` (run on the
+virtual clock — see [Ticker](#ticker) below).
 
 | Matcher | Passes when |
 |---|---|
-| `ioSucceeded([matcher])` | IO completes with a value; optional `matcher` checked against the value |
-| `ioErrored([matcher])` | IO raises an error; optional `matcher` checked against the error |
-| `ioCanceled()` | IO is canceled before completing |
+| `succeeds([matcher])` | IO completes with a value; optional `matcher` checked against the value |
+| `errors([matcher])` | IO raises an error; optional `matcher` checked against the error |
+| `cancels` | IO is canceled before completing |
+| `terminates` | IO eventually completes (succeeds, errors, or cancels) |
+| `nonTerminating` | IO does not complete after all pending timers are exhausted |
 | `expectIO(actual, matcher)` | Like `expectLater`, but returns `IO<Unit>` for chaining inside IO programs |
 
 <CodeSnippet snippet={TestingSnippet} section="testing-matchers" />
 
 ### Composing with standard matchers
 
-`ioSucceeded` and `ioErrored` accept any `Matcher` from `package:test`, so
-you can compose them with the full set of built-in matchers — `greaterThan`,
-`isA`, `contains`, `hasLength`, and so on.
+`succeeds` and `errors` accept any `Matcher` from `package:test`, so you can
+compose them with the full set of built-in matchers — `greaterThan`, `isA`,
+`contains`, `hasLength`, and so on.
 
 <CodeSnippet snippet={TestingSnippet} section="testing-matchers-advanced" />
 
@@ -50,6 +53,32 @@ would have to wait 10 hours.
 `TestIORuntime`. Time only advances when you tell it to — no real wall-clock
 time ever passes.
 
+### The simple path: pass `io.ticked` to a matcher
+
+All matchers — `succeeds`, `errors`, `cancels`, `terminates`, `nonTerminating`
+— accept a `Ticker` directly. When they receive one, they call `tickAll()`
+automatically before checking the outcome, so you rarely need to manipulate the
+ticker yourself:
+
+```dart
+expect(IO.sleep(3.seconds).ticked, succeeds());
+expect(IO.sleep(3.seconds).productR(IO.raiseError('boom')).ticked, errors('boom'));
+expect(IO.canceled.ticked, cancels);
+```
+
+You can also use `io.ticked` in place of a plain `IO` to run any test with the
+virtual clock:
+
+```dart
+// Runs in microseconds despite the 5-second sleep.
+expect(IO.sleep(5.seconds).productR(IO.pure(42)).ticked, succeeds(42));
+```
+
+### Ticker API
+
+For cases where you need finer control — for instance, interleaving timer
+advances with intermediate assertions — you can operate on the `Ticker` directly:
+
 | Method / property | Description |
 |---|---|
 | `io.ticked` | Start `io` on a `TestIORuntime` and return a `Ticker<A>` |
@@ -64,10 +93,6 @@ time ever passes.
 
 <CodeSnippet snippet={TestingSnippet} section="testing-ticker" />
 
-`nonTerminating()` is the standard way to assert that an IO is permanently
-stuck — for example, verifying that acquiring a semaphore with zero permits
-truly suspends rather than proceeding or erroring.
-
 ---
 
 ## Real-world example: testing a polling loop
@@ -79,7 +104,7 @@ every sleep is skipped and the entire retry chain completes in microseconds.
 
 <CodeSnippet snippet={TestingSnippet} section="testing-ticker-realworld" />
 
-The cascade `..tickAll()` advances the virtual clock through all four
-one-second sleeps in sequence. The test verifies not just the final value, but
-also that the correct number of attempts were made — something that would be
-difficult to assert reliably against wall-clock time.
+Passing `io.ticked` to `succeeds` advances the virtual clock automatically.
+The test verifies not just the final value, but also that the correct number of
+attempts were made — something that would be difficult to assert reliably
+against wall-clock time.
