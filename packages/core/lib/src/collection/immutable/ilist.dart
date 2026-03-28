@@ -444,8 +444,22 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   @override
   (IList<A>, IList<A>) partition(Function1<A, bool> p) {
-    final (first, second) = super.partition(p);
-    return (first.toIList(), second.toIList());
+    final yes = builder<A>();
+    final no = builder<A>();
+
+    var these = this;
+
+    while (these.nonEmpty) {
+      if (p(these.head)) {
+        yes.addOne(these.head);
+      } else {
+        no.addOne(these.head);
+      }
+
+      these = these.tail;
+    }
+
+    return (yes.toIList(), no.toIList());
   }
 
   @override
