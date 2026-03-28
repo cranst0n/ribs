@@ -8,18 +8,19 @@
 [![CI](https://github.com/cranst0n/ribs/actions/workflows/ci.yml/badge.svg)](https://github.com/cranst0n/ribs/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/cranst0n/ribs/branch/main/graph/badge.svg?token=12627T0AO0)](https://codecov.io/gh/cranst0n/ribs)
 
+[![binary](https://img.shields.io/pub/v/ribs_binary?label=ribs_binary&color=00c000)](https://pub.dev/packages/ribs_binary)
+[![check](https://img.shields.io/pub/v/ribs_check?label=ribs_check&color=00c000)](https://pub.dev/packages/ribs_check)
 [![core](https://img.shields.io/pub/v/ribs_core?label=ribs_core&color=00c000)](https://pub.dev/packages/ribs_core)
 [![effect](https://img.shields.io/pub/v/ribs_effect?label=ribs_effect&color=00c000)](https://pub.dev/packages/ribs_effect)
-[![json](https://img.shields.io/pub/v/ribs_json?label=ribs_json&color=00c000)](https://pub.dev/packages/ribs_json)
-[![binary](https://img.shields.io/pub/v/ribs_binary?label=ribs_binary&color=00c000)](https://pub.dev/packages/ribs_binary)
-[![optics](https://img.shields.io/pub/v/ribs_optics?label=ribs_optics&color=00c000)](https://pub.dev/packages/ribs_optics)
-[![units](https://img.shields.io/pub/v/ribs_units?label=ribs_units&color=00c000)](https://pub.dev/packages/ribs_units)
-[![check](https://img.shields.io/pub/v/ribs_check?label=ribs_check&color=00c000)](https://pub.dev/packages/ribs_check)
-[![ip](https://img.shields.io/pub/v/ribs_ip?label=ribs_ip&color=00c000)](https://pub.dev/packages/ribs_ip)
-
 ![http](https://img.shields.io/badge/ribs__http-unpublished-f00000)
+[![ip](https://img.shields.io/pub/v/ribs_ip?label=ribs_ip&color=00c000)](https://pub.dev/packages/ribs_ip)
+[![json](https://img.shields.io/pub/v/ribs_json?label=ribs_json&color=00c000)](https://pub.dev/packages/ribs_json)
+[![optics](https://img.shields.io/pub/v/ribs_optics?label=ribs_optics&color=00c000)](https://pub.dev/packages/ribs_optics)
+![postgres](https://img.shields.io/badge/ribs__postgres-unpublished-f00000)
 ![rill](https://img.shields.io/badge/ribs__rill-unpublished-f00000)
 ![sqlite](https://img.shields.io/badge/ribs__sqlite-unpublished-f00000)
+[![units](https://img.shields.io/pub/v/ribs_units?label=ribs_units&color=00c000)](https://pub.dev/packages/ribs_units)
+
 
 **🧪 Experimental FP packages for Dart 🧪**
 
@@ -34,14 +35,15 @@
 
 **rill**
 
-While the existing library is somewhat useful for tinkering around there are at least 2 major
-roadblocks that should be addressed before rill is reliably useful in the wild:
+***Coming Soon***
 
-* [Lower Type Bounds][https://github.com/dart-lang/language/issues/1674]
-* [Variance][https://github.com/dart-lang/language/issues/213]
+**sqlite**
 
-Both of these features exist in Scala, which in part, is what makes fs2 work so
-well. Lack of these features severly limits the general usefulness.
+***Coming Soon***
+
+**postgres**
+
+***Coming Soon***
 
 **http**
 
@@ -52,21 +54,14 @@ of the ribs ecosystem. If you want to do anything mildly out of the ordinary, ch
 have to build something yourself. ribs_http should also be dependent on rill, so until a good
 streaming library exists, the utility is limited here.
 
-**sqlite**
-
-This is still a fairly immature library but has proven useful in my toy projects so could be
-published at some point.
-
 ---
 
 ### Alternatives
 
-There are more battle tested libraries available that have overlapping
-features, as well as additional features not found here, so you should
-certainly consider using them. They all bring some things to the table
-that you won't find here.
+There are battle tested libraries available that have overlapping features, as well as
+additional features not found here, so you should certainly consider using them. They all bring
+some things to the table that you may not find here.
 
-* [dartz](https://github.com/spebbe/dartz)
 * [fpdart](https://github.com/SandroMaglione/fpdart)
 * [FIC](https://pub.dev/packages/fast_immutable_collections)
 
