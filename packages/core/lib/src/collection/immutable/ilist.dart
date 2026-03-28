@@ -464,7 +464,20 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
 
   @override
   (IList<A1>, IList<A2>) partitionMap<A1, A2>(Function1<A, Either<A1, A2>> f) {
-    final (l, r) = super.partitionMap(f);
+    final l = builder<A1>();
+    final r = builder<A2>();
+
+    var these = this;
+
+    while (these.nonEmpty) {
+      f(these.head).fold(
+        (x1) => l.addOne(x1),
+        (x2) => r.addOne(x2),
+      );
+
+      these = these.tail;
+    }
+
     return (l.toIList(), r.toIList());
   }
 
