@@ -12,6 +12,7 @@ workspace:
   - packages/http
   - packages/ip
   - packages/json
+  - packages/limiter
   - packages/optics
   - packages/postgres
   - packages/rill

@@ -9,7 +9,7 @@ void main() {
 
     test('await is blocking', () {
       final test = newBarrier(2).flatMap((barrier) => barrier.await());
-      expect(test.ticked.nonTerminating(), isTrue);
+      expect(test, nonTerminating);
     });
 
     test('await is cancelable', () {
@@ -31,7 +31,7 @@ void main() {
         return (barrier.await(), barrier.await()).parTupled.productR(barrier.await());
       });
 
-      expect(test.ticked.nonTerminating(), isTrue);
+      expect(test, nonTerminating);
     });
 
     test('should clean up upon cancelation of await', () {
@@ -39,7 +39,7 @@ void main() {
         return barrier.await().timeoutTo(1.second, IO.unit).productR(barrier.await());
       });
 
-      expect(test.ticked.nonTerminating(), isTrue);
+      expect(test, nonTerminating);
     });
 
     test('barrier of capacity 1 is a no op', () {

@@ -479,6 +479,9 @@ class Rill<O> {
 
   Rill<O> append(Function0<Rill<O>> s2) => underlying.append(() => s2().underlying).rillNoScope;
 
+  Rill<O2> appendUnsafe<O2>(Function0<Rill<O2>> s2) =>
+      underlying.append(() => s2().underlying).rillNoScope;
+
   Rill<O2> as<O2>(O2 o2) => map((_) => o2);
 
   Rill<Either<Object, O>> attempt() =>

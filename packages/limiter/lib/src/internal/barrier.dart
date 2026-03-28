@@ -3,9 +3,10 @@ import 'package:ribs_effect/ribs_effect.dart';
 
 abstract class Barrier {
   static IO<Barrier> create(int initialLimit) {
-    return IO.whenA(initialLimit <= 0, () => IO.raiseError<Barrier>(limitViolation)).productR(() {
-      return Ref.of(State(0, initialLimit, none())).map(BarrierImpl.new);
-    });
+    return IO
+        .raiseError<Barrier>(limitViolation)
+        .whenA(initialLimit <= 0)
+        .productR(Ref.of(State(0, initialLimit, none())).map(BarrierImpl.new));
   }
 
   IO<int> get limit;
@@ -40,7 +41,7 @@ class BarrierImpl extends Barrier {
           } else {
             return (
               State(st.running, st.limit, Some(wait)),
-              waitForChanges.productR(() => enter()),
+              waitForChanges.productR(enter()),
             );
           }
         }).flatten();
@@ -80,7 +81,7 @@ class BarrierImpl extends Barrier {
         if (newLimit <= 0) {
           return (st, IO.raiseError<Unit>(limitViolation));
         } else if (st.running < newLimit) {
-          return (State(st.running, newLimit, st.waiting), wakeUp(st.waiting));
+          return (State(st.running, newLimit, none()), wakeUp(st.waiting));
         } else {
           return (State(st.running, newLimit, st.waiting), IO.unit);
         }

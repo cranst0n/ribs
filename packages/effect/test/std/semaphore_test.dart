@@ -9,7 +9,7 @@ void main() {
 
     test('execute action if permit is available for it', () {
       final test = sc(0).flatMap((sem) => sem.permit().surround(IO.unit));
-      expect(test.ticked.nonTerminating(), isTrue);
+      expect(test, nonTerminating);
     });
 
     test('tryPermit returns true if permit is available for it', () {
@@ -89,7 +89,7 @@ void main() {
         });
       });
 
-      expect(test.ticked.nonTerminating(), isTrue);
+      expect(test, nonTerminating);
     });
 
     test('release permit if action gets canceled', () {
@@ -143,7 +143,7 @@ void main() {
         });
       });
 
-      expect(test.ticked.nonTerminating(), isTrue);
+      expect(test, nonTerminating);
     });
 
     test('acquire n synchronosly', () {

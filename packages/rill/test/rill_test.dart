@@ -239,9 +239,8 @@ void main() {
     ]).repeat().evalTap((c) => IO.exec(() => buffer.write(c)).delayBy(250.milliseconds));
 
     final test = rillA.concurrently(rillB).compile.toIList;
-    final ticker = test.ticked..tickAll();
 
-    await expectLater(ticker.outcome, completion(Outcome.succeeded(ilist([0, 1, 2, 3, 4]))));
+    await expectLater(test.ticked, succeeds(ilist([0, 1, 2, 3, 4])));
     expect(buffer.toString(), 'ab!');
   });
 
@@ -660,9 +659,7 @@ void main() {
           .flatMap((_) => st.value());
     });
 
-    final ticker = Ticker.ticked(program)..tickAll();
-
-    expect(ticker.outcome, completion(Outcome.succeeded(ilist([0, 2, 4]))));
+    expect(program.ticked, succeeds(ilist([0, 2, 4])));
   });
 
   group('ifEmpty', () {
@@ -872,13 +869,13 @@ void main() {
   });
 
   group('merge', () {
-    test('delayed', () async {
+    test('delayed', () {
       final rillA = Rill.range(0, 5, chunkSize: 1).evalTap((_) => IO.sleep(75.milliseconds));
       final rillB = Rill.range(5, 10, chunkSize: 1).evalTap((_) => IO.sleep(200.milliseconds));
 
-      final test = Ticker.ticked(rillA.merge(rillB).compile.toIList)..tickAll();
+      final test = rillA.merge(rillB).compile.toIList;
 
-      expect(await test.outcome, Outcome.succeeded(ilist([0, 1, 5, 2, 3, 4, 6, 7, 8, 9])));
+      expect(test.ticked, succeeds(ilist([0, 1, 5, 2, 3, 4, 6, 7, 8, 9])));
     });
 
     test('merge - error propogation (right)', () async {
@@ -1290,14 +1287,12 @@ void main() {
   });
 
   group('switchMap', () {
-    test('basic', () async {
+    test('basic', () {
       Rill<String> inner(int n) =>
           Rill.awakeEvery(250.milliseconds).zipWithIndex().mapN((_, idx) => '$n-$idx').take(5);
 
       final outer = Rill.awakeEvery(1.second).zipWithIndex().mapN((_, idx) => idx).take(5);
-
-      final ticked = Ticker.ticked(outer.switchMap(inner).compile.toIList)..tickAll();
-      final result = await ticked.outcome;
+      final test = outer.switchMap(inner).compile.toIList;
 
       final expected = ilist([
         '0-0',
@@ -1323,7 +1318,7 @@ void main() {
         '4-4',
       ]);
 
-      expect(result, Outcome.succeeded(expected));
+      expect(test.ticked, succeeds(expected));
     });
   });
 

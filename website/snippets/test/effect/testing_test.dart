@@ -29,7 +29,7 @@ void matchersTests() {
 
   // ioCanceled asserts the IO was canceled before completing.
   test('IO is canceled', () {
-    expect(IO.canceled, cancels());
+    expect(IO.canceled, cancels);
   });
 }
 // testing-matchers

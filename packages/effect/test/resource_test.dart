@@ -1,5 +1,6 @@
 import 'package:ribs_check/ribs_check.dart';
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/test.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/test.dart';
 import 'package:test/test.dart';
@@ -60,13 +61,7 @@ void main() {
       ).use_().timeout(1.second).attempt().productR(interrupted.value());
     });
 
-    final ticker = test.ticked;
-    ticker.tickAll();
-
-    expect(
-      ticker.outcome,
-      completion((Outcome<bool> oc) => oc == Outcome.succeeded(false)),
-    );
+    expect(test.ticked, succeeds(false));
   });
 
   test('makes acquires non interruptible, overriding uncancelable', () {
@@ -81,12 +76,7 @@ void main() {
       ).use_().timeout(1.second).attempt().productR(interrupted.value());
     });
 
-    final ticker = test.ticked..tickAll();
-
-    expect(
-      ticker.outcome,
-      completion((Outcome<bool> oc) => oc == Outcome.succeeded(false)),
-    );
+    expect(test.ticked, succeeds(false));
   });
 
   test('releases resource if interruption happens during use', () {
@@ -106,12 +96,7 @@ void main() {
           .productR((acquireFin.value(), resourceFin.value()).tupled);
     });
 
-    final ticker = test.ticked..tickAll();
-
-    expect(
-      ticker.outcome,
-      completion((Outcome<(bool, bool)> oc) => oc == Outcome.succeeded((false, true))),
-    );
+    expect(test.ticked, succeeds((false, true)));
   });
 
   test('supports interruptible acquires', () {
@@ -131,12 +116,7 @@ void main() {
           .productR((acquireFin.value(), resourceFin.value()).tupled);
     });
 
-    final ticker = test.ticked..tickAll();
-
-    expect(
-      ticker.outcome,
-      completion((Outcome<(bool, bool)> oc) => oc == Outcome.succeeded((true, false))),
-    );
+    expect(test.ticked, succeeds((true, false)));
   });
 
   test('supports interruptible acquires, respecting uncancelable', () {
@@ -163,15 +143,7 @@ void main() {
           .productR((a.value(), b.value(), acquireFin.value(), resourceFin.value()).tupled);
     });
 
-    final ticker = test.ticked..tickAll();
-
-    expect(
-      ticker.outcome,
-      completion(
-        (Outcome<(bool, bool, bool, bool)> oc) =>
-            oc == Outcome.succeeded((false, true, true, false)),
-      ),
-    );
+    expect(test.ticked, succeeds((false, true, true, false)));
   });
 
   test('release is always uninterruptible', () {
@@ -185,12 +157,7 @@ void main() {
       return resource.use_().timeout(500.milliseconds).attempt().productR(releaseComplete.value());
     });
 
-    final ticker = test.ticked..tickAll();
-
-    expect(
-      ticker.outcome,
-      completion((Outcome<bool> oc) => oc == Outcome.succeeded(true)),
-    );
+    expect(test.ticked, succeeds(true));
   });
 
   test('pure', () {
@@ -267,9 +234,7 @@ void main() {
 
       final test = r.use_().attempt().voided();
 
-      final ticker = test.ticked..tickAll();
-
-      expect(ticker.outcome, completion(Outcome.succeeded(Unit())));
+      expect(test.ticked, succeeds(Unit()));
       expect(released, as.map((t) => t.$1));
     },
   );
@@ -341,9 +306,7 @@ void main() {
         final p = rhs ? Resource.both(r, Resource.unit) : Resource.both(Resource.unit, r);
         final test = p.use_().attempt().voided();
 
-        final ticker = test.ticked..tickAll();
-
-        expect(ticker.outcome, completion(Outcome.succeeded(Unit())));
+        expect(test.ticked, succeeds(Unit()));
         expect(released, as.map((t) => t.$1));
       },
     );
@@ -531,7 +494,7 @@ void main() {
         ExitCase? got;
         final r = Resource.unit.onFinalizeCase((ec) => IO.exec(() => got = ec));
 
-        await expectLater(Resource.both(r, Resource.unit).use((_) => IO.canceled), cancels());
+        await expectLater(Resource.both(r, Resource.unit).use((_) => IO.canceled), cancels);
         expect(got, ExitCase.canceled());
       });
 
@@ -539,7 +502,7 @@ void main() {
         ExitCase? got;
         final r = Resource.unit.onFinalizeCase((ec) => IO.exec(() => got = ec));
 
-        await expectLater(Resource.both(Resource.unit, r).use((_) => IO.canceled), cancels());
+        await expectLater(Resource.both(Resource.unit, r).use((_) => IO.canceled), cancels);
         expect(got, ExitCase.canceled());
       });
 
@@ -552,7 +515,7 @@ void main() {
             Resource.eval(IO.sleep(1.second).productR(IO.canceled)),
             r,
           ).use((_) => IO.canceled),
-          cancels(),
+          cancels,
         );
         expect(got, ExitCase.canceled());
       });
@@ -566,7 +529,7 @@ void main() {
             r,
             Resource.eval(IO.sleep(1.second).productR(IO.canceled)),
           ).use((_) => IO.canceled),
-          cancels(),
+          cancels,
         );
         expect(got, ExitCase.canceled());
       });
@@ -730,8 +693,7 @@ void main() {
         return res.use_().timeout(1.second).attempt().productR(canceled.value());
       });
 
-      final ticker = test.ticked..tickAll();
-      expect(ticker.outcome, completion((Outcome<bool> oc) => oc == Outcome.succeeded(true)));
+      expect(test.ticked, succeeds(true));
     });
   });
 
@@ -781,7 +743,7 @@ void main() {
           .guaranteeCase(
             (oc) => Resource.eval(IO.exec(() => got = oc)),
           );
-      await expectLater(res.use(IO.pure), cancels());
+      await expectLater(res.use(IO.pure), cancels);
       expect(got, Outcome.canceled<int>());
     });
   });
@@ -814,20 +776,13 @@ void main() {
   group('never', () {
     test('non-terminating resource is cancelable', () {
       final test = Resource.never<int>().use(IO.pure).timeout(1.second).attempt();
-      final ticker = test.ticked..tickAll();
-      expect(
-        ticker.outcome,
-        completion(
-          (Outcome<Either<Object, int>> oc) =>
-              oc.fold(() => false, (err, st) => false, (e) => e.isLeft),
-        ),
-      );
+      expect(test.ticked, succeeds(isLeft()));
     });
   });
 
   group('canceled', () {
     test('immediately canceled resource cancels use', () {
-      expect(Resource.canceled.use_(), cancels());
+      expect(Resource.canceled.use_(), cancels);
     });
   });
 
@@ -905,8 +860,7 @@ void main() {
         );
       });
 
-      final ticker = test.ticked..tickAll();
-      expect(ticker.outcome, completion((Outcome<bool> oc) => oc == Outcome.succeeded(true)));
+      expect(test.ticked, succeeds(true));
     });
   });
 
@@ -951,54 +905,32 @@ void main() {
       final left = Resource.make(IO.pure(1), (_) => IO.unit);
       final right = Resource.make(IO.sleep(5.seconds).productR(IO.pure(2)), (_) => IO.unit);
       final test = Resource.race(left, right).use(IO.pure);
-      final ticker = test.ticked..tickAll();
-      expect(
-        ticker.outcome,
-        completion(
-          (Outcome<Either<int, int>> oc) => oc == Outcome.succeeded(const Left<int, int>(1)),
-        ),
-      );
+
+      expect(test.ticked, succeeds(const Left<int, int>(1)));
     });
 
     test('returns winner value when right wins', () {
       final left = Resource.make(IO.sleep(5.seconds).productR(IO.pure(1)), (_) => IO.unit);
       final right = Resource.make(IO.pure(2), (_) => IO.unit);
       final test = Resource.race(left, right).use(IO.pure);
-      final ticker = test.ticked..tickAll();
-      expect(
-        ticker.outcome,
-        completion(
-          (Outcome<Either<int, int>> oc) => oc == Outcome.succeeded(const Right<int, int>(2)),
-        ),
-      );
+
+      expect(test.ticked, succeeds(const Right<int, int>(2)));
     });
 
     test('propagates left error', () {
       final left = Resource.eval(IO.raiseError<int>('left-boom'));
       final right = Resource.make(IO.sleep(5.seconds).productR(IO.pure(2)), (_) => IO.unit);
       final test = Resource.race(left, right).use(IO.pure);
-      final ticker = test.ticked..tickAll();
-      expect(
-        ticker.outcome,
-        completion(
-          (Outcome<Either<int, int>> oc) =>
-              oc.fold(() => false, (err, _) => err == 'left-boom', (_) => false),
-        ),
-      );
+
+      expect(test.ticked, errors('left-boom'));
     });
 
     test('propagates right error', () {
       final left = Resource.make(IO.sleep(5.seconds).productR(IO.pure(1)), (_) => IO.unit);
       final right = Resource.eval(IO.raiseError<int>('right-boom'));
       final test = Resource.race(left, right).use(IO.pure);
-      final ticker = test.ticked..tickAll();
-      expect(
-        ticker.outcome,
-        completion(
-          (Outcome<Either<int, int>> oc) =>
-              oc.fold(() => false, (err, _) => err == 'right-boom', (_) => false),
-        ),
-      );
+
+      expect(test.ticked, errors('right-boom'));
     });
   });
 }

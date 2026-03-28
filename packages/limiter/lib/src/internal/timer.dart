@@ -3,7 +3,7 @@ import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
 abstract class Timer {
-  IO<Timer> create(Duration initialDuration) =>
+  static IO<Timer> create(Duration initialDuration) =>
       SignallingRef.of(initialDuration).map(TimerImpl.new);
 
   IO<Duration> get interval;
@@ -32,13 +32,14 @@ class TimerImpl extends Timer {
   @override
   IO<Unit> get sleep {
     return IO.now.flatMap((start) {
+      // TODO: This rill doesn't ever seem to complete
       return intervalState.discrete
           .switchMap((interval) {
             final action = IO.now.flatMap((now) {
               final elapsed = now.difference(start);
               final toSleep = interval - elapsed;
 
-              return IO.whenA(toSleep.inMicroseconds > 0, () => IO.sleep(toSleep));
+              return IO.sleep(toSleep).whenA(toSleep.inMicroseconds > 0);
             });
 
             return Rill.eval(action);

@@ -26,14 +26,14 @@ final class Task<A> {
       return winner.fold(
         (taskWon) {
           final (taskResult, waitForStopSignal) = taskWon;
-          return waitForStopSignal.cancel().productR(() => result.complete(taskResult)).voided();
+          return waitForStopSignal.cancel().productR(result.complete(taskResult)).voided();
         },
         (cancelWon) {
           final (runningTask, _) = cancelWon;
 
           return runningTask
               .cancel()
-              .productR(() => runningTask.join().flatMap((oc) => result.complete(oc)))
+              .productR(runningTask.join().flatMap((oc) => result.complete(oc)))
               .voided();
         },
       );
@@ -41,8 +41,8 @@ final class Task<A> {
   });
 
   IO<Unit> get cancel =>
-      IO.uncancelable((_) => stopSignal.complete(Unit()).productR(() => result.value().voided()));
+      IO.uncancelable((_) => stopSignal.complete(Unit()).productR(result.value().voided()));
 
   IO<A> get awaitResult =>
-      result.value().flatMap((value) => value.embed(IO.canceled.productR(() => IO.never())));
+      result.value().flatMap((value) => value.embed(IO.canceled.productR(IO.never())));
 }
