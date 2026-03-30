@@ -1,0 +1,2877 @@
+import { r as resolveComponent, o as openBlock, c as createElementBlock, a as createBaseVNode, b as createTextVNode, d as createVNode, e as createStaticVNode, _ as _export_sfc } from "./app.CBVmC2fl.js";
+const __pageData = JSON.parse('{"title":"Right<A, B>","description":"API documentation for Right<A, B> class from ribs_core","frontmatter":{"title":"Right<A, B>","description":"API documentation for Right<A, B> class from ribs_core","category":"Classes","library":"ribs_core","outline":[2,3],"outlineCollapsible":true,"editLink":false,"prev":false,"next":false},"headers":[],"relativePath":"api/package-ribs_core_ribs_core/Right.md","filePath":"api/package-ribs_core_ribs_core/Right.md"}');
+const _sfc_main = { name: "api/package-ribs_core_ribs_core/Right.md" };
+const _hoisted_1 = {
+  id: "right-a-b",
+  tabindex: "-1"
+};
+const _hoisted_2 = {
+  id: "ctor-right",
+  tabindex: "-1"
+};
+const _hoisted_3 = {
+  id: "prop-b",
+  tabindex: "-1"
+};
+const _hoisted_4 = {
+  id: "prop-hashcode",
+  tabindex: "-1"
+};
+const _hoisted_5 = {
+  id: "prop-isleft",
+  tabindex: "-1"
+};
+const _hoisted_6 = {
+  id: "prop-isright",
+  tabindex: "-1"
+};
+const _hoisted_7 = {
+  id: "prop-runtimetype",
+  tabindex: "-1"
+};
+const _hoisted_8 = {
+  id: "ap",
+  tabindex: "-1"
+};
+const _hoisted_9 = {
+  id: "bimap",
+  tabindex: "-1"
+};
+const _hoisted_10 = {
+  id: "contains",
+  tabindex: "-1"
+};
+const _hoisted_11 = {
+  id: "ensure",
+  tabindex: "-1"
+};
+const _hoisted_12 = {
+  id: "exists",
+  tabindex: "-1"
+};
+const _hoisted_13 = {
+  id: "filterorelse",
+  tabindex: "-1"
+};
+const _hoisted_14 = {
+  id: "flatmap",
+  tabindex: "-1"
+};
+const _hoisted_15 = {
+  id: "fold",
+  tabindex: "-1"
+};
+const _hoisted_16 = {
+  id: "foldleft",
+  tabindex: "-1"
+};
+const _hoisted_17 = {
+  id: "foldright",
+  tabindex: "-1"
+};
+const _hoisted_18 = {
+  id: "forall",
+  tabindex: "-1"
+};
+const _hoisted_19 = {
+  id: "foreach",
+  tabindex: "-1"
+};
+const _hoisted_20 = {
+  id: "getorelse",
+  tabindex: "-1"
+};
+const _hoisted_21 = {
+  id: "leftmap",
+  tabindex: "-1"
+};
+const _hoisted_22 = {
+  id: "map",
+  tabindex: "-1"
+};
+const _hoisted_23 = {
+  id: "nosuchmethod",
+  tabindex: "-1"
+};
+const _hoisted_24 = {
+  id: "orelse",
+  tabindex: "-1"
+};
+const _hoisted_25 = {
+  id: "product",
+  tabindex: "-1"
+};
+const _hoisted_26 = {
+  id: "swap",
+  tabindex: "-1"
+};
+const _hoisted_27 = {
+  id: "toilist",
+  tabindex: "-1"
+};
+const _hoisted_28 = {
+  id: "tooption",
+  tabindex: "-1"
+};
+const _hoisted_29 = {
+  id: "tostring",
+  tabindex: "-1"
+};
+const _hoisted_30 = {
+  id: "tovalidated",
+  tabindex: "-1"
+};
+const _hoisted_31 = {
+  id: "ensuren",
+  tabindex: "-1"
+};
+const _hoisted_32 = {
+  id: "ensuren-2",
+  tabindex: "-1"
+};
+const _hoisted_33 = {
+  id: "ensuren-3",
+  tabindex: "-1"
+};
+const _hoisted_34 = {
+  id: "ensuren-4",
+  tabindex: "-1"
+};
+const _hoisted_35 = {
+  id: "ensuren-5",
+  tabindex: "-1"
+};
+const _hoisted_36 = {
+  id: "ensuren-6",
+  tabindex: "-1"
+};
+const _hoisted_37 = {
+  id: "ensuren-7",
+  tabindex: "-1"
+};
+const _hoisted_38 = {
+  id: "ensuren-8",
+  tabindex: "-1"
+};
+const _hoisted_39 = {
+  id: "ensuren-9",
+  tabindex: "-1"
+};
+const _hoisted_40 = {
+  id: "ensuren-10",
+  tabindex: "-1"
+};
+const _hoisted_41 = {
+  id: "ensuren-11",
+  tabindex: "-1"
+};
+const _hoisted_42 = {
+  id: "ensuren-12",
+  tabindex: "-1"
+};
+const _hoisted_43 = {
+  id: "ensuren-13",
+  tabindex: "-1"
+};
+const _hoisted_44 = {
+  id: "ensuren-14",
+  tabindex: "-1"
+};
+const _hoisted_45 = {
+  id: "ensuren-15",
+  tabindex: "-1"
+};
+const _hoisted_46 = {
+  id: "ensuren-16",
+  tabindex: "-1"
+};
+const _hoisted_47 = {
+  id: "ensuren-17",
+  tabindex: "-1"
+};
+const _hoisted_48 = {
+  id: "ensuren-18",
+  tabindex: "-1"
+};
+const _hoisted_49 = {
+  id: "ensuren-19",
+  tabindex: "-1"
+};
+const _hoisted_50 = {
+  id: "ensuren-20",
+  tabindex: "-1"
+};
+const _hoisted_51 = {
+  id: "ensuren-21",
+  tabindex: "-1"
+};
+const _hoisted_52 = {
+  id: "filterorelsen",
+  tabindex: "-1"
+};
+const _hoisted_53 = {
+  id: "filterorelsen-2",
+  tabindex: "-1"
+};
+const _hoisted_54 = {
+  id: "filterorelsen-3",
+  tabindex: "-1"
+};
+const _hoisted_55 = {
+  id: "filterorelsen-4",
+  tabindex: "-1"
+};
+const _hoisted_56 = {
+  id: "filterorelsen-5",
+  tabindex: "-1"
+};
+const _hoisted_57 = {
+  id: "filterorelsen-6",
+  tabindex: "-1"
+};
+const _hoisted_58 = {
+  id: "filterorelsen-7",
+  tabindex: "-1"
+};
+const _hoisted_59 = {
+  id: "filterorelsen-8",
+  tabindex: "-1"
+};
+const _hoisted_60 = {
+  id: "filterorelsen-9",
+  tabindex: "-1"
+};
+const _hoisted_61 = {
+  id: "filterorelsen-10",
+  tabindex: "-1"
+};
+const _hoisted_62 = {
+  id: "filterorelsen-11",
+  tabindex: "-1"
+};
+const _hoisted_63 = {
+  id: "filterorelsen-12",
+  tabindex: "-1"
+};
+const _hoisted_64 = {
+  id: "filterorelsen-13",
+  tabindex: "-1"
+};
+const _hoisted_65 = {
+  id: "filterorelsen-14",
+  tabindex: "-1"
+};
+const _hoisted_66 = {
+  id: "filterorelsen-15",
+  tabindex: "-1"
+};
+const _hoisted_67 = {
+  id: "filterorelsen-16",
+  tabindex: "-1"
+};
+const _hoisted_68 = {
+  id: "filterorelsen-17",
+  tabindex: "-1"
+};
+const _hoisted_69 = {
+  id: "filterorelsen-18",
+  tabindex: "-1"
+};
+const _hoisted_70 = {
+  id: "filterorelsen-19",
+  tabindex: "-1"
+};
+const _hoisted_71 = {
+  id: "filterorelsen-20",
+  tabindex: "-1"
+};
+const _hoisted_72 = {
+  id: "filterorelsen-21",
+  tabindex: "-1"
+};
+const _hoisted_73 = {
+  id: "flatmapn",
+  tabindex: "-1"
+};
+const _hoisted_74 = {
+  id: "flatmapn-2",
+  tabindex: "-1"
+};
+const _hoisted_75 = {
+  id: "flatmapn-3",
+  tabindex: "-1"
+};
+const _hoisted_76 = {
+  id: "flatmapn-4",
+  tabindex: "-1"
+};
+const _hoisted_77 = {
+  id: "flatmapn-5",
+  tabindex: "-1"
+};
+const _hoisted_78 = {
+  id: "flatmapn-6",
+  tabindex: "-1"
+};
+const _hoisted_79 = {
+  id: "flatmapn-7",
+  tabindex: "-1"
+};
+const _hoisted_80 = {
+  id: "flatmapn-8",
+  tabindex: "-1"
+};
+const _hoisted_81 = {
+  id: "flatmapn-9",
+  tabindex: "-1"
+};
+const _hoisted_82 = {
+  id: "flatmapn-10",
+  tabindex: "-1"
+};
+const _hoisted_83 = {
+  id: "flatmapn-11",
+  tabindex: "-1"
+};
+const _hoisted_84 = {
+  id: "flatmapn-12",
+  tabindex: "-1"
+};
+const _hoisted_85 = {
+  id: "flatmapn-13",
+  tabindex: "-1"
+};
+const _hoisted_86 = {
+  id: "flatmapn-14",
+  tabindex: "-1"
+};
+const _hoisted_87 = {
+  id: "flatmapn-15",
+  tabindex: "-1"
+};
+const _hoisted_88 = {
+  id: "flatmapn-16",
+  tabindex: "-1"
+};
+const _hoisted_89 = {
+  id: "flatmapn-17",
+  tabindex: "-1"
+};
+const _hoisted_90 = {
+  id: "flatmapn-18",
+  tabindex: "-1"
+};
+const _hoisted_91 = {
+  id: "flatmapn-19",
+  tabindex: "-1"
+};
+const _hoisted_92 = {
+  id: "flatmapn-20",
+  tabindex: "-1"
+};
+const _hoisted_93 = {
+  id: "flatmapn-21",
+  tabindex: "-1"
+};
+const _hoisted_94 = {
+  id: "flatten",
+  tabindex: "-1"
+};
+const _hoisted_95 = {
+  id: "foldn",
+  tabindex: "-1"
+};
+const _hoisted_96 = {
+  id: "foldn-2",
+  tabindex: "-1"
+};
+const _hoisted_97 = {
+  id: "foldn-3",
+  tabindex: "-1"
+};
+const _hoisted_98 = {
+  id: "foldn-4",
+  tabindex: "-1"
+};
+const _hoisted_99 = {
+  id: "foldn-5",
+  tabindex: "-1"
+};
+const _hoisted_100 = {
+  id: "foldn-6",
+  tabindex: "-1"
+};
+const _hoisted_101 = {
+  id: "foldn-7",
+  tabindex: "-1"
+};
+const _hoisted_102 = {
+  id: "foldn-8",
+  tabindex: "-1"
+};
+const _hoisted_103 = {
+  id: "foldn-9",
+  tabindex: "-1"
+};
+const _hoisted_104 = {
+  id: "foldn-10",
+  tabindex: "-1"
+};
+const _hoisted_105 = {
+  id: "foldn-11",
+  tabindex: "-1"
+};
+const _hoisted_106 = {
+  id: "foldn-12",
+  tabindex: "-1"
+};
+const _hoisted_107 = {
+  id: "foldn-13",
+  tabindex: "-1"
+};
+const _hoisted_108 = {
+  id: "foldn-14",
+  tabindex: "-1"
+};
+const _hoisted_109 = {
+  id: "foldn-15",
+  tabindex: "-1"
+};
+const _hoisted_110 = {
+  id: "foldn-16",
+  tabindex: "-1"
+};
+const _hoisted_111 = {
+  id: "foldn-17",
+  tabindex: "-1"
+};
+const _hoisted_112 = {
+  id: "foldn-18",
+  tabindex: "-1"
+};
+const _hoisted_113 = {
+  id: "foldn-19",
+  tabindex: "-1"
+};
+const _hoisted_114 = {
+  id: "foldn-20",
+  tabindex: "-1"
+};
+const _hoisted_115 = {
+  id: "foldn-21",
+  tabindex: "-1"
+};
+const _hoisted_116 = {
+  id: "foreachn",
+  tabindex: "-1"
+};
+const _hoisted_117 = {
+  id: "foreachn-2",
+  tabindex: "-1"
+};
+const _hoisted_118 = {
+  id: "foreachn-3",
+  tabindex: "-1"
+};
+const _hoisted_119 = {
+  id: "foreachn-4",
+  tabindex: "-1"
+};
+const _hoisted_120 = {
+  id: "foreachn-5",
+  tabindex: "-1"
+};
+const _hoisted_121 = {
+  id: "foreachn-6",
+  tabindex: "-1"
+};
+const _hoisted_122 = {
+  id: "foreachn-7",
+  tabindex: "-1"
+};
+const _hoisted_123 = {
+  id: "foreachn-8",
+  tabindex: "-1"
+};
+const _hoisted_124 = {
+  id: "foreachn-9",
+  tabindex: "-1"
+};
+const _hoisted_125 = {
+  id: "foreachn-10",
+  tabindex: "-1"
+};
+const _hoisted_126 = {
+  id: "foreachn-11",
+  tabindex: "-1"
+};
+const _hoisted_127 = {
+  id: "foreachn-12",
+  tabindex: "-1"
+};
+const _hoisted_128 = {
+  id: "foreachn-13",
+  tabindex: "-1"
+};
+const _hoisted_129 = {
+  id: "foreachn-14",
+  tabindex: "-1"
+};
+const _hoisted_130 = {
+  id: "foreachn-15",
+  tabindex: "-1"
+};
+const _hoisted_131 = {
+  id: "foreachn-16",
+  tabindex: "-1"
+};
+const _hoisted_132 = {
+  id: "foreachn-17",
+  tabindex: "-1"
+};
+const _hoisted_133 = {
+  id: "foreachn-18",
+  tabindex: "-1"
+};
+const _hoisted_134 = {
+  id: "foreachn-19",
+  tabindex: "-1"
+};
+const _hoisted_135 = {
+  id: "foreachn-20",
+  tabindex: "-1"
+};
+const _hoisted_136 = {
+  id: "foreachn-21",
+  tabindex: "-1"
+};
+const _hoisted_137 = {
+  id: "mapn",
+  tabindex: "-1"
+};
+const _hoisted_138 = {
+  id: "mapn-2",
+  tabindex: "-1"
+};
+const _hoisted_139 = {
+  id: "mapn-3",
+  tabindex: "-1"
+};
+const _hoisted_140 = {
+  id: "mapn-4",
+  tabindex: "-1"
+};
+const _hoisted_141 = {
+  id: "mapn-5",
+  tabindex: "-1"
+};
+const _hoisted_142 = {
+  id: "mapn-6",
+  tabindex: "-1"
+};
+const _hoisted_143 = {
+  id: "mapn-7",
+  tabindex: "-1"
+};
+const _hoisted_144 = {
+  id: "mapn-8",
+  tabindex: "-1"
+};
+const _hoisted_145 = {
+  id: "mapn-9",
+  tabindex: "-1"
+};
+const _hoisted_146 = {
+  id: "mapn-10",
+  tabindex: "-1"
+};
+const _hoisted_147 = {
+  id: "mapn-11",
+  tabindex: "-1"
+};
+const _hoisted_148 = {
+  id: "mapn-12",
+  tabindex: "-1"
+};
+const _hoisted_149 = {
+  id: "mapn-13",
+  tabindex: "-1"
+};
+const _hoisted_150 = {
+  id: "mapn-14",
+  tabindex: "-1"
+};
+const _hoisted_151 = {
+  id: "mapn-15",
+  tabindex: "-1"
+};
+const _hoisted_152 = {
+  id: "mapn-16",
+  tabindex: "-1"
+};
+const _hoisted_153 = {
+  id: "mapn-17",
+  tabindex: "-1"
+};
+const _hoisted_154 = {
+  id: "mapn-18",
+  tabindex: "-1"
+};
+const _hoisted_155 = {
+  id: "mapn-19",
+  tabindex: "-1"
+};
+const _hoisted_156 = {
+  id: "mapn-20",
+  tabindex: "-1"
+};
+const _hoisted_157 = {
+  id: "mapn-21",
+  tabindex: "-1"
+};
+const _hoisted_158 = {
+  id: "operator-equals",
+  tabindex: "-1"
+};
+function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
+  const _component_Badge = resolveComponent("Badge");
+  return openBlock(), createElementBlock("div", null, [
+    createBaseVNode("h1", _hoisted_1, [
+      _cache[0] || (_cache[0] = createTextVNode("Right<A, B> ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "final"
+      }),
+      _cache[1] || (_cache[1] = createTextVNode()),
+      _cache[2] || (_cache[2] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#right-a-b",
+        "aria-label": 'Permalink to "Right\\<A, B\\> <Badge type="info" text="final" />"'
+      }, "​", -1))
+    ]),
+    _cache[478] || (_cache[478] = createStaticVNode("", 5)),
+    createBaseVNode("h3", _hoisted_2, [
+      _cache[3] || (_cache[3] = createTextVNode("Right() ", -1)),
+      createVNode(_component_Badge, {
+        type: "tip",
+        text: "const"
+      }),
+      _cache[4] || (_cache[4] = createTextVNode()),
+      _cache[5] || (_cache[5] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ctor-right",
+        "aria-label": 'Permalink to "Right() <Badge type="tip" text="const" /> {#ctor-right}"'
+      }, "​", -1))
+    ]),
+    _cache[479] || (_cache[479] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_3, [
+      _cache[6] || (_cache[6] = createTextVNode("b ", -1)),
+      createVNode(_component_Badge, {
+        type: "tip",
+        text: "final"
+      }),
+      _cache[7] || (_cache[7] = createTextVNode()),
+      _cache[8] || (_cache[8] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#prop-b",
+        "aria-label": 'Permalink to "b <Badge type="tip" text="final" /> {#prop-b}"'
+      }, "​", -1))
+    ]),
+    _cache[480] || (_cache[480] = createStaticVNode("", 2)),
+    createBaseVNode("h3", _hoisted_4, [
+      _cache[9] || (_cache[9] = createTextVNode("hashCode ", -1)),
+      createVNode(_component_Badge, {
+        type: "tip",
+        text: "no setter"
+      }),
+      _cache[10] || (_cache[10] = createTextVNode()),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[11] || (_cache[11] = createTextVNode()),
+      _cache[12] || (_cache[12] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#prop-hashcode",
+        "aria-label": 'Permalink to "hashCode <Badge type="tip" text="no setter" /> <Badge type="info" text="inherited" /> {#prop-hashcode}"'
+      }, "​", -1))
+    ]),
+    _cache[481] || (_cache[481] = createStaticVNode("", 10)),
+    createBaseVNode("h3", _hoisted_5, [
+      _cache[13] || (_cache[13] = createTextVNode("isLeft ", -1)),
+      createVNode(_component_Badge, {
+        type: "tip",
+        text: "no setter"
+      }),
+      _cache[14] || (_cache[14] = createTextVNode()),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "override"
+      }),
+      _cache[15] || (_cache[15] = createTextVNode()),
+      _cache[16] || (_cache[16] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#prop-isleft",
+        "aria-label": 'Permalink to "isLeft <Badge type="tip" text="no setter" /> <Badge type="info" text="override" /> {#prop-isleft}"'
+      }, "​", -1))
+    ]),
+    _cache[482] || (_cache[482] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_6, [
+      _cache[17] || (_cache[17] = createTextVNode("isRight ", -1)),
+      createVNode(_component_Badge, {
+        type: "tip",
+        text: "no setter"
+      }),
+      _cache[18] || (_cache[18] = createTextVNode()),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[19] || (_cache[19] = createTextVNode()),
+      _cache[20] || (_cache[20] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#prop-isright",
+        "aria-label": 'Permalink to "isRight <Badge type="tip" text="no setter" /> <Badge type="info" text="inherited" /> {#prop-isright}"'
+      }, "​", -1))
+    ]),
+    _cache[483] || (_cache[483] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_7, [
+      _cache[21] || (_cache[21] = createTextVNode("runtimeType ", -1)),
+      createVNode(_component_Badge, {
+        type: "tip",
+        text: "no setter"
+      }),
+      _cache[22] || (_cache[22] = createTextVNode()),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[23] || (_cache[23] = createTextVNode()),
+      _cache[24] || (_cache[24] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#prop-runtimetype",
+        "aria-label": 'Permalink to "runtimeType <Badge type="tip" text="no setter" /> <Badge type="info" text="inherited" /> {#prop-runtimetype}"'
+      }, "​", -1))
+    ]),
+    _cache[484] || (_cache[484] = createStaticVNode("", 5)),
+    createBaseVNode("h3", _hoisted_8, [
+      _cache[25] || (_cache[25] = createTextVNode("ap() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[26] || (_cache[26] = createTextVNode()),
+      _cache[27] || (_cache[27] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ap",
+        "aria-label": 'Permalink to "ap() <Badge type="info" text="inherited" /> {#ap}"'
+      }, "​", -1))
+    ]),
+    _cache[485] || (_cache[485] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_9, [
+      _cache[28] || (_cache[28] = createTextVNode("bimap() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[29] || (_cache[29] = createTextVNode()),
+      _cache[30] || (_cache[30] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#bimap",
+        "aria-label": 'Permalink to "bimap() <Badge type="info" text="inherited" /> {#bimap}"'
+      }, "​", -1))
+    ]),
+    _cache[486] || (_cache[486] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_10, [
+      _cache[31] || (_cache[31] = createTextVNode("contains() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[32] || (_cache[32] = createTextVNode()),
+      _cache[33] || (_cache[33] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#contains",
+        "aria-label": 'Permalink to "contains() <Badge type="info" text="inherited" /> {#contains}"'
+      }, "​", -1))
+    ]),
+    _cache[487] || (_cache[487] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_11, [
+      _cache[34] || (_cache[34] = createTextVNode("ensure() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[35] || (_cache[35] = createTextVNode()),
+      _cache[36] || (_cache[36] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensure",
+        "aria-label": 'Permalink to "ensure() <Badge type="info" text="inherited" /> {#ensure}"'
+      }, "​", -1))
+    ]),
+    _cache[488] || (_cache[488] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_12, [
+      _cache[37] || (_cache[37] = createTextVNode("exists() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[38] || (_cache[38] = createTextVNode()),
+      _cache[39] || (_cache[39] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#exists",
+        "aria-label": 'Permalink to "exists() <Badge type="info" text="inherited" /> {#exists}"'
+      }, "​", -1))
+    ]),
+    _cache[489] || (_cache[489] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_13, [
+      _cache[40] || (_cache[40] = createTextVNode("filterOrElse() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[41] || (_cache[41] = createTextVNode()),
+      _cache[42] || (_cache[42] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelse",
+        "aria-label": 'Permalink to "filterOrElse() <Badge type="info" text="inherited" /> {#filterorelse}"'
+      }, "​", -1))
+    ]),
+    _cache[490] || (_cache[490] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_14, [
+      _cache[43] || (_cache[43] = createTextVNode("flatMap() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "override"
+      }),
+      _cache[44] || (_cache[44] = createTextVNode()),
+      _cache[45] || (_cache[45] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmap",
+        "aria-label": 'Permalink to "flatMap() <Badge type="info" text="override" /> {#flatmap}"'
+      }, "​", -1))
+    ]),
+    _cache[491] || (_cache[491] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_15, [
+      _cache[46] || (_cache[46] = createTextVNode("fold() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "override"
+      }),
+      _cache[47] || (_cache[47] = createTextVNode()),
+      _cache[48] || (_cache[48] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#fold",
+        "aria-label": 'Permalink to "fold() <Badge type="info" text="override" /> {#fold}"'
+      }, "​", -1))
+    ]),
+    _cache[492] || (_cache[492] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_16, [
+      _cache[49] || (_cache[49] = createTextVNode("foldLeft() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[50] || (_cache[50] = createTextVNode()),
+      _cache[51] || (_cache[51] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldleft",
+        "aria-label": 'Permalink to "foldLeft() <Badge type="info" text="inherited" /> {#foldleft}"'
+      }, "​", -1))
+    ]),
+    _cache[493] || (_cache[493] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_17, [
+      _cache[52] || (_cache[52] = createTextVNode("foldRight() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[53] || (_cache[53] = createTextVNode()),
+      _cache[54] || (_cache[54] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldright",
+        "aria-label": 'Permalink to "foldRight() <Badge type="info" text="inherited" /> {#foldright}"'
+      }, "​", -1))
+    ]),
+    _cache[494] || (_cache[494] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_18, [
+      _cache[55] || (_cache[55] = createTextVNode("forall() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[56] || (_cache[56] = createTextVNode()),
+      _cache[57] || (_cache[57] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#forall",
+        "aria-label": 'Permalink to "forall() <Badge type="info" text="inherited" /> {#forall}"'
+      }, "​", -1))
+    ]),
+    _cache[495] || (_cache[495] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_19, [
+      _cache[58] || (_cache[58] = createTextVNode("foreach() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[59] || (_cache[59] = createTextVNode()),
+      _cache[60] || (_cache[60] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreach",
+        "aria-label": 'Permalink to "foreach() <Badge type="info" text="inherited" /> {#foreach}"'
+      }, "​", -1))
+    ]),
+    _cache[496] || (_cache[496] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_20, [
+      _cache[61] || (_cache[61] = createTextVNode("getOrElse() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[62] || (_cache[62] = createTextVNode()),
+      _cache[63] || (_cache[63] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#getorelse",
+        "aria-label": 'Permalink to "getOrElse() <Badge type="info" text="inherited" /> {#getorelse}"'
+      }, "​", -1))
+    ]),
+    _cache[497] || (_cache[497] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_21, [
+      _cache[64] || (_cache[64] = createTextVNode("leftMap() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[65] || (_cache[65] = createTextVNode()),
+      _cache[66] || (_cache[66] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#leftmap",
+        "aria-label": 'Permalink to "leftMap() <Badge type="info" text="inherited" /> {#leftmap}"'
+      }, "​", -1))
+    ]),
+    _cache[498] || (_cache[498] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_22, [
+      _cache[67] || (_cache[67] = createTextVNode("map() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "override"
+      }),
+      _cache[68] || (_cache[68] = createTextVNode()),
+      _cache[69] || (_cache[69] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#map",
+        "aria-label": 'Permalink to "map() <Badge type="info" text="override" /> {#map}"'
+      }, "​", -1))
+    ]),
+    _cache[499] || (_cache[499] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_23, [
+      _cache[70] || (_cache[70] = createTextVNode("noSuchMethod() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[71] || (_cache[71] = createTextVNode()),
+      _cache[72] || (_cache[72] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#nosuchmethod",
+        "aria-label": 'Permalink to "noSuchMethod() <Badge type="info" text="inherited" /> {#nosuchmethod}"'
+      }, "​", -1))
+    ]),
+    _cache[500] || (_cache[500] = createStaticVNode("", 13)),
+    createBaseVNode("h3", _hoisted_24, [
+      _cache[73] || (_cache[73] = createTextVNode("orElse() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[74] || (_cache[74] = createTextVNode()),
+      _cache[75] || (_cache[75] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#orelse",
+        "aria-label": 'Permalink to "orElse() <Badge type="info" text="inherited" /> {#orelse}"'
+      }, "​", -1))
+    ]),
+    _cache[501] || (_cache[501] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_25, [
+      _cache[76] || (_cache[76] = createTextVNode("product() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[77] || (_cache[77] = createTextVNode()),
+      _cache[78] || (_cache[78] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#product",
+        "aria-label": 'Permalink to "product() <Badge type="info" text="inherited" /> {#product}"'
+      }, "​", -1))
+    ]),
+    _cache[502] || (_cache[502] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_26, [
+      _cache[79] || (_cache[79] = createTextVNode("swap() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[80] || (_cache[80] = createTextVNode()),
+      _cache[81] || (_cache[81] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#swap",
+        "aria-label": 'Permalink to "swap() <Badge type="info" text="inherited" /> {#swap}"'
+      }, "​", -1))
+    ]),
+    _cache[503] || (_cache[503] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_27, [
+      _cache[82] || (_cache[82] = createTextVNode("toIList() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[83] || (_cache[83] = createTextVNode()),
+      _cache[84] || (_cache[84] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#toilist",
+        "aria-label": 'Permalink to "toIList() <Badge type="info" text="inherited" /> {#toilist}"'
+      }, "​", -1))
+    ]),
+    _cache[504] || (_cache[504] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_28, [
+      _cache[85] || (_cache[85] = createTextVNode("toOption() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[86] || (_cache[86] = createTextVNode()),
+      _cache[87] || (_cache[87] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#tooption",
+        "aria-label": 'Permalink to "toOption() <Badge type="info" text="inherited" /> {#tooption}"'
+      }, "​", -1))
+    ]),
+    _cache[505] || (_cache[505] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_29, [
+      _cache[88] || (_cache[88] = createTextVNode("toString() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[89] || (_cache[89] = createTextVNode()),
+      _cache[90] || (_cache[90] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#tostring",
+        "aria-label": 'Permalink to "toString() <Badge type="info" text="inherited" /> {#tostring}"'
+      }, "​", -1))
+    ]),
+    _cache[506] || (_cache[506] = createStaticVNode("", 6)),
+    createBaseVNode("h3", _hoisted_30, [
+      _cache[91] || (_cache[91] = createTextVNode("toValidated() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[92] || (_cache[92] = createTextVNode()),
+      _cache[93] || (_cache[93] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#tovalidated",
+        "aria-label": 'Permalink to "toValidated() <Badge type="info" text="inherited" /> {#tovalidated}"'
+      }, "​", -1))
+    ]),
+    _cache[507] || (_cache[507] = createStaticVNode("", 5)),
+    createBaseVNode("h3", _hoisted_31, [
+      _cache[94] || (_cache[94] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[95] || (_cache[95] = createTextVNode()),
+      _cache[96] || (_cache[96] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren}"'
+      }, "​", -1))
+    ]),
+    _cache[508] || (_cache[508] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_32, [
+      _cache[97] || (_cache[97] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[98] || (_cache[98] = createTextVNode()),
+      _cache[99] || (_cache[99] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-2",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-2}"'
+      }, "​", -1))
+    ]),
+    _cache[509] || (_cache[509] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_33, [
+      _cache[100] || (_cache[100] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[101] || (_cache[101] = createTextVNode()),
+      _cache[102] || (_cache[102] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-3",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-3}"'
+      }, "​", -1))
+    ]),
+    _cache[510] || (_cache[510] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_34, [
+      _cache[103] || (_cache[103] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[104] || (_cache[104] = createTextVNode()),
+      _cache[105] || (_cache[105] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-4",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-4}"'
+      }, "​", -1))
+    ]),
+    _cache[511] || (_cache[511] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_35, [
+      _cache[106] || (_cache[106] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[107] || (_cache[107] = createTextVNode()),
+      _cache[108] || (_cache[108] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-5",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-5}"'
+      }, "​", -1))
+    ]),
+    _cache[512] || (_cache[512] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_36, [
+      _cache[109] || (_cache[109] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[110] || (_cache[110] = createTextVNode()),
+      _cache[111] || (_cache[111] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-6",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-6}"'
+      }, "​", -1))
+    ]),
+    _cache[513] || (_cache[513] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_37, [
+      _cache[112] || (_cache[112] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[113] || (_cache[113] = createTextVNode()),
+      _cache[114] || (_cache[114] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-7",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-7}"'
+      }, "​", -1))
+    ]),
+    _cache[514] || (_cache[514] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_38, [
+      _cache[115] || (_cache[115] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[116] || (_cache[116] = createTextVNode()),
+      _cache[117] || (_cache[117] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-8",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-8}"'
+      }, "​", -1))
+    ]),
+    _cache[515] || (_cache[515] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_39, [
+      _cache[118] || (_cache[118] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[119] || (_cache[119] = createTextVNode()),
+      _cache[120] || (_cache[120] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-9",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-9}"'
+      }, "​", -1))
+    ]),
+    _cache[516] || (_cache[516] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_40, [
+      _cache[121] || (_cache[121] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[122] || (_cache[122] = createTextVNode()),
+      _cache[123] || (_cache[123] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-10",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-10}"'
+      }, "​", -1))
+    ]),
+    _cache[517] || (_cache[517] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_41, [
+      _cache[124] || (_cache[124] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[125] || (_cache[125] = createTextVNode()),
+      _cache[126] || (_cache[126] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-11",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-11}"'
+      }, "​", -1))
+    ]),
+    _cache[518] || (_cache[518] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_42, [
+      _cache[127] || (_cache[127] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[128] || (_cache[128] = createTextVNode()),
+      _cache[129] || (_cache[129] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-12",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-12}"'
+      }, "​", -1))
+    ]),
+    _cache[519] || (_cache[519] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_43, [
+      _cache[130] || (_cache[130] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[131] || (_cache[131] = createTextVNode()),
+      _cache[132] || (_cache[132] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-13",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-13}"'
+      }, "​", -1))
+    ]),
+    _cache[520] || (_cache[520] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_44, [
+      _cache[133] || (_cache[133] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[134] || (_cache[134] = createTextVNode()),
+      _cache[135] || (_cache[135] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-14",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-14}"'
+      }, "​", -1))
+    ]),
+    _cache[521] || (_cache[521] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_45, [
+      _cache[136] || (_cache[136] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[137] || (_cache[137] = createTextVNode()),
+      _cache[138] || (_cache[138] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-15",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-15}"'
+      }, "​", -1))
+    ]),
+    _cache[522] || (_cache[522] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_46, [
+      _cache[139] || (_cache[139] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[140] || (_cache[140] = createTextVNode()),
+      _cache[141] || (_cache[141] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-16",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-16}"'
+      }, "​", -1))
+    ]),
+    _cache[523] || (_cache[523] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_47, [
+      _cache[142] || (_cache[142] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[143] || (_cache[143] = createTextVNode()),
+      _cache[144] || (_cache[144] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-17",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-17}"'
+      }, "​", -1))
+    ]),
+    _cache[524] || (_cache[524] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_48, [
+      _cache[145] || (_cache[145] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[146] || (_cache[146] = createTextVNode()),
+      _cache[147] || (_cache[147] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-18",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-18}"'
+      }, "​", -1))
+    ]),
+    _cache[525] || (_cache[525] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_49, [
+      _cache[148] || (_cache[148] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[149] || (_cache[149] = createTextVNode()),
+      _cache[150] || (_cache[150] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-19",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-19}"'
+      }, "​", -1))
+    ]),
+    _cache[526] || (_cache[526] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_50, [
+      _cache[151] || (_cache[151] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[152] || (_cache[152] = createTextVNode()),
+      _cache[153] || (_cache[153] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-20",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-20}"'
+      }, "​", -1))
+    ]),
+    _cache[527] || (_cache[527] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_51, [
+      _cache[154] || (_cache[154] = createTextVNode("ensureN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[155] || (_cache[155] = createTextVNode()),
+      _cache[156] || (_cache[156] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#ensuren-21",
+        "aria-label": 'Permalink to "ensureN() <Badge type="info" text="extension" /> {#ensuren-21}"'
+      }, "​", -1))
+    ]),
+    _cache[528] || (_cache[528] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_52, [
+      _cache[157] || (_cache[157] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[158] || (_cache[158] = createTextVNode()),
+      _cache[159] || (_cache[159] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen}"'
+      }, "​", -1))
+    ]),
+    _cache[529] || (_cache[529] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_53, [
+      _cache[160] || (_cache[160] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[161] || (_cache[161] = createTextVNode()),
+      _cache[162] || (_cache[162] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-2",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-2}"'
+      }, "​", -1))
+    ]),
+    _cache[530] || (_cache[530] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_54, [
+      _cache[163] || (_cache[163] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[164] || (_cache[164] = createTextVNode()),
+      _cache[165] || (_cache[165] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-3",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-3}"'
+      }, "​", -1))
+    ]),
+    _cache[531] || (_cache[531] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_55, [
+      _cache[166] || (_cache[166] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[167] || (_cache[167] = createTextVNode()),
+      _cache[168] || (_cache[168] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-4",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-4}"'
+      }, "​", -1))
+    ]),
+    _cache[532] || (_cache[532] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_56, [
+      _cache[169] || (_cache[169] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[170] || (_cache[170] = createTextVNode()),
+      _cache[171] || (_cache[171] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-5",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-5}"'
+      }, "​", -1))
+    ]),
+    _cache[533] || (_cache[533] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_57, [
+      _cache[172] || (_cache[172] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[173] || (_cache[173] = createTextVNode()),
+      _cache[174] || (_cache[174] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-6",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-6}"'
+      }, "​", -1))
+    ]),
+    _cache[534] || (_cache[534] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_58, [
+      _cache[175] || (_cache[175] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[176] || (_cache[176] = createTextVNode()),
+      _cache[177] || (_cache[177] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-7",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-7}"'
+      }, "​", -1))
+    ]),
+    _cache[535] || (_cache[535] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_59, [
+      _cache[178] || (_cache[178] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[179] || (_cache[179] = createTextVNode()),
+      _cache[180] || (_cache[180] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-8",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-8}"'
+      }, "​", -1))
+    ]),
+    _cache[536] || (_cache[536] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_60, [
+      _cache[181] || (_cache[181] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[182] || (_cache[182] = createTextVNode()),
+      _cache[183] || (_cache[183] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-9",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-9}"'
+      }, "​", -1))
+    ]),
+    _cache[537] || (_cache[537] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_61, [
+      _cache[184] || (_cache[184] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[185] || (_cache[185] = createTextVNode()),
+      _cache[186] || (_cache[186] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-10",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-10}"'
+      }, "​", -1))
+    ]),
+    _cache[538] || (_cache[538] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_62, [
+      _cache[187] || (_cache[187] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[188] || (_cache[188] = createTextVNode()),
+      _cache[189] || (_cache[189] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-11",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-11}"'
+      }, "​", -1))
+    ]),
+    _cache[539] || (_cache[539] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_63, [
+      _cache[190] || (_cache[190] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[191] || (_cache[191] = createTextVNode()),
+      _cache[192] || (_cache[192] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-12",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-12}"'
+      }, "​", -1))
+    ]),
+    _cache[540] || (_cache[540] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_64, [
+      _cache[193] || (_cache[193] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[194] || (_cache[194] = createTextVNode()),
+      _cache[195] || (_cache[195] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-13",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-13}"'
+      }, "​", -1))
+    ]),
+    _cache[541] || (_cache[541] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_65, [
+      _cache[196] || (_cache[196] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[197] || (_cache[197] = createTextVNode()),
+      _cache[198] || (_cache[198] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-14",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-14}"'
+      }, "​", -1))
+    ]),
+    _cache[542] || (_cache[542] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_66, [
+      _cache[199] || (_cache[199] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[200] || (_cache[200] = createTextVNode()),
+      _cache[201] || (_cache[201] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-15",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-15}"'
+      }, "​", -1))
+    ]),
+    _cache[543] || (_cache[543] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_67, [
+      _cache[202] || (_cache[202] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[203] || (_cache[203] = createTextVNode()),
+      _cache[204] || (_cache[204] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-16",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-16}"'
+      }, "​", -1))
+    ]),
+    _cache[544] || (_cache[544] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_68, [
+      _cache[205] || (_cache[205] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[206] || (_cache[206] = createTextVNode()),
+      _cache[207] || (_cache[207] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-17",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-17}"'
+      }, "​", -1))
+    ]),
+    _cache[545] || (_cache[545] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_69, [
+      _cache[208] || (_cache[208] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[209] || (_cache[209] = createTextVNode()),
+      _cache[210] || (_cache[210] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-18",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-18}"'
+      }, "​", -1))
+    ]),
+    _cache[546] || (_cache[546] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_70, [
+      _cache[211] || (_cache[211] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[212] || (_cache[212] = createTextVNode()),
+      _cache[213] || (_cache[213] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-19",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-19}"'
+      }, "​", -1))
+    ]),
+    _cache[547] || (_cache[547] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_71, [
+      _cache[214] || (_cache[214] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[215] || (_cache[215] = createTextVNode()),
+      _cache[216] || (_cache[216] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-20",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-20}"'
+      }, "​", -1))
+    ]),
+    _cache[548] || (_cache[548] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_72, [
+      _cache[217] || (_cache[217] = createTextVNode("filterOrElseN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[218] || (_cache[218] = createTextVNode()),
+      _cache[219] || (_cache[219] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#filterorelsen-21",
+        "aria-label": 'Permalink to "filterOrElseN() <Badge type="info" text="extension" /> {#filterorelsen-21}"'
+      }, "​", -1))
+    ]),
+    _cache[549] || (_cache[549] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_73, [
+      _cache[220] || (_cache[220] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[221] || (_cache[221] = createTextVNode()),
+      _cache[222] || (_cache[222] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn}"'
+      }, "​", -1))
+    ]),
+    _cache[550] || (_cache[550] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_74, [
+      _cache[223] || (_cache[223] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[224] || (_cache[224] = createTextVNode()),
+      _cache[225] || (_cache[225] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-2",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-2}"'
+      }, "​", -1))
+    ]),
+    _cache[551] || (_cache[551] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_75, [
+      _cache[226] || (_cache[226] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[227] || (_cache[227] = createTextVNode()),
+      _cache[228] || (_cache[228] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-3",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-3}"'
+      }, "​", -1))
+    ]),
+    _cache[552] || (_cache[552] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_76, [
+      _cache[229] || (_cache[229] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[230] || (_cache[230] = createTextVNode()),
+      _cache[231] || (_cache[231] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-4",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-4}"'
+      }, "​", -1))
+    ]),
+    _cache[553] || (_cache[553] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_77, [
+      _cache[232] || (_cache[232] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[233] || (_cache[233] = createTextVNode()),
+      _cache[234] || (_cache[234] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-5",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-5}"'
+      }, "​", -1))
+    ]),
+    _cache[554] || (_cache[554] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_78, [
+      _cache[235] || (_cache[235] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[236] || (_cache[236] = createTextVNode()),
+      _cache[237] || (_cache[237] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-6",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-6}"'
+      }, "​", -1))
+    ]),
+    _cache[555] || (_cache[555] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_79, [
+      _cache[238] || (_cache[238] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[239] || (_cache[239] = createTextVNode()),
+      _cache[240] || (_cache[240] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-7",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-7}"'
+      }, "​", -1))
+    ]),
+    _cache[556] || (_cache[556] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_80, [
+      _cache[241] || (_cache[241] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[242] || (_cache[242] = createTextVNode()),
+      _cache[243] || (_cache[243] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-8",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-8}"'
+      }, "​", -1))
+    ]),
+    _cache[557] || (_cache[557] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_81, [
+      _cache[244] || (_cache[244] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[245] || (_cache[245] = createTextVNode()),
+      _cache[246] || (_cache[246] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-9",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-9}"'
+      }, "​", -1))
+    ]),
+    _cache[558] || (_cache[558] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_82, [
+      _cache[247] || (_cache[247] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[248] || (_cache[248] = createTextVNode()),
+      _cache[249] || (_cache[249] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-10",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-10}"'
+      }, "​", -1))
+    ]),
+    _cache[559] || (_cache[559] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_83, [
+      _cache[250] || (_cache[250] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[251] || (_cache[251] = createTextVNode()),
+      _cache[252] || (_cache[252] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-11",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-11}"'
+      }, "​", -1))
+    ]),
+    _cache[560] || (_cache[560] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_84, [
+      _cache[253] || (_cache[253] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[254] || (_cache[254] = createTextVNode()),
+      _cache[255] || (_cache[255] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-12",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-12}"'
+      }, "​", -1))
+    ]),
+    _cache[561] || (_cache[561] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_85, [
+      _cache[256] || (_cache[256] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[257] || (_cache[257] = createTextVNode()),
+      _cache[258] || (_cache[258] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-13",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-13}"'
+      }, "​", -1))
+    ]),
+    _cache[562] || (_cache[562] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_86, [
+      _cache[259] || (_cache[259] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[260] || (_cache[260] = createTextVNode()),
+      _cache[261] || (_cache[261] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-14",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-14}"'
+      }, "​", -1))
+    ]),
+    _cache[563] || (_cache[563] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_87, [
+      _cache[262] || (_cache[262] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[263] || (_cache[263] = createTextVNode()),
+      _cache[264] || (_cache[264] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-15",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-15}"'
+      }, "​", -1))
+    ]),
+    _cache[564] || (_cache[564] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_88, [
+      _cache[265] || (_cache[265] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[266] || (_cache[266] = createTextVNode()),
+      _cache[267] || (_cache[267] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-16",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-16}"'
+      }, "​", -1))
+    ]),
+    _cache[565] || (_cache[565] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_89, [
+      _cache[268] || (_cache[268] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[269] || (_cache[269] = createTextVNode()),
+      _cache[270] || (_cache[270] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-17",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-17}"'
+      }, "​", -1))
+    ]),
+    _cache[566] || (_cache[566] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_90, [
+      _cache[271] || (_cache[271] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[272] || (_cache[272] = createTextVNode()),
+      _cache[273] || (_cache[273] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-18",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-18}"'
+      }, "​", -1))
+    ]),
+    _cache[567] || (_cache[567] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_91, [
+      _cache[274] || (_cache[274] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[275] || (_cache[275] = createTextVNode()),
+      _cache[276] || (_cache[276] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-19",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-19}"'
+      }, "​", -1))
+    ]),
+    _cache[568] || (_cache[568] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_92, [
+      _cache[277] || (_cache[277] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[278] || (_cache[278] = createTextVNode()),
+      _cache[279] || (_cache[279] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-20",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-20}"'
+      }, "​", -1))
+    ]),
+    _cache[569] || (_cache[569] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_93, [
+      _cache[280] || (_cache[280] = createTextVNode("flatMapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[281] || (_cache[281] = createTextVNode()),
+      _cache[282] || (_cache[282] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatmapn-21",
+        "aria-label": 'Permalink to "flatMapN() <Badge type="info" text="extension" /> {#flatmapn-21}"'
+      }, "​", -1))
+    ]),
+    _cache[570] || (_cache[570] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_94, [
+      _cache[283] || (_cache[283] = createTextVNode("flatten() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[284] || (_cache[284] = createTextVNode()),
+      _cache[285] || (_cache[285] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#flatten",
+        "aria-label": 'Permalink to "flatten() <Badge type="info" text="extension" /> {#flatten}"'
+      }, "​", -1))
+    ]),
+    _cache[571] || (_cache[571] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_95, [
+      _cache[286] || (_cache[286] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[287] || (_cache[287] = createTextVNode()),
+      _cache[288] || (_cache[288] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn}"'
+      }, "​", -1))
+    ]),
+    _cache[572] || (_cache[572] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_96, [
+      _cache[289] || (_cache[289] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[290] || (_cache[290] = createTextVNode()),
+      _cache[291] || (_cache[291] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-2",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-2}"'
+      }, "​", -1))
+    ]),
+    _cache[573] || (_cache[573] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_97, [
+      _cache[292] || (_cache[292] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[293] || (_cache[293] = createTextVNode()),
+      _cache[294] || (_cache[294] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-3",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-3}"'
+      }, "​", -1))
+    ]),
+    _cache[574] || (_cache[574] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_98, [
+      _cache[295] || (_cache[295] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[296] || (_cache[296] = createTextVNode()),
+      _cache[297] || (_cache[297] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-4",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-4}"'
+      }, "​", -1))
+    ]),
+    _cache[575] || (_cache[575] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_99, [
+      _cache[298] || (_cache[298] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[299] || (_cache[299] = createTextVNode()),
+      _cache[300] || (_cache[300] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-5",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-5}"'
+      }, "​", -1))
+    ]),
+    _cache[576] || (_cache[576] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_100, [
+      _cache[301] || (_cache[301] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[302] || (_cache[302] = createTextVNode()),
+      _cache[303] || (_cache[303] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-6",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-6}"'
+      }, "​", -1))
+    ]),
+    _cache[577] || (_cache[577] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_101, [
+      _cache[304] || (_cache[304] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[305] || (_cache[305] = createTextVNode()),
+      _cache[306] || (_cache[306] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-7",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-7}"'
+      }, "​", -1))
+    ]),
+    _cache[578] || (_cache[578] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_102, [
+      _cache[307] || (_cache[307] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[308] || (_cache[308] = createTextVNode()),
+      _cache[309] || (_cache[309] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-8",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-8}"'
+      }, "​", -1))
+    ]),
+    _cache[579] || (_cache[579] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_103, [
+      _cache[310] || (_cache[310] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[311] || (_cache[311] = createTextVNode()),
+      _cache[312] || (_cache[312] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-9",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-9}"'
+      }, "​", -1))
+    ]),
+    _cache[580] || (_cache[580] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_104, [
+      _cache[313] || (_cache[313] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[314] || (_cache[314] = createTextVNode()),
+      _cache[315] || (_cache[315] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-10",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-10}"'
+      }, "​", -1))
+    ]),
+    _cache[581] || (_cache[581] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_105, [
+      _cache[316] || (_cache[316] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[317] || (_cache[317] = createTextVNode()),
+      _cache[318] || (_cache[318] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-11",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-11}"'
+      }, "​", -1))
+    ]),
+    _cache[582] || (_cache[582] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_106, [
+      _cache[319] || (_cache[319] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[320] || (_cache[320] = createTextVNode()),
+      _cache[321] || (_cache[321] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-12",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-12}"'
+      }, "​", -1))
+    ]),
+    _cache[583] || (_cache[583] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_107, [
+      _cache[322] || (_cache[322] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[323] || (_cache[323] = createTextVNode()),
+      _cache[324] || (_cache[324] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-13",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-13}"'
+      }, "​", -1))
+    ]),
+    _cache[584] || (_cache[584] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_108, [
+      _cache[325] || (_cache[325] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[326] || (_cache[326] = createTextVNode()),
+      _cache[327] || (_cache[327] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-14",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-14}"'
+      }, "​", -1))
+    ]),
+    _cache[585] || (_cache[585] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_109, [
+      _cache[328] || (_cache[328] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[329] || (_cache[329] = createTextVNode()),
+      _cache[330] || (_cache[330] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-15",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-15}"'
+      }, "​", -1))
+    ]),
+    _cache[586] || (_cache[586] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_110, [
+      _cache[331] || (_cache[331] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[332] || (_cache[332] = createTextVNode()),
+      _cache[333] || (_cache[333] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-16",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-16}"'
+      }, "​", -1))
+    ]),
+    _cache[587] || (_cache[587] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_111, [
+      _cache[334] || (_cache[334] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[335] || (_cache[335] = createTextVNode()),
+      _cache[336] || (_cache[336] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-17",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-17}"'
+      }, "​", -1))
+    ]),
+    _cache[588] || (_cache[588] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_112, [
+      _cache[337] || (_cache[337] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[338] || (_cache[338] = createTextVNode()),
+      _cache[339] || (_cache[339] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-18",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-18}"'
+      }, "​", -1))
+    ]),
+    _cache[589] || (_cache[589] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_113, [
+      _cache[340] || (_cache[340] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[341] || (_cache[341] = createTextVNode()),
+      _cache[342] || (_cache[342] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-19",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-19}"'
+      }, "​", -1))
+    ]),
+    _cache[590] || (_cache[590] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_114, [
+      _cache[343] || (_cache[343] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[344] || (_cache[344] = createTextVNode()),
+      _cache[345] || (_cache[345] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-20",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-20}"'
+      }, "​", -1))
+    ]),
+    _cache[591] || (_cache[591] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_115, [
+      _cache[346] || (_cache[346] = createTextVNode("foldN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[347] || (_cache[347] = createTextVNode()),
+      _cache[348] || (_cache[348] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foldn-21",
+        "aria-label": 'Permalink to "foldN() <Badge type="info" text="extension" /> {#foldn-21}"'
+      }, "​", -1))
+    ]),
+    _cache[592] || (_cache[592] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_116, [
+      _cache[349] || (_cache[349] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[350] || (_cache[350] = createTextVNode()),
+      _cache[351] || (_cache[351] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn}"'
+      }, "​", -1))
+    ]),
+    _cache[593] || (_cache[593] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_117, [
+      _cache[352] || (_cache[352] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[353] || (_cache[353] = createTextVNode()),
+      _cache[354] || (_cache[354] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-2",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-2}"'
+      }, "​", -1))
+    ]),
+    _cache[594] || (_cache[594] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_118, [
+      _cache[355] || (_cache[355] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[356] || (_cache[356] = createTextVNode()),
+      _cache[357] || (_cache[357] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-3",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-3}"'
+      }, "​", -1))
+    ]),
+    _cache[595] || (_cache[595] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_119, [
+      _cache[358] || (_cache[358] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[359] || (_cache[359] = createTextVNode()),
+      _cache[360] || (_cache[360] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-4",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-4}"'
+      }, "​", -1))
+    ]),
+    _cache[596] || (_cache[596] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_120, [
+      _cache[361] || (_cache[361] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[362] || (_cache[362] = createTextVNode()),
+      _cache[363] || (_cache[363] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-5",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-5}"'
+      }, "​", -1))
+    ]),
+    _cache[597] || (_cache[597] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_121, [
+      _cache[364] || (_cache[364] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[365] || (_cache[365] = createTextVNode()),
+      _cache[366] || (_cache[366] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-6",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-6}"'
+      }, "​", -1))
+    ]),
+    _cache[598] || (_cache[598] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_122, [
+      _cache[367] || (_cache[367] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[368] || (_cache[368] = createTextVNode()),
+      _cache[369] || (_cache[369] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-7",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-7}"'
+      }, "​", -1))
+    ]),
+    _cache[599] || (_cache[599] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_123, [
+      _cache[370] || (_cache[370] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[371] || (_cache[371] = createTextVNode()),
+      _cache[372] || (_cache[372] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-8",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-8}"'
+      }, "​", -1))
+    ]),
+    _cache[600] || (_cache[600] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_124, [
+      _cache[373] || (_cache[373] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[374] || (_cache[374] = createTextVNode()),
+      _cache[375] || (_cache[375] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-9",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-9}"'
+      }, "​", -1))
+    ]),
+    _cache[601] || (_cache[601] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_125, [
+      _cache[376] || (_cache[376] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[377] || (_cache[377] = createTextVNode()),
+      _cache[378] || (_cache[378] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-10",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-10}"'
+      }, "​", -1))
+    ]),
+    _cache[602] || (_cache[602] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_126, [
+      _cache[379] || (_cache[379] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[380] || (_cache[380] = createTextVNode()),
+      _cache[381] || (_cache[381] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-11",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-11}"'
+      }, "​", -1))
+    ]),
+    _cache[603] || (_cache[603] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_127, [
+      _cache[382] || (_cache[382] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[383] || (_cache[383] = createTextVNode()),
+      _cache[384] || (_cache[384] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-12",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-12}"'
+      }, "​", -1))
+    ]),
+    _cache[604] || (_cache[604] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_128, [
+      _cache[385] || (_cache[385] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[386] || (_cache[386] = createTextVNode()),
+      _cache[387] || (_cache[387] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-13",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-13}"'
+      }, "​", -1))
+    ]),
+    _cache[605] || (_cache[605] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_129, [
+      _cache[388] || (_cache[388] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[389] || (_cache[389] = createTextVNode()),
+      _cache[390] || (_cache[390] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-14",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-14}"'
+      }, "​", -1))
+    ]),
+    _cache[606] || (_cache[606] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_130, [
+      _cache[391] || (_cache[391] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[392] || (_cache[392] = createTextVNode()),
+      _cache[393] || (_cache[393] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-15",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-15}"'
+      }, "​", -1))
+    ]),
+    _cache[607] || (_cache[607] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_131, [
+      _cache[394] || (_cache[394] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[395] || (_cache[395] = createTextVNode()),
+      _cache[396] || (_cache[396] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-16",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-16}"'
+      }, "​", -1))
+    ]),
+    _cache[608] || (_cache[608] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_132, [
+      _cache[397] || (_cache[397] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[398] || (_cache[398] = createTextVNode()),
+      _cache[399] || (_cache[399] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-17",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-17}"'
+      }, "​", -1))
+    ]),
+    _cache[609] || (_cache[609] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_133, [
+      _cache[400] || (_cache[400] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[401] || (_cache[401] = createTextVNode()),
+      _cache[402] || (_cache[402] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-18",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-18}"'
+      }, "​", -1))
+    ]),
+    _cache[610] || (_cache[610] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_134, [
+      _cache[403] || (_cache[403] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[404] || (_cache[404] = createTextVNode()),
+      _cache[405] || (_cache[405] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-19",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-19}"'
+      }, "​", -1))
+    ]),
+    _cache[611] || (_cache[611] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_135, [
+      _cache[406] || (_cache[406] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[407] || (_cache[407] = createTextVNode()),
+      _cache[408] || (_cache[408] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-20",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-20}"'
+      }, "​", -1))
+    ]),
+    _cache[612] || (_cache[612] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_136, [
+      _cache[409] || (_cache[409] = createTextVNode("foreachN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[410] || (_cache[410] = createTextVNode()),
+      _cache[411] || (_cache[411] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#foreachn-21",
+        "aria-label": 'Permalink to "foreachN() <Badge type="info" text="extension" /> {#foreachn-21}"'
+      }, "​", -1))
+    ]),
+    _cache[613] || (_cache[613] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_137, [
+      _cache[412] || (_cache[412] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[413] || (_cache[413] = createTextVNode()),
+      _cache[414] || (_cache[414] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn}"'
+      }, "​", -1))
+    ]),
+    _cache[614] || (_cache[614] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_138, [
+      _cache[415] || (_cache[415] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[416] || (_cache[416] = createTextVNode()),
+      _cache[417] || (_cache[417] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-2",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-2}"'
+      }, "​", -1))
+    ]),
+    _cache[615] || (_cache[615] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_139, [
+      _cache[418] || (_cache[418] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[419] || (_cache[419] = createTextVNode()),
+      _cache[420] || (_cache[420] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-3",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-3}"'
+      }, "​", -1))
+    ]),
+    _cache[616] || (_cache[616] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_140, [
+      _cache[421] || (_cache[421] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[422] || (_cache[422] = createTextVNode()),
+      _cache[423] || (_cache[423] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-4",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-4}"'
+      }, "​", -1))
+    ]),
+    _cache[617] || (_cache[617] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_141, [
+      _cache[424] || (_cache[424] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[425] || (_cache[425] = createTextVNode()),
+      _cache[426] || (_cache[426] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-5",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-5}"'
+      }, "​", -1))
+    ]),
+    _cache[618] || (_cache[618] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_142, [
+      _cache[427] || (_cache[427] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[428] || (_cache[428] = createTextVNode()),
+      _cache[429] || (_cache[429] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-6",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-6}"'
+      }, "​", -1))
+    ]),
+    _cache[619] || (_cache[619] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_143, [
+      _cache[430] || (_cache[430] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[431] || (_cache[431] = createTextVNode()),
+      _cache[432] || (_cache[432] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-7",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-7}"'
+      }, "​", -1))
+    ]),
+    _cache[620] || (_cache[620] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_144, [
+      _cache[433] || (_cache[433] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[434] || (_cache[434] = createTextVNode()),
+      _cache[435] || (_cache[435] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-8",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-8}"'
+      }, "​", -1))
+    ]),
+    _cache[621] || (_cache[621] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_145, [
+      _cache[436] || (_cache[436] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[437] || (_cache[437] = createTextVNode()),
+      _cache[438] || (_cache[438] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-9",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-9}"'
+      }, "​", -1))
+    ]),
+    _cache[622] || (_cache[622] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_146, [
+      _cache[439] || (_cache[439] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[440] || (_cache[440] = createTextVNode()),
+      _cache[441] || (_cache[441] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-10",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-10}"'
+      }, "​", -1))
+    ]),
+    _cache[623] || (_cache[623] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_147, [
+      _cache[442] || (_cache[442] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[443] || (_cache[443] = createTextVNode()),
+      _cache[444] || (_cache[444] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-11",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-11}"'
+      }, "​", -1))
+    ]),
+    _cache[624] || (_cache[624] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_148, [
+      _cache[445] || (_cache[445] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[446] || (_cache[446] = createTextVNode()),
+      _cache[447] || (_cache[447] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-12",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-12}"'
+      }, "​", -1))
+    ]),
+    _cache[625] || (_cache[625] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_149, [
+      _cache[448] || (_cache[448] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[449] || (_cache[449] = createTextVNode()),
+      _cache[450] || (_cache[450] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-13",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-13}"'
+      }, "​", -1))
+    ]),
+    _cache[626] || (_cache[626] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_150, [
+      _cache[451] || (_cache[451] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[452] || (_cache[452] = createTextVNode()),
+      _cache[453] || (_cache[453] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-14",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-14}"'
+      }, "​", -1))
+    ]),
+    _cache[627] || (_cache[627] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_151, [
+      _cache[454] || (_cache[454] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[455] || (_cache[455] = createTextVNode()),
+      _cache[456] || (_cache[456] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-15",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-15}"'
+      }, "​", -1))
+    ]),
+    _cache[628] || (_cache[628] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_152, [
+      _cache[457] || (_cache[457] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[458] || (_cache[458] = createTextVNode()),
+      _cache[459] || (_cache[459] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-16",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-16}"'
+      }, "​", -1))
+    ]),
+    _cache[629] || (_cache[629] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_153, [
+      _cache[460] || (_cache[460] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[461] || (_cache[461] = createTextVNode()),
+      _cache[462] || (_cache[462] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-17",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-17}"'
+      }, "​", -1))
+    ]),
+    _cache[630] || (_cache[630] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_154, [
+      _cache[463] || (_cache[463] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[464] || (_cache[464] = createTextVNode()),
+      _cache[465] || (_cache[465] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-18",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-18}"'
+      }, "​", -1))
+    ]),
+    _cache[631] || (_cache[631] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_155, [
+      _cache[466] || (_cache[466] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[467] || (_cache[467] = createTextVNode()),
+      _cache[468] || (_cache[468] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-19",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-19}"'
+      }, "​", -1))
+    ]),
+    _cache[632] || (_cache[632] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_156, [
+      _cache[469] || (_cache[469] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[470] || (_cache[470] = createTextVNode()),
+      _cache[471] || (_cache[471] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-20",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-20}"'
+      }, "​", -1))
+    ]),
+    _cache[633] || (_cache[633] = createStaticVNode("", 3)),
+    createBaseVNode("h3", _hoisted_157, [
+      _cache[472] || (_cache[472] = createTextVNode("mapN() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "extension"
+      }),
+      _cache[473] || (_cache[473] = createTextVNode()),
+      _cache[474] || (_cache[474] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#mapn-21",
+        "aria-label": 'Permalink to "mapN() <Badge type="info" text="extension" /> {#mapn-21}"'
+      }, "​", -1))
+    ]),
+    _cache[634] || (_cache[634] = createStaticVNode("", 4)),
+    createBaseVNode("h3", _hoisted_158, [
+      _cache[475] || (_cache[475] = createTextVNode("operator ==() ", -1)),
+      createVNode(_component_Badge, {
+        type: "info",
+        text: "inherited"
+      }),
+      _cache[476] || (_cache[476] = createTextVNode()),
+      _cache[477] || (_cache[477] = createBaseVNode("a", {
+        class: "header-anchor",
+        href: "#operator-equals",
+        "aria-label": 'Permalink to "operator ==() <Badge type="info" text="inherited" /> {#operator-equals}"'
+      }, "​", -1))
+    ]),
+    _cache[635] || (_cache[635] = createStaticVNode("", 9))
+  ]);
+}
+const Right = /* @__PURE__ */ _export_sfc(_sfc_main, [["render", _sfc_render]]);
+export {
+  __pageData,
+  Right as default
+};
