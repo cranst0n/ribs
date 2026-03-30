@@ -7,7 +7,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_json/ribs_json.dart';
 
-// flaky-op
+// #region flaky-op
 IO<Json> flakyOp() => IO
     .delay(() => HttpClient())
     .bracket(
@@ -18,14 +18,14 @@ IO<Json> flakyOp() => IO
           .flatMap((bodyText) => IO.fromEither(Json.parse(bodyText))),
       (client) => IO.exec(() => client.close()),
     );
-// flaky-op
+// #endregion flaky-op
 
 void retrySimple() {
-  // retry-simple
+  // #region retry-simple
   final IO<Json> retry3Times = flakyOp().retrying(RetryPolicy.limitRetries(3));
-  // retry-simple
+  // #endregion retry-simple
 
-  // custom-retrying
+  // #region custom-retrying
   final IO<Json> customRetry = flakyOp().retrying(
     RetryPolicy.constantDelay(5.seconds),
     wasSuccessful: (json) => json.isObject,
@@ -33,11 +33,11 @@ void retrySimple() {
     onError: (error, details) => IO.print('Attempt ${details.retriesSoFar}.'),
     onFailure: (json, details) => IO.print('$json failed [$details]'),
   );
-  // custom-retrying
+  // #endregion custom-retrying
 }
 
 void customPolicies() {
-  // custom-policy-1
+  // #region custom-policy-1
   // Exponential backoff with a maximum delay or 20 seconds
   flakyOp().retrying(
     RetryPolicy.exponentialBackoff(1.second).capDelay(20.seconds),
@@ -55,9 +55,9 @@ void customPolicies() {
       2.seconds,
     ).giveUpAfterCumulativeDelay(10.seconds).followedBy(RetryPolicy.limitRetries(5)),
   );
-  // custom-policy-1
+  // #endregion custom-policy-1
 
-  // custom-policy-2
+  // #region custom-policy-2
   // Join 2 policies, where retry is stopped when *either* policy wants to
   // and the maximum delay is chosen between the two policies
   flakyOp().retrying(
@@ -73,5 +73,5 @@ void customPolicies() {
       1.second,
     ).giveUpAfterDelay(10.seconds).meet(RetryPolicy.limitRetries(10)),
   );
-  // custom-policy-2
+  // #endregion custom-policy-2
 }

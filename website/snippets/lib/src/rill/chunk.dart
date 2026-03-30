@@ -4,7 +4,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
-// chunk-create
+// #region chunk-create
 IO<Unit> chunkCreate() {
   // Chunk.fromList: from a Dart List
   final fromList = Chunk.fromList([1, 2, 3, 4, 5]);
@@ -31,9 +31,9 @@ IO<Unit> chunkCreate() {
     'compacted: ${compacted.size}',
   );
 }
-// chunk-create
+// #endregion chunk-create
 
-// chunk-rill-observe
+// #region chunk-rill-observe
 // chunks() exposes the raw Rill<Chunk<O>>, revealing how elements are batched.
 
 IO<Unit> chunkObserve() {
@@ -53,9 +53,9 @@ IO<Unit> chunkObserve() {
 
   return IO.both(singleChunk, multiChunk).voided();
 }
-// chunk-rill-observe
+// #endregion chunk-rill-observe
 
-// chunk-rill-reshape
+// #region chunk-rill-reshape
 IO<Unit> chunkReshape() {
   // chunkN(n): re-batch into fixed-size chunks, last chunk may be smaller
   final fixedSize = Rill.range(0, 25)
@@ -88,9 +88,9 @@ IO<Unit> chunkReshape() {
 
   return fixedSize.productR(allInOne).productR(capped);
 }
-// chunk-rill-reshape
+// #endregion chunk-rill-reshape
 
-// chunk-map-chunks
+// #region chunk-map-chunks
 // mapChunks transforms each chunk as a whole, returning Rill<O2>.
 // This is the same mechanism used internally by filter, map, collect, etc.
 
@@ -102,4 +102,4 @@ IO<Unit> chunkMapChunks() => Rill.range(0, 20)
     .compile
     .toIList
     .flatMap((IList<int> xs) => IO.print('evens x10: $xs'));
-// chunk-map-chunks
+// #endregion chunk-map-chunks

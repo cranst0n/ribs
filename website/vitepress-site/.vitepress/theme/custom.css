@@ -1,0 +1,272 @@
+:root {
+  --vp-nav-bg-color: rgba(255, 255, 255, 0.5);
+}
+
+.dark {
+  --vp-nav-bg-color: rgba(30, 30, 32, 0.5);
+}
+
+.VPNavBar {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Animated gradient glow behind hero */
+.VPHero {
+  position: relative;
+  z-index: 0;
+}
+
+.VPHero::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle,
+      rgba(124, 58, 237, 0.15) 0%,
+      rgba(139, 92, 246, 0.1) 40%,
+      transparent 70%);
+  border-radius: 50%;
+  filter: blur(60px);
+  animation: hero-glow 6s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.dark .VPHero::before {
+  background: radial-gradient(circle,
+      rgba(167, 139, 250, 0.12) 0%,
+      rgba(124, 58, 237, 0.08) 40%,
+      transparent 70%);
+}
+
+@keyframes hero-glow {
+  0% {
+    opacity: 0.6;
+    transform: translateX(-50%) scale(1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.15);
+  }
+}
+
+/* DartPad interactive playground */
+
+.dartpad-wrapper {
+  margin: 16px 0;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dartpad-code div[class*="language-"] {
+  margin: 0;
+  border-radius: 0;
+  border: none;
+}
+
+.dartpad-code pre {
+  padding-left: 0 !important;
+}
+
+.dartpad-code code {
+  padding: 0 !important;
+}
+
+.dartpad-code .copy {
+  /* Hide VitePress copy button — DartPad toolbar has its own */
+  display: none;
+}
+
+/* Line numbers — hidden by default, visible on hover, never copied */
+
+.dartpad-code code {
+  counter-reset: dartpad-line;
+}
+
+.dartpad-code .line::before {
+  counter-increment: dartpad-line;
+  content: counter(dartpad-line);
+  display: inline-block;
+  width: 2ch;
+  margin-left: 2px;
+  margin-right: 8px;
+  text-align: right;
+  color: transparent;
+  user-select: none;
+  pointer-events: none;
+  transition: color 0.2s;
+}
+
+.dartpad-code:hover .line::before {
+  color: var(--vp-c-text-4, rgba(128, 128, 128, 0.4));
+}
+
+.dartpad-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg-soft);
+}
+
+.dartpad-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 4px;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-2);
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+}
+
+.dartpad-btn:hover {
+  border-color: var(--vp-c-brand-1);
+  color: var(--vp-c-brand-1);
+  background: var(--vp-c-bg-mute);
+}
+
+.dartpad-btn:focus-visible {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: 2px;
+}
+
+.dartpad-run {
+  color: var(--vp-c-brand-1);
+}
+
+.dartpad-active {
+  display: flex;
+  flex-direction: column;
+}
+
+.dartpad-active-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--vp-c-bg-soft);
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.dartpad-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vp-c-text-2);
+}
+
+.dartpad-iframe-container {
+  position: relative;
+}
+
+.dartpad-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.dartpad-loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--vp-c-bg);
+  z-index: 1;
+}
+
+.dartpad-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--vp-c-divider);
+  border-top-color: var(--vp-c-brand-1);
+  border-radius: 50%;
+  animation: dartpad-spin 0.8s linear infinite;
+}
+
+.dartpad-loader-text {
+  font-size: 13px;
+  color: var(--vp-c-text-3);
+}
+
+@keyframes dartpad-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.dartpad-wrapper,
+.dartpad-toolbar,
+.dartpad-active-toolbar {
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+@media (max-width: 640px) {
+  .dartpad-toolbar {
+    flex-wrap: wrap;
+  }
+}
+
+/* Collapsible outline toggles */
+.outline-section-toggle {
+  display: inline-block;
+  width: 14px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 11px;
+  color: var(--vp-c-text-3);
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.outline-section-toggle:hover {
+  color: var(--vp-c-brand-1);
+}
+
+.VPDocAsideOutline nav>ul>li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+.VPDocAsideOutline nav>ul>li>ul {
+  width: 100%;
+}
+
+/* Feature cards: icon + title on same line */
+.VPFeature .box {
+  display: grid !important;
+  grid-template-columns: 48px 1fr !important;
+  grid-template-rows: auto auto !important;
+  column-gap: 12px !important;
+  align-items: center !important;
+}
+
+.VPFeature .box>.icon {
+  grid-row: 1 !important;
+  grid-column: 1 !important;
+  margin-bottom: 0 !important;
+}
+
+.VPFeature .box>.title {
+  grid-row: 1 !important;
+  grid-column: 2 !important;
+}
+
+.VPFeature .box>.details {
+  grid-row: 2 !important;
+  grid-column: 1 / -1 !important;
+}

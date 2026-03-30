@@ -3,7 +3,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
-// cdl-basic
+// #region cdl-basic
 /// A latch of 3 requires 3 [release] calls before [await] unblocks.
 IO<Unit> countDownLatchBasic() => CountDownLatch.create(3).flatMap((latch) {
   // Three worker fibers each do their work, then release the latch.
@@ -17,9 +17,9 @@ IO<Unit> countDownLatchBasic() => CountDownLatch.create(3).flatMap((latch) {
 
   return ilist([worker(1), worker(2), worker(3), coordinator]).parSequence_();
 });
-// cdl-basic
+// #endregion cdl-basic
 
-// cdl-await-multiple
+// #region cdl-await-multiple
 /// Multiple fibers can call [await] simultaneously; they are all unblocked
 /// at the same instant when the last [release] fires.
 IO<Unit> multipleAwaiters() => CountDownLatch.create(1).flatMap((latch) {
@@ -32,9 +32,9 @@ IO<Unit> multipleAwaiters() => CountDownLatch.create(1).flatMap((latch) {
 
   return ilist([waiter(1), waiter(2), waiter(3), starter]).parSequence_();
 });
-// cdl-await-multiple
+// #endregion cdl-await-multiple
 
-// cdl-already-done
+// #region cdl-already-done
 /// Once the count reaches zero, subsequent [await] calls return immediately —
 /// the latch stays open forever.
 IO<Unit> awaitAlreadyDone() => CountDownLatch.create(1).flatMap((latch) {
@@ -44,9 +44,9 @@ IO<Unit> awaitAlreadyDone() => CountDownLatch.create(1).flatMap((latch) {
       .productR(latch.await()) // also returns immediately
       .productR(IO.print('done'));
 });
-// cdl-already-done
+// #endregion cdl-already-done
 
-// cdl-parallel-init
+// #region cdl-parallel-init
 /// Real-world example: parallel service initialisation.
 ///
 /// Three services start up concurrently. An HTTP server must not begin
@@ -72,4 +72,4 @@ IO<Unit> parallelServiceInit() => CountDownLatch.create(3).flatMap((ready) {
     gateway,
   ]).parSequence_();
 });
-// cdl-parallel-init
+// #endregion cdl-parallel-init

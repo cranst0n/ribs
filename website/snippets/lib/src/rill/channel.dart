@@ -4,8 +4,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
-// channel-create
-
+// #region channel-create
 IO<Unit> channelCreate() {
   // bounded(n): producers suspend when n items are waiting — natural backpressure.
   final bounded = Channel.bounded<String>(16);
@@ -20,11 +19,9 @@ IO<Unit> channelCreate() {
 
   return bounded.flatMap((_) => synchronous).flatMap((_) => unbounded).voided();
 }
+// #endregion channel-create
 
-// channel-create
-
-// channel-send
-
+// #region channel-send
 IO<Unit> channelSend() {
   return Channel.bounded<int>(4).flatMap((Channel<int> channel) {
     // send() suspends the calling fiber when the channel is at capacity.
@@ -55,11 +52,9 @@ IO<Unit> channelSend() {
     return sendOne.productR(sendFinal).productR(consume);
   });
 }
+// #endregion channel-send
 
-// channel-send
-
-// channel-try-send
-
+// #region channel-try-send
 IO<Unit> channelTrySend() {
   return Channel.bounded<int>(2).flatMap((Channel<int> channel) {
     // trySend never suspends. Returns Right(true) if the value was queued,
@@ -82,11 +77,9 @@ IO<Unit> channelTrySend() {
     // 4: dropped (full)
   });
 }
+// #endregion channel-try-send
 
-// channel-try-send
-
-// channel-send-all
-
+// #region channel-send-all
 IO<Unit> channelSendAll() {
   return Channel.bounded<int>(8).flatMap((Channel<int> channel) {
     // sendAll is a Pipe<A, Never> that feeds every element of a Rill into
@@ -104,11 +97,9 @@ IO<Unit> channelSendAll() {
         ); // received: IList(1, 2, 3, 4, 5)
   });
 }
+// #endregion channel-send-all
 
-// channel-send-all
-
-// channel-realworld
-
+// #region channel-realworld
 // Collect log events from three concurrent services into a single list.
 //
 // Each service sends its events independently via `channel.send`. The bounded
@@ -137,5 +128,4 @@ IO<IList<String>> aggregateLogs() {
     // Returns all 8 log lines (order varies by scheduling).
   });
 }
-
-// channel-realworld
+// #endregion channel-realworld

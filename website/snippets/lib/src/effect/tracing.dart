@@ -3,8 +3,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
-// tracing-enable
-
+// #region tracing-enable
 void enableTracing() {
   // Tracing is disabled by default. Enable it once at application startup,
   // before any IO runs.
@@ -15,11 +14,9 @@ void enableTracing() {
   // reduce memory overhead on memory-constrained targets.
   IOTracingConfig.traceBufferSize = 128;
 }
+// #endregion tracing-enable
 
-// tracing-enable
-
-// tracing-error
-
+// #region tracing-error
 // When tracing is enabled, error outcomes carry an IOFiberTrace instead of
 // a native Dart stack trace. The trace shows the labeled operations that
 // ran before the failure, most recent first.
@@ -52,11 +49,9 @@ Future<void> tracingError() async {
     (int result) => print('result: $result'),
   );
 }
+// #endregion tracing-error
 
-// tracing-error
-
-// tracing-dump
-
+// #region tracing-dump
 // Call IOFiber.dumpFibers() at any point to print a snapshot of every active
 // fiber — its status and the operations in its current trace buffer.
 //
@@ -81,11 +76,9 @@ IO<Unit> manualDump() {
     return Unit();
   });
 }
+// #endregion tracing-dump
 
-// tracing-dump
-
-// tracing-signal
-
+// #region tracing-signal
 // On native Dart targets, install OS-level signal handlers so a dump can be
 // triggered from a terminal without modifying the running application:
 //
@@ -99,5 +92,4 @@ IO<Unit> setupSignalHandler() {
     return Unit();
   });
 }
-
-// tracing-signal
+// #endregion tracing-signal

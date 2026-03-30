@@ -51,10 +51,22 @@ melos:
           - "snippets"
 
     doc:
-      run: melos exec -c 12 --fail-fast -- dart doc
-      description: Create API documentation for all packages.
-      packageFilters:
-        ignore: "snippets"
+      run: |
+        dart pub global run dartdoc_vitepress \
+          --format vitepress \
+          --workspace-docs \
+          --exclude-packages 'ribs_bench,ribs_workspace,snippets' \
+          --output website/vitepress-site
+        cp -r website/docs/. website/vitepress-site/guide/
+      description: Regenerate API docs, then restore guide docs from website/docs/ into website/vitepress-site/guide/. Run `melos run website-dev` to preview.
+
+    website-dev:
+      run: cd website/vitepress-site && npm install && npx vitepress dev
+      description: Install VitePress dependencies and start the dev server at http://localhost:5173.
+
+    website-build:
+      run: cd website/vitepress-site && npm install && npm run build
+      description: Produce a deployable VitePress bundle in website/vitepress-site/.vitepress/dist/. Requires ~4 GB of available RAM; increase NODE_OPTIONS in website/vitepress-site/package.json if the build is killed.
 
     analyze: melos exec -c1 -- dart analyze --fatal-infos .
 

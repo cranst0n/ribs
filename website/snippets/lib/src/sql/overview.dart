@@ -5,8 +5,7 @@ import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_sql/ribs_sql.dart';
 import 'package:ribs_sqlite/ribs_sqlite.dart';
 
-// sql-domain
-
+// #region sql-domain
 // A plain Dart class with no special annotations or generated code required.
 final class Person {
   final String name;
@@ -24,11 +23,9 @@ final personRead = (Read.string, Read.integer).tupled.map(
 final personWrite = (Write.string, Write.integer).tupled.contramap(
   (Person p) => (p.name, p.age),
 );
+// #endregion sql-domain
 
-// sql-domain
-
-// sql-transactor
-
+// #region sql-transactor
 // SqliteTransactor.memory() gives a Resource<Transactor> backed by an
 // in-memory SQLite database. Use .file(path) for a persistent database.
 // Resource ensures the connection is closed on success, error, or
@@ -37,11 +34,9 @@ IO<Unit> runWithTransactor() => SqliteTransactor.memory().use((xa) {
   // xa : Transactor — passed to .transact() on every ConnectionIO
   return IO.unit;
 });
+// #endregion sql-transactor
 
-// sql-transactor
-
-// sql-ddl
-
+// #region sql-ddl
 // update0 is an extension on String that creates an Update0 — a
 // parameterless write statement. Use it for DDL and any SQL that
 // takes no bound parameters.
@@ -51,11 +46,9 @@ CREATE TABLE IF NOT EXISTS person (
   name TEXT NOT NULL,
   age  INTEGER NOT NULL
 )'''.update0.run();
+// #endregion sql-ddl
 
-// sql-ddl
-
-// sql-insert
-
+// #region sql-insert
 // update<A>(Write<A>) creates an Update<A>.
 // run(value)    — execute once, returns affected row count.
 // runMany(list) — execute for each element in the list.
@@ -66,11 +59,9 @@ ConnectionIO<int> insertOne() => 'INSERT INTO person (name, age) VALUES (?, ?)'
 ConnectionIO<Unit> insertMany() => 'INSERT INTO person (name, age) VALUES (?, ?)'
     .update((Write.string, Write.integer).tupled)
     .runMany([('Alice', 30), ('Bob', 25), ('Carol', 35)]);
+// #endregion sql-insert
 
-// sql-insert
-
-// sql-query
-
+// #region sql-query
 // query<A>(Read<A>) creates a Query<A>.
 // ilist()  — collect all rows into an IList<A>.
 // unique() — expect exactly one row; error otherwise.
@@ -81,11 +72,9 @@ ConnectionIO<Option<Person>> queryByName(String name) =>
     (Fragment.raw('SELECT name, age FROM person WHERE name = ') + Fragment.param(name, Put.string))
         .query(personRead)
         .option();
+// #endregion sql-query
 
-// sql-query
-
-// sql-parameterized
-
+// #region sql-parameterized
 // ParameterizedQuery bundles a SQL template, a Read, and a Write.
 // Bind parameters lazily via unique(), option(), ilist(), or stream().
 final byName = ParameterizedQuery(
@@ -103,22 +92,18 @@ final byMinAge = ParameterizedQuery(
 ConnectionIO<Person> lookupPerson(String name) => byName.unique(name);
 
 ConnectionIO<IList<Person>> adults() => byMinAge.ilist(18);
+// #endregion sql-parameterized
 
-// sql-parameterized
-
-// sql-stream
-
+// #region sql-stream
 // .stream() returns a ConnectionRill<A> — a lazy, streaming query.
 // Call .transact(xa) to obtain a Rill<A> that emits rows one at a time.
 // The connection stays open for the duration of the stream and is
 // released automatically when the stream terminates.
 IO<IList<Person>> streamAll(Transactor xa) =>
     'SELECT name, age FROM person'.query(personRead).stream().transact(xa).compile.toIList;
+// #endregion sql-stream
 
-// sql-stream
-
-// sql-returning
-
+// #region sql-returning
 // updateReturning<A, B>(Write<A>, Read<B>) supports INSERT ... RETURNING.
 // run(value)    — execute and read the single returned row.
 // runMany(list) — execute for each element; collect all returned rows.
@@ -126,11 +111,9 @@ ConnectionIO<int> insertReturningId(String label) =>
     'INSERT INTO item (label) VALUES (?) RETURNING id'
         .updateReturning(Write.string, Read.integer)
         .run(label);
+// #endregion sql-returning
 
-// sql-returning
-
-// sql-strategy
-
+// #region sql-strategy
 // Strategy controls the four transaction lifecycle hooks. The default strategy
 // issues BEGIN before the ConnectionIO, COMMIT on success, and ROLLBACK on any
 // error or fiber cancellation. Override individual hooks when needed — for
@@ -144,14 +127,11 @@ final customStrategy = Strategy(
 
 // Pass a custom Strategy to any transactor constructor.
 final Resource<Transactor> xa = SqliteTransactor.memory(strategy: customStrategy);
+// #endregion sql-strategy
 
-// sql-strategy
-
-// sql-transaction
-
+// #region sql-transaction
 // .transact(xa) wraps the entire ConnectionIO in BEGIN / COMMIT.
 // Any error — including fiber cancellation — triggers an automatic ROLLBACK.
 IO<Unit> runTransaction(Transactor xa2) =>
     createTable().flatMap((_) => insertMany()).flatMap((_) => queryAll()).transact(xa2).voided();
-
-// sql-transaction
+// #endregion sql-transaction

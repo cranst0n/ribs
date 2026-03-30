@@ -4,7 +4,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
-// pull-anatomy
+// #region pull-anatomy
 IO<Unit> pullAnatomy() {
   // Pull.pure: return a result with no output
   final pureResult = Pull.pure(42); // Pull<Never, int>
@@ -29,10 +29,9 @@ IO<Unit> pullAnatomy() {
 
   return asRill.compile.toIList.flatMap((IList<int> xs) => IO.print('from pull: $xs'));
 }
-// pull-anatomy
+// #endregion pull-anatomy
 
-// pull-custom-combinator
-
+// #region pull-custom-combinator
 /// Keeps only every [step]th element starting at index 0: indices 0, step, 2*step, …
 ///
 /// This is the same result as:
@@ -77,5 +76,4 @@ IO<Unit> customCombinatorExample() => takeEvery(
   Rill.range(0, 10),
   3,
 ).compile.toIList.flatMap((IList<int> xs) => IO.print('every 3rd: $xs')); // [0, 3, 6, 9]
-
-// pull-custom-combinator
+// #endregion pull-custom-combinator

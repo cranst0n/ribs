@@ -8,41 +8,34 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
 Future<void> snippet1() async {
-  // io-1
-
+  // #region io-1
   final rng = Future(() => Random.secure().nextInt(1000));
 
   await rng.then((x) => rng.then((y) => print('x: $x / y: $y')));
-
-  // io-1
+  // #endregion io-1
 }
 
 Future<void> snippet2() async {
-  // io-2
-
+  // #region io-2
   // Substitute the definition of fut with it's expression
   // x and y are different! (probably)
   await Future(
     () => Random.secure().nextInt(1000),
   ).then((x) => Future(() => Random.secure().nextInt(1000)).then((y) => print('x: $x / y: $y')));
-
-  // io-2
+  // #endregion io-2
 }
 
 Future<void> snippet3() async {
-  // io-3
-
+  // #region io-3
   final rng = IO.delay(() => Random.secure().nextInt(1000));
 
   // x and y are different! (probably)
   await rng.flatMap((x) => rng.flatMap((y) => IO.print('x: $x / y: $y'))).unsafeRunFuture();
-
-  // io-3
+  // #endregion io-3
 }
 
 Future<void> asyncSnippet1() async {
-  // io-async-1
-
+  // #region io-async-1
   IO<A> futureToIO<A>(Function0<Future<A>> fut) {
     IO.async_<A>((cb) {
       fut().then(
@@ -53,13 +46,11 @@ Future<void> asyncSnippet1() async {
 
     throw UnimplementedError();
   }
-
-  // io-async-1
+  // #endregion io-async-1
 }
 
 Future<void> errorHandlingSnippet1() async {
-  // error-handling-1
-
+  // #region error-handling-1
   // composable handler using handleError
   final ioA = IO.delay(() => 90 / 0).handleError((ex) => 0);
   final ioB = IO.delay(() => 90 / 0).handleErrorWith((ex) => IO.pure(double.infinity));
@@ -71,12 +62,11 @@ Future<void> errorHandlingSnippet1() async {
       return IO.raiseError('cannot divide by 0!');
     }
   });
-
-  // error-handling-1
+  // #endregion error-handling-1
 }
 
 void safeResourcesSnippet1() {
-  // safe-resources-1
+  // #region safe-resources-1
   final sink = File('path/to/file').openWrite();
 
   try {
@@ -86,13 +76,11 @@ void safeResourcesSnippet1() {
   } finally {
     sink.close();
   }
-
-  // safe-resources-1
+  // #endregion safe-resources-1
 }
 
 void safeResourcesSnippet2() {
-  // safe-resources-2
-
+  // #region safe-resources-2
   final sink = IO.delay(() => File('path/to/file')).map((f) => f.openWrite());
 
   // bracket *ensures* that the sink is closed
@@ -100,13 +88,11 @@ void safeResourcesSnippet2() {
     (sink) => IO.exec(() => sink.writeAll(['Hello', 'World'])),
     (sink) => IO.exec(() => sink.close()),
   );
-
-  // safe-resources-2
+  // #endregion safe-resources-2
 }
 
 Future<void> conversionsSnippet() async {
-  // conversions-1
-
+  // #region conversions-1
   IO.fromOption(const Some(42), () => Exception('raiseError: none'));
 
   IO.fromEither(Either.right(42));
@@ -121,11 +107,9 @@ Future<void> conversionsSnippet() async {
       ),
     ),
   );
+  // #endregion conversions-1
 
-  // conversions-1
-
-  // conversions-bad-future
-
+  // #region conversions-bad-future
   final fut = Future(() => print('bad'));
 
   // Too late! Future is already running!
@@ -136,13 +120,11 @@ Future<void> conversionsSnippet() async {
 
   // Here we preserve laziness so that ioGood is referentially transparent
   final ioGood = IO.fromFuture(IO.delay(() => Future(() => print('good'))));
-
-  // conversions-bad-future
+  // #endregion conversions-bad-future
 }
 
 void deferSnippet() {
-  // io-defer
-
+  // #region io-defer
   // IO.delay: synchronous thunk that produces a plain value A
   final delayEx = IO.delay(() => Random.secure().nextInt(100));
 
@@ -152,13 +134,11 @@ void deferSnippet() {
     final heads = Random.secure().nextBool();
     return heads ? IO.pure(1) : IO.raiseError('tails!');
   });
-
-  // io-defer
+  // #endregion io-defer
 }
 
 void combinatorsSnippet() {
-  // io-combinators
-
+  // #region io-combinators
   // map: transform the successful value
   final doubled = IO.pure(21).map((n) => n * 2); // IO(42)
 
@@ -176,13 +156,11 @@ void combinatorsSnippet() {
 
   // redeem: recover from an error or transform the success, all in one step
   final recovered = IO.raiseError<int>('oops').redeem((_) => -1, (n) => n * 2); // IO(-1)
-
-  // io-combinators
+  // #endregion io-combinators
 }
 
 void concurrencySnippet() {
-  // io-both
-
+  // #region io-both
   final fetchUser = IO.pure('Alice');
   final fetchProfile = IO.pure(99);
 
@@ -190,11 +168,9 @@ void concurrencySnippet() {
   final program = IO
       .both(fetchUser, fetchProfile)
       .flatMap((t) => IO.print('user: ${t.$1}, score: ${t.$2}'));
+  // #endregion io-both
 
-  // io-both
-
-  // io-race
-
+  // #region io-race
   final fast = IO.sleep(100.milliseconds).productR(IO.pure('fast result'));
   final slow = IO.sleep(500.milliseconds).productR(IO.pure('slow result'));
 
@@ -202,13 +178,11 @@ void concurrencySnippet() {
   final race = IO
       .race(fast, slow)
       .map((winner) => winner.fold((a) => 'A won: $a', (b) => 'B won: $b'));
-
-  // io-race
+  // #endregion io-race
 }
 
 void timingSnippet() {
-  // io-timing
-
+  // #region io-timing
   // sleep: deliberate async delay
   final delayed = IO.sleep(200.milliseconds).productR(IO.pure(42));
 
@@ -220,13 +194,11 @@ void timingSnippet() {
 
   // timeoutTo: return a fallback IO instead of raising
   final withFallback = IO.sleep(5.seconds).productR(IO.pure(42)).timeoutTo(1.seconds, IO.pure(-1));
-
-  // io-timing
+  // #endregion io-timing
 }
 
 void repetitionSnippet() {
-  // io-repetition
-
+  // #region io-repetition
   // replicate: run sequentially n times, collect results
   final rolls = IO.delay(() => Random.secure().nextInt(6) + 1).replicate(3);
   // IO<IList<int>>
@@ -237,13 +209,11 @@ void repetitionSnippet() {
   // iterateUntil: keep running until the predicate is satisfied
   final poll = IO.delay(() => Random.secure().nextInt(100)).iterateUntil((n) => n > 90);
   // IO<int> — repeats until a value > 90 is produced
-
-  // io-repetition
+  // #endregion io-repetition
 }
 
 void traverseSnippet() {
-  // io-traverse
-
+  // #region io-traverse
   // traverseIO: apply an IO-valued function to each element, sequentially.
   // Short-circuits on the first error — later elements are not evaluated.
   final validated = ilist([2, 4, 6]).traverseIO(
@@ -259,13 +229,11 @@ void traverseSnippet() {
 
   // parTraverseIO / parSequence: same ideas, but run all IOs concurrently
   final parallel = ilist([1, 2, 3]).parTraverseIO((n) => IO.pure(n * 10));
-
-  // io-traverse
+  // #endregion io-traverse
 }
 
 Future<void> outcomeSnippet() async {
-  // io-outcome
-
+  // #region io-outcome
   final outcome = await IO.pure(42).unsafeRunFutureOutcome();
 
   // fold over the three possible cases: canceled, errored, succeeded
@@ -274,12 +242,11 @@ Future<void> outcomeSnippet() async {
     (err, _) => print('IO failed: $err'),
     (value) => print('IO succeeded: $value'), // IO succeeded: 42
   );
-
-  // io-outcome
+  // #endregion io-outcome
 }
 
 Future<void> cancelationSnippet() async {
-  // cancelation-1
+  // #region cancelation-1
   int count = 0;
 
   // Our IO program
@@ -304,5 +271,5 @@ Future<void> cancelationSnippet() async {
   // Show the Outcome of the IO as well as confirmation that our `onCancel`
   // handlers have been called since the IO was canceled
   print('Outcome: $outcome | count: $count'); // Outcome: Canceled | count: 6
-  // cancelation-1
+  // #endregion cancelation-1
 }

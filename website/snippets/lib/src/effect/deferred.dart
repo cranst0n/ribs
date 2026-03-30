@@ -3,7 +3,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
-// deferred-basic
+// #region deferred-basic
 IO<Unit> deferredBasic() => Deferred.of<int>().flatMap(
   (d) =>
       IO
@@ -18,9 +18,9 @@ IO<Unit> deferredBasic() => Deferred.of<int>().flatMap(
           )
           .voided(),
 );
-// deferred-basic
+// #endregion deferred-basic
 
-// deferred-complete-once
+// #region deferred-complete-once
 IO<Unit> completeOnce() => Deferred.of<String>().flatMap(
   (d) => IO
       .both(
@@ -29,10 +29,9 @@ IO<Unit> completeOnce() => Deferred.of<String>().flatMap(
       )
       .flatMap((_) => d.value().flatMap((v) => IO.print('value: $v'))),
 ); // value: first
-// deferred-complete-once
+// #endregion deferred-complete-once
 
-// deferred-ready-gate
-
+// #region deferred-ready-gate
 /// A service publishes its endpoint via [Deferred] once startup is done.
 /// Any number of client fibers can call [ready.value()] and will all unblock
 /// at the same instant, the moment [complete] is called.
@@ -47,5 +46,4 @@ IO<Unit> serviceReadyGate() => Deferred.of<String>().flatMap((ready) {
 
   return ilist([client(1), client(2), client(3), service]).parSequence_();
 });
-
-// deferred-ready-gate
+// #endregion deferred-ready-gate

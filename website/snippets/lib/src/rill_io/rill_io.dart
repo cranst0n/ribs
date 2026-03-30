@@ -6,8 +6,7 @@ import 'package:ribs_ip/ribs_ip.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 import 'package:ribs_rill_io/ribs_rill_io.dart';
 
-// rill-io-files-read
-
+// #region rill-io-files-read
 /// Print each line of a file with a 1-based line number prefix.
 IO<Unit> printNumberedLines(Path path) =>
     Files.readUtf8Lines(
@@ -16,11 +15,9 @@ IO<Unit> printNumberedLines(Path path) =>
 
 /// Count lines in a file.
 IO<int> countLines(Path path) => Files.readUtf8Lines(path).compile.count;
+// #endregion rill-io-files-read
 
-// rill-io-files-read
-
-// rill-io-files-write
-
+// #region rill-io-files-write
 /// Copy a file byte-for-byte.
 IO<Unit> copyFile(Path src, Path dest) =>
     Files.readAll(src).through(Files.writeAll(dest)).compile.drain;
@@ -28,11 +25,9 @@ IO<Unit> copyFile(Path src, Path dest) =>
 /// Write a list of strings to a file, one per line.
 IO<Unit> writeLines(List<String> lines, Path dest) =>
     Rill.emits(lines).through(Files.writeUtf8Lines(dest)).compile.drain;
+// #endregion rill-io-files-write
 
-// rill-io-files-write
-
-// rill-io-net-client
-
+// #region rill-io-net-client
 /// Connect to [addr], send [request] bytes, and collect all response bytes
 /// until the server closes the connection.
 IO<IList<int>> sendAndReceive(SocketAddress<Ipv4Address> addr, List<int> request) =>
@@ -44,11 +39,9 @@ IO<IList<int>> sendAndReceive(SocketAddress<Ipv4Address> addr, List<int> request
       // before we finish sending.
       return IO.both(send, recv).map((t) => t.$2);
     });
+// #endregion rill-io-net-client
 
-// rill-io-net-client
-
-// rill-io-net-server
-
+// #region rill-io-net-server
 /// A TCP echo server: every byte received on a connection is written back.
 ///
 /// [bindAndAccept] turns the server socket into a `Rill<Socket>`.
@@ -61,11 +54,9 @@ IO<Unit> echoServer(SocketAddress<Ipv4Address> addr, {int maxConnections = 100})
         )
         .compile
         .drain;
+// #endregion rill-io-net-server
 
-// rill-io-net-server
-
-// rill-io-realworld
-
+// #region rill-io-realworld
 /// A TCP echo server with per-connection logging and a connection counter.
 ///
 /// Demonstrates:
@@ -89,5 +80,4 @@ IO<Unit> loggingEchoServer({int port = 9090, int maxConnections = 100}) => IO.re
     SocketAddress.Wildcard,
   ).parEvalMap(maxConnections, handle).compile.drain;
 });
-
-// rill-io-realworld
+// #endregion rill-io-realworld

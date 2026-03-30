@@ -5,8 +5,7 @@ import 'package:ribs_optics/ribs_optics.dart';
 
 import 'package:snippets/src/optics/domain.dart';
 
-// iso-define
-
+// #region iso-define
 // An Iso<S, A> is a lossless, bidirectional conversion between S and A.
 // It requires two total functions that are mutual inverses:
 //   get        : S -> A   (forward conversion)
@@ -18,11 +17,9 @@ final credsIso = Iso<Credentials, (String, String)>(
   (c) => (c.username, c.password),
   (t) => t(Credentials.new),
 );
+// #endregion iso-define
 
-// iso-define
-
-// iso-use
-
+// #region iso-use
 void isoUsage() {
   const creds = Credentials('admin', 's3cr3t');
 
@@ -36,22 +33,18 @@ void isoUsage() {
   final renamed = credsIso.modify((t) => (t.$1.toUpperCase(), t.$2))(creds);
   // Credentials('ADMIN', 's3cr3t')
 }
+// #endregion iso-use
 
-// iso-use
-
-// iso-reverse
-
+// #region iso-reverse
 void reverseUsage() {
   // reverse() flips the direction: the result is an Iso<A, S>.
   final tupleToCredentials = credsIso.reverse();
 
   final creds = tupleToCredentials.get(('alice', 'pass')); // Credentials('alice','pass')
 }
+// #endregion iso-reverse
 
-// iso-reverse
-
-// iso-compose
-
+// #region iso-compose
 // andThen composes two Isos into a single Iso.
 final credsToLengths = credsIso.andThen(
   Iso<(String, String), (int, int)>(
@@ -64,11 +57,9 @@ void composeUsage() {
   const creds = Credentials('user', 'p');
   final lengths = credsToLengths.get(creds); // (4, 1)
 }
+// #endregion iso-compose
 
-// iso-compose
-
-// iso-as-lens
-
+// #region iso-as-lens
 // An Iso is a Lens, so it can be composed with andThenL in a chain of optics
 // that span product and sum types alike.
 final dbCredsIso = Lens<AppConfig, DBConfig>(
@@ -88,5 +79,4 @@ final dbCredsIso = Lens<AppConfig, DBConfig>(
         (u) => (c) => credsIso.modify((t) => (u, t.$2))(c),
       ),
     );
-
-// iso-as-lens
+// #endregion iso-as-lens

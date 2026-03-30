@@ -3,7 +3,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
-// basics
+// #region basics
 IO<Unit> basics() => Ref.of(0).flatMap(
   (counter) => counter
       .update((n) => n + 1)
@@ -11,9 +11,9 @@ IO<Unit> basics() => Ref.of(0).flatMap(
       .flatMap((_) => counter.value())
       .flatMap((n) => IO.print('counter: $n')),
 ); // counter: 2
-// basics
+// #endregion basics
 
-// modify
+// #region modify
 IO<Unit> modifyExample() => Ref.of(<String>[]).flatMap(
   (log) => log
       .modify((msgs) => ([...msgs, 'first'], Unit()))
@@ -21,9 +21,9 @@ IO<Unit> modifyExample() => Ref.of(<String>[]).flatMap(
       .flatMap((_) => log.value())
       .flatMap((msgs) => IO.print(msgs.toString())),
 );
-// modify
+// #endregion modify
 
-// get-and-set
+// #region get-and-set
 IO<Unit> getAndSet() => Ref.of('initial').flatMap(
   (ref) => ref
       .getAndSet('updated')
@@ -31,10 +31,9 @@ IO<Unit> getAndSet() => Ref.of('initial').flatMap(
       .flatMap((_) => ref.value())
       .flatMap((cur) => IO.print('now: $cur')),
 ); // now: updated
-// get-and-set
+// #endregion get-and-set
 
-// concurrent-counter
-
+// #region concurrent-counter
 /// Spawn [fibers] fibers, each incrementing [counter] [increments] times.
 IO<int> concurrentCounter({int fibers = 10, int increments = 100}) => Ref.of(0).flatMap((counter) {
   // Each worker performs the update action, replicated `increments` times
@@ -46,11 +45,9 @@ IO<int> concurrentCounter({int fibers = 10, int increments = 100}) => Ref.of(0).
       .flatMap((fibers) => fibers.traverseIO_((f) => f.join()))
       .flatMap((_) => counter.value());
 });
+// #endregion concurrent-counter
 
-// concurrent-counter
-
-// request-cache
-
+// #region request-cache
 /// A simple in-memory cache backed by a [Ref].
 IO<String> fetchUser(int id) => IO.pure('user-$id');
 
@@ -75,5 +72,4 @@ IO<Unit> requestCacheExample() {
         .flatMap((m) => IO.print('cache: $m'));
   });
 }
-
-// request-cache
+// #endregion request-cache

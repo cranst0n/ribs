@@ -3,8 +3,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_units/ribs_units.dart';
 
-// motivation-raw-problem
-
+// #region motivation-raw-problem
 // With plain doubles there is nothing to prevent mixing incompatible values.
 // The compiler cannot catch either mistake:
 void rawProblem() {
@@ -17,11 +16,9 @@ void rawProblem() {
   // Forgot that units differ — off by a factor of 1000
   const total = distanceMeters + distanceKilometers;
 }
+// #endregion motivation-raw-problem
 
-// motivation-raw-problem
-
-// motivation-typed-solution
-
+// #region motivation-typed-solution
 // ribs_units makes the unit part of the type.
 // Mixing incompatible quantities is a compile-time error,
 // and conversions are explicit and readable.
@@ -38,11 +35,9 @@ void typedSolution() {
   // No silent unit mismatch — both are Length, conversions happen inside.
   final total = distanceM + distanceKm; // 6000 meters
 }
+// #endregion motivation-typed-solution
 
-// motivation-typed-solution
-
-// motivation-conversions
-
+// #region motivation-conversions
 void conversions() {
   final distance = 10.kilometers;
 
@@ -58,11 +53,9 @@ void conversions() {
   print(a.equivalentTo(b)); // true
   print(a >= b); // true
 }
+// #endregion motivation-conversions
 
-// motivation-conversions
-
-// motivation-arithmetic
-
+// #region motivation-arithmetic
 void arithmetic() {
   // Length × Length → Area (dimensional arithmetic is type-checked)
   final width = 10.meters;
@@ -76,11 +69,9 @@ void arithmetic() {
   // Area / Length → Length
   final side = area / height; // Length(10, meters)
 }
+// #endregion motivation-arithmetic
 
-// motivation-arithmetic
-
-// motivation-information
-
+// #region motivation-information
 void information() {
   final fileSize = 1500.megabytes;
 
@@ -91,11 +82,9 @@ void information() {
   final memoryUsed = 1.0.gibibytes; // exactly 1 GiB
   final inMB = memoryUsed.toMegabytes; // ~1073.74 MB (metric megabytes)
 }
+// #endregion motivation-information
 
-// motivation-information
-
-// motivation-temperature
-
+// #region motivation-temperature
 void temperature() {
   // Scale conversions (Celsius ↔ Fahrenheit ↔ Kelvin) account for zero-point offsets.
   final boiling = 100.celcius;
@@ -108,11 +97,9 @@ void temperature() {
   print(delta.toCelsiusDegrees); // Temperature(10.0, celcius)  — no offset
   print(delta.toFahrenheitDegrees); // Temperature(18.0, fahrenheit) — 10 × 9/5
 }
+// #endregion motivation-temperature
 
-// motivation-temperature
-
-// motivation-parsing
-
+// #region motivation-parsing
 void parsing() {
   // Parse quantities from user input or configuration files.
   final len = Length.parse('15.5 km');
@@ -127,5 +114,4 @@ void parsing() {
   // Use getOrElse for a sensible default.
   final size = Information.parse('bad input').getOrElse(() => 0.bytes);
 }
-
-// motivation-parsing
+// #endregion motivation-parsing

@@ -3,8 +3,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_optics/ribs_optics.dart';
 
-// prism-domain
-
+// #region prism-domain
 // A sealed hierarchy representing a configuration value that can be
 // a String, an int, or a boolean.
 sealed class ConfigValue {}
@@ -23,11 +22,9 @@ final class CBool extends ConfigValue {
   final bool value;
   CBool(this.value);
 }
+// #endregion prism-domain
 
-// prism-domain
-
-// prism-define
-
+// #region prism-define
 // A Prism<S, A> focuses on one variant of a sum type.
 // It requires two functions:
 //   getOrModify : S -> Either<S, A>   (Right if the variant matches, Left otherwise)
@@ -56,11 +53,9 @@ final boolP = Prism<ConfigValue, bool>(
   },
   CBool.new,
 );
+// #endregion prism-define
 
-// prism-define
-
-// prism-use
-
+// #region prism-use
 void prismUsage() {
   final ConfigValue cv = CString('hello');
 
@@ -78,11 +73,9 @@ void prismUsage() {
   // replace — convenience shorthand for modify((_) => value)
   final replaced = stringP.replace('world')(cv); // CString('world')
 }
+// #endregion prism-use
 
-// prism-use
-
-// prism-compose
-
+// #region prism-compose
 // andThenP composes two Prisms: both variants must match for the result to succeed.
 final positiveIntP = Prism<ConfigValue, int>(
   (cv) => switch (cv) {
@@ -104,5 +97,4 @@ void composeUsage() {
   final neg = CInt(-1);
   final noStr = positiveIntP.getOption(neg); // None
 }
-
-// prism-compose
+// #endregion prism-compose

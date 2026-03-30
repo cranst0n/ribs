@@ -1,0 +1,103 @@
+---
+sidebar_position: 0
+---
+
+
+# Overview
+
+`ribs_effect` is a functional effects library for Dart, ported from the Scala
+[Cats Effect](https://typelevel.org/cats-effect/) library. It gives you a
+principled toolkit for writing programs that interact with the world —
+performing I/O, managing resources, sharing mutable state, and running
+concurrent tasks — all without sacrificing predictability or testability.
+
+## The core idea: effects as values
+
+Dart's built-in `Future` executes immediately when created. This eager
+evaluation makes a `Future` a *running computation*, not a *description* of
+one. That distinction matters: you cannot safely reuse a `Future`, pass it
+around as a value, or compose it with other effects without reasoning carefully
+about when and how many times it has already been executed.
+
+`IO<A>` is a lazy, referentially transparent description of an effect. Creating
+an `IO` does nothing on its own — it is a *blueprint*. The same `IO` value can
+be reused, composed, and executed any number of times without surprising
+behaviour:
+
+<<< @/../snippets/lib/src/effect/io.dart#io-3
+
+Nothing in the snippet above runs until `.unsafeRunFuture()` is called. The
+same `rng` IO value is used twice, and each use produces an independent result.
+
+## What the package provides
+
+### IO
+
+`IO<A>` is the fundamental building block. It models any computation that may
+produce a value of type `A`, perform side effects, raise errors, or never complete.
+
+### Resource
+
+`Resource<A>` models the *acquire-use-release* lifecycle of a value that needs
+cleanup. Finalizers are guaranteed to run regardless of whether the inner
+computation succeeds, fails, or is cancelled. Nested resources finalize in
+LIFO order.
+
+### Ref
+
+`Ref<A>` is a concurrent, purely functional mutable variable. All updates are
+atomic and exposed as `IO` operations so they compose safely with the rest of
+the effect stack.
+
+### Deferred
+
+`Deferred<A>` is a single-assignment, purely functional promise. A fiber that
+calls `.value()` on an empty `Deferred` will semantically block until another
+fiber calls `.complete(a)`. It is the canonical primitive for coordinating two
+independent fibers.
+
+### Queue
+
+`Queue<A>` is a concurrent, back-pressured queue. Multiple producers and
+consumers can interact with the same queue safely via `IO`. Both bounded and
+unbounded variants are available.
+
+### Semaphore
+
+`Semaphore` controls access to a shared resource by limiting the number of
+fibers that can hold a permit simultaneously. It is the standard primitive for
+rate-limiting, connection pooling, and mutual exclusion.
+
+### IO Retry
+
+`ribs_effect` includes a retry combinator built on top of `IO`. Policies are
+composable values — cap the number of attempts, add exponential backoff, or
+combine policies with `and`/`or`.
+
+## Concurrency model
+
+`ribs_effect` implements a *green-thread* concurrency model on top of Dart's
+event loop. A `Fiber` is a lightweight, cancellable unit of concurrency — far
+cheaper than a Dart `Isolate` (~270 bytes for a created fiber). Calling `.start()`
+on any `IO` forks it onto a new fiber, and fibers can be joined, cancelled, or
+raced with `IO.race` and `IO.both`.
+
+Cancellation is *cooperative and safe*: when a fiber is cancelled, any
+`Resource` finalizers and `IO.onCancel` handlers it holds are guaranteed to run.
+
+## Execution
+
+`IO` values are pure descriptions — they do nothing until explicitly executed.
+At the edge of your application, call `unsafeRunFuture()` (or
+`unsafeRunFutureOutcome()` to inspect the `Outcome`) to hand the computation
+to the Dart runtime:
+
+```dart
+void main() {
+  myProgram().unsafeRunFuture();
+}
+```
+
+The `unsafe` prefix is a deliberate signal: this is the boundary where pure
+functional code meets the imperative world. Keep this call as close to `main`
+as possible, and let `IO` handle everything inside.

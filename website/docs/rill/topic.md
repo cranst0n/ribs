@@ -1,0 +1,121 @@
+---
+sidebar_position: 60
+---
+
+
+# Topic
+
+A `Topic<A>` is a **publish-subscribe broadcast channel**. Unlike `Channel`,
+which delivers each item to exactly one consumer, a `Topic` delivers a copy of
+every published item to every active subscriber simultaneously.
+
+```dart
+abstract class Topic<A> {
+  IO<Either<TopicClosed, Unit>> publish1(A a);
+  Pipe<A, Never> get publish;
+
+  Rill<A> subscribe(int maxQueued);
+  Resource<Rill<A>> subscribeAwait(int maxQueued);
+
+  Rill<int> get subscribers;   // stream of active subscriber count
+  IO<Either<TopicClosed, Unit>> get close;
+}
+```
+
+## Channel vs Topic
+
+| | `Channel<A>` | `Topic<A>` |
+|---|---|---|
+| Consumers | One | Many |
+| Fan-out | No | Yes — each subscriber gets its own copy |
+| Backpressure | Publisher suspends when buffer full | Each subscriber's buffer is independent |
+
+Use `Topic` when multiple independent consumers need to react to the same stream
+of events — logs, sensor readings, price feeds, UI events. Use `Channel` when
+one producer hands work off to one consumer.
+
+## Creating a Topic
+
+```dart
+final topic = await Topic.create<String>().run();
+```
+
+`Topic.create()` returns `IO<Topic<A>>` and allocates the internal state. A
+single topic can accept unlimited subscribers.
+
+## Subscribing
+
+### `subscribe` — simple subscription
+
+`subscribe(maxQueued)` returns a `Rill<A>` immediately. The `maxQueued`
+argument sets the size of this subscriber's internal buffer: if the subscriber
+falls behind the publisher, the publisher will block once `maxQueued` items are
+waiting.
+
+<<< @/../snippets/lib/src/rill/topic.dart#topic-basic
+
+The subscriber runs in the foreground via `IO.both` while the publisher runs
+concurrently. The publisher's `publish` pipe closes the topic automatically
+when the source stream completes, which terminates all subscriber streams.
+
+### `subscribeAwait` — race-free subscription
+
+`subscribeAwait(maxQueued)` returns `Resource<Rill<A>>`. The subscription is
+**registered in the resource acquire phase**, so by the time the `use` body
+runs — and any concurrent publish call can start — the subscriber is already
+enrolled. This removes the startup race that would otherwise be possible with
+`subscribe`.
+
+<<< @/../snippets/lib/src/rill/topic.dart#topic-multi-subscriber
+
+Both subscribers receive an independent copy of every message. Closing one
+subscriber does not affect the other, and each has its own backpressure budget.
+
+## Publishing
+
+### `publish` — pipe a Rill
+
+`publish` is a `Pipe<A, Never>` that sends every element of a source stream to
+all active subscribers and closes the topic when the stream completes.
+
+```dart
+someRill.through(topic.publish).compile.drain
+```
+
+### `publish1` — single-value publish
+
+`publish1` publishes one value imperatively from IO-based producers. It returns
+`Left(TopicClosed)` if the topic is already closed.
+
+<<< @/../snippets/lib/src/rill/topic.dart#topic-publish1
+
+## Observing subscriber count
+
+`topic.subscribers` is a `Rill<Int>` that emits the current number of active
+subscribers each time it changes. It is backed by a `SignallingRef`, so it only
+emits on changes (like `Signal.discrete`).
+
+```dart
+// Log a message whenever the subscriber count changes.
+topic.subscribers
+    .evalMap((int n) => IO.print('subscribers: $n'))
+    .compile
+    .drain
+```
+
+## Real-world example: sensor fan-out
+
+<<< @/../snippets/lib/src/rill/topic.dart#topic-realworld
+
+Three fibers run concurrently from a single `IO.both` call:
+
+- The **publisher** streams sensor readings through `topic.publish` and closes
+  the topic when done.
+- The **logger** subscribes with a generous buffer and records every reading.
+- The **alerter** subscribes independently, filters for high-temperature events,
+  and emits alert strings.
+
+Each subscriber's buffer is separate, so a slow alerter does not block the
+logger. Closing the topic (which `publish` does automatically on stream
+completion) terminates both subscriber streams, so `compile.toIList` returns
+without hanging.

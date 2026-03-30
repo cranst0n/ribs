@@ -4,8 +4,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
-// signal-basics
-
+// #region signal-basics
 IO<Unit> signalBasics() {
   return SignallingRef.of(0).flatMap((SignallingRef<int> counter) {
     // SignallingRef is both a Ref and a Signal — all atomic Ref operations
@@ -27,11 +26,9 @@ IO<Unit> signalBasics() {
     // value after two increments: 2
   });
 }
+// #endregion signal-basics
 
-// signal-basics
-
-// signal-discrete
-
+// #region signal-discrete
 IO<IList<int>> signalDiscrete() {
   return SignallingRef.of(0).flatMap((SignallingRef<int> ref) {
     // discrete emits the current value immediately, then emits again only
@@ -47,11 +44,9 @@ IO<IList<int>> signalDiscrete() {
     // => IList(0, 1, 2, 3)  — initial + each update
   });
 }
+// #endregion signal-discrete
 
-// signal-discrete
-
-// signal-continuous
-
+// #region signal-continuous
 IO<IList<int>> signalContinuous() {
   return SignallingRef.of(42).flatMap((SignallingRef<int> ref) {
     // continuous emits the current value on every poll — it does not wait
@@ -63,11 +58,9 @@ IO<IList<int>> signalContinuous() {
     // => IList(42, 42, 42)  — same value, sampled three times
   });
 }
+// #endregion signal-continuous
 
-// signal-continuous
-
-// signal-interrupt
-
+// #region signal-interrupt
 // interruptWhenSignaled is the standard cancellation-token pattern.
 // The stream producer does not need to know who signals the stop or when.
 IO<Unit> signalInterrupt() {
@@ -84,11 +77,9 @@ IO<Unit> signalInterrupt() {
     return IO.both<Unit, Unit>(stream, controller).voided();
   });
 }
+// #endregion signal-interrupt
 
-// signal-interrupt
-
-// signal-realworld
-
+// #region signal-realworld
 // A streaming processor with external pause and stop controls.
 //
 // Three concurrent fibers share two signals:
@@ -142,5 +133,4 @@ IO<int> pauseableProcessor() {
     });
   });
 }
-
-// signal-realworld
+// #endregion signal-realworld

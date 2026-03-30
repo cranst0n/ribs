@@ -1,0 +1,111 @@
+---
+sidebar_position: 100
+---
+
+
+# Tracing
+
+Tracing gives each fiber a running breadcrumb trail of the IO operations it
+has executed. When an error occurs, the breadcrumb trail is surfaced as the
+error's stack trace — giving you a high-level view of _what the fiber was
+doing_ rather than a wall of internal Dart frames.
+
+## The problem tracing solves
+
+Dart's native stack trace points at the internals of the IO runtime (the
+interpreter loop, trampolining, continuation stacks) rather than at your
+application code. When a deeply nested IO pipeline fails, the native trace
+is often unhelpful:
+
+```
+#0  _IOFiber._runLoop (fiber.dart:212)
+#1  _IOFiber._step (fiber.dart:184)
+#2  ...
+```
+
+With tracing enabled, the error carries an `IOFiberTrace` instead — a list of
+labeled IO operations ordered from oldest to most recent:
+
+```
+IOFiberTrace:
+  flatMap @ package:myapp/service.dart:38:10
+    delay @ package:myapp/service.dart:35:8
+```
+
+## Enabling tracing
+
+Tracing is **disabled by default** to avoid any overhead in production. Enable
+it once at application startup, before any `IO` runs:
+
+<<< @/../snippets/lib/src/effect/tracing.dart#tracing-enable
+
+`traceBufferSize` controls the depth of the ring buffer kept per fiber.
+Entries are overwritten in FIFO order once the buffer is full, so only the
+most recent `N` operations appear in the trace. The default of 64 is enough
+for most debugging sessions.
+
+:::tip
+Enable tracing in development and CI, and leave it disabled in production
+builds. Because the check happens when `IO` values are constructed, disabling
+it is truly zero-cost — no `_Traced` wrapper nodes are created at all.
+:::
+
+## Inspecting a trace on error
+
+<<< @/../snippets/lib/src/effect/tracing.dart#tracing-error
+
+The `StackTrace?` argument in the `errored` branch of `Outcome.fold` is an
+`IOFiberTrace` when tracing is on. It implements `StackTrace`, so it works
+with any existing error-reporting code that accepts a `StackTrace`. Casting
+to `IOFiberTrace` is only needed if you want to access the raw `List<String>`.
+
+## Automatic labels
+
+You do not need to call `.traced()` manually for everyday operations.
+All built-in `IO` factory methods and combinators — `delay`, `flatMap`,
+`race`, `sleep`, `bracket`, `start`, and around forty others — automatically
+record a label when tracing is enabled. Your own code appears in traces
+through the operations you compose.
+
+## Fiber dump
+
+A **fiber dump** is a one-shot snapshot of every active fiber: its current
+status and the contents of its trace buffer. It is useful for diagnosing
+hangs, deadlocks, and unexpected concurrency behaviour — situations where
+there is no error outcome to inspect.
+
+### Manual dump
+
+<<< @/../snippets/lib/src/effect/tracing.dart#tracing-dump
+
+`IOFiber.dumpFibers()` prints to stdout immediately. The fiber status line
+shows whether the fiber is running or what it is suspended on:
+
+| Status | Meaning |
+|---|---|
+| `RUNNING (or scheduled)` | Actively executing or queued to run |
+| `SUSPENDED: Sleep` | Waiting on `IO.sleep` |
+| `SUSPENDED: Cede` | Yielded via `IO.cede` |
+| `SUSPENDED: Async(waiting for callback)` | Blocked on an async callback |
+
+### Signal-triggered dump
+
+On native Dart targets you can install OS signal handlers so a dump fires
+from a terminal without touching the running program:
+
+<<< @/../snippets/lib/src/effect/tracing.dart#tracing-signal
+
+| Signal | How to send |
+|---|---|
+| `SIGQUIT` | `Ctrl+\` in the terminal running the program |
+| `SIGUSR1` | `kill -SIGUSR1 <pid>` from another shell |
+
+Both signals print the dump and resume the application immediately — the
+program does not exit. Signal handlers are not available on web targets or
+Windows.
+
+:::tip
+Call `IO.installFiberDumpSignalHandler()` near the top of `main` so it is
+always available during development. It is a no-op if signals are
+unsupported on the current platform.
+:::

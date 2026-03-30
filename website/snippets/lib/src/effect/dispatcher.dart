@@ -3,7 +3,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
-// dispatcher-parallel
+// #region dispatcher-parallel
 /// unsafeToFuture runs an IO and returns a Future that resolves to the result.
 IO<int> parallelToFuture() => Dispatcher.parallel().use((dispatcher) {
   final future = dispatcher.unsafeToFuture(IO.pure(42));
@@ -20,9 +20,9 @@ IO<Unit> parallelFireAndForget() => Dispatcher.parallel().use((dispatcher) {
       })
       .productR(IO.sleep(10.milliseconds));
 });
-// dispatcher-parallel
+// #endregion dispatcher-parallel
 
-// dispatcher-sequential
+// #region dispatcher-sequential
 /// A sequential Dispatcher serializes submitted effects in FIFO order —
 /// each effect runs to completion before the next one starts.
 IO<IList<int>> sequentialFifo() => IO.ref(nil<int>()).flatMap((log) {
@@ -37,10 +37,9 @@ IO<IList<int>> sequentialFifo() => IO.ref(nil<int>()).flatMap((log) {
         .productR(log.value());
   });
 });
-// dispatcher-sequential
+// #endregion dispatcher-sequential
 
-// dispatcher-bridge
-
+// #region dispatcher-bridge
 /// Simulates an impure interface — an SDK callback, platform event, or any
 /// other context that calls [onMessage] from outside the IO world.
 void initSdk(void Function(String) onMessage) => onMessage('hello from sdk');
@@ -64,4 +63,4 @@ IO<Unit> withDispatcher() => Dispatcher.sequential().use((dispatcher) {
     // prints: hello from sdk
   });
 });
-// dispatcher-bridge
+// #endregion dispatcher-bridge

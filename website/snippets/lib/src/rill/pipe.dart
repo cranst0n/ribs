@@ -4,8 +4,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
-// pipe-basic
-
+// #region pipe-basic
 // A Pipe<I, O> is just a type alias for a function from Rill<I> to Rill<O>.
 // Define one as an ordinary Dart function or a named variable.
 
@@ -16,11 +15,9 @@ IO<Unit> pipeBasic() => Rill.range(1, 4)
     .compile
     .toIList
     .flatMap((IList<String> xs) => IO.print('labels: $xs')); // [item-1, item-2, item-3]
+// #endregion pipe-basic
 
-// pipe-basic
-
-// pipe-compose
-
+// #region pipe-compose
 // Compose pipes by applying one after the other with .through, or wrap
 // two pipes in a new function to create a named composed pipe.
 
@@ -33,11 +30,9 @@ IO<Unit> pipeCompose() => Rill.range(1, 11)
     .flatMap(
       (IList<String> xs) => IO.print('even labels: $xs'),
     ); // [item-2, item-4, item-6, item-8, item-10]
+// #endregion pipe-compose
 
-// pipe-compose
-
-// pipe-text
-
+// #region pipe-text
 /// Decode a raw byte stream to newline-delimited strings.
 ///
 /// This is the typical shape for reading a text file:
@@ -57,5 +52,4 @@ IO<Unit> pipeTextExample() {
     (IList<String> lines) => IO.print('lines: $lines'),
   ); // [hello, world]
 }
-
-// pipe-text
+// #endregion pipe-text

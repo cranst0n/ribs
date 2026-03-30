@@ -4,7 +4,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
-// rill-create
+// #region rill-create
 IO<Unit> rillCreate() {
   // Rill.emits: emit from a fixed Dart list
   final fromList = Rill.emits([1, 2, 3, 4, 5]);
@@ -26,9 +26,9 @@ IO<Unit> rillCreate() {
       .toIList
       .flatMap((IList<int> xs) => IO.print('doubled: $xs'));
 }
-// rill-create
+// #endregion rill-create
 
-// rill-transform
+// #region rill-transform
 IO<Unit> rillTransform() => Rill.range(1, 11) // 1  2  3  4  5  6  7  8  9  10
     .filter((int n) => n.isOdd) // 1  3  5  7  9
     .map((int n) => n * n) // 1  9  25 49 81
@@ -37,9 +37,9 @@ IO<Unit> rillTransform() => Rill.range(1, 11) // 1  2  3  4  5  6  7  8  9  10
     .compile
     .toIList
     .flatMap((IList<int> xs) => IO.print('sums: $xs')); // [0, 1, 10, 35]
-// rill-transform
+// #endregion rill-transform
 
-// rill-effects
+// #region rill-effects
 IO<Unit> rillEffects() =>
     Rill.emits([1, 2, 3, 4, 5])
         // evalTap: execute an IO per element and pass the element through unchanged
@@ -49,9 +49,9 @@ IO<Unit> rillEffects() =>
         .evalTap((int n) => IO.print('squared: $n'))
         .compile
         .drain;
-// rill-effects
+// #endregion rill-effects
 
-// rill-resource
+// #region rill-resource
 IO<Unit> rillResource() => Rill.bracket(
       // acquire: runs when the stream starts
       IO.print('opened connection').productR(IO.pure('conn')),
@@ -68,10 +68,9 @@ IO<Unit> rillResource() => Rill.bracket(
     .compile
     .toIList
     .flatMap((IList<String> results) => IO.print('results: $results'));
-// rill-resource
+// #endregion rill-resource
 
-// rill-interrupt
-
+// #region rill-interrupt
 // interruptAfter: stop the stream after a fixed wall-clock duration.
 // Any elements already emitted are kept; the stream ends cleanly.
 IO<IList<int>> interruptAfterExample() =>
@@ -93,11 +92,9 @@ IO<IList<int>> interruptWhenExample() => IO.deferred<Unit>().flatMap((stop) {
 
   return IO.both(source.compile.toIList, trigger).map((t) => t.$1);
 });
+// #endregion rill-interrupt
 
-// rill-interrupt
-
-// rill-par-join
-
+// #region rill-par-join
 /// Run [inner] streams concurrently and merge their outputs.
 ///
 /// [parJoin(n)] subscribes to at most [n] inner streams simultaneously.
@@ -118,11 +115,9 @@ IO<IList<String>> parJoinExample() {
       .compile
       .toIList; // elements arrive interleaved by speed
 }
+// #endregion rill-par-join
 
-// rill-par-join
-
-// rill-par-join-dynamic
-
+// #region rill-par-join-dynamic
 /// [flatMap] produces one inner stream per element.
 /// [parJoin] then runs those inner streams concurrently.
 ///
@@ -140,11 +135,9 @@ IO<IList<String>> dynamicParJoin() =>
         .parJoin(3) // at most 3 sub-streams active at once
         .compile
         .toIList;
+// #endregion rill-par-join-dynamic
 
-// rill-par-join-dynamic
-
-// rill-realworld
-
+// #region rill-realworld
 /// Simulate an async lookup — in practice an HTTP call or database query.
 IO<String> fetchRecord(int id) =>
     IO.sleep(Duration(milliseconds: 20 + (id * 7) % 50)).productR(IO.pure('record_$id'));
@@ -170,5 +163,4 @@ IO<IList<String>> parallelFetchPipeline({int count = 10, int maxConcurrent = 3})
               .compile
               .toIList,
     );
-
-// rill-realworld
+// #endregion rill-realworld

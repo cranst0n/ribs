@@ -3,7 +3,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
-// cb-basic
+// #region cb-basic
 /// A barrier of capacity 2 requires 2 concurrent [await] calls before any
 /// fiber is released.
 IO<Unit> cyclicBarrierBasic() => CyclicBarrier.withCapacity(2).flatMap((barrier) {
@@ -15,9 +15,9 @@ IO<Unit> cyclicBarrierBasic() => CyclicBarrier.withCapacity(2).flatMap((barrier)
 
   return ilist([worker(1), worker(2)]).parSequence_();
 });
-// cb-basic
+// #endregion cb-basic
 
-// cb-reuse
+// #region cb-reuse
 /// Unlike [CountDownLatch], a [CyclicBarrier] resets after each cycle.
 /// Here three fibers rendezvous twice — once per round.
 IO<Unit> cyclicBarrierReuse() => CyclicBarrier.withCapacity(3).flatMap((barrier) {
@@ -29,9 +29,9 @@ IO<Unit> cyclicBarrierReuse() => CyclicBarrier.withCapacity(3).flatMap((barrier)
 
   return ilist([worker(1), worker(2), worker(3)]).parSequence_();
 });
-// cb-reuse
+// #endregion cb-reuse
 
-// cb-cancel
+// #region cb-cancel
 /// A fiber waiting at the barrier can be canceled safely. The barrier count
 /// is restored so the remaining fibers are not permanently stuck.
 IO<Unit> cyclicBarrierCancel() => CyclicBarrier.withCapacity(2).flatMap((barrier) {
@@ -49,9 +49,9 @@ IO<Unit> cyclicBarrierCancel() => CyclicBarrier.withCapacity(2).flatMap((barrier
 
   return ilist([impatient, patient, secondArrival]).parSequence_();
 });
-// cb-cancel
+// #endregion cb-cancel
 
-// cb-pipeline
+// #region cb-pipeline
 /// Real-world example: parallel pipeline stages.
 ///
 /// Three processing stages each complete a chunk of work, then wait at a
@@ -75,4 +75,4 @@ IO<Unit> pipelineStages() => CyclicBarrier.withCapacity(3).flatMap((barrier) {
     stage('persist', 60.milliseconds),
   ]).parSequence_();
 });
-// cb-pipeline
+// #endregion cb-pipeline

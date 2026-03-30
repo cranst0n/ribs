@@ -4,8 +4,7 @@ import 'dart:typed_data';
 
 import 'package:ribs_binary/ribs_binary.dart';
 
-// bitvector-1
-
+// #region bitvector-1
 // Creating ByteVectors
 final bytesA = ByteVector.empty;
 final bytesB = ByteVector([0, 12, 32]);
@@ -18,12 +17,10 @@ final bitsA = BitVector.empty;
 final bitsB = BitVector.fromByteVector(bytesA);
 final bitsC = BitVector.low(10); // 10 bits all set to 0
 final bitsD = BitVector.high(10); // 10 bits all set to 1
-
-// bitvector-1
+// #endregion bitvector-1
 
 void byteVectorOps() {
-  // bitvector-byte-ops
-
+  // #region bitvector-byte-ops
   final header = ByteVector([0xca, 0xfe, 0xba, 0xbe]);
   final payload = ByteVector([0x01, 0x02, 0x03]);
 
@@ -41,13 +38,11 @@ void byteVectorOps() {
   // Index into individual bytes
   final secondByte = packet[1]; // 0xfe
   final safe = packet.lift(99); // None — index out of range
-
-  // bitvector-byte-ops
+  // #endregion bitvector-byte-ops
 }
 
 void byteVectorEncoding() {
-  // bitvector-byte-encode
-
+  // #region bitvector-byte-encode
   // Parsing from string representations
   final fromHex = ByteVector.fromValidHex('cafebabe');
   final fromBin = ByteVector.fromValidBin('10110011');
@@ -61,26 +56,22 @@ void byteVectorEncoding() {
   // Hex dump for debugging
   ByteVector([0xde, 0xad, 0xbe, 0xef]).printHexDump();
   // 00000000  de ad be ef                                       |....|
-
-  // bitvector-byte-encode
+  // #endregion bitvector-byte-encode
 }
 
 void byteVectorNumeric() {
-  // bitvector-byte-numeric
-
+  // #region bitvector-byte-numeric
   // Integer ↔ ByteVector (big-endian by default)
   final encoded = ByteVector.fromInt(0x0102, size: 2); // 0x0102
   final value = encoded.toInt(); // 258
 
   // Unsigned decode (no sign extension)
   final unsigned = ByteVector([0xff]).toUnsignedInt(); // 255
-
-  // bitvector-byte-numeric
+  // #endregion bitvector-byte-numeric
 }
 
 void byteVectorBitwise() {
-  // bitvector-byte-bitwise
-
+  // #region bitvector-byte-bitwise
   final a = ByteVector.fromValidHex('0f');
   final b = ByteVector.fromValidHex('aa');
 
@@ -91,13 +82,11 @@ void byteVectorBitwise() {
 
   print((a << 2).toHex()); // 3c — left shift
   print((b >> 1).toHex()); // 55 — right shift
-
-  // bitvector-byte-bitwise
+  // #endregion bitvector-byte-bitwise
 }
 
 void snippet2() {
-  // bitvector-2
-
+  // #region bitvector-2
   final bits = BitVector.bits([true, false, true, true, false, false, true, true]);
 
   print(bits.toBin()); // 10110011
@@ -108,13 +97,11 @@ void snippet2() {
   bits.get(7); // get 7th bit
   bits.clear(3); // set bit at index 3 to 0
   bits.set(3); // set bit at index 3 to 1
-
-  // bitvector-2
+  // #endregion bitvector-2
 }
 
 void bitVectorOps() {
-  // bitvector-bit-ops
-
+  // #region bitvector-bit-ops
   // Build a 13-bit control field manually
   var frame = BitVector.low(13); // 0000000000000
   frame = frame.set(0); // set the first flag
@@ -130,13 +117,11 @@ void bitVectorOps() {
   final data = BitVector.fromValidBin('1100');
   print(data.and(mask).toBin()); // 1000
   print((data | mask).toBin()); // 1110
-
-  // bitvector-bit-ops
+  // #endregion bitvector-bit-ops
 }
 
 void conversionSnippet() {
-  // bitvector-conversion
-
+  // #region bitvector-conversion
   // ByteVector → BitVector: every byte expands to 8 bits
   final bytes = ByteVector([0xb3]); // 1 byte
   final bits = bytes.bits; // 8 bits: 10110011
@@ -150,6 +135,5 @@ void conversionSnippet() {
 
   print(asBytes.size); // 2
   print(asBytes.toHex()); // b340
-
-  // bitvector-conversion
+  // #endregion bitvector-conversion
 }

@@ -4,8 +4,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
-// topic-basic
-
+// #region topic-basic
 // Subscribe to a topic and collect the first 5 items.
 IO<IList<String>> topicBasic() {
   return Topic.create<String>().flatMap((Topic<String> topic) {
@@ -23,11 +22,9 @@ IO<IList<String>> topicBasic() {
     // => IList('event-1', 'event-2', 'event-3', 'event-4', 'event-5')
   });
 }
+// #endregion topic-basic
 
-// topic-basic
-
-// topic-multi-subscriber
-
+// #region topic-multi-subscriber
 // Fan out: two independent subscribers each receive every published item.
 IO<(IList<String>, IList<String>)> topicMultiSubscriber() {
   return Topic.create<String>().flatMap((Topic<String> topic) {
@@ -54,11 +51,9 @@ IO<(IList<String>, IList<String>)> topicMultiSubscriber() {
         });
   });
 }
+// #endregion topic-multi-subscriber
 
-// topic-multi-subscriber
-
-// topic-publish1
-
+// #region topic-publish1
 // publish1 sends a single value imperatively — useful when the source of
 // events is IO-based rather than a Rill.
 IO<Unit> topicPublish1() {
@@ -79,11 +74,9 @@ IO<Unit> topicPublish1() {
     return IO.both<IList<int>, Unit>(subscriber, producer.productR(topic.close.voided())).voided();
   });
 }
+// #endregion topic-publish1
 
-// topic-publish1
-
-// topic-realworld
-
+// #region topic-realworld
 // A simple event bus: a temperature sensor broadcasts readings to an
 // independent logger and alerter running in separate fibers.
 IO<(IList<String>, IList<String>)> temperatureMonitor() {
@@ -113,5 +106,4 @@ IO<(IList<String>, IList<String>)> temperatureMonitor() {
     // alerter => IList('ALERT: high temp 31.7°C', 'ALERT: high temp 29.1°C')
   });
 }
-
-// topic-realworld
+// #endregion topic-realworld

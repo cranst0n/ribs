@@ -2,17 +2,14 @@
 
 import 'package:ribs_core/ribs_core.dart';
 
-// iset-construction
-
+// #region iset-construction
 final isetEmpty = ISet.empty<int>();
 final isetFromLiteral = iset([1, 2, 3]);
 final isetFromDart = ISet.of([4, 5, 6]);
 final isetFromCollection = ISet.from(ilist([7, 8, 9]));
+// #endregion iset-construction
 
-// iset-construction
-
-// iset-ops
-
+// #region iset-ops
 final base = iset([1, 2, 3, 4, 5]);
 
 // operator + / - return a new ISet; the original is unchanged
@@ -36,11 +33,9 @@ final stripped = base.removedAll(ilist([1, 3, 5])); // {2, 4}
 
 // All distinct subsets of size 2
 final size2 = iset([1, 2, 3]).subsets(length: 2).toIList();
+// #endregion iset-ops
 
-// iset-ops
-
-// mset-ops
-
+// #region mset-ops
 void msetExample() {
   final s = MSet.empty<String>();
 
@@ -55,11 +50,9 @@ void msetExample() {
   final removed1 = s.remove('hello'); // true
   final removed2 = s.remove('hello'); // false — no longer present
 }
+// #endregion mset-ops
 
-// mset-ops
-
-// imultiset-construction
-
+// #region imultiset-construction
 final msEmpty = IMultiSet.empty<String>();
 
 // Duplicate elements are counted, not deduplicated
@@ -69,11 +62,9 @@ final msFromLiteral = imultiset(['a', 'a', 'b', 'c', 'c', 'c']);
 final msFromOccurrences = IMultiSet.fromOccurences(
   ilist([('a', 2), ('b', 1), ('c', 3)]),
 );
+// #endregion imultiset-construction
 
-// imultiset-construction
-
-// imultiset-ops
-
+// #region imultiset-ops
 final ms = imultiset(['a', 'a', 'b', 'c', 'c', 'c']);
 
 // Count of each element; 0 for absent elements
@@ -90,5 +81,4 @@ final withoutOneC = ms - 'c'; // 'c' count becomes 2
 
 final hasA = ms.contains('a'); // true
 final hasD = ms.contains('d'); // false
-
-// imultiset-ops
+// #endregion imultiset-ops

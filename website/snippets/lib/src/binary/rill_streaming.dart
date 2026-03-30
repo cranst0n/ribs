@@ -28,8 +28,7 @@ final class Event {
   );
 }
 
-// streaming-rill-encode
-
+// #region streaming-rill-encode
 IO<Unit> sendEvents(Rill<Event> events, SocketAddress addr) => Network.connect(addr).use(
   (socket) =>
       events
@@ -40,13 +39,11 @@ IO<Unit> sendEvents(Rill<Event> events, SocketAddress addr) => Network.connect(a
           .compile
           .drain,
 );
-
-// streaming-rill-encode
+// #endregion streaming-rill-encode
 
 IO<Unit> processEvent(Event _) => IO.unit;
 
-// streaming-rill-decode
-
+// #region streaming-rill-decode
 // Decode incoming bytes from a single client connection
 IO<Unit> handleClient(Socket socket) =>
     socket.reads
@@ -60,8 +57,7 @@ IO<Unit> handleClient(Socket socket) =>
 // Accept clients and handle each one sequentially
 IO<Unit> runServer(SocketAddress addr) =>
     Network.bindAndAccept(addr).evalMap(handleClient).compile.drain;
-
-// streaming-rill-decode
+// #endregion streaming-rill-decode
 
 // A simple protocol header: 1-byte version followed by a stream of Events.
 final class Header {
@@ -71,8 +67,7 @@ final class Header {
   static final codec = Codec.uint8.xmap(Header.new, (h) => h.version);
 }
 
-// streaming-rill-header-encode
-
+// #region streaming-rill-header-encode
 IO<Unit> sendEventsWithHeader(
   Header header,
   Rill<Event> events,
@@ -86,11 +81,9 @@ IO<Unit> sendEventsWithHeader(
           .compile
           .drain,
 );
+// #endregion streaming-rill-header-encode
 
-// streaming-rill-header-encode
-
-// streaming-rill-header-decode
-
+// #region streaming-rill-header-decode
 // RillDecoder.once reads the header, flatMap hands the remainder to many(Event.codec)
 final headerThenEvents = RillDecoder.once(
   Header.codec,
@@ -98,5 +91,4 @@ final headerThenEvents = RillDecoder.once(
 
 IO<Unit> handleClientWithHeader(Socket socket) =>
     socket.reads.through(headerThenEvents.toPipeByte).foreach(processEvent).compile.drain;
-
-// streaming-rill-header-decode
+// #endregion streaming-rill-header-decode

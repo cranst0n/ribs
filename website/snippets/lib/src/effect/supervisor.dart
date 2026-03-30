@@ -3,21 +3,21 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
-// supervisor-basic
+// #region supervisor-basic
 IO<int> supervisorBasic() => Supervisor.create().use(
   (supervisor) => supervisor.supervise(IO.pure(42)).flatMap((fiber) => fiber.joinWithNever()),
 );
-// supervisor-basic
+// #endregion supervisor-basic
 
-// supervisor-fire-forget
+// #region supervisor-fire-forget
 /// Supervised fibers don't need to be joined.
 /// When the supervisor's scope closes, all still-running fibers are canceled.
 IO<Unit> fireAndForget() => Supervisor.create().use((supervisor) {
   return supervisor.supervise(IO.sleep(1.seconds).productR(IO.print('done'))).voided();
 });
-// supervisor-fire-forget
+// #endregion supervisor-fire-forget
 
-// supervisor-waitforall
+// #region supervisor-waitforall
 /// With waitForAll=true, finalization blocks until every supervised fiber
 /// completes naturally rather than canceling them.
 IO<Unit> supervisorWaitForAll() => IO.ref(false).flatMap((completed) {
@@ -32,9 +32,9 @@ IO<Unit> supervisorWaitForAll() => IO.ref(false).flatMap((completed) {
       .productR(completed.value())
       .flatMap((v) => IO.print('completed: $v')); // completed: true
 });
-// supervisor-waitforall
+// #endregion supervisor-waitforall
 
-// supervisor-healthcheck
+// #region supervisor-healthcheck
 /// Attaches a periodic health-check to a [Resource] scope.
 ///
 /// The check runs in a background fiber supervised by [Supervisor].
@@ -60,4 +60,4 @@ IO<Unit> healthCheckExample() => IO.ref(0).flatMap((counter) {
       .flatMap((n) => IO.print('ran $n checks'));
   // prints: check #1, check #2, check #3, ran 3 checks
 });
-// supervisor-healthcheck
+// #endregion supervisor-healthcheck

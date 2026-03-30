@@ -6,7 +6,7 @@ import 'dart:typed_data';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
-// try-catch-finally
+// #region try-catch-finally
 Future<Uint8List> copyFirstN_tryCatch(String src, String dst, int n) async {
   final input = await File(src).open();
 
@@ -26,9 +26,9 @@ Future<Uint8List> copyFirstN_tryCatch(String src, String dst, int n) async {
     await input.close();
   }
 }
-// try-catch-finally
+// #endregion try-catch-finally
 
-// io-bracket
+// #region io-bracket
 IO<Uint8List> copyFirstN_bracket(String src, String dst, int n) => IO
     .fromFutureF(() => File(src).open())
     .bracket(
@@ -42,21 +42,21 @@ IO<Uint8List> copyFirstN_bracket(String src, String dst, int n) => IO
           ),
       (input) => IO.fromFutureF(() => input.close()).voided(),
     );
-// io-bracket
+// #endregion io-bracket
 
-// file-example
+// #region file-example
 Resource<RandomAccessFile> openFile(String path, [FileMode mode = FileMode.read]) => Resource.make(
   IO.fromFutureF(() => File(path).open(mode: mode)),
   (raf) => IO.fromFutureF(() => raf.close()).voided(),
 );
-// file-example
+// #endregion file-example
 
-// file-example-use
+// #region file-example-use
 IO<Uint8List> readFirstN(String path, int n) =>
     openFile(path).use((raf) => IO.fromFutureF(() => raf.read(n)));
-// file-example-use
+// #endregion file-example-use
 
-// file-example-outcome
+// #region file-example-outcome
 IO<Unit> readAndReport(String path, int n) {
   final program = openFile(path).use((raf) => IO.fromFutureF(() => raf.read(n)));
 
@@ -71,10 +71,9 @@ IO<Unit> readAndReport(String path, int n) {
         ),
       );
 }
-// file-example-outcome
+// #endregion file-example-outcome
 
-// multiple-resources
-
+// #region multiple-resources
 /// Copy the first [n] bytes from [src] and [src2] concatenated to [dst].
 IO<Unit> copyN(String src, String src2, String dst, int n) => (
   openFile(src),
@@ -86,5 +85,4 @@ IO<Unit> copyN(String src, String src2, String dst, int n) => (
       .flatMap((bytesA) => IO.fromFutureF(() => b.read(n)).map((bytesB) => [...bytesA, ...bytesB]))
       .flatMap((bytes) => IO.fromFutureF(() => out.writeFrom(bytes)).voided()),
 );
-
-// multiple-resources
+// #endregion multiple-resources

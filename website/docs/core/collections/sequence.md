@@ -1,0 +1,294 @@
+---
+sidebar_position: 2
+---
+
+
+# Sequence
+
+A **sequence** is an ordered collection of elements where each element has a
+defined position. In ribs, all sequence types mix in `RSeq<A>`, which extends
+`RIterable<A>` and adds two foundational operations: indexed access via
+`operator []` and a `length` property.
+
+This page describes every concrete sequence type in ribs, what makes each one
+distinct, and when to reach for one over another.
+
+---
+
+## The Sequence Hierarchy
+
+```
+RSeq<A>                  ordered, has length and operator []
+  ├── IndexedSeq<A>       efficient random access — O(log n) or better
+  │     ├── IVector<A>    general-purpose immutable sequence (finger tree)
+  │     └── Range         integer range, no element storage
+  ├── IList<A>            immutable linked list; fast prepend
+  ├── IChain<A>           immutable; O(1) append, prepend, concat
+  ├── NonEmptyIList<A>    IList guaranteed non-empty by the type system
+  ├── IQueue<A>           immutable FIFO queue; amortised O(1) enqueue/dequeue
+  ├── ILazyList<A>        lazily evaluated sequence; supports infinite lists
+  └── ListBuffer<A>       mutable sequence; converts to IList
+```
+
+`IndexedSeq<A>` is a sub-mixin of `RSeq<A>` that additionally promises
+efficient random access. `IVector` and `Range` mix it in; the others do not.
+
+---
+
+## Immutable Sequences
+
+### IList
+
+`IList<A>` is a persistent singly-linked list. It is the simplest and most
+common sequence type in ribs.
+
+**Structural properties:**
+- `prepended` / `prependedAll` — O(1); adding to the front is the natural operation
+- `appended` / `appendedAll` — O(n); avoids use where frequent tail-append is needed
+- `head` / `tail` — O(1)
+- `operator []` — O(n); random access requires walking the list
+- Sequential traversal — O(n) but with low constant factor
+
+**Construction:**
+
+<<< @/../snippets/lib/src/core/sequences.dart#ilist-construction
+
+**Use when:**
+- Building a list by repeatedly prepending (e.g. accumulating results via `foldLeft`)
+- Passing collections to recursive or pattern-matched code
+- The collection will be traversed sequentially from front to back
+- You want a simple, lightweight immutable list with a small memory footprint
+
+**Avoid when:**
+- You frequently access elements by index — use `IVector` instead
+- You frequently append to the end — use `IChain` or `IVector` instead
+
+---
+
+### IVector
+
+`IVector<A>` is a persistent finger-tree vector. It is the general-purpose
+immutable sequence for situations where `IList` is not the best fit.
+
+**Structural properties:**
+- `operator []` — effectively O(1) (O(log₃₂ n) in theory, constant in practice for all realistic sizes)
+- `appended` — effectively O(1) amortised
+- `prepended` — effectively O(1) amortised
+- `updated(index, elem)` — effectively O(1)
+- Sequential traversal — O(n)
+
+`IVector` also mixes in `IndexedSeq`, meaning methods like `sorted`, `sortBy`,
+and `sortWith` are available directly and operate on the indexed structure.
+
+**Construction:**
+
+<<< @/../snippets/lib/src/core/sequences.dart#ivector-construction
+
+For incremental construction, use `IVector.builder()`, which returns an
+`IVectorBuilder<A>`. Call `addOne` for each element, then `result()` to
+produce the final immutable vector:
+
+<<< @/../snippets/lib/src/core/sequences.dart#ivector-builder
+
+**Use when:**
+- You need frequent indexed access (`vec[i]`)
+- You need to append or prepend elements regularly
+- You need `updated` without copying the whole collection
+- You don't know ahead of time whether access will be sequential or random
+- In doubt, `IVector` is the safe default for a general-purpose immutable sequence
+
+**Avoid when:**
+- You are building purely by prepending — `IList` is simpler and more idiomatic
+- You need O(1) concat of large collections — use `IChain`
+
+---
+
+### IChain
+
+`IChain<A>` is an immutable sequence optimised for structural operations that
+are expensive on linked lists and vectors alike.
+
+**Structural properties:**
+- `appended` — O(1)
+- `prepended` — O(1)
+- `concat` — O(1); joining two chains never copies either side
+- `operator []` — O(n); random access is slow
+- Sequential traversal — O(n) but with a higher constant than `IList`
+
+Internally, `IChain` is a tree of wrapped sequences. It defers all structural
+combination into a lazy tree and only materialises elements during traversal.
+This makes it ideal for building up large results incrementally without any
+intermediate copying.
+
+**Construction:**
+
+<<< @/../snippets/lib/src/core/sequences.dart#ichain-construction
+
+**Use when:**
+- Accumulating results by repeated `appended`, `prepended`, or `concat`
+- Combining many sub-sequences together (e.g. building up a document or log
+  from many small parts)
+- The final collection will be converted to `IList` or `IVector` at the end
+
+**Avoid when:**
+- You need efficient random access during processing — convert to `IVector` first
+- The collection is small and simple — `IList` or `IVector` have less overhead
+
+---
+
+### NonEmptyIList
+
+`NonEmptyIList<A>` is an `IList` that is guaranteed by the type system to
+contain at least one element. It has a mandatory `head` field and an `IList`
+tail.
+
+**The key difference from `IList`:** The compiler enforces non-emptiness.
+`head` is always defined — it is a field, not a method that might throw. Any
+function that requires at least one element can encode that requirement in its
+signature instead of checking at runtime.
+
+**Construction:**
+
+<<< @/../snippets/lib/src/core/sequences.dart#nel-construction
+
+`NonEmptyIList.from` and `fromDart` return `Option<NonEmptyIList<A>>` —
+`None` when the input is empty, `Some` when it is not. This is the safe way
+to promote an arbitrary collection to a `NonEmptyIList`.
+
+**Use when:**
+- A function must receive at least one element and you want to express that
+  constraint in the type, not via a runtime check or a documentation note
+- You are accumulating validation errors and want to guarantee at least one is
+  present before reporting them
+- Any situation where an empty result would be a programming error rather than
+  a normal case
+
+---
+
+### Range
+
+`Range` represents an integer sequence defined by `start`, `end`, and `step`
+— without storing any elements. All elements are computed on demand from
+these three values.
+
+`Range` mixes in `IndexedSeq<int>`, so it supports fast indexed access and
+all the operations of a full sequence, including `map`, `filter`, `foldLeft`,
+`toIList`, etc. Transforming a `Range` materialises it into the appropriate
+concrete type.
+
+**Construction:**
+
+<<< @/../snippets/lib/src/core/sequences.dart#range-construction
+
+**Use when:**
+- Iterating over a sequence of integers without allocating a collection
+- Generating indices to use in other operations
+- The sequence is dense and regular enough to be described by start/end/step
+
+---
+
+### IQueue
+
+`IQueue<A>` is an immutable first-in, first-out queue implemented as two
+`IList` stacks. It provides amortised O(1) enqueue and dequeue.
+
+`enqueue` adds an element to the back and returns a new `IQueue`. `dequeue`
+removes the front element, returning both the element and the remaining queue
+as a tuple. Use `dequeueOption` to avoid throwing on an empty queue:
+
+<<< @/../snippets/lib/src/core/sequences.dart#iqueue-ops
+
+**Use when:**
+- You need FIFO semantics — elements should be processed in the order they
+  arrived
+- Both the front and the back of the collection are active (e.g. a work queue,
+  a BFS frontier, a message buffer)
+
+**Avoid when:**
+- You only need stack semantics (LIFO) — `IList.prepended` / `head` / `tail`
+  is sufficient
+- Random access is required — `IVector` is a better fit
+
+---
+
+### ILazyList
+
+`ILazyList<A>` is a lazily evaluated sequence. Elements are not computed until
+they are accessed. This makes it possible to represent infinite sequences that
+are only materialised as far as needed.
+
+Each element is computed on first access and memoised — repeated access to the
+same position is free. All standard `RSeq` operations (`map`, `filter`,
+`take`, etc.) remain lazy until a terminal operation like `toIList` or
+`foreach` forces evaluation.
+
+**Construction:**
+
+<<< @/../snippets/lib/src/core/sequences.dart#ilazylist-construction
+
+**Use when:**
+- You need an infinite or very large sequence and only a bounded prefix will
+  ever be consumed (use `take(n)` to materialise what you need)
+- Computation of elements is expensive and you want to avoid doing work for
+  elements that are never accessed
+- Memoisation of computed elements is desirable
+
+**Avoid when:**
+- The whole sequence will always be consumed — a strict `IVector` or `IList`
+  is simpler and avoids the laziness overhead
+- Memory is a concern — memoised elements are retained in memory once computed
+
+---
+
+## Mutable Sequences
+
+### ListBuffer
+
+`ListBuffer<A>` is the mutable counterpart to `IList`. It is backed by a
+mutable singly-linked list and supports efficient mutation during construction,
+after which it can be converted to an immutable `IList` in O(1).
+
+The idiomatic way to obtain a `ListBuffer` is via `IList.builder<A>()`.
+Call `addOne` or `addAll` to populate it, then `toIList()` to produce the
+final immutable result:
+
+<<< @/../snippets/lib/src/core/sequences.dart#listbuffer-ops
+
+The conversion via `toIList` is O(1) — the resulting `IList` shares structure
+with the buffer without copying.
+
+**Use when:**
+- Building an `IList` incrementally by appending many elements, where
+  constructing the list with repeated `prepended` calls would require
+  reversal at the end
+- Inside an algorithm that needs mutation for performance but should return
+  an immutable result
+
+**Avoid when:**
+- The final result will be used as an `IVector` — use `IVector.builder()`
+  instead
+- Mutation is not needed — use `IList` or `IChain` directly
+
+---
+
+## Choosing a Sequence Type
+
+| Requirement | Recommended type |
+|-------------|-----------------|
+| Default immutable list | `IVector` |
+| Fast prepend, sequential traversal | `IList` |
+| O(1) append and concat; building incrementally | `IChain` |
+| At least one element, enforced by the compiler | `NonEmptyIList` |
+| Dense integer iteration without allocation | `Range` |
+| FIFO queue semantics | `IQueue` |
+| Potentially infinite or lazily computed sequence | `ILazyList` |
+| Incrementally building an `IList` from many appends | `ListBuffer` |
+
+---
+
+## Additional Operations on RSeq
+
+All sequence types inherit the full `RIterableOnce` and `RIterable` APIs. In
+addition, `RSeq` provides a rich set of operations that only make sense on
+ordered, indexed collections. The ribs_core API documentation will give you the
+full picture of what's available to you.

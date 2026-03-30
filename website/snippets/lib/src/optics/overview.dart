@@ -4,18 +4,15 @@ import 'package:ribs_optics/ribs_optics.dart';
 
 import 'package:snippets/src/optics/domain.dart';
 
-// overview-problem
-
+// #region overview-problem
 // Without optics, updating a nested field requires threading the change
 // through every intermediate copy() call by hand.
 AppConfig bumpPortManual(AppConfig cfg) => cfg.copy(
   dbConfig: cfg.dbConfig.copy(port: cfg.dbConfig.port + 1),
 );
+// #endregion overview-problem
 
-// overview-problem
-
-// overview-lens-solution
-
+// #region overview-lens-solution
 // Define a Lens for each layer once...
 final dbConfigL = Lens<AppConfig, DBConfig>(
   (cfg) => cfg.dbConfig,
@@ -31,11 +28,9 @@ final portL = Lens<DBConfig, int>(
 final dbPortL = dbConfigL.andThenL(portL);
 
 AppConfig bumpPortWithLens(AppConfig cfg) => dbPortL.modify((p) => p + 1)(cfg);
+// #endregion overview-lens-solution
 
-// overview-lens-solution
-
-// overview-hierarchy
-
+// #region overview-hierarchy
 // The four primary optic types and their guarantees:
 //
 //   Iso<S,A>      — total, bidirectional   (S <-> A, no information lost)
@@ -45,16 +40,13 @@ AppConfig bumpPortWithLens(AppConfig cfg) => dbPortL.modify((p) => p + 1)(cfg);
 //
 // Subtype relationships (every Iso is also a Lens, etc.):
 //   Iso  ⊆  Lens  ⊆  Optional  ⊇  Prism
+// #endregion overview-hierarchy
 
-// overview-hierarchy
-
-// overview-compose
-
+// #region overview-compose
 // Optics compose via typed andThen* methods:
 //   andThenL  — Lens composed with Lens  -> Lens
 //   andThenO  — Lens/Optional with Optional -> Optional
 //   andThenP  — Prism composed with Prism -> Prism
 //   andThenG  — any optic with Getter -> Getter (read-only)
 //   andThenS  — any Setter with Setter -> Setter (write-only)
-
-// overview-compose
+// #endregion overview-compose

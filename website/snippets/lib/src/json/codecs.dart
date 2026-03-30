@@ -3,8 +3,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
-// codecs-1
-
+// #region codecs-1
 final class User {
   final String name;
   final int age;
@@ -22,11 +21,10 @@ final class Pet {
 }
 
 enum PetType { mammal, reptile, other }
-
-// codecs-1
+// #endregion codecs-1
 
 void snippet2() {
-  // codecs-2
+  // #region codecs-2
   final petTypeDecoder = Decoder.integer.map((n) => PetType.values[n]);
 
   final petDecoder = Decoder.product3(
@@ -56,24 +54,22 @@ void snippet2() {
 
   print(Json.decode(jsonStr, userDecoder));
   // Right(Instance of 'User')
-
-  // codecs-2
+  // #endregion codecs-2
 }
 
 void snippet3() {
-  // codecs-3
+  // #region codecs-3
   final petTypeDecoder = Decoder.integer.map((n) => PetType.values[n]);
 
   print(Json.decode('0', petTypeDecoder)); // Right(PetType.mammal)
   print(Json.decode('1', petTypeDecoder)); // Right(PetType.reptile)
   print(Json.decode('2', petTypeDecoder)); // Right(PetType.other)
   print(Json.decode('100', petTypeDecoder)); // ???
-
-  // codecs-3
+  // #endregion codecs-3
 }
 
 void snippet4() {
-  // codecs-4
+  // #region codecs-4
   // Solution using .emap
   final petTypeDecoderA = Decoder.integer.emap(
     (n) => Either.cond(
@@ -85,21 +81,19 @@ void snippet4() {
 
   print(Json.decode('100', petTypeDecoderA));
   // Left(DecodingFailure(CustomReason(Invalid PetType index: 100), None))
-
-  // codecs-4
+  // #endregion codecs-4
 }
 
-// codecs-enumeration
+// #region codecs-enumeration
 // Uses Enum.index to look up instance
 final petTypeDecoderByIndex = Decoder.enumerationByIndex(PetType.values);
 
 // Uses Enum.name to look up instance
 final petTypeDecoderByName = Decoder.enumerationByName(PetType.values);
-
-// codecs-enumeration
+// #endregion codecs-enumeration
 
 void snippet5() {
-  // codecs-5
+  // #region codecs-5
   final petTypeEncoder = Encoder.instance((PetType t) => Json.number(t.index));
   // Alternative PetType solution
   final petTypeEncoderAlt = Encoder.integer.contramap<PetType>((t) => t.index);
@@ -154,11 +148,11 @@ void snippet5() {
   //     }
   //   ]
   // }
-  // codecs-5
+  // #endregion codecs-5
 }
 
 void snippet6() {
-  // codecs-6
+  // #region codecs-6
   final petTypeCodec = Codec.integer.iemap(
     (n) => Either.cond(
       () => 0 <= n && n < PetType.values.length,
@@ -200,8 +194,7 @@ void snippet6() {
   // Codecs can decode and encode
   final user = Json.decode(jsonStr, userCodec);
   final str = userCodec.encode(const User('name', 20, Nil()));
-
-  // codecs-6
+  // #endregion codecs-6
 }
 
 void foo6() {}

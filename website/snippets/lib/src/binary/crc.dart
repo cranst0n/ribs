@@ -2,8 +2,7 @@
 
 import 'package:ribs_binary/ribs_binary.dart';
 
-// crc-1
-
+// #region crc-1
 // All CRC specifications define their expected output on ASCII "123456789",
 // which makes a convenient sanity-check value.
 final data = ByteVector('123456789'.codeUnits).bits;
@@ -23,11 +22,9 @@ void showResult() {
   final checksum = Crc.crc32(payload.bits).bytes;
   final packet = payload.concat(checksum); // 8 bytes total
 }
+// #endregion crc-1
 
-// crc-1
-
-// crc-2
-
+// #region crc-2
 // Named presets give access to the full catalogue of standard CRC algorithms.
 // Crc.from(CrcParams) turns a preset into a reusable Function1<BitVector, BitVector>.
 final kermit16 = Crc.from(CrcParams.crc16Kermit()); // CRC-16/KERMIT
@@ -47,11 +44,9 @@ final ccitt16 = Crc.of(
 void showCustom() {
   print(ccitt16(ByteVector.fromValidHex('12345670').bits).toHex()); // b1e4
 }
+// #endregion crc-2
 
-// crc-2
-
-// crc-3
-
+// #region crc-3
 // CrcBuilder enables incremental computation: feed data in chunks and call
 // result() once at the end. Use this when data arrives in pieces (e.g. from
 // a streaming read) without buffering the full message.
@@ -80,5 +75,4 @@ void showIncremental() {
 
   print(asInt); // same checksum as a Dart int
 }
-
-// crc-3
+// #endregion crc-3

@@ -3,8 +3,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_optics/ribs_optics.dart';
 
-// optics-domain
-
+// #region optics-domain
 // A realistic nested config structure — updating deeply-nested fields
 // without optics requires threading the change through every layer manually.
 
@@ -86,16 +85,13 @@ final class Language {
   @override
   int get hashCode => code.hashCode;
 }
+// #endregion optics-domain
 
-// optics-domain
-
-// optics-domain-sample
-
+// #region optics-domain-sample
 final sampleConfig = AppConfig(
   '/var/app',
   '2.1.0',
   DBConfig(const Credentials('admin', 's3cr3t'), 5432, 'db.local'.some),
   Languages(nel(const Language('en', 'English'), [const Language('fr', 'French')])),
 );
-
-// optics-domain-sample
+// #endregion optics-domain-sample

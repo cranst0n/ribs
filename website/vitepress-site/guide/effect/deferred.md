@@ -1,0 +1,77 @@
+---
+sidebar_position: 50
+---
+
+
+# Deferred
+
+`Deferred<A>` is a **purely functional, write-once synchronization primitive**.
+It starts empty and can be completed with a value exactly once. Any fiber that
+calls `value()` before the value is available will suspend until another fiber
+calls `complete`, at which point **all** waiting fibers are unblocked
+simultaneously.
+
+:::info
+`Deferred` is to `IO` what `Completer` is to `Future` — a way to hand a
+result from one fiber to another. Unlike `Completer`, `Deferred` is
+referentially transparent: allocation and completion are both `IO` effects.
+:::
+
+## How it differs from Queue
+
+`Queue` and `Deferred` both let fibers communicate, but they serve different
+needs:
+
+| | `Queue<A>` | `Deferred<A>` |
+|---|---|---|
+| Capacity | Holds many values | Holds exactly one value, forever |
+| Consumers | Each value is taken by one consumer | All waiting consumers unblock at once |
+| Reuse | Can send many messages | Write-once — completed value is permanent |
+| Use for | Streams of work items | One-shot signals and startup coordination |
+
+## Core operations
+
+| Method | Returns | Description |
+|---|---|---|
+| `Deferred.of<A>()` | `IO<Deferred<A>>` | Allocate a new, empty `Deferred` |
+| `complete(a)` | `IO<bool>` | Set the value; `true` if this was the first call, `false` if already set |
+| `value()` | `IO<A>` | Get the value, suspending if not yet available |
+| `tryValue()` | `IO<Option<A>>` | Get the value immediately as `Option` — `None` if not yet completed |
+
+## Basic usage
+
+<<< @/../snippets/lib/src/effect/deferred.dart#deferred-basic
+
+The consumer fiber suspends on `value()` immediately. When the producer calls
+`complete(42)` after the sleep, the consumer is woken up and proceeds.
+
+## Write-once guarantee
+
+`complete` is idempotent after the first call — subsequent calls return `false`
+and have no effect. The value set by the first caller is preserved permanently:
+
+<<< @/../snippets/lib/src/effect/deferred.dart#deferred-complete-once
+
+This makes `Deferred` safe to use in races: whichever fiber wins the `complete`
+call sets the canonical result, and all other attempts are silently ignored.
+
+---
+
+## Real-world example: service startup gate
+
+A common pattern in concurrent programs is to start several fibers that depend
+on a shared resource that takes time to initialize. Rather than polling or
+sleeping, a `Deferred` acts as a **gate**: dependents call `value()` and
+suspend; the initializer calls `complete` once, instantly releasing every
+waiting fiber.
+
+The example below models a service that publishes its endpoint once it has
+finished starting up. Three client fibers wait on the same `Deferred` — they
+all unblock the moment the service is ready, without any polling:
+
+<<< @/../snippets/lib/src/effect/deferred.dart#deferred-ready-gate
+
+Note that it doesn't matter how many clients are waiting — the single
+`complete` call broadcasts the result to all of them in one step. This is the
+key advantage over `Queue`, which would require the service to `offer` once per
+client.

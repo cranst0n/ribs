@@ -5,8 +5,7 @@ import 'package:ribs_optics/ribs_optics.dart';
 
 import 'package:snippets/src/optics/domain.dart';
 
-// optional-define
-
+// #region optional-define
 // An Optional<S, A> focuses on a value that may or may not be present.
 // It generalises both Lens (always present) and Prism (variant matching).
 //
@@ -19,11 +18,9 @@ final hostO = Optional<DBConfig, String>(
   (db) => db.host.toRight(() => db),
   (h) => (db) => db.copy(host: h.some),
 );
+// #endregion optional-define
 
-// optional-define
-
-// optional-use
-
+// #region optional-use
 void optionalUsage() {
   final withHost = DBConfig(
     const Credentials('admin', 's3cr3t'),
@@ -48,11 +45,9 @@ void optionalUsage() {
   final opt = hostO.modifyOption((h) => h.toUpperCase())(withHost);
   final none_ = hostO.modifyOption((h) => h.toUpperCase())(noHost);
 }
+// #endregion optional-use
 
-// optional-use
-
-// optional-compose
-
+// #region optional-compose
 // Compose a Lens with an Optional using andThenO.
 // The result is an Optional that digs through both layers.
 final dbConfigL = Lens<AppConfig, DBConfig>(
@@ -69,5 +64,4 @@ void composeUsage() {
   // Updates the host two levels deep in one step.
   final updated = appHostO.replace('new.host')(sampleConfig);
 }
-
-// optional-compose
+// #endregion optional-compose

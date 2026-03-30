@@ -3,7 +3,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
-// queue-basic
+// #region queue-basic
 IO<Unit> basicQueueExample() => Queue.bounded<int>(10).flatMap(
   (queue) => queue
       .offer(1)
@@ -12,9 +12,9 @@ IO<Unit> basicQueueExample() => Queue.bounded<int>(10).flatMap(
       .flatMap((_) => queue.take())
       .flatMap((a) => IO.print('took: $a')),
 ); // took: 1
-// queue-basic
+// #endregion queue-basic
 
-// queue-backpressure
+// #region queue-backpressure
 IO<Unit> backpressureExample() => Queue.bounded<int>(2).flatMap((queue) {
   // Producer: the third offer suspends because the queue is full.
   // It only unblocks once the consumer takes an element.
@@ -34,10 +34,9 @@ IO<Unit> backpressureExample() => Queue.bounded<int>(2).flatMap((queue) {
 
   return IO.both(producer, consumer).voided();
 });
-// queue-backpressure
+// #endregion queue-backpressure
 
-// queue-pub-sub
-
+// #region queue-pub-sub
 /// A simple pub-sub dispatcher: each call to [subscribe] returns a new
 /// [Queue] that independently receives every published event.
 IO<Unit> pubSubExample() => IO
@@ -74,5 +73,4 @@ IO<Unit> pubSubExample() => IO
       // parSequence_() starts all three as independent fibers and waits for all to finish.
       return ilist([alertWorker, logWorker, sensor]).parSequence_();
     });
-
-// queue-pub-sub
+// #endregion queue-pub-sub

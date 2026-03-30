@@ -2,8 +2,7 @@
 
 import 'package:ribs_json/ribs_json.dart';
 
-// creating-1
-
+// #region creating-1
 final anObject = Json.obj([
   ('key1', Json.True),
   ('key2', Json.str('some string...')),
@@ -15,11 +14,9 @@ final anObject = Json.obj([
     ]),
   ),
 ]);
+// #endregion creating-1
 
-// creating-1
-
-// creating-2
-
+// #region creating-2
 final jsonString = anObject.printWith(Printer.noSpaces);
 // {"key1":true,"key2":"some string...","key3":[123,3.14]}
 
@@ -32,11 +29,9 @@ final prettyJsonString = anObject.printWith(Printer.spaces2);
 //     3.14
 //   ]
 // }
+// #endregion creating-2
 
-// creating-2
-
-// creating-3
-
+// #region creating-3
 // The complete set of Json value constructors
 const nullValue = Json.Null; //        null
 const trueValue = Json.True; //        true
@@ -44,12 +39,10 @@ const falseValue = Json.False; //      false
 final boolValue = Json.boolean(true); // same as Json.True, but from a Dart bool
 final strValue = Json.str('hello'); //  "hello"
 final numValue = Json.number(42); //    42
-
-// creating-3
+// #endregion creating-3
 
 void accessingValues() {
-  // creating-4
-
+  // #region creating-4
   final json = Json.obj([
     ('name', Json.str('Ribs')),
     ('version', Json.number(1)),
@@ -74,13 +67,11 @@ void accessingValues() {
   print(Json.True.asBoolean()); //       Some(true)
   print(Json.Null.asNull()); //          Some(Unit)
   print(Json.str('hi').asNumber()); //   None
-
-  // creating-4
+  // #endregion creating-4
 }
 
 void foldExample() {
-  // creating-5
-
+  // #region creating-5
   String describe(Json json) => json.fold(
     () => 'null',
     (b) => 'boolean: $b',
@@ -94,13 +85,11 @@ void foldExample() {
   print(describe(Json.number(42))); //             number: 42
   print(describe(Json.arr([Json.Null]))); //       array of 1 elements
   print(describe(Json.obj([('a', Json.True)]))); // object with keys: [a]
-
-  // creating-5
+  // #endregion creating-5
 }
 
 void transformingValues() {
-  // creating-7
-
+  // #region creating-7
   // mapX transforms a value in-place; it's a no-op when the node is a different type
   final doubled = Json.number(21).mapNumber((n) => n * 2); // 42
   final upper = Json.str('hello').mapString((s) => s.toUpperCase()); // "HELLO"
@@ -124,13 +113,11 @@ void transformingValues() {
   );
   print(redacted.printWith(Printer.noSpaces));
   // {"user":"***","token":"***","score":42}
-
-  // creating-7
+  // #endregion creating-7
 }
 
 void jsonObjectExample() {
-  // creating-8
-
+  // #region creating-8
   // JsonObject is the type that backs JObject — you can build and query it directly
   var obj = JsonObject.empty;
   obj = obj.add('name', Json.str('Ribs'));
@@ -162,13 +149,11 @@ void jsonObjectExample() {
   );
   print(stringified.toJson().printWith(Printer.noSpaces));
   // {"name":"Ribs","version":11,"stable":false}
-
-  // creating-8
+  // #endregion creating-8
 }
 
 void cursorNavigation() {
-  // creating-9
-
+  // #region creating-9
   final json = Json.obj([
     ('project', Json.str('Ribs')),
     (
@@ -193,13 +178,11 @@ void cursorNavigation() {
   // pathString gives a human-readable description of the cursor position
   final c = cursor.downField('contributors').downN(0).downField('name');
   print(c.pathString); // .contributors[0].name
-
-  // creating-9
+  // #endregion creating-9
 }
 
 void mergingAndCleanup() {
-  // creating-6
-
+  // #region creating-6
   final defaults = Json.obj([
     ('timeout', Json.number(30)),
     ('retries', Json.number(3)),
@@ -228,6 +211,5 @@ void mergingAndCleanup() {
   ]);
   print(nested.deepDropNullValues().printWith(Printer.noSpaces));
   // {"b":{"d":1}}
-
-  // creating-6
+  // #endregion creating-6
 }

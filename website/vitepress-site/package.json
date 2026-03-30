@@ -1,0 +1,18 @@
+{
+  "name": "ribs_workspace-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "NODE_OPTIONS='--max-old-space-size=5120' vitepress build",
+    "preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.4"
+  },
+  "dependencies": {
+    "vitepress-codeblock-collapse": "^1.0.0",
+    "vitepress-mermaid-zoom": "^1.0.2",
+    "vitepress-plugin-llms": "^1.11.0"
+  }
+}

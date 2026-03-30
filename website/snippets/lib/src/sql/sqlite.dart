@@ -7,8 +7,7 @@ import 'package:ribs_sqlite/ribs_sqlite.dart';
 import 'package:sqlite3/sqlite3.dart' as sq;
 import 'package:sqlite3_connection_pool/sqlite3_connection_pool.dart';
 
-// sqlite-single
-
+// #region sqlite-single
 // SqliteTransactor.memory() — in-memory database, single shared connection.
 // Useful for tests or short-lived programs that need no persistence.
 final Resource<Transactor> memoryXa = SqliteTransactor.memory();
@@ -22,11 +21,9 @@ final Resource<Transactor> fileXa = SqliteTransactor.file('/var/app/data.db');
 IO<Unit> withMemory() => SqliteTransactor.memory().use((xa) {
   return 'SELECT 1'.query(Read.integer).unique().transact(xa).voided();
 });
+// #endregion sqlite-single
 
-// sqlite-single
-
-// sqlite-pool
-
+// #region sqlite-pool
 // SqlitePoolTransactor uses the sqlite3_connection_pool package to maintain
 // separate writer and reader connections, enabling concurrent reads while a
 // write transaction is in progress.
@@ -51,11 +48,9 @@ Resource<Transactor> openPool(String path) {
 
   return SqlitePoolTransactor.create(pool);
 }
+// #endregion sqlite-pool
 
-// sqlite-pool
-
-// sqlite-example
-
+// #region sqlite-example
 // ── Domain ───────────────────────────────────────────────────────────────────
 
 final class Task {
@@ -108,5 +103,4 @@ IO<IList<Task>> program() => SqliteTransactor.memory().use((xa) {
 
   return work.transact(xa);
 });
-
-// sqlite-example
+// #endregion sqlite-example

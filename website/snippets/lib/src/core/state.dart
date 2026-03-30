@@ -2,8 +2,7 @@
 
 import 'package:ribs_core/ribs_core.dart';
 
-// motivation-before
-
+// #region motivation-before
 final class GameStatePlain {
   final int health;
   final int gold;
@@ -42,11 +41,9 @@ bool exploreForestPlain(GameStatePlain initial) {
   final s3 = pickUpItemPlain(s2, 'Herbal Remedy');
   return isAlivePlain(s3);
 }
+// #endregion motivation-before
 
-// motivation-before
-
-// state-model
-
+// #region state-model
 final class GameState {
   final int health;
   final int gold;
@@ -67,11 +64,9 @@ final class GameState {
   @override
   String toString() => 'GameState(health: $health, gold: $gold, items: $inventory)';
 }
+// #endregion state-model
 
-// state-model
-
-// state-ops
-
+// #region state-ops
 State<GameState, Unit> takeDamage(int amount) =>
     State((s) => (s.copy(health: s.health - amount), Unit()));
 
@@ -84,11 +79,9 @@ State<GameState, Unit> pickUpItem(String item) =>
 State<GameState, int> currentHealth() => State((s) => (s, s.health));
 
 State<GameState, bool> isAlive() => State((s) => (s, s.health > 0));
+// #endregion state-ops
 
-// state-ops
-
-// state-compose
-
+// #region state-compose
 State<GameState, bool> exploreForest() => takeDamage(15)
     .flatMap((_) => collectGold(30))
     .flatMap((_) => pickUpItem('Herbal Remedy'))
@@ -98,11 +91,9 @@ State<GameState, bool> stormCastle() => takeDamage(40)
     .flatMap((_) => collectGold(100))
     .flatMap((_) => pickUpItem('Ancient Sword'))
     .flatMap((_) => isAlive());
+// #endregion state-compose
 
-// state-compose
-
-// state-run
-
+// #region state-run
 void runAdventure() {
   final initial = GameState(
     health: 100,
@@ -122,11 +113,9 @@ void runAdventure() {
   // Adventure complete! Won: true
   // GameState(health: 45, gold: 130, items: [Herbal Remedy, Ancient Sword])
 }
+// #endregion state-run
 
-// state-run
-
-// state-runas
-
+// #region state-runas
 void runParts() {
   final initial = GameState(
     health: 100,
@@ -143,5 +132,4 @@ void runParts() {
   print('Survived: $survived');
   print('State: $stateAfter');
 }
-
-// state-runas
+// #endregion state-runas

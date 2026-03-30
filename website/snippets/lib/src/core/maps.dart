@@ -2,17 +2,14 @@
 
 import 'package:ribs_core/ribs_core.dart';
 
-// imap-construction
-
+// #region imap-construction
 final imapEmpty = IMap.empty<String, int>();
 final imapFromLiteral = imap({'a': 1, 'b': 2, 'c': 3});
 final imapFromDart = IMap.fromDart({'x': 10, 'y': 20});
 final imapFromPairs = IMap.fromDartIterable([('a', 1), ('b', 2), ('c', 3)]);
+// #endregion imap-construction
 
-// imap-construction
-
-// imap-ops
-
+// #region imap-ops
 final base = imap({'a': 1, 'b': 2, 'c': 3});
 
 // operator + takes a (K, V) tuple and returns a new IMap
@@ -46,11 +43,9 @@ final labelled = base.transform(
 
 // removedAll removes a set of keys at once
 final pruned = base.removedAll(ilist(['a', 'c'])); // {'b':2}
+// #endregion imap-ops
 
-// imap-ops
-
-// imap-builder
-
+// #region imap-builder
 IMap<String, int> buildMap() {
   final builder = IMap.builder<String, int>();
   for (var i = 0; i < 5; i++) {
@@ -58,11 +53,9 @@ IMap<String, int> buildMap() {
   }
   return builder.result();
 }
+// #endregion imap-builder
 
-// imap-builder
-
-// mmap-ops
-
+// #region mmap-ops
 void mmapExample() {
   final m = MMap.empty<String, int>();
 
@@ -96,20 +89,16 @@ void mmapExample() {
   // clear empties the map
   m.clear();
 }
+// #endregion mmap-ops
 
-// mmap-ops
-
-// imultidict-construction
-
+// #region imultidict-construction
 final mdEmpty = IMultiDict.empty<String, int>();
 
 // Each (key, value) pair is added as a separate entry under the same key
 final mdFromLiteral = imultidict([('a', 1), ('a', 2), ('b', 3)]);
+// #endregion imultidict-construction
 
-// imultidict-construction
-
-// imultidict-ops
-
+// #region imultidict-ops
 final md = imultidict([('a', 1), ('a', 2), ('b', 3), ('b', 4)]);
 
 // get returns the set of values for a key, or an empty set
@@ -130,5 +119,4 @@ final hasKeyA = md.containsKey('a'); // true
 final hasKeyZ = md.containsKey('z'); // false
 final hasEntry = md.containsEntry(('a', 1)); // true
 final hasValue = md.containsValue(3); // true
-
-// imultidict-ops
+// #endregion imultidict-ops

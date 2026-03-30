@@ -6,8 +6,7 @@ import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_postgres/ribs_postgres.dart';
 import 'package:ribs_sql/ribs_sql.dart';
 
-// postgres-single
-
+// #region postgres-single
 // PostgresTransactor.create opens a single shared connection when the Resource
 // is acquired and closes it on release. All transact() and stream() calls share
 // this one connection sequentially. For concurrent workloads prefer the pool.
@@ -25,11 +24,9 @@ final Resource<Transactor> singleXaTls = PostgresTransactor.create(
   pg.Endpoint(host: 'db.example.com', database: 'prod'),
   settings: const pg.ConnectionSettings(sslMode: pg.SslMode.require),
 );
+// #endregion postgres-single
 
-// postgres-single
-
-// postgres-pool-endpoints
-
+// #region postgres-pool-endpoints
 // PostgresPoolTransactor.withEndpoints creates a pg.Pool backed by one or more
 // Endpoints. The pool distributes connections across endpoints using round-robin
 // selection. Use PoolSettings to cap pool size, set timeouts, and configure SSL.
@@ -47,21 +44,17 @@ final Resource<Transactor> poolXa = PostgresPoolTransactor.withEndpoints(
     sslMode: pg.SslMode.disable,
   ),
 );
+// #endregion postgres-pool-endpoints
 
-// postgres-pool-endpoints
-
-// postgres-pool-url
-
+// #region postgres-pool-url
 // withUrl accepts a standard PostgreSQL connection URL.
 // Format: postgresql://[user:password@]host[:port][/database]
 final Resource<Transactor> urlXa = PostgresPoolTransactor.withUrl(
   'postgresql://app:s3cr3t@localhost:5432/mydb',
 );
+// #endregion postgres-pool-url
 
-// postgres-pool-url
-
-// postgres-placeholders
-
+// #region postgres-placeholders
 // The postgres wire protocol uses $1, $2, ... positional placeholders.
 // ribs_postgres rewrites the ? placeholders used throughout ribs_sql to the
 // $N form automatically, so you write the same SQL regardless of the backend.
@@ -69,11 +62,9 @@ ConnectionIO<Option<(String, int)>> findUser(String name) =>
     (Fragment.raw('SELECT name, age FROM person WHERE name = ') + Fragment.param(name, Put.string))
         .query((Read.string, Read.integer).tupled)
         .option();
+// #endregion postgres-placeholders
 
-// postgres-placeholders
-
-// postgres-example
-
+// #region postgres-example
 // ── Domain ───────────────────────────────────────────────────────────────────
 
 final class Employee {
@@ -138,5 +129,4 @@ IO<IList<Employee>> program() => PostgresPoolTransactor.withUrl(
 
   return setup.flatMap((_) => employeesIn('Engineering')).transact(xa);
 });
-
-// postgres-example
+// #endregion postgres-example

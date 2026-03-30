@@ -42,8 +42,7 @@ final class Repo {
 
 IO<Unit> storeEvent(Event _) => IO.unit;
 
-// streaming-rill-file
-
+// #region streaming-rill-file
 // Drive AsyncParser directly from a Rill<int> byte stream.
 //
 // Each Chunk<int> is fed to parser.absorb via IO.delay, keeping side effects
@@ -80,11 +79,9 @@ IO<Unit> processEventsFromFile(Path path) =>
       Files.readAll(path),
       AsyncParserMode.unwrapArray,
     ).evalMap((json) => IO.fromEither(Event.codec.decode(json))).foreach(storeEvent).compile.drain;
+// #endregion streaming-rill-file
 
-// streaming-rill-file
-
-// streaming-rill-socket
-
+// #region streaming-rill-socket
 // Network.connect gives a Resource<Socket> whose reads is Rill<int>.
 // The same parseJsonRill helper slots in unchanged.
 IO<Unit> consumeSocketEvents(SocketAddress addr) => Network.connect(addr).use(
@@ -95,5 +92,4 @@ IO<Unit> consumeSocketEvents(SocketAddress addr) => Network.connect(addr).use(
           .compile
           .drain,
 );
-
-// streaming-rill-socket
+// #endregion streaming-rill-socket

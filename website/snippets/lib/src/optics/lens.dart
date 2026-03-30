@@ -5,8 +5,7 @@ import 'package:ribs_optics/ribs_optics.dart';
 
 import 'package:snippets/src/optics/domain.dart';
 
-// lens-define
-
+// #region lens-define
 // A Lens<S, A> requires two functions:
 //   get  : S -> A         (read the focused field)
 //   set  : (A, S) -> S    (replace the focused field, returning a new S)
@@ -20,11 +19,9 @@ final portL = Lens<DBConfig, int>(
   (db) => db.port,
   (p) => (db) => db.copy(port: p),
 );
+// #endregion lens-define
 
-// lens-define
-
-// lens-use
-
+// #region lens-use
 void lensUsage() {
   // get — read the focused value
   final db = dbConfigL.get(sampleConfig); // DBConfig(...)
@@ -38,11 +35,9 @@ void lensUsage() {
   // modify — apply a function to the focused value
   final bumped = portL.modify((p) => p + 1)(sampleConfig.dbConfig);
 }
+// #endregion lens-use
 
-// lens-use
-
-// lens-compose
-
+// #region lens-compose
 // Lenses compose with andThenL, producing a new Lens that focuses deeper.
 final dbPortL = dbConfigL.andThenL(portL);
 
@@ -52,11 +47,9 @@ void composeUsage() {
   // Update the port two levels deep in one step.
   final updated = dbPortL.replace(9999)(sampleConfig);
 }
+// #endregion lens-compose
 
-// lens-compose
-
-// lens-andtheng
-
+// #region lens-andtheng
 // andThenG composes a Lens with a read-only Getter.
 // Useful when the target type has derived values you want to project.
 final versionMajorG = Lens<AppConfig, String>(
@@ -67,5 +60,4 @@ final versionMajorG = Lens<AppConfig, String>(
 void getterUsage() {
   final major = versionMajorG.get(sampleConfig); // 2
 }
-
-// lens-andtheng
+// #endregion lens-andtheng

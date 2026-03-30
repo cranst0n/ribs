@@ -3,8 +3,7 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
-// codecs-1
-
+// #region codecs-1
 final class Document {
   final Header header;
   final IList<Message> messages;
@@ -34,11 +33,9 @@ final class Debug extends Message {
 
   Debug(this.lineNumber, this.message);
 }
+// #endregion codecs-1
 
-// codecs-1
-
-// codecs-2
-
+// #region codecs-2
 final infoCodec = Codec.utf16_32.xmap(
   (str) => Info(str),
   (info) => info.message,
@@ -50,11 +47,9 @@ final debugCodec = Codec.product2(
   Debug.new,
   (dbg) => (dbg.lineNumber, dbg.message),
 );
+// #endregion codecs-2
 
-// codecs-2
-
-// codecs-3
-
+// #region codecs-3
 final messageCodec = Codec.discriminatedBy(
   Codec.uint8, // encode identifier using an 8-bit integer
   imap({
@@ -62,11 +57,9 @@ final messageCodec = Codec.discriminatedBy(
     1: debugCodec, // instances of Debug prefixed by ID 1
   }),
 );
+// #endregion codecs-3
 
-// codecs-3
-
-// codecs-4
-
+// #region codecs-4
 final documentCodec = Codec.product2(
   headerCodec,
   // ilist of Messages with 16-bit int prefix indicating # of elements
@@ -82,11 +75,10 @@ final headerCodec = Codec.product3(
   Header.new,
   (hdr) => (hdr.version, hdr.comment, hdr.numMessages),
 );
-
-// codecs-4
+// #endregion codecs-4
 
 void snippet5() {
-  // codecs-5
+  // #region codecs-5
   final doc = Document(
     const Header(1.1, 'Top Secret', 3),
     IList.fromDart([
@@ -111,6 +103,5 @@ void snippet5() {
 
   print(decoded);
   // Right(DecodeResult(Instance of 'Document', ByteVector.empty))
-
-  // codecs-5
+  // #endregion codecs-5
 }
