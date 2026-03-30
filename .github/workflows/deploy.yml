@@ -18,6 +18,14 @@ jobs:
           cache: npm
           cache-dependency-path: "website"
 
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+
+      - name: Install melos
+        run: dart pub global activate melos 7.5.0
+
       - name: Run dartdoc_vitepress
         run: melos doc
 
