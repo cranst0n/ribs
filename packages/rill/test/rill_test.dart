@@ -129,6 +129,21 @@ void main() {
     expect(rillA.append(() => rillB), producesInOrder([1, 2, 3, 4]));
   });
 
+  group('broadcastThrough', () {
+    test('each pipe receives all source elements', () {
+      final source = Rill.emits([1, 2, 3]);
+
+      // Two pipes: one doubles, one triples each element.
+      // broadcastThrough fans out so both pipes see [1, 2, 3].
+      final pipes = ilist<Pipe<int, int>>([
+        (r) => r.map((i) => i * 2),
+        (r) => r.map((i) => i * 3),
+      ]);
+
+      expect(source.broadcastThrough(pipes), producesUnordered([2, 4, 6, 3, 6, 9]));
+    });
+  });
+
   group('buffer', () {
     (rillOf(Gen.integer), Gen.positiveInt).forAll('identity', (r, n) {
       expect(r.buffer(n), producesSameAs(r));

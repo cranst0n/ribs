@@ -488,6 +488,29 @@ class Rill<O> {
     () => delays.flatMap((delay) => Rill.sleep(delay).flatMap((_) => attempt())),
   );
 
+  Rill<O2> broadcastThrough<O2>(IList<Pipe<O, O2>> pipes) {
+    final rillF = (
+      Topic.create<Chunk<O>>(),
+      CountDownLatch.create(pipes.size),
+    ).mapN((topic, allReady) {
+      final checkIn = allReady.release().productR(allReady.await());
+
+      Rill<O2> dump(Pipe<O, O2> pipe) {
+        return Rill.resource(topic.subscribeAwait(1)).flatMap((sub) {
+          return Rill.exec<O2>(checkIn).append(() => pipe(sub.unchunks));
+        });
+      }
+
+      final dumpAll = Rill.emits(pipes.toList()).map(dump).parJoinUnbounded();
+
+      final pump = Rill.exec<Never>(allReady.await()).append(() => topic.publish(chunks()));
+
+      return dumpAll.concurrently(pump);
+    });
+
+    return Rill.force(rillF);
+  }
+
   Rill<O> buffer(int n) {
     if (n <= 0) {
       return this;
