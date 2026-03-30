@@ -1,5 +1,5 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/test.dart';
+import 'package:ribs_core/ribs_core_test.dart';
 import 'package:test/test.dart';
 
 typedef Value = (int, int, int);

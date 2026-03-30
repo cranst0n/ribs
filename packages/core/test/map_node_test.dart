@@ -5,9 +5,9 @@
 // concat, transform, foreachEntry/foreachWithHash, copy, apply, getTuple, etc.).
 
 import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/ribs_core_test.dart';
 import 'package:ribs_core/src/collection/hashing.dart';
 import 'package:ribs_core/src/collection/immutable/map/map_node.dart';
-import 'package:ribs_core/test.dart';
 import 'package:test/test.dart';
 
 /// All instances share the same hashCode, forcing HashCollisionMapNode.

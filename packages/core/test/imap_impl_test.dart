@@ -2,7 +2,7 @@
 // _EmptyMap, _Map1, _Map2, _Map3, _Map4, IHashMap, and IMapBuilder.
 
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/test.dart';
+import 'package:ribs_core/ribs_core_test.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -1,8 +1,8 @@
 import 'package:postgres/postgres.dart' as pg;
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/test.dart';
+import 'package:ribs_core/ribs_core_test.dart';
 import 'package:ribs_effect/ribs_effect.dart';
-import 'package:ribs_effect/test.dart';
+import 'package:ribs_effect/ribs_effect_test.dart';
 import 'package:ribs_postgres/ribs_postgres.dart';
 import 'package:ribs_sql/ribs_sql.dart';
 import 'package:test/test.dart';

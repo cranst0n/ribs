@@ -1,3 +1,5 @@
+export 'src/binary/rill_decoder.dart' show RillDecoder;
+export 'src/binary/rill_encoder.dart' show RillEncoder;
 export 'src/channel.dart';
 export 'src/chunk.dart';
 export 'src/composite_failure.dart';

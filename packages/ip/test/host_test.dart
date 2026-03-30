@@ -1,5 +1,5 @@
 import 'package:ribs_check/ribs_check.dart';
-import 'package:ribs_core/test.dart';
+import 'package:ribs_core/ribs_core_test.dart';
 import 'package:ribs_ip/ribs_ip.dart';
 import 'package:test/test.dart';
 

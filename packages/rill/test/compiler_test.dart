@@ -1,8 +1,8 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/test.dart';
+import 'package:ribs_core/ribs_core_test.dart';
 import 'package:ribs_effect/ribs_effect.dart';
-import 'package:ribs_effect/test.dart';
+import 'package:ribs_effect/ribs_effect_test.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 import 'package:test/test.dart';
 

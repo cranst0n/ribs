@@ -4,9 +4,9 @@ import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_check/ribs_check.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
-import 'package:ribs_effect/test.dart';
+import 'package:ribs_effect/ribs_effect_test.dart';
 import 'package:ribs_rill/ribs_rill.dart';
-import 'package:ribs_rill/test.dart';
+import 'package:ribs_rill/ribs_rill_test.dart';
 import 'package:test/test.dart';
 
 import 'arbitraries.dart';

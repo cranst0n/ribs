@@ -18,6 +18,8 @@ dependencies:
     path: ../../packages/effect/
   ribs_ip:
     path: ../../packages/ip/
+  ribs_limiter:
+    path: ../../packages/limiter/
   ribs_json:
     path: ../../packages/json/
   ribs_optics:

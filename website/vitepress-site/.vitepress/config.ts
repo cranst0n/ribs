@@ -184,6 +184,13 @@ const guideSidebar = {
         { text: 'Optional', link: '/guide/optics/optional' },
       ],
     },
+    {
+      text: 'Limiter',
+      collapsed: true,
+      items: [
+        { text: 'Overview', link: '/guide/limiter/overview' },
+      ],
+    },
   ],
 }
 

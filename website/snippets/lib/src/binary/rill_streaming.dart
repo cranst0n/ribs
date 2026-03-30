@@ -4,7 +4,6 @@ import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_ip/ribs_ip.dart';
-import 'package:ribs_rill/binary.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 import 'package:ribs_rill_io/ribs_rill_io.dart';
 
