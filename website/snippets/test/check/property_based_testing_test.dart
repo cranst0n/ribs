@@ -2,7 +2,7 @@ import 'package:ribs_check/ribs_check.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:test/test.dart';
 
-// check-basic
+// #region check-basic
 
 void basicTests() {
   // Gen.integer generates random ints across the full 32-bit range.
@@ -25,9 +25,9 @@ void basicTests() {
   );
 }
 
-// check-basic
+// #endregion check-basic
 
-// check-combining
+// #region check-combining
 
 void combiningTests() {
   // A tuple of generators passes each value as a separate parameter to forAll.
@@ -60,9 +60,9 @@ void combiningTests() {
   });
 }
 
-// check-combining
+// #endregion check-combining
 
-// check-custom-gen
+// #region check-custom-gen
 
 enum Priority { low, medium, high }
 
@@ -101,9 +101,9 @@ void customGenTests() {
   );
 }
 
-// check-custom-gen
+// #endregion check-custom-gen
 
-// check-shrinking
+// #region check-shrinking
 
 void shrinkingTests() {
   // Shrink candidates can be inspected directly via gen.shrink(value).
@@ -129,9 +129,9 @@ void shrinkingTests() {
   });
 }
 
-// check-shrinking
+// #endregion check-shrinking
 
-// check-seed
+// #region check-seed
 
 void seedTests() {
   // Pass seed: to lock the random sequence — the same seed always produces
@@ -159,7 +159,7 @@ void seedTests() {
   // changing the test source.
 }
 
-// check-seed
+// #endregion check-seed
 
 void main() {
   group('basic properties', basicTests);

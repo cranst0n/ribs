@@ -5,7 +5,7 @@ import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/test.dart';
 import 'package:test/test.dart';
 
-// testing-matchers
+// #region testing-matchers
 void matchersTests() {
   // succeeds asserts the IO completes with a value matching the given matcher.
   test('IO succeeds with 42', () {
@@ -32,9 +32,9 @@ void matchersTests() {
     expect(IO.canceled, cancels);
   });
 }
-// testing-matchers
+// #endregion testing-matchers
 
-// testing-matchers-advanced
+// #region testing-matchers-advanced
 void advancedMatchersTests() {
   // succeeds accepts *any* standard test Matcher for the value.
   test('result satisfies a condition', () {
@@ -51,9 +51,9 @@ void advancedMatchersTests() {
     expect(io, errors(contains('timeout')));
   });
 }
-// testing-matchers-advanced
+// #endregion testing-matchers-advanced
 
-// testing-ticker
+// #region testing-ticker
 void tickerTests() {
   // Pass io.ticked directly to any matcher — the matcher calls tickAll()
   // automatically, so virtual time advances and the test completes instantly.
@@ -78,9 +78,9 @@ void tickerTests() {
     expect(IO.sleep(1.second), terminates);
   });
 }
-// testing-ticker
+// #endregion testing-ticker
 
-// testing-ticker-realworld
+// #region testing-ticker-realworld
 /// Polls [check] repeatedly, sleeping [interval] between attempts, until it
 /// returns [Some]. This is a typical pattern for waiting on external state.
 IO<A> pollUntil<A>(IO<Option<A>> check, {Duration interval = const Duration(seconds: 1)}) =>
@@ -107,7 +107,7 @@ void realWorldTickerTest() {
     expect(attempts, 5);
   });
 }
-// testing-ticker-realworld
+// #endregion testing-ticker-realworld
 
 void main() {
   group('IO matchers', matchersTests);

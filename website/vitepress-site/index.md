@@ -46,7 +46,7 @@ features:
     title: SQL
     details: Type-safe SQL access for PostgreSQL and SQLite. Compose reads and
       writes using a functional query DSL with full Rill streaming support.
-  - icon: 📐
+  - icon: 📏
     title: Units
     details: Dimensional analysis and unit-safe arithmetic. Catch unit mismatches
       at compile time with typed quantities and automatic conversions.

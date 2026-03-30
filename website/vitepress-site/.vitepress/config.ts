@@ -1,8 +1,59 @@
 import { defineConfig } from 'vitepress'
+import fs from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { apiSidebar } from './generated/api-sidebar'
 import { dartpadPlugin } from './theme/plugins/dartpad'
 import { apiLinkerPlugin } from './theme/plugins/api-linker'
 // import llmstxt from 'vitepress-plugin-llms'
+
+// ---------------------------------------------------------------------------
+// Split-build support
+//
+// 1400+ API pages exceed available RAM when Rollup processes them all at once.
+// build-all.mjs drives the full build by setting VITE_SECTION for each pass:
+//   guide              — guide pages + api/index.md only
+//   <package-dir-name> — a single API package (e.g. package-ribs_core_ribs_core)
+//   (unset)            — full build; only viable in dev (will OOM on prod builds)
+//
+// No manual edits are needed when adding a new package: build-all.mjs discovers
+// packages from the api/ directory at build time, and this config dynamically
+// computes the srcExclude from the same directory.
+// ---------------------------------------------------------------------------
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const SECTION = process.env.VITE_SECTION ?? ''
+
+/** Returns all package subdirectory names under api/. */
+function getApiPackages(): string[] {
+  const apiDir = resolve(__dirname, '../api')
+  if (!fs.existsSync(apiDir)) return []
+  return fs.readdirSync(apiDir, { withFileTypes: true })
+    .filter(d => d.isDirectory())
+    .map(d => d.name)
+    .sort()
+}
+
+function computeSrcExclude(): string[] {
+  const base = ['CLAUDE.md', 'AGENTS.md']
+  if (!SECTION) return base  // dev: full build
+
+  const allPkgs = getApiPackages()
+
+  if (SECTION === 'guide') {
+    // Keep api/index.md (the API landing page); exclude all package subdirs.
+    return [...base, ...allPkgs.map(p => `api/${p}/**`)]
+  }
+
+  // SECTION is a specific package dir name. Exclude every other package.
+  const excludePkgs = allPkgs.filter(p => p !== SECTION)
+  return [
+    ...base,
+    'guide/**',
+    'index.md',
+    'api/index.md',
+    ...excludePkgs.map(p => `api/${p}/**`),
+  ]
+}
 
 const guideSidebar = {
   '/guide/': [
@@ -130,7 +181,7 @@ export default defineConfig({
   description: 'First-class functional programming for Dart',
   appearance: 'dark',
   head: [['link', { rel: 'icon', href: '/logo.png', type: 'image/png' }]],
-  srcExclude: ['CLAUDE.md', 'AGENTS.md'],
+  srcExclude: computeSrcExclude(),
   ignoreDeadLinks: true,
   metaChunk: true, // Extract metadata into a shared chunk to reduce per-page JS weight.
   // Disabled: git log on 1400+ pages bloats child-process memory.
@@ -148,7 +199,21 @@ export default defineConfig({
         treeshake: false,
         maxParallelFileOps: 10,
         output: {
-          manualChunks: undefined,
+          // VitePress's default manualChunks splits into 'theme' and 'framework'
+          // but their mutual imports create a circular chunk dependency (CIRCULAR_CHUNK).
+          // Setting undefined doesn't override VitePress's function — Vite's config
+          // merge ignores undefined values. Providing an explicit function that
+          // assigns both to a single 'vendor' chunk resolves the cycle.
+          manualChunks(id) {
+            if (
+              id.startsWith('\0vite') ||
+              id.includes('plugin-vue:export-helper') ||
+              id.includes('/vitepress/') ||
+              id.includes('/@vue/')
+            ) {
+              return 'vendor'
+            }
+          },
         },
       },
     },

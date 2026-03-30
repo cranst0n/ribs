@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vitepress dev",
-    "build": "NODE_OPTIONS='--max-old-space-size=5120' vitepress build",
+    "build": "node .vitepress/build-all.mjs",
     "preview": "vitepress preview"
   },
   "devDependencies": {
