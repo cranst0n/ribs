@@ -52,7 +52,7 @@ jobs:
         run: melos coverage --no-select
       
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/binary/coverage.lcov,packages/check/coverage.lcov,packages/core/coverage.lcov,packages/effect/coverage.lcov,packages/ip/coverage.lcov,packages/json/coverage.lcov,packages/optics/coverage.lcov,packages/units/coverage.lcov
