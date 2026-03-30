@@ -145,14 +145,59 @@ void main() {
   );
 
   test('canceling job, interval slot gets taken', () {
-    throw UnimplementedError();
-  }, skip: 'TODO');
+    final test = Limiter.start(100.milliseconds).use((limiter) {
+      final job = limiter.submit(IO.now);
+
+      final canceledJob = limiter
+          .submit(IO.now.productL(IO.sleep(50.milliseconds)))
+          .as('done')
+          .timeoutTo(125.milliseconds, IO.pure('canceled'));
+
+      final skew = IO.sleep(10.milliseconds);
+
+      return (
+        job,
+        skew.productR(canceledJob),
+        skew.productR(skew).productR(job),
+      ).parMapN((t1, outcome, t3) => (outcome, t3.difference(t1)));
+    });
+
+    expect(test.ticked, succeeds(('canceled', 200.milliseconds)));
+  });
 
   test('max concurrency shrinks before interval elapses, should be respected', () {
-    throw UnimplementedError();
-  }, skip: 'TODO');
+    final interval = 500.milliseconds;
+    final taskDuration = 700.milliseconds; // > interval
+    final concurrencyShrinksAt = 300.milliseconds;
+
+    final test = Limiter.start(interval, maxConcurrent: 3).use((limiter) {
+      final skew = IO.sleep(10.milliseconds);
+
+      return (
+        limiter.submit(IO.now.productL(IO.sleep(taskDuration))),
+        skew.productR(limiter.submit(IO.now)),
+        IO.sleep(concurrencyShrinksAt).productR(limiter.setMaxConcurrent(1)),
+      ).parMapN((t1, t2, _) => t2.difference(t1));
+    });
+
+    expect(test.ticked, succeeds(taskDuration));
+  });
 
   test('max concurrency shrinks after interval elapses, should be no-op', () {
-    throw UnimplementedError();
-  }, skip: 'TODO');
+    final interval = 300.milliseconds;
+    final taskDuration = 700.milliseconds; // > interval
+    final concurrencyShrinksAt = 500.milliseconds; // > interval
+
+    final test = Limiter.start(interval, maxConcurrent: 2).use((limiter) {
+      final skew = IO.sleep(10.milliseconds);
+
+      return (
+        limiter.submit(IO.now.productL(IO.sleep(taskDuration))),
+        skew.productR(limiter.submit(IO.now)),
+        IO.sleep(concurrencyShrinksAt).productR(limiter.setMaxConcurrent(1)),
+      ).parMapN((t1, t2, _) => t2.difference(t1));
+    });
+
+    expect(test.ticked, succeeds(interval));
+  });
 }

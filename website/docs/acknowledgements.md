@@ -26,6 +26,7 @@ Large portions of Ribs are directly derived from the following libraries:
 | [ip4s](https://github.com/Comcast/ip4s)                 | Immutable types for network addresses & operations.         |
 | [monocle](https://www.optics.dev/Monocle/)              | Optics                                                      |
 | [sqaunts](https://github.com/typelevel/squants)         | Typesafe Dimensonal Analysis                                |
+| [upperbound](https://github.com/SystemFw/upperbound)    | Purely functional rate limiter                              |
 | [dart-check](https://github.com/wigahluk/dart-check)    | Property based testing                                      |
 
 In addition to these libraries, additional inspiration/motivation was provided by:
