@@ -10,82 +10,82 @@ void main() {
     test('invalidNel', () {
       expect(
         Validated.invalidNel<String, int>('error'),
-        isInvalid<NonEmptyIList<String>, int>(nel('error')),
+        isInvalid(nel('error')),
       );
     });
 
     test('validNel', () {
       expect(
         Validated.validNel<String, int>(42),
-        isValidNel<String, int>(42),
+        isValidNel(42),
       );
     });
 
     test('andThen', () {
       expect(
         42.valid<String>().andThen((x) => x.valid()),
-        isValid<String, int>(42),
+        isValid(42),
       );
 
       expect(
         42.valid<String>().andThen((x) => 'boom'.invalid<int>()),
-        isInvalid<String, int>('boom'),
+        isInvalid('boom'),
       );
 
       expect(
         'err'.invalid<int>().andThen((x) => x.valid()),
-        isInvalid<String, int>('err'),
+        isInvalid('err'),
       );
 
       expect(
         'err'.invalid<int>().andThen((x) => 'next'.invalid<int>()),
-        isInvalid<String, int>('err'),
+        isInvalid('err'),
       );
     });
 
     test('bimap', () {
       expect(
         21.valid<String>().bimap((a) => a.toLowerCase(), (x) => x * 2),
-        isValid<String, int>(42),
+        isValid(42),
       );
 
       expect(
         'ERR'.invalid<int>().bimap((a) => a.toLowerCase(), (x) => x * 2),
-        isInvalid<String, int>('err'),
+        isInvalid('err'),
       );
     });
 
     test('ensure', () {
       expect(
         42.valid<String>().ensure((a) => a.isEven, () => 'fail'),
-        isValid<String, int>(42),
+        isValid(42),
       );
 
       expect(
         42.valid<String>().ensure((a) => a.isOdd, () => 'fail'),
-        isInvalid<String, int>('fail'),
+        isInvalid('fail'),
       );
 
       expect(
         'err'.invalid<int>().ensure((a) => a.isOdd, () => 'fail'),
-        isInvalid<String, int>('err'),
+        isInvalid('err'),
       );
     });
 
     test('ensureOr', () {
       expect(
         42.valid<String>().ensureOr((a) => a.isEven, (a) => a.toString()),
-        isValid<String, int>(42),
+        isValid(42),
       );
 
       expect(
         42.valid<String>().ensureOr((a) => a.isOdd, (a) => a.toString()),
-        isInvalid<String, int>('42'),
+        isInvalid('42'),
       );
 
       expect(
         'err'.invalid<int>().ensureOr((a) => a.isOdd, (a) => a.toString()),
-        isInvalid<String, int>('err'),
+        isInvalid('err'),
       );
     });
 
@@ -98,9 +98,9 @@ void main() {
     });
 
     test('flatten', () {
-      expect(42.valid<String>().valid<String>().flatten(), isValid<String, int>(42));
+      expect(42.valid<String>().valid<String>().flatten(), isValid(42));
 
-      expect('err'.invalid<int>().valid<String>().flatten(), isInvalid<String, int>('err'));
+      expect('err'.invalid<int>().valid<String>().flatten(), isInvalid('err'));
     });
 
     test('forall', () {
@@ -139,35 +139,35 @@ void main() {
     test('leftMap', () {
       expect(
         42.valid<String>().leftMap((a) => a.toLowerCase()),
-        isValid<String, int>(42),
+        isValid(42),
       );
 
       expect(
         'ERR'.invalid<int>().leftMap((a) => a.toLowerCase()),
-        isInvalid<String, int>('err'),
+        isInvalid('err'),
       );
     });
 
     test('orElse', () {
       expect(
         42.valid<String>().orElse(() => 0.valid()),
-        isValid<String, int>(42),
+        isValid(42),
       );
 
       expect(
         'err'.invalid<int>().orElse(() => 0.valid()),
-        isValid<String, int>(0),
+        isValid(0),
       );
 
       expect(
         'err'.invalid<int>().orElse(() => '2nd'.invalid()),
-        isInvalid<String, int>('2nd'),
+        isInvalid('2nd'),
       );
     });
 
     test('swap', () {
-      expect(42.valid<String>().swap(), isInvalid<int, String>(42));
-      expect('err'.invalid<int>().swap(), isValid<int, String>('err'));
+      expect(42.valid<String>().swap(), isInvalid(42));
+      expect('err'.invalid<int>().swap(), isValid('err'));
     });
 
     test('toEither', () {
@@ -186,10 +186,10 @@ void main() {
     });
 
     test('toValidatedNel', () {
-      expect(42.valid<String>().toValidatedNel(), isValidNel<String, int>(42));
+      expect(42.valid<String>().toValidatedNel(), isValidNel(42));
       expect(
         'err'.invalid<int>().toValidatedNel(),
-        isInvalid<NonEmptyIList<String>, int>(nel('err')),
+        isInvalid(nel('err')),
       );
     });
 
