@@ -58,6 +58,7 @@ melos:
           --exclude-packages 'ribs_bench,ribs_workspace,snippets' \
           --output website/vitepress-site
         cp -r website/docs/. website/vitepress-site/guide/
+        node website/vitepress-site/.vitepress/separate-extension-methods.mjs
       description: Regenerate API docs, then restore guide docs from website/docs/ into website/vitepress-site/guide/. Run `melos run website-dev` to preview.
 
     website-dev:
