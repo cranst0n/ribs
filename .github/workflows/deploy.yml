@@ -25,6 +25,9 @@ jobs:
 
       - name: Install melos
         run: dart pub global activate melos 7.5.0
+      
+      - name: Install dartdoc_vitepress
+        run: dart pub global activate dartdoc_vitepress 1.2.1
 
       - name: Run dartdoc_vitepress
         run: melos doc
