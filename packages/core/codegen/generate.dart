@@ -17,6 +17,7 @@ import 'tuple_option_generator.dart';
 import 'tuple_validated_nel_generator.dart';
 
 const arity = 22;
+const fnArity = 5;
 
 final formatter = DartFormatter(
   languageVersion: DartFormatter.latestLanguageVersion,
@@ -39,12 +40,12 @@ void main(List<String> args) {
   genFile('lib/src/generated/functionc_ops.dart', FunctionCOpsGenerator.generate);
 
   // Either
-  genFile('lib/src/syntax/generated/either_tuple.dart', EitherTupleOpsGenerator.generate);
+  genFile('lib/src/syntax/generated/either_tuple.dart', EitherTupleOpsGenerator.generate, fnArity);
   genFile('lib/src/syntax/generated/tuple_either.dart', TupleEitherOpsGenerator.generate);
 
   // Option
-  genFile('lib/src/syntax/generated/option_tuple.dart', OptionTupleOpsGenerator.generate);
-  genFile('lib/src/syntax/generated/tuple_option.dart', TupleOptionOpsGenerator.generate);
+  genFile('lib/src/syntax/generated/option_tuple.dart', OptionTupleOpsGenerator.generate, fnArity);
+  genFile('lib/src/syntax/generated/tuple_option.dart', TupleOptionOpsGenerator.generate, fnArity);
 
   genFile('lib/src/syntax/generated/tuple.dart', TupleOpsGenerator.generate);
 
@@ -52,17 +53,19 @@ void main(List<String> args) {
   genFile(
     'lib/src/syntax/generated/tuple_validated_nel.dart',
     TupleValidatedNelOpsGenerator.generate,
+    fnArity,
   );
 
   // IList
   genFile(
     'lib/src/collection/immutable/generated/ilist_tuple.dart',
     IListTupleOpsGenerator.generate,
+    fnArity,
   );
 }
 
-void genFile(String destinationPath, String Function(int) generator) {
+void genFile(String destinationPath, String Function(int) generator, [int? arityOverride]) {
   final tupleResourceFile = File(destinationPath);
   tupleResourceFile.createSync(recursive: true);
-  tupleResourceFile.writeAsStringSync(formatter.format(generator(arity)));
+  tupleResourceFile.writeAsStringSync(formatter.format(generator(arityOverride ?? arity)));
 }

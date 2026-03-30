@@ -10,6 +10,7 @@ import 'tuple_io_ops_generator.dart';
 import 'tuple_resource_ops_generator.dart';
 
 const arity = 22;
+const fnArity = 5;
 
 final formatter = DartFormatter(
   languageVersion: DartFormatter.latestLanguageVersion,
@@ -25,14 +26,18 @@ void main(List<String> args) {
     exit(1);
   }
 
-  genFile('lib/src/syntax/generated/io_tuple.dart', IOTupleOpsGenerator.generate);
+  genFile('lib/src/syntax/generated/io_tuple.dart', IOTupleOpsGenerator.generate, fnArity);
   genFile('lib/src/syntax/generated/tuple_io.dart', TupleIOOpsGenerator.generate);
-  genFile('lib/src/syntax/generated/resource_tuple.dart', ResourceTupleOpsGenerator.generate);
+  genFile(
+    'lib/src/syntax/generated/resource_tuple.dart',
+    ResourceTupleOpsGenerator.generate,
+    fnArity,
+  );
   genFile('lib/src/syntax/generated/tuple_resource.dart', TupleResourceOpsGenerator.generate);
 }
 
-void genFile(String destinationPath, String Function(int) generator) {
+void genFile(String destinationPath, String Function(int) generator, [int? arityOverride]) {
   final tupleResourceFile = File(destinationPath);
   tupleResourceFile.createSync(recursive: true);
-  tupleResourceFile.writeAsStringSync(formatter.format(generator(arity)));
+  tupleResourceFile.writeAsStringSync(formatter.format(generator(arityOverride ?? arity)));
 }

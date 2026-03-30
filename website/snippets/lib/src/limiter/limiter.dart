@@ -8,13 +8,12 @@ import 'package:ribs_limiter/ribs_limiter.dart';
 /// A Limiter enforces a minimum gap between job starts and an optional cap
 /// on concurrent executions. Jobs are submitted as IO values and executed
 /// in a background fiber managed by the Resource.
-IO<Unit> limiterBasic() =>
-    Limiter.start(200.milliseconds, maxConcurrent: 1).use((limiter) {
-      final jobs = ilist(['alpha', 'beta', 'gamma']);
-      return jobs.parTraverseIO_(
-        (String name) => limiter.submit(IO.print('running: $name')),
-      );
-    });
+IO<Unit> limiterBasic() => Limiter.start(200.milliseconds, maxConcurrent: 1).use((limiter) {
+  final jobs = ilist(['alpha', 'beta', 'gamma']);
+  return jobs.parTraverseIO_(
+    (String name) => limiter.submit(IO.print('running: $name')),
+  );
+});
 // #endregion limiter-basic
 
 // #region limiter-api-fetcher
@@ -29,19 +28,19 @@ IO<Unit> apiFetcher({
   int maxConcurrent = 2,
   Duration minInterval = const Duration(milliseconds: 150),
   int urgentBelow = 3,
-}) =>
-    Limiter.start(minInterval, maxConcurrent: maxConcurrent).use((limiter) {
-      IO<String> fetchPage(int id) => IO.sleep(40.milliseconds)
-          .productR(IO.pure('page-$id'))
-          .flatTap((String r) => IO.print('fetched: $r'));
+}) => Limiter.start(minInterval, maxConcurrent: maxConcurrent).use((limiter) {
+  IO<String> fetchPage(int id) => IO
+      .sleep(40.milliseconds)
+      .productR(IO.pure('page-$id'))
+      .flatTap((String r) => IO.print('fetched: $r'));
 
-      final ids = ilist(List.generate(count, (int i) => i + 1));
+  final ids = ilist(List.generate(count, (int i) => i + 1));
 
-      return ids.parTraverseIO_(
-        (int id) => limiter.submit(
-          fetchPage(id),
-          priority: id < urgentBelow ? 10 : 0,
-        ),
-      );
-    });
+  return ids.parTraverseIO_(
+    (int id) => limiter.submit(
+      fetchPage(id),
+      priority: id < urgentBelow ? 10 : 0,
+    ),
+  );
+});
 // #endregion limiter-api-fetcher
