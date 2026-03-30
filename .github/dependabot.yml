@@ -17,7 +17,7 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-  
+
   - package-ecosystem: "pub"
     directory: "/packages/binary"
     schedule:
@@ -25,7 +25,7 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-  
+
   - package-ecosystem: "pub"
     directory: "/packages/check"
     schedule:
@@ -33,7 +33,7 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-  
+
   - package-ecosystem: "pub"
     directory: "/packages/core"
     schedule:
@@ -65,7 +65,15 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-  
+
+  - package-ecosystem: "pub"
+    directory: "/packages/limiter"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
   - package-ecosystem: "pub"
     directory: "/packages/optics"
     schedule:
@@ -73,7 +81,15 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-  
+
+  - package-ecosystem: "pub"
+    directory: "/packages/postgres"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
   - package-ecosystem: "pub"
     directory: "/packages/rill"
     schedule:
@@ -81,7 +97,31 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-  
+
+  - package-ecosystem: "pub"
+    directory: "/packages/rill_io"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  - package-ecosystem: "pub"
+    directory: "/packages/sql"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  - package-ecosystem: "pub"
+    directory: "/packages/sqlite"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
   - package-ecosystem: "pub"
     directory: "/packages/units"
     schedule:

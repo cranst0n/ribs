@@ -184,11 +184,14 @@ export default defineConfig({
   srcExclude: computeSrcExclude(),
   ignoreDeadLinks: true,
   metaChunk: true, // Extract metadata into a shared chunk to reduce per-page JS weight.
-  // Disabled: git log on 1400+ pages bloats child-process memory.
+  // Disabled: git log bloats child-process memory.
   lastUpdated: false,
   // Limit concurrent page renders to reduce peak memory usage.
-  buildConcurrency: 1,
+  buildConcurrency: 8,
   vite: {
+    ssr: {
+      noExternal: ['mark.js'],
+    },
     build: {
       // Disable sourcemaps and minification to reduce peak memory during Rollup bundling.
       sourcemap: false,

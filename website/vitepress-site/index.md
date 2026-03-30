@@ -11,11 +11,11 @@ hero:
       text: Get Started
       link: /guide/overview
     - theme: alt
-      text: API Reference
-      link: /api/
-    - theme: alt
       text: Github
       link: https://github.com/cranst0n/ribs
+    - theme: alt
+      text: API Reference
+      link: /api/
 features:
   - icon: ⚙️
     title: Core
@@ -24,7 +24,7 @@ features:
   - icon: 🕹️
     title: Effect
     details: Purely functional effect system built around IO. Includes Ref,
-      Deferred, Resource, Queue, Semaphore, and structured concurrency primitives.
+      Deferred, Resource, Queue, Semaphore, and more structured concurrency primitives.
   - icon: 🌊
     title: Rill
     details: Purely functional, composable streaming library powered by Pull.
