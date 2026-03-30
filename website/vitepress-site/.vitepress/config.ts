@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig, type DefaultTheme } from 'vitepress'
 import fs from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -53,6 +53,17 @@ function computeSrcExclude(): string[] {
     'api/index.md',
     ...excludePkgs.map(p => `api/${p}/**`),
   ]
+}
+
+// Fix: dartdoc_vitepress emits link: 'index.md' for package overview sidebar entries.
+// VitePress does not strip .md from sidebar link values, so these navigate to a 404.
+// Replace with './' which resolves to the package directory index.
+function fixSidebarLinks(items: DefaultTheme.SidebarItem[]): DefaultTheme.SidebarItem[] {
+  return items.map(item => ({
+    ...item,
+    ...(item.link === 'index.md' ? { link: './' } : {}),
+    ...(item.items ? { items: fixSidebarLinks(item.items) } : {}),
+  }))
 }
 
 const guideSidebar = {
@@ -242,7 +253,9 @@ export default defineConfig({
       { text: 'API Reference', link: '/api/' },
     ],
     sidebar: {
-      ...apiSidebar,
+      ...Object.fromEntries(
+        Object.entries(apiSidebar).map(([k, v]) => [k, fixSidebarLinks(v as DefaultTheme.SidebarItem[])])
+      ),
       ...guideSidebar,
     },
     socialLinks: [
