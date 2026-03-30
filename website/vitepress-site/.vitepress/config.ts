@@ -177,10 +177,11 @@ const guideSidebar = {
 }
 
 export default defineConfig({
+  base: '/ribs/',
   title: 'Ribs',
   description: 'First-class functional programming for Dart',
   appearance: 'dark',
-  head: [['link', { rel: 'icon', href: '/logo.png', type: 'image/png' }]],
+  head: [['link', { rel: 'icon', href: '/ribs/logo.png', type: 'image/png' }]],
   srcExclude: computeSrcExclude(),
   ignoreDeadLinks: true,
   metaChunk: true, // Extract metadata into a shared chunk to reduce per-page JS weight.
