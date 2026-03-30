@@ -52,4 +52,5 @@ IO<Unit> pipeTextExample() {
     (IList<String> lines) => IO.print('lines: $lines'),
   ); // [hello, world]
 }
+
 // #endregion pipe-text

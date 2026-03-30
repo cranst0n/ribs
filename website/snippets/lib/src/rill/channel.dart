@@ -128,4 +128,5 @@ IO<IList<String>> aggregateLogs() {
     // Returns all 8 log lines (order varies by scheduling).
   });
 }
+
 // #endregion channel-realworld

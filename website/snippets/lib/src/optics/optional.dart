@@ -64,4 +64,5 @@ void composeUsage() {
   // Updates the host two levels deep in one step.
   final updated = appHostO.replace('new.host')(sampleConfig);
 }
+
 // #endregion optional-compose

@@ -114,4 +114,5 @@ void parsing() {
   // Use getOrElse for a sensible default.
   final size = Information.parse('bad input').getOrElse(() => 0.bytes);
 }
+
 // #endregion motivation-parsing

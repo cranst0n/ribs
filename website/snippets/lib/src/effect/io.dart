@@ -46,6 +46,7 @@ Future<void> asyncSnippet1() async {
 
     throw UnimplementedError();
   }
+
   // #endregion io-async-1
 }
 

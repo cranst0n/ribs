@@ -115,4 +115,5 @@ void tupleCall() {
   // Spread the tuple as positional arguments into a function.
   final int result = t.call((String s, int n) => s.length + n); // 47
 }
+
 // #endregion tuple-call

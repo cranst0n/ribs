@@ -60,4 +60,5 @@ final versionMajorG = Lens<AppConfig, String>(
 void getterUsage() {
   final major = versionMajorG.get(sampleConfig); // 2
 }
+
 // #endregion lens-andtheng
