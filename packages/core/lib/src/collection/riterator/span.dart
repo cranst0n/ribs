@@ -13,7 +13,7 @@
 
 part of '../riterator.dart';
 
-(RIterator<A>, RIterator<A>) spanIterator<A>(
+(RIterator<A>, RIterator<A>) _spanIterator<A>(
   RIterator<A> self,
   Function1<A, bool> p,
 ) {

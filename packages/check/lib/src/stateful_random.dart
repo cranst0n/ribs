@@ -34,7 +34,7 @@ final class StatefulRandom {
           final a = rnd.nextInt(pow(2, bitsA).toInt());
           final b = rnd.nextInt(pow(2, bitsB).toInt());
 
-          if (kIsWeb) {
+          if (_kIsWeb) {
             result = (a * pow(2, bitsB).toInt()) + b;
           } else {
             result = (a << bitsB) | b;
@@ -54,4 +54,4 @@ final class StatefulRandom {
   Random get _random => Random(_seed);
 }
 
-const bool kIsWeb = bool.fromEnvironment('dart.library.js_util');
+const bool _kIsWeb = bool.fromEnvironment('dart.library.js_util');

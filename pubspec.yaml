@@ -55,7 +55,7 @@ melos:
         dart pub global run dartdoc_vitepress \
           --format vitepress \
           --workspace-docs \
-          --exclude-packages 'ribs_bench,ribs_workspace,snippets' \
+          --exclude-packages 'ribs_bench,ribs_http,ribs_workspace,snippets' \
           --output website/vitepress-site
         cp -r website/docs/. website/vitepress-site/guide/
         node website/vitepress-site/.vitepress/separate-extension-methods.mjs

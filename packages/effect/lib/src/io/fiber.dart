@@ -9,7 +9,7 @@ final class IOFiber<A> {
   static int _idCounter = 0;
 
   // Dump related fields.
-  final int id;
+  final int _id;
   FiberState _state = FiberState.running;
 
   var _callbacks = Stack<Function1<Outcome<A>, void>>(1);
@@ -57,7 +57,7 @@ final class IOFiber<A> {
     Function1<Outcome<A>, void>? callback,
     IORuntime? runtime,
   }) : _runtime = runtime ?? IORuntime.defaultRuntime,
-       id = _idCounter++ {
+       _id = _idCounter++ {
     _resumeIO = startIO;
 
     if (callback != null) {
@@ -474,14 +474,14 @@ final class IOFiber<A> {
     }
   }
 
-  static final stackFrameId = RegExp(r'^#\d+\s+');
+  static final _stackFrameId = RegExp(r'^#\d+\s+');
   static String _formatLocation(StackTrace? stackTrace, int? depth) {
     if (stackTrace != null) {
       final frames = stackTrace.toString().split('\n');
       final frameDepth = depth ?? 3;
 
       return frames.length > frameDepth
-          ? frames[frameDepth].replaceFirst(stackFrameId, '').trim()
+          ? frames[frameDepth].replaceFirst(_stackFrameId, '').trim()
           : "Unknown";
     } else {
       return '';
@@ -679,7 +679,7 @@ final class IOFiber<A> {
                   _ => 'Unknown',
                 }}";
 
-        doPrint("Fiber #${fiber.id} [$status]");
+        doPrint("Fiber #${fiber._id} [$status]");
 
         // Print Trace (Reverse order for readability: Top of stack first)
         final trace = fiber._traceBuffer.toList().reversed;

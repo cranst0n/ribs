@@ -70,7 +70,3 @@ After doing the substitution, we can see that RT is broken since the value of
 `areEqual` changes. The ultimate reason behind this is that the `Counter.add`
 function is not a pure function. It changes the mutable field `count` and then
 returns itself, which is clearly a side effect.
-
-## Additional Resources
-
-* [What is functional programming](https://github.com/fpinscala/fpinscala/wiki/Chapter-1:-What-is-functional-programming%3F)

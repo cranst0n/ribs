@@ -11,7 +11,7 @@ abstract class Codec<A> extends Encoder<A> with Decoder<A> {
     Decoder<A> decoder,
     Encoder<A> encoder, {
     String? description,
-  }) => CodecF(decoder, encoder, description: description);
+  }) => _CodecF(decoder, encoder, description: description);
 
   Codec<A> withDescription(String description) => Codec.of(this, this, description: description);
 
@@ -1903,14 +1903,14 @@ abstract class Codec<A> extends Encoder<A> with Decoder<A> {
   ).xmap(apply.tupled, tupled);
 }
 
-class CodecF<A> extends Codec<A> {
+class _CodecF<A> extends Codec<A> {
   final Decoder<A> decoder;
   final Encoder<A> encoder;
 
   @override
   final String? description;
 
-  CodecF(this.decoder, this.encoder, {this.description});
+  _CodecF(this.decoder, this.encoder, {this.description});
 
   @override
   String toString() => description ?? super.toString();

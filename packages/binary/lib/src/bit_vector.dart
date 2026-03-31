@@ -142,7 +142,7 @@ sealed class BitVector implements Comparable<BitVector> {
 
     final Uint8List bytes;
 
-    if (!kIsWeb) {
+    if (!_kIsWeb) {
       bytes = Uint8List(8)..buffer.asByteData().setInt64(0, i);
     } else {
       bytes = Uint8List(8);
@@ -1810,7 +1810,8 @@ final _bitReversalTable = arr([
   0x7f,
   0xff,
 ]);
-const bool kIsWeb = bool.fromEnvironment('dart.library.js_util');
+
+const bool _kIsWeb = bool.fromEnvironment('dart.library.js_util');
 
 class _BufferState {
   int frontierSize;

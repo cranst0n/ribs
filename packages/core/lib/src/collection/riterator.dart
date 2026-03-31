@@ -147,7 +147,7 @@ abstract class RIterator<A> with RIterableOnce<A> {
   RIterator<RSeq<A>> sliding(int size, [int step = 1]) => _GroupedIterator(this, size, step);
 
   @override
-  (RIterator<A>, RIterator<A>) span(Function1<A, bool> p) => spanIterator(this, p);
+  (RIterator<A>, RIterator<A>) span(Function1<A, bool> p) => _spanIterator(this, p);
 
   @override
   RIterator<A> take(int n) => sliceIterator(0, max(n, 0));
