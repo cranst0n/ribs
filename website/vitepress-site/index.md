@@ -59,7 +59,7 @@ features:
     details: Typesafe representations of hosts, ports, IP addresses, and CIDR
       ranges. Parse and validate network addresses at the type level.
   - icon: ⏱️
-    title: Rate Limiter
+    title: Limiter
     details: Effect-based rate limiting primitives for controlling throughput in
       concurrent IO workflows.
 ---
