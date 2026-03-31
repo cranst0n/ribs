@@ -45,7 +45,7 @@ void main(List<String> args) {
 
   // Option
   genFile('lib/src/syntax/generated/option_tuple.dart', OptionTupleOpsGenerator.generate, fnArity);
-  genFile('lib/src/syntax/generated/tuple_option.dart', TupleOptionOpsGenerator.generate, fnArity);
+  genFile('lib/src/syntax/generated/tuple_option.dart', TupleOptionOpsGenerator.generate);
 
   genFile('lib/src/syntax/generated/tuple.dart', TupleOpsGenerator.generate);
 
