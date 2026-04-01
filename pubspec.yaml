@@ -23,7 +23,7 @@ workspace:
   - website/snippets
 
 dev_dependencies:
-  melos: ^7.4.0
+  melos: ^7.5.0
   remove_from_coverage: ^2.0.0
 
 melos:
@@ -35,7 +35,16 @@ melos:
         dirExists: test
 
     coverage:
-      run: melos exec -c 1 --fail-fast -- dart test --coverage="coverage" && melos exec --dir-exists="test" format_coverage --lcov --in=coverage --out=coverage.lcov --report-on=lib && melos exec --dir-exists="test" -- dart run remove_from_coverage:remove_from_coverage -f coverage.lcov -r '.*/generated/.*'
+      run: |
+        melos exec -c 1 --fail-fast -- dart test --coverage="coverage"
+        melos exec --dir-exists="test" format_coverage \
+          --lcov \
+          --in=coverage \
+          --out=coverage.lcov \
+          --report-on=lib
+        melos exec --dir-exists="test" -- dart run remove_from_coverage:remove_from_coverage \
+          -f coverage.lcov \
+          -r '.*/generated/.*'
       description: Run all dart tests in this project with code coverage data.
       packageFilters:
         dirExists: test
@@ -43,7 +52,17 @@ melos:
           - "snippets"
 
     coverage-report:
-      run: melos exec -c 1 --fail-fast -- dart test --coverage="coverage" && melos exec --dir-exists="test" format_coverage --lcov --in=coverage --out=coverage.lcov --report-on=lib && melos exec --dir-exists="test" -- dart run remove_from_coverage:remove_from_coverage -f coverage.lcov -r '.*/generated/.*' && find . -name coverage.lcov | xargs genhtml -o coverage-report
+      run: |
+        melos exec -c 1 --fail-fast -- dart test --coverage="coverage"
+        melos exec --dir-exists="test" format_coverage \
+          --lcov \
+          --in=coverage \
+          --out=coverage.lcov \
+          --report-on=lib
+        melos exec --dir-exists="test" -- dart run remove_from_coverage:remove_from_coverage \
+          -f coverage.lcov \
+          -r '.*/generated/.*'
+        find . -name coverage.lcov | xargs genhtml -o coverage-report
       description: Run all dart tests in this project and generate code coverage report.
       packageFilters:
         dirExists: test
@@ -59,7 +78,7 @@ melos:
           --output website/vitepress-site
         cp -r website/docs/. website/vitepress-site/guide/
         node website/vitepress-site/.vitepress/separate-extension-methods.mjs
-      description: Regenerate API docs, then restore guide docs from website/docs/ into website/vitepress-site/guide/. Run `melos run website-dev` to preview.
+      description: Regenerate API docs, then restore guide docs from website/docs/ into website/vitepress-site/guide/.
 
     website-dev:
       run: cd website/vitepress-site && npm install && npx vitepress dev
@@ -67,11 +86,19 @@ melos:
 
     website-build:
       run: cd website/vitepress-site && npm install && npm run build
-      description: Produce a deployable VitePress bundle in website/vitepress-site/.vitepress/dist/. Requires ~4 GB of available RAM; increase NODE_OPTIONS in website/vitepress-site/package.json if the build is killed.
+      description: Produce a deployable VitePress bundle in website/vitepress-site/.vitepress/dist/.
 
     analyze: melos exec -c1 -- dart analyze --fatal-infos .
 
     format: melos exec dart format --show=changed .
+
+    clean:
+      run: |
+        melos exec -- rm -rf .dart_tool build coverage coverage.lcov doc
+        find . -name "node_modules" -type d -prune -exec rm -rf {} + 2>/dev/null; true
+        rm -rf coverage-report
+        rm -rf website/vitepress-site/.vitepress/dist
+      description: Remove build artifacts (.dart_tool, build, coverage, node_modules) from all packages and the workspace.
 
 # This is specific to the sqlite package, but is placed here because the dart build hook doesn't see
 # the user defines in sqlite/pubspec.yaml
