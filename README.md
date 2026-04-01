@@ -20,9 +20,11 @@
 | [![json](https://img.shields.io/pub/v/ribs_json?label=ribs_json&color=00c000)](https://pub.dev/packages/ribs_json) | JSON parsing and codecs |
 | ![limiter](https://img.shields.io/badge/ribs__limiter-unpublished-f00000) | Concurrency rate limiting |
 | [![optics](https://img.shields.io/pub/v/ribs_optics?label=ribs_optics&color=00c000)](https://pub.dev/packages/ribs_optics) | Lenses and optics |
-| ![postgres](https://img.shields.io/badge/ribs__postgres-unpublished-f00000) | Pure PostgreSQL integration |
+| ![postgres](https://img.shields.io/badge/ribs__postgres-unpublished-f00000) | PostgreSQL transactors |
 | ![rill](https://img.shields.io/badge/ribs__rill-unpublished-f00000) | Pure functional streaming |
-| ![sqlite](https://img.shields.io/badge/ribs__sqlite-unpublished-f00000) | Pure SQLite integration |
+| ![rill_io](https://img.shields.io/badge/ribs__rill__io-unpublished-f00000) | I/O for rill |
+| ![sql](https://img.shields.io/badge/ribs__sql-unpublished-f00000) | Pure functionral SQL integration |
+| ![sqlite](https://img.shields.io/badge/ribs__sqlite-unpublished-f00000) | SQLite transactors |
 | [![units](https://img.shields.io/pub/v/ribs_units?label=ribs_units&color=00c000)](https://pub.dev/packages/ribs_units) | Dimensional analysis / units of measure |
 
 ### Credits

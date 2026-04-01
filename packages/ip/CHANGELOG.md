@@ -1,3 +1,8 @@
+## Unreleased
+
+- Breaking API changes.
+- Update dependencies.
+
 ## 1.0.0-dev.4
 
 - Update dependencies
