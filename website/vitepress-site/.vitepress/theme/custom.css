@@ -14,6 +14,7 @@
 /* Animated gradient glow behind hero */
 .VPHero {
   position: relative;
+  overflow: hidden;
   z-index: 0;
 }
 
