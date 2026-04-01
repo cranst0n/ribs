@@ -1,9 +1,5 @@
 
-<div align="center">
-
-<!-- ![Ribs](https://raw.githubusercontent.com/cranst0n/ribs/main/website/logo.png) -->
-
-### Ribs <img align="left" width="150" height="150" src="https://raw.githubusercontent.com/cranst0n/ribs/main/website/logo.png">
+### Ribs <img align="left" width="100" height="100" src="https://raw.githubusercontent.com/cranst0n/ribs/main/website/logo.png">
 **First-class functional programming for Dart**
 
 [![Documentation](https://img.shields.io/badge/Documentation-blueviolet)](https://cranst0n.github.io/ribs/)
