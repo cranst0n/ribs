@@ -14,7 +14,7 @@ void main() {
   late IO<Unit> release;
 
   setUpAll(() async {
-    container = TestainersPostgresql();
+    container = TestainersPostgresql(tag: '18-alpine');
     await container.start();
   });
 

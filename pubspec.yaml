@@ -36,30 +36,31 @@ melos:
 
     coverage:
       run: |
-        melos exec -c 1 --fail-fast -- dart test --coverage="coverage"
-        melos exec --dir-exists="test" format_coverage \
+        melos exec --no-private -c 1 --fail-fast -- dart test --coverage="coverage"
+        melos exec --no-private --dir-exists="test" format_coverage \
           --lcov \
           --in=coverage \
           --out=coverage.lcov \
           --report-on=lib
-        melos exec --dir-exists="test" -- dart run remove_from_coverage:remove_from_coverage \
+        melos exec --no-private --dir-exists="test" -- dart run remove_from_coverage:remove_from_coverage \
           -f coverage.lcov \
           -r '.*/generated/.*'
       description: Run all dart tests in this project with code coverage data.
       packageFilters:
         dirExists: test
         ignore:
+          - "http"
           - "snippets"
 
     coverage-report:
       run: |
-        melos exec -c 1 --fail-fast -- dart test --coverage="coverage"
-        melos exec --dir-exists="test" format_coverage \
+        melos exec --no-private -c 1 --fail-fast -- dart test --coverage="coverage"
+        melos exec --no-private --dir-exists="test" format_coverage \
           --lcov \
           --in=coverage \
           --out=coverage.lcov \
           --report-on=lib
-        melos exec --dir-exists="test" -- dart run remove_from_coverage:remove_from_coverage \
+        melos exec --no-private --dir-exists="test" -- dart run remove_from_coverage:remove_from_coverage \
           -f coverage.lcov \
           -r '.*/generated/.*'
         find . -name coverage.lcov | xargs genhtml -o coverage-report
@@ -67,6 +68,7 @@ melos:
       packageFilters:
         dirExists: test
         ignore:
+          - "http"
           - "snippets"
 
     doc:

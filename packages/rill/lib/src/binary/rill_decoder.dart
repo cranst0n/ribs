@@ -12,7 +12,7 @@ class RillDecoder<A> {
   static RillDecoder<A> emit<A>(A a) => RillDecoder._(Result(a));
 
   static RillDecoder<A> emits<A>(List<A> values) =>
-      values.fold(RillDecoder.empty, (acc, a) => acc.append(() => RillDecoder.emit(a)));
+      values.fold(RillDecoder<A>._(Empty()), (acc, a) => acc.append(() => RillDecoder.emit(a)));
 
   static final RillDecoder<Never> empty = RillDecoder._(Empty());
 

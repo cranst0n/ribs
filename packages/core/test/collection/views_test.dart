@@ -2,8 +2,54 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/views.dart' as views;
 import 'package:test/test.dart';
 
+List<A> toList<A>(RIterableOnce<A> col) => col.iterator.toIList().toList();
+
 void main() {
   group('views', () {
+    group('Id', () {
+      test('iterator yields all underlying elements', () {
+        expect(toList(views.Id(ilist([1, 2, 3]))), [1, 2, 3]);
+      });
+
+      test('knownSize mirrors underlying (known)', () {
+        expect(views.Id(ivec([1, 2, 3])).knownSize, 3);
+      });
+
+      test('knownSize mirrors underlying (unknown)', () {
+        expect(views.Id(ilist([1, 2])).knownSize, -1);
+      });
+
+      test('isEmpty mirrors underlying (empty)', () {
+        expect(views.Id(nil<int>()).isEmpty, isTrue);
+      });
+
+      test('isEmpty mirrors underlying (non-empty)', () {
+        expect(views.Id(ilist([1])).isEmpty, isFalse);
+      });
+    });
+
+    group('Appended', () {
+      test('iterator yields underlying elements then appended element', () {
+        expect(toList(views.Appended(ilist([1, 2, 3]), 4)), [1, 2, 3, 4]);
+      });
+
+      test('appended to empty yields single element', () {
+        expect(toList(views.Appended(nil<int>(), 7)), [7]);
+      });
+
+      test('knownSize is underlying + 1 when underlying size is known', () {
+        expect(views.Appended(ivec([1, 2]), 3).knownSize, 3);
+      });
+
+      test('knownSize is -1 when underlying size is unknown', () {
+        expect(views.Appended(ilist([1, 2]), 3).knownSize, -1);
+      });
+
+      test('isEmpty is always false', () {
+        expect(views.Appended(nil<int>(), 0).isEmpty, isFalse);
+      });
+    });
+
     group('Collect', () {
       test('yields transformed elements where f returns Some', () {
         final result =
@@ -364,7 +410,7 @@ void main() {
 
       test('knownSize is size + 1 for empty (knownSize=0 + 1 = 1)', () {
         // IList/IVector.scanLeft eagerly materializes. Range.map returns a
-        // views.Map; calling scanLeft on it uses View.scanLeft → views.ScanLeft.
+        // views.Map; calling scanLeft on it uses View.scanLeft => views.ScanLeft.
         final emptyView = Range.exclusive(0, 0).map((int n) => n); // views.Map, knownSize=0
         expect(emptyView.scanLeft(0, (int a, int b) => a + b).knownSize, 1);
       });
@@ -541,6 +587,382 @@ void main() {
         // ivec knownSize=2 (known), ilist Cons knownSize=-1 (unknown).
         final za = views.ZipAll(ivec([1, 2]), ilist([3, 4, 5]), 0, 0);
         expect(za.knownSize, -1);
+      });
+    });
+
+    group('Concat — additional knownSize / isEmpty', () {
+      test('knownSize is sum when both sizes are known', () {
+        expect(views.Concat(ivec([1, 2]), ivec([3, 4, 5])).knownSize, 5);
+      });
+
+      test('isEmpty is true when both are empty', () {
+        expect(views.Concat(nil<int>(), nil<int>()).isEmpty, isTrue);
+      });
+
+      test('isEmpty is false when prefix is non-empty', () {
+        expect(views.Concat(ilist([1]), nil<int>()).isEmpty, isFalse);
+      });
+
+      test('isEmpty is false when suffix is non-empty', () {
+        expect(views.Concat(nil<int>(), ilist([1])).isEmpty, isFalse);
+      });
+    });
+
+    group('DistinctBy — additional knownSize / isEmpty', () {
+      test('knownSize is 0 when underlying is empty (known-size 0)', () {
+        expect(views.DistinctBy(nil<int>(), (int n) => n).knownSize, 0);
+      });
+
+      test('knownSize is super.knownSize (-1) for non-empty underlying', () {
+        expect(views.DistinctBy(ivec([1, 2, 3]), (int n) => n).knownSize, -1);
+      });
+
+      test('isEmpty is false for non-empty underlying', () {
+        expect(views.DistinctBy(ilist([1, 2]), (int n) => n).isEmpty, isFalse);
+      });
+
+      test('isEmpty is true for empty underlying', () {
+        expect(views.DistinctBy(nil<int>(), (int n) => n).isEmpty, isTrue);
+      });
+    });
+
+    group('Drop — additional isEmpty', () {
+      test('isEmpty is true when n >= underlying size (unknown-size path)', () {
+        expect(views.Drop(ilist([1, 2]), 5).isEmpty, isTrue);
+      });
+
+      test('isEmpty is false when elements remain', () {
+        expect(views.Drop(ilist([1, 2, 3]), 1).isEmpty, isFalse);
+      });
+    });
+
+    group('DropRight — additional isEmpty', () {
+      // knownSize >= 0 path: knownSize == 0 => true
+      test('isEmpty is true via knownSize == 0 (known-size underlying)', () {
+        expect(views.DropRight(ivec([1, 2]), 2).isEmpty, isTrue);
+      });
+
+      // knownSize >= 0 path: knownSize > 0 => false
+      test('isEmpty is false via knownSize > 0 (known-size underlying)', () {
+        expect(views.DropRight(ivec([1, 2, 3]), 1).isEmpty, isFalse);
+      });
+
+      // knownSize < 0 path: delegates to iterator
+      test('isEmpty is false via iterator path (unknown-size underlying)', () {
+        expect(views.DropRight(ilist([1, 2, 3]), 1).isEmpty, isFalse);
+      });
+
+      test('isEmpty is true via iterator path (all dropped, unknown-size)', () {
+        expect(views.DropRight(ilist([1]), 2).isEmpty, isTrue);
+      });
+    });
+
+    group('DropWhile — additional isEmpty', () {
+      test('isEmpty is true when all elements satisfy predicate', () {
+        expect(views.DropWhile(ilist([1, 2, 3]), (int n) => n < 10).isEmpty, isTrue);
+      });
+
+      test('isEmpty is false when some elements remain', () {
+        expect(views.DropWhile(ilist([1, 2, 3]), (int n) => n < 2).isEmpty, isFalse);
+      });
+    });
+
+    group('Empty', () {
+      test('iterator is empty', () {
+        expect(const views.Empty<int>().iterator.hasNext, isFalse);
+      });
+
+      test('knownSize is 0', () {
+        expect(const views.Empty<int>().knownSize, 0);
+      });
+
+      test('isEmpty is true', () {
+        expect(const views.Empty<int>().isEmpty, isTrue);
+      });
+    });
+
+    group('Filter — additional isEmpty', () {
+      test('isEmpty is true when no elements match (non-flipped)', () {
+        expect(views.Filter(ilist([1, 2, 3]), (int n) => n > 10, false).isEmpty, isTrue);
+      });
+
+      test('isEmpty is false when elements match (non-flipped)', () {
+        expect(views.Filter(ilist([1, 2, 3]), (int n) => n > 1, false).isEmpty, isFalse);
+      });
+
+      test('isEmpty is true when all elements match (flipped/filterNot)', () {
+        expect(views.Filter(ilist([1, 2, 3]), (int n) => n > 0, true).isEmpty, isTrue);
+      });
+    });
+
+    group('FlatMap — additional isEmpty', () {
+      test('isEmpty is true when all inner collections are empty', () {
+        expect(
+          views.FlatMap(ilist([1, 2]), (int n) => nil<int>()).isEmpty,
+          isTrue,
+        );
+      });
+
+      test('isEmpty is false when at least one inner collection is non-empty', () {
+        expect(
+          views.FlatMap(ilist([1, 2]), (int n) => ilist([n])).isEmpty,
+          isFalse,
+        );
+      });
+    });
+
+    group('Iterate', () {
+      test('iterator yields len elements starting from start', () {
+        expect(
+          toList(views.Iterate(1, 5, (int n) => n + 1)),
+          [1, 2, 3, 4, 5],
+        );
+      });
+
+      test('knownSize is max(0, len) for positive len', () {
+        expect(views.Iterate(0, 4, (int n) => n + 1).knownSize, 4);
+      });
+
+      test('knownSize is 0 for negative len', () {
+        expect(views.Iterate(0, -3, (int n) => n).knownSize, 0);
+      });
+
+      test('isEmpty is false for positive len', () {
+        expect(views.Iterate(0, 3, (int n) => n).isEmpty, isFalse);
+      });
+
+      test('isEmpty is true for len <= 0', () {
+        expect(views.Iterate(0, 0, (int n) => n).isEmpty, isTrue);
+        expect(views.Iterate(0, -1, (int n) => n).isEmpty, isTrue);
+      });
+    });
+
+    group('PadTo — additional iterator / knownSize / isEmpty', () {
+      test('iterator pads to target length', () {
+        expect(toList(views.PadTo(ilist([1, 2]), 5, 0)), [1, 2, 0, 0, 0]);
+      });
+
+      test('knownSize is max(size, len) when underlying size is known', () {
+        expect(views.PadTo(ivec([1, 2]), 5, 0).knownSize, 5);
+      });
+
+      test('knownSize is -1 when underlying size is unknown', () {
+        expect(views.PadTo(ilist([1, 2]), 5, 0).knownSize, -1);
+      });
+
+      test('isEmpty is false when underlying is non-empty', () {
+        expect(views.PadTo(ilist([1]), 3, 0).isEmpty, isFalse);
+      });
+
+      test('isEmpty is true when underlying is empty and len <= 0', () {
+        expect(views.PadTo(nil<int>(), 0, 0).isEmpty, isTrue);
+      });
+    });
+
+    group('Patched — additional knownSize / isEmpty', () {
+      test('knownSize is 0 when both underlying and other are empty (known size 0)', () {
+        expect(views.Patched(nil<int>(), 0, nil<int>(), 0).knownSize, 0);
+      });
+
+      test('knownSize is super.knownSize (-1) when inputs are non-empty', () {
+        expect(views.Patched(ilist([1, 2, 3]), 0, ilist([10]), 1).knownSize, -1);
+      });
+
+      test('isEmpty is true when knownSize == 0', () {
+        expect(views.Patched(nil<int>(), 0, nil<int>(), 0).isEmpty, isTrue);
+      });
+
+      test('isEmpty is false when iterator has elements', () {
+        expect(views.Patched(ilist([1, 2]), 0, ilist([10]), 1).isEmpty, isFalse);
+      });
+    });
+
+    group('Prepended', () {
+      test('iterator yields prepended element then underlying', () {
+        expect(toList(views.Prepended(0, ilist([1, 2, 3]))), [0, 1, 2, 3]);
+      });
+
+      test('prepended to empty yields single element', () {
+        expect(toList(views.Prepended(42, nil<int>())), [42]);
+      });
+
+      test('knownSize is underlying + 1 when underlying size is known', () {
+        expect(views.Prepended(0, ivec([1, 2])).knownSize, 3);
+      });
+
+      test('knownSize is -1 when underlying size is unknown', () {
+        expect(views.Prepended(0, ilist([1, 2])).knownSize, -1);
+      });
+
+      test('isEmpty is always false', () {
+        expect(views.Prepended(0, nil<int>()).isEmpty, isFalse);
+      });
+    });
+
+    group('ScanLeft — additional knownSize / isEmpty', () {
+      test('knownSize is size + 1 when underlying size is known', () {
+        expect(
+          views.ScanLeft(ivec([1, 2, 3]), 0, (int acc, int n) => acc + n).knownSize,
+          4,
+        );
+      });
+
+      test('knownSize is -1 when underlying size is unknown', () {
+        expect(
+          views.ScanLeft(ilist([1, 2]), 0, (int acc, int n) => acc + n).knownSize,
+          -1,
+        );
+      });
+
+      test('isEmpty is false for non-empty scanLeft (always has at least z)', () {
+        expect(
+          views.ScanLeft(ilist([1, 2]), 0, (int acc, int n) => acc + n).isEmpty,
+          isFalse,
+        );
+      });
+    });
+
+    group('Single', () {
+      test('iterator yields the single element', () {
+        expect(toList(const views.Single(42)), [42]);
+      });
+
+      test('knownSize is 1', () {
+        expect(const views.Single('x').knownSize, 1);
+      });
+
+      test('isEmpty is false', () {
+        expect(const views.Single(0).isEmpty, isFalse);
+      });
+    });
+
+    group('Tabulate', () {
+      test('iterator yields f(0)..f(n-1)', () {
+        expect(toList(views.Tabulate(4, (int i) => i * i)), [0, 1, 4, 9]);
+      });
+
+      test('knownSize is max(0, n) for positive n', () {
+        expect(views.Tabulate(5, (int i) => i).knownSize, 5);
+      });
+
+      test('knownSize is 0 for n <= 0', () {
+        expect(views.Tabulate(0, (int i) => i).knownSize, 0);
+        expect(views.Tabulate(-2, (int i) => i).knownSize, 0);
+      });
+
+      test('isEmpty is true for n <= 0', () {
+        expect(views.Tabulate(0, (int i) => i).isEmpty, isTrue);
+        expect(views.Tabulate(-1, (int i) => i).isEmpty, isTrue);
+      });
+
+      test('isEmpty is false for positive n', () {
+        expect(views.Tabulate(3, (int i) => i).isEmpty, isFalse);
+      });
+    });
+
+    group('Take — additional isEmpty', () {
+      test('isEmpty is true when n == 0 (unknown-size underlying)', () {
+        expect(views.Take(ilist([1, 2, 3]), 0).isEmpty, isTrue);
+      });
+
+      test('isEmpty is false when elements remain', () {
+        expect(views.Take(ilist([1, 2, 3]), 2).isEmpty, isFalse);
+      });
+    });
+
+    group('TakeRight — additional isEmpty / normN', () {
+      // knownSize >= 0, knownSize == 0 => true
+      test('isEmpty is true via knownSize == 0 (known-size, n=0)', () {
+        expect(views.TakeRight(ivec([1, 2]), 0).isEmpty, isTrue);
+      });
+
+      // knownSize >= 0, knownSize > 0 => false
+      test('isEmpty is false via knownSize > 0 (known-size)', () {
+        expect(views.TakeRight(ivec([1, 2, 3]), 2).isEmpty, isFalse);
+      });
+
+      // knownSize < 0 => iterator path
+      test('isEmpty is false via iterator path (unknown-size, non-empty result)', () {
+        expect(views.TakeRight(ilist([1, 2, 3]), 2).isEmpty, isFalse);
+      });
+
+      test('normN clamps negative n to 0', () {
+        expect(views.TakeRight(ivec([1, 2, 3]), -5).normN, 0);
+      });
+    });
+
+    group('TakeWhile — additional isEmpty', () {
+      test('isEmpty is true when predicate is immediately false', () {
+        expect(views.TakeWhile(ilist([1, 2, 3]), (int n) => n > 10).isEmpty, isTrue);
+      });
+
+      test('isEmpty is false when predicate holds for first element', () {
+        expect(views.TakeWhile(ilist([1, 2, 3]), (int n) => n < 5).isEmpty, isFalse);
+      });
+    });
+
+    group('Unfold', () {
+      test('iterator unfolds a finite sequence', () {
+        expect(
+          toList(
+            views.Unfold(0, (int s) => s < 5 ? Some((s, s + 1)) : none<(int, int)>()),
+          ),
+          [0, 1, 2, 3, 4],
+        );
+      });
+
+      test('iterator is empty when f immediately returns None', () {
+        expect(
+          toList(views.Unfold(0, (int s) => none<(int, int)>())),
+          <int>[],
+        );
+      });
+    });
+
+    group('Updated', () {
+      test('iterator replaces element at index', () {
+        expect(toList(views.Updated(ilist([1, 2, 3]), 1, 99)), [1, 99, 3]);
+      });
+
+      test('iterator replaces first element', () {
+        expect(toList(views.Updated(ilist([1, 2, 3]), 0, 10)), [10, 2, 3]);
+      });
+
+      test('knownSize mirrors underlying (known)', () {
+        expect(views.Updated(ivec([1, 2, 3]), 0, 0).knownSize, 3);
+      });
+
+      test('knownSize mirrors underlying (unknown)', () {
+        expect(views.Updated(ilist([1, 2, 3]), 0, 0).knownSize, -1);
+      });
+
+      test('isEmpty mirrors underlying (non-empty)', () {
+        expect(views.Updated(ilist([1, 2]), 0, 0).isEmpty, isFalse);
+      });
+
+      test('isEmpty mirrors underlying (empty)', () {
+        expect(views.Updated(nil<int>(), 0, 0).isEmpty, isTrue);
+      });
+
+      test('out-of-range index throws RangeError', () {
+        expect(
+          () => toList(views.Updated(ilist([1, 2, 3]), 5, 99)),
+          throwsRangeError,
+        );
+      });
+    });
+
+    group('Zip — additional isEmpty', () {
+      test('isEmpty is true when underlying is empty', () {
+        expect(views.Zip(nil<int>(), ilist([1, 2])).isEmpty, isTrue);
+      });
+
+      test('isEmpty is true when other is empty', () {
+        expect(views.Zip(ilist([1, 2]), nil<int>()).isEmpty, isTrue);
+      });
+
+      test('isEmpty is false when both are non-empty', () {
+        expect(views.Zip(ilist([1, 2]), ilist([3, 4])).isEmpty, isFalse);
       });
     });
 
