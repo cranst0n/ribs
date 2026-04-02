@@ -1,7 +1,10 @@
 ## Unreleased breaking
 
-- Breaking API changes.
-- Update dependencies.
+### Bug Fixes
+
+- Numerous bug fixes.
+- Numerous performance improvements.
+- Public API and doc cleanups.
 
 ## 1.0.0-dev.15
 

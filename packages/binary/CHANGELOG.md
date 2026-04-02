@@ -1,7 +1,19 @@
 ## Unreleased breaking
 
-- Breaking API changes.
-- Update dependencies.
+### Breaking Changes
+
+- Change `ByteVector` view constructor behavior.
+
+### Features
+
+- Add `ChoiceCodec`.
+- Add `ByteVector` index operator.
+
+### Bug Fixes
+
+- Numerous bug fixes.
+- Numerous performance improvements.
+- Public API and doc cleanups.
 
 ## 1.0.0-dev.10
 

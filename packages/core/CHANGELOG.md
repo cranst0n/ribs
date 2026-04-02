@@ -1,7 +1,23 @@
 ## Unreleased breaking
 
-- Breaking API changes.
-- Update dependencies.
+### Breaking Changes
+
+- Hide `view` in public collections API.
+- Reduce arity on some tuple destructuring methods.
+
+### Features
+
+- Add `MQueue` and `MStack` mutable collections.
+- Add `arityN` extensions for `IList` tuple types.
+- `None` now extends `Option<Never>`.
+- Make `unit` const.
+- Add String collection syntax ops.
+
+### Bug Fixes
+
+- Numerous bug fixes.
+- Numerous performance improvements.
+- Public API and doc cleanups.
 
 ## 1.0.0-dev.14
 

@@ -1,7 +1,6 @@
 ## Unreleased breaking
 
-- Breaking API changes.
-- Update dependencies.
+- Doc cleanups.
 
 ## 1.0.0-dev.8
 

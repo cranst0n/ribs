@@ -1,7 +1,18 @@
 ## Unreleased breaking
 
-- Breaking API changes.
-- Update dependencies.
+### Breaking Changes
+
+- Rework `Gen.forall` invocation.
+
+### Features
+
+- Add `forall` arity support.
+
+### Bug Fixes
+
+- Numerous bug fixes.
+- Numerous performance improvements.
+- Public API and doc cleanups.
 
 ## 1.0.0-dev.8
 

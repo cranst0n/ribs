@@ -1,7 +1,7 @@
 ## Unreleased breaking
 
-- Breaking API changes.
-- Update dependencies.
+- Fix `Time.fromDuration` to be factory constructor.
+
 
 ## 1.0.0-dev.10
 
