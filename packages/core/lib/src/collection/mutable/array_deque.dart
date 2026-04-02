@@ -371,24 +371,6 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
     return elem;
   }
 
-  // def removeAll(p: A => Boolean): scala.collection.immutable.Seq[A] = {
-  //   val res = scala.collection.immutable.Seq.newBuilder[A]
-  //   var i, j = 0
-  //   while (i < size) {
-  //     if (p(this(i))) {
-  //       res += this(i)
-  //     } else {
-  //       if (i != j) {
-  //         this(j) = this(i)
-  //       }
-  //       j += 1
-  //     }
-  //     i += 1
-  //   }
-  //   if (i != j) takeInPlace(j)
-  //   res.result()
-  // }
-
   RSeq<A> removeAll(Function1<A, bool> p) {
     final elems = IVector.builder<A>();
 
