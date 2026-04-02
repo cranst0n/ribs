@@ -58,10 +58,10 @@ jobs:
           files: packages/binary/coverage.lcov,packages/check/coverage.lcov,packages/core/coverage.lcov,packages/effect/coverage.lcov,packages/ip/coverage.lcov,packages/json/coverage.lcov,packages/optics/coverage.lcov,packages/units/coverage.lcov
           verbose: true
 
-     - name: Install Semantic Changelog
-       run: dart pub global activate -s git https://github.com/schultek/semantic_changelog
+      - name: Install Semantic Changelog
+        run: dart pub global activate -s git https://github.com/schultek/semantic_changelog
 
-     - name: Enforce Changelog Updates
-       if: github.event_name == 'pull_request'
-       # Compares the PR branch against the target main branch to ensure changelogs are updated
-       run: version check origin/main
+      - name: Enforce Changelog Updates
+        if: github.event_name == 'pull_request'
+        # Compares the PR branch against the target main branch to ensure changelogs are updated
+        run: version check origin/main
