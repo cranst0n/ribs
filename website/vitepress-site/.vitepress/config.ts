@@ -170,7 +170,6 @@ const guideSidebar = {
       collapsed: true,
       items: [
         { text: 'Motivation', link: '/guide/units/motivation' },
-        { text: 'Quantities', link: '/guide/units/quantities' },
       ],
     },
     {
