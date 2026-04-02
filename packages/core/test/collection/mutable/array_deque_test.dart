@@ -92,7 +92,11 @@ void main() {
   });
 
   group('delegate methods returning ArrayDeque', () {
-    final d = arrayDeque([1, 2, 3, 4, 5]);
+    late ArrayDeque<int> d;
+
+    setUp(() {
+      d = arrayDeque([1, 2, 3, 4, 5]);
+    });
 
     test('append adds element to end', () {
       expect(d.append(6).toList().last, 6);
@@ -521,7 +525,7 @@ void main() {
 
     test('next throws when exhausted', () {
       final it = ArrayDeque<int>().iterator;
-      expect(() => it.next(), throwsStateError);
+      expect(() => it.next(), throwsUnsupportedError);
     });
   });
 }
