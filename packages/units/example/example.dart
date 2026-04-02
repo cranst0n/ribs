@@ -42,8 +42,8 @@ void main() {
   print('\nconverted to Dart Duration: $dartDuration');
 
   // fromDuration is an instance method on Time
-  final fromDart = Time.seconds(0).fromDuration(const Duration(minutes: 1));
-  print('Back from Dart duration: $fromDart');
+  final fromDart = Time.fromDuration(const Duration(minutes: 1));
+  print('From Dart duration: $fromDart');
 
   // Parsing from strings
   final parsedLength = Length.parse('15.5 km');

@@ -4,6 +4,8 @@ import 'package:ribs_units/ribs_units.dart';
 final class Time extends Quantity<Time> {
   Time(super.value, super.unit);
 
+  factory Time.fromDuration(Duration d) => microseconds(d.inMicroseconds);
+
   Time operator +(Time that) => Time(value + that.to(unit), unit);
   Time operator -(Time that) => Time(value - that.to(unit), unit);
 
@@ -33,7 +35,6 @@ final class Time extends Quantity<Time> {
     days,
   };
 
-  Time fromDuration(Duration d) => microseconds(d.inMicroseconds);
   Duration get toDuration => Duration(microseconds: toMicroseconds.value.toInt());
 
   static Option<Time> parse(String s) => Quantity.parse(s, units);
