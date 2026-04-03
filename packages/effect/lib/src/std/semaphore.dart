@@ -1,7 +1,20 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
+/// A purely functional semaphore for controlling concurrent access to a
+/// shared resource.
+///
+/// A [Semaphore] maintains a count of available permits. Fibers can
+/// [acquire] permits (blocking if none are available) and [release] them
+/// when done. The [permit] method provides a [Resource]-based API that
+/// automatically releases the permit when the scope exits.
+///
+/// Supports both single-permit ([acquire]/[release]) and multi-permit
+/// ([acquireN]/[releaseN]) operations.
 abstract class Semaphore {
+  /// Creates a [Semaphore] with [n] available permits.
+  ///
+  /// Throws an [ArgumentError] if [n] is negative.
   static IO<Semaphore> permits(int n) {
     if (n < 0) {
       throw ArgumentError('n must be nonnegative, was: $n');
@@ -10,24 +23,45 @@ abstract class Semaphore {
     return IO.ref(_State(n, IQueue.empty())).map(_SemaphoreImpl.new);
   }
 
+  /// Returns the number of permits currently available.
   IO<int> available();
 
+  /// Returns the number of permits currently available, or the negated
+  /// number of permits being waited on if the semaphore is over-subscribed.
   IO<int> count();
 
+  /// Acquires [n] permits, blocking (semantically) until they are available.
   IO<Unit> acquireN(int n);
 
+  /// Acquires a single permit, blocking (semantically) until one is
+  /// available.
   IO<Unit> acquire() => acquireN(1);
 
+  /// Attempts to acquire [n] permits without blocking.
+  ///
+  /// Returns `true` if the permits were acquired, `false` otherwise.
   IO<bool> tryAcquireN(int n);
 
+  /// Attempts to acquire a single permit without blocking.
+  ///
+  /// Returns `true` if the permit was acquired, `false` otherwise.
   IO<bool> tryAcquire() => tryAcquireN(1);
 
+  /// Releases [n] permits back to the semaphore, potentially unblocking
+  /// waiting fibers.
   IO<Unit> releaseN(int n);
 
+  /// Releases a single permit back to the semaphore.
   IO<Unit> release() => releaseN(1);
 
+  /// Returns a [Resource] that acquires a single permit on use and releases
+  /// it on finalization.
   Resource<Unit> permit();
 
+  /// Returns a [Resource] that attempts to acquire a single permit.
+  ///
+  /// The resource value is `true` if the permit was acquired. The permit
+  /// is released on finalization only if it was actually acquired.
   Resource<bool> tryPermit() =>
       Resource.make(tryAcquire(), (acquired) => release().whenA(acquired));
 }

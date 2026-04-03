@@ -1,7 +1,20 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
+/// A synchronization primitive that allows one or more fibers to wait until
+/// a set of operations completes.
+///
+/// Initialized with a positive count `n`. Each call to [release] decrements
+/// the count by one. Fibers calling [await] block (semantically) until the
+/// count reaches zero.
+///
+/// Unlike [CyclicBarrier], a [CountDownLatch] is single-use: once the count
+/// reaches zero, subsequent calls to [await] return immediately and further
+/// calls to [release] are no-ops.
 abstract class CountDownLatch {
+  /// Creates a [CountDownLatch] initialized with [n] latches.
+  ///
+  /// Throws an [ArgumentError] if [n] is less than 1.
   static IO<CountDownLatch> create(int n) {
     if (n < 1) {
       throw ArgumentError('Initialized with $n latches. Must be > 0');
@@ -12,8 +25,14 @@ abstract class CountDownLatch {
     }
   }
 
+  /// Decrements the latch count by one.
+  ///
+  /// When the count reaches zero, all fibers waiting on [await] are released.
   IO<Unit> release();
 
+  /// Blocks (semantically) until the latch count reaches zero.
+  ///
+  /// If the count is already zero, returns immediately.
   IO<Unit> await();
 }
 

@@ -2,7 +2,6 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/ribs_core_test.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/ribs_effect_test.dart';
-import 'package:ribs_effect/src/std/internal/list_queue.dart';
 import 'package:test/test.dart';
 
 import 'queue_test.dart';
@@ -59,14 +58,14 @@ void main() {
     IO<Unit> producer(PQueue<int> q, int n) =>
         n > 0 ? q.offer(count - n).productR(producer(q, n - 1)) : IO.unit;
 
-    IO<int> consumer(PQueue<int> q, int n, ListQueue<int> acc) =>
+    IO<int> consumer(PQueue<int> q, int n, IQueue<int> acc) =>
         n > 0
             ? q.take().flatMap((a) => consumer(q, n - 1, acc.enqueue(a)))
             : IO.pure(acc.foldLeft(0, (a, b) => a + b));
 
     final test = PQueue.bounded(Order.ints, 0).flatMap((q) {
       return producer(q, count).start().flatMap((p) {
-        return consumer(q, count, ListQueue.empty()).start().flatMap((c) {
+        return consumer(q, count, IQueue.empty()).start().flatMap((c) {
           return p.join().flatMap((_) {
             return c.joinWithNever().flatMap((v) {
               return expectIO(v, count * (count - 1) ~/ 2);

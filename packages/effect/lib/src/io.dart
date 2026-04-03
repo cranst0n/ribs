@@ -7,6 +7,7 @@ import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/src/io_platform/io_platform_stub.dart'
     if (dart.library.js_interop) 'io_platform/io_platform_web.dart'
     if (dart.library.io) 'io_platform/io_platform_io.dart';
+import 'package:ribs_effect/src/std/internal/byte_stack.dart';
 import 'package:ribs_effect/src/std/internal/stack.dart';
 
 part 'io/algebra.dart';

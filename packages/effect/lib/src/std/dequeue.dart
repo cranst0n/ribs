@@ -1,12 +1,20 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/src/std/internal/bankers_queue.dart';
-import 'package:ribs_effect/src/std/internal/list_queue.dart';
 
+/// A concurrent, fiber-safe double-ended queue (deque).
+///
+/// Extends [Queue] with the ability to offer and take elements from both
+/// the front and back. The default [offer]/[take] operations delegate to
+/// [offerBack]/[takeFront] respectively, providing standard FIFO behavior.
+///
+/// Backed by a [BankersQueue] for O(1) amortized double-ended operations.
 abstract class Dequeue<A> extends Queue<A> {
+  /// Creates a bounded dequeue with the given [capacity].
   static IO<Dequeue<A>> bounded<A>(int capacity) =>
       Ref.of(_State.empty<A>()).map((s) => _BoundedDequeue(capacity, s));
 
+  /// Creates an unbounded dequeue that never blocks producers.
   static IO<Dequeue<A>> unbounded<A>() => bounded(Integer.maxValue);
 
   @override
@@ -15,16 +23,22 @@ abstract class Dequeue<A> extends Queue<A> {
   @override
   IO<bool> tryOffer(A a) => tryOfferBack(a);
 
+  /// Enqueues [a] at the back, blocking (semantically) if the queue is full.
   IO<Unit> offerBack(A a);
 
+  /// Attempts to enqueue [a] at the back without blocking.
   IO<bool> tryOfferBack(A a);
 
+  /// Attempts to enqueue each element of [list] at the back in order.
   IO<IList<A>> tryOfferBackN(IList<A> list);
 
+  /// Enqueues [a] at the front, blocking (semantically) if the queue is full.
   IO<Unit> offerFront(A a);
 
+  /// Attempts to enqueue [a] at the front without blocking.
   IO<bool> tryOfferFront(A a);
 
+  /// Attempts to enqueue each element of [list] at the front in order.
   IO<IList<A>> tryOfferFrontN(IList<A> list);
 
   @override
@@ -33,18 +47,25 @@ abstract class Dequeue<A> extends Queue<A> {
   @override
   IO<Option<A>> tryTake() => tryTakeFront();
 
+  /// Dequeues from the back, blocking (semantically) if empty.
   IO<A> takeBack();
 
+  /// Attempts to dequeue from the back without blocking.
   IO<Option<A>> tryTakeBack();
 
+  /// Attempts to dequeue up to [maxN] elements from the back.
   IO<IList<A>> tryTakeBackN(Option<int> maxN);
 
+  /// Dequeues from the front, blocking (semantically) if empty.
   IO<A> takeFront();
 
+  /// Attempts to dequeue from the front without blocking.
   IO<Option<A>> tryTakeFront();
 
+  /// Attempts to dequeue up to [maxN] elements from the front.
   IO<IList<A>> tryTakeFrontN(Option<int> maxN);
 
+  /// Reverses the order of elements in the queue.
   IO<Unit> reverse();
 }
 
@@ -271,19 +292,18 @@ class _BoundedDequeue<A> extends Dequeue<A> {
 final class _State<A> {
   final BankersQueue<A> queue;
   final int size;
-  final ListQueue<Deferred<Unit>> takers;
-  final ListQueue<Deferred<Unit>> offerers;
+  final IQueue<Deferred<Unit>> takers;
+  final IQueue<Deferred<Unit>> offerers;
 
   _State(this.queue, this.size, this.takers, this.offerers);
 
-  static _State<A> empty<A>() =>
-      _State(BankersQueue.empty(), 0, ListQueue.empty(), ListQueue.empty());
+  static _State<A> empty<A>() => _State(BankersQueue.empty(), 0, IQueue.empty(), IQueue.empty());
 
   _State<A> copy({
     BankersQueue<A>? queue,
     int? size,
-    ListQueue<Deferred<Unit>>? takers,
-    ListQueue<Deferred<Unit>>? offerers,
+    IQueue<Deferred<Unit>>? takers,
+    IQueue<Deferred<Unit>>? offerers,
   }) => _State(
     queue ?? this.queue,
     size ?? this.size,

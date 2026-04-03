@@ -2,7 +2,6 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/ribs_core_test.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/ribs_effect_test.dart';
-import 'package:ribs_effect/src/std/internal/list_queue.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -708,7 +707,7 @@ class QueueTests {
         }
       }
 
-      IO<int> consumer(Q q, int n, ListQueue<int> acc) {
+      IO<int> consumer(Q q, int n, IQueue<int> acc) {
         if (n > 0) {
           return tryTake(q).flatMap(
             (a) => a.fold(
@@ -723,7 +722,7 @@ class QueueTests {
 
       final test = constructor(10).flatMap((q) {
         return producer(q, count).start().flatMap((p) {
-          return consumer(q, count, ListQueue.empty()).start().flatMap((c) {
+          return consumer(q, count, IQueue.empty()).start().flatMap((c) {
             return p.join().flatMap((_) {
               return c.joinWithNever().flatMap((v) {
                 return expectIO(v, count * (count - 1) ~/ 2);

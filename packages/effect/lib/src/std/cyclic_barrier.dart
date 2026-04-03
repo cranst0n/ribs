@@ -1,10 +1,24 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
+/// A reusable synchronization barrier for a fixed number of fibers.
+///
+/// A [CyclicBarrier] is initialized with a [capacity]. Fibers calling [await]
+/// block (semantically) until exactly [capacity] fibers have arrived at the
+/// barrier, at which point all are released simultaneously. The barrier then
+/// resets automatically for the next cycle.
+///
+/// This is useful for phased computations where a group of fibers must all
+/// complete one step before any can proceed to the next.
 final class CyclicBarrier {
+  /// The number of fibers that must call [await] before the barrier is
+  /// released.
   final int capacity;
   final Ref<_State> _state;
 
+  /// Creates a [CyclicBarrier] with the given [capacity].
+  ///
+  /// Throws an [ArgumentError] if [capacity] is less than 1.
   static IO<CyclicBarrier> withCapacity(int capacity) {
     if (capacity < 1) {
       throw ArgumentError('Cyclic barrier constructed with capacity $capacity. Must be > 0');
@@ -19,6 +33,12 @@ final class CyclicBarrier {
 
   CyclicBarrier._(this.capacity, this._state);
 
+  /// Blocks (semantically) until [capacity] fibers have arrived at the
+  /// barrier.
+  ///
+  /// Once all fibers have arrived, all are released and the barrier resets
+  /// for the next cycle. If this fiber await is canceled while waiting, the
+  /// arrival count is incremented so the barrier remains correct.
   IO<Unit> await() {
     return IO.deferred<Unit>().flatMap((gate) {
       return _state.flatModifyFull((tuple) {

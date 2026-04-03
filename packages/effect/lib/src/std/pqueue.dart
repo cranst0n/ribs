@@ -1,31 +1,40 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/src/std/internal/binomial_heap.dart';
-import 'package:ribs_effect/src/std/internal/list_queue.dart';
 
+/// A concurrent, fiber-safe priority queue.
+///
+/// Elements are dequeued in priority order according to the provided [Order].
+/// Backed by a [BinomialHeap] for O(log n) insertion and extraction.
+///
+/// Like [Queue], producers [offer] elements (blocking when full) and
+/// consumers [take] them (blocking when empty), but elements are always
+/// taken in priority order rather than FIFO order.
 abstract class PQueue<A> extends Queue<A> {
+  /// Creates a bounded priority queue with the given [order] and [capacity].
   static IO<PQueue<A>> bounded<A>(Order<A> order, int capacity) =>
       Ref.of(_State.empty(order)).map((ref) => _BoundedPQueue._(ref, capacity));
 
+  /// Creates an unbounded priority queue with the given [order].
   static IO<PQueue<A>> unbounded<A>(Order<A> order) => bounded(order, Integer.maxValue);
 }
 
 final class _State<A> {
   final BinomialHeap<A> heap;
   final int size;
-  final ListQueue<Deferred<Unit>> takers;
-  final ListQueue<Deferred<Unit>> offerers;
+  final IQueue<Deferred<Unit>> takers;
+  final IQueue<Deferred<Unit>> offerers;
 
   const _State(this.heap, this.size, this.takers, this.offerers);
 
   static _State<A> empty<A>(Order<A> order) =>
-      _State(BinomialHeap.empty(order), 0, ListQueue.empty(), ListQueue.empty());
+      _State(BinomialHeap.empty(order), 0, IQueue.empty(), IQueue.empty());
 
   _State<A> copy({
     BinomialHeap<A>? heap,
     int? size,
-    ListQueue<Deferred<Unit>>? takers,
-    ListQueue<Deferred<Unit>>? offerers,
+    IQueue<Deferred<Unit>>? takers,
+    IQueue<Deferred<Unit>>? offerers,
   }) => _State(
     heap ?? this.heap,
     size ?? this.size,
@@ -115,7 +124,7 @@ class _BoundedPQueue<A> extends PQueue<A> {
             ).onCancel(cleanup.flatten());
 
             final IO<A> fulfill;
-            final ListQueue<Deferred<Unit>> offerers2;
+            final IQueue<Deferred<Unit>> offerers2;
 
             if (s.offerers.isEmpty) {
               fulfill = awaiter;

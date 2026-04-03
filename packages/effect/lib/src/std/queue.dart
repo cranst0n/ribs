@@ -1,8 +1,22 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
-import 'package:ribs_effect/src/std/internal/list_queue.dart';
 
+/// A concurrent, fiber-safe FIFO queue.
+///
+/// [Queue] provides asynchronous, back-pressured communication between
+/// fibers. Producers [offer] elements and consumers [take] them. When the
+/// queue is full, producers block; when empty, consumers block.
+///
+/// Several variants are available:
+/// - [bounded]: blocks producers when full.
+/// - [unbounded]: never blocks producers (capacity is [Integer.maxValue]).
+/// - [dropping]: silently drops offers when full.
+/// - [circularBuffer]: overwrites the oldest element when full.
+/// - [synchronous]: zero-capacity hand-off between producer and consumer.
 abstract class Queue<A> {
+  /// Creates a bounded queue with the given [capacity].
+  ///
+  /// A capacity of 0 creates a [synchronous] queue.
   static IO<Queue<A>> bounded<A>(int capacity) {
     if (capacity == 0) {
       return synchronous();
@@ -11,22 +25,37 @@ abstract class Queue<A> {
     }
   }
 
+  /// Creates a circular buffer queue that overwrites the oldest element
+  /// when [capacity] is reached.
   static IO<Queue<A>> circularBuffer<A>(int capacity) =>
       Ref.of(_State.empty<A>()).map((s) => _CircularBufferQueue(capacity, s));
 
+  /// Creates a dropping queue that silently discards offers when
+  /// [capacity] is reached.
   static IO<Queue<A>> dropping<A>(int capacity) =>
       Ref.of(_State.empty<A>()).map((s) => _DroppingQueue(capacity, s));
 
+  /// Creates a synchronous (zero-capacity) queue where each [offer] blocks
+  /// until a corresponding [take] is ready, and vice versa.
   static IO<Queue<A>> synchronous<A>() => Ref.of(_SyncState.empty<A>()).map(_SyncQueue.new);
 
+  /// Creates an unbounded queue that never blocks producers.
   static IO<Queue<A>> unbounded<A>() => bounded(Integer.maxValue);
 
+  /// Returns the current number of elements in the queue.
   IO<int> size();
 
+  /// Enqueues [a], blocking (semantically) if the queue is full.
   IO<Unit> offer(A a);
 
+  /// Attempts to enqueue [a] without blocking.
+  ///
+  /// Returns `true` if the element was enqueued, `false` otherwise.
   IO<bool> tryOffer(A a);
 
+  /// Attempts to enqueue each element of [list] in order.
+  ///
+  /// Returns the suffix of elements that could not be enqueued.
   IO<IList<A>> tryOfferN(IList<A> list) => list.uncons(
     (hdtl) => hdtl.foldN(
       () => IO.pure(list),
@@ -34,10 +63,18 @@ abstract class Queue<A> {
     ),
   );
 
+  /// Dequeues the next element, blocking (semantically) if the queue is
+  /// empty.
   IO<A> take();
 
+  /// Attempts to dequeue an element without blocking.
+  ///
+  /// Returns [Some] with the element, or [None] if the queue is empty.
   IO<Option<A>> tryTake();
 
+  /// Attempts to dequeue up to [maxN] elements without blocking.
+  ///
+  /// If [maxN] is [None], takes all available elements.
   IO<IList<A>> tryTakeN(Option<int> maxN) {
     return IO.defer(() {
       final limit = maxN.getOrElse(() => Integer.maxValue);
@@ -112,9 +149,9 @@ final class _SyncQueue<A> extends Queue<A> {
             return (_SyncState(tail, st.takers), offerer.complete(true).as(value));
           } else {
             final removeListener = stateR.modify((st) {
-              (bool, ListQueue<Z>) filterFound<Z>(
-                ListQueue<Z> ins,
-                ListQueue<Z> outs,
+              (bool, IQueue<Z>) filterFound<Z>(
+                IQueue<Z> ins,
+                IQueue<Z> outs,
               ) {
                 var currentIns = ins;
                 var currentOuts = outs;
@@ -135,7 +172,7 @@ final class _SyncQueue<A> extends Queue<A> {
 
               final (found, takers2) = filterFound(
                 st.takers,
-                ListQueue.empty<Deferred<(A, Deferred<bool>)>>(),
+                IQueue.empty<Deferred<(A, Deferred<bool>)>>(),
               );
 
               return (_SyncState(st.offerers, takers2), found);
@@ -196,12 +233,12 @@ final class _SyncQueue<A> extends Queue<A> {
 }
 
 final class _SyncState<A> {
-  final ListQueue<(A, Deferred<bool>)> offerers;
-  final ListQueue<Deferred<(A, Deferred<bool>)>> takers;
+  final IQueue<(A, Deferred<bool>)> offerers;
+  final IQueue<Deferred<(A, Deferred<bool>)>> takers;
 
   _SyncState(this.offerers, this.takers);
 
-  static _SyncState<A> empty<A>() => _SyncState(ListQueue.empty(), ListQueue.empty());
+  static _SyncState<A> empty<A>() => _SyncState(IQueue.empty(), IQueue.empty());
 }
 
 abstract class _AbstractQueue<A> extends Queue<A> {
@@ -361,20 +398,20 @@ abstract class _AbstractQueue<A> extends Queue<A> {
 }
 
 final class _State<A> {
-  final ListQueue<A> queue;
+  final IQueue<A> queue;
   final int size;
-  final ListQueue<Deferred<Unit>> takers;
-  final ListQueue<Deferred<Unit>> offerers;
+  final IQueue<Deferred<Unit>> takers;
+  final IQueue<Deferred<Unit>> offerers;
 
   _State(this.queue, this.size, this.takers, this.offerers);
 
-  static _State<A> empty<A>() => _State(ListQueue.empty(), 0, ListQueue.empty(), ListQueue.empty());
+  static _State<A> empty<A>() => _State(IQueue.empty(), 0, IQueue.empty(), IQueue.empty());
 
   _State<A> copy({
-    ListQueue<A>? queue,
+    IQueue<A>? queue,
     int? size,
-    ListQueue<Deferred<Unit>>? takers,
-    ListQueue<Deferred<Unit>>? offerers,
+    IQueue<Deferred<Unit>>? takers,
+    IQueue<Deferred<Unit>>? offerers,
   }) => _State(
     queue ?? this.queue,
     size ?? this.size,

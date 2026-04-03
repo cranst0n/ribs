@@ -1,11 +1,36 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
+/// A concurrency primitive for atomically swapping a [Resource]-managed
+/// value at runtime.
+///
+/// [Hotswap] holds a single [Resource] value that can be replaced via [swap].
+/// When a new resource is swapped in, the previous resource is finalized
+/// before the new one becomes active. The [current] accessor provides safe
+/// concurrent access to the active resource.
+///
+/// Useful for scenarios such as connection pool rotation or configuration
+/// reloading, where the underlying resource needs to be replaced without
+/// disrupting concurrent readers.
 sealed class Hotswap<R> {
+  /// Atomically replaces the current resource with [next].
+  ///
+  /// The previous resource is finalized before [next] becomes active.
+  /// If [swap] is canceled during acquisition, the partially acquired
+  /// resource is finalized.
   IO<Unit> swap(Resource<R> next);
 
+  /// Returns a [Resource] providing access to the current value.
+  ///
+  /// The resource's lifecycle is scoped to the access: the underlying value
+  /// is guaranteed to remain valid for the duration of use. Concurrent
+  /// [swap] operations will block until all active accessors have released.
   Resource<R> get current;
 
+  /// Creates a [Hotswap] initialized with [initial].
+  ///
+  /// Returns a [Resource] that finalizes the last swapped-in resource when
+  /// the [Hotswap] itself is finalized.
   static Resource<Hotswap<R>> create<R>(Resource<R> initial) {
     return Resource.eval(Semaphore.permits(Integer.maxValue)).flatMap((semaphore) {
       Resource<Unit> exclusive() {
@@ -39,6 +64,7 @@ sealed class Hotswap<R> {
     });
   }
 
+  /// Creates a [Hotswap] initialized with an empty value.
   static Resource<Hotswap<Option<R>>> empty<R>() => create(Resource.pure(none()));
 }
 
