@@ -106,11 +106,15 @@ final class FilesPlatformImpl implements FilesPlatform {
   final String lineSeparator = Platform.lineTerminator;
 
   @override
-  Rill<Path> list(Path path, {bool followLinks = false}) {
+  Rill<Path> list(
+    Path path, {
+    bool recursive = false,
+    bool followLinks = false,
+  }) {
     return Rill.eval(isDirectory(path)).flatMap((isDirectory) {
       if (isDirectory) {
         return Rill.fromStream(
-          path.toDirectory.list(recursive: true, followLinks: followLinks),
+          path.toDirectory.list(recursive: recursive, followLinks: followLinks),
         ).map((entity) => Path(entity.path));
       } else {
         return Rill.empty();

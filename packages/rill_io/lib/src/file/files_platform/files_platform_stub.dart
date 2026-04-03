@@ -64,7 +64,11 @@ class FilesPlatformImpl implements FilesPlatform {
   String get lineSeparator => throw UnimplementedError('Files.lineSeparator');
 
   @override
-  Rill<Path> list(Path path, {bool followLinks = false}) => throw UnimplementedError('Files.list');
+  Rill<Path> list(
+    Path path, {
+    bool recursive = false,
+    bool followLinks = false,
+  }) => throw UnimplementedError('Files.list');
 
   @override
   IO<Unit> move(Path source, Path target) => throw UnimplementedError('Files.move');

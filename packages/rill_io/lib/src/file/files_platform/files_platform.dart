@@ -51,7 +51,11 @@ abstract class FilesPlatform {
 
   String get lineSeparator;
 
-  Rill<Path> list(Path path, {bool followLinks = false});
+  Rill<Path> list(
+    Path path, {
+    bool recursive = false,
+    bool followLinks = false,
+  });
 
   IO<Unit> move(Path source, Path target);
 
