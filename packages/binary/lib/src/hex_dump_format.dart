@@ -167,14 +167,14 @@ final class HexDumpFormat {
     return (scale(r), scale(g), scale(b));
   }
 
-  final _FaintDot = '${_Ansi.Faint}.${_Ansi.Normal}';
-  final _FaintUnmappable = '${_Ansi.Faint}�${_Ansi.Normal}';
+  final _faintDot = '${_Ansi.Faint}.${_Ansi.Normal}';
+  final _faintUnmappable = '${_Ansi.Faint}�${_Ansi.Normal}';
 
   void _renderAsciiBestEffort(StringBuffer bldr, ByteVector bytes) {
     final decoded = convert.ascii.decode(bytes.toByteArray(), allowInvalid: true);
-    final nonPrintableReplacement = ansiEnabled ? _FaintDot : '.';
+    final nonPrintableReplacement = ansiEnabled ? _faintDot : '.';
     final printable = _replaceNoPrintable(decoded, replaceWith: nonPrintableReplacement);
-    final colorized = ansiEnabled ? printable.replaceAll('�', _FaintUnmappable) : printable;
+    final colorized = ansiEnabled ? printable.replaceAll('�', _faintUnmappable) : printable;
 
     bldr.write(colorized);
   }

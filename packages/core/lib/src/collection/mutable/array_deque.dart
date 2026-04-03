@@ -186,7 +186,7 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
           _set(i + 1, _get(i));
           i -= 1;
         }
-        end = _end_plus(1);
+        end = _endPlus(1);
         i += 1;
         _set(i, elem);
       } else {
@@ -195,7 +195,7 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
           _set(i - 1, _get(i));
           i += 1;
         }
-        start = _start_minus(1);
+        start = _startMinus(1);
         _set(i, elem);
       }
     }
@@ -243,7 +243,7 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
             _set(i + srcLength, _get(i));
             i -= 1;
           }
-          end = _end_plus(srcLength);
+          end = _endPlus(srcLength);
           while (it.hasNext) {
             i += 1;
             _set(i, it.next());
@@ -255,7 +255,7 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
             _set(i - srcLength, _get(i));
             i += 1;
           }
-          start = _start_minus(srcLength);
+          start = _startMinus(srcLength);
           while (it.hasNext) {
             _set(i, it.next());
             i += 1;
@@ -278,7 +278,7 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
   RIterator<A> get iterator => _ArrayDequeIterator(this, 0, () => 0);
 
   @override
-  int get length => _end_minus(start);
+  int get length => _endMinus(start);
 
   @override
   ArrayDeque<A> padTo(int len, A elem) => from(super.padTo(len, elem));
@@ -357,7 +357,7 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
           i += 1;
         }
 
-        start = _start_minus(srcLength);
+        start = _startMinus(srcLength);
       }
     }
 
@@ -415,7 +415,7 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
           i -= 1;
         }
 
-        start = _start_plus(removals);
+        start = _startPlus(removals);
       } else {
         // Cheaper to move the suffix left
         var i = idx;
@@ -430,7 +430,7 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
           i += 1;
         }
 
-        end = _end_minus(removals);
+        end = _endMinus(removals);
       }
     } else if (count < 0) {
       throw ArgumentError("removing negative number of elements: $count");
@@ -587,10 +587,10 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
   ArrayDeque<(A, int)> zipWithIndex() => from(super.zipWithIndex());
 
   @pragma('vm:prefer-inline')
-  A _get(int idx) => array[_start_plus(idx)]!;
+  A _get(int idx) => array[_startPlus(idx)]!;
 
   @pragma('vm:prefer-inline')
-  void _set(int idx, A? elem) => array[_start_plus(idx)] = elem;
+  void _set(int idx, A? elem) => array[_startPlus(idx)] = elem;
 
   void _requireBounds(int idx, [int? until]) {
     if (idx < 0 || idx >= (until ?? length)) {
@@ -636,13 +636,13 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
   @pragma('vm:prefer-inline')
   ArrayDeque<A> _appendAssumingCapacity(A elem) {
     array[end] = elem;
-    end = _end_plus(1);
+    end = _endPlus(1);
     return this;
   }
 
   @pragma('vm:prefer-inline')
   ArrayDeque<A> _prependAssumingCapacity(A elem) {
-    start = _start_minus(1);
+    start = _startMinus(1);
     array[start] = elem;
 
     return this;
@@ -651,7 +651,7 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
   A _removeHeadAssumingNonEmpty({bool resizeInternalRepr = false}) {
     final elem = array[start];
     array[start] = null;
-    start = _start_plus(1);
+    start = _startPlus(1);
 
     if (resizeInternalRepr) _resize(length);
 
@@ -659,7 +659,7 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
   }
 
   A _removeLastAssumingNonEmpty({bool resizeInternalRepr = false}) {
-    end = _end_minus(1);
+    end = _endMinus(1);
     final elem = array[end];
     array[end] = null;
 
@@ -669,13 +669,13 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
   }
 
   @pragma('vm:prefer-inline')
-  int _start_plus(int idx) => (start + idx) & (array.length - 1);
+  int _startPlus(int idx) => (start + idx) & (array.length - 1);
   @pragma('vm:prefer-inline')
-  int _start_minus(int idx) => (start - idx) & (array.length - 1);
+  int _startMinus(int idx) => (start - idx) & (array.length - 1);
   @pragma('vm:prefer-inline')
-  int _end_plus(int idx) => (end + idx) & (array.length - 1);
+  int _endPlus(int idx) => (end + idx) & (array.length - 1);
   @pragma('vm:prefer-inline')
-  int _end_minus(int idx) => (end - idx) & (array.length - 1);
+  int _endMinus(int idx) => (end - idx) & (array.length - 1);
 
   Array<A> _copySliceToArray(int srcStart, Array<A> dest, int destStart, int maxItems) {
     _requireBounds(destStart, dest.length + 1);
@@ -684,7 +684,7 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
 
     if (toCopy > 0) {
       _requireBounds(srcStart);
-      final startIdx = _start_plus(srcStart);
+      final startIdx = _startPlus(srcStart);
       final block1 = min(toCopy, array.length - startIdx);
 
       Array.arraycopy(array, startIdx, dest, destStart, block1);
