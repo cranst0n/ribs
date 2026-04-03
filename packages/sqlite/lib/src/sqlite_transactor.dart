@@ -47,6 +47,9 @@ final class SqliteTransactor extends Transactor {
     (conn) => conn.close(),
   ).map<Transactor>((connection) => SqliteTransactor._(connection, strategy));
 
+  /// Returns the single shared connection. Since [SqliteTransactor] uses a
+  /// single connection, no new connection is opened — the same instance is
+  /// reused for every transaction.
   @override
   Resource<SqlConnection> connect() => Resource.pure(_connection);
 }

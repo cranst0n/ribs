@@ -4,9 +4,14 @@ import 'package:ribs_rill/ribs_rill.dart';
 import 'package:ribs_sql/ribs_sql.dart';
 import 'package:sqlite3/sqlite3.dart' as sqlite;
 
+/// A [SqlConnection] backed directly by a `sqlite3` [Database] instance.
+///
+/// This is the low-level connection used by [SqliteTransactor]. It executes
+/// all operations synchronously on the calling isolate via [IO.delay].
 final class SqliteConnection extends SqlConnection {
   final sqlite.Database _db;
 
+  /// Creates a [SqliteConnection] wrapping the given sqlite3 [Database].
   SqliteConnection(this._db);
 
   @override

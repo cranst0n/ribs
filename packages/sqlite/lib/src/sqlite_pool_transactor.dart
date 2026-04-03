@@ -51,6 +51,7 @@ final class SqlitePoolTransactor extends Transactor {
     (_) => IO.exec(pool.close),
   );
 
+  /// Acquires a writer connection from the pool, returning it on release.
   @override
   Resource<SqlConnection> connect() {
     return Resource.make(
@@ -59,6 +60,7 @@ final class SqlitePoolTransactor extends Transactor {
     ).map(_SqliteLeaseConnection.new);
   }
 
+  /// Acquires a reader connection from the pool, allowing concurrent reads.
   @override
   Resource<SqlConnection> connectReader() {
     return Resource.make(
