@@ -59,6 +59,8 @@ final class PostgresPoolTransactor extends Transactor {
     ).map((pool) => PostgresPoolTransactor._(pool, strategy));
   }
 
+  /// Borrows a connection from the pool for the lifetime of the returned
+  /// [Resource]. The connection is returned to the pool on release.
   @override
   Resource<SqlConnection> connect() {
     return Resource.apply(

@@ -11,6 +11,7 @@ import 'package:ribs_sql/ribs_sql.dart';
 final class PostgresConnection extends SqlConnection {
   final pg.Session _session;
 
+  /// Creates a [PostgresConnection] wrapping the given PostgreSQL [session].
   PostgresConnection(this._session);
 
   @override
@@ -121,6 +122,8 @@ final class PostgresConnection extends SqlConnection {
     return sql.replaceAllMapped(RegExp(r'\?'), (_) => '\$${++n}');
   }
 
+  /// No-op — the underlying session lifecycle is managed by the
+  /// [Transactor] (or pool) that created this connection.
   @override
   IO<Unit> close() => IO.unit;
 }

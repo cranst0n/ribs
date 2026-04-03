@@ -38,6 +38,9 @@ final class PostgresTransactor extends Transactor {
     (conn) => IO.fromFutureF(() => conn.close()).voided(),
   ).map<Transactor>((connection) => PostgresTransactor._(connection, strategy));
 
+  /// Returns the single shared connection wrapped in a [PostgresConnection].
+  /// No new connection is opened — the same instance is reused for every
+  /// transaction.
   @override
   Resource<SqlConnection> connect() => Resource.pure(PostgresConnection(_connection));
 }
