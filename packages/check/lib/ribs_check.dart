@@ -1,5 +1,5 @@
 export 'src/gen.dart';
-export 'src/gen_syntax.dart';
+export 'src/generated/gen_syntax.dart';
+export 'src/generated/prop_syntax.dart';
 export 'src/prop.dart';
-export 'src/prop_syntax.dart';
 export 'src/shrinker.dart';

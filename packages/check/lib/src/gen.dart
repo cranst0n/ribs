@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:ribs_check/src/gen_syntax.dart';
+import 'package:ribs_check/src/generated/gen_syntax.dart';
 import 'package:ribs_check/src/shrinker.dart';
 import 'package:ribs_check/src/stateful_random.dart';
 import 'package:ribs_core/ribs_core.dart';
@@ -74,10 +74,6 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   Gen<(A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A)> get tuple16 =>
       tuple15.flatMap((t) => map(t.appended));
-
-  ///////////////
-  // Instances //
-  ///////////////
 
   static final Gen<String> alphaLowerChar = Choose.integer
       .choose('a'.codeUnitAt(0), 'z'.codeUnitAt(0) + 1)

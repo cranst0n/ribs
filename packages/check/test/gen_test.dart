@@ -1,6 +1,9 @@
 import 'package:ribs_check/ribs_check.dart';
+import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/ribs_core_test.dart';
 import 'package:test/test.dart';
+
+enum _Color { red, green, blue }
 
 void main() {
   Gen.integer.tuple2.forAll('tuple2', (t) => expect(t, isNotNull));
@@ -115,4 +118,116 @@ void main() {
   Gen.chooseInt(0, 0).forAll('Choose.integer(0, 0)', (i) {
     expect(i, 0);
   });
+
+  Gen.alphaNumChar.forAll('alphaNumChar', (c) {
+    expect(c.length, 1);
+    expect(RegExp(r'^[a-zA-Z0-9]$').hasMatch(c), isTrue);
+  });
+
+  Gen.alphaNumString(10).forAll('alphaNumString', (s) {
+    expect(s.length <= 10, isTrue);
+    expect(RegExp(r'^[a-zA-Z0-9]*$').hasMatch(s), isTrue);
+  });
+
+  Gen.asciiChar.forAll('asciiChar', (c) {
+    expect(c.length, 1);
+    expect(c.codeUnitAt(0) >= 0 && c.codeUnitAt(0) <= 127, isTrue);
+  });
+
+  Gen.bigInt.forAll('bigInt', (n) {
+    expect(n, isNotNull);
+    expect(n >= BigInt.zero, isTrue);
+  });
+
+  Gen.binChar.forAll('binChar', (c) {
+    expect(c, anyOf('0', '1'));
+  });
+
+  Gen.boolean.forAll('boolean', (b) {
+    expect(b, anyOf(isTrue, isFalse));
+  });
+
+  Gen.byte.forAll('byte', (b) {
+    expect(b >= 0 && b <= 255, isTrue);
+  });
+
+  Gen.chooseDouble(0.0, 1.0).forAll('chooseDouble', (d) {
+    expect(d >= 0.0 && d <= 1.0, isTrue);
+  });
+
+  Gen.chooseDouble(-10.0, 10.0).forAll('chooseDouble negative range', (d) {
+    expect(d >= -10.0 && d <= 10.0, isTrue);
+  });
+
+  Gen.chooseEnum(_Color.values).forAll('chooseEnum', (c) {
+    expect(_Color.values.contains(c), isTrue);
+  });
+
+  Gen.constant(42).forAll('constant', (i) {
+    expect(i, 42);
+  });
+
+  Gen.constant('hello').forAll('constant string', (s) {
+    expect(s, 'hello');
+  });
+
+  Gen.date.forAll('date', (d) {
+    expect(d, isNotNull);
+    expect(d, isA<DateTime>());
+  });
+
+  Gen.hexChar.forAll('hexChar', (c) {
+    expect(c.length, 1);
+    expect(int.tryParse(c, radix: 16), isNotNull);
+  });
+
+  Gen.ilistOf(Gen.chooseInt(0, 10), Gen.positiveInt).forAll('ilistOf', (l) {
+    expect(l.size <= 10, isTrue);
+    l.foreach((a) => expect(a, isPositive));
+  });
+
+  Gen.ilistOfN(5, Gen.integer).forAll('ilistOfN', (l) {
+    expect(l.size, 5);
+  });
+
+  Gen.integer.forAll('integer', (i) {
+    expect(i >= -2147483648 && i <= 2147483647, isTrue);
+  });
+
+  Gen.listOf(Gen.chooseInt(0, 5), Gen.boolean).forAll('listOf', (l) {
+    expect(l.length <= 5, isTrue);
+  });
+
+  Gen.listOfN(3, Gen.byte).forAll('listOfN', (l) {
+    expect(l.length, 3);
+    for (final b in l) {
+      expect(b >= 0 && b <= 255, isTrue);
+    }
+  });
+
+  Gen.nonEmptyAlphaNumString(10).forAll('nonEmptyAlphaNumString', (s) {
+    expect(s.isNotEmpty, isTrue);
+    expect(s.length <= 10, isTrue);
+    expect(RegExp(r'^[a-zA-Z0-9]+$').hasMatch(s), isTrue);
+  });
+
+  Gen.nonEmptyIList(Gen.positiveInt, 5).forAll('nonEmptyIList', (l) {
+    expect(l.size >= 1 && l.size <= 5, isTrue);
+    l.toIList().foreach((a) => expect(a, isPositive));
+  });
+
+  Gen.numChar.forAll('numChar', (c) {
+    expect(c.length, 1);
+    expect(int.tryParse(c), isNotNull);
+  });
+
+  Gen.sequence(ilist([Gen.constant(1), Gen.constant(2), Gen.constant(3)])).forAll('sequence', (l) {
+    expect(l.toList(), [1, 2, 3]);
+  });
+
+  Gen.positiveInt.retryUntil((i) => i > 100).forAll('retryUntil', (i) {
+    expect(i > 100, isTrue);
+  });
+
+  Gen.integer.tuple16.forAll('tuple16', (t) => expect(t, isNotNull));
 }
