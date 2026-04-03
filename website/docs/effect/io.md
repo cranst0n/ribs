@@ -111,8 +111,8 @@ sequence it with other `IO` values.
 <<< @/../snippets/lib/src/effect/io.dart#io-combinators
 
 :::tip
-`redeemWith` is the monadic variant of `redeem` — both branches return `IO<B>`
-instead of a plain value, allowing further sequencing.
+These examples only scratch the surface of the API available for manipulating
+and controlling `IO`.
 :::
 
 ## Error Handling
@@ -120,7 +120,7 @@ instead of a plain value, allowing further sequencing.
 One of the first recommendations on the [Dart Error Handling page](https://dart.dev/language/error-handling)
 demonstrates using `Exception`s paired with `try`/`catch`/`finally` to manage
 errors in your programs. But it's already been established that throwing
-exceptions is a side-effect! This rules out using them in our pure FP programs.
+exceptions is a side-effect! This rules out throwing them in our pure FP programs.
 
 That begs the question on how we create and handle errors using `IO`.
 
@@ -243,7 +243,7 @@ synchronous `IO` in the case of `Some` or raise an error in the case of `None`
 `fromFuture` takes a parameter of type `IO<Future>` to control the laziness
 and ensure referential transparency.
 
-:::caution
+:::warning
 Simply using `IO` doesn't magically make the `Future` parameter referentially transparent!
 You must still take care on controlling the evaluation of the `Future`.
 :::

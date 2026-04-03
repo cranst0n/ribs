@@ -52,7 +52,7 @@ connection. When `stream()` is called — or when `connectReader()` is used
 directly — a **reader** connection is acquired instead, leaving the writer free
 for concurrent mutations.
 
-:::note
+:::info
 `SqlitePoolTransactor` is intended for file-based databases. An in-memory
 SQLite database is isolated per connection, so using a pool would give each
 connection a separate, empty database.

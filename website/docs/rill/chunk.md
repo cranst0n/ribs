@@ -77,7 +77,7 @@ let you re-batch without changing the logical stream of elements.
 | `chunkMin(n)` | `Rill<Chunk<O>>` | Guarantee chunks of at least `n` elements |
 | `buffer(n)` | `Rill<O>` | Re-batch transparently — elements unchanged, boundaries reset to `n` |
 
-:::caution
+:::warning
 `chunkAll()` accumulates the entire stream in memory before emitting. Only use
 it when you know the stream is bounded and fits comfortably in RAM.
 :::

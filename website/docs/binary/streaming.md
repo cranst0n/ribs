@@ -47,7 +47,7 @@ Both `RillEncoder` and `RillDecoder` handle framing automatically: the decoder
 buffers partial chunks across `BitVector` boundaries, so there is no need to
 worry about TCP segmentation splitting a message mid-frame.
 
-:::note
+:::tip
 `evalMap` in `runServer` handles one client at a time. For concurrent clients use
 `parEvalMap` instead, supplying a bound on the number of simultaneous connections.
 :::

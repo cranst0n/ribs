@@ -24,7 +24,7 @@ cancellation, resource safety, and the rest of the `ribs_effect` ecosystem.
 | `CyclicBarrier.withCapacity(n)` | `IO<CyclicBarrier>` | Allocate a new barrier that releases after *n* concurrent waiters |
 | `await()` | `IO<Unit>` | Block until *n* fibers are waiting; returns immediately for a barrier of capacity 1 |
 
-:::caution
+:::warning
 `CyclicBarrier.withCapacity` throws `ArgumentError` if `n < 1`. Fibers that
 cancel while waiting have their slot returned to the barrier so the remaining
 fibers are not permanently stuck. For a one-shot barrier see `CountDownLatch`.

@@ -7,10 +7,9 @@
 **/pubspec.lock
 **/pubspec_overrides.yaml
 
-# IntelliJ related
 *.iml
 *.ipr
 *.iws
-.idea/
 
+.idea/
 .vscode/

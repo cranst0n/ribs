@@ -23,7 +23,7 @@
 | ![postgres](https://img.shields.io/badge/ribs__postgres-unpublished-f00000) | PostgreSQL transactors |
 | ![rill](https://img.shields.io/badge/ribs__rill-unpublished-f00000) | Pure functional streaming |
 | ![rill_io](https://img.shields.io/badge/ribs__rill__io-unpublished-f00000) | I/O for rill |
-| ![sql](https://img.shields.io/badge/ribs__sql-unpublished-f00000) | Pure functionral SQL integration |
+| ![sql](https://img.shields.io/badge/ribs__sql-unpublished-f00000) | Pure functional SQL integration |
 | ![sqlite](https://img.shields.io/badge/ribs__sqlite-unpublished-f00000) | SQLite transactors |
 | [![units](https://img.shields.io/pub/v/ribs_units?label=ribs_units&color=0088ff)](https://pub.dev/packages/ribs_units) | Dimensional analysis / units of measure |
 

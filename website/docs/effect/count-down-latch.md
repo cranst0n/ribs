@@ -26,7 +26,7 @@ cancellation, resource safety, and the rest of the `ribs_effect` ecosystem.
 | `release()` | `IO<Unit>` | Decrement the count by 1; unblocks all waiters when it reaches 0 |
 | `await()` | `IO<Unit>` | Suspend until the count reaches 0; returns immediately if already 0 |
 
-:::caution
+:::warning
 `CountDownLatch.create` throws `ArgumentError` if `n < 1`. The count can only
 go down — there is no reset or reuse. For a reusable barrier see `CyclicBarrier`.
 :::

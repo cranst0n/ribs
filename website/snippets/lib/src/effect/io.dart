@@ -37,14 +37,12 @@ Future<void> snippet3() async {
 Future<void> asyncSnippet1() async {
   // #region io-async-1
   IO<A> futureToIO<A>(Function0<Future<A>> fut) {
-    IO.async_<A>((cb) {
+    return IO.async_<A>((cb) {
       fut().then(
         (a) => cb(Right(a)),
         onError: (Object err, StackTrace st) => cb(Left(err)),
       );
     });
-
-    throw UnimplementedError();
   }
 
   // #endregion io-async-1
