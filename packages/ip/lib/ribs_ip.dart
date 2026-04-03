@@ -1,3 +1,9 @@
+/// Purely functional IP address and network primitives for Dart.
+///
+/// Provides immutable data structures for IP addresses, CIDR representations,
+/// networks, multicast groups, and socket addresses.
+library;
+
 export 'src/cidr.dart';
 export 'src/dns.dart';
 export 'src/host.dart';

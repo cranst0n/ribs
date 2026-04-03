@@ -1,3 +1,9 @@
+/// Type-safe physical quantities and units of measure for Dart.
+///
+/// Provides strongly typed dimension classes (e.g., Length, Mass, Time)
+/// and operations to safely convert and compute physical quantities.
+library;
+
 export 'src/binary_system.dart';
 export 'src/dimensionless/each.dart';
 export 'src/electro/capacitance.dart';

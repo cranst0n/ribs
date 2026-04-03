@@ -1,3 +1,10 @@
+/// Purely functional, type-safe SQL query execution and composition.
+///
+/// Provides combinators for building SQL queries, parameter binding,
+/// and a `Transactor` abstraction for executing `IO` operations against
+/// various database backends.
+library;
+
 export 'src/connection_io.dart';
 export 'src/connection_rill.dart';
 export 'src/fragment.dart';
