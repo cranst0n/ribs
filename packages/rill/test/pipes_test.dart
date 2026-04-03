@@ -149,5 +149,130 @@ void main() {
         },
       );
     });
+
+    group('hex', () {
+      Gen.listOf(Gen.chooseInt(0, 20), Gen.listOf(Gen.chooseInt(0, 20), Gen.byte)).forAll(
+        'hex.encode andThen hex.decode',
+        (bs) {
+          final actual = bs
+              .map(Chunk.fromList)
+              .fold(Rill.empty<int>(), (acc, chunk) => acc.append(() => Rill.chunk(chunk)))
+              .through(Pipes.text.hex.encode)
+              .through(Pipes.text.hex.decode);
+
+          final expected = ilist(bs)
+              .map((bytes) => ByteVector.fromDart(bytes))
+              .foldLeft(ByteVector.empty, (acc, elem) => acc.concat(elem));
+
+          expect(actual.compile.toIList.map(ByteVector.from), succeeds(expected));
+        },
+      );
+
+      (
+        Gen.listOf(Gen.chooseInt(0, 20), Gen.listOf(Gen.chooseInt(0, 20), Gen.byte)),
+        Gen.integer,
+      ).forAll(
+        'hex.encode andThen hex.decode with rechunking',
+        (bs, rechunkSeed) {
+          final actual = bs
+              .map(Chunk.fromList)
+              .fold(Rill.empty<int>(), (acc, chunk) => acc.append(() => Rill.chunk(chunk)))
+              .through(Pipes.text.hex.encode)
+              .rechunkRandomly(seed: rechunkSeed)
+              .through(Pipes.text.hex.decode);
+
+          final expected = ilist(bs)
+              .map((bytes) => ByteVector.fromDart(bytes))
+              .foldLeft(ByteVector.empty, (acc, elem) => acc.concat(elem));
+
+          expect(actual.compile.toIList.map(ByteVector.from), succeeds(expected));
+        },
+      );
+
+      test('encode known value', () {
+        expect(
+          Rill.emits([0xde, 0xad, 0xbe, 0xef]).through(Pipes.text.hex.encode),
+          producesOnly('deadbeef'),
+        );
+      });
+
+      test('decode known lowercase hex', () {
+        expect(
+          Rill.emit('deadbeef').through(Pipes.text.hex.decode),
+          producesInOrder([0xde, 0xad, 0xbe, 0xef]),
+        );
+      });
+
+      test('decode uppercase hex', () {
+        expect(
+          Rill.emit('DEADBEEF').through(Pipes.text.hex.decode),
+          producesInOrder([0xde, 0xad, 0xbe, 0xef]),
+        );
+      });
+
+      test('decode strips 0x prefix', () {
+        expect(
+          Rill.emit('0xdeadbeef').through(Pipes.text.hex.decode),
+          producesInOrder([0xde, 0xad, 0xbe, 0xef]),
+        );
+      });
+
+      test('decode strips 0X prefix', () {
+        expect(
+          Rill.emit('0XDEADBEEF').through(Pipes.text.hex.decode),
+          producesInOrder([0xde, 0xad, 0xbe, 0xef]),
+        );
+      });
+
+      test('decode ignores whitespace', () {
+        expect(
+          Rill.emit('de ad be ef').through(Pipes.text.hex.decode),
+          producesInOrder([0xde, 0xad, 0xbe, 0xef]),
+        );
+      });
+
+      test('decode ignores underscores', () {
+        expect(
+          Rill.emit('de_ad_be_ef').through(Pipes.text.hex.decode),
+          producesInOrder([0xde, 0xad, 0xbe, 0xef]),
+        );
+      });
+
+      test('decode empty stream', () {
+        expect(Rill.empty<String>().through(Pipes.text.hex.decode), producesNothing());
+      });
+
+      test('decode errors on invalid character', () {
+        expect(
+          Rill.emit('zz').through(Pipes.text.hex.decode),
+          producesError(),
+        );
+      });
+
+      test('decode errors on odd number of nibbles', () {
+        expect(
+          Rill.emit('abc').through(Pipes.text.hex.decode),
+          producesError(),
+        );
+      });
+
+      test('encodeWithAlphabet(hexUpper) produces uppercase', () {
+        expect(
+          Rill.emits([0xde, 0xad, 0xbe, 0xef])
+              .through(Pipes.text.hex.encodeWithAlphabet(Alphabets.hexUpper)),
+          producesOnly('DEADBEEF'),
+        );
+      });
+
+      test('decodeWithAlphabet(hexUpper) roundtrip', () {
+        final bytes = [0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef];
+        expect(
+          Rill.emits(bytes)
+              .through(Pipes.text.hex.encodeWithAlphabet(Alphabets.hexUpper))
+              .through(Pipes.text.hex.decodeWithAlphabet(Alphabets.hexUpper)),
+          producesInOrder(bytes),
+        );
+      });
+    });
   });
 }

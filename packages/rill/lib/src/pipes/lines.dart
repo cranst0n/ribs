@@ -1,6 +1,18 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
+/// Pipes for splitting a stream of strings into individual lines.
+///
+/// Lines are delimited by `\n`, `\r`, or `\r\n`. The line terminators
+/// themselves are not included in the emitted strings.
+///
+/// ```dart
+/// // Split a text stream into lines:
+/// stringRill.through(Pipes.text.lines)
+///
+/// // With a maximum line length guard:
+/// stringRill.through(Pipes.text.linesLimited(4096))
+/// ```
 final class LinesPipes {
   static final LinesPipes _singleton = LinesPipes._();
 
@@ -8,9 +20,30 @@ final class LinesPipes {
 
   LinesPipes._();
 
+  /// A [Pipe] that splits incoming string chunks into individual lines.
+  ///
+  /// Handles `\n`, `\r`, and `\r\n` line endings, including cases where a
+  /// `\r\n` sequence is split across two chunks. Line terminators are
+  /// stripped from the output. A trailing line without a terminator is still
+  /// emitted.
   Pipe<String, String> get lines => _linesImpl();
+
+  /// A [Pipe] that splits incoming string chunks into individual lines,
+  /// raising an error if any single line exceeds [maxLineLength] characters.
+  ///
+  /// Behaves identically to [lines] except that an error is emitted when
+  /// the internal line buffer grows beyond [maxLineLength] before a line
+  /// terminator is found. This guards against unbounded memory usage when
+  /// processing untrusted input.
   Pipe<String, String> linesLimited(int maxLineLength) => _linesImpl(maxLineLength: maxLineLength);
 
+  // Shared implementation for [lines] and [linesLimited].
+  //
+  // Incoming string chunks are scanned character-by-character for newline
+  // sequences. Complete lines are collected into a buffer and emitted as
+  // output chunks. A [StringBuffer] accumulates partial lines that span
+  // chunk boundaries. The [_BoolWrapper] tracks whether a leading `\n`
+  // should be ignored (for `\r\n` sequences split across chunks).
   Pipe<String, String> _linesImpl({int? maxLineLength}) {
     void fillBuffers(
       StringBuffer stringBuffer,
@@ -111,6 +144,8 @@ final class LinesPipes {
         Rill.suspend(() => go(rill, StringBuffer(), _BoolWrapper(false), true).rillNoScope);
   }
 
+  // Returns the index of the first `\n` or `\r` in [string] starting at
+  // [begin], or -1 if none is found before [stringSize].
   @pragma('vm:prefer-inline')
   int _indexForNl(String string, int stringSize, int begin) {
     int i = begin;
