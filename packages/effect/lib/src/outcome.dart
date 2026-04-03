@@ -101,6 +101,8 @@ final class Succeeded<A> extends Outcome<A> {
 final class Errored<A> extends Outcome<A> {
   /// The underlying error.
   final Object error;
+
+  /// The stack trace captured at the point of error, if available.
   final StackTrace? stackTrace;
 
   const Errored(this.error, [this.stackTrace]);

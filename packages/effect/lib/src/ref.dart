@@ -31,6 +31,9 @@ abstract class Ref<A> {
   /// can potentially be canceled.
   IO<B> flatModify<B>(Function1<A, (A, IO<B>)> f) => IO.uncancelable((_) => modify(f).flatten());
 
+  /// Like [flatModify], but the modification function also receives a [Poll]
+  /// so the resulting effect can have cancelable regions within the
+  /// uncancelable block.
   IO<B> flatModifyFull<B>(Function1<(Poll, A), (A, IO<B>)> f) =>
       IO.uncancelable((poll) => modify((a) => f((poll, a))).flatten());
 

@@ -613,6 +613,9 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// Lifts this [IO] to a [Resource]
   Resource<A> toResource() => Resource.eval(this);
 
+  /// Attempts to evaluate this IO synchronously, stopping after [limit] steps.
+  /// This is useful for optimizing away asynchronous boundaries for small/fast
+  /// effect loops.
   SyncIO<Either<IO<A>, A>> toSyncIO(int limit) =>
       _SyncStep.interpret(this, limit).map((a) => a.map((a) => a.$1));
 
@@ -784,15 +787,18 @@ extension IONestedOps<A> on IO<IO<A>> {
   IO<A> _flatten() => _flatMap(identity);
 }
 
+/// Extension on `IO<Unit>` to provide convenient error handling.
 extension IOUnitOps<A> on IO<Unit> {
-  /// Ignores any errors.
+  /// Ignores any errors that occur during evaluation, turning them into a
+  /// successful [Unit] result.
   IO<Unit> voidError() => _voidError().traced('voidError');
   IO<Unit> _voidError() => _handleError((_) => Unit());
 }
 
+/// Extension providing conditional operators for boolean-yielding [IO]s.
 extension IOBoolOps on IO<bool> {
-  /// Returns the evaluation of [ifTrue] when the value of this IO evaluates to
-  /// true, otherwise returns [ifFalse].
+  /// Evaluates this IO to a boolean. If `true`, evaluating [ifTrue].
+  /// Otherwise evaluates [ifFalse].
   IO<B> ifM<B>(Function0<IO<B>> ifTrue, Function0<IO<B>> ifFalse) =>
       _ifM(ifTrue, ifFalse).traced('ifM');
 
@@ -800,6 +806,7 @@ extension IOBoolOps on IO<bool> {
       _flatMap((b) => b ? ifTrue() : ifFalse());
 }
 
+/// Extension providing operations for unpacking `Either` typed IOs.
 extension IOExceptionOps<A> on IO<Either<Object, A>> {
   /// Inverse of [IO.attempt].
   IO<A> rethrowError() => _rethrowError().traced('rethrowError');
@@ -808,6 +815,9 @@ extension IOExceptionOps<A> on IO<Either<Object, A>> {
 
 /// Utility class to create unmasked blocks within an uncancelable [IO] region.
 abstract class Poll {
+  /// Re-enables cancelation for [ioa]. If the fiber was interrupted while
+  /// evaluating the uncancelable region, the exception will be observed
+  /// within this nested scope.
   IO<A> call<A>(IO<A> ioa);
 }
 

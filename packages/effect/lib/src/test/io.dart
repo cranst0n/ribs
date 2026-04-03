@@ -5,16 +5,32 @@ import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_effect/ribs_effect_test.dart';
 import 'package:test/test.dart';
 
+/// A matcher that asserts an [IO] completes successfully.
+///
+/// If [matcher] is provided, the successful value is further validated
+/// against it. Can be used with both raw [IO] values and [Ticker] instances.
 Matcher succeeds([Object? matcher]) => _Succeeded(matcher ?? anyOf(isNotNull, isNull));
 
+/// A matcher that asserts an [IO] completes with an error.
+///
+/// If [matcher] is provided, the error value is further validated against it.
 Matcher errors([Object? matcher]) => _Errored(matcher ?? anyOf(isNotNull, isNull));
 
+/// A matcher that asserts an [IO] is canceled before completion.
 const Matcher cancels = _Canceled();
 
+/// A matcher that asserts an [IO] terminates (completes in finite time)
+/// when evaluated with a [TestIORuntime].
 const Matcher terminates = _Terminates(true);
 
+/// A matcher that asserts an [IO] does **not** terminate (runs forever)
+/// when evaluated with a [TestIORuntime].
 const Matcher nonTerminating = _Terminates(false);
 
+/// Lifts a test expectation into [IO], allowing assertions to be composed
+/// within an [IO] program.
+///
+/// Equivalent to calling `expectLater` and wrapping it in [IO.fromFutureF].
 IO<Unit> expectIO(
   dynamic actual,
   dynamic matcher, {

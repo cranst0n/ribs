@@ -89,11 +89,15 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
     Function2<A, ExitCase, IO<Unit>> release,
   ) => applyCase(acquire.map((a) => (a, (ec) => release(a, ec))));
 
+  /// Creates a Resource using the cancelable allocation [acquire] and the
+  /// finalizer [release], which can discriminate the [ExitCase].
   static Resource<A> makeCaseFull<A>(
     Function1<Poll, IO<A>> acquire,
     Function2<A, ExitCase, IO<Unit>> release,
   ) => applyFull((poll) => acquire(poll).map((a) => (a, (ec) => release(a, ec))));
 
+  /// Creates a Resource using the cancelable allocation [acquire] and the
+  /// finalizer [release].
   static Resource<A> makeFull<A>(
     Function1<Poll, IO<A>> acquire,
     Function1<A, IO<Unit>> release,
@@ -186,11 +190,13 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// [Resource].
   static Resource<Ref<A>> ref<A>(A a) => Resource.eval(Ref.of(a));
 
+  /// Defers the creation of a Resource until the returned IO is evaluated.
   static Resource<A> suspend<A>(IO<Resource<A>> fr) => Resource.eval(fr).flatMap((r) => r);
 
   /// Alias for `Resource.pure(Unit())`.
   static Resource<Unit> get unit => Resource.pure(Unit());
 
+  /// Returns the allocated resource and a release function.
   IO<(A, IO<Unit>)> allocated() => IO.uncancelable(
     (poll) => poll(allocatedCase()).mapN((b, fin) => (b, fin(ExitCase.succeeded()))),
   );
@@ -283,8 +289,12 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
   @override
   Resource<B> flatMap<B>(Function1<A, Resource<B>> f) => Bind(this, Fn1(f));
 
+  /// Like [flatMap] but discards the result of [f], returning the original
+  /// value.
   Resource<A> flatTap<B>(Function1<A, Resource<B>> f) => flatMap((a) => f(a).as(a));
 
+  /// Attaches a finalizer that is invoked with the [Outcome] of the resource
+  /// evaluation.
   Resource<A> guaranteeCase(Function1<Outcome<A>, Resource<Unit>> fin) {
     return Resource.applyFull((poll) {
       return poll(allocatedCase()).guaranteeCase((outcome) {
@@ -313,11 +323,14 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
   @override
   Resource<B> map<B>(Function1<A, B> f) => flatMap((a) => Resource.pure(f(a)));
 
+  /// Attaches a finalizer that runs when this resource is canceled.
   Resource<A> onCancel(Resource<Unit> fin) =>
       Resource.applyFull((poll) => poll(allocatedCase()).onCancel(fin.use_()));
 
+  /// Attaches an unconditional finalizer to this resource.
   Resource<A> onFinalize(IO<Unit> f) => onFinalizeCase((_) => f);
 
+  /// Attaches a finalizer that can discriminate the [ExitCase].
   Resource<A> onFinalizeCase(Function1<ExitCase, IO<Unit>> f) =>
       Resource.makeCase(IO.unit, (_, ec) => f(ec)).flatMap((_) => this);
 
@@ -340,10 +353,15 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// finish, meaning the resource finalizer will not be invoked.
   IO<Never> useForever() => use((_) => IO.never());
 
+  /// Discards the value of this resource, returning [Unit].
   Resource<Unit> voided() => as(Unit());
 }
 
+/// Extension on [Resource] wrapping an [IO] value, providing a convenience
+/// method to evaluate the inner effect during use.
 extension ResourceIOOps<A> on Resource<IO<A>> {
+  /// Allocates this resource and evaluates the inner [IO], releasing the
+  /// resource afterwards.
   IO<A> useEval() => use(identity);
 }
 

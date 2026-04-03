@@ -1,10 +1,20 @@
 part of '../io.dart';
 
+/// The execution state of an [IOFiber].
 enum FiberState { running, suspended }
 
 /// A handle to a running [IO] that allows for cancelation of the [IO] or
 /// waiting for completion.
+/// A handle to a running [IO] computation, providing the ability to
+/// [cancel] the computation or [join] on its result.
+///
+/// An [IOFiber] is created by [IO.start] or [IO.racePair] and represents
+/// a lightweight logical thread of execution within the [IORuntime].
+/// The fiber's run loop interprets the [IO] AST, executing each node
+/// and maintaining continuation, finalizer, and cancelation state.
 final class IOFiber<A> {
+  /// The set of all currently active fibers, tracked via weak references
+  /// to support [dumpFibers] diagnostics without preventing GC.
   static final Set<WeakReference<IOFiber<dynamic>>> _activeFibers = {};
   static int _idCounter = 0;
 
@@ -110,8 +120,13 @@ final class IOFiber<A> {
     }
   }
 
+  /// Waits for the fiber to complete, then applies [onCancel] if the
+  /// fiber was canceled, raises the error if it errored, or returns the
+  /// successful value.
   IO<A> joinWith(IO<A> onCancel) => join()._flatMap((a) => a.embed(onCancel));
 
+  /// Waits for the fiber to complete. If the fiber was canceled, the
+  /// returned [IO] will never complete.
   IO<A> joinWithNever() => joinWith(IO.never());
 
   bool get _isCanceled => (_masks & _canceledFlag) != 0;
@@ -657,6 +672,11 @@ final class IOFiber<A> {
 
   IO<dynamic> _cancelationLoopFailureK(Object err, [StackTrace? st]) => _cancelationLoopSuccessK();
 
+  /// Prints a diagnostic dump of all active fibers to stdout.
+  ///
+  /// For each fiber, shows its ID, execution state, and trace buffer
+  /// (if tracing is enabled). This is intended for debugging hung or
+  /// leaked fibers.
   static void dumpFibers() {
     // ignore: avoid_print
     void doPrint(String message) => print(message);
@@ -706,10 +726,19 @@ final class IOFiber<A> {
   }
 }
 
+/// Convenience extension for [IOFiber<Unit>] that provides a [joinWithUnit]
+/// method, avoiding the need to supply a fallback [IO] for the common
+/// `Unit`-typed fiber case.
 extension JoinWithUnitOps on IOFiber<Unit> {
+  /// Waits for this unit-typed fiber to complete, returning [IO.unit] if
+  /// canceled.
   IO<Unit> joinWithUnit() => joinWith(IO.unit);
 }
 
+// ---------------------------------------------------------------------------
+// Resume tags — identify which entry point the run loop should use when the
+// fiber is next scheduled.
+// ---------------------------------------------------------------------------
 const int _ExecR = 0;
 const int _AsyncContinueSuccessfulR = 1;
 const int _AsyncContinueFailedR = 2;
@@ -721,10 +750,20 @@ const int _AsyncGetR = 7;
 const int _DoneR = 8;
 const int _SleepR = 9;
 
+// ---------------------------------------------------------------------------
+// Mask bitfield layout:
+//   bit 0 (_canceledFlag):   fiber has been asked to cancel
+//   bit 1 (_finalizingFlag): fiber is running cancelation finalizers
+//   bits 2+: count of active uncancelable masks (incremented by _masksUnit)
+// ---------------------------------------------------------------------------
 const int _canceledFlag = 0x1;
 const int _finalizingFlag = 0x2;
 const int _masksUnit = 0x4;
 
+// ---------------------------------------------------------------------------
+// Continuation tags — identify the type of continuation frame on the
+// byte stack. Each tag corresponds to a branch in _succeeded / _failed.
+// ---------------------------------------------------------------------------
 const int _RunTerminusK = 0;
 const int _MapK = 1;
 const int _FlatMapK = 2;
