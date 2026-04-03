@@ -1,3 +1,4 @@
+import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 import 'package:ribs_sql/ribs_sql.dart';
@@ -44,7 +45,7 @@ class ReadWrite<A> extends Read<A> with Write<A> {
   static final ReadWrite<BigInt> bigInt = ReadWrite(Read.bigInt, Write.bigInt);
 
   /// Reads and writes a binary blob column.
-  static final ReadWrite<IList<int>> blob = ReadWrite(Read.blob, Write.blob);
+  static final ReadWrite<ByteVector> blob = ReadWrite(Read.blob, Write.blob);
 
   /// Reads and writes a boolean column.
   static final ReadWrite<bool> boolean = ReadWrite(Read.boolean, Write.boolean);

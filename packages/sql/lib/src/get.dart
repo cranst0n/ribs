@@ -1,3 +1,4 @@
+import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 import 'package:ribs_sql/src/row.dart';
@@ -25,8 +26,8 @@ abstract mixin class Get<A> {
   /// Reads a [BigInt] from a single column.
   static final Get<BigInt> bigInt = _genericGet();
 
-  /// Reads a binary blob as an immutable byte list from a single column.
-  static final Get<IList<int>> blob = _genericGet<List<int>>().map(IList.fromDart);
+  /// Reads a binary blob from a single column.
+  static final Get<ByteVector> blob = _genericGet<List<int>>().map(ByteVector.fromDart);
 
   /// Reads a boolean from a single column (stored as 0/1 integer).
   static final Get<bool> boolean = integer.map((i) => i != 0);

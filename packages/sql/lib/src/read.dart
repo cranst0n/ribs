@@ -1,3 +1,4 @@
+import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 import 'package:ribs_sql/src/get.dart';
@@ -43,8 +44,8 @@ abstract mixin class Read<A> {
   /// Reads a [BigInt] from a single column.
   static final Read<BigInt> bigInt = Read.fromGet(Get.bigInt);
 
-  /// Reads a binary blob as an immutable byte list from a single column.
-  static final Read<IList<int>> blob = Read.fromGet(Get.blob);
+  /// Reads a binary blob from a single column.
+  static final Read<ByteVector> blob = Read.fromGet(Get.blob);
 
   /// Reads a boolean from a single column.
   static final Read<bool> boolean = Read.fromGet(Get.boolean);

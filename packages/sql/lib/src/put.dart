@@ -1,3 +1,4 @@
+import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 import 'package:ribs_sql/ribs_sql.dart';
@@ -22,10 +23,10 @@ abstract mixin class Put<A> {
   /// Encodes a [BigInt] parameter.
   static final Put<BigInt> bigInt = instance((v) => v);
 
-  /// Encodes a binary blob from an immutable byte list.
-  static final Put<IList<int>> blob = instance<List<int>>(
+  /// Encodes a binary blob.
+  static final Put<ByteVector> blob = instance<List<int>>(
     (v) => v,
-  ).contramap<IList<int>>((il) => il.toList());
+  ).contramap<ByteVector>((bv) => bv.toByteArray());
 
   /// Encodes a boolean parameter (stored as 0/1 integer).
   static final Put<bool> boolean = integer.contramap((b) => b ? 1 : 0);

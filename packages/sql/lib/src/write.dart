@@ -1,3 +1,4 @@
+import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 import 'package:ribs_sql/ribs_sql.dart';
@@ -45,8 +46,8 @@ abstract mixin class Write<A> {
   /// Encodes a [BigInt] parameter.
   static final Write<BigInt> bigInt = Write.fromPut(Put.bigInt);
 
-  /// Encodes a binary blob from an immutable byte list.
-  static final Write<IList<int>> blob = Write.fromPut(Put.blob);
+  /// Encodes a binary blob.
+  static final Write<ByteVector> blob = Write.fromPut(Put.blob);
 
   /// Encodes a boolean parameter.
   static final Write<bool> boolean = Write.fromPut(Put.boolean);
