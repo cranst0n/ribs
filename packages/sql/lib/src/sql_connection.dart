@@ -8,19 +8,25 @@ import 'package:ribs_sql/ribs_sql.dart';
 /// Implementations provide the low-level operations for executing SQL
 /// against a specific database backend (SQLite, PostgreSQL, etc.).
 abstract class SqlConnection {
+  /// Begins a new database transaction.
   IO<Unit> beginTransaction() => execute('BEGIN TRANSACTION');
 
+  /// Commits the current transaction.
   IO<Unit> commit() => execute('COMMIT');
 
   /// Executes a SELECT query and returns all rows as lists of column values.
   IO<IList<Row>> executeQuery(String sql, StatementParameters params);
 
+  /// Executes a SQL statement that produces no result rows (e.g. DDL or
+  /// pragmas). This is a convenience over [executeQuery] that discards the
+  /// result.
   IO<Unit> execute(String sql) => executeQuery(sql, StatementParameters.empty()).voided();
 
   /// Executes an INSERT, UPDATE, or DELETE statement and returns the number
   /// of rows affected.
   IO<int> executeUpdate(String sql, StatementParameters params);
 
+  /// Rolls back the current transaction.
   IO<Unit> rollback() => execute('ROLLBACK');
 
   /// Streams rows from a SELECT query, emitting each [Row].

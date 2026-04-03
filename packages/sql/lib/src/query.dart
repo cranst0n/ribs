@@ -18,9 +18,13 @@ import 'package:ribs_sql/ribs_sql.dart';
 /// final people = await query.ilist().transact(xa).unsafeRunFuture();
 /// ```
 final class Query<A> {
+  /// The SQL fragment (with embedded parameters) for this query.
   final Fragment fragment;
+
+  /// The [Read] codec used to decode each result row into a value of type [A].
   final Read<A> read;
 
+  /// Creates a [Query] from a [fragment] and a [read] codec.
   const Query(this.fragment, this.read);
 
   /// Returns all result rows as an [IList].
@@ -112,6 +116,7 @@ extension QueryStringOps on String {
 
 /// Extension to construct a [Query] from a [Fragment].
 extension QueryFragmentOps on Fragment {
+  /// Creates a [Query] that decodes result rows using [read].
   Query<A> query<A>(Read<A> read) => Query(this, read);
 }
 
@@ -125,11 +130,17 @@ extension QueryFragmentOps on Fragment {
 /// final alice = await byName.unique('Alice').transact(xa).unsafeRunFuture();
 /// ```
 final class ParameterizedQuery<P, A> {
+  /// The raw SQL string with `?` placeholders for parameters.
   final String sql;
 
+  /// The [Read] codec used to decode each result row into a value of type [A].
   final Read<A> read;
+
+  /// The [Write] codec used to encode input parameters of type [P].
   final Write<P> write;
 
+  /// Creates a [ParameterizedQuery] from a SQL string, a [Read] codec for
+  /// result rows, and a [Write] codec for input parameters.
   const ParameterizedQuery(this.sql, this.read, this.write);
 
   /// Apply [params] to this query, resulting in a [Query] that can be transacted.

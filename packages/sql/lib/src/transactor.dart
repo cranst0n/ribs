@@ -10,12 +10,19 @@ import 'package:ribs_sql/ribs_sql.dart';
 /// resource cleanup, so users only need to describe what to do with the
 /// connection via [ConnectionIO].
 abstract class Transactor {
+  /// The transaction [Strategy] controlling begin/commit/rollback behavior.
   final Strategy strategy;
 
+  /// Creates a [Transactor] with an optional [strategy].
+  ///
+  /// When [strategy] is `null`, [Strategy.defaultStrategy] is used, which
+  /// wraps each program in a `BEGIN` / `COMMIT` / `ROLLBACK` transaction.
   Transactor(
     Strategy? strategy,
   ) : strategy = strategy ?? Strategy.defaultStrategy();
 
+  /// Acquires a new [SqlConnection], returned as a [Resource] that
+  /// automatically closes the connection on release.
   Resource<SqlConnection> connect();
 
   /// Some databases (like SQLite) offer a read-only connection which can open
@@ -45,12 +52,25 @@ abstract class Transactor {
   }
 }
 
+/// Defines the lifecycle hooks for transaction management.
+///
+/// A [Strategy] specifies what to run [before] the program (e.g. `BEGIN`),
+/// [after] on success (e.g. `COMMIT`), on error via [oops] (e.g. `ROLLBACK`),
+/// and [always] regardless of outcome (e.g. cleanup).
 final class Strategy {
+  /// Runs before the program (e.g. `BEGIN TRANSACTION`).
   final ConnectionIO<Unit> before;
+
+  /// Runs after a successful program (e.g. `COMMIT`).
   final ConnectionIO<Unit> after;
+
+  /// Runs when the program fails or is cancelled (e.g. `ROLLBACK`).
   final ConnectionIO<Unit> oops;
+
+  /// Runs unconditionally after [after] or [oops] (e.g. cleanup).
   final ConnectionIO<Unit> always;
 
+  /// Creates a [Strategy] with explicit lifecycle hooks.
   const Strategy({
     required this.before,
     required this.after,
@@ -58,6 +78,8 @@ final class Strategy {
     required this.always,
   });
 
+  /// The standard strategy: `BEGIN TRANSACTION` before, `COMMIT` after,
+  /// `ROLLBACK` on error, and no-op for always.
   factory Strategy.defaultStrategy() => Strategy(
     before: ConnectionIO.fromConnection((conn) => conn.beginTransaction()),
     after: ConnectionIO.fromConnection((conn) => conn.commit()),

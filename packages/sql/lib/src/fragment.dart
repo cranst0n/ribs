@@ -16,7 +16,10 @@ import 'package:ribs_sql/ribs_sql.dart';
 ///     Fragment.param('NYC', Put.string);
 /// ```
 final class Fragment {
+  /// The raw SQL string, with `?` placeholders for any bound parameters.
   final String sql;
+
+  /// The encoded parameter values corresponding to each `?` in [sql].
   final StatementParameters params;
 
   const Fragment._(this.sql, this.params);
