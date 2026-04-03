@@ -15,8 +15,7 @@ final class GenSyntaxGenerator {
     return buf.toString();
   }
 
-  static List<String> _typeParams(int size) =>
-      List.generate(size, (i) => _letters[i]);
+  static List<String> _typeParams(int size) => List.generate(size, (i) => _letters[i]);
 
   static String _extension(int size) {
     final params = _typeParams(size);
@@ -40,8 +39,7 @@ final class GenSyntaxGenerator {
       return base;
     }
 
-    final shrinkerArgs =
-        List.generate(size, (i) => '\$${i + 1}.shrinker').join(', ');
+    final shrinkerArgs = List.generate(size, (i) => '\$${i + 1}.shrinker').join(', ');
     return '$base.withShrinker(Shrinker.tuple$size($shrinkerArgs))';
   }
 }

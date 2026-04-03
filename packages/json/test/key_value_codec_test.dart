@@ -247,37 +247,160 @@ void main() {
     KeyValueCodec<int> kv(String k) => KeyValueCodec('', Codec.integer).withKey(k);
 
     test('tuple17', () {
-      final codec = KeyValueCodec.tuple17(kv('a'), kv('b'), kv('c'), kv('d'), kv('e'), kv('f'), kv('g'), kv('h'), kv('i'), kv('j'), kv('k'), kv('l'), kv('m'), kv('n'), kv('o'), kv('p'), kv('q'));
+      final codec = KeyValueCodec.tuple17(
+        kv('a'),
+        kv('b'),
+        kv('c'),
+        kv('d'),
+        kv('e'),
+        kv('f'),
+        kv('g'),
+        kv('h'),
+        kv('i'),
+        kv('j'),
+        kv('k'),
+        kv('l'),
+        kv('m'),
+        kv('n'),
+        kv('o'),
+        kv('p'),
+        kv('q'),
+      );
       const t = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17);
       expect(codec.decode(codec.encode(t)), t.asRight<DecodingFailure>());
     });
 
     test('tuple18', () {
-      final codec = KeyValueCodec.tuple18(kv('a'), kv('b'), kv('c'), kv('d'), kv('e'), kv('f'), kv('g'), kv('h'), kv('i'), kv('j'), kv('k'), kv('l'), kv('m'), kv('n'), kv('o'), kv('p'), kv('q'), kv('r'));
+      final codec = KeyValueCodec.tuple18(
+        kv('a'),
+        kv('b'),
+        kv('c'),
+        kv('d'),
+        kv('e'),
+        kv('f'),
+        kv('g'),
+        kv('h'),
+        kv('i'),
+        kv('j'),
+        kv('k'),
+        kv('l'),
+        kv('m'),
+        kv('n'),
+        kv('o'),
+        kv('p'),
+        kv('q'),
+        kv('r'),
+      );
       const t = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18);
       expect(codec.decode(codec.encode(t)), t.asRight<DecodingFailure>());
     });
 
     test('tuple19', () {
-      final codec = KeyValueCodec.tuple19(kv('a'), kv('b'), kv('c'), kv('d'), kv('e'), kv('f'), kv('g'), kv('h'), kv('i'), kv('j'), kv('k'), kv('l'), kv('m'), kv('n'), kv('o'), kv('p'), kv('q'), kv('r'), kv('s'));
+      final codec = KeyValueCodec.tuple19(
+        kv('a'),
+        kv('b'),
+        kv('c'),
+        kv('d'),
+        kv('e'),
+        kv('f'),
+        kv('g'),
+        kv('h'),
+        kv('i'),
+        kv('j'),
+        kv('k'),
+        kv('l'),
+        kv('m'),
+        kv('n'),
+        kv('o'),
+        kv('p'),
+        kv('q'),
+        kv('r'),
+        kv('s'),
+      );
       const t = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19);
       expect(codec.decode(codec.encode(t)), t.asRight<DecodingFailure>());
     });
 
     test('tuple20', () {
-      final codec = KeyValueCodec.tuple20(kv('a'), kv('b'), kv('c'), kv('d'), kv('e'), kv('f'), kv('g'), kv('h'), kv('i'), kv('j'), kv('k'), kv('l'), kv('m'), kv('n'), kv('o'), kv('p'), kv('q'), kv('r'), kv('s'), kv('t'));
+      final codec = KeyValueCodec.tuple20(
+        kv('a'),
+        kv('b'),
+        kv('c'),
+        kv('d'),
+        kv('e'),
+        kv('f'),
+        kv('g'),
+        kv('h'),
+        kv('i'),
+        kv('j'),
+        kv('k'),
+        kv('l'),
+        kv('m'),
+        kv('n'),
+        kv('o'),
+        kv('p'),
+        kv('q'),
+        kv('r'),
+        kv('s'),
+        kv('t'),
+      );
       const t = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20);
       expect(codec.decode(codec.encode(t)), t.asRight<DecodingFailure>());
     });
 
     test('tuple21', () {
-      final codec = KeyValueCodec.tuple21(kv('a'), kv('b'), kv('c'), kv('d'), kv('e'), kv('f'), kv('g'), kv('h'), kv('i'), kv('j'), kv('k'), kv('l'), kv('m'), kv('n'), kv('o'), kv('p'), kv('q'), kv('r'), kv('s'), kv('t'), kv('u'));
+      final codec = KeyValueCodec.tuple21(
+        kv('a'),
+        kv('b'),
+        kv('c'),
+        kv('d'),
+        kv('e'),
+        kv('f'),
+        kv('g'),
+        kv('h'),
+        kv('i'),
+        kv('j'),
+        kv('k'),
+        kv('l'),
+        kv('m'),
+        kv('n'),
+        kv('o'),
+        kv('p'),
+        kv('q'),
+        kv('r'),
+        kv('s'),
+        kv('t'),
+        kv('u'),
+      );
       const t = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21);
       expect(codec.decode(codec.encode(t)), t.asRight<DecodingFailure>());
     });
 
     test('tuple22', () {
-      final codec = KeyValueCodec.tuple22(kv('a'), kv('b'), kv('c'), kv('d'), kv('e'), kv('f'), kv('g'), kv('h'), kv('i'), kv('j'), kv('k'), kv('l'), kv('m'), kv('n'), kv('o'), kv('p'), kv('q'), kv('r'), kv('s'), kv('t'), kv('u'), kv('v'));
+      final codec = KeyValueCodec.tuple22(
+        kv('a'),
+        kv('b'),
+        kv('c'),
+        kv('d'),
+        kv('e'),
+        kv('f'),
+        kv('g'),
+        kv('h'),
+        kv('i'),
+        kv('j'),
+        kv('k'),
+        kv('l'),
+        kv('m'),
+        kv('n'),
+        kv('o'),
+        kv('p'),
+        kv('q'),
+        kv('r'),
+        kv('s'),
+        kv('t'),
+        kv('u'),
+        kv('v'),
+      );
       const t = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22);
       expect(codec.decode(codec.encode(t)), t.asRight<DecodingFailure>());
     });
@@ -317,7 +440,10 @@ void main() {
 
       test('optional', () {
         final codec = kv('x').optional();
-        expect(codec.decode(codec.encode(const Some(42))), const Some(42).asRight<DecodingFailure>());
+        expect(
+          codec.decode(codec.encode(const Some(42))),
+          const Some(42).asRight<DecodingFailure>(),
+        );
         expect(codec.decode(codec.encode(none<int>())), none<int>().asRight<DecodingFailure>());
       });
     });

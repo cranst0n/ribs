@@ -22,8 +22,7 @@ final class PropSyntaxGenerator {
     return buf.toString();
   }
 
-  static List<String> _typeParams(int size) =>
-      List.generate(size, (i) => _letters[i]);
+  static List<String> _typeParams(int size) => List.generate(size, (i) => _letters[i]);
 
   static String _forAllFunction() => '''
 @isTest
@@ -83,10 +82,8 @@ extension PropOps<A> on Gen<A> {
     final params = _typeParams(size);
     final onType = '(${params.map((p) => 'Gen<$p>').join(', ')})';
     final tupleType = '(${params.join(', ')})';
-    final functionType =
-        'Function$size<${[...params, 'FutureOr<void>'].join(', ')}>';
-    final dollarArgs =
-        List.generate(size, (i) => '\$${i + 1}').join(', ');
+    final functionType = 'Function$size<${[...params, 'FutureOr<void>'].join(', ')}>';
+    final dollarArgs = List.generate(size, (i) => '\$${i + 1}').join(', ');
 
     return 'extension PropTuple${size}Ops<${params.join(', ')}> on $onType {\n'
         '  @isTest\n'

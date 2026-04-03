@@ -258,8 +258,12 @@ void main() {
 
       test('encodeWithAlphabet(hexUpper) produces uppercase', () {
         expect(
-          Rill.emits([0xde, 0xad, 0xbe, 0xef])
-              .through(Pipes.text.hex.encodeWithAlphabet(Alphabets.hexUpper)),
+          Rill.emits([
+            0xde,
+            0xad,
+            0xbe,
+            0xef,
+          ]).through(Pipes.text.hex.encodeWithAlphabet(Alphabets.hexUpper)),
           producesOnly('DEADBEEF'),
         );
       });
