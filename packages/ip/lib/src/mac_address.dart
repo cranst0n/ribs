@@ -15,16 +15,24 @@ import 'dart:typed_data';
 
 import 'package:ribs_core/ribs_core.dart';
 
+/// A 48-bit IEEE 802 MAC address.
+///
+/// Stored internally as 6 bytes. The canonical string form is six
+/// two-digit lowercase hex octets separated by colons (e.g. `"01:23:45:67:89:ab"`).
 final class MacAddress extends Ordered<MacAddress> {
   final Uint8List _bytes;
 
   const MacAddress._(this._bytes);
 
+  /// Returns a [MacAddress] from an iterable of exactly 6 bytes,
+  /// or [None] if the iterable has a different length.
   static Option<MacAddress> fromByteList(Iterable<int> bytes) => Option.when(
     () => bytes.length == 6,
     () => MacAddress._(Uint8List.fromList(bytes.toList())),
   );
 
+  /// Creates a [MacAddress] from six individual byte values.
+  /// Each byte is masked to 8 bits.
   static MacAddress fromBytes(
     int b0,
     int b1,
@@ -38,6 +46,7 @@ final class MacAddress extends Ordered<MacAddress> {
     ),
   );
 
+  /// Creates a [MacAddress] from a 48-bit integer value.
   static MacAddress fromInt(int value) {
     final bytes = Uint8List(6);
 
@@ -51,6 +60,8 @@ final class MacAddress extends Ordered<MacAddress> {
     return MacAddress._(bytes);
   }
 
+  /// Parses a colon-separated hex string (e.g. `"01:23:45:67:89:ab"`) into a
+  /// [MacAddress], returning [None] if the format is invalid.
   static Option<MacAddress> fromString(String value) {
     final trimmed = value.trim();
     final fields = trimmed.split(':');
@@ -79,6 +90,7 @@ final class MacAddress extends Ordered<MacAddress> {
     }
   }
 
+  /// Returns the address as a 48-bit integer.
   int toInt() {
     var result = 0;
 
@@ -111,6 +123,8 @@ final class MacAddress extends Ordered<MacAddress> {
   @override
   int get hashCode => Object.hashAll(_bytes);
 
+  /// Returns the address in colon-separated lowercase hex notation,
+  /// e.g. `"01:23:45:67:89:ab"`.
   @override
   String toString() =>
       _bytes.toIList().map((b) => b.toRadixString(16).padLeft(2, '0')).mkString(sep: ':');

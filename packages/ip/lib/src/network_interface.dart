@@ -14,8 +14,13 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_ip/ribs_ip.dart';
 
+/// A network interface — a named hardware or virtual adapter with one or more
+/// IP addresses expressed as CIDR blocks.
 abstract class NetworkInterface {
+  /// The operating-system name of this interface (e.g. `"eth0"`, `"lo"`).
   String get name;
 
+  /// The IP addresses assigned to this interface, each paired with its subnet
+  /// prefix length as a [Cidr].
   IList<Cidr<IpAddress>> get addresses;
 }

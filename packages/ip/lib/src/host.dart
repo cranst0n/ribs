@@ -18,9 +18,19 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_ip/ribs_ip.dart';
 
+/// The sealed base type for anything that can act as a network host.
+///
+/// Subtypes are [IpAddress] (which covers [Ipv4Address] and [Ipv6Address]),
+/// [Hostname] (ASCII domain name), and [IDN] (internationalized domain name).
+///
+/// Ordering places IP addresses before hostnames. IPv4 addresses sort before
+/// IPv6 (by comparing them as IPv4-compatible IPv6 addresses). Hostnames and
+/// IDNs compare lexicographically.
 sealed class Host extends Ordered<Host> {
   const Host();
 
+  /// Parses [value] as any supported host type — an IP address, ASCII
+  /// hostname, or IDN — returning [None] if none match.
   static Option<Host> fromString(String value) {
     return IpAddress.fromString(value)
         .map((a) => a.asHost)
@@ -28,6 +38,10 @@ sealed class Host extends Ordered<Host> {
         .orElse(() => IDN.fromString(value).map((a) => a.asHost));
   }
 
+  /// Resolves this host to a list of [IpAddress] values.
+  ///
+  /// If this is already an [IpAddress], returns it immediately. For
+  /// [Hostname] and [IDN] values, performs a DNS lookup via [Dns.resolve].
   IO<IList<IpAddress>> resolve() => switch (this) {
     final IpAddress ip => IO.pure(ilist([ip])),
     final Hostname hostname => Dns.resolve(hostname),
@@ -62,17 +76,28 @@ sealed class Host extends Ordered<Host> {
     };
   }
 
+  /// Returns `this` as a [Host] (identity).
   Host get asHost => this;
 
+  /// An [Order] instance for [Host] values based on [compareTo].
   static final order = Order.fromComparable<Host>();
 }
 
+/// An ASCII hostname, validated per RFC 1123.
+///
+/// Rules: 1–253 characters total; each dot-separated label is 1–63 characters;
+/// labels may contain letters, digits, and hyphens but must not start or end
+/// with a hyphen.
 final class Hostname extends Host {
+  /// The dot-separated label components of this hostname.
   final IList<HostnameLabel> labels;
+
+  /// The original string representation of this hostname.
   final String repr;
 
   const Hostname(this.labels, this.repr);
 
+  /// Parses [value] as an ASCII hostname, returning [None] if validation fails.
   static Option<Hostname> fromString(String value) {
     if (value.isEmpty || value.length > 253) {
       return none();
@@ -94,6 +119,7 @@ final class Hostname extends Host {
     }
   }
 
+  /// Returns a copy of this hostname with all labels lowercased.
   Hostname normalized() => Hostname(
     labels.map((l) => HostnameLabel(l.toString().toLowerCase())),
     toString().toLowerCase(),
@@ -116,6 +142,7 @@ final class Hostname extends Host {
   );
 }
 
+/// A single dot-separated label within a [Hostname].
 final class HostnameLabel extends Ordered<HostnameLabel> {
   final String _toStringF;
 
@@ -137,41 +164,68 @@ final class HostnameLabel extends Ordered<HostnameLabel> {
   int get hashCode => Object.hash(toString(), 'Label'.hashCode);
 }
 
+/// The IP protocol version.
 enum IpVersion { v4, v6 }
 
+/// The sealed base type for IP addresses.
+///
+/// Subtypes are [Ipv4Address] (32-bit) and [Ipv6Address] (128-bit).
+/// Internally stored as a [Uint8List] of 4 or 16 bytes respectively.
 sealed class IpAddress extends Host {
   final Uint8List _bytes;
 
   const IpAddress(this._bytes);
 
+  /// Parses [value] as either an IPv4 or IPv6 address string, returning
+  /// [None] if parsing fails.
   static Option<IpAddress> fromString(String value) => Ipv4Address.fromString(
     value,
   ).map((a) => a.asIpAddress).orElse(() => Ipv6Address.fromString(value));
 
+  /// Returns an [IpAddress] from an iterable of exactly 4 (IPv4) or 16
+  /// (IPv6) bytes, or [None] otherwise.
   static Option<IpAddress> fromBytes(Iterable<int> bytes) => Ipv4Address.fromByteList(
     bytes,
   ).map((a) => a.asIpAddress).orElse(() => Ipv6Address.fromByteList(bytes));
 
+  /// Returns the loopback addresses for the current host via DNS.
   static IO<IList<IpAddress>> loopback() => Dns.loopback();
 
+  /// Performs a reverse DNS lookup, returning the [Hostname] associated with
+  /// this address. Fails the [IO] if no PTR record is found.
   IO<Hostname> reverse() => Dns.reverse(this);
 
+  /// Performs a reverse DNS lookup, returning [Some] hostname if a PTR record
+  /// exists or [None] otherwise.
   IO<Option<Hostname>> reverseOption() => Dns.reverseOption(this);
 
+  /// Dispatches to [v4] or [v6] depending on the address family.
   A fold<A>(Function1<Ipv4Address, A> v4, Function1<Ipv6Address, A> v6);
 
+  /// Returns `true` if this address is in the multicast range.
   bool get isMulticast;
 
+  /// Returns a [Multicast] wrapper if this address is a multicast address,
+  /// otherwise [None].
   Option<Multicast<IpAddress>> asMulticast() => Multicast.fromIpAddress(this);
 
+  /// Returns `true` if this address is in the source-specific multicast (SSM)
+  /// range.
   bool get isSourceSpecificMulticast;
 
+  /// Returns a strict [SourceSpecificMulticastStrict] wrapper if this address
+  /// is in the SSM range, otherwise [None].
   Option<SourceSpecificMulticastStrict<IpAddress>> asSourceSpecificMulticast() =>
       SourceSpecificMulticast.fromIpAddress(this);
 
+  /// Returns a lenient [SourceSpecificMulticast] wrapper if this address is
+  /// any multicast address, otherwise [None].
   Option<SourceSpecificMulticast<IpAddress>> asSourceSpecificMulticastLenient() =>
       SourceSpecificMulticast.fromIpAddressLenient(this);
 
+  /// If this is an IPv6 address that is a mapped IPv4 address
+  /// (i.e. `::ffff:a.b.c.d`), returns the corresponding [Ipv4Address].
+  /// Otherwise returns this address unchanged.
   IpAddress collapseMappedV4() => fold(identity, (v6) {
     if (v6.isMappedV4) {
       return IpAddress.fromBytes(
@@ -182,22 +236,34 @@ sealed class IpAddress extends Host {
     }
   });
 
+  /// Returns `true` if this is an IPv6 address in the `::ffff:0:0/96`
+  /// (IPv4-mapped) block.
   bool get isMappedV4 => fold((_) => false, Ipv6Address.MappedV4Block.contains);
 
+  /// The IP version of this address.
   IpVersion get version => fold((_) => IpVersion.v4, (_) => IpVersion.v6);
 
+  /// The number of bits in this address (32 for IPv4, 128 for IPv6).
   int get bitSize => fold((_) => 32, (_) => 128);
 
+  /// Returns a copy of the underlying bytes as a new [Uint8List].
   Uint8List toBytes() => Uint8List.fromList(_bytes.toList());
 
+  /// Returns `this` as an [IpAddress] (identity).
   IpAddress get asIpAddress => this;
 
+  /// Returns `Some(v4)` if this address is (or collapses to) an [Ipv4Address],
+  /// otherwise [None].
   Option<Ipv4Address> asIpv4() => collapseMappedV4().fold((v4) => Some(v4), (_) => none());
 
+  /// Returns `Some(v6)` if this is an [Ipv6Address], otherwise [None].
   Option<Ipv6Address> asIpv6() => fold((_) => none(), (v6) => Some(v6));
 
+  /// Creates a [Cidr] block from this address and [prefixBits].
   Cidr<IpAddress> operator /(int prefixBits) => Cidr.of(this, prefixBits);
 
+  /// Counts the number of leading one-bits in the address, treating the bytes
+  /// as a network mask. Used to derive the prefix length from a mask address.
   int prefixBits() {
     int zerosIn(int value, int bits) {
       int res = 0;
@@ -238,6 +304,8 @@ sealed class IpAddress extends Host {
   @override
   int get hashCode => Object.hashAll(_bytes);
 
+  /// Compares two [IpAddress] values byte-by-byte, returning a negative,
+  /// zero, or positive value.
   static int compareBytes(IpAddress x, IpAddress y) {
     int i = 0;
     int result = 0;
@@ -253,19 +321,21 @@ sealed class IpAddress extends Host {
   }
 }
 
+/// A 32-bit IPv4 address stored as 4 bytes in network (big-endian) order.
 ///
-///
-///
-///
-///
+/// Textual form is dotted-decimal notation: `"192.168.1.1"`.
 final class Ipv4Address extends IpAddress {
   const Ipv4Address._(super._bytes);
 
+  /// The wildcard IPv4 address `0.0.0.0`.
   static final Wildcard = Ipv4Address._(Uint8List.fromList([0, 0, 0, 0]));
 
+  /// Returns the IPv4 loopback addresses for the current host.
   static IO<IList<IpAddress>> loopback() =>
       IpAddress.loopback().map((ifaces) => ifaces.filter((iface) => iface.version == IpVersion.v4));
 
+  /// Parses a dotted-decimal IPv4 string (e.g. `"192.168.1.1"`),
+  /// returning [None] if parsing fails.
   static Option<Ipv4Address> fromString(String value) {
     final trimmed = value.trim();
     final fields = trimmed.split('.');
@@ -291,15 +361,20 @@ final class Ipv4Address extends IpAddress {
     }
   }
 
+  /// Returns an [Ipv4Address] from an iterable of exactly 4 bytes,
+  /// or [None] otherwise.
   static Option<Ipv4Address> fromByteList(Iterable<int> bytes) =>
       Option.when(() => bytes.length == 4, () => _unsafeFromBytes(bytes));
 
+  /// Creates an [Ipv4Address] from four individual byte values.
+  /// Each byte is masked to 8 bits.
   static Ipv4Address fromBytes(int a, int b, int c, int d) =>
       _unsafeFromBytes(Uint8List.fromList([a & 0xff, b & 0xff, c & 0xff, d & 0xff]));
 
   static Ipv4Address _unsafeFromBytes(Iterable<int> bytes) =>
       Ipv4Address._(Uint8List.fromList(bytes.toList()));
 
+  /// Creates an [Ipv4Address] from a 32-bit integer in network byte order.
   static Ipv4Address fromInt(int value) {
     final bytes = Uint8List(4);
 
@@ -313,6 +388,8 @@ final class Ipv4Address extends IpAddress {
     return _unsafeFromBytes(bytes);
   }
 
+  /// Returns the subnet mask address for the given [bits] prefix length
+  /// (0–32, clamped).
   static Ipv4Address mask(int bits) {
     final b = bits.clamp(0, 32);
     if (b == 0) return Ipv4Address.fromInt(0);
@@ -326,8 +403,10 @@ final class Ipv4Address extends IpAddress {
     Function1<Ipv6Address, A> v6,
   ) => v4(this);
 
+  /// Returns the address that follows this one (wraps around on overflow).
   Ipv4Address next() => Ipv4Address.fromInt(toInt() + 1);
 
+  /// Returns the address that precedes this one (wraps around on underflow).
   Ipv4Address previous() => Ipv4Address.fromInt(toInt() - 1);
 
   @override
@@ -348,6 +427,7 @@ final class Ipv4Address extends IpAddress {
   Option<SourceSpecificMulticast<Ipv4Address>> asSourceSpecificMulticastLenient() =>
       SourceSpecificMulticast.fromIpAddressLenient(this);
 
+  /// Returns the IPv4-compatible IPv6 representation (`::a.b.c.d`).
   Ipv6Address toCompatV6() {
     final compat = Uint8List(16);
 
@@ -361,6 +441,7 @@ final class Ipv4Address extends IpAddress {
     ).getOrElse(() => throw Exception('Error converting $this to compatible IPv6'));
   }
 
+  /// Returns the IPv4-mapped IPv6 representation (`::ffff:a.b.c.d`).
   Ipv6Address toMappedV6() {
     final mapped = Uint8List(16);
 
@@ -376,44 +457,52 @@ final class Ipv4Address extends IpAddress {
     ).getOrElse(() => throw Exception('Error converting $this to mapped IPv6'));
   }
 
+  /// Returns this address ANDed with [mask] (bitwise AND).
   Ipv4Address masked(Ipv4Address mask) => Ipv4Address.fromInt(toInt() & mask.toInt());
 
+  /// Returns the last address in the subnet defined by [mask]
+  /// (bitwise OR of network prefix with the inverted mask).
   Ipv4Address maskedLast(Ipv4Address mask) =>
       Ipv4Address.fromInt(toInt() & mask.toInt() | ~mask.toInt());
 
   @override
   Cidr<Ipv4Address> operator /(int prefixBits) => Cidr.of(this, prefixBits);
 
+  /// Returns the dotted-decimal string, e.g. `"192.168.1.1"`.
   @override
   String toString() =>
       '${_bytes[0] & 0xff}.${_bytes[1] & 0xff}.${_bytes[2] & 0xff}.${_bytes[3] & 0xff}';
 
+  /// Returns the address as a 32-bit unsigned integer in network byte order.
   int toInt() => _bytes.fold(0, (acc, b) => (acc << 8) | (0x0ff & b));
 
-  /// First IP address in the IPv4 multicast range.
+  /// First IP address in the IPv4 multicast range (224.0.0.0).
   static final multicastRangeStart = fromBytes(224, 0, 0, 0);
 
-  /// Last IP address in the IPv4 multicast range.
+  /// Last IP address in the IPv4 multicast range (239.255.255.255).
   static final multicastRangeEnd = fromBytes(239, 255, 255, 255);
 
-  /// First IP address in the IPv4 source specific multicast range.
+  /// First IP address in the IPv4 source specific multicast range (232.0.0.0).
   static final sourceSpecificMulticastRangeStart = fromBytes(232, 0, 0, 0);
 
-  /// Last IP address in the IPv4 source specific multicast range.
+  /// Last IP address in the IPv4 source specific multicast range (232.255.255.255).
   static final sourceSpecificMulticastRangeEnd = fromBytes(232, 255, 255, 255);
 }
 
+/// A 128-bit IPv6 address stored as 16 bytes in network (big-endian) order.
 ///
-///
-///
-///
-///
+/// Textual form follows RFC 5952 compressed notation (e.g. `"::1"`,
+/// `"2001:db8::1"`). Mixed IPv4/IPv6 strings (e.g. `"::ffff:192.0.2.1"`)
+/// are also accepted by [fromString].
 final class Ipv6Address extends IpAddress {
   const Ipv6Address._(super._bytes);
 
+  /// Returns the IPv6 loopback addresses for the current host.
   static IO<IList<IpAddress>> loopback() =>
       IpAddress.loopback().map((ifaces) => ifaces.filter((iface) => iface.version == IpVersion.v6));
 
+  /// Parses an IPv6 address string in standard or mixed notation,
+  /// returning [None] if parsing fails.
   static Option<Ipv6Address> fromString(String value) =>
       _fromNonMixedString(value).orElse(() => _fromMixedString(value));
 
@@ -524,6 +613,8 @@ final class Ipv6Address extends IpAddress {
 
   static final _mixedStringRegex = RegExp(r'([:a-fA-F0-9]+:)(\d+\.\d+\.\d+\.\d+)');
 
+  /// Creates an [Ipv6Address] from 16 individual byte values.
+  /// Each byte is masked to 8 bits.
   static Ipv6Address fromBytes(
     int b0,
     int b1,
@@ -564,12 +655,16 @@ final class Ipv6Address extends IpAddress {
     ),
   );
 
+  /// Returns an [Ipv6Address] from an iterable of exactly 16 bytes,
+  /// or [None] otherwise.
   static Option<Ipv6Address> fromByteList(Iterable<int> bytes) =>
       Option.when(() => bytes.length == 16, () => _unsafeFromBytes(bytes));
 
   static Ipv6Address _unsafeFromBytes(Iterable<int> bytes) =>
       Ipv6Address._(Uint8List.fromList(bytes.toList()));
 
+  /// Creates an [Ipv6Address] from a 128-bit [BigInt] value in network byte
+  /// order.
   static Ipv6Address fromBigInt(BigInt value) {
     final bytes = Uint8List(16);
 
@@ -582,6 +677,8 @@ final class Ipv6Address extends IpAddress {
     return _unsafeFromBytes(bytes);
   }
 
+  /// Returns the subnet mask address for the given [bits] prefix length
+  /// (0–128, clamped).
   static Ipv6Address mask(int bits) {
     final b = bits.clamp(0, 128);
 
@@ -599,8 +696,10 @@ final class Ipv6Address extends IpAddress {
     Function1<Ipv6Address, A> v6,
   ) => v6(this);
 
+  /// Returns the address that follows this one (wraps around on overflow).
   Ipv6Address next() => Ipv6Address.fromBigInt(toBigInt() + BigInt.one);
 
+  /// Returns the address that precedes this one (wraps around on underflow).
   Ipv6Address previous() => Ipv6Address.fromBigInt(toBigInt() - BigInt.one);
 
   @override
@@ -621,14 +720,18 @@ final class Ipv6Address extends IpAddress {
   Option<SourceSpecificMulticast<Ipv6Address>> asSourceSpecificMulticastLenient() =>
       SourceSpecificMulticast.fromIpAddressLenient(this);
 
+  /// Returns this address ANDed with [mask] (bitwise AND).
   Ipv6Address masked(Ipv6Address mask) => Ipv6Address.fromBigInt(toBigInt() & mask.toBigInt());
 
+  /// Returns the last address in the subnet defined by [mask]
+  /// (bitwise OR of network prefix with the inverted mask).
   Ipv6Address maskedLast(Ipv6Address mask) =>
       Ipv6Address.fromBigInt(toBigInt() & mask.toBigInt() | ~mask.toBigInt());
 
   @override
   Cidr<Ipv6Address> operator /(int prefixBits) => Cidr.of(this, prefixBits);
 
+  /// Returns the address as a 128-bit [BigInt].
   BigInt toBigInt() {
     var result = BigInt.zero;
     Iterable<int>.generate(_bytes.length).forEach((i) {
@@ -638,6 +741,8 @@ final class Ipv6Address extends IpAddress {
     return result;
   }
 
+  /// Returns the full uncondensed 32-hex-digit form, e.g.
+  /// `"0000:0000:0000:0000:0000:0000:0000:0001"` for loopback.
   String toUncondensedString() {
     final str = StringBuffer();
     final bytes = toBytes();
@@ -657,6 +762,8 @@ final class Ipv6Address extends IpAddress {
     return str.toString();
   }
 
+  /// Returns the mixed IPv4/IPv6 string form where the last 4 bytes are
+  /// expressed as a dotted-decimal IPv4 address (e.g. `"::ffff:192.0.2.1"`).
   String toMixedString() {
     final bytes = toBytes();
     final v4 = Ipv4Address.fromByteList(
@@ -671,6 +778,9 @@ final class Ipv6Address extends IpAddress {
     return prefix + v4.toString();
   }
 
+  /// Returns the RFC 5952 compressed string, e.g. `"2001:db8::1"`.
+  /// The longest run of consecutive all-zero groups is condensed to `"::"`;
+  /// ties are resolved by the leftmost run.
   @override
   String toString() {
     final fields = List.filled(8, 0);
@@ -727,10 +837,10 @@ final class Ipv6Address extends IpAddress {
     return str.toString();
   }
 
-  /// First IP address in the IPv6 multicast range.
+  /// First IP address in the IPv6 multicast range (ff00::).
   static final MulticastRangeStart = fromBytes(255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
-  /// Last IP address in the IPv6 multicast range.
+  /// Last IP address in the IPv6 multicast range (ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff).
   static final MulticastRangeEnd = fromBytes(
     255,
     255,
@@ -750,7 +860,7 @@ final class Ipv6Address extends IpAddress {
     255,
   );
 
-  /// First IP address in the IPv6 source specific multicast range.
+  /// First IP address in the IPv6 source specific multicast range (ff30::).
   static final SourceSpecificMulticastRangeStart = fromBytes(
     255,
     48,
@@ -770,7 +880,7 @@ final class Ipv6Address extends IpAddress {
     0,
   );
 
-  /// Last IP address in the IPv6 source specific multicast range.
+  /// Last IP address in the IPv6 source specific multicast range (ff3f:ffff:ffff:ffff:ffff:ffff:ffff:ffff).
   static final SourceSpecificMulticastRangeEnd = fromBytes(
     255,
     63,
@@ -790,24 +900,37 @@ final class Ipv6Address extends IpAddress {
     255,
   );
 
+  /// The IPv4-mapped address block `::ffff:0:0/96`.
+  /// Used by [IpAddress.isMappedV4] and [IpAddress.collapseMappedV4].
   static Cidr<Ipv6Address> MappedV4Block = Cidr.of(
     Ipv6Address.fromBytes(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 0, 0, 0, 0),
     96,
   );
 }
 
+/// An Internationalized Domain Name (IDN) — a domain name that may contain
+/// non-ASCII Unicode characters, stored alongside its Punycode-encoded
+/// [Hostname] representation.
 final class IDN extends Host {
+  /// The Unicode label components of this domain name.
   final IList<IDNLabel> labels;
+
+  /// The ASCII-compatible (Punycode) hostname corresponding to this IDN.
   final Hostname hostname;
+
   final String _toStringF;
 
   const IDN(this.labels, this.hostname, this._toStringF);
 
+  /// Creates an [IDN] from an existing ASCII [Hostname] by decoding any
+  /// Punycode labels to their Unicode representation.
   static IDN fromHostname(Hostname hostname) {
     final labels = hostname.labels.map((l) => IDNLabel(toUnicode(l.toString())));
     return IDN(labels, hostname, labels.mkString(sep: '.'));
   }
 
+  /// Parses [value] as an IDN (Unicode domain name), returning [None] if
+  /// the value is empty or cannot be encoded as a valid ASCII hostname.
   static Option<IDN> fromString(String value) {
     if (value.isEmpty) {
       return none();
@@ -820,6 +943,7 @@ final class IDN extends Host {
     }
   }
 
+  /// Returns a copy of this IDN with all labels lowercased.
   IDN normalized() {
     final newLabels = labels.map((l) => IDNLabel(l.toString().toLowerCase()));
     return IDN(newLabels, hostname.normalized(), newLabels.mkString(sep: '.'));
@@ -834,23 +958,32 @@ final class IDN extends Host {
   @override
   int get hashCode => Object.hash(toString(), 'IDN'.hashCode);
 
+  /// The Punycode codec used for encoding/decoding IDN labels.
   static const domainCodec = PunycodeCodec();
 
+  /// Decodes the host component of [uri] from Punycode to Unicode.
   static Uri uriDecode(Uri uri) => uri.replace(host: domainCodec.decode(uri.host));
 
+  /// Encodes the host component of [uri] to Punycode.
   static Uri uriEncode(Uri uri) =>
       uri.replace(host: domainCodec.encode(Uri.decodeComponent(uri.host)));
 
+  /// Decodes a Punycode-encoded label string to Unicode.
   static String toUnicode(String s) => domainCodec.decode(s);
+
+  /// Encodes a Unicode domain string to its Punycode representation,
+  /// returning [None] if encoding fails.
   static Option<String> toAscii(String s) =>
       Either.catching(() => domainCodec.encode(s), (err, _) => err).toOption();
 
+  /// Returns the Unicode string representation of this IDN.
   @override
   String toString() => _toStringF;
 
   static final _regex = RegExp(r'[\\.\u002e\u3002\uff0e\uff61]');
 }
 
+/// A single label within an [IDN], potentially containing Unicode characters.
 final class IDNLabel extends Ordered<IDNLabel> {
   final String _toStringF;
 

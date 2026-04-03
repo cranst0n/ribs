@@ -13,19 +13,29 @@
 
 import 'package:ribs_core/ribs_core.dart';
 
+/// A TCP or UDP port number in the range [MinValue, MaxValue] (0–65535).
 final class Port extends Ordered<Port> {
+  /// The minimum valid port number (0).
   static const MinValue = 0;
+
+  /// The maximum valid port number (65535).
   static const MaxValue = 65535;
 
+  /// The wildcard port (0), used to indicate any available port.
   static const Wildcard = Port._(0);
 
+  /// The numeric port value.
   final int value;
 
   const Port._(this.value);
 
+  /// Returns a [Port] for [value] if it is in [MinValue]..[MaxValue],
+  /// otherwise returns [None].
   static Option<Port> fromInt(int value) =>
       Option.when(() => MinValue <= value && value <= MaxValue, () => Port._(value));
 
+  /// Parses [value] as a decimal integer and returns a [Port] if valid,
+  /// otherwise returns [None].
   static Option<Port> fromString(String value) => Option(int.tryParse(value)).flatMap(fromInt);
 
   @override
@@ -40,6 +50,7 @@ final class Port extends Ordered<Port> {
   @override
   int get hashCode => Object.hashAll([value, 'Port'.hashCode]);
 
+  /// Returns the port number as a decimal string.
   @override
   String toString() => value.toString();
 }

@@ -14,11 +14,22 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_ip/ribs_ip.dart';
 
+/// A typed wrapper around a multicast [IpAddress].
+///
+/// Use [fromIpAddress] to construct; returns [None] if the address is not
+/// in the multicast range. Source-specific multicast addresses are
+/// represented by the [SourceSpecificMulticast] subtype.
 sealed class Multicast<A extends IpAddress> {
+  /// The underlying multicast IP address.
   final A address;
 
   const Multicast._(this.address);
 
+  /// Returns a [Multicast] for [address] if it is a multicast address,
+  /// otherwise returns [None].
+  ///
+  /// If the address is source-specific multicast, the returned value will
+  /// be a [SourceSpecificMulticast].
   static Option<Multicast<A>> fromIpAddress<A extends IpAddress>(A address) {
     if (address.isSourceSpecificMulticast) {
       return Some(_DefaultSourceSpecificMulticast._(address));
@@ -28,26 +39,24 @@ sealed class Multicast<A extends IpAddress> {
       return none();
     }
   }
-
-  // @override
-  // String toString() => address.toString();
-
-  // @override
-  // bool operator ==(Object that) => switch (that) {
-  //       final Multicast that => address == that.address,
-  //       _ => false,
-  //     };
-
-  // @override
-  // int get hashCode => address.hashCode;
 }
 
+/// A [Multicast] address that falls within the source-specific multicast (SSM)
+/// range, or any multicast address when constructed leniently.
+///
+/// Use [fromIpAddress] for strict SSM construction (requires the address to be
+/// within the SSM range) or [fromIpAddressLenient] to accept any multicast
+/// address.
 sealed class SourceSpecificMulticast<A extends IpAddress> extends Multicast<A> {
   const SourceSpecificMulticast._(super.address) : super._();
 
+  /// Returns a [SourceSpecificMulticastStrict] if this address is in the
+  /// strict SSM range, otherwise [None].
   Option<SourceSpecificMulticastStrict> strict() =>
       Option.when(() => address.isSourceSpecificMulticast, () => _unsafeCreateStrict(address));
 
+  /// Returns a [SourceSpecificMulticastStrict] for [address] if it is in the
+  /// source-specific multicast range, otherwise [None].
   static Option<SourceSpecificMulticastStrict<A>> fromIpAddress<A extends IpAddress>(
     A address,
   ) => Option.when(
@@ -55,6 +64,8 @@ sealed class SourceSpecificMulticast<A extends IpAddress> extends Multicast<A> {
     () => _DefaultSourceSpecificMulticastStrict._(address),
   );
 
+  /// Returns a [SourceSpecificMulticast] for [address] if it is any multicast
+  /// address (not limited to the strict SSM range), otherwise [None].
   static Option<SourceSpecificMulticast<A>> fromIpAddressLenient<A extends IpAddress>(A address) =>
       Option.when(() => address.isMulticast, () => _unsafeCreate(address));
 
@@ -65,6 +76,8 @@ sealed class SourceSpecificMulticast<A extends IpAddress> extends Multicast<A> {
       _DefaultSourceSpecificMulticastStrict._(address);
 }
 
+/// A [SourceSpecificMulticast] whose address has been verified to be within
+/// the strict source-specific multicast range.
 sealed class SourceSpecificMulticastStrict<A extends IpAddress> extends Multicast<A> {
   const SourceSpecificMulticastStrict._(super.address) : super._();
 }
