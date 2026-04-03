@@ -9,7 +9,7 @@ class Lease {
 }
 
 class Scope {
-  static int count = 0;
+  static int _idCounter = 0;
 
   final int id;
   final Scope? parent;
@@ -24,7 +24,7 @@ class Scope {
     this._closed,
     this._leaseCount,
     this._pendingClose,
-  ) : id = count++;
+  ) : id = _idCounter++;
 
   static IO<Scope> create([Scope? parent]) {
     return (
