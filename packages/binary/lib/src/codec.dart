@@ -75,8 +75,7 @@ abstract class Codec<A> extends Encoder<A> with Decoder<A> {
     Codec<A> by,
     IMap<A, Codec<B>> typecases,
     A Function(B) getDiscriminator,
-  ) =>
-      DiscriminatorCodec.typecases(by, typecases, getDiscriminator);
+  ) => DiscriminatorCodec.typecases(by, typecases, getDiscriminator);
 
   static final Codec<int> int4 = IntCodec(4, true, Endian.big);
   static final Codec<int> int8 = IntCodec(8, true, Endian.big);

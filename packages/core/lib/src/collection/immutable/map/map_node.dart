@@ -1708,7 +1708,10 @@ final class HashCollisionMapNode<K, V> extends MapNode<K, V> {
       final hc = that;
 
       final iter = content.iterator;
-      final rightArray = Array.tabulate<(K, V)>(hc.content.length, (i) => hc.content[i]); // nullable to allow null-marking of consumed entries
+      final rightArray = Array.tabulate<(K, V)>(
+        hc.content.length,
+        (i) => hc.content[i],
+      ); // nullable to allow null-marking of consumed entries
 
       int rightIndexOf(K key) {
         var i = 0;
