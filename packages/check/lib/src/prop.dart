@@ -6,15 +6,38 @@ import 'package:ribs_check/src/stateful_random.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:test/test.dart';
 
+/// A test body that accepts a single generated value and may throw a
+/// [TestFailure] to signal that the property does not hold.
 typedef TestBody<T> = Function1<T, FutureOr<void>>;
 
+/// A property-based test that pairs a [Gen] with a [TestBody].
+///
+/// On failure the framework automatically shrinks the counter-example to a
+/// minimal value before reporting it.  Use [run] to register the property as
+/// a `package:test` test case, or [check] to execute the property directly
+/// and inspect the result.
 final class Prop<T> {
+  /// Human-readable description used as the test name.
   final String description;
+
+  /// Generator used to produce random samples.
   final Gen<T> gen;
+
+  /// The predicate under test.
   final TestBody<T> testBody;
 
+  /// Creates a [Prop] with the given [description], [gen], and [testBody].
   Prop(this.description, this.gen, this.testBody);
 
+  /// Registers this property as a `package:test` test case.
+  ///
+  /// [numTests] controls how many random samples are drawn (default 100).
+  /// [seed] pins the random source so failures are reproducible; when omitted
+  /// the value is read from the `RIBS_CHECK_SEED` environment variable, then
+  /// falls back to the current wall-clock time.
+  ///
+  /// All remaining parameters are forwarded verbatim to `package:test`'s
+  /// `test()`.
   void run({
     int? numTests,
     int? seed,
@@ -51,6 +74,11 @@ final class Prop<T> {
     );
   }
 
+  /// Runs the property check and returns the shrunken failure, if any.
+  ///
+  /// Draws up to [numTests] (default 100) samples from [gen].  Returns
+  /// [None] when every sample passes, or a [Some] wrapping the minimised
+  /// [PropFailure] when a counter-example is found.
   Future<Option<PropFailure<T>>> check({int? numTests, int? seed}) async {
     final seedNN = seed ?? DateTime.now().millisecondsSinceEpoch;
 
@@ -58,12 +86,15 @@ final class Prop<T> {
     Option<PropFailure<T>> firstFailure = none();
 
     final iterator = gen.stream(StatefulRandom(seedNN)).take(numTests ?? 100).iterator;
+
     while (iterator.hasNext) {
       final value = iterator.next();
       count++;
+
       final result = await _runProp(value, testBody);
+
       if (result.isDefined) {
-        firstFailure = result.map((f) => f.copyWith(count: count));
+        firstFailure = result.map((f) => f.copy(count: count));
         break;
       }
     }
@@ -108,14 +139,22 @@ final class Prop<T> {
   }
 }
 
+/// Describes a failing sample produced by [Prop.check].
 class PropFailure<T> {
+  /// The counter-example value that caused the failure.
   final T value;
+
+  /// The [TestFailure] thrown by the test body.
   final TestFailure underlying;
+
+  /// The 1-based iteration number at which the failure was first observed.
   final int count;
 
+  /// Creates a [PropFailure] for [value] with the given [underlying] failure.
   const PropFailure(this.value, this.underlying, {this.count = 0});
 
-  PropFailure<T> copyWith({T? value, TestFailure? underlying, int? count}) => PropFailure(
+  /// Returns a copy of this failure with optionally overridden fields.
+  PropFailure<T> copy({T? value, TestFailure? underlying, int? count}) => PropFailure(
     value ?? this.value,
     underlying ?? this.underlying,
     count: count ?? this.count,

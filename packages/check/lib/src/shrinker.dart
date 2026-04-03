@@ -1,18 +1,38 @@
 import 'package:ribs_core/ribs_core.dart';
 
+/// Knows how to shrink a value of type [A] toward a simpler form.
+///
+/// When a property-based test fails, the framework feeds the failing value to
+/// the appropriate shrinker and re-runs the predicate on each candidate until
+/// no simpler counter-example can be found.  Shrinkers are composable: use
+/// [xmap] to derive a shrinker for any type that is isomorphic to [A].
 class Shrinker<A> {
   final Function1<A, ILazyList<A>> _shrinkF;
 
+  /// Creates a [Shrinker] from a function that produces shrink candidates.
+  ///
+  /// The function should return candidates in order from simplest to most
+  /// complex so that the shrinking loop terminates quickly.
   Shrinker(this._shrinkF);
 
+  /// Returns an [ILazyList] of candidates simpler than [a].
   ILazyList<A> shrink(A a) => _shrinkF(a);
 
+  /// Derives a [Shrinker] for [B] via an isomorphism between [A] and [B].
+  ///
+  /// [f] converts an [A] candidate to [B], and [g] converts the [B] value
+  /// under test back to [A] so that the underlying shrinker can be reused.
   Shrinker<B> xmap<B>(
     Function1<A, B> f,
     Function1<B, A> g,
   ) => Shrinker((B b) => shrink(g(b)).map(f));
 
-  static Shrinker<double> dubble = Shrinker<double>((d) {
+  /// Shrinker for [double] values.
+  ///
+  /// Returns `0.0` first, then successive values that halve the distance
+  /// between the candidate and zero, stopping when the delta drops below
+  /// `1e-12`.  Returns an empty list for `0.0`.
+  static final Shrinker<double> dubble = Shrinker<double>((d) {
     if (d == 0.0) {
       return ILazyList.empty();
     } else {
@@ -33,7 +53,12 @@ class Shrinker<A> {
     }
   });
 
-  static Shrinker<int> integer = Shrinker<int>((i) {
+  /// Shrinker for [int] values.
+  ///
+  /// Returns `0` first, then successive values that halve the absolute
+  /// difference between the candidate and zero using integer division.
+  /// Returns an empty list for `0`.
+  static final Shrinker<int> integer = Shrinker<int>((i) {
     if (i == 0) {
       return ILazyList.empty();
     } else {
@@ -54,6 +79,11 @@ class Shrinker<A> {
     }
   });
 
+  /// Shrinker for [Option] values.
+  ///
+  /// [None] is always a candidate for any [Some] value.  When [sa] is
+  /// provided the inner value is also shrunk and each result is wrapped back
+  /// in [Some].  Returns an empty list for [None].
   static Shrinker<Option<A>> option<A>(
     Shrinker<A>? sa,
   ) => Shrinker<Option<A>>((o) {
@@ -63,6 +93,11 @@ class Shrinker<A> {
     );
   });
 
+  /// Shrinker for [Either] values.
+  ///
+  /// Delegates to [sa] for [Left] values and to [sb] for [Right] values,
+  /// preserving the constructor.  A `null` shrinker for the active side
+  /// yields an empty candidate list.
   static Shrinker<Either<A, B>> either<A, B>(
     Shrinker<A>? sa,
     Shrinker<B>? sb,
@@ -73,6 +108,16 @@ class Shrinker<A> {
     );
   });
 
+  /// Shrinker for [IList] values.
+  ///
+  /// Candidates are produced in three phases:
+  /// 1. Subsequences obtained by removing progressively smaller contiguous
+  ///    blocks (halving strategy).
+  /// 2. The empty list.
+  /// 3. Lists with a single element replaced by a shrunk version, when [sa]
+  ///    is provided.
+  ///
+  /// Returns an empty list for an empty input.
   static Shrinker<IList<A>> ilist<A>(
     Shrinker<A>? sa,
   ) => Shrinker<IList<A>>((l) {
@@ -107,6 +152,10 @@ class Shrinker<A> {
     }
   });
 
+  /// Shrinker for [IMap] values.
+  ///
+  /// Converts the map to an [IList] of key-value pairs, shrinks that list
+  /// with [ilist] using a [tuple2] shrinker, then converts back.
   static Shrinker<IMap<A, B>> imap<A, B>(
     Shrinker<A>? sa,
     Shrinker<B>? sb,
@@ -115,10 +164,17 @@ class Shrinker<A> {
     (m) => m.toIList(),
   );
 
+  /// Shrinker for [List] values.
+  ///
+  /// Delegates to [ilist] and converts between [IList] and [List].
   static Shrinker<List<A>> list<A>(
     Shrinker<A>? elementShrinker,
   ) => ilist(elementShrinker).xmap((l) => l.toList(), (l) => IList.fromDart(l));
 
+  /// Shrinker for [Map] values.
+  ///
+  /// Converts the map to an [IList] of key-value pairs, shrinks that list
+  /// with [ilist] using a [tuple2] shrinker, then converts back.
   static Shrinker<Map<A, B>> map<A, B>(
     Shrinker<A>? sa,
     Shrinker<B>? sb,
@@ -127,10 +183,18 @@ class Shrinker<A> {
     (m) => IMap.fromDart(m).toIList(),
   );
 
-  static Shrinker<String> string = list(
+  /// Shrinker for [String] values.
+  ///
+  /// Splits the string into a list of single-character strings, shrinks the
+  /// list length (characters are not individually shrunk), then rejoins.
+  static final Shrinker<String> string = list(
     Shrinker<String>((s) => ILazyList.empty()),
   ).xmap((l) => l.join(), (s) => s.split(''));
 
+  /// Shrinker for 2-tuples.
+  ///
+  /// First exhausts shrink candidates for the first element (keeping the
+  /// second element fixed), then exhausts candidates for the second element.
   static Shrinker<(A, B)> tuple2<A, B>(
     Shrinker<A>? sa,
     Shrinker<B>? sb,
@@ -151,6 +215,9 @@ class Shrinker<A> {
     ),
   );
 
+  /// Shrinker for 3-tuples.
+  ///
+  /// Shrinks the first two elements via [tuple2], then shrinks the third.
   static Shrinker<(A, B, C)> tuple3<A, B, C>(
     Shrinker<A>? sa,
     Shrinker<B>? sb,
@@ -166,6 +233,9 @@ class Shrinker<A> {
     );
   }
 
+  /// Shrinker for 4-tuples.
+  ///
+  /// Shrinks the first three elements via [tuple3], then shrinks the fourth.
   static Shrinker<(A, B, C, D)> tuple4<A, B, C, D>(
     Shrinker<A>? sa,
     Shrinker<B>? sb,
@@ -182,6 +252,9 @@ class Shrinker<A> {
     );
   }
 
+  /// Shrinker for 5-tuples.
+  ///
+  /// Shrinks the first four elements via [tuple4], then shrinks the fifth.
   static Shrinker<(A, B, C, D, E)> tuple5<A, B, C, D, E>(
     Shrinker<A>? sa,
     Shrinker<B>? sb,
@@ -199,6 +272,9 @@ class Shrinker<A> {
     );
   }
 
+  /// Shrinker for 6-tuples.
+  ///
+  /// Shrinks the first five elements via [tuple5], then shrinks the sixth.
   static Shrinker<(A, B, C, D, E, F)> tuple6<A, B, C, D, E, F>(
     Shrinker<A>? sa,
     Shrinker<B>? sb,
@@ -219,6 +295,9 @@ class Shrinker<A> {
     );
   }
 
+  /// Shrinker for 7-tuples.
+  ///
+  /// Shrinks the first six elements via [tuple6], then shrinks the seventh.
   static Shrinker<(A, B, C, D, E, F, G)> tuple7<A, B, C, D, E, F, G>(
     Shrinker<A>? sa,
     Shrinker<B>? sb,
@@ -241,6 +320,9 @@ class Shrinker<A> {
     );
   }
 
+  /// Shrinker for 8-tuples.
+  ///
+  /// Shrinks the first seven elements via [tuple7], then shrinks the eighth.
   static Shrinker<(A, B, C, D, E, F, G, H)> tuple8<A, B, C, D, E, F, G, H>(
     Shrinker<A>? sa,
     Shrinker<B>? sb,
@@ -264,6 +346,9 @@ class Shrinker<A> {
     );
   }
 
+  /// Shrinker for 9-tuples.
+  ///
+  /// Shrinks the first eight elements via [tuple8], then shrinks the ninth.
   static Shrinker<(A, B, C, D, E, F, G, H, I)> tuple9<A, B, C, D, E, F, G, H, I>(
     Shrinker<A>? sa,
     Shrinker<B>? sb,
@@ -288,6 +373,9 @@ class Shrinker<A> {
     );
   }
 
+  /// Shrinker for 10-tuples.
+  ///
+  /// Shrinks the first nine elements via [tuple9], then shrinks the tenth.
   static Shrinker<(A, B, C, D, E, F, G, H, I, J)> tuple10<A, B, C, D, E, F, G, H, I, J>(
     Shrinker<A>? sa,
     Shrinker<B>? sb,

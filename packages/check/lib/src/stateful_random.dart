@@ -2,17 +2,36 @@ import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
 
+/// A pseudo-random number generator that threads its state immutably.
+///
+/// Each `next*` method returns a pair of the updated [StatefulRandom] and the
+/// generated value, leaving the original instance unchanged.  Passing the same
+/// seed to [StatefulRandom] always reproduces the exact same sequence of
+/// values, making test failures easy to reproduce.
 final class StatefulRandom {
   final int? _seed;
 
+  /// Creates a [StatefulRandom] with an optional [seed].
+  ///
+  /// If [seed] is omitted the generator is unseeded and non-reproducible.
   const StatefulRandom([this._seed]);
 
+  /// The seed currently held by this instance, or `null` if unseeded.
   int? get currentSeed => _seed;
 
+  /// Returns the next boolean value together with the updated generator.
   (StatefulRandom, bool) nextBool() => _next((rnd) => rnd.nextBool());
 
+  /// Returns the next double in `[0.0, 1.0)` together with the updated
+  /// generator.
   (StatefulRandom, double) nextDouble() => _next((rnd) => rnd.nextDouble());
 
+  /// Returns the next non-negative integer below [maximum] together with the
+  /// updated generator.
+  ///
+  /// Values beyond the signed 32-bit limit are handled by splitting the draw
+  /// into two smaller requests and combining their bits, keeping the
+  /// distribution uniform.
   (StatefulRandom, int) nextInt(int maximum) {
     final maxExclusive = max(maximum, 1);
 
