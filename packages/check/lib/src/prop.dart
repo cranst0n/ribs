@@ -128,7 +128,7 @@ final class Prop<T> {
 
       if (result.isDefined) {
         return _shrink(
-          result.getOrElse(() => throw Exception('unreachable')),
+          result.get,
           testBody,
           count: count - 1,
         );

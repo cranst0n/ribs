@@ -63,6 +63,16 @@ void main() {
       expect(testNone.foldRight<int>(0, (a, b) => a + b), 0);
     });
 
+    test('get', () {
+      expect(testSome.get, 1);
+      expect(() => testNone.get, throwsStateError);
+    });
+
+    test('getOrNull', () {
+      expect(testSome.getOrNull, 1);
+      expect(testNone.getOrNull, isNull);
+    });
+
     test('getOrElse', () {
       expect(testSome.getOrElse(() => 42), 1);
       expect(testNone.getOrElse(() => 42), 42);

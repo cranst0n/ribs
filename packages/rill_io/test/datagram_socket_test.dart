@@ -8,7 +8,7 @@ import 'package:test/test.dart';
 void main() {
   SocketAddress addr(int port) => SocketAddress(
     Ipv4Address.fromBytes(127, 0, 0, 1),
-    Port.fromInt(port).getOrElse(() => throw StateError('invalid port: $port')),
+    Port.fromInt(port).get,
   );
 
   group('DatagramSocket', () {

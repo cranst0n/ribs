@@ -188,6 +188,23 @@ extension OptionNestedOps<A> on Option<Option<A>> {
 extension OptionOps<A> on Option<A> {
   bool contains(A elem) => fold(() => false, (value) => value == elem);
 
+  /// Returns the value if this is a [Some], or throws a [StateError] if this
+  /// is a [None].
+  ///
+  /// This is an unsafe, partial operation. Prefer [getOrElse], [fold], or
+  /// pattern matching when the [Option] may be [None]. Use [get] only when
+  /// you have already proven that this [Option] is non-empty.
+  ///
+  /// See also [getOrNull] for a nullable alternative, and [getOrElse] for
+  /// providing a fallback value.
+  A get get => fold(() => throw StateError('None.get'), identity);
+
+  /// Returns the value if this is a [Some], or `null` if this is a [None].
+  ///
+  /// This is equivalent to [Option.toNullable] and is provided as a
+  /// conventionally named companion to [get].
+  A? get getOrNull => toNullable();
+
   /// Returns the value if this is a [Some] or the value returned from
   /// evaluating [ifEmpty].
   A getOrElse(Function0<A> ifEmpty) => fold(ifEmpty, identity);

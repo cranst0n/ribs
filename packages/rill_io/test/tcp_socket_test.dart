@@ -7,7 +7,7 @@ import 'package:ribs_rill_io/ribs_rill_io.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final port = Port.fromInt(58001).getOrElse(() => throw StateError('invalid port'));
+  final port = Port.fromInt(58001).get;
 
   group('Socket', () {
     test(
