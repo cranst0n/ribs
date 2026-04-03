@@ -1,7 +1,13 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
+/// A concurrency barrier that limits the number of fibers that can run
+/// simultaneously.
+///
+/// At most [limit] fibers may be inside the barrier at any time. Additional
+/// fibers block on [enter] until a slot is freed via [exit].
 abstract class Barrier {
+  /// Creates a [Barrier] with [initialLimit] concurrent slots.
   static IO<Barrier> create(int initialLimit) {
     return IO
         .raiseError<Barrier>(limitViolation)
@@ -9,14 +15,21 @@ abstract class Barrier {
         .productR(Ref.of(State(0, initialLimit, none())).map(BarrierImpl.new));
   }
 
+  /// The current concurrency limit.
   IO<int> get limit;
 
+  /// Sets the concurrency limit to [n].
   IO<Unit> setLimit(int n);
 
+  /// Atomically updates the concurrency limit by applying [f].
   IO<Unit> updateLimit(Function1<int, int> f);
 
+  /// Acquires a slot in the barrier, blocking if the limit has been
+  /// reached.
   IO<Unit> enter();
 
+  /// Releases a slot in the barrier, potentially unblocking a waiting
+  /// fiber.
   IO<Unit> exit();
 }
 

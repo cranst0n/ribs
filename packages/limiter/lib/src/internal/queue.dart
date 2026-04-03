@@ -2,20 +2,33 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
+/// A bounded, priority-aware queue for scheduling work items.
+///
+/// Items are dequeued in priority order (highest first), with FIFO ordering
+/// among items of equal priority.
 abstract class Queue<A> {
+  /// Creates a [Queue] with an optional [maxSize] bound.
   static IO<Queue<A>> create<A>([int? maxSize]) => (
     Ref.of(0),
     PQueue.bounded<Rank<A>>(Rank.order<A>(), maxSize ?? Integer.maxValue),
   ).mapN((lastInsertedAt, q) => QueueImpl._(lastInsertedAt, q));
 
+  /// Enqueues [a] with the given [priority]. Returns an [IO] handle that,
+  /// when evaluated, attempts to delete the item and returns whether it was
+  /// still in the queue.
   IO<IO<bool>> enqueue(A a, {int priority = 0});
 
+  /// Evaluates the deletion handle [id] returned by [enqueue], returning
+  /// whether the item was successfully removed.
   IO<bool> delete(IO<bool> id);
 
+  /// Dequeues the highest-priority item, blocking until one is available.
   IO<A> dequeue();
 
+  /// Returns a [Rill] that continuously dequeues items.
   Rill<A> dequeueAll() => Rill.repeatEval(dequeue());
 
+  /// The number of items currently in the queue.
   IO<int> get size;
 }
 

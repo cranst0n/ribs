@@ -2,16 +2,27 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
+/// A dynamically adjustable sleep timer used by the limiter to enforce
+/// minimum intervals between job dispatches.
+///
+/// The [interval] can be changed at any time; an in-flight [sleep] will
+/// react to the updated duration.
 abstract class Timer {
+  /// Creates a [Timer] with the given [initialDuration].
   static IO<Timer> create(Duration initialDuration) =>
       SignallingRef.of(initialDuration).map(TimerImpl.new);
 
+  /// The current interval duration.
   IO<Duration> get interval;
 
+  /// Sets the interval to [t].
   IO<Unit> setInterval(Duration t);
 
+  /// Atomically updates the interval by applying [f].
   IO<Unit> updateInterval(Function1<Duration, Duration> f);
 
+  /// Sleeps for the current [interval], adjusting dynamically if the
+  /// interval changes while sleeping.
   IO<Unit> get sleep;
 }
 
