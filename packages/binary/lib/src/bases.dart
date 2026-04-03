@@ -1,69 +1,226 @@
 import 'package:ribs_core/ribs_core.dart';
 
+/// Constants used by [Alphabet] implementations to signal special handling
+/// of characters during base decoding.
+///
+/// These sentinel values are returned from [Alphabet.toIndex] to communicate
+/// that a character does not map to a value in the alphabet but should be
+/// handled in a specific way rather than throwing an error.
 abstract class Bases {
-  /// Result of `Alphabet#toIndex` that indicates the character should be ignored.
+  /// Sentinel value returned from [Alphabet.toIndex] indicating that the
+  /// character should be silently ignored during decoding.
+  ///
+  /// Characters such as whitespace or visual separators (e.g. `_`, `-`) are
+  /// commonly mapped to this value.
   static const IgnoreChar = -1;
 
-  /// Result of `Alphabet#toIndex` that indicates the character and the rest of the line should be ignored.
+  /// Sentinel value returned from [Alphabet.toIndex] indicating that the
+  /// character and the remainder of the line should be ignored during decoding.
+  ///
+  /// This is used for comment characters (e.g. `#`, `;`, `|`) in hex and
+  /// binary string formats.
   static const IgnoreRestOfLine = -2;
 }
 
+/// Defines the bidirectional mapping between integer indices and characters
+/// for a positional numeral system.
+///
+/// An alphabet provides the character set used for encoding and decoding
+/// binary data in a particular base. Implementations define the valid
+/// characters, their corresponding numeric values, and which characters
+/// should be silently ignored (e.g. whitespace, separators).
+///
+/// See also:
+/// - [PaddedAlphabet], for alphabets that include a padding character.
+/// - [Alphabets], for pre-defined alphabet instances.
 abstract class Alphabet {
   const Alphabet();
 
+  /// Returns the character representation of the given [index].
+  ///
+  /// The [index] must be in the range `[0, base)` where `base` is the
+  /// radix of this alphabet (e.g. 2 for binary, 16 for hex, 64 for base64).
   String toChar(int index);
 
+  /// Returns the numeric index for the given character [c].
+  ///
+  /// Returns [Bases.IgnoreChar] if the character should be silently skipped,
+  /// or [Bases.IgnoreRestOfLine] if the character indicates a comment.
+  ///
+  /// Throws [ArgumentError] if [c] is not a valid character in this alphabet
+  /// and is not ignorable.
   int toIndex(String c);
 
+  /// Returns `true` if the given character [c] should be silently ignored
+  /// during decoding.
+  ///
+  /// Commonly returns `true` for whitespace, underscores, or other visual
+  /// separators that may appear in formatted input.
   bool ignore(String c);
 }
 
+/// An [Alphabet] that includes a padding character used to align encoded
+/// output to a required block size.
+///
+/// Padding is used in base32 and base64 encoding to ensure the encoded
+/// output length is a multiple of the block size. The padding character
+/// (typically `=`) is appended to the encoded output as needed.
 abstract class PaddedAlphabet extends Alphabet {
   const PaddedAlphabet();
 
+  /// The padding character appended to encoded output to meet block size
+  /// requirements.
+  ///
+  /// Typically `=` for standard base32/base64 encodings, or `0` for
+  /// no-pad variants where padding is omitted.
   String get pad;
 }
 
+/// An [Alphabet] for base-2 (binary) encoding.
+///
+/// Binary alphabets map between indices `{0, 1}` and a pair of characters.
+///
+/// See [Alphabets.binary] and [Alphabets.truthy] for pre-defined instances.
 abstract class BinaryAlphabet extends Alphabet {
   const BinaryAlphabet();
 }
 
+/// An [Alphabet] for base-16 (hexadecimal) encoding.
+///
+/// Hex alphabets map between indices `[0, 15]` and hex digit characters.
+///
+/// See [Alphabets.hexLower] and [Alphabets.hexUpper] for pre-defined instances.
 abstract class HexAlphabet extends Alphabet {
   const HexAlphabet();
 }
 
+/// An [Alphabet] for base-32 encoding.
+///
+/// Base32 alphabets map between indices `[0, 31]` and a set of 32
+/// alphanumeric characters. Extends [PaddedAlphabet] since base32 encoding
+/// uses padding to align output to 8-character blocks.
+///
+/// See [Alphabets.base32], [Alphabets.base32NoPad], and
+/// [Alphabets.base32Crockford] for pre-defined instances.
 abstract class Base32Alphabet extends PaddedAlphabet {
   const Base32Alphabet();
 }
 
+/// An [Alphabet] for base-58 encoding.
+///
+/// Base58 alphabets use a 58-character subset of alphanumeric characters,
+/// omitting visually ambiguous characters (`0`, `O`, `I`, `l`). This makes
+/// base58 well-suited for human-readable encodings such as Bitcoin addresses.
+///
+/// See [Alphabets.base58] for the pre-defined instance.
 abstract class Base58Alphabet extends Alphabet {
   const Base58Alphabet();
 }
 
+/// An [Alphabet] for base-64 encoding.
+///
+/// Base64 alphabets map between indices `[0, 63]` and a set of 64
+/// characters. Extends [PaddedAlphabet] since base64 encoding uses padding
+/// to align output to 4-character blocks.
+///
+/// See [Alphabets.base64], [Alphabets.base64NoPad], [Alphabets.base64Url],
+/// and [Alphabets.base64UrlNoPad] for pre-defined instances.
 abstract class Base64Alphabet extends PaddedAlphabet {
   const Base64Alphabet();
 }
 
+/// Provides a collection of pre-defined [Alphabet] instances for common
+/// base encodings.
+///
+/// ## Available Alphabets
+///
+/// | Alphabet | Base | Description |
+/// |---|---|---|
+/// | [binary] | 2 | Standard `0`/`1` |
+/// | [truthy] | 2 | `t`/`f` (truthy/falsy) |
+/// | [hexLower] | 16 | Lowercase hex (`0-9`, `a-f`) |
+/// | [hexUpper] | 16 | Uppercase hex (`0-9`, `A-F`) |
+/// | [base32] | 32 | RFC 4648 with padding |
+/// | [base32NoPad] | 32 | RFC 4648 without padding |
+/// | [base32Crockford] | 32 | Crockford's Base32 |
+/// | [base58] | 58 | Bitcoin-style Base58 |
+/// | [base64] | 64 | RFC 4648 with padding |
+/// | [base64NoPad] | 64 | RFC 4648 without padding |
+/// | [base64Url] | 64 | URL-safe with padding |
+/// | [base64UrlNoPad] | 64 | URL-safe without padding |
 final class Alphabets {
   Alphabets._();
 
+  /// Standard binary alphabet using characters `0` and `1`.
+  ///
+  /// Ignores whitespace and underscores during decoding.
   static const BinaryAlphabet binary = _BinaryAlphabet();
+
+  /// Binary alphabet using `t` (true/0) and `f` (false/1).
+  ///
+  /// Ignores whitespace and underscores during decoding.
+  /// Case-insensitive when decoding.
   static const BinaryAlphabet truthy = _TruthyAlphabet();
 
+  /// Lowercase hexadecimal alphabet (`0-9`, `a-f`).
+  ///
+  /// Lenient during decoding: ignores whitespace and underscores, and
+  /// treats `#`, `;`, and `|` as comment characters.
   static const HexAlphabet hexLower = _HexLowercase();
+
+  /// Uppercase hexadecimal alphabet (`0-9`, `A-F`).
+  ///
+  /// Lenient during decoding: ignores whitespace and underscores, and
+  /// treats `#`, `;`, and `|` as comment characters.
   static const HexAlphabet hexUpper = _HexUppercase();
 
+  /// Standard Base32 alphabet per [RFC 4648](https://tools.ietf.org/html/rfc4648)
+  /// using characters `A-Z` and `2-7`, with `=` padding.
   static const Base32Alphabet base32 = _Base32();
+
+  /// Standard Base32 alphabet without padding.
+  ///
+  /// Uses the same character set as [base32] but omits trailing `=` padding.
   static const Base32Alphabet base32NoPad = _Base32NoPad();
+
+  /// [Crockford's Base32](https://www.crockford.com/base32.html) alphabet.
+  ///
+  /// Designed for human readability: case-insensitive, and maps commonly
+  /// confused characters (`I`, `l` → `1`; `O` → `0`). Ignores hyphens
+  /// and whitespace.
   static const Base32Alphabet base32Crockford = Base32Crockford();
 
+  /// Bitcoin-style Base58 alphabet.
+  ///
+  /// Uses characters `1-9`, `A-Z`, `a-z`, excluding visually ambiguous
+  /// characters `0`, `O`, `I`, and `l`.
   static const Base58Alphabet base58 = _Base58();
 
+  /// Standard Base64 alphabet per [RFC 4648](https://tools.ietf.org/html/rfc4648)
+  /// using `A-Z`, `a-z`, `0-9`, `+`, `/`, with `=` padding.
   static const Base64Alphabet base64 = _Base64();
+
+  /// Standard Base64 alphabet without padding.
+  ///
+  /// Uses the same character set as [base64] but omits trailing `=` padding.
   static const Base64Alphabet base64NoPad = _Base64NoPad();
+
+  /// URL-safe Base64 alphabet per [RFC 4648 §5](https://tools.ietf.org/html/rfc4648#section-5)
+  /// using `-` and `_` instead of `+` and `/`, with `=` padding.
   static const Base64Alphabet base64Url = _Base64Url();
+
+  /// URL-safe Base64 alphabet without padding.
+  ///
+  /// Uses the same character set as [base64Url] but omits trailing `=`
+  /// padding.
   static const Base64Alphabet base64UrlNoPad = _Base64UrlNoPad();
 
+  /// Returns `true` if [c] is a comment character used in hex and binary
+  /// string formats.
+  ///
+  /// The recognized comment characters are `#`, `;`, and `|`. When
+  /// encountered during decoding, the character and the rest of the line
+  /// are ignored.
   static bool isHexBinCommmentChar(String c) {
     return switch (c) {
       '#' => true,
@@ -112,6 +269,15 @@ final class _TruthyAlphabet extends BinaryAlphabet {
   };
 }
 
+/// A [HexAlphabet] with lenient decoding that silently ignores whitespace,
+/// underscores, and line comments.
+///
+/// Subclasses only need to implement [toChar] to define the output casing.
+/// Decoding accepts both upper and lowercase hex digits by delegating to
+/// [int.tryParse] with radix 16.
+///
+/// Comment characters (`#`, `;`, `|`) cause the rest of the line to be
+/// ignored during decoding.
 abstract class LenientHex extends HexAlphabet {
   const LenientHex();
 
@@ -196,7 +362,20 @@ final class _Base32NoPad extends _Base32Base {
   String get pad => '0';
 }
 
+/// [Crockford's Base32](https://www.crockford.com/base32.html) alphabet
+/// implementation.
+///
+/// This encoding is designed for human use and has the following properties:
+/// - Case-insensitive decoding.
+/// - Maps commonly confused characters: `I` and `l` are decoded as `1`,
+///   `O` is decoded as `0`.
+/// - Hyphens (`-`) and whitespace are silently ignored, allowing formatted
+///   input such as `AXBQ-C4FT-3219`.
+///
+/// The character set excludes `I`, `L`, `O`, and `U` to avoid ambiguity
+/// and accidental profanity.
 final class Base32Crockford extends Base32Alphabet {
+  /// Creates a Crockford Base32 alphabet.
   const Base32Crockford();
 
   @override

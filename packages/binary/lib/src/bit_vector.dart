@@ -5,33 +5,71 @@ import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_binary/src/internal/byte_vector.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// An immutable, indexable sequence of bits with rich operations for
+/// binary data manipulation.
+///
+/// `BitVector` supports bitwise operations ([and], [or], [xor], [not]),
+/// shifting ([shiftLeft], [shiftRight], [rotateLeft], [rotateRight]),
+/// slicing ([take], [drop], [slice]), and conversion to and from various
+/// base encodings (binary, hex, base32, base58, base64).
+///
+/// Internally, a `BitVector` is represented as a persistent tree of byte
+/// chunks. This enables efficient concatenation and lazy evaluation via
+/// [unfold] and [bufferBy] while maintaining immutability.
+///
+/// ```dart
+/// final bv = BitVector.fromValidHex('deadbeef');
+/// print(bv.size);    // 32
+/// print(bv.toInt());  // 0xdeadbeef (signed)
+/// ```
+///
+/// See also:
+/// - [ByteVector], which operates at byte granularity.
+/// - [Bytes], the leaf node that backs most `BitVector` instances.
 sealed class BitVector implements Comparable<BitVector> {
   const BitVector();
 
+  /// An empty bit vector containing zero bits.
   static final BitVector empty = _toBytes(ByteVector.empty, 0);
 
+  /// A single-bit vector whose bit is low (`0`).
   static final zero = _toBytes(ByteVector.of(0x00), 1);
 
+  /// A single-bit vector whose bit is high (`1`).
   static final one = _toBytes(ByteVector.of(0xff), 1);
 
+  /// An 8-bit vector with all bits high (`0xFF`).
   static final highByte = BitVector.high(8);
 
+  /// An 8-bit vector with all bits low (`0x00`).
   static final lowByte = BitVector.low(8);
 
+  /// Creates a single-bit vector that is high if [high] is `true`,
+  /// low otherwise.
   factory BitVector.bit(bool high) => high ? one : zero;
 
+  /// Creates a bit vector from an iterable of boolean values.
+  ///
+  /// Each `true` value corresponds to a high bit and each `false` value
+  /// corresponds to a low bit.
   factory BitVector.bits(Iterable<bool> b) => IList.fromDart(
     b,
   ).zipWithIndex().foldLeft(BitVector.low(b.length), (acc, b) => acc.update(b.$2, b.$1));
 
+  /// Creates an 8-bit vector from the given byte value.
   factory BitVector.byte(int byte) => _toBytes(ByteVector([byte]), 8);
 
+  /// Creates a bit vector by concatenating all vectors in [bvs].
   factory BitVector.concat(RIterableOnce<BitVector> bvs) =>
       bvs.iterator.foldLeft(BitVector.empty, (a, b) => a.concat(b));
 
+  /// Creates a bit vector by concatenating all vectors in [bvs].
+  ///
+  /// Variant of [BitVector.concat] that accepts a Dart [Iterable].
   factory BitVector.concatDart(Iterable<BitVector> bvs) =>
       RIterator.fromDart(bvs.iterator).foldLeft(BitVector.empty, (a, b) => a.concat(b));
 
+  /// Creates an [n]-bit vector with every bit set to [high].
   factory BitVector.fill(int n, bool high) {
     final needed = _bytesNeededForBits(n);
     final bs = ByteVector.fill(needed, high ? -1 : 0);
@@ -39,19 +77,39 @@ sealed class BitVector implements Comparable<BitVector> {
     return _toBytes(bs, n);
   }
 
+  /// Creates a bit vector from a sequence of bytes.
+  ///
+  /// The resulting vector's size is `bs.size * 8`.
   factory BitVector.from(RIterableOnce<int> bs) => _toBytes(ByteVector.from(bs), bs.size * 8);
 
+  /// Creates a bit vector from a Dart iterable of bytes.
+  ///
+  /// The resulting vector's size is `bs.length * 8`.
   factory BitVector.fromDart(Iterable<int> bs) => _toBytes(ByteVector.fromDart(bs), bs.length * 8);
 
+  /// Creates an [size]-bit vector with all bits high.
   factory BitVector.high(int size) => BitVector.fill(size, true);
 
+  /// Creates an [size]-bit vector with all bits low.
   factory BitVector.low(int size) => BitVector.fill(size, false);
 
+  /// Creates a bit vector from the contents of [bs].
+  ///
+  /// The resulting vector's size is `bs.size * 8`.
   factory BitVector.fromByteVector(ByteVector bs) => _toBytes(bs, bs.size * 8);
 
+  /// Creates a bit vector backed by the given [Uint8List] without copying.
+  ///
+  /// If [sizeInBits] is provided, only that many bits are considered valid;
+  /// otherwise the full byte array length in bits is used.
   factory BitVector.view(Uint8List bs, {int? sizeInBits}) =>
       _toBytes(ByteVector.view(bs), sizeInBits ?? bs.length * 8);
 
+  /// Lazily builds a bit vector by repeatedly applying [f] to a state [s].
+  ///
+  /// [f] returns `Some((chunk, nextState))` to emit a chunk and continue, or
+  /// `None()` to terminate. The resulting bit vector is evaluated lazily:
+  /// chunks are not materialized until accessed.
   static BitVector unfold<S>(S s, Function1<S, Option<(BitVector, S)>> f) {
     return _Suspend(() {
       return f(s)
@@ -63,16 +121,20 @@ sealed class BitVector implements Comparable<BitVector> {
     });
   }
 
+  /// Decodes a binary string into a [BitVector], returning [None] on failure.
   static Option<BitVector> fromBin(
     String s, [
     BinaryAlphabet alphabet = Alphabets.binary,
   ]) => fromBinDescriptive(s, alphabet).toOption();
 
+  /// Decodes a binary string into a [BitVector], throwing on failure.
   static BitVector fromValidBin(
     String s, [
     BinaryAlphabet alphabet = Alphabets.binary,
   ]) => fromBinDescriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
+  /// Decodes a binary string into a [BitVector], returning a descriptive
+  /// error message on the left on failure.
   static Either<String, BitVector> fromBinDescriptive(
     String s, [
     BinaryAlphabet alphabet = Alphabets.binary,
@@ -88,51 +150,70 @@ sealed class BitVector implements Comparable<BitVector> {
     });
   }
 
+  /// Decodes a hexadecimal string into a [BitVector], returning [None] on
+  /// failure.
   static Option<BitVector> fromHex(
     String s, [
     HexAlphabet alphabet = Alphabets.hexLower,
   ]) => fromHexDescriptive(s, alphabet).toOption();
 
+  /// Decodes a hexadecimal string into a [BitVector], throwing on failure.
   static BitVector fromValidHex(
     String s, [
     HexAlphabet alphabet = Alphabets.hexLower,
   ]) => fromHexDescriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
+  /// Decodes a hexadecimal string into a [BitVector], returning a
+  /// descriptive error message on the left on failure.
   static Either<String, BitVector> fromHexDescriptive(
     String s, [
     HexAlphabet alphabet = Alphabets.hexLower,
   ]) => fromHexInternal(s, alphabet).mapN((bytes, count) => bytes.bits.drop(count.isEven ? 0 : 4));
 
+  /// Decodes a base-32 string into a [BitVector], returning [None] on
+  /// failure.
   static Option<BitVector> fromBase32(
     String s, [
     Base32Alphabet alphabet = Alphabets.base32,
   ]) => fromBase32Descriptive(s, alphabet).toOption();
 
+  /// Decodes a base-32 string into a [BitVector], throwing on failure.
   static BitVector fromValidBase32(
     String s, [
     Base32Alphabet alphabet = Alphabets.base32,
   ]) => fromBase32Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
+  /// Decodes a base-32 string into a [BitVector], returning a descriptive
+  /// error message on the left on failure.
   static Either<String, BitVector> fromBase32Descriptive(
     String str, [
     Base32Alphabet alphabet = Alphabets.base32,
   ]) => fromBase32Internal(str, alphabet).map((a) => a.$1.bits);
 
+  /// Decodes a base-64 string into a [BitVector], returning [None] on
+  /// failure.
   static Option<BitVector> fromBase64(
     String s, [
     Base64Alphabet alphabet = Alphabets.base64,
   ]) => fromBase64Descriptive(s, alphabet).toOption();
 
+  /// Decodes a base-64 string into a [BitVector], throwing on failure.
   static BitVector fromValidBase64(
     String s, [
     Base64Alphabet alphabet = Alphabets.base64,
   ]) => fromBase64Descriptive(s, alphabet).fold((err) => throw ArgumentError(err), identity);
 
+  /// Decodes a base-64 string into a [BitVector], returning a descriptive
+  /// error message on the left on failure.
   static Either<String, BitVector> fromBase64Descriptive(
     String str, [
     Base64Alphabet alphabet = Alphabets.base64,
   ]) => fromBase64Internal(str, alphabet).map((a) => a.$1.bits);
 
+  /// Creates a bit vector from an integer value.
+  ///
+  /// The resulting vector has [size] bits (defaults to [Integer.size]).
+  /// Use [ordering] to specify byte order (`Endian.big` by default).
   factory BitVector.fromInt(
     int i, {
     int? size,
@@ -156,6 +237,11 @@ sealed class BitVector implements Comparable<BitVector> {
     return ordering == Endian.big ? relevantBits : relevantBits.reverseByteOrder();
   }
 
+  /// Creates a bit vector from a [BigInt] value.
+  ///
+  /// If [size] is provided, the result is exactly that many bits. Otherwise
+  /// the size is `value.bitLength + 1` (to include a sign bit).
+  /// Use [ordering] to specify byte order (`Endian.big` by default).
   factory BitVector.fromBigInt(
     BigInt value, {
     Option<int> size = const None(),
@@ -175,16 +261,22 @@ sealed class BitVector implements Comparable<BitVector> {
     return ordering == Endian.big ? relevantBits : relevantBits.reverseByteOrder();
   }
 
+  /// Bitwise NOT. Returns the complement of this vector.
   BitVector operator ~() => not;
 
+  /// Bitwise OR of this vector and [other].
   BitVector operator |(BitVector other) => or(other);
 
+  /// Bitwise XOR of this vector and [other].
   BitVector operator ^(BitVector other) => xor(other);
 
+  /// Left shift by [n] bits.
   BitVector operator <<(int n) => shiftLeft(n);
 
+  /// Arithmetic right shift by [n] bits (sign-extending).
   BitVector operator >>(int n) => shiftRight(n, true);
 
+  /// Logical right shift by [n] bits (zero-filling).
   BitVector operator >>>(int n) => shiftRight(n, false);
 
   /// Returns number of bits in this vector.
@@ -278,6 +370,7 @@ sealed class BitVector implements Comparable<BitVector> {
     }
   }
 
+  /// Drops the longest prefix of bits that satisfy [f].
   BitVector dropWhile(Function1<bool, bool> f) {
     var toDrop = 0;
 
@@ -315,7 +408,8 @@ sealed class BitVector implements Comparable<BitVector> {
   /// including the index `until`.
   BitVector slice(int from, int until) => drop(from).take(until - max(from, 0));
 
-  /// Returns an iterator of fixed size slices of this vector, stepping the specified number of bits between consecutive elements.
+  /// Returns an iterator of [n]-bit sliding windows over this vector,
+  /// advancing [step] bits between consecutive windows.
   RIterator<BitVector> sliding(int n, [int step = 1]) {
     assert(n > 0 && step > 0, 'both n and step must be positive');
 
@@ -426,6 +520,7 @@ sealed class BitVector implements Comparable<BitVector> {
   /// contents.
   BitVector padLeft(int n) => size < n ? BitVector.low(n - size).concat(this) : this;
 
+  /// Returns a bit vector with the bits in reverse order.
   BitVector get reverse => BitVector.fromByteVector(
     compact().underlying.reverse.map(_reverseBitsInByte),
   ).drop(8 - _validBitsInLastByte(size));
@@ -545,6 +640,11 @@ sealed class BitVector implements Comparable<BitVector> {
     }
   }
 
+  /// Compacts this bit vector into a single contiguous [Bytes] node.
+  ///
+  /// If this vector already consists of a single chunk, the underlying
+  /// byte vector may be returned without copying. Use [copy] when a
+  /// guaranteed fresh copy is required.
   Bytes compact() {
     if (_bytesNeededForBits(size) > Integer.maxValue) {
       throw ArgumentError('cannot compact bit vector of size ${size.toDouble() / 8 / 1e9} GB');
@@ -643,6 +743,8 @@ sealed class BitVector implements Comparable<BitVector> {
     return go(ivec([this]));
   }
 
+  /// Returns a buffered version of this bit vector that amortizes appends
+  /// by collecting them into chunks of [chunkSizeInBits] bits.
   BitVector bufferBy([int chunkSizeInBits = 8192]) {
     switch (this) {
       case final _Buffer b:
@@ -656,19 +758,28 @@ sealed class BitVector implements Comparable<BitVector> {
     }
   }
 
+  /// Materializes any buffered appends, returning an unbuffered bit vector.
   BitVector unbuffer() => this;
 
+  /// Returns the contents of this bit vector as a [Uint8List].
   Uint8List toByteArray() => bytes.toByteArray();
 
+  /// Returns the underlying bytes of this bit vector.
   ByteVector get bytes => toByteVector();
 
+  /// Converts this bit vector to a [ByteVector], clearing any trailing
+  /// padding bits in the last byte.
   ByteVector toByteVector() => _clearUnneededBits(size, compact().underlying);
 
+  /// Returns an [IList] of booleans, one per bit.
   IList<bool> toIList() => IList.tabulate(size, (ix) => get(ix));
 
+  /// Encodes this bit vector as a binary string using the given [alphabet].
   String toBin([BinaryAlphabet alphabet = Alphabets.binary]) =>
       bytes.toBin(alphabet).substring(0, size);
 
+  /// Encodes this bit vector as a hexadecimal string using the given
+  /// [alphabet].
   String toHex([HexAlphabet alphabet = Alphabets.hexLower]) {
     final full = bytes.toHex(alphabet);
 
@@ -681,24 +792,37 @@ sealed class BitVector implements Comparable<BitVector> {
     }
   }
 
+  /// Returns a plain-text hex dump of this bit vector (no ANSI colors).
   String toHexDump() => HexDumpFormat.noAnsi.renderBits(this);
 
+  /// Returns a colorized hex dump of this bit vector.
   String toHexDumpColorized() => HexDumpFormat.defaultFormat.renderBits(this);
 
+  /// Prints a colorized hex dump of this bit vector to stdout.
   void printHexDump() => HexDumpFormat.defaultFormat.printBits(this);
 
+  /// Alias for [toHex].
   String toBase16([HexAlphabet alphabet = Alphabets.hexLower]) => toHex(alphabet);
 
+  /// Encodes this bit vector as a base-32 string.
   String toBase32([Base32Alphabet alphabet = Alphabets.base32]) => bytes.toBase32(alphabet);
 
+  /// Encodes this bit vector as a base-64 string.
   String toBase64([Base64Alphabet alphabet = Alphabets.base64]) => bytes.toBase64(alphabet);
 
+  /// Encodes as base-64 without padding characters.
   String toBase64NoPad() => toBase64(Alphabets.base64NoPad);
 
+  /// Encodes as URL-safe base-64.
   String toBase64Url() => toBase64(Alphabets.base64Url);
 
+  /// Encodes as URL-safe base-64 without padding characters.
   String toBase64UrlNoPad() => toBase64(Alphabets.base64UrlNoPad);
 
+  /// Converts this bit vector to a Dart [int].
+  ///
+  /// If [signed] is `true` (the default), the result is sign-extended.
+  /// Use [ordering] to specify byte order (`Endian.big` by default).
   int toInt({bool signed = true, Endian ordering = Endian.big}) {
     return switch (this) {
       final Bytes bytes => switch (size) {
@@ -748,6 +872,10 @@ sealed class BitVector implements Comparable<BitVector> {
     return signed ? result.toSigned(bits) : result;
   }
 
+  /// Converts this bit vector to a [BigInt].
+  ///
+  /// If [signed] is `true` (the default), the most significant bit is
+  /// treated as a sign bit. Use [ordering] to specify byte order.
   BigInt toBigInt({bool signed = true, Endian ordering = Endian.big}) =>
       ordering == Endian.little
           ? invertReverseByteOrder().toBigInt(signed: signed)
@@ -1071,12 +1199,19 @@ final class _Append extends BitVector {
   }
 }
 
+/// A leaf [BitVector] node backed by a contiguous [ByteVector].
+///
+/// This is the concrete representation that stores actual bit data. Most
+/// `BitVector` operations eventually compact down to a `Bytes` instance.
 final class Bytes extends BitVector {
+  /// The underlying byte storage.
   final ByteVector underlying;
 
   @override
   final int size;
 
+  /// Creates a [Bytes] from the given [underlying] byte vector and a
+  /// [size] in bits.
   Bytes(this.underlying, this.size);
 
   @override

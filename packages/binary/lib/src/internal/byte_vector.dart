@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// Internal implementation for parsing a binary string [s] with [alphabet].
+/// Returns a tuple containing the decoded [ByteVector] and the total count of valid bits read.
 Either<String, (ByteVector, int)> fromBinInternal(
   String s, [
   BinaryAlphabet alphabet = Alphabets.binary,
@@ -68,6 +70,8 @@ Either<String, (ByteVector, int)> fromBinInternal(
   }
 }
 
+/// Internal implementation for parsing a hexadecimal string [str] with [alphabet].
+/// Returns a tuple containing the decoded [ByteVector] and the total count of valid nibbles read.
 Either<String, (ByteVector, int)> fromHexInternal(
   String str,
   HexAlphabet alphabet,
@@ -146,6 +150,8 @@ Either<String, (ByteVector, int)> fromHexInternal(
   }
 }
 
+/// Internal implementation for parsing a base 32 string [str] with [alphabet].
+/// Returns a tuple containing the decoded [ByteVector] and the number of bytes read.
 Either<String, (ByteVector, int)> fromBase32Internal(
   String str,
   Base32Alphabet alphabet,
@@ -220,6 +226,8 @@ Either<String, (ByteVector, int)> fromBase32Internal(
   }
 }
 
+/// Internal implementation for parsing a base 64 string [str] with [alphabet].
+/// Returns a tuple containing the decoded [ByteVector] and the number of bytes read.
 Either<String, (ByteVector, int)> fromBase64Internal(
   String str,
   Base64Alphabet alphabet,
@@ -318,5 +326,6 @@ Either<String, (ByteVector, int)> fromBase64Internal(
   }
 }
 
+/// Error message used when a base 64 string has malformed padding.
 const Base64PaddingError =
     'Malformed padding - final quantum may optionally be padded with one or two padding characters such that the quantum is completed';

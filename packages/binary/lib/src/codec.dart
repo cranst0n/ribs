@@ -6,13 +6,16 @@ import 'package:ribs_binary/src/codecs/either_codec.dart';
 import 'package:ribs_binary/src/codecs/xmapped_codec.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// Defines a typeclass capable of both encoding to and decoding from binary data.
 abstract class Codec<A> extends Encoder<A> with Decoder<A> {
+  /// Creates a [Codec] from a [Decoder] and an [Encoder].
   static Codec<A> of<A>(
     Decoder<A> decoder,
     Encoder<A> encoder, {
     String? description,
   }) => _CodecF(decoder, encoder, description: description);
 
+  /// Returns a new [Codec] with the given [description].
   Codec<A> withDescription(String description) => Codec.of(this, this, description: description);
 
   @override
@@ -21,10 +24,13 @@ abstract class Codec<A> extends Encoder<A> with Decoder<A> {
   @override
   Either<Err, BitVector> encode(A a);
 
+  /// An optional description of this codec.
   String? get description => null;
 
+  /// The runtime type of the value this codec handles.
   Type get tag => A;
 
+  /// Creates a new codec by mapping the value type [A] to [B] and vice versa.
   Codec<B> xmap<B>(Function1<A, B> f, Function1<B, A> g) => Codec.of(map(f), contramap(g));
 
   Codec<(A, B)> prepend<B>(Function1<A, Codec<B>> codecB) => Codec.of(
@@ -35,10 +41,6 @@ abstract class Codec<A> extends Encoder<A> with Decoder<A> {
 
   @override
   String toString() => description ?? super.toString();
-
-  //////////////////////////////////////////////////////////////////////////////
-  /// Instances
-  //////////////////////////////////////////////////////////////////////////////
 
   static final Codec<BitVector> bits = Codec.of(
     Decoder.instance((b) => Either.right(DecodeResult.successful(b))),
