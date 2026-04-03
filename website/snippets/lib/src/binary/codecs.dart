@@ -56,6 +56,10 @@ final messageCodec = Codec.discriminatedBy(
     0: infoCodec, // instances of Info prefixed by ID 0
     1: debugCodec, // instances of Debug prefixed by ID 1
   }),
+  (Message msg) => switch (msg) {
+    Info() => 0,
+    Debug() => 1,
+  },
 );
 // #endregion codecs-3
 

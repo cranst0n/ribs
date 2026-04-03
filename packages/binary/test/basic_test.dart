@@ -12,6 +12,11 @@ sealed class Animal {
       1: Cat.codec,
       3: Lion.codec,
     }),
+    (Animal a) => switch (a) {
+      Dog() => 7,
+      Lion() => 3,
+      Cat() => 1,
+    },
   );
 }
 
