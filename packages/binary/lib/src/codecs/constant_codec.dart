@@ -1,6 +1,10 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// A codec that expects a specific constant [BitVector].
+///
+/// Useful for encoding and verifying magic numbers, framing patterns, or
+/// fixed padding in binary formats.
 final class ConstantCodec extends Codec<Unit> {
   final BitVector constant;
 

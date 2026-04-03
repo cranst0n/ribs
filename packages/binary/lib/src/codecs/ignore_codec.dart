@@ -1,6 +1,8 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// A codec that ignores [size] bits when decoding and outputs [size] zero-bits
+/// when encoding.
 final class IgnoreCodec extends Codec<Unit> {
   final int size;
 

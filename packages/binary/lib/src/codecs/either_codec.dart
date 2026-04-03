@@ -1,6 +1,10 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// A codec for [Either] values that first encodes/decodes a boolean indicator.
+///
+/// A boolean indicator (e.g., a single bit) is parsed first. If `false`, it
+/// delegates to the [leftCodec],. If `true`, it delegates to the [rightCodec].
 final class EitherCodec<A, B> extends Codec<Either<A, B>> {
   Codec<bool> indicator;
   Codec<A> leftCodec;

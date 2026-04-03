@@ -1,6 +1,11 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// A codec that encodes and decodes a list of elements.
+///
+/// On encode, each element is encoded sequentially by the underlying [codec].
+/// On decode, elements are read until the bit vector is exhausted or an optional
+/// [limit] is reached.
 final class ListCodec<A> extends Codec<List<A>> {
   final Codec<A> codec;
   final Option<int> limit;

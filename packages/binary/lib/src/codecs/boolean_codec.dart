@@ -1,6 +1,9 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// A codec that encodes and decodes a boolean value as a single bit.
+///
+/// `true` is encoded as a high bit (`1`), and `false` as a low bit (`0`).
 final class BooleanCodec extends Codec<bool> {
   @override
   Either<Err, DecodeResult<bool>> decode(BitVector bv) => bv

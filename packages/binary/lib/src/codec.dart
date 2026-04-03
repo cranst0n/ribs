@@ -71,8 +71,12 @@ abstract class Codec<A> extends Encoder<A> with Decoder<A> {
     return bitsN(size).xmap<bool>((b) => b != zeros, (b) => b ? ones : zeros);
   }
 
-  static Codec<B> discriminatedBy<A, B>(Codec<A> by, IMap<A, Codec<B>> typecases) =>
-      DiscriminatorCodec.typecases(by, typecases);
+  static Codec<B> discriminatedBy<A, B>(
+    Codec<A> by,
+    IMap<A, Codec<B>> typecases,
+    A Function(B) getDiscriminator,
+  ) =>
+      DiscriminatorCodec.typecases(by, typecases, getDiscriminator);
 
   static final Codec<int> int4 = IntCodec(4, true, Endian.big);
   static final Codec<int> int8 = IntCodec(8, true, Endian.big);

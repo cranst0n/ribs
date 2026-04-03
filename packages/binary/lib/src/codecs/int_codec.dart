@@ -4,6 +4,11 @@ import 'dart:typed_data';
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// A codec for integer values.
+///
+/// Supports arbitrary [bits] sizes, [signed] values (using two's complement),
+/// and configurable byte [ordering]. Fails if the encoded or decoded integer
+/// exceeds the bounds representable by the given number of bits and sign.
 final class IntCodec extends Codec<int> {
   final int bits;
   final bool signed;

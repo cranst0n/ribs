@@ -3,7 +3,9 @@ import 'dart:typed_data';
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// Codecs for IEEE 754 32-bit and 64-bit floating point numbers.
 final class FloatCodec {
+  /// A codec for 32-bit floats using the specified [ordering].
   static Codec<double> float32(Endian ordering) => _generic(
     32,
     (bd, f) => bd.buffer.asByteData().setFloat32(0, f, ordering),
@@ -11,6 +13,7 @@ final class FloatCodec {
     'float32${ordering == Endian.little ? 'L' : ''}',
   );
 
+  /// A codec for 64-bit floats using the specified [ordering].
   static Codec<double> float64(Endian ordering) => _generic(
     64,
     (bd, f) => bd.buffer.asByteData().setFloat64(0, f, ordering),

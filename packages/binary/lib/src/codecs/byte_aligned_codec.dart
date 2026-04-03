@@ -1,6 +1,11 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// A codec that ensures the underlying codec is aligned to a byte boundary.
+///
+/// When encoding, it pads the output of the underlying codec with zero-bits
+/// until the total size is a multiple of 8. When decoding, it drops any
+/// padding bits up to the next byte boundary after the underlying codec finishes.
 final class ByteAlignedCodec<A> extends Codec<A> {
   final Codec<A> codec;
 

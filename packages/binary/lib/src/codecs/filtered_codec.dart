@@ -1,6 +1,11 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// A codec that processes data through an initial filter codec before passing
+/// it to the underlying codec.
+///
+/// On encode, the value is encoded by the underlying [codec] and then the
+/// resulting bits are encoded by the [filter].
 final class FilteredCodec<A> extends Codec<A> {
   final Codec<A> codec;
   final Codec<BitVector> filter;

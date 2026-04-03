@@ -1,6 +1,11 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// A codec that maps exactly from the underlying type `A` to type `B`.
+///
+/// Encodes/decodes using the underlying [by] codec, then looks up the
+/// result in a one-to-one [cases] map to return a value of type `B`.
+/// Fails if the value is not present in the mapping.
 final class XMappedCodec<A, B> extends Codec<B> {
   final Codec<A> by;
   final IMap<A, B> cases;

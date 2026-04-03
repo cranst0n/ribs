@@ -1,6 +1,10 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// A strict [FixedSizeCodec] that fails encoding if the inner codec does not
+/// produce exactly [size] bits. 
+///
+/// Unlike [FixedSizeCodec], it does not pad the output.
 final class FixedSizeStrictCodec<A> extends Codec<A> {
   final int size;
   final Codec<A> codec;

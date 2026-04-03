@@ -1,6 +1,11 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// A codec that constrains the underlying codec to operate on exactly [size] bits.
+///
+/// On encode, pads the output of the underlying codec with low bits to reach
+/// [size]. On decode, slices a [size]-bit sub-buffer for the underlying codec
+/// to read from.
 final class FixedSizeCodec<A> extends Codec<A> {
   final int size;
   final Codec<A> codec;

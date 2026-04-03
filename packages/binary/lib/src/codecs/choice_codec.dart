@@ -1,6 +1,11 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// A codec that attempts to encode/decode using a list of alternative codecs.
+///
+/// When decoding or encoding, it tries each codec in the [choices] list in order.
+/// It succeeds with the result of the first codec that succeeds, or fails if
+/// all codecs fail.
 final class ChoiceCodec<A> extends Codec<A> {
   IList<Codec<A>> choices;
 
