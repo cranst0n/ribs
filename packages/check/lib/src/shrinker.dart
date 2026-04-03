@@ -16,18 +16,20 @@ class Shrinker<A> {
     if (d == 0.0) {
       return ILazyList.empty();
     } else {
-      final candidates = <double>[];
+      return ILazyList.unfold<double, (bool, double)>(
+        (false, d.abs() / 2.0),
+        (state) {
+          final (zeroEmitted, delta) = state;
 
-      if (d.sign != 0.0) candidates.add(0.0);
-
-      var delta = d.abs() / 2.0;
-
-      while (delta > 1e-12) {
-        candidates.add(d - (delta * d.sign));
-        delta /= 2.0;
-      }
-
-      return ILazyList.from(IList.fromDart(candidates));
+          if (!zeroEmitted) {
+            return Some((0.0, (true, delta)));
+          } else if (delta > 1e-12) {
+            return Some((d - delta * d.sign, (true, delta / 2.0)));
+          } else {
+            return const None();
+          }
+        },
+      );
     }
   });
 
@@ -35,18 +37,20 @@ class Shrinker<A> {
     if (i == 0) {
       return ILazyList.empty();
     } else {
-      final candidates = <int>[];
+      return ILazyList.unfold<int, (bool, int)>(
+        (false, i.abs() ~/ 2),
+        (state) {
+          final (zeroEmitted, delta) = state;
 
-      if (i.sign != 0) candidates.add(0);
-
-      var delta = i.abs() ~/ 2;
-
-      while (delta > 0) {
-        candidates.add(i - (delta * i.sign));
-        delta ~/= 2;
-      }
-
-      return ILazyList.from(IList.fromDart(candidates));
+          if (!zeroEmitted) {
+            return Some((0, (true, delta)));
+          } else if (delta > 0) {
+            return Some((i - delta * i.sign, (true, delta ~/ 2)));
+          } else {
+            return const None();
+          }
+        },
+      );
     }
   });
 
