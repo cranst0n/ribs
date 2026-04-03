@@ -218,11 +218,11 @@ final class _Node<K> {
 
     while (true) {
       if (h == curr._hash && k == curr._key) {
-        return this;
+        return curr;
       } else if (curr.next == null || curr._hash > h) {
         return null;
       } else {
-        curr = next!;
+        curr = curr.next!;
       }
     }
   }

@@ -91,7 +91,7 @@ mixin MMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
     if (size == 0) {
       return this;
     } else {
-      keys.foreach(remove);
+      key.foreach(remove);
     }
 
     return this;
