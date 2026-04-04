@@ -6,17 +6,15 @@ import 'package:test/test.dart';
 
 import 'arbitraries.dart';
 
-T _unwrap<T>(Option<T> opt) => opt.getOrElse(() => throw StateError('Expected Some but got None'));
-
 void main() {
   final v4a = Ipv4Address.fromBytes(10, 0, 0, 1);
   final v4b = Ipv4Address.fromBytes(10, 0, 0, 2);
-  final v6a = _unwrap(Ipv6Address.fromString('::1'));
-  final v6b = _unwrap(Ipv6Address.fromString('2001::1'));
-  final hn1 = _unwrap(Hostname.fromString('abc.com'));
-  final hn2 = _unwrap(Hostname.fromString('xyz.com'));
-  final idn1 = _unwrap(IDN.fromString('abc.com'));
-  final idn2 = _unwrap(IDN.fromString('xyz.com'));
+  final v6a = Ipv6Address.fromString('::1').get;
+  final v6b = Ipv6Address.fromString('2001::1').get;
+  final hn1 = Hostname.fromString('abc.com').get;
+  final hn2 = Hostname.fromString('xyz.com').get;
+  final idn1 = IDN.fromString('abc.com').get;
+  final idn2 = IDN.fromString('xyz.com').get;
 
   group('Host', () {
     genIp.forAll('fromString: IPAddress', (ip) {
@@ -61,7 +59,7 @@ void main() {
       test('Ipv4 < Ipv6 when compat bytes are less', () {
         // 0.0.0.1.toCompatV6() = [0...,0,1]; ::2 = [0...,0,2]
         expect(
-          Ipv4Address.fromBytes(0, 0, 0, 1).compareTo(_unwrap(Ipv6Address.fromString('::2'))),
+          Ipv4Address.fromBytes(0, 0, 0, 1).compareTo(Ipv6Address.fromString('::2').get),
           isNegative,
         );
       });
@@ -137,7 +135,7 @@ void main() {
 
   group('Hostname', () {
     test('normalized: lowercases all labels', () {
-      final h = _unwrap(Hostname.fromString('ABC.Example.COM'));
+      final h = Hostname.fromString('ABC.Example.COM').get;
       expect(h.normalized().toString(), 'abc.example.com');
     });
 
@@ -146,8 +144,8 @@ void main() {
     });
 
     test('equality: same string → equal', () {
-      final h1 = _unwrap(Hostname.fromString('example.com'));
-      final h2 = _unwrap(Hostname.fromString('example.com'));
+      final h1 = Hostname.fromString('example.com').get;
+      final h2 = Hostname.fromString('example.com').get;
       expect(h1 == h2, isTrue);
     });
 
@@ -161,8 +159,8 @@ void main() {
     });
 
     test('hashCode: equal hostnames have equal hashCode', () {
-      final h1 = _unwrap(Hostname.fromString('example.com'));
-      final h2 = _unwrap(Hostname.fromString('example.com'));
+      final h1 = Hostname.fromString('example.com').get;
+      final h2 = Hostname.fromString('example.com').get;
       expect(h1.hashCode, h2.hashCode);
     });
   });
@@ -314,8 +312,8 @@ void main() {
 
   group('IDN', () {
     test('equality: same string → equal', () {
-      final i1 = _unwrap(IDN.fromString('abc.com'));
-      final i2 = _unwrap(IDN.fromString('abc.com'));
+      final i1 = IDN.fromString('abc.com').get;
+      final i2 = IDN.fromString('abc.com').get;
       expect(i1 == i2, isTrue);
     });
 
@@ -327,8 +325,8 @@ void main() {
     });
 
     test('hashCode: equal IDNs have same hashCode', () {
-      final i1 = _unwrap(IDN.fromString('abc.com'));
-      final i2 = _unwrap(IDN.fromString('abc.com'));
+      final i1 = IDN.fromString('abc.com').get;
+      final i2 = IDN.fromString('abc.com').get;
       expect(i1.hashCode, i2.hashCode);
     });
 
