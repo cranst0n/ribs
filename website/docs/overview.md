@@ -35,7 +35,7 @@ Eliminating side-effects from our programs allows us to write pure functions.
 ## Pure Functions
 
 A pure function should take it's parameters, compute a result and return that
-result. **It should do nothing else!** If a function has any effect on the overall
+result. **It should do nothing else.** If a function has any effect on the overall
 state of the program, it cannot be considered pure and violates a core
 principle of FP.
 

@@ -59,7 +59,7 @@ example:
 
 <<< @/../snippets/lib/src/json/codecs.dart#codecs-3
 
-The last call to `Json.decode` throws an exception! This is because the integer
+The last call to `Json.decode` throws an exception. This is because the integer
 value (100) doesn't correspond to a valid `PetType` enum value. What is to be
 done? The best first step is to consult the API to see what combinators are
 availble on `Decoder` to handle such scenarios. Here's an improved solution:
@@ -77,7 +77,7 @@ Finally, encoding and decoding `enum`s is so common that the API provides a
 
 :::tip
 `Decoder.emap` only scratches the surface of how you can customize a Decoders
-behavior. Browse the API to see what else is available!
+behavior. Browse the API to see what else is available.
 :::
 
 ## Encoder
@@ -93,7 +93,7 @@ complex `Encoder`.
 
 While what we've done so far is effective and composable, an argument can be made that
 it's pretty verbose. We can cut down on that issue quite a bit by combining `Decoder`s
-and `Encoder`s in form of a `Codec`!
+and `Encoder`s in form of a `Codec`.
 
 :::info
 Usually a `Codec` is what you'll want to use when writing your

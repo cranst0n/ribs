@@ -27,7 +27,7 @@ cancellation, resource safety, and the rest of the `ribs_effect` ecosystem.
 | `await()` | `IO<Unit>` | Suspend until the count reaches 0; returns immediately if already 0 |
 
 :::warning
-`CountDownLatch.create` throws `ArgumentError` if `n < 1`. The count can only
+`CountDownLatch.create` throws an `ArgumentError` if `n < 1`. The count can only
 go down — there is no reset or reuse. For a reusable barrier see `CyclicBarrier`.
 :::
 

@@ -63,8 +63,8 @@ shared counter even when many fibers update it at the same time.
 
 The example below spawns 10 fibers concurrently, each incrementing the counter
 100 times, then reads the final value. `IO.start` launches each worker as an
-independent fiber and returns an `IOFiber` handle; `joinWithNever` then waits
-for each fiber to complete before the final value is read.
+independent fiber and returns an `IOFiber` handle; `join` then waits for each
+fiber to complete before the final value is read.
 
 <<< @/../snippets/lib/src/effect/ref.dart#concurrent-counter
 

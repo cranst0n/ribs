@@ -22,10 +22,6 @@ Option<int> betterMax(List<int> xs) {
 }
 // #endregion better
 
-// #region better-yet
-Option<int> betterYetMax(List<int> xs) => Option.when(() => xs.isNotEmpty, () => xs.reduce(max));
-// #endregion better-yet
-
 // #region combinators-1
 int? foo(String s) => throw UnimplementedError();
 double bar(int s) => throw UnimplementedError();

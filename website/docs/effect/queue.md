@@ -14,15 +14,9 @@ and are safe to share across concurrent fibers.
 
 Mutable queues from `dart:collection` expose methods that perform effects
 immediately. That makes them hard to compose, test, or reason about in a
-program built around `IO`:
+program built around `IO`.
 
-```dart
-// Imperative: the effect happens now, unconditionally
-final q = Queue<int>();
-q.add(42); // side effect — no way to defer, retry, or cancel this
-```
-
-A ribs `Queue` defers every operation inside `IO`. Adding an item is a
+A ribs-effect `Queue` defers every operation inside `IO`. Adding an item is a
 *description* of an add that can be composed, passed to other functions,
 or wrapped in error handling before it ever runs:
 
@@ -31,7 +25,7 @@ or wrapped in error handling before it ever runs:
 final program = Queue.bounded<int>(10).flatMap((q) => q.offer(42));
 ```
 
-Beyond composability, ribs queues provide two properties that are essential
+Beyond composability, ribs-effect queues provide two properties that are essential
 for concurrent programs:
 
 - **Fiber-safe.** Any number of producer and consumer fibers can access the
@@ -60,6 +54,11 @@ for concurrent programs:
 | `tryTake()` | `IO<Option<A>>` | No | Dequeue if an item is available |
 | `tryTakeN(maxN)` | `IO<IList<A>>` | No | Dequeue up to N items at once |
 | `size()` | `IO<int>` | No | Current number of items |
+
+:::info
+Note that blocking here is only semantic blocking, the running thread/isolate
+is not blocked.
+:::
 
 ## Basic usage
 

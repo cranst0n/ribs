@@ -13,7 +13,7 @@ also have to deal with the potential thrown exception, adding yet another
 responsibility which could instead be encoded as a type.
 
 By contrast Ribs uses it's own parser (derived from Scala's jawn),
-to build typed JSON data! No more type checks or casts using `is` or `as`
+to build typed JSON data. No more type checks or casts using `is` or `as`
 which pollute your code and reduce the readability.
 
 Let's begin with a very simple example to get aquainted with the Ribs JSON
@@ -23,9 +23,9 @@ API:
 
 You can see that we can simply pass a string to the `Json.parse` function
 and get our **value** back (emphasis on value because an exception will
-*never* be raised!). With our value, it's easy to check if the parse succeeded
+*never* be raised). With our value, it's easy to check if the parse succeeded
 or failed from the provided JSON string. The developer will need to explicitly
-handle a failure because the `Either` type dictates it!
+handle a failure because the `Either` type dictates it.
 
 <<< @/../snippets/lib/src/json/parsing.dart#parsing-2
 

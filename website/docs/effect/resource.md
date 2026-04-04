@@ -41,7 +41,8 @@ read and harder to refactor.
 :::info
 These examples use the built in `dart:io` functions to read/write to file. Ribs
 also provides it's own functional ways of reading and writing files and sockets
-in the `ribs_rill_io` package that seamlessly integrates with `IO` and `Resource`.
+in the `ribs_rill_io` package that seamlessly integrates with `IO` and `Resource`,
+eliminating most of the noisy boilerplate you see in this contrived example.
 :::
 
 ---

@@ -20,7 +20,7 @@ time you're interacting with the world outside your program such as a network
 or file system, failure *is* an option. In certains circumstance, like in an
 HTTP request as described above, it may be worthwhile to retry the operation
 and hope that things go better the next time. Because this situation is so
-common, Ribs provides a retry mechanism for `IO` out of the box!
+common, Ribs provides a retry mechanism for `IO` out of the box.
 
 ### Flaky Operations
 
@@ -44,7 +44,7 @@ to it that we can:
 And just like that, we've enhanced our original `IO` to create a new `IO` that
 will automatically retry the operation if it fails, up to 3 more times.
 Recognize that this capability is available on ***any*** `IO<A>` type so it's
-completely generic in terms of what the underlying operation is doing!
+completely generic in terms of what the underlying operation is doing.
 
 ### Retrying Customization
 

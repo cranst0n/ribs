@@ -5,7 +5,7 @@ sidebar_position: 3
 
 # Either
 
-`Either` is type that represents the existence of one of two types. An instance
+`Either` is a type that represents the existence of one of two values. An instance
 of `Either` is an instance of `Left` or `Right`.
 
 ## Motivation
@@ -31,7 +31,7 @@ type:
 
 <<< @/../snippets/lib/src/core/either.dart#create-user-3
 
-Much better! We can now see **why** the function was unable to create the user
+Much better. We can now see **why** the function was unable to create the user
 in each instance. This would be great information to pass along to the user
 to help them navigate our application.
 
@@ -73,5 +73,5 @@ As specified in the `fold` function signature, each function provided
 
 :::tip
 Either has a lot of other useful combinators to make using them easy
-and expressive! Check out the API to explore them.
+and expressive. Check out the API to explore them.
 :::

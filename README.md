@@ -43,5 +43,5 @@ the following libraries.
 * [monocle](https://www.optics.dev/Monocle/)
 * [scala](https://github.com/scala/scala)
 * [scodec](https://github.com/scodec/scodec)
-* [sqaunts](https://github.com/typelevel/squants)
+* [squants](https://github.com/typelevel/squants)
 * [upperbound](https://github.com/SystemFw/upperbound)

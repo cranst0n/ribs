@@ -25,7 +25,7 @@ Do we return 0? Do we return -99999? Either of
 those result in an ambiguous result that the caller of the function will need
 interpret. This violates one of the core tenets of functional programming:
 **Local Reasoning**. The caller shouldn't need to interpret the value. The
-**type** of the value should convey that on it's own!
+**type** of the value should convey that on it's own.
 
 So let's improve on the initial implementation of our function to use the
 `Option` type:
@@ -35,11 +35,6 @@ So let's improve on the initial implementation of our function to use the
 By changing the type that's returned, we've indicated to the user (and the compiler)
 that this function may not be able to return a value. As a result, the
 developer must account for either case.
-
-Let's make this function even more readable. Here's a more elegant way to
-define our `max` function even more concisely using the `Option` API:
-
-<<< @/../snippets/lib/src/core/option.dart#better-yet
 
 ## Combinators
 
@@ -85,7 +80,7 @@ alone isn't possible.
 
 ### mapN
 
-Our final scenario, but certainly not last you'll encounter in the wild arises
+Our final scenario, but certainly not last you'll encounter in the wild, arises
 when you have a few `Option` values and want to combine them into something else.
 Our starting point looks like this:
 
@@ -101,11 +96,11 @@ for you:
 By creating a tuple of your `Option` values, you can then use `mapN` as a
 shortcut to achieve what we're after. Note that the number of `Option`
 values you're combining (arity) doesn't matter. Ribs will handle tuples up to
-size 22!
+size 22.
 
 :::tip
 `mapN` isn't just used for combining `Option` values. You'll find it used
-for other data types as well including `Either`, `IO` and many more!
+for other data types as well including `Either`, `IO` and many more.
 :::
 
 This is hardly an exhautive list of the `Option` combinators so be sure to

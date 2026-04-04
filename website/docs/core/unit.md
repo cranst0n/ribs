@@ -15,7 +15,7 @@ nothing meaningful.
 
 ## Why not void?
 
-Dart's `void` is not a proper type — it be avoided as a type argument. You
+Dart's `void` is not a proper type — it should be avoided as a type argument. You
 cannot write `List<void>`, `Option<void>`, or `IO<void>` in a way that
 composes cleanly. `void` is a compiler hint that a value should be discarded,
 not a first-class type that should appear in generic positions.

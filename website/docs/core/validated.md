@@ -30,18 +30,18 @@ as to why the user couldn't be created (e.g. no name provided, too young, etc.).
 But consider the case where there are **multiple** issues with the input. In our
 previous implementation, once an error is encountered, that error is returned
 and we can try again, only to run into yet another error. Frustrating to be
-sure!
+sure.
 
-In this case `Validated` can help us by **accumuulating** all validation errors
+In this case `Validated` can help us by **accumulating** all validation errors
 in case of a failure or returning the validated user. Let's take a quick look
 at what this could look like:
 
 <<< @/../snippets/lib/src/core/validated.dart#create-user-2
 
 With this definition, we can validate all the individual pieces of our user
-data and if everything looks good, get our user! If one or more of the pieces
+data and if everything looks good, get our user. If one or more of the pieces
 doesn't pass the check, we'll get information about ***everything*** that needs
-fixed! Here's how it works in practice:
+fixed. Here's how it works in practice:
 
 <<< @/../snippets/lib/src/core/validated.dart#create-user-3
 

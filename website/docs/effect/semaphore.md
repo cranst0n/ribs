@@ -87,3 +87,8 @@ Even though `parTraverseIO_` starts all fibers at once, at most
 `maxConcurrent` will be executing their `IO.sleep` body at any moment. The rest
 sit suspended inside `permit()`, waiting their turn. No polling, no sleep loops,
 no manual counter needed.
+
+:::tip
+For a more robust rate limiter solution, check out the ribs_limiter project
+and documentation.
+:::

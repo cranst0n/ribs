@@ -6,31 +6,31 @@ sidebar_position: 10
 # IO
 
 `IO` is one of the most useful types in Ribs because it enables us to control
-side effects and make it easier to write purely functional programs.
+side effects and build structured concurrent programs.
 
 :::info
 If you're familiar with the `IO` type from [Cats Effect](https://typelevel.org/cats-effect/),
-then Ribs `IO` should look very similar. In fact, Ribs `IO` is a very close
-port from Scala to Dart! The API is designed to stay as close as possible to
+then Ribs `IO` should look very similar. In fact, Ribs `IO` is an almost direct
+port from Scala to Dart. The API is designed to stay as close as possible to
 the original implementation.
 :::
 
 ## Motivation
 
-While Darts `Future` type has it's uses, it also suffers from issues that make
-it unsuitable for functional programming. Consider the following code:
+While Darts `Future` type has it's uses, it suffers from issues that make
+it unsuitable for pure functional programming. Consider the following code:
 
 <<< @/../snippets/lib/src/effect/io.dart#io-1
 
 If you run this code, you should notice that the value of `x` and `y` are
-always the same! Can you see why this is problematic? Now consider this piece
+always the same. Can you see why this is problematic? Now consider this piece
 of code where we replace each reference to `fut` with the expression that `fut`
 evaluated to:
 
 <<< @/../snippets/lib/src/effect/io.dart#io-2
 
 When we do the substitution, the meaning of the program changes which leads us
-to the conclusion that `Future` is not referentially transparent! That means
+to the conclusion that `Future` is not referentially transparent. That means
 that it's insufficient for use in pure functions.
 
 Here is where `IO` steps in. It provides lazy, pure capabilities that provide
@@ -44,7 +44,7 @@ but for the sake of this example, you can assume that `flatMap` is equivalent
 to `then` and `IO.println` is equivalent to `print`. If you squint hard enough,
 this `IO` version should look pretty similar to the original implementation
 where we defined `rng` using `Future`. ***However***, this piece of code is
-pure and referentially transparent because of the way `IO` is implemented!
+pure and referentially transparent because of the way `IO` is implemented.
 
 Along with this small but important quality, `IO` provides the following
 features:
@@ -52,12 +52,12 @@ features:
 * Asynchronous Execution
 * Error Handling
 * Resource Safety
-* Cancelation
+* Cancellation
 
 
 ## Asynchronous Execution
 
-`IO` is able to describe both synchronous and asynchronous effects.
+`IO` is capable of describing both synchronous and asynchronous effects.
 
 ### IO.pure
 
@@ -95,9 +95,8 @@ illustrates one case where `IO.async_` is useful.
 :::
 
 The only difference between `IO.async` and `IO.async_` is that with `IO.async`
-you can include a cancelation finalizer. Since `Future` doesn't have a
-mechanism for cancelation (at least at the time of this writing), we can safely
-use `IO.async_`.
+you can include a cancellation finalizer. Since `Future` doesn't have a
+mechanism for cancellation, we can safely use `IO.async_`.
 
 :::tip
 To see an example of using `IO.async`, check out the implementation of `IO.fromCancelableOperation`.
@@ -105,8 +104,7 @@ To see an example of using `IO.async`, check out the implementation of `IO.fromC
 
 ## Combinators
 
-Once you have an `IO`, the following combinators let you transform it and
-sequence it with other `IO` values.
+Once you have an `IO`, combinators let you transform it and sequence it with other `IO` values.
 
 <<< @/../snippets/lib/src/effect/io.dart#io-combinators
 
@@ -120,7 +118,7 @@ and controlling `IO`.
 One of the first recommendations on the [Dart Error Handling page](https://dart.dev/language/error-handling)
 demonstrates using `Exception`s paired with `try`/`catch`/`finally` to manage
 errors in your programs. But it's already been established that throwing
-exceptions is a side-effect! This rules out throwing them in our pure FP programs.
+exceptions is a side-effect. This rules out throwing them in our pure FP programs.
 
 That begs the question on how we create and handle errors using `IO`.
 
@@ -157,7 +155,7 @@ For running an arbitrary collection of IOs concurrently see
 ### IO.sleep
 
 `IO.sleep(duration)` suspends the current fiber for the given duration. It is
-an asynchronous boundary, which means cancelation is checked when it resumes.
+an asynchronous boundary, which means cancellation is checked when it resumes.
 
 ### timeout and timeoutTo
 
@@ -184,7 +182,7 @@ an asynchronous boundary, which means cancelation is checked when it resumes.
 | `replicate_(n)` | `IO<Unit>` | Run sequentially *n* times, discard results |
 | `iterateWhile(p)` | `IO<A>` | Repeat while predicate on the result holds |
 | `iterateUntil(p)` | `IO<A>` | Repeat until predicate on the result holds |
-| `foreverM()` | `IO<Nothing>` | Repeat until error or cancelation |
+| `foreverM()` | `IO<Nothing>` | Repeat until error or cancellation |
 
 ## Traversing Collections with IO
 
@@ -244,7 +242,7 @@ synchronous `IO` in the case of `Some` or raise an error in the case of `None`
 and ensure referential transparency.
 
 :::warning
-Simply using `IO` doesn't magically make the `Future` parameter referentially transparent!
+Simply using `IO` doesn't magically make the `Future` parameter referentially transparent.
 You must still take care on controlling the evaluation of the `Future`.
 :::
 
@@ -254,7 +252,7 @@ You must still take care on controlling the evaluation of the `Future`.
 `IO.fromFuture` but is able to take advantage of some of the advanced features
 of `CancelableOperation`.
 
-## Cancelation
+## Cancellation
 
 `IO` also allows you to build cancelable operations.
 
@@ -263,7 +261,7 @@ of `CancelableOperation`.
 This is obviously a contrived example but exhibits that you have a great deal
 of power controlling the execution of an `IO`.
 
-Also note that an `IO` can only be checked for cancelation at it's asynchronous
+Also note that an `IO` can only be checked for cancellation at it's asynchronous
 boundaries. Types of asynchronous boundaries include:
 
 * `IO.sleep`

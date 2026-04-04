@@ -44,7 +44,7 @@ final noName = createUser(const User('', 'Doe', 30));
 // Invalid(NonEmptyIList(Too young!))
 final tooYoung = createUser(const User('John', 'Doe', 7));
 
-// Invalid(NonEmptyIList(No name provided!, Too young!))
+// Invalid(NonEmptyIList(No alias provided!, Too young!))
 final noAliasAndTooYoung = createUser(const User('John', '', 10));
 
 // Invalid(NonEmptyIList(No name provided!, No alias provided!))

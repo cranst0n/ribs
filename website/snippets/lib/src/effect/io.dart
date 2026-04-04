@@ -18,7 +18,7 @@ Future<void> snippet1() async {
 Future<void> snippet2() async {
   // #region io-2
   // Substitute the definition of fut with it's expression
-  // x and y are different! (probably)
+  // x and y are different (probably)
   await Future(
     () => Random.secure().nextInt(1000),
   ).then((x) => Future(() => Random.secure().nextInt(1000)).then((y) => print('x: $x / y: $y')));
@@ -29,7 +29,7 @@ Future<void> snippet3() async {
   // #region io-3
   final rng = IO.delay(() => Random.secure().nextInt(1000));
 
-  // x and y are different! (probably)
+  // x and y are different (probably)
   await rng.flatMap((x) => rng.flatMap((y) => IO.print('x: $x / y: $y'))).unsafeRunFuture();
   // #endregion io-3
 }

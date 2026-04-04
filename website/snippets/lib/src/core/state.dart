@@ -55,7 +55,11 @@ final class GameState {
     required this.inventory,
   });
 
-  GameState copy({int? health, int? gold, IList<String>? inventory}) => GameState(
+  GameState copy({
+    int? health,
+    int? gold,
+    IList<String>? inventory,
+  }) => GameState(
     health: health ?? this.health,
     gold: gold ?? this.gold,
     inventory: inventory ?? this.inventory,
