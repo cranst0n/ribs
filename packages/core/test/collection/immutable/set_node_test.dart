@@ -1,17 +1,7 @@
-// Comprehensive tests for BitmapIndexedSetNode and HashCollisionSetNode.
-//
-// Most paths are exercised via the IHashSet public API; direct node-level
-// tests cover operations that are not reachable through that API
-// (foreachWithHash, foreachWithHashWhile, copy, subsetOf, ==, etc.).
-
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/hashing.dart';
 import 'package:ribs_core/src/collection/immutable/set/set_node.dart';
 import 'package:test/test.dart';
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 /// All instances share the same hashCode, forcing HashCollisionSetNode.
 class _CK {
@@ -47,15 +37,7 @@ Set<A> _drain<A>(SetNode<A> node) {
 
 int _h(dynamic key) => Hashing.improve(key.hashCode);
 
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
-
 void main() {
-  // =========================================================================
-  // SetNode.empty
-  // =========================================================================
-
   group('SetNode.empty', () {
     test('size is 0', () => expect(SetNode.empty<int>().size, 0));
     test('hasPayload is false', () => expect(SetNode.empty<int>().hasPayload, isFalse));
@@ -785,6 +767,183 @@ void main() {
     test('cachedDartKeySetHashCode equals size * hash', () {
       final hc = getHCNode(ckNode(['a', 'b', 'c']));
       expect(hc.cachedDartKeySetHashCode, hc.size * Hashing.improve(0xABCDEF));
+    });
+  });
+
+  // =========================================================================
+  // Helpers for structure-targeted tests
+  //
+  // We find same-bucket pairs empirically: build _nodeOf([a, b]) and check
+  // whether the root node has a single sub-node (payloadArity==0, nodeArity==1).
+  // This avoids having to replicate Dart's 64-bit Hashing.improve arithmetic.
+  // =========================================================================
+
+  /// Returns (a, b) where _nodeOf([a, b]) has payloadArity==0, nodeArity==1,
+  /// meaning both integers land in the same depth-0 CHAMP bucket.
+  (int, int) pairSameBucket() {
+    for (var a = 0; a < 500; a++) {
+      for (var b = a + 1; b < 500; b++) {
+        final n = _nodeOf([a, b]);
+        if (n.payloadArity == 0 && n.nodeArity == 1) return (a, b);
+      }
+    }
+    throw StateError('no same-bucket pair found — unreachable');
+  }
+
+  /// Returns an integer c such that _nodeOf([ref, c]) has payloadArity==2,
+  /// meaning c lands in a different depth-0 CHAMP bucket than [ref].
+  int differentBucket(int ref) {
+    for (var c = 0; c < 500; c++) {
+      if (c == ref) continue;
+      if (_nodeOf([ref, c]).payloadArity == 2) return c;
+    }
+    throw StateError('unreachable');
+  }
+
+  // =========================================================================
+  // BitmapIndexedSetNode == (additional)
+  // =========================================================================
+
+  group('BitmapIndexedSetNode == additional', () {
+    test('deep equal nodes built independently compare equal', () {
+      final large = List.generate(64, (i) => i);
+      final n1 = _nodeOf(large);
+      final n2 = _nodeOf(large);
+      expect(identical(n1, n2), isFalse);
+      expect(n1 == n2, isTrue);
+    });
+
+    test('comparing with HashCollisionSetNode returns false', () {
+      // Get a bare BitmapIndexedSetNode<_CK> that wraps a HC sub-node.
+      const ckA = _CK('a');
+      const ckB = _CK('b');
+      final h = ckA.hashCode;
+      var root = SetNode.empty<_CK>();
+      root = root.updated(ckA, h, Hashing.improve(h), 0);
+      root = root.updated(ckB, h, Hashing.improve(h), 0);
+      final hc = root.getNode(0); // runtime: HashCollisionSetNode
+      // root is a BitmapIndexedSetNode; hc is a HashCollisionSetNode —
+      // the switch in == falls through to `_ => false`.
+      expect(root == hc, isFalse);
+    });
+
+    test('nodes with same cachedHash but different dataMap compare false', () {
+      // Build two size-1 nodes with different elements that happen to
+      // have different dataMap positions; can't be equal.
+      final (a, b) = pairSameBucket();
+      final na = _nodeOf([a]);
+      final nb = _nodeOf([b]);
+      // na and nb have different elements → not equal.
+      expect(na == nb, isFalse);
+    });
+  });
+
+  // =========================================================================
+  // BitmapIndexedSetNode removed — escalation path
+  //
+  // When a BitmapIndexedSetNode has exactly one subnode (no inline data) and
+  // that subnode shrinks to size 1, the root must return subNodeNew directly
+  // (the "escalate" branch) rather than calling copyAndMigrateFromNodeToInline.
+  // =========================================================================
+
+  group('BitmapIndexedSetNode removed escalation', () {
+    test('removing from sole subnode (size==subNode.size) escalates result', () {
+      // a and b share the same depth-0 bucket → root gets nodeMap != 0,
+      // dataMap == 0, size == 2 (the entire tree lives in one subnode).
+      final (a, b) = pairSameBucket();
+      final root = _nodeOf([a, b]);
+      // Verify the root really does consist of only one subnode.
+      expect(root.payloadArity, 0, reason: 'all data should be in the subnode');
+      expect(root.nodeArity, 1);
+
+      final ha = a.hashCode;
+      final result = root.removed(a, ha, Hashing.improve(ha), 0);
+
+      // The subnode shrinks to size 1 and the root escalates to that singleton.
+      expect(result.size, 1);
+      final hb = b.hashCode;
+      expect(result.contains(b, hb, Hashing.improve(hb), 0), isTrue);
+      expect(result.contains(a, ha, Hashing.improve(ha), 0), isFalse);
+    });
+  });
+
+  // =========================================================================
+  // BitmapIndexedSetNode subsetOf — data-vs-node path
+  //
+  // When `this` has element E inline at depth 0 (in dataMap) but `that` has a
+  // subnode at the same bitposition (in nodeMap), the data-vs-node branch
+  // inside subsetOf must delegate to the subnode's contains().
+  // =========================================================================
+
+  group('BitmapIndexedSetNode subsetOf data-vs-node', () {
+    test('data-in-this vs node-in-that: still a valid subset', () {
+      // `this` = {a}         → a is inline at depth 0 (dataMap has the bit)
+      // `that` = {a, b}     → a and b share depth-0 bucket → that has a subnode
+      final (a, b) = pairSameBucket();
+      final subNode = _nodeOf([a]); // a inline in dataMap
+      final superNode = _nodeOf([a, b]); // a+b form a subnode
+      expect(superNode.payloadArity, 0); // confirm that is node-only at depth 0
+      expect(subNode.subsetOf(superNode, 0), isTrue);
+    });
+
+    test('data-in-this vs node-in-that: fails when element absent from subnode', () {
+      final (a, b) = pairSameBucket();
+      final c = differentBucket(a); // in a different bucket entirely
+      // Build `that` = {a, b} and `this` = {c}: c's bucket differs so c is
+      // inline in `this` and absent from `that` → NOT a subset.
+      final notSubNode = _nodeOf([c]);
+      final superNode = _nodeOf([a, b]);
+      expect(notSubNode.subsetOf(superNode, 0), isFalse);
+    });
+  });
+
+  group('BitmapIndexedSetNode diff additional paths', () {
+    test('node-vs-data: left has subnode, right has single element at same bitpos', () {
+      // a and b share depth-0 bucket → left root has one subnode {a, b}.
+      // right has only a as inline data at that same depth-0 bitpos.
+      // diff should remove a from the left subnode, leaving {b, ...}.
+      final (a, b) = pairSameBucket();
+      final c = differentBucket(a);
+      final left = _nodeOf([a, b, c]); // root: subnode(a,b) + inline(c)
+      final right = _nodeOf([a]); // root: inline(a) only — bm.dataMap has bit
+
+      // Confirm left has the expected structure.
+      expect(left.nodeArity, greaterThan(0));
+
+      final result = left.diff(right, 0);
+      final remaining = _drain(result);
+      expect(remaining, {b, c});
+    });
+
+    test('node-vs-node: both sides have subnode at same bitpos', () {
+      // a and b share depth-0 bucket → both left and right root nodes have a
+      // subnode at that bitpos; diff recurses into both subnodes.
+      final (a, b) = pairSameBucket();
+      final c = differentBucket(a);
+      // left = {a, b, c}, right = {a, b} — right's subnode contains a and b.
+      final left = _nodeOf([a, b, c]);
+      final right = _nodeOf([a, b]);
+
+      final result = left.diff(right, 0);
+      final remaining = _drain(result);
+      // a and b are removed; only c remains.
+      expect(remaining, {c});
+    });
+
+    test('subnode passes through unchanged when that has nothing at that bitpos', () {
+      // left has subnode {a, b} at depth-0 bit X.
+      // right has element d at a completely different depth-0 bit.
+      // The diff of the subnode with nothing = the subnode unchanged
+      // → nodesToPassThroughMap path.
+      final (a, b) = pairSameBucket();
+      final d = differentBucket(a);
+      final left = _nodeOf([a, b, d]); // subnode(a,b) + inline(d)
+      final right = _nodeOf([d]); // only d; nothing at a/b's depth-0 bit
+
+      final result = left.diff(right, 0);
+      final remaining = _drain(result);
+      // d is removed; a and b remain (passed through)
+      expect(remaining, {a, b});
     });
   });
 
