@@ -4,7 +4,11 @@ import 'package:ribs_json/src/dawn/byte_based_parser.dart';
 import 'package:ribs_json/src/dawn/fcontext.dart';
 import 'package:ribs_json/src/dawn/sync_parser.dart';
 
+/// A synchronous [Parser] that reads from a [Uint8List] of UTF-8-encoded bytes.
+///
+/// Used by [Parser.parseFromBytes].
 final class ByteDataParser extends SyncParser with ByteBasedParser {
+  /// The raw UTF-8 byte source.
   final Uint8List src;
   final int _start;
   final int _limit;

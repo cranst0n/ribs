@@ -2,20 +2,30 @@ import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
+/// The sequence of [PathElem]s from the root of a [Json] tree to the cursor
+/// position, used to render a human-readable location in [DecodingFailure]
+/// messages.
 @immutable
 final class PathToRoot {
+  /// The ordered list of path elements, from root to the focused position.
   final IList<PathElem> value;
 
+  /// Creates a [PathToRoot] from a list of [PathElem]s.
   const PathToRoot(this.value);
 
+  /// Returns this path as a dot/bracket string (e.g. `.user.addresses[0]`).
   String asPathString() => PathToRoot.toPathString(this);
 
+  /// Returns a new [PathToRoot] with [elem] appended at the end.
   PathToRoot appendElem(PathElem elem) => PathToRoot(value.appended(elem));
 
+  /// Returns a new [PathToRoot] with [elem] prepended at the beginning.
   PathToRoot prependElem(PathElem elem) => PathToRoot(value.prepended(elem));
 
+  /// An empty [PathToRoot] representing the root position.
   static PathToRoot empty = PathToRoot(IList.empty());
 
+  /// Renders [path] as a dot/bracket string.
   static String toPathString(PathToRoot path) {
     if (path.value.isEmpty) {
       return '';
@@ -30,6 +40,9 @@ final class PathToRoot {
     }
   }
 
+  /// Reconstructs a [PathToRoot] by replaying [ops] (a cursor history).
+  /// Returns `Right(path)` on success or `Left(message)` if the history is
+  /// inconsistent.
   static Either<String, PathToRoot> fromHistory(IList<CursorOp> ops) {
     final initial = Either.right<String, IList<PathElem>>(IList.empty());
 
@@ -165,17 +178,25 @@ final class PathToRoot {
   int get hashCode => value.hashCode;
 }
 
+/// A single element in a [PathToRoot]: either an object key or an array index.
 @immutable
 sealed class PathElem {
+  /// Creates a [PathElem] for an object field named [keyName].
   static PathElem objectKey(String keyName) => ObjectKey(keyName);
+
+  /// Creates a [PathElem] for an array element at [index].
   static PathElem arrayIndex(int index) => ArrayIndex(index);
 
+  /// Returns [Some] if this element is an [ObjectKey], otherwise [None].
   Option<ObjectKey> asObjectKey();
 
+  /// Returns [Some] if this element is an [ArrayIndex], otherwise [None].
   Option<ArrayIndex> asArrayIndex();
 }
 
+/// A [PathElem] representing a JSON object field access.
 final class ObjectKey extends PathElem {
+  /// The field name.
   final String keyName;
 
   ObjectKey(this.keyName);
@@ -194,7 +215,9 @@ final class ObjectKey extends PathElem {
   int get hashCode => keyName.hashCode;
 }
 
+/// A [PathElem] representing a JSON array element access.
 final class ArrayIndex extends PathElem {
+  /// The zero-based array index.
   final int index;
 
   ArrayIndex(this.index);

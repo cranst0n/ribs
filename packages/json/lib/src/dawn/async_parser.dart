@@ -7,9 +7,15 @@ import 'package:ribs_json/src/dawn/byte_based_parser.dart';
 import 'package:ribs_json/src/dawn/dawn.dart';
 import 'package:ribs_json/src/dawn/fcontext.dart';
 
+/// Controls how an [AsyncParser] interprets its input stream.
 enum AsyncParserMode {
+  /// The input is a JSON array; each element is emitted as a separate value.
   unwrapArray(-5, 1),
+
+  /// The input contains multiple whitespace-separated JSON values.
   valueStream(-1, 0),
+
+  /// The input contains exactly one JSON value.
   singleValue(-1, -1);
 
   final int _start;
@@ -18,6 +24,20 @@ enum AsyncParserMode {
   const AsyncParserMode(this._start, this._value);
 }
 
+/// A stateful, incremental JSON parser that accepts data in chunks.
+///
+/// Call [absorb] / [absorbString] to feed bytes or string chunks, and
+/// [finish] / [finalAbsorb] when the last chunk has been delivered. Each call
+/// returns `Right(IList<Json>)` containing any values completed so far, or
+/// `Left(ParseException)` on a syntax error.
+///
+/// The parsing mode is set at construction time via [AsyncParserMode]:
+/// - [AsyncParserMode.singleValue] — one complete JSON value
+/// - [AsyncParserMode.valueStream] — multiple whitespace-separated values
+/// - [AsyncParserMode.unwrapArray] — elements of a top-level JSON array
+///
+/// [AsyncParser] is used internally by [JsonTransformer]; prefer that API for
+/// stream-based decoding.
 final class AsyncParser extends Parser with ByteBasedParser {
   int _state;
   int _curr;
@@ -62,6 +82,8 @@ final class AsyncParser extends Parser with ByteBasedParser {
     this._multiValue,
   );
 
+  /// Feeds [buf] into the parser and returns any [Json] values completed so
+  /// far. Does not signal end-of-input; call [finish] when done.
   Either<ParseException, IList<Json>> absorb(Uint8List buf) {
     _done = false;
     _data.addAll(buf);
@@ -69,8 +91,11 @@ final class AsyncParser extends Parser with ByteBasedParser {
     return _churn();
   }
 
+  /// Encodes [buf] as UTF-8 and feeds it to [absorb].
   Either<ParseException, IList<Json>> absorbString(String buf) => absorb(utf8.encoder.convert(buf));
 
+  /// Feeds [buf] and signals end-of-input, returning all remaining [Json]
+  /// values or a [ParseException] if the input is incomplete or invalid.
   Either<ParseException, IList<Json>> finalAbsorb(Uint8List buf) => absorb(buf).fold(
     (err) => err.asLeft(),
     (xs) => finish().fold(
@@ -79,6 +104,7 @@ final class AsyncParser extends Parser with ByteBasedParser {
     ),
   );
 
+  /// Encodes [buf] as UTF-8 and calls [finalAbsorb].
   Either<ParseException, IList<Json>> finalAbsorbString(String buf) =>
       finalAbsorb(utf8.encoder.convert(buf));
 
@@ -123,6 +149,8 @@ final class AsyncParser extends Parser with ByteBasedParser {
   @override
   int column(int i) => i - _pos;
 
+  /// Signals end-of-input and flushes any remaining buffered data, returning
+  /// completed [Json] values or a [ParseException].
   Either<ParseException, IList<Json>> finish() {
     _done = true;
     return _churn();
@@ -266,4 +294,6 @@ final class AsyncParser extends Parser with ByteBasedParser {
   static const _ASYNC_PREVAL = -1;
 }
 
+/// Internal sentinel thrown when [AsyncParser] runs out of buffered data
+/// mid-parse; caught and handled by [AsyncParser] itself.
 final class AsyncException implements Exception {}

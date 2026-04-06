@@ -1,3 +1,15 @@
+/// A functional JSON library for Dart.
+///
+/// [Json] is a sealed ADT ([JNull], [JBoolean], [JNumber], [JString],
+/// [JArray], [JObject]) with support for parsing, formatting via [Printer], and
+/// streaming via [JsonTransformer]. [Decoder], [Encoder], and [Codec] provide
+/// type-safe conversion to and from Dart types, with built-in instances for
+/// primitives, enums, and collections; structured types compose via the product
+/// syntax on [KeyValueCodec]. Navigation uses a cursor zipper ([HCursor],
+/// [FailedCursor]) that tracks the path through the tree so that
+/// [DecodingFailure] errors carry precise location information.
+library;
+
 export 'src/acursor.dart';
 export 'src/codec.dart';
 export 'src/codec/key_codec.dart';

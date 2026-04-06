@@ -1,7 +1,11 @@
 import 'package:ribs_json/src/dawn/fcontext.dart';
 import 'package:ribs_json/src/dawn/parser.dart';
 
+/// [Parser] mixin that implements [parseString] for inputs backed by raw bytes.
+/// Handles multi-byte UTF-8 sequences (1–4 bytes) and all standard JSON escape
+/// sequences.
 mixin ByteBasedParser on Parser {
+  /// Returns the raw byte at position [i].
   int byte(int i);
 
   int parseStringSimple(int i, FContext ctxt) {

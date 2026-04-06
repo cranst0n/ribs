@@ -1,10 +1,23 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
+/// An [HCursor] positioned at a value within a [JObject].
+///
+/// Tracks the full [JsonObject], the [keyValue] of the focused field, and
+/// whether any field has been modified so that [up] can propagate changes to
+/// the parent cursor.
 final class ObjectCursor extends HCursor {
+  /// The JSON object being navigated.
   final JsonObject obj;
+
+  /// The key of the currently focused field.
   final String keyValue;
+
+  /// The cursor that was used to enter this object.
   final HCursor parent;
+
+  /// Whether any field in [obj] has been modified since this cursor was
+  /// created.
   final bool changed;
 
   const ObjectCursor(

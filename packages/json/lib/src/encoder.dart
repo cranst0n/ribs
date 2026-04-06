@@ -8,57 +8,83 @@ import 'package:ribs_json/src/encoder/contramap_encoder.dart';
 import 'package:ribs_json/src/encoder/encoder_f.dart';
 import 'package:ribs_json/src/encoder/map_encoder.dart';
 
+/// Encodes a Dart value of type [A] into a [Json] value.
+///
+/// Use the static primitive instances and [instance] / [contramap] to build
+/// and compose encoders.
 @immutable
 abstract mixin class Encoder<A> {
+  /// Creates an [Encoder] from a plain function.
   static Encoder<A> instance<A>(Function1<A, Json> encodeF) => EncoderF(encodeF);
 
+  /// Encodes [a] as a [Json] value.
   Json encode(A a);
 
+  /// Returns an encoder for [B] that converts a [B] to [A] with [f] and then
+  /// delegates to this encoder.
   Encoder<B> contramap<B>(Function1<B, A> f) => ContramapEncoder(this, f);
 
+  /// Returns an encoder that applies [f] to the encoded [Json].
   Encoder<A> mapJson(Function1<Json, Json> f) => Encoder.instance((a) => f(encode(a)));
 
   //////////////////////////////////////////////////////////////////////////////
   /// Primitive Instances
   //////////////////////////////////////////////////////////////////////////////
 
+  /// Encoder for [BigInt] as a JSON string.
   static Encoder<BigInt> bigInt = Encoder.instance((a) => Json.str(a.toString()));
 
+  /// Encoder for [bool] as a JSON boolean.
   static Encoder<bool> boolean = Encoder.instance((a) => Json.boolean(a));
 
+  /// Encoder for [Uint8List] as a Base64-encoded JSON string.
   static Encoder<Uint8List> bytes = string.contramap(base64Encode);
 
+  /// Encoder for [DateTime] as an ISO-8601 JSON string.
   static Encoder<DateTime> dateTime = Encoder.instance((a) => Json.str(a.toIso8601String()));
 
+  /// Encoder for [Duration] as a JSON integer (microseconds).
   static Encoder<Duration> duration = number.contramap((a) => a.inMicroseconds);
 
+  /// Encoder for [double] as a JSON number.
   static Encoder<double> dubble = number.contramap(identity);
 
+  /// Encoder for [Enum] subtype [T] as a JSON integer index.
   static Encoder<T> enumerationByIndex<T extends Enum>() => integer.contramap((e) => e.index);
 
+  /// Encoder for [Enum] subtype [T] as a JSON string name.
   static Encoder<T> enumerationByName<T extends Enum>() => string.contramap((e) => e.name);
 
+  /// Encoder for [int] as a JSON number.
   static Encoder<int> integer = number.contramap(identity);
 
+  /// Encoder that returns the [Json] value unchanged.
   static Encoder<Json> json = Encoder.instance(identity);
 
+  /// Encoder for [num] as a JSON number (non-finite values become `null`).
   static Encoder<num> number = Encoder.instance((a) => a.isFinite ? Json.number(a) : Json.Null);
 
+  /// Encoder for [List<A>] as a JSON array.
   static Encoder<List<A>> list<A>(Encoder<A> encodeA) =>
       Encoder.instance((a) => JArray(IList.fromDart(a).map(encodeA.encode)));
 
+  /// Encoder for [IList<A>] as a JSON array.
   static Encoder<IList<A>> ilist<A>(Encoder<A> encodeA) =>
       list(encodeA).contramap((a) => a.toList());
 
+  /// Encoder for [Map<K, V>] as a JSON object.
   static Encoder<Map<K, V>> mapOf<K, V>(KeyEncoder<K> encodeK, Encoder<V> encodeV) =>
       MapEncoder(encodeK, encodeV);
 
+  /// Encoder for [IMap<K, V>] as a JSON object.
   static Encoder<IMap<K, V>> imapOf<K, V>(KeyEncoder<K> encodeK, Encoder<V> encodeV) =>
       mapOf(encodeK, encodeV).contramap((im) => im.toMap());
 
+  /// Encoder for [NonEmptyIList<A>] as a JSON array.
   static Encoder<NonEmptyIList<A>> nonEmptyIList<A>(Encoder<A> encodeA) =>
       list(encodeA).contramap((a) => a.toList());
 
+  /// Encoder for [String] as a JSON string.
   static Encoder<String> string = Encoder.instance((a) => Json.str(a));
 
   //////////////////////////////////////////////////////////////////////////////

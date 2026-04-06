@@ -4,12 +4,21 @@ import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
+/// An immutable, ordered JSON object (key-value map).
+///
+/// Keys are [String]s and values are [Json]. Insertion order is preserved.
+/// Use the factory methods to construct instances and [add], [remove],
+/// [mapValues], and [filter] to produce modified copies.
 @immutable
 sealed class JsonObject {
+  /// An empty [JsonObject].
   static JsonObject get empty => _LinkedHashMapJsonObject(LinkedHashMap());
 
+  /// Creates a [JsonObject] from an [IList] of `(key, value)` pairs.
   static JsonObject fromIList(IList<(String, Json)> fields) => fromIterable(fields.toList());
 
+  /// Creates a [JsonObject] from an [Iterable] of `(key, value)` pairs.
+  /// Later entries with the same key overwrite earlier ones.
   static JsonObject fromIterable(Iterable<(String, Json)> fields) {
     final map = <String, Json>{};
 
@@ -24,19 +33,28 @@ sealed class JsonObject {
   static JsonObject fromMap(Map<String, Json> fields) =>
       _LinkedHashMapJsonObject(LinkedHashMap.from(fields));
 
+  /// Returns a copy with [key] set to [value] (overwrites if [key] exists).
   JsonObject add(String key, Json value);
 
+  /// Iterates over all key-value pairs in insertion order.
   void forEach(void Function(String key, Json value) f);
 
+  /// Returns [Some] with the value for [key], or [None] if absent.
   Option<Json> get(String key);
 
   /// Returns the value for [key], or `null` if absent. Avoids [Option] allocation.
   Json? tryGet(String key);
 
+  /// Returns the value for [key], throwing if absent.
   Json getUnsafe(String key);
 
+  /// Returns `true` if [key] is present.
   bool contains(String key);
 
+  /// Recursively merges [that] into this object.
+  ///
+  /// Fields present in both are merged recursively; fields only in this object
+  /// are added to [that].
   JsonObject deepMerge(JsonObject that) => toIList().foldLeft(
     that,
     (acc, kv) => that
@@ -47,26 +65,38 @@ sealed class JsonObject {
         ),
   );
 
+  /// Returns a copy containing only the entries for which [p] returns `true`.
   JsonObject filter(Function1<(String, Json), bool> p) => JsonObject.fromIList(toIList().filter(p));
 
+  /// Returns `true` if this object has no entries.
   bool get isEmpty;
 
+  /// Returns `true` if this object has at least one entry.
   bool get isNotEmpty => !isEmpty;
 
+  /// The keys of this object in insertion order.
   IList<String> get keys;
 
+  /// Returns a copy with each value replaced by `f(value)`.
   JsonObject mapValues(Function1<Json, Json> f);
 
+  /// Returns `true` if this object has at least one entry.
   bool get nonEmpty => !isEmpty;
 
+  /// Returns a copy with [key] removed (no-op if [key] is absent).
   JsonObject remove(String key);
 
+  /// The number of entries in this object.
   int get size;
 
+  /// Returns the entries as an [IList] of `(key, value)` pairs in insertion
+  /// order.
   IList<(String, Json)> toIList();
 
+  /// Wraps this object in a [JObject].
   Json toJson() => Json.fromJsonObject(this);
 
+  /// The values of this object in insertion order.
   IList<Json> get values;
 }
 

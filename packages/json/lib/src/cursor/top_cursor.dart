@@ -1,5 +1,9 @@
 import 'package:ribs_json/ribs_json.dart';
 
+/// An [HCursor] positioned at the root of a [Json] value.
+///
+/// There is no parent cursor above a [TopCursor], so [up], [left], [right],
+/// [field], and [delete] all return a [FailedCursor].
 final class TopCursor extends HCursor {
   @override
   final Json value;

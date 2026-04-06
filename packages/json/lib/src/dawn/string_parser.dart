@@ -2,7 +2,11 @@ import 'package:ribs_json/src/dawn/fcontext.dart';
 import 'package:ribs_json/src/dawn/string_based_parser.dart';
 import 'package:ribs_json/src/dawn/sync_parser.dart';
 
+/// A synchronous [Parser] that reads from a Dart [String].
+///
+/// Used by [Parser.parseUnsafe] and [Parser.parseFromString].
 class StringParser extends SyncParser with StringBasedParser {
+  /// The JSON source string.
   final String s;
   int _line = 0;
   int _offset = 0;

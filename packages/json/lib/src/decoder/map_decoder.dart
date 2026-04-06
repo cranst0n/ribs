@@ -2,10 +2,19 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 import 'package:ribs_json/src/cursor/object_cursor.dart';
 
+/// A [Decoder] that decodes a [JObject] into a Dart [Map].
+///
+/// Each JSON object key is decoded by [decodeK] and each value by [decodeV].
+/// Fails immediately on the first key or value that cannot be decoded.
+/// Created by [Decoder.mapOf].
 final class MapDecoder<K, V> extends Decoder<Map<K, V>> {
+  /// The decoder applied to each object key string.
   final KeyDecoder<K> decodeK;
+
+  /// The decoder applied to each object value.
   final Decoder<V> decodeV;
 
+  /// Creates a [MapDecoder] using [decodeK] for keys and [decodeV] for values.
   MapDecoder(this.decodeK, this.decodeV);
 
   @override

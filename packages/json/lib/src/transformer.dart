@@ -5,15 +5,27 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 import 'package:ribs_json/src/dawn/dawn.dart';
 
+/// A [StreamTransformer] that parses a stream of [A] chunks into a stream of
+/// [Json] values using an [AsyncParser].
+///
+/// Use [JsonTransformer.bytes] for `Stream<List<int>>` inputs and
+/// [JsonTransformer.strings] for `Stream<String>` inputs. The [mode] controls
+/// whether the stream contains a single value, multiple whitespace-separated
+/// values, or a top-level JSON array to be unwrapped.
 abstract class JsonTransformer<A> extends StreamTransformerBase<A, Json> {
+  /// The parsing mode passed to the internal [AsyncParser].
   final AsyncParserMode mode;
 
+  /// Creates a [JsonTransformer] that accepts `List<int>` byte chunks.
   static JsonTransformer<List<int>> bytes(AsyncParserMode mode) => _BytesJsonTransformer(mode);
 
+  /// Creates a [JsonTransformer] that accepts [String] chunks.
   static JsonTransformer<String> strings(AsyncParserMode mode) => _StringJsonTransformer(mode);
 
   JsonTransformer(this.mode);
 
+  /// Feeds chunk [a] to [parser] and returns any [Json] values completed so
+  /// far, or a [ParseException] on error.
   Either<ParseException, IList<Json>> absorb(AsyncParser parser, A a);
 
   @override

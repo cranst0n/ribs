@@ -6,30 +6,52 @@ import 'package:ribs_json/ribs_json.dart';
 import 'package:ribs_json/src/codec/codec_f.dart';
 import 'package:ribs_json/src/decoder/option_decoder.dart';
 
+/// Bidirectional JSON codec that combines a [Decoder] and an [Encoder].
+///
+/// Use the static factory methods and primitive instances as building blocks,
+/// then compose with [atField], [iemap], [xmap], [optional], and [nullable].
+/// Structured types with multiple fields are assembled via the product syntax
+/// on tuples of [KeyValueCodec]s (see [syntax.dart]).
 @immutable
 abstract class Codec<A> extends Decoder<A> with Encoder<A> {
+  /// Binds this codec to [key], producing a [KeyValueCodec] that decodes from
+  /// and encodes to a single named object field.
   KeyValueCodec<A> atField(String key) => KeyValueCodec(key, this);
 
+  /// Returns a new codec that maps decoded values through [f] and encodes with
+  /// [g]. [f] may return `Left(message)` to signal a decoding failure.
   Codec<B> iemap<B>(Function1<A, Either<String, B>> f, Function1<B, A> g) =>
       from(emap(f), contramap(g));
 
+  /// Returns a codec for nullable [A]: encodes `null` as [JNull] and decodes
+  /// [JNull] or a missing field as Dart `null`.
   Codec<A?> nullable() => optional().xmap((o) => o.toNullable(), Option.new);
 
   @override
+  /// Returns a codec for [Option<A>]: encodes [None] as [JNull] and decodes
+  /// [JNull] or a missing field as [None].
   Codec<Option<A>> optional() => from(
     OptionDecoder(this),
     Encoder.instance<Option<A>>((a) => a.fold(() => const JNull(), encode)),
   );
 
+  /// Returns a new codec that maps decoded values through [f] and encodes with
+  /// [g]. Unlike [iemap], [f] must always succeed.
   Codec<B> xmap<B>(Function1<A, B> f, Function1<B, A> g) => iemap((a) => f(a).asRight(), g);
 
+  /// Creates a [Codec] from a separate [Decoder] and [Encoder].
   static Codec<A> from<A>(Decoder<A> decoder, Encoder<A> encoder) => CodecF(decoder, encoder);
 
+  /// Creates a [Codec] from decode and encode functions.
   static Codec<A> instance<A>(
     Function1<HCursor, DecodeResult<A>> decodeF,
     Function1<A, Json> encodeF,
   ) => from(Decoder.instance(decodeF), Encoder.instance(encodeF));
 
+  /// Creates a [Codec] for a sealed type [A] from up to 22 subtype codecs.
+  ///
+  /// Decoding tries each codec in order and returns the first success.
+  /// Encoding dispatches on the runtime type of the value.
   static Codec<A> oneOf<
     A,
     B extends A,
@@ -127,48 +149,61 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
     return Codec.from(decoder, encoder);
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  /// Primitive Instances
-  //////////////////////////////////////////////////////////////////////////////
-
+  /// Codec for [BigInt] (encoded as a JSON string).
   static Codec<BigInt> bigInt = from(Decoder.bigInt, Encoder.bigInt);
 
+  /// Codec for [bool].
   static Codec<bool> boolean = from(Decoder.boolean, Encoder.boolean);
 
+  /// Codec for [Uint8List] (Base64-encoded JSON string).
   static Codec<Uint8List> bytes = from(Decoder.bytes, Encoder.bytes);
 
+  /// Codec for [DateTime] (ISO-8601 JSON string).
   static Codec<DateTime> dateTime = from(Decoder.dateTime, Encoder.dateTime);
 
+  /// Codec for [double].
   static Codec<double> dubble = from(Decoder.dubble, Encoder.dubble);
 
+  /// Codec for [Duration] (microseconds as a JSON integer).
   static Codec<Duration> duration = from(Decoder.duration, Encoder.duration);
 
+  /// Codec for [Enum] subtype [T] using the ordinal index as a JSON integer.
   static Codec<T> enumerationByIndex<T extends Enum>(List<T> values) =>
       from(Decoder.enumerationByIndex(values), Encoder.enumerationByIndex());
 
+  /// Codec for [Enum] subtype [T] using the enum name as a JSON string.
   static Codec<T> enumerationByName<T extends Enum>(List<T> values) =>
       from(Decoder.enumerationByName(values), Encoder.enumerationByName());
 
+  /// Codec for [int].
   static Codec<int> integer = from(Decoder.integer, Encoder.integer);
 
+  /// Codec for [IList<A>] backed by a JSON array.
   static Codec<IList<A>> ilist<A>(Codec<A> codec) =>
       from(Decoder.ilist(codec), Encoder.ilist(codec));
 
+  /// Codec that round-trips [Json] unchanged.
   static Codec<Json> json = from(Decoder.json, Encoder.json);
 
+  /// Codec for [List<A>] backed by a JSON array.
   static Codec<List<A>> list<A>(Codec<A> codec) => from(Decoder.list(codec), Encoder.list(codec));
 
+  /// Codec for [Map<K, V>] backed by a JSON object.
   static Codec<Map<K, V>> mapOf<K, V>(KeyCodec<K> codecK, Codec<V> codecV) =>
       from(Decoder.mapOf(codecK, codecV), Encoder.mapOf(codecK, codecV));
 
+  /// Codec for [IMap<K, V>] backed by a JSON object.
   static Codec<IMap<K, V>> imapOf<K, V>(KeyCodec<K> codecK, Codec<V> codecV) =>
       from(Decoder.imapOf(codecK, codecV), Encoder.imapOf(codecK, codecV));
 
+  /// Codec for [NonEmptyIList<A>] backed by a non-empty JSON array.
   static Codec<NonEmptyIList<A>> nonEmptyIList<A>(Codec<A> codec) =>
       from(Decoder.nonEmptyIList(codec), Encoder.nonEmptyIList(codec));
 
+  /// Codec for [num].
   static Codec<num> number = from(Decoder.number, Encoder.number);
 
+  /// Codec for [String].
   static Codec<String> string = from(Decoder.string, Encoder.string);
 
   //////////////////////////////////////////////////////////////////////////////

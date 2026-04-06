@@ -1,15 +1,36 @@
 import 'package:ribs_json/ribs_json.dart';
 
+/// Accumulator context used by [Parser] to build up a [Json] value during
+/// parsing.
+///
+/// Each context corresponds to the JSON structure currently being assembled:
+/// an array, an object, or a single top-level value. The parser calls
+/// [addStringAt] / [addValueAt] to push parsed values into the context, and
+/// [finishAt] to obtain the completed [Json].
 abstract class FContext {
+  /// Creates a context for accumulating a JSON array.
   static FContext array(int i) => _ArrayContext();
+
+  /// Creates a context for accumulating a JSON object.
   static FContext object(int i) => _ObjectContext();
+
+  /// Creates a context for a single top-level JSON value.
   static FContext single(int i) => _SingleContext();
 
+  /// Adds a parsed string at position [index].
   void addStringAt(String s, int index);
+
+  /// Adds a parsed string spanning [[start], [limit]).
+  /// Defaults to delegating to [addStringAt].
   void addStringLimit(String s, int start, int limit) => addStringAt(s, start);
+
+  /// Adds a parsed [Json] value at position [index].
   void addValueAt(Json v, int index);
 
+  /// Returns the completed [Json] value, finalised at position [index].
   Json finishAt(int index);
+
+  /// Returns `true` if this context is accumulating a JSON object.
   bool get isObject;
 }
 

@@ -2,11 +2,37 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 import 'package:ribs_json/src/decoder/primitive_decoder.dart';
 
+/// A [Codec] that reads and writes a single JSON object field.
+///
+/// [KeyValueCodec] binds a [Codec] to a named object key, so that decoding
+/// navigates into that field and encoding wraps the value in a single-key
+/// object. Multiple [KeyValueCodec]s can be combined into a product codec for
+/// a whole object via the [product2]–[product8] static methods (or the
+/// extension syntax on tuples exposed by [syntax.dart]).
+///
+/// ```dart
+/// final nameCodec = KeyValueCodec('name', Codec.string);
+/// final ageCodec  = KeyValueCodec('age',  Codec.integer);
+///
+/// final personCodec = KeyValueCodec.product2(
+///   nameCodec, ageCodec,
+///   Person.new,
+///   (p) => (p.name, p.age),
+/// );
+/// ```
 final class KeyValueCodec<A> extends Codec<A> {
+  /// The JSON object key this codec reads from and writes to.
   final String key;
+
+  /// The codec applied to the value at [key].
   final Codec<A> value;
+
+  /// Internal codec that handles field navigation and single-key object
+  /// wrapping.
   final Codec<A> codecKV;
 
+  /// Creates a [KeyValueCodec] that decodes from and encodes to [key] using
+  /// [value].
   KeyValueCodec(this.key, this.value)
     : codecKV = Codec.from(
         value.at(key),
@@ -38,6 +64,8 @@ final class KeyValueCodec<A> extends Codec<A> {
   KeyValueCodec<B> xmap<B>(Function1<A, B> f, Function1<B, A> g) =>
       KeyValueCodec(key, value.xmap(f, g));
 
+  /// Returns a copy of this codec that reads from and writes to [newKey]
+  /// instead of [key].
   KeyValueCodec<A> withKey(String newKey) => KeyValueCodec(newKey, value);
 
   // Here for performance reasons, to avoid the overhead of creating a new Codec for each field when decoding.
@@ -55,15 +83,17 @@ final class KeyValueCodec<A> extends Codec<A> {
   @pragma('vm:prefer-inline')
   static A _get<A>(Either<DecodingFailure, A> e) => (e as Right<DecodingFailure, A>).b;
 
-  //////////////////////////////////////////////////////////////////////////////
-  /// Product Instances
-  ///
-  /// You may be wondering why the product instances are implemented this way.
-  /// While ugly, this is done for performance reasons. The alternative would be
-  /// to create a new Codec for each field in the product, which would be very
-  /// expensive when decoding.
-  //////////////////////////////////////////////////////////////////////////////
+  // Product Instances
+  //
+  // You may be wondering why the product instances are implemented this way.
+  // While ugly, this is done for performance reasons. The alternative would be
+  // to create a new Codec for each field in the product, which would be very
+  // expensive when decoding.
 
+  /// Combines two field codecs into a codec for type [C].
+  ///
+  /// [apply] constructs a [C] from the two decoded field values; [tupled]
+  /// destructs a [C] into the two field values for encoding.
   static Codec<C> product2<A, B, C>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -103,6 +133,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines three field codecs into a codec for type [D].
   static Codec<D> product3<A, B, C, D>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -151,6 +182,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines four field codecs into a codec for type [E].
   static Codec<E> product4<A, B, C, D, E>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -205,6 +237,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 5 field codecs into a codec for type [F].
   static Codec<F> product5<A, B, C, D, E, F>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -265,6 +298,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 6 field codecs into a codec for type [G].
   static Codec<G> product6<A, B, C, D, E, F, G>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -331,6 +365,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 7 field codecs into a codec for type [H].
   static Codec<H> product7<A, B, C, D, E, F, G, H>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -411,6 +446,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 8 field codecs into a codec for type [I].
   static Codec<I> product8<A, B, C, D, E, F, G, H, I>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -498,6 +534,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 9 field codecs into a codec for type [J].
   static Codec<J> product9<A, B, C, D, E, F, G, H, I, J>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -592,6 +629,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 10 field codecs into a codec for type [K].
   static Codec<K> product10<A, B, C, D, E, F, G, H, I, J, K>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -693,6 +731,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 11 field codecs into a codec for type [L].
   static Codec<L> product11<A, B, C, D, E, F, G, H, I, J, K, L>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -801,6 +840,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 12 field codecs into a codec for type [M].
   static Codec<M> product12<A, B, C, D, E, F, G, H, I, J, K, L, M>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -916,6 +956,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 13 field codecs into a codec for type [N].
   static Codec<N> product13<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -1038,6 +1079,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 14 field codecs into a codec for type [O].
   static Codec<O> product14<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -1167,6 +1209,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 15 field codecs into a codec for type [P].
   static Codec<P> product15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -1303,6 +1346,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 16 field codecs into a codec for type [Q].
   static Codec<Q> product16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -1446,6 +1490,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 17 field codecs into a codec for type [R].
   static Codec<R> product17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -1596,6 +1641,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 18 field codecs into a codec for type [S].
   static Codec<S> product18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -1753,6 +1799,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 19 field codecs into a codec for type [T].
   static Codec<T> product19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -1917,6 +1964,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 20 field codecs into a codec for type [U].
   static Codec<U> product20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -2088,6 +2136,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 21 field codecs into a codec for type [V].
   static Codec<V> product21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -2266,6 +2315,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     return Codec.from(decoder, encoder);
   }
 
+  /// Combines 22 field codecs into a codec for type [W].
   static Codec<W> product22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -2455,17 +2505,20 @@ final class KeyValueCodec<A> extends Codec<A> {
   /// Tuple Instances
   //////////////////////////////////////////////////////////////////////////////
 
+  /// Combines 2 field codecs into a codec for a 2-tuple.
   static Codec<(A, B)> tuple2<A, B>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
   ) => product2(codecA, codecB, (a, b) => (a, b), identity);
 
+  /// Combines 3 field codecs into a codec for a 3-tuple.
   static Codec<(A, B, C)> tuple3<A, B, C>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
     KeyValueCodec<C> codecC,
   ) => product3(codecA, codecB, codecC, (a, b, c) => (a, b, c), identity);
 
+  /// Combines 4 field codecs into a codec for a 4-tuple.
   static Codec<(A, B, C, D)> tuple4<A, B, C, D>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -2473,6 +2526,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<D> codecD,
   ) => product4(codecA, codecB, codecC, codecD, (a, b, c, d) => (a, b, c, d), identity);
 
+  /// Combines 5 field codecs into a codec for a 5-tuple.
   static Codec<(A, B, C, D, E)> tuple5<A, B, C, D, E>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -2489,6 +2543,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     identity,
   );
 
+  /// Combines 6 field codecs into a codec for a 6-tuple.
   static Codec<(A, B, C, D, E, F)> tuple6<A, B, C, D, E, F>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -2507,6 +2562,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     identity,
   );
 
+  /// Combines 7 field codecs into a codec for a 7-tuple.
   static Codec<(A, B, C, D, E, F, G)> tuple7<A, B, C, D, E, F, G>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -2527,6 +2583,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     identity,
   );
 
+  /// Combines 8 field codecs into a codec for a 8-tuple.
   static Codec<(A, B, C, D, E, F, G, H)> tuple8<A, B, C, D, E, F, G, H>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -2549,6 +2606,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     identity,
   );
 
+  /// Combines 9 field codecs into a codec for a 9-tuple.
   static Codec<(A, B, C, D, E, F, G, H, I)> tuple9<A, B, C, D, E, F, G, H, I>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -2573,6 +2631,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     identity,
   );
 
+  /// Combines 10 field codecs into a codec for a 10-tuple.
   static Codec<(A, B, C, D, E, F, G, H, I, J)> tuple10<A, B, C, D, E, F, G, H, I, J>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -2599,6 +2658,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     identity,
   );
 
+  /// Combines 11 field codecs into a codec for a 11-tuple.
   static Codec<(A, B, C, D, E, F, G, H, I, J, K)> tuple11<A, B, C, D, E, F, G, H, I, J, K>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,
@@ -2627,6 +2687,7 @@ final class KeyValueCodec<A> extends Codec<A> {
     identity,
   );
 
+  /// Combines 12 field codecs into a codec for a 12-tuple.
   static Codec<(A, B, C, D, E, F, G, H, I, J, K, L)> tuple12<A, B, C, D, E, F, G, H, I, J, K, L>(
     KeyValueCodec<A> codecA,
     KeyValueCodec<B> codecB,

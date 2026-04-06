@@ -1,24 +1,69 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
+/// Renders a [Json] value to a formatted [String].
+///
+/// All whitespace is controlled through the spacing fields. Pre-built instances
+/// cover the most common cases:
+///
+/// - [Printer.noSpaces] — compact, no whitespace
+/// - [Printer.spaces2] / [Printer.spaces4] — 2- or 4-space indentation
+/// - [Printer.indented] — custom indentation string
+///
+/// Use [copy] to create variants and [print] to render.
 final class Printer {
+  /// The indentation string repeated per nesting level (e.g. `'  '`).
   final String indent;
+
+  /// Whitespace written before the opening `{`.
   final String lbraceLeft;
+
+  /// Whitespace written after the opening `{`.
   final String lbraceRight;
+
+  /// Whitespace written before the closing `}`.
   final String rbraceLeft;
+
+  /// Whitespace written after the closing `}`.
   final String rbraceRight;
+
+  /// Whitespace written before the opening `[`.
   final String lbracketLeft;
+
+  /// Whitespace written after the opening `[`.
   final String lbracketRight;
+
+  /// Whitespace written before the closing `]`.
   final String rbracketLeft;
+
+  /// Whitespace written after the closing `]`.
   final String rbracketRight;
+
+  /// Whitespace between `[` and `]` for empty arrays.
   final String lrbracketsEmpty;
+
+  /// Whitespace written before each array `,`.
   final String arrayCommaLeft;
+
+  /// Whitespace written after each array `,`.
   final String arrayCommaRight;
+
+  /// Whitespace written before each object `,`.
   final String objectCommaLeft;
+
+  /// Whitespace written after each object `,`.
   final String objectCommaRight;
+
+  /// Whitespace written before each `:`.
   final String colonLeft;
+
+  /// Whitespace written after each `:`.
   final String colonRight;
+
+  /// When `true`, fields whose value is [JNull] are omitted from objects.
   final bool dropNullValues;
+
+  /// When `true`, non-ASCII characters are escaped as `\uXXXX` sequences.
   final bool escapeNonAscii;
 
   Printer({
@@ -42,12 +87,14 @@ final class Printer {
     this.escapeNonAscii = false,
   });
 
+  /// Renders [json] to a [String] according to this printer's configuration.
   String print(Json json) {
     final folder = _PrintFolder(this);
     json.foldWith(folder);
     return folder.buffer.toString();
   }
 
+  /// Returns a copy of this printer with the given fields overridden.
   Printer copy({
     String? indent,
     String? lbraceLeft,
@@ -91,12 +138,17 @@ final class Printer {
   _PiecesAtDepth get _pieces =>
       indent.isEmpty ? _ConstantPieces(_Pieces.fromPrinter(this)) : _MemoizedPieces(this);
 
+  /// Compact printer with no whitespace.
   static Printer noSpaces = Printer();
 
+  /// Indented printer using 2-space indentation.
   static Printer spaces2 = indented('  ');
 
+  /// Indented printer using 4-space indentation.
   static Printer spaces4 = indented('    ');
 
+  /// Creates an indented printer using [indent] as the per-level indentation
+  /// string.
   static Printer indented(String indent) => Printer(
     indent: indent,
     lbraceRight: '\n',

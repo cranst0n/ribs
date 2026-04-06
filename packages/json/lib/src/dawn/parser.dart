@@ -5,50 +5,83 @@ import 'package:ribs_json/ribs_json.dart';
 import 'package:ribs_json/src/dawn/dawn.dart';
 import 'package:ribs_json/src/dawn/fcontext.dart';
 
+/// Thrown when the JSON input is syntactically invalid.
 final class ParseException implements Exception {
+  /// Human-readable description of what went wrong.
   final String message;
+
+  /// Byte/character offset in the input where the error was detected.
   final int index;
+
+  /// 1-based line number of the error location.
   final int line;
+
+  /// 1-based column number of the error location.
   final int col;
 
+  /// Creates a [ParseException] at the given [index], [line], and [col].
   ParseException(this.message, this.index, this.line, this.col);
 
   @override
   String toString() => 'ParseException: $message [index: $index, line: $line, col: $col]';
 }
 
+/// Thrown when the JSON input ends before a complete value has been parsed.
 final class IncompleteParseException implements Exception {
+  /// Human-readable description of the incomplete state.
   final String message;
 
+  /// Creates an [IncompleteParseException] with the given [message].
   IncompleteParseException(this.message);
 
   @override
   String toString() => 'IncompleteParseException: $message';
 }
 
+/// Abstract base for all JSON parsers.
+///
+/// Subclasses provide the input-access primitives ([at], [atCodeUnit],
+/// [atRange], [atEof]) and bookkeeping hooks ([reset], [checkpoint],
+/// [newline], [close]). The recursive-descent parse logic is implemented here
+/// and shared across all concrete parsers.
 abstract class Parser {
+  /// Parses [s] and returns the resulting [Json], throwing [ParseException]
+  /// on invalid input.
   static Json parseUnsafe(String s) => StringParser(s).parse();
 
+  /// Parses [s], returning `Right(json)` on success or `Left(failure)` if the
+  /// input is not valid JSON.
   static Either<ParsingFailure, Json> parseFromString(String s) => Either.catching(
     () => parseUnsafe(s),
     (message, _) => ParsingFailure(message.toString()),
   );
 
+  /// Parses [l] as UTF-8-encoded JSON bytes, returning `Right(json)` on
+  /// success or `Left(failure)` on invalid input.
   static Either<ParsingFailure, Json> parseFromBytes(Uint8List l) => Either.catching(
     () => ByteDataParser(l).parse(),
     (message, _) => ParsingFailure(message.toString()),
   );
 
+  /// Returns the character at position [i] as a single-character string.
   String at(int i);
 
+  /// Returns the UTF-16 code unit at position [i].
   int atCodeUnit(int i);
 
+  /// Returns the substring from [i] (inclusive) to [j] (exclusive).
   String atRange(int i, int j);
 
+  /// Returns `true` if [i] is at or past the end of the input.
   bool atEof(int i);
 
+  /// Called at the start of each parse step; may adjust [i] to account for
+  /// buffer compaction (relevant for async parsers). Returns the adjusted
+  /// position.
   int reset(int i);
 
+  /// Saves the current parse state so that an async parser can resume if the
+  /// buffer runs out mid-value.
   void checkpoint(
     int state,
     int i,
@@ -56,10 +89,16 @@ abstract class Parser {
     List<FContext> stack,
   );
 
+  /// Called when parsing is finished; subclasses may release resources here.
   void close();
 
+  /// Records that a newline was encountered at position [i].
   void newline(int i);
+
+  /// Returns the current 0-based line number.
   int line();
+
+  /// Returns the 0-based column of position [i].
   int column(int i);
 
   String _safeAt(int i, int j) {
@@ -534,10 +573,18 @@ abstract class Parser {
   static const _MaxDepth = 10000;
 }
 
+/// Relational comparison operators for [String].
 extension StringCompareOps on String {
+  /// Returns `true` if this string is lexicographically less than [that].
   bool operator <(String that) => compareTo(that) < 0;
+
+  /// Returns `true` if this string is lexicographically less than or equal to [that].
   bool operator <=(String that) => compareTo(that) <= 0;
+
+  /// Returns `true` if this string is lexicographically greater than [that].
   bool operator >(String that) => compareTo(that) > 0;
+
+  /// Returns `true` if this string is lexicographically greater than or equal to [that].
   bool operator >=(String that) => compareTo(that) >= 0;
 }
 

@@ -1,10 +1,22 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
+/// An [HCursor] positioned at an element within a [JArray].
+///
+/// Tracks the full array, the current [indexValue], and whether any element
+/// has been modified so that [up] can propagate changes to the parent cursor.
 final class ArrayCursor extends HCursor {
+  /// All elements of the array being navigated.
   final IList<Json> arrayValues;
+
+  /// The index of the currently focused element.
   final int indexValue;
+
+  /// The cursor that was used to enter this array.
   final HCursor parent;
+
+  /// Whether any element in [arrayValues] has been modified since this cursor
+  /// was created.
   final bool changed;
 
   const ArrayCursor(

@@ -1,9 +1,15 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
+/// A [Decoder] that decodes a [JArray] into a Dart [List].
+///
+/// Uses a fast path that avoids cursor allocation when decoding directly from
+/// [Json]. Created by [Decoder.list].
 final class ListDecoder<A> extends Decoder<List<A>> {
+  /// The decoder applied to each array element.
   final Decoder<A> decodeA;
 
+  /// Creates a [ListDecoder] that applies [decodeA] to each element.
   ListDecoder(this.decodeA);
 
   @override

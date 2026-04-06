@@ -1,10 +1,18 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
+/// A [Decoder] that tries [decodeA] first and, if it succeeds, wraps the
+/// result in [Left]; otherwise tries [decodeB] and wraps the result in [Right].
+///
+/// Created by [Decoder.either].
 final class EitherDecoder<A, B> extends Decoder<Either<A, B>> {
+  /// The decoder whose success produces a [Left] value.
   final Decoder<A> decodeA;
+
+  /// The decoder whose success produces a [Right] value.
   final Decoder<B> decodeB;
 
+  /// Creates an [EitherDecoder] from [decodeA] and [decodeB].
   EitherDecoder(this.decodeA, this.decodeB);
 
   @override

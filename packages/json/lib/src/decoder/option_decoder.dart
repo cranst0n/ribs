@@ -1,9 +1,17 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_json/ribs_json.dart';
 
+/// A [Decoder] that wraps [decodeA] to produce `Option<A>`.
+///
+/// Returns [None] for a JSON `null` value or a missing (but not wrong-focus)
+/// field; returns `Some(a)` when [decodeA] succeeds.
+///
+/// Created by [Decoder.optional].
 final class OptionDecoder<A> extends Decoder<Option<A>> {
+  /// The underlying decoder applied when the value is present and non-null.
   final Decoder<A> decodeA;
 
+  /// Creates an [OptionDecoder] wrapping [decodeA].
   OptionDecoder(this.decodeA);
 
   @override

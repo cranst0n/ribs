@@ -18,52 +18,85 @@ import 'package:ribs_json/src/decoder/or_decoder.dart';
 import 'package:ribs_json/src/decoder/prepared_decoder.dart';
 import 'package:ribs_json/src/decoder/primitive_decoder.dart';
 
+/// Decodes a [Json] value (or cursor position) into a Dart type [A].
+///
+/// Use the static factory methods and primitive instances as building blocks.
+/// Combine decoders with [map], [flatMap], [emap], [at], [optional], [or],
+/// [prepare], [handleError], and [recoverWith].
 @immutable
 abstract mixin class Decoder<A> {
+  /// A decoder that always succeeds with [a], ignoring the input.
   static Decoder<A> constant<A>(A a) => Decoder.instance((_) => Right(a));
 
+  /// Creates a [Decoder] from a function.
   static Decoder<A> instance<A>(Function1<HCursor, DecodeResult<A>> decodeF) => DecoderF(decodeF);
 
+  /// A decoder that always fails with [failure].
   static Decoder<A> failed<A>(DecodingFailure failure) => Decoder.instance((_) => Left(failure));
 
+  /// A decoder that always fails with a [CustomReason] [message].
   static Decoder<A> failedWithMessage<A>(String message) =>
       Decoder.instance((c) => Left(DecodingFailure(CustomReason(message), c.history())));
 
+  /// Decodes [json] by wrapping it in a root cursor.
   DecodeResult<A> decode(Json json) => decodeC(json.hcursor);
 
+  /// Decodes from an [HCursor] with full history available for error reporting.
   DecodeResult<A> decodeC(HCursor cursor);
 
+  /// Decodes from an [ACursor], returning a failure if the cursor is in a
+  /// failed state.
   DecodeResult<A> tryDecodeC(ACursor cursor) =>
       cursor is HCursor ? decodeC(cursor) : _cursorToFailure(cursor).asLeft();
 
+  /// Returns a decoder that navigates into [key] before decoding.
   Decoder<A> at(String key) => DownFieldDecoder(key, this);
 
+  /// Returns a decoder that tries this decoder first (producing [Left]) and
+  /// falls back to [decodeB] (producing [Right]).
   Decoder<Either<A, B>> either<B>(Decoder<B> decodeB) => EitherDecoder(this, decodeB);
 
+  /// Returns a decoder that applies [f] to the decoded value; [f] may return
+  /// `Left(message)` to signal a failure.
   Decoder<B> emap<B>(Function1<A, Either<String, B>> f) => EmapDecoder(this, f);
 
+  /// Returns a decoder that fails with [message] if [p] returns `false` for
+  /// the decoded value.
   Decoder<A> ensure(Function1<A, bool> p, Function0<String> message) => Decoder.instance(
     (c) => decodeC(c).filterOrElse(p, () => DecodingFailure.fromString(message(), c)),
   );
 
+  /// Returns a decoder that uses the decoded [A] to choose the next decoder.
   Decoder<B> flatMap<B>(Function1<A, Decoder<B>> f) => FlatMapDecoder(this, f);
 
+  /// Returns a decoder that recovers from failure by applying [f] to produce
+  /// a fallback value.
   Decoder<A> handleError(Function1<DecodingFailure, A> f) =>
       handleErrorWith((err) => Decoder.instance((_) => f(err).asRight()));
 
+  /// Returns a decoder that recovers from failure by using [f] to choose a
+  /// fallback decoder.
   Decoder<A> handleErrorWith(Function1<DecodingFailure, Decoder<A>> f) =>
       HandleErrorDecoder(this, f);
 
+  /// Returns a decoder that maps successfully decoded values through [f].
   Decoder<B> map<B>(Function1<A, B> f) => Decoder.instance((c) => decodeC(c).map(f));
 
+  /// Returns a decoder that wraps the result in [Option], treating [JNull] or
+  /// a missing field as [None].
   Decoder<Option<A>> optional() => OptionDecoder(this);
 
+  /// Returns a decoder that tries this decoder first, falling back to [d] if
+  /// it fails.
   Decoder<A> or(Decoder<A> d) => OrDecoder(this, d);
 
+  /// Returns a decoder that applies [f] to the cursor before decoding.
   Decoder<A> prepare(Function1<ACursor, ACursor> f) => PreparedDecoder(this, f);
 
+  /// Returns a decoder that falls back to [a] on failure.
   Decoder<A> recover(A a) => recoverWith(Decoder.instance((_) => a.asRight()));
 
+  /// Returns a decoder that falls back to [other] on failure.
   Decoder<A> recoverWith(Decoder<A> other) => handleErrorWith((_) => other);
 
   DecodingFailure _cursorToFailure(ACursor cursor) {
@@ -82,10 +115,12 @@ abstract mixin class Decoder<A> {
   /// Primitive Instances
   //////////////////////////////////////////////////////////////////////////////
 
+  /// Decoder for [BigInt] from a JSON string.
   static Decoder<BigInt> bigInt = string.emap(
     (a) => Option(BigInt.tryParse(a)).toRight(() => 'BigInt.tryParse failed: $a'),
   );
 
+  /// Decoder for [bool] from a JSON boolean.
   static Decoder<bool> boolean = PrimitiveDecoder(
     (json) =>
         json is JBoolean
@@ -97,12 +132,15 @@ abstract mixin class Decoder<A> {
             : DecodingFailure(WrongTypeExpectation('bool', c.value), c.history()).asLeft(),
   );
 
+  /// Decoder for [Uint8List] from a Base64-encoded JSON string.
   static Decoder<Uint8List> bytes = string.map(base64Decode);
 
+  /// Decoder for [DateTime] from an ISO-8601 JSON string.
   static Decoder<DateTime> dateTime = string.emap(
     (a) => Either.catching(() => DateTime.parse(a), (err, _) => err.toString()),
   );
 
+  /// Decoder for [double] from a JSON number.
   static Decoder<double> dubble = PrimitiveDecoder(
     (json) {
       if (json is JNumber) {
@@ -124,22 +162,27 @@ abstract mixin class Decoder<A> {
     },
   );
 
+  /// Decoder for [Duration] from a JSON integer (microseconds).
   static Decoder<Duration> duration = integer.map((a) => Duration(microseconds: a));
 
+  /// Decoder for [Enum] subtype [T] from a JSON integer index.
   static Decoder<T> enumerationByIndex<T extends Enum>(List<T> values) => integer.emap(
     (index) => IList.fromDart(
       values,
     ).find((v) => v.index == index).toRight(() => 'Invalid enum index for $T: $index'),
   );
 
+  /// Decoder for [Enum] subtype [T] from a JSON string name.
   static Decoder<T> enumerationByName<T extends Enum>(List<T> values) => string.emap(
     (name) => IList.fromDart(
       values,
     ).find((v) => v.name == name).toRight(() => 'Invalid enum name for $T: $name'),
   );
 
+  /// Decoder for [IList<A>] from a JSON array.
   static Decoder<IList<A>> ilist<A>(Decoder<A> decodeA) => list(decodeA).map(IList.fromDart);
 
+  /// Decoder for [int] from a JSON number.
   static Decoder<int> integer = PrimitiveDecoder(
     (json) {
       if (json is JNumber) {
@@ -174,8 +217,10 @@ abstract mixin class Decoder<A> {
     },
   );
 
+  /// Decoder that returns the focused [Json] unchanged.
   static Decoder<Json> json = Decoder.instance((c) => c.value.asRight());
 
+  /// Decoder for [num] from a JSON number.
   static Decoder<num> number = PrimitiveDecoder(
     (json) =>
         json is JNumber
@@ -187,17 +232,22 @@ abstract mixin class Decoder<A> {
             : DecodingFailure(WrongTypeExpectation('num', c.value), c.history()).asLeft(),
   );
 
+  /// Decoder for [List<A>] from a JSON array.
   static Decoder<List<A>> list<A>(Decoder<A> decodeA) => ListDecoder(decodeA);
 
+  /// Decoder for [Map<K, V>] from a JSON object.
   static Decoder<Map<K, V>> mapOf<K, V>(KeyDecoder<K> decodeK, Decoder<V> decodeV) =>
       MapDecoder<K, V>(decodeK, decodeV);
 
+  /// Decoder for [IMap<K, V>] from a JSON object.
   static Decoder<IMap<K, V>> imapOf<K, V>(KeyDecoder<K> decodeK, Decoder<V> decodeV) =>
       mapOf(decodeK, decodeV).map(IMap.fromDart);
 
+  /// Decoder for [NonEmptyIList<A>] from a non-empty JSON array.
   static Decoder<NonEmptyIList<A>> nonEmptyIList<A>(Decoder<A> decodeA) =>
       NonEmptyIListDecoder(decodeA);
 
+  /// Decoder for [String] from a JSON string.
   static Decoder<String> string = PrimitiveDecoder(
     (json) =>
         json is JString

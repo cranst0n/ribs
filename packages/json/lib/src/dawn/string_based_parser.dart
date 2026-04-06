@@ -1,6 +1,10 @@
 import 'package:ribs_json/src/dawn/fcontext.dart';
 import 'package:ribs_json/src/dawn/parser.dart';
 
+/// [Parser] mixin that implements [parseString] for inputs backed by a Dart
+/// [String]. Uses a fast path for strings with no escape sequences, falling
+/// back to a full escape-handling implementation when a backslash is
+/// encountered.
 mixin StringBasedParser on Parser {
   final _buffer = StringBuffer();
 
