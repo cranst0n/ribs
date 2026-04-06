@@ -1662,15 +1662,6 @@ void main() {
     expect(count, 100);
   });
 
-  test('toSyncIO', () {
-    final syncIO = IO.pure(21).flatMap((x) => IO.pure(x * 2)).toSyncIO(100).unsafeRunSync();
-
-    syncIO.fold(
-      (io) => fail('IO -> SyncIO failed!'),
-      (syncIO) => expect(syncIO, 42),
-    );
-  });
-
   test('stale Sleep timer triggers NPE during unassociated AutoCede suspension', () async {
     // This test reproduces a NullPointerException where a stale Sleep timer
     // fires while the fiber is suspended for an AutoCede (yielding control).

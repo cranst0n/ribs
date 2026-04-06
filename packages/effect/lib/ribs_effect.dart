@@ -24,5 +24,4 @@ export 'src/std/pqueue.dart' show PQueue;
 export 'src/std/queue.dart' show Queue;
 export 'src/std/semaphore.dart' show Semaphore;
 export 'src/std/supervisor.dart' show Supervisor;
-export 'src/sync_io.dart' show SyncIO;
 export 'src/syntax/all.dart';

@@ -14,12 +14,28 @@ part 'io/algebra.dart';
 part 'io/fiber.dart';
 part 'io/tracing.dart';
 
+/// A callback that receives either an error or a successfully computed value
+/// of type [A], used by [IO.async_].
 typedef AsyncCallback<A> = Function1<Either<Object, A>, void>;
+
+/// A function that registers an [AsyncCallback] and triggers an asynchronous
+/// computation, used by [IO.async_].
 typedef AsyncBody<A> = Function1<AsyncCallback<A>, void>;
+
+/// Like [AsyncBody], but also returns an optional [IO] finalizer that is
+/// invoked if the resulting [IO] is canceled, used by [IO.async].
 typedef AsyncBodyWithFin<A> = Function1<AsyncCallback<A>, IO<Option<IO<Unit>>>>;
 
+/// The outcome when the [IO<A>] side wins a [IO.racePair]: the [Outcome<A>]
+/// of the winner together with the still-running [IOFiber<B>] for the loser.
 typedef AWon<A, B> = (Outcome<A>, IOFiber<B>);
+
+/// The outcome when the [IO<B>] side wins a [IO.racePair]: the still-running
+/// [IOFiber<A>] for the loser together with the [Outcome<B>] of the winner.
 typedef BWon<A, B> = (IOFiber<A>, Outcome<B>);
+
+/// The result of [IO.racePair]: either the A-side won ([AWon]) or the B-side
+/// won ([BWon]).
 typedef RacePairOutcome<A, B> = Either<AWon<A, B>, BWon<A, B>>;
 
 /// IO is a datatype that can be used to control side-effects within
@@ -29,6 +45,8 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   static final _platformImpl = IOPlatformImpl();
 
+  /// Installs a platform-specific signal handler that dumps the state of all
+  /// active fibers to stdout when triggered (e.g. on SIGINFO/SIGQUIT).
   static void installFiberDumpSignalHandler() => _platformImpl.installFiberDumpSignalHandler();
 
   /// Suspends the asynchronous effect [k] within [IO]. When evaluation is
@@ -119,6 +137,9 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// Creates an [IO] that immediately results in an [Outcome] of [Canceled].
   static const IO<Unit> canceled = _Canceled();
 
+  /// Evaluates [f] and lifts the result into [IO.pure], or lifts any [Exception]
+  /// thrown into [IO.raiseError]. Non-[Exception] errors (e.g. [Error]
+  /// subclasses) are not caught and will propagate normally.
   static IO<A> catchNonError<A>(Function0<A> f) {
     try {
       return IO.pure(f());
@@ -354,6 +375,8 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   IO<Either<Object, A>> attempt() => _attempt().traced('attempt');
   IO<Either<Object, A>> _attempt() => _Attempt(this);
 
+  /// Runs [f] with the [Either] result of this IO (success or error) as a
+  /// side-effect, then re-raises any error so the error is not swallowed.
   IO<A> attemptTap<B>(Function1<Either<Object, A>, IO<B>> f) => _attemptTap(f).traced('attemptTap');
   IO<A> _attemptTap<B>(Function1<Either<Object, A>, IO<B>> f) =>
       _attempt()._flatTap(f)._rethrowError();
@@ -384,6 +407,10 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
     Function2<A, Outcome<B>, IO<Unit>> release,
   ) => IO._bracketFull((_) => this, use, release);
 
+  /// Starts this IO as a fiber and joins it, attaching [fin] as a finalizer
+  /// that is run when the outer IO is canceled. This allows a background fiber
+  /// to be canceled with a custom cleanup action rather than the default
+  /// cooperative cancellation.
   IO<A> cancelable(IO<Unit> fin) => _cancelable(fin).traced('cancelable');
   IO<A> _cancelable(IO<Unit> fin) => IO._uncancelable((poll) {
     return _start()._flatMap((fiber) {
@@ -452,6 +479,8 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   IO<A> _handleErrorWith(Function1<Object, IO<A>> f) =>
       _HandleErrorWith(this, Fn2((e, st) => f(e)));
 
+  /// Runs this IO in a separate Dart isolate, returning the result when the
+  /// isolate finishes. The optional [debugName] is used to label the isolate.
   IO<A> isolate({String? debugName}) => _platformImpl.isolate(this, debugName: debugName);
 
   /// Continually re-evaluates this [IO] until the computed value satisfies the
@@ -467,6 +496,9 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   IO<A> _iterateWhile(Function1<A, bool> p) =>
       _flatMap((a) => p(a) ? _iterateWhile(p) : IO.pure(a));
 
+  /// Continually re-evaluates this [IO] while the effectful predicate [p]
+  /// returns `true`. The first computed value for which [p] returns `false`
+  /// will be the final result.
   IO<A> iterateWhileM(Function1<A, IO<bool>> p) => _iterateWhileM(p).traced('iterateWhileM');
   IO<A> _iterateWhileM(Function1<A, IO<bool>> p) =>
       _flatMap((a) => p(a)._flatMap((b) => b ? _iterateWhileM(p) : IO.pure(a)));
@@ -575,6 +607,9 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
     IO._defer(() => IO._raiseError(TimeoutException(duration.toString()))),
   );
 
+  /// Like [timeout], but does not cancel the original IO when the deadline is
+  /// exceeded — the original fiber is left running in the background. Raises a
+  /// [TimeoutException] if [duration] elapses before this IO completes.
   IO<A> timeoutAndForget(Duration duration) =>
       _timeoutAndForget(duration).traced('timeoutAndForget');
   IO<A> _timeoutAndForget(Duration duration) => IO._uncancelable(
@@ -612,12 +647,6 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   /// Lifts this [IO] to a [Resource]
   Resource<A> toResource() => Resource.eval(this);
-
-  /// Attempts to evaluate this IO synchronously, stopping after [limit] steps.
-  /// This is useful for optimizing away asynchronous boundaries for small/fast
-  /// effect loops.
-  SyncIO<Either<IO<A>, A>> toSyncIO(int limit) =>
-      _SyncStep.interpret(this, limit).map((a) => a.map((a) => a.$1));
 
   /// Creates an [IO] that will return the value of this IO tupled with [b],
   /// with [b] taking the first element of the tuple.
@@ -781,6 +810,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   }
 }
 
+/// Extension methods for [IO] values that themselves produce an [IO].
 extension IONestedOps<A> on IO<IO<A>> {
   /// Returns an [IO] that will complete with the value of the inner [IO].
   IO<A> flatten() => _flatten().traced('flatten');
@@ -830,51 +860,4 @@ class _RuntimePoll extends Poll {
   /// Creates an IO that allows cancelation within the scope of [ioa].
   @override
   IO<A> call<A>(IO<A> ioa) => _UnmaskRunLoop(ioa, _id, _fiber);
-}
-
-class _SyncStep {
-  static SyncIO<Either<IO<A>, (A, int)>> interpret<A>(IO<A> io, int limit) {
-    if (limit <= 0) {
-      return SyncIO.pure(Left(io));
-    } else {
-      if (io is _Pure) {
-        return SyncIO.pure(Right(((io as _Pure).value, limit)));
-      } else if (io is _Error) {
-        return SyncIO.raiseError((io as _Error).error);
-      } else if (io is _Delay) {
-        return SyncIO.delay(() => (io as _Delay).thunk()).map((a) => Right((a, limit)));
-      } else if (io is _Map) {
-        final map = io as _Map<dynamic, A>;
-
-        return interpret(map.ioa, limit - 1).map(
-          (e) => e.fold(
-            (io) => Left(io._map(map.f.call)),
-            (result) => Right((map.f(result.$1), result.$2)),
-          ),
-        );
-      } else if (io is _FlatMap) {
-        final fm = io as _FlatMap<dynamic, A>;
-
-        return interpret(fm.ioa, limit - 1).flatMap(
-          (e) => e.fold(
-            (io) => SyncIO.pure(Left(io._flatMap(fm.f.call))),
-            (result) => interpret(fm.f(result.$1), limit - 1),
-          ),
-        );
-      } else if (io is _HandleErrorWith) {
-        final he = io as _HandleErrorWith<A>;
-
-        return interpret(he.ioa, limit - 1)
-            .map(
-              (a) => a.fold(
-                (io) => _HandleErrorWith(io, he.f).asLeft<(A, int)>(),
-                (result) => result.asRight<IO<A>>(),
-              ),
-            )
-            .handleErrorWith((ex) => interpret(he.f(ex, null), limit - 1));
-      } else {
-        return SyncIO.pure(Left(io));
-      }
-    }
-  }
 }
