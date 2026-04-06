@@ -71,7 +71,7 @@ const guideSidebar = {
     { text: 'Overview', link: '/guide/overview' },
     { text: 'Acknowledgements', link: '/guide/acknowledgements' },
     { text: 'Motivation', link: '/guide/motivation' },
-    { text: 'Benchmarks', link: '/guide/benchmarks/benchmarks' },
+    { text: 'Benchmarks', link: '/guide/benchmarks' },
     {
       text: 'Core',
       collapsed: true,
