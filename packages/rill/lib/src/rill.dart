@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
@@ -1442,7 +1442,7 @@ class Rill<O> {
     }
 
     return Rill.suspend(() {
-      final rng = Random(seed);
+      final rng = math.Random(seed);
 
       Pull<O, Unit> loop(Chunk<O> acc, Rill<O> s) {
         return s.pull.uncons.flatMap((hdtl) {
@@ -1450,10 +1450,13 @@ class Rill<O> {
             () => acc.isEmpty ? Pull.done : Pull.output(acc),
             (hd, tl) {
               final newSize =
-                  max(
-                    1.0,
-                    (acc.size + hd.size) * (minFactor + (maxFactor - minFactor) * rng.nextDouble()),
-                  ).toInt();
+                  math
+                      .max(
+                        1.0,
+                        (acc.size + hd.size) *
+                            (minFactor + (maxFactor - minFactor) * rng.nextDouble()),
+                      )
+                      .toInt();
               final newAcc = acc.concat(hd);
 
               if (newAcc.size < newSize) {
@@ -1683,7 +1686,7 @@ class Rill<O> {
               return hdtl2.foldN(
                 () => Pull.done,
                 (hd2, tl2) {
-                  final len = min(hd1.size, hd2.size);
+                  final len = math.min(hd1.size, hd2.size);
 
                   final nextS1 = tl1.cons(hd1.drop(len));
                   final nextS2 = tl2.cons(hd2.drop(len));
@@ -1720,7 +1723,7 @@ class Rill<O> {
                   });
                 },
                 (hd2, tl2) {
-                  final len = min(hd1.size, hd2.size);
+                  final len = math.min(hd1.size, hd2.size);
 
                   final nextS1 = tl1.cons(hd1.drop(len));
                   final nextS2 = tl2.cons(hd2.drop(len));

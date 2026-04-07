@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:benchmark_harness/benchmark_harness.dart';
-import 'package:ribs_effect/ribs_effect.dart';
+import 'package:ribs_effect/ribs_effect.dart' hide Random;
 
 const mergeSortSize = 10000000;
 const mergeSortThreshold = 10000;

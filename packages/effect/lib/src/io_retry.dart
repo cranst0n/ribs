@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
@@ -158,7 +158,7 @@ class RetryPolicy {
   /// to determine the delay between each retry.
   factory RetryPolicy.fullJitter(Duration baseDelay) => RetryPolicy((status) {
     final maxDelay = _safeMultiply(baseDelay, BigInt.from(2).pow(status.retriesSoFar));
-    return RetryDecision.delayAndRetry(maxDelay * Random().nextDouble());
+    return RetryDecision.delayAndRetry(maxDelay * math.Random().nextDouble());
   });
 
   static Duration _safeMultiply(Duration duration, BigInt factor) {
@@ -209,7 +209,7 @@ class RetryPolicy {
     } else {
       return RetryDecision.delayAndRetry(
         Duration(
-          microseconds: max(
+          microseconds: math.max(
             thisDecision.delay.inMicroseconds,
             thatDecision.delay.inMicroseconds,
           ),
@@ -229,7 +229,7 @@ class RetryPolicy {
     if (!thisDecision.isGivingUp && !thatDecision.isGivingUp) {
       return RetryDecision.delayAndRetry(
         Duration(
-          microseconds: min(
+          microseconds: math.min(
             thisDecision.delay.inMicroseconds,
             thatDecision.delay.inMicroseconds,
           ),

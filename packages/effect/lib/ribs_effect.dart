@@ -22,6 +22,7 @@ export 'src/std/dispatcher.dart' show Dispatcher;
 export 'src/std/hotswap.dart' show Hotswap;
 export 'src/std/pqueue.dart' show PQueue;
 export 'src/std/queue.dart' show Queue;
+export 'src/std/random.dart' show Random;
 export 'src/std/semaphore.dart' show Semaphore;
 export 'src/std/supervisor.dart' show Supervisor;
 export 'src/syntax/all.dart';

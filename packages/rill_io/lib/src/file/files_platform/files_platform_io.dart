@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
@@ -198,7 +198,7 @@ final class FilesPlatformImpl implements FilesPlatform {
 
   String _randomName(String prefix, String suffix) {
     const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789';
-    final rnd = Random();
+    final rnd = math.Random();
 
     final generated = String.fromCharCodes(
       Iterable.generate(10, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))),

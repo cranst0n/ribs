@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:ribs_core/ribs_core.dart';
@@ -7,7 +7,7 @@ import 'package:ribs_effect/ribs_effect.dart';
 const piEstimationTotal = 100000000;
 const piEstimationChunks = 10000;
 
-final _random = Random();
+final _random = math.Random();
 
 final class FuturePiEstimationBenchmark extends AsyncBenchmarkBase {
   FuturePiEstimationBenchmark() : super('future-pi-estimation');

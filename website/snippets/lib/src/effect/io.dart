@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_print, unused_local_variable, unused_element
 
 import 'dart:io';
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:async/async.dart';
 import 'package:ribs_core/ribs_core.dart';
@@ -9,7 +9,7 @@ import 'package:ribs_effect/ribs_effect.dart';
 
 Future<void> snippet1() async {
   // #region io-1
-  final rng = Future(() => Random.secure().nextInt(1000));
+  final rng = Future(() => math.Random.secure().nextInt(1000));
 
   await rng.then((x) => rng.then((y) => print('x: $x / y: $y')));
   // #endregion io-1
@@ -20,14 +20,16 @@ Future<void> snippet2() async {
   // Substitute the definition of fut with it's expression
   // x and y are different (probably)
   await Future(
-    () => Random.secure().nextInt(1000),
-  ).then((x) => Future(() => Random.secure().nextInt(1000)).then((y) => print('x: $x / y: $y')));
+    () => math.Random.secure().nextInt(1000),
+  ).then(
+    (x) => Future(() => math.Random.secure().nextInt(1000)).then((y) => print('x: $x / y: $y')),
+  );
   // #endregion io-2
 }
 
 Future<void> snippet3() async {
   // #region io-3
-  final rng = IO.delay(() => Random.secure().nextInt(1000));
+  final rng = IO.delay(() => math.Random.secure().nextInt(1000));
 
   // x and y are different (probably)
   await rng.flatMap((x) => rng.flatMap((y) => IO.print('x: $x / y: $y'))).unsafeRunFuture();
@@ -125,12 +127,12 @@ Future<void> conversionsSnippet() async {
 void deferSnippet() {
   // #region io-defer
   // IO.delay: synchronous thunk that produces a plain value A
-  final delayEx = IO.delay(() => Random.secure().nextInt(100));
+  final delayEx = IO.delay(() => math.Random.secure().nextInt(100));
 
   // IO.defer: thunk that produces an IO<A> — use when choosing between IOs
   // at runtime, or when IO construction itself could throw
   IO<int> coinFlip() => IO.defer(() {
-    final heads = Random.secure().nextBool();
+    final heads = math.Random.secure().nextBool();
     return heads ? IO.pure(1) : IO.raiseError('tails!');
   });
   // #endregion io-defer
@@ -199,14 +201,14 @@ void timingSnippet() {
 void repetitionSnippet() {
   // #region io-repetition
   // replicate: run sequentially n times, collect results
-  final rolls = IO.delay(() => Random.secure().nextInt(6) + 1).replicate(3);
+  final rolls = IO.delay(() => math.Random.secure().nextInt(6) + 1).replicate(3);
   // IO<IList<int>>
 
   // replicate_: run n times, discard results
   final ticks = IO.print('tick').replicate_(5);
 
   // iterateUntil: keep running until the predicate is satisfied
-  final poll = IO.delay(() => Random.secure().nextInt(100)).iterateUntil((n) => n > 90);
+  final poll = IO.delay(() => math.Random.secure().nextInt(100)).iterateUntil((n) => n > 90);
   // IO<int> — repeats until a value > 90 is produced
   // #endregion io-repetition
 }
