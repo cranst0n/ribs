@@ -2,30 +2,61 @@ import 'dart:typed_data';
 
 import 'package:ribs_core/ribs_core.dart';
 
+/// MurmurHash3 hashing utilities, ported from the Scala standard library.
+///
+/// Provides stable, high-quality hash functions for collections and primitive
+/// types. Used internally by ribs_core collection types to implement
+/// [Object.hashCode].
 sealed class MurmurHash3 {
+  /// Seed used for hashing array-like structures.
   static const arraySeed = 0x3c074a61;
+
+  /// Seed used for hashing maps.
   static final mapSeed = 'Map'.hashCode;
+
+  /// Seed used for hashing product types (e.g. tuples).
   static const productSeed = 0xcafebabe;
+
+  /// Seed used for hashing sequences.
   static final seqSeed = 'Seq'.hashCode;
+
+  /// Seed used for hashing sets.
   static final setSeed = 'Set'.hashCode;
+
+  /// Seed used for hashing strings.
   static const stringSeed = 0xf7ca7fd2;
 
   static final _tuple2HashCode = 'Tuple2'.hashCode;
 
   static final _intSize = Integer.size;
 
+  /// Returns the MurmurHash3 hash of the given byte array [data].
   static int bytesHash(Uint8List data) => _bytesHash(data, arraySeed);
 
+  /// Incorporates [data] into a running [hash] and returns the new hash.
+  ///
+  /// Use this when mixing multiple values into a hash. Call [finalizeHash]
+  /// when done.
   static int mix(int hash, int data) => _mix(hash, data);
 
+  /// Like [mix], but for the last element in a hash computation.
+  ///
+  /// Skips the final rotation step, which can improve avalanche behaviour
+  /// for the last value mixed in.
   static int mixLast(int hash, int data) => _mixLast(hash, data);
 
+  /// Finalizes a running [hash] over [length] elements.
+  ///
+  /// Must be called after all values have been mixed via [mix] / [mixLast].
   static int finalizeHash(int hash, int length) => _finalizeHash(hash, length);
 
+  /// Returns the MurmurHash3 hash of [str].
   static int stringHash(String str) => _stringHash(str, stringSeed);
 
+  /// Returns the MurmurHash3 hash of the [IList] [xs].
   static int listHash(IList<Object?> xs) => _listHash(xs, seqSeed);
 
+  /// Returns the MurmurHash3 hash of the map [xs].
   static int mapHash(RMap<Object?, Object?> xs) {
     if (xs.isEmpty) {
       return _emptyMapHash;
@@ -57,8 +88,14 @@ sealed class MurmurHash3 {
     }
   }
 
+  /// Returns the MurmurHash3 hash of an arithmetic range with the given
+  /// [start], [step], and [last] values.
   static int rangeHash(int start, int step, int last) => _rangeHash(start, step, last, seqSeed);
 
+  /// Returns the MurmurHash3 hash of the sequence [seq].
+  ///
+  /// Dispatches to the most efficient implementation based on the concrete
+  /// sequence type.
   static int seqHash(RSeq<Object?> seq) {
     return switch (seq) {
       final IndexedSeq<Object?> xs => _indexedSeqHash(xs, seqSeed),
@@ -67,8 +104,13 @@ sealed class MurmurHash3 {
     };
   }
 
+  /// Returns the MurmurHash3 hash of the set [xs].
   static int setHash(RSet<Object?> xs) => _unorderedHash(xs, setSeed);
 
+  /// Returns the MurmurHash3 hash of an unordered collection [xs] using [seed].
+  ///
+  /// Element order does not affect the result, making this suitable for
+  /// set-like structures.
   static int unorderedHash(RIterableOnce<Object?> xs, int seed) => _unorderedHash(xs, seed);
 
   static final _emptyMapHash = unorderedHash(nil(), mapSeed);

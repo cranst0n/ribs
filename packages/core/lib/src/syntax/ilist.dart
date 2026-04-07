@@ -1,6 +1,10 @@
 import 'package:ribs_core/ribs_core.dart';
 
+/// Operations available when [IList] elements are of type [Either].
 extension IListEitherOps<A, B> on IList<Either<A, B>> {
+  /// Accumulates all elements in this list as one [Either]. If any element is
+  /// a [Left], that [Left] is returned immediately. If all elements are
+  /// [Right], the entire list of right values is returned wrapped in a [Right].
   Either<A, IList<B>> sequence() => traverseEither(identity);
 
   /// Returns 2 new lists as a tuple. The first list is all the [Left] items

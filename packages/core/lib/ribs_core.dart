@@ -1,5 +1,4 @@
 export 'src/applicative.dart';
-export 'src/cast.dart';
 export 'src/collection/collection.dart';
 export 'src/either.dart';
 export 'src/fn.dart';

@@ -13,11 +13,17 @@
 
 part of '../imap.dart';
 
+/// A mutable builder for [IMap].
+///
+/// Uses compact inline representations ([_Map1] through [_Map4]) for up to
+/// four entries and transparently promotes to an [IHashMapBuilder] once a
+/// fifth distinct key is added.
 final class IMapBuilder<K, V> {
   IMap<K, V> _elems = IMap.empty<K, V>();
   var _switchedToHashMapBuilder = false;
   late final _hashMapBuilder = IHashMapBuilder<K, V>();
 
+  /// Adds all key-value pairs from [elems] to this builder.
   IMapBuilder<K, V> addAll(RIterableOnce<(K, V)> elems) {
     final it = elems.iterator;
 
@@ -28,6 +34,7 @@ final class IMapBuilder<K, V> {
     return this;
   }
 
+  /// Adds a single key-value pair to this builder.
   IMapBuilder<K, V> addOne((K, V) keyValue) {
     final (key, value) = keyValue;
 
@@ -49,12 +56,14 @@ final class IMapBuilder<K, V> {
     return this;
   }
 
+  /// Resets this builder so it can be reused to build a new [IMap].
   void clear() {
     _elems = IMap.empty();
     _hashMapBuilder.clear();
     _switchedToHashMapBuilder = false;
   }
 
+  /// Returns the [IMap] containing all key-value pairs added so far.
   IMap<K, V> result() {
     if (_switchedToHashMapBuilder) {
       return _hashMapBuilder.result();

@@ -1,16 +1,35 @@
 import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// Creates an [MMultiDict] from a Dart [Iterable] of key-value pairs.
+///
+/// ```dart
+/// final m = mmultidict([(1, 'a'), (1, 'b'), (2, 'c')]);
+/// ```
 MMultiDict<K, V> mmultidict<K, V>(Iterable<(K, V)> as) => MMultiDict.fromDartIterable(as);
 
+/// A mutable multimap: each key is associated with a mutable set of values.
+///
+/// Backed by an [MMap] from key to [MSet]. Use [add] / `+` to insert a pair
+/// and [get] to retrieve all values for a key.
+///
+/// ```dart
+/// final m = mmultidict([(1, 'a'), (1, 'b'), (2, 'c')]);
+/// m.get(1); // MSet('a', 'b')
+/// (m + (1, 'c')).get(1); // MSet('a', 'b', 'c')
+/// ```
 @immutable
 final class MMultiDict<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMultiDict<K, V> {
   final MMap<K, MSet<V>> _elems;
 
   MMultiDict._(this._elems);
 
+  /// Returns an empty [MMultiDict].
   static MMultiDict<K, V> empty<K, V>() => MMultiDict._(MMap.empty());
 
+  /// Creates an [MMultiDict] from a [RIterableOnce] of key-value pairs.
+  ///
+  /// Returns [elems] directly when it is already an [MMultiDict].
   static MMultiDict<K, V> from<K, V>(RIterableOnce<(K, V)> elems) => switch (elems) {
     final MMultiDict<K, V> md => md,
     _ => MMultiDict._(
@@ -23,14 +42,18 @@ final class MMultiDict<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMul
     ),
   };
 
+  /// Creates an [MMultiDict] from a Dart [Map].
   static MMultiDict<K, V> fromDart<K, V>(Map<K, V> m) =>
       MMultiDict.fromDartIterable(m.entries.map((e) => (e.key, e.value)));
 
+  /// Creates an [MMultiDict] from a Dart [Iterable] of key-value pairs.
   static MMultiDict<K, V> fromDartIterable<K, V>(Iterable<(K, V)> elems) =>
       MMultiDict.from(RIterator.fromDart(elems.iterator));
 
+  /// Adds [elem] and returns `this`. Alias for [add].
   MMultiDict<K, V> operator +((K, V) elem) => add(elem.$1, elem.$2);
 
+  /// Adds [value] to the set of values for [key] and returns `this`.
   MMultiDict<K, V> add(K key, V value) {
     final vs = _elems.getOrElseUpdate(key, () => MSet.empty());
     vs.add(value);

@@ -27,33 +27,48 @@ import 'package:ribs_core/ribs_core.dart';
 /// variance behaviour so they can live safely in a heterogeneous,
 /// type-erased collection without violating Dart's runtime type system.
 
+/// A nominal wrapper around a zero-argument function `() -> A`.
+///
+/// See the file-level documentation for the motivation behind these wrappers.
 final class Fn0<A> {
+  /// The underlying function.
   final Function0<A> f;
 
   const Fn0(this.f);
 
+  /// Invokes the underlying function and returns its result.
   A call() => f();
 
   @override
   String toString() => '() -> $A';
 }
 
+/// A nominal wrapper around a one-argument function `A -> B`.
+///
+/// See the file-level documentation for the motivation behind these wrappers.
 final class Fn1<A, B> {
+  /// The underlying function.
   final Function1<A, B> f;
 
   const Fn1(this.f);
 
+  /// Invokes the underlying function with [a] and returns its result.
   B call(A a) => f(a);
 
   @override
   String toString() => '$A -> $B';
 }
 
+/// A nominal wrapper around a two-argument function `(A, B) -> C`.
+///
+/// See the file-level documentation for the motivation behind these wrappers.
 final class Fn2<A, B, C> {
+  /// The underlying function.
   final Function2<A, B, C> f;
 
   const Fn2(this.f);
 
+  /// Invokes the underlying function with [a] and [b] and returns its result.
   C call(A a, B b) => f(a, b);
 
   @override

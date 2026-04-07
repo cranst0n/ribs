@@ -13,12 +13,20 @@
 
 import 'package:ribs_core/ribs_core.dart';
 
+/// An unordered collection of unique elements of type [A].
+///
+/// [RSet] adds set-membership ([contains]) to [RIterable]. The concrete
+/// immutable implementation is [ISet].
 mixin RSet<A> on RIterable<A> {
+  /// Returns an empty [RSet].
   static RSet<A> empty<A>() => ISet.empty<A>();
 
+  /// Creates an [RSet] from a [RIterableOnce], removing duplicates.
   static RSet<A> from<A>(RIterableOnce<A> xs) => ISet.from(xs);
 
+  /// Creates an [RSet] from a Dart [Iterable], removing duplicates.
   static RSet<A> of<A>(Iterable<A> xs) => RSet.from(RIterator.fromDart(xs.iterator));
 
+  /// Returns true if [elem] is a member of this set.
   bool contains(A elem);
 }

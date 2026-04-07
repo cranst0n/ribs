@@ -18,23 +18,39 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/hashing.dart';
 import 'package:ribs_core/src/collection/immutable/set/champ_common.dart';
 
+/// Internal base node type for the CHAMP (Compressed Hash-Array Mapped Prefix)
+/// trie that backs [IHashMap].
+///
+/// Each node stores either inline key-value pairs (data entries) or pointers
+/// to child nodes, selected by a bitmap over the hash-bits at the current
+/// trie level.
 @internal
 sealed class MapNode<K, V> extends Node<MapNode<K, V>> {
   static const TupleLength = 2;
 
+  /// Returns an empty root node.
   static BitmapIndexedMapNode<K, V> empty<K, V>() =>
       BitmapIndexedMapNode(0, 0, Array.empty(), Array.empty(), 0, 0);
 
+  /// Returns the value for [key], throwing if absent.
   V apply(K key, int originalHash, int hash, int shift);
 
+  /// Returns [Some] value for [key], or [None] if absent.
   Option<V> get(K key, int originalHash, int hash, int shift);
 
+  /// Returns the value for [key], or the result of [f] if absent.
   V getOrElse(K key, int originalHash, int hash, int shift, Function0<V> f);
 
+  /// Returns `true` if this node contains [key].
   bool containsKey(K key, int originalHash, int hash, int shift);
 
+  /// Returns a new node with [key] mapped to [value].
+  ///
+  /// If [replaceValue] is `false` and [key] already exists, the existing
+  /// mapping is preserved.
   MapNode<K, V> updated(K key, V value, int originalHash, int hash, int shift, bool replaceValue);
 
+  /// Returns a new node with [key] removed.
   MapNode<K, V> removed(K key, int originalHash, int hash, int shift);
 
   @override
@@ -49,29 +65,45 @@ sealed class MapNode<K, V> extends Node<MapNode<K, V>> {
   @override
   int get payloadArity;
 
+  /// Returns the key at [index] within this node's inline data entries.
   K getKey(int index);
 
+  /// Returns the value at [index] within this node's inline data entries.
   V getValue(int index);
 
   @override
   (K, V) getPayload(int index);
 
+  /// The total number of key-value pairs in this subtree.
   int get size;
 
+  /// Applies [f] to every key-value pair in this subtree.
   void foreach<U>(Function1<(K, V), U> f);
 
+  /// Applies [f] to every key and value in this subtree as separate arguments.
   void foreachEntry<U>(Function2<K, V, U> f);
 
+  /// Applies [f] to every key, value, and original hash in this subtree.
   void foreachWithHash(Function3<K, V, int, void> f);
 
+  /// Returns a new node with every value transformed by [f].
   MapNode<K, W> transform<W>(Function2<K, V, W> f);
 
+  /// Returns a deep copy of this node, suitable for mutation by a builder.
   MapNode<K, V> copy();
 
+  /// Returns a new node that is the union of this node and [that], resolved at
+  /// trie level [shift].
   MapNode<K, V> concat(MapNode<K, V> that, int shift);
 
+  /// Returns a new node containing only entries satisfying [p] (or, when
+  /// [isFlipped] is `true`, entries not satisfying [p]).
   MapNode<K, V> filterImpl(Function1<(K, V), bool> p, bool isFlipped);
 
+  /// Merges this node into [that], writing results into [builder].
+  ///
+  /// When the same key exists in both nodes, [mergef] decides which entry
+  /// to keep.
   void mergeInto(
     MapNode<K, V> that,
     IHashMapBuilder<K, V> builder,
@@ -79,11 +111,16 @@ sealed class MapNode<K, V> extends Node<MapNode<K, V>> {
     Function2<(K, V), (K, V), (K, V)> mergef,
   );
 
+  /// Returns the key-value tuple for [key], throwing if absent.
   (K, V) getTuple(K key, int originalHash, int hash, int shift);
 
+  /// Writes all entries in this subtree into [builder].
   void buildTo(IHashMapBuilder<K, V> builder);
 }
 
+/// A CHAMP trie node that uses two bitmaps ([dataMap] and [nodeMap]) to
+/// compactly store inline key-value pairs and pointers to child nodes in a
+/// single [content] array.
 @internal
 final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
   int dataMap;
@@ -1534,6 +1571,9 @@ final class BitmapIndexedMapNode<K, V> extends MapNode<K, V> {
   }
 }
 
+/// A [MapNode] that handles the rare case where multiple distinct keys share
+/// the same fully-expanded hash. Entries are stored in a flat [IVector] and
+/// looked up by linear scan.
 final class HashCollisionMapNode<K, V> extends MapNode<K, V> {
   final int originalHash;
   final int hash;

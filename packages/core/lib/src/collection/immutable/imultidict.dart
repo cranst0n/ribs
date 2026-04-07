@@ -1,16 +1,34 @@
 import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// Creates an [IMultiDict] from a Dart [Iterable] of key-value pairs.
+///
+/// ```dart
+/// final m = imultidict([(1, 'a'), (1, 'b'), (2, 'c')]);
+/// ```
 IMultiDict<K, V> imultidict<K, V>(Iterable<(K, V)> as) => IMultiDict.fromDartIterable(as);
 
+/// An immutable multimap: each key is associated with a set of values.
+///
+/// Iterate over `(key, value)` pairs with [iterator]; access all values for a
+/// key with [get]; inspect the underlying key→set structure with [sets].
+///
+/// ```dart
+/// final m = imultidict([(1, 'a'), (1, 'b'), (2, 'c')]);
+/// m.get(1); // ISet('a', 'b')
+/// ```
 @immutable
 final class IMultiDict<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMultiDict<K, V> {
   final IMap<K, ISet<V>> _elems;
 
   IMultiDict._(this._elems);
 
+  /// Returns an empty [IMultiDict].
   static IMultiDict<K, V> empty<K, V>() => IMultiDict._(IMap.empty());
 
+  /// Creates an [IMultiDict] from any [RIterableOnce] of key-value pairs.
+  ///
+  /// Returns [elems] directly when it is already an [IMultiDict].
   static IMultiDict<K, V> from<K, V>(RIterableOnce<(K, V)> elems) => switch (elems) {
     final IMultiDict<K, V> md => md,
     _ => IMultiDict._(
@@ -18,14 +36,18 @@ final class IMultiDict<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMul
     ),
   };
 
+  /// Creates an [IMultiDict] from a Dart [Map].
   static IMultiDict<K, V> fromDart<K, V>(Map<K, V> m) =>
       IMultiDict.fromDartIterable(m.entries.map((e) => (e.key, e.value)));
 
+  /// Creates an [IMultiDict] from a Dart [Iterable] of key-value pairs.
   static IMultiDict<K, V> fromDartIterable<K, V>(Iterable<(K, V)> elems) =>
       IMultiDict.from(RIterator.fromDart(elems.iterator));
 
+  /// Returns a new multidict with [elem] added. Alias for [add].
   IMultiDict<K, V> operator +((K, V) elem) => add(elem.$1, elem.$2);
 
+  /// Returns a new multidict with [value] associated with [key].
   IMultiDict<K, V> add(K key, V value) => IMultiDict._(
     _elems.updatedWith(
       key,

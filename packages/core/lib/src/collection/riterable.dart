@@ -14,7 +14,20 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/views.dart' as views;
 
+/// A traversable-again collection of elements of type [A].
+///
+/// [RIterable] extends [RIterableOnce] with the guarantee that [iterator] can
+/// be called multiple times (i.e. `isTraversableAgain == true`). All ribs
+/// collection types implement this mixin.
+///
+/// Most transformation methods return lazy views built from the concrete
+/// classes in `views.dart` — actual work is deferred until an iterator is
+/// consumed.
 mixin RIterable<A> on RIterableOnce<A> {
+  /// Creates an [RIterable] from a [RIterableOnce].
+  ///
+  /// Returns [elems] directly when it is already an [RIterable]; otherwise
+  /// materialises it into an [IList].
   static RIterable<A> from<A>(RIterableOnce<A> elems) {
     if (elems is RIterable<A>) {
       return elems;
@@ -23,6 +36,7 @@ mixin RIterable<A> on RIterableOnce<A> {
     }
   }
 
+  /// Creates an [RIterable] from a Dart [Iterable].
   static RIterable<A> fromDart<A>(Iterable<A> elems) => from(RIterator.fromDart(elems.iterator));
 
   @override
@@ -49,7 +63,7 @@ mixin RIterable<A> on RIterableOnce<A> {
   @override
   RIterable<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) => views.FlatMap(this, f);
 
-  /// {@macro iterable_once_foldLeft}
+  /// Alias for [foldLeft] with a same-type accumulator.
   A fold(A init, Function2<A, A, A> op) => foldLeft(init, op);
 
   /// {@template iterable_groupBy}
@@ -192,6 +206,8 @@ mixin RIterable<A> on RIterableOnce<A> {
   @override
   RIterable<B> scanLeft<B>(B z, Function2<B, A, B> op) => views.ScanLeft(this, z, op);
 
+  /// Returns a new collection of running totals starting with [z], traversing
+  /// from right to left.
   RIterable<B> scanRight<B>(B z, Function2<A, B, B> op) {
     var acc = z;
     var scanned = IList.empty<B>().prepended(acc);
@@ -295,6 +311,7 @@ mixin RIterable<A> on RIterableOnce<A> {
 }
 
 extension RibsIterableTuple2Ops<A, B> on RIterable<(A, B)> {
+  /// Splits a collection of pairs into two separate collections.
   (RIterable<A>, RIterable<B>) unzip() => (
     views.Map(this, (a) => a.$1),
     views.Map(this, (a) => a.$2),

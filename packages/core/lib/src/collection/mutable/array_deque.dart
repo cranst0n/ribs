@@ -3,6 +3,14 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// A mutable double-ended queue backed by a circular [Array].
+///
+/// Amortized O(1) [addOne] / [prepend] at both ends and O(1) indexed access.
+/// The internal array is a power-of-two ring buffer that grows and shrinks
+/// automatically. [MQueue] and [MStack] are thin wrappers over [ArrayDeque].
+///
+/// Construct with the default constructor (optionally passing an initial
+/// capacity hint) or with [ArrayDeque.from] / [ArrayDeque.fromDart].
 class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>, Buffer<A> {
   static const DefaultInitialSize = 16;
   static const _StableSize = 128;
@@ -371,6 +379,7 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
     return elem;
   }
 
+  /// Removes and returns all elements satisfying [p] in FIFO order.
   RSeq<A> removeAll(Function1<A, bool> p) {
     final elems = IVector.builder<A>();
 
@@ -437,8 +446,13 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
     }
   }
 
+  /// Removes the first element satisfying [p] at or after [from] and returns
+  /// `Some(element)`, or `None` if no such element exists.
   Option<A> removeFirst(Function1<A, bool> p, [int from = 0]) => indexWhere(p, from).map(remove);
 
+  /// Removes and returns the first element.
+  ///
+  /// Throws [UnsupportedError] if this deque is empty.
   A removeHead({bool resizeInternalRepr = false}) {
     if (isEmpty) {
       throw UnsupportedError('ArrayDeque.removeHead: empty');
@@ -447,6 +461,8 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
     }
   }
 
+  /// Removes and returns the first element wrapped in `Some`, or returns
+  /// `None` when empty.
   Option<A> removeHeadOption({bool resizeInternalRepr = false}) {
     if (isEmpty) {
       return const None();
@@ -455,6 +471,7 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
     }
   }
 
+  /// Removes and returns all leading elements satisfying [p].
   RSeq<A> removeHeadWhile(Function1<A, bool> p) {
     final elems = IVector.builder<A>();
 
@@ -465,6 +482,9 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
     return elems.result();
   }
 
+  /// Removes and returns the last element.
+  ///
+  /// Throws [UnsupportedError] if this deque is empty.
   A removeLast({bool resizeInternalRepr = false}) {
     if (isEmpty) {
       throw UnsupportedError('ArrayDeque.removeLast: empty');
@@ -473,6 +493,8 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
     }
   }
 
+  /// Removes and returns the last element wrapped in `Some`, or returns
+  /// `None` when empty.
   Option<A> removeLastOption({bool resizeInternalRepr = false}) {
     if (isEmpty) {
       return const None();
@@ -566,8 +588,10 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
   Option<ArrayDeque<B>> traverseOption<B>(Function1<A, Option<B>> f) =>
       super.traverseOption(f).map(from);
 
+  /// Shrinks the internal array to exactly fit the current number of elements.
   void trimToSize() => _resize(length);
 
+  /// Replaces the element at [idx] with [elem].
   void update(int idx, A elem) {
     _requireBounds(idx);
     _set(idx, elem);

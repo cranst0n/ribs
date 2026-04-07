@@ -58,7 +58,9 @@ extension RIterableTuple2Ops<A, B> on RIterable<(A, B)> {
   IMap<A, B> toIMap() => IMap.from(this);
 }
 
+/// Operations available when [RIterable] elements are themselves [RIterable].
 extension RIterableNested2Ops<A> on RIterable<RIterable<A>> {
+  /// Concatenates all inner iterables into a single [IList].
   RIterable<A> flatten() {
     final it = iterator;
     final b = IList.builder<A>();

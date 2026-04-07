@@ -16,15 +16,29 @@ import 'package:ribs_core/src/collection/hashing.dart';
 import 'package:ribs_core/src/collection/immutable/set/champ_common.dart';
 import 'package:ribs_core/src/collection/immutable/set/set_node.dart';
 
+/// An immutable hash set based on a Compressed Hash-Array Mapped Prefix-trie
+/// (CHAMP).
+///
+/// Provides O(log n) lookup, insertion, and removal. Prefer [ISet] over
+/// [IHashSet] directly — [ISet] uses this as its backing structure for sets
+/// with more than four elements and selects the most efficient representation
+/// automatically.
+///
+/// Use [IHashSet.from] or [IHashSet.builder] to construct instances.
 final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
   final BitmapIndexedSetNode<A> _rootNode;
 
   IHashSet._(this._rootNode);
 
+  /// Returns a mutable builder that accumulates elements into an [IHashSet].
   static IHashSetBuilder<A> builder<A>() => IHashSetBuilder();
 
+  /// Returns an empty [IHashSet].
   static IHashSet<A> empty<A>() => IHashSet._(SetNode.empty());
 
+  /// Creates an [IHashSet] from any [RIterableOnce].
+  ///
+  /// Returns [xs] directly when it is already an [IHashSet], avoiding a copy.
   static IHashSet<A> from<A>(RIterableOnce<A> xs) => switch (xs) {
     final IHashSet<A> hs => hs,
     _ when xs.knownSize == 0 => IHashSet.empty(),
@@ -195,6 +209,7 @@ final class IHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, ISet<A> {
     _ => _removedAllWithShallowMutations(that),
   };
 
+  /// Returns an iterator that yields elements in reverse order.
   RIterator<A> get reverseIterator => _SetReverseIterator(_rootNode);
 
   @override
@@ -301,12 +316,17 @@ final class _SetHashIterator<A> extends ChampBaseIterator<dynamic, SetNode<A>> {
   bool operator ==(Object other) => identical(this, other);
 }
 
+/// A mutable builder for constructing [IHashSet] instances efficiently.
+///
+/// Obtain an instance via [IHashSet.builder]. After calling [result], the
+/// builder may be reused — call [clear] first to reset it.
 final class IHashSetBuilder<A> {
   IHashSet<A>? _aliased;
   BitmapIndexedSetNode<A> _rootNode;
 
   IHashSetBuilder() : _rootNode = _newEmptyRootNode();
 
+  /// Adds all elements from [elems] to this builder and returns `this`.
   IHashSetBuilder<A> addAll(RIterableOnce<A> elems) {
     _ensureUnaliased();
 
@@ -320,6 +340,7 @@ final class IHashSetBuilder<A> {
     return this;
   }
 
+  /// Adds a single element [elem] to this builder and returns `this`.
   IHashSetBuilder<A> addOne(A elem) {
     _ensureUnaliased();
     final h = elem.hashCode;
@@ -328,6 +349,7 @@ final class IHashSetBuilder<A> {
     return this;
   }
 
+  /// Resets this builder to an empty state so it can be reused.
   void clear() {
     _aliased = null;
     if (_rootNode.size > 0) {
@@ -336,6 +358,10 @@ final class IHashSetBuilder<A> {
     }
   }
 
+  /// Returns the [IHashSet] containing all elements added so far.
+  ///
+  /// Subsequent calls return the same instance until [addOne], [addAll], or
+  /// [clear] is called again.
   IHashSet<A> result() {
     if (_rootNode.size == 0) {
       return IHashSet.empty();
@@ -346,6 +372,7 @@ final class IHashSetBuilder<A> {
     }
   }
 
+  /// The number of elements accumulated so far.
   int get size => _rootNode.size;
 
   void update(SetNode<A> setNode, A element, int originalHash, int elementHash, int shift) {

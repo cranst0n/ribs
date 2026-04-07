@@ -13,6 +13,13 @@
 
 part of '../ivector.dart';
 
+/// A mutable builder for constructing [IVector] instances efficiently.
+///
+/// Accumulate elements with [addOne] and [addAll], then call [result] to
+/// produce the immutable vector. The builder may be reused after calling
+/// [clear].
+///
+/// Obtain an instance via [IVector.builder].
 final class IVectorBuilder<A> {
   _Arr6? _a6;
   _Arr5? _a5;
@@ -32,11 +39,19 @@ final class IVectorBuilder<A> {
     _lenRest = i - _len1;
   }
 
+  /// The number of elements accumulated so far.
   int knownSize() => _len1 + _lenRest - _offset;
+
+  /// The number of elements accumulated so far. Alias for [knownSize].
   int size() => knownSize();
+
+  /// Whether no elements have been accumulated yet.
   bool get isEmpty => knownSize() == 0;
+
+  /// Whether at least one element has been accumulated.
   bool get nonEmpty => knownSize() != 0;
 
+  /// Resets this builder to an empty state so it can be reused.
   void clear() {
     _a6 = null;
     _a5 = null;
@@ -352,6 +367,7 @@ final class IVectorBuilder<A> {
     _prefixIsRightAligned = false;
   }
 
+  /// Appends a single element [elem] to this builder and returns `this`.
   IVectorBuilder<A> addOne(A elem) {
     if (_len1 == _WIDTH) _advance();
 
@@ -483,6 +499,10 @@ final class IVectorBuilder<A> {
     return this;
   }
 
+  /// Appends all elements from [xs] to this builder and returns `this`.
+  ///
+  /// When [xs] is an [IVector], the internal trie structure is reused where
+  /// possible for efficiency.
   IVectorBuilder<A> addAll(RIterableOnce<A> xs) {
     if (xs is IVector) {
       if (_len1 == 0 && _lenRest == 0 && !_prefixIsRightAligned) {
@@ -587,6 +607,10 @@ final class IVectorBuilder<A> {
     }
   }
 
+  /// Returns the [IVector] containing all elements added so far.
+  ///
+  /// The builder's state is preserved after this call; use [clear] before
+  /// adding more elements if you intend to reuse it.
   IVector<A> result() {
     if (_prefixIsRightAligned) _leftAlignPrefix();
 

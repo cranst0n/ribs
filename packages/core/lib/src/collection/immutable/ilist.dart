@@ -18,12 +18,38 @@ import 'package:ribs_core/ribs_core.dart';
 
 part 'generated/ilist_tuple.dart';
 
+/// Creates an [IList] from a Dart [Iterable].
+///
+/// ```dart
+/// final l = ilist([1, 2, 3]);
+/// ```
 IList<A> ilist<A>(Iterable<A> as) => IList.fromDart(as);
+
+/// Returns an empty [IList].
+///
+/// Shorthand for [IList.empty].
 IList<A> nil<A>() => IList.empty();
 
+/// An immutable singly-linked list.
+///
+/// [IList] is either a [Cons] (head + tail) or a [Nil] (empty). All
+/// operations preserve immutability; modifications return new lists.
+///
+/// Construct with [ilist], [IList.fromDart], [IList.from], [IList.fill],
+/// [IList.tabulate], [IList.range], or [IList.empty]. Use [IList.builder]
+/// when building incrementally.
+///
+/// ```dart
+/// final l = ilist([1, 2, 3]);
+/// l.head;            // 1
+/// l.tail;            // IList(2, 3)
+/// l.prepended(0);    // IList(0, 1, 2, 3)
+/// l.map((x) => x * 2); // IList(2, 4, 6)
+/// ```
 sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   const IList();
 
+  /// Returns a mutable [ListBuffer] that accumulates elements into an [IList].
   static ListBuffer<A> builder<A>() => ListBuffer();
 
   /// Create an empty list.
@@ -156,6 +182,8 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   // TODO: This probably shouldn't exist. Use Chain for this
+  /// Removes the first element satisfying [p] and returns it paired with the
+  /// remaining list. Returns [None] if no element matches.
   Option<(A, IList<A>)> deleteFirst(Function1<A, bool> p) {
     if (isEmpty) {
       return none();
@@ -341,6 +369,9 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   @override
   RIterator<IList<A>> grouped(int size) => super.grouped(size).map((a) => a.toIList());
 
+  /// Returns a new list with [elem] inserted at [idx].
+  ///
+  /// Throws [RangeError] if [idx] is out of `[0, length]`.
   IList<A> insertAt(int idx, A elem) {
     if (0 <= idx && idx <= length) {
       return splitAt(idx)((before, after) => before.concat(after.prepended(elem)));
@@ -557,6 +588,9 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   @override
   IList<A> removeAt(int idx) => super.removeAt(idx).toIList();
 
+  /// Returns a new list with the first element satisfying [p] removed.
+  ///
+  /// Returns this list unchanged if no element matches.
   IList<A> removeFirst(Function1<A, bool> p) => indexWhere(p).fold(() => this, removeAt);
 
   @override
@@ -703,6 +737,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     return this;
   }
 
+  /// Converts this list to a [NonEmptyIList], returning [None] if it is empty.
   Option<NonEmptyIList<A>> toNel() => NonEmptyIList.from(this);
 
   @override
@@ -719,6 +754,8 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   Option<IList<B>> traverseOption<B>(Function1<A, Option<B>> f) =>
       super.traverseOption(f).map((a) => a.toIList());
 
+  /// Deconstructs the list by passing `Some((head, tail))` to [f] when
+  /// non-empty, or `None` when empty.
   B uncons<B>(Function1<Option<(A, IList<A>)>, B> f) {
     if (isEmpty) {
       return f(none());
@@ -901,6 +938,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 }
 
+/// The non-empty case of [IList], containing a [head] element and a [tail].
 final class Cons<A> extends IList<A> {
   @override
   final A head;
@@ -917,6 +955,7 @@ final class Cons<A> extends IList<A> {
   IList<A> get tail => next;
 }
 
+/// The empty case of [IList]. Use [nil] or [IList.empty] to obtain an instance.
 final class Nil<A> extends IList<A> {
   const Nil();
 

@@ -17,12 +17,29 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/rseq_views.dart' as seqviews;
 import 'package:ribs_core/src/collection/views.dart' as views;
 
+/// An ordered, indexed sequence of elements of type [A].
+///
+/// [RSeq] adds positional access (`operator []` and [length]) and a rich set
+/// of sequence operations (sorting, slicing, searching, combinations,
+/// permutations) on top of [RIterable].
+///
+/// The concrete immutable implementations are [IList], [IVector], and
+/// [NonEmptyIList]. Mutable implementations include [ArrayDeque] and
+/// [ListBuffer].
 mixin RSeq<A> on RIterable<A> {
+  /// Returns the element at index [idx].
   A operator [](int idx);
+
+  /// The number of elements in this sequence.
   int get length;
 
+  /// Returns an empty [RSeq].
   static RSeq<A> empty<A>() => IList.empty();
 
+  /// Creates an [RSeq] from a [RIterableOnce].
+  ///
+  /// Returns [elems] directly when it is already an [RSeq]; otherwise
+  /// materialises it into an [IVector].
   static RSeq<A> from<A>(RIterableOnce<A> elems) {
     if (elems is RSeq<A>) {
       return elems;
@@ -31,6 +48,7 @@ mixin RSeq<A> on RIterable<A> {
     }
   }
 
+  /// Creates an [RSeq] from a Dart [Iterable].
   static RSeq<A> fromDart<A>(Iterable<A> elems) => from(RIterator.fromDart(elems.iterator));
 
   /// Returns a new Seq, with the given [elem] added to the end.
@@ -142,6 +160,7 @@ mixin RSeq<A> on RIterable<A> {
     }
   }
 
+  /// Returns the last element satisfying [p] as `Some`, or [None] if none.
   Option<A> findLast(Function1<A, bool> p) {
     final it = reverseIterator();
     while (it.hasNext) {
@@ -327,6 +346,8 @@ mixin RSeq<A> on RIterable<A> {
   /// will be returned.
   RSeq<A> padTo(int len, A elem) => views.PadTo(this, len, elem).toSeq();
 
+  /// Returns a new collection with [replaced] elements starting at [from]
+  /// replaced by the elements of [other].
   RSeq<A> patch(int from, RIterableOnce<A> other, int replaced) =>
       views.Patched(this, from, other, replaced).toSeq();
 
@@ -362,6 +383,9 @@ mixin RSeq<A> on RIterable<A> {
   /// Returns a new collection with all [elems] added to the beginning.
   RSeq<A> prependedAll(RIterableOnce<A> prefix) => seqviews.Concat(prefix.toSeq(), this);
 
+  /// Returns a new collection with the element at [idx] removed.
+  ///
+  /// Throws [RangeError] if [idx] is out of bounds.
   RSeq<A> removeAt(int idx) {
     if (0 <= idx && idx < length) {
       if (idx == 0) {
@@ -406,6 +430,8 @@ mixin RSeq<A> on RIterable<A> {
   RIterator<RSeq<A>> sliding(int size, [int step = 1]) =>
       super.sliding(size, step).map((a) => a.toSeq());
 
+  /// Returns the length of the longest prefix starting at [from] where every
+  /// element satisfies [p].
   int segmentLength(Function1<A, bool> p, [int from = 0]) {
     var i = 0;
     final it = iterator.drop(from);
@@ -490,6 +516,9 @@ mixin RSeq<A> on RIterable<A> {
     return result;
   }
 
+  /// Returns a new collection with the element at [index] replaced by [elem].
+  ///
+  /// Throws [RangeError] if [index] is out of bounds.
   RSeq<A> updated(int index, A elem) {
     if (index < 0) {
       throw RangeError(

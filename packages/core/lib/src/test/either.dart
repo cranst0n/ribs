@@ -1,8 +1,16 @@
 import 'package:ribs_core/src/either.dart';
 import 'package:test/test.dart';
 
+/// Returns a [Matcher] that matches a [Left] value.
+///
+/// If [matcher] is provided, the matched value inside [Left] must also satisfy
+/// it. If omitted, any [Left] value matches.
 Matcher isLeft([Object? matcher]) => _IsLeft(matcher);
 
+/// Returns a [Matcher] that matches a [Right] value.
+///
+/// If [matcher] is provided, the matched value inside [Right] must also satisfy
+/// it. If omitted, any [Right] value matches.
 Matcher isRight([Object? matcher]) => _IsRight(matcher);
 
 class _IsLeft extends Matcher {

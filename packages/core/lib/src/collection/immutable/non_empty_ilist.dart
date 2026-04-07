@@ -31,12 +31,15 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   /// Creates a list with the given [head] and [tail].
   const NonEmptyIList(this.head, [this._tail = const Nil()]);
 
+  /// Returns `Some` wrapping a [NonEmptyIList] when [as] is non-empty, or
+  /// [None] when empty.
   static Option<NonEmptyIList<A>> from<A>(RIterableOnce<A> as) =>
       Option.when(() => as.nonEmpty, () {
         final l = as.toIList();
         return NonEmptyIList(l.head, l.tail);
       });
 
+  /// Returns a [NonEmptyIList] from [as], or throws [ArgumentError] if empty.
   static NonEmptyIList<A> unsafe<A>(RIterableOnce<A> as) =>
       from(as).getOrElse(() => throw ArgumentError('NonEmptyList.fromUnsafe: empty'));
 

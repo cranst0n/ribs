@@ -1,10 +1,22 @@
 import 'package:ribs_core/src/validated.dart';
 import 'package:test/test.dart';
 
+/// Returns a [Matcher] that matches a [Valid] value.
+///
+/// If [matcher] is provided, the matched value inside [Valid] must also satisfy
+/// it. If omitted, any [Valid] value matches.
 Matcher isValid([Object? matcher]) => _IsValid(matcher);
 
+/// Returns a [Matcher] that matches a [Valid] value for a [ValidatedNel].
+///
+/// If [matcher] is provided, the matched value inside [Valid] must also satisfy
+/// it. If omitted, any [Valid] value matches.
 Matcher isValidNel([Object? matcher]) => _IsValid(matcher);
 
+/// Returns a [Matcher] that matches an [Invalid] value.
+///
+/// If [matcher] is provided, the matched error inside [Invalid] must also
+/// satisfy it. If omitted, any [Invalid] value matches.
 Matcher isInvalid([Object? expected]) => _IsInvalid(expected);
 
 class _IsValid extends Matcher {

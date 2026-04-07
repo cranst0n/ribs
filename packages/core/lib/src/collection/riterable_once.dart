@@ -15,7 +15,18 @@ import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
 
+/// The root of the ribs collection hierarchy — a single-pass traversable.
+///
+/// [RIterableOnce] provides the minimal traversal contract: one call to
+/// [iterator] yields an [RIterator] that can traverse the elements once. All
+/// higher-level collection types ([RIterable], [RSeq], [IList], etc.) build on
+/// this mixin.
+///
+/// Terminal operations ([foldLeft], [foreach], [toIList], etc.) are defined
+/// here so they work uniformly on everything from a bare [RIterator] to an
+/// [IVector].
 mixin RIterableOnce<A> {
+  /// Returns an [RIterator] over the elements of this collection.
   RIterator<A> get iterator;
 
   /// Returns the number of elements in this collection, if that number is
@@ -30,40 +41,65 @@ mixin RIterableOnce<A> {
   /// {@endtemplate}
   RIterableOnce<B> collect<B>(Function1<A, Option<B>> f);
 
+  /// Returns a new collection with the first [n] elements removed.
   RIterableOnce<A> drop(int n);
 
+  /// Returns a new collection with leading elements satisfying [p] removed.
   RIterableOnce<A> dropWhile(Function1<A, bool> p);
 
+  /// Returns a new collection containing only elements that satisfy [p].
   RIterableOnce<A> filter(Function1<A, bool> p);
 
+  /// Returns a new collection containing only elements that do **not**
+  /// satisfy [p].
   RIterableOnce<A> filterNot(Function1<A, bool> p);
 
+  /// Returns a new collection by applying [f] to each element and
+  /// concatenating the results.
   RIterableOnce<B> flatMap<B>(covariant Function1<A, RIterableOnce<B>> f);
 
+  /// Returns a new collection by applying [f] to each element.
   RIterableOnce<B> map<B>(Function1<A, B> f);
 
+  /// Returns a new collection of running totals starting with [z].
+  ///
+  /// The first element of the result is [z]; each subsequent element is the
+  /// result of applying [op] to the previous total and the next element.
   RIterableOnce<B> scanLeft<B>(B z, Function2<B, A, B> op);
 
+  /// Returns a new collection containing elements in the range
+  /// `[from, until)`.
   RIterableOnce<A> slice(int from, int until);
 
+  /// Returns two collections: elements before and starting from the first
+  /// element that does not satisfy [p].
   (RIterableOnce<A>, RIterableOnce<A>) span(Function1<A, bool> p);
 
+  /// Returns a new collection containing only the first [n] elements.
   RIterableOnce<A> take(int n);
 
+  /// Returns a new collection of leading elements that satisfy [p].
   RIterableOnce<A> takeWhile(Function1<A, bool> p);
 
   // ///////////////////////////////////////////////////////////////////////////
 
+  /// Whether this collection contains no elements.
   bool get isEmpty => switch (knownSize) {
     -1 => !iterator.hasNext,
     0 => true,
     _ => false,
   };
 
+  /// Whether this collection contains at least one element.
   bool get isNotEmpty => !isEmpty;
 
+  /// Whether this collection can be traversed more than once.
+  ///
+  /// Always `false` for a bare [RIterableOnce]; overridden to `true` by
+  /// [RIterable] and its subtypes.
   bool get isTraversableAgain => false;
 
+  /// Whether this collection contains at least one element.
   bool get nonEmpty => !isEmpty;
 
   /// Returns the number of elements in this collection.
@@ -98,6 +134,10 @@ mixin RIterableOnce<A> {
     return none();
   }
 
+  /// Copies elements into [xs] starting at [start], writing at most [n]
+  /// elements (or all remaining capacity when [n] is omitted).
+  ///
+  /// Returns the number of elements actually copied.
   int copyToArray(Array<A> xs, [int start = 0, int? n]) {
     final it = iterator;
     final end = start + min(n ?? Integer.maxValue, xs.length - start);
@@ -281,6 +321,9 @@ mixin RIterableOnce<A> {
     return buf.toString();
   }
 
+  /// Reduces this collection to a single value by applying [op] left to right.
+  ///
+  /// Throws if the collection is empty.
   A reduce(Function2<A, A, A> op) => reduceLeft(op);
 
   /// Returns a summary values of all elements of this collection by applying
@@ -289,6 +332,7 @@ mixin RIterableOnce<A> {
   /// If this collection is empty, [None] will be returned.
   Option<A> reduceOption(Function2<A, A, A> op) => reduceLeftOption(op);
 
+  /// Reduces from left to right. Throws if empty.
   A reduceLeft(Function2<A, A, A> op) => switch (this) {
     final IndexedSeq<A> seq when seq.length > 0 => _foldl(seq, 1, seq[0], op),
     _ when knownSize == 0 => throw UnsupportedError('empty.reduceLeft'),
@@ -304,6 +348,7 @@ mixin RIterableOnce<A> {
     _ => _reduceOptionIterator(iterator, op),
   };
 
+  /// Reduces from right to left. Throws if empty.
   A reduceRight(Function2<A, A, A> op) => switch (this) {
     final IndexedSeq<A> seq when seq.length > 0 => _foldr(seq, op),
     _ when knownSize == 0 => throw UnsupportedError('empty.reduceLeft'),
@@ -320,13 +365,10 @@ mixin RIterableOnce<A> {
     _ => Some(reduceRight(op)),
   };
 
-  /// Returns a new collection of the accumulation of results by applying [f] to
-  /// all elements of the collection, including the inital value [z]. Traversal
-  /// moves from left to right.
+  /// Alias for [scanLeft].
   RIterableOnce<B> scan<B>(B z, Function2<B, A, B> op) => scanLeft(z, op);
 
-  /// Returns 2 collectins of all elements before and after index [n]
-  /// respectively.
+  /// Returns two collections: the first [n] elements and the remainder.
   (RIterableOnce<A>, RIterableOnce<A>) splitAt(int n) {
     final spanner = _Spanner<A>(n);
     return span(spanner.call);

@@ -2,16 +2,36 @@ import 'package:meta/meta.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/views.dart' as views;
 
+/// Creates an [MMultiSet] from a Dart [Iterable].
+///
+/// ```dart
+/// final ms = mmultiset([1, 1, 2, 3]);
+/// ms.occurrences.get(1); // Some(2)
+/// ```
 MMultiSet<A> mmultiset<A>(Iterable<A> as) => MMultiSet.fromDartIterable(as);
 
+/// A mutable multiset (bag): a set where elements may appear multiple times.
+///
+/// Backed by an [MMap] from element to occurrence count. Add with [incl] /
+/// `+`; remove one occurrence with [excl] / `-`.
+///
+/// ```dart
+/// final ms = mmultiset([1, 1, 2]);
+/// (ms + 3).occurrences; // MMap(1→2, 2→1, 3→1)
+/// (ms - 1).occurrences; // MMap(1→1, 2→1)
+/// ```
 @immutable
 final class MMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
   final MMap<A, int> _elems;
 
   MMultiSet._(this._elems);
 
+  /// Returns an empty [MMultiSet].
   static MMultiSet<A> empty<A>() => MMultiSet._(MMap.empty());
 
+  /// Creates an [MMultiSet] from a [RIterableOnce].
+  ///
+  /// Returns [elems] directly when it is already an [MMultiSet].
   static MMultiSet<A> from<A>(RIterableOnce<A> elems) => switch (elems) {
     final MMultiSet<A> ms => ms,
     _ => MMultiSet._(
@@ -19,16 +39,22 @@ final class MMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
     ),
   };
 
+  /// Creates an [MMultiSet] from an iterable of `(element, count)` pairs.
   static MMultiSet<A> fromOccurences<A>(RIterableOnce<(A, int)> elems) => switch (elems) {
     final MMultiSet<A> ms => ms,
     _ => from(elems.flatMap((occ) => views.Fill(occ.$2, occ.$1))),
   };
 
+  /// Creates an [MMultiSet] from a Dart [Iterable].
   static MMultiSet<A> fromDartIterable<A>(Iterable<A> elems) =>
       MMultiSet.from(RIterator.fromDart(elems.iterator));
 
+  /// Returns a new multiset with one additional occurrence of [elem].
   MMultiSet<A> operator +(A elem) => incl(elem);
 
+  /// Returns a new multiset with one fewer occurrence of [elem].
+  ///
+  /// Has no effect if [elem] is not present.
   MMultiSet<A> operator -(A elem) => excl(elem);
 
   @override
@@ -49,6 +75,9 @@ final class MMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
   @override
   MMultiSet<A> dropWhile(Function1<A, bool> p) => MMultiSet.from(super.dropWhile(p));
 
+  /// Returns a new multiset with one fewer occurrence of [elem].
+  ///
+  /// Removes the key entirely when its count would drop to zero.
   MMultiSet<A> excl(A elem) {
     _elems.updateWith(elem, (n) => n.fold(() => none(), (n) => n > 1 ? Some(n - 1) : none()));
 
@@ -85,6 +114,7 @@ final class MMultiSet<A> with RIterableOnce<A>, RIterable<A>, RMultiSet<A> {
   @override
   RIterator<MMultiSet<A>> grouped(int size) => super.grouped(size).map(MMultiSet.from);
 
+  /// Returns a new multiset with one additional occurrence of [elem].
   MMultiSet<A> incl(A elem) {
     _elems.updateWith(elem, (n) => Some(n.fold(() => 1, (n) => n + 1)));
     return this;

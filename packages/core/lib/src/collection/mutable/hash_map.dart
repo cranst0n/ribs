@@ -15,6 +15,12 @@ import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
 
+/// A mutable hash map backed by a linked-chain hash table.
+///
+/// Amortized O(1) [get], [put], and [remove]. The table rehashes when the
+/// load factor threshold is exceeded. Default capacity is 16 with a 0.75
+/// load factor. Construct with [MHashMap.empty] or directly via the default
+/// constructor.
 final class MHashMap<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V>, MMap<K, V> {
   static const DefaultInitialCapacity = 16;
   static const DefaultLoadFactor = 0.75;
@@ -32,6 +38,7 @@ final class MHashMap<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K
   }) : _table = Array.ofDim(_tableSizeFor(initialCapacity)),
        _threshold = _newThreshold(_tableSizeFor(initialCapacity), loadFactor);
 
+  /// Returns an empty [MHashMap] with default capacity and load factor.
   static MHashMap<K, V> empty<K, V>() => MHashMap();
 
   @override

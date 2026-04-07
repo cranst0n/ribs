@@ -142,6 +142,8 @@ final class Invalid<E, A> extends Validated<E, A> {
   B fold<B>(Function1<E, B> fe, Function1<A, B> fa) => fe(value);
 }
 
+/// Operations available when a [Validated] contains another [Validated] as its
+/// valid value.
 extension ValidatedNestedOps<E, A> on Validated<E, Validated<E, A>> {
   /// Extracts the nested [Validated] via [fold].
   Validated<E, A> flatten() => fold(

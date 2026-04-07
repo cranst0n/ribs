@@ -16,6 +16,13 @@ import 'dart:math';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/mutable/mutation_tracker.dart';
 
+/// A mutable buffer backed by a singly-linked [IList].
+///
+/// Supports O(1) append and prepend (via [addOne] / [prepend]) and O(1)
+/// conversion to [IList] via [toIList] — without copying. Mutation is tracked
+/// so that iterators fail fast if the buffer is modified during iteration.
+///
+/// Obtain a [ListBuffer] from [IList.builder] or construct one directly.
 class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
   IList<A> _first = Nil<A>();
   Cons<A>? _last0;
@@ -86,6 +93,7 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
     _aliased = false;
   }
 
+  /// Removes all elements that do not satisfy [p] in place and returns `this`.
   ListBuffer<A> filterInPlace(Function1<A, bool> p) {
     _ensureUnaliased();
     Cons<A>? prev;
@@ -178,6 +186,8 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
   @override
   int get length => _len;
 
+  /// Replaces every element with the result of [f] applied to it in place and
+  /// returns `this`.
   ListBuffer<A> mapInPlace(Function1<A, A> f) {
     _mutationCount += 1;
     final buf = ListBuffer<A>();
@@ -219,6 +229,8 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
     return this;
   }
 
+  /// Prepends the contents of this buffer to [xs] and returns the combined
+  /// [IList] without copying the buffer's nodes.
   IList<A> prependToList(IList<A> xs) {
     if (isEmpty) {
       return xs;
@@ -310,6 +322,9 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
     return _first;
   }
 
+  /// Replaces the element at [idx] with [elem].
+  ///
+  /// Throws [RangeError] if [idx] is out of bounds.
   void update(int idx, A elem) {
     _ensureUnaliased();
 

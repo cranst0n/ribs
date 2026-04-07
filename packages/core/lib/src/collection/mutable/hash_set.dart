@@ -15,6 +15,11 @@ import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
 
+/// A mutable hash set backed by a linked-chain hash table.
+///
+/// Amortized O(1) [add], [contains], and [remove]. The table rehashes when
+/// the load factor threshold is exceeded. Default capacity is 16 with a 0.75
+/// load factor. Construct with [MHashSet.empty] or [MHashSet.from].
 final class MHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, MSet<A> {
   static const DefaultInitialCapacity = 16;
   static const DefaultLoadFactor = 0.75;
@@ -32,8 +37,11 @@ final class MHashSet<A> with RIterableOnce<A>, RIterable<A>, RSet<A>, MSet<A> {
   }) : _table = Array.ofDim(_tableSizeFor(initialCapacity)),
        _threshold = _newThreshold(_tableSizeFor(initialCapacity), loadFactor);
 
+  /// Returns an empty [MHashSet] with default capacity and load factor.
   static MHashSet<A> empty<A>() => MHashSet();
 
+  /// Creates an [MHashSet] from a [RIterableOnce], pre-sizing the table when
+  /// the element count is known.
   static MHashSet<A> from<A>(RIterableOnce<A> xs) {
     final k = xs.knownSize;
     final cap = k > 0 ? ((k + 1).toDouble() ~/ DefaultLoadFactor) : DefaultInitialCapacity;

@@ -1,25 +1,38 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/views.dart' as views;
 
+/// A collection that may contain duplicate elements, tracking the count of
+/// each distinct value.
+///
+/// [RMultiSet] is backed by [occurrences], a map from element to count. The
+/// concrete immutable implementation is [IMultiSet].
 mixin RMultiSet<A> on RIterableOnce<A>, RIterable<A> {
+  /// Returns an empty [RMultiSet].
   static RMultiSet<A> empty<A>() => IMultiSet.empty();
 
+  /// Creates an [RMultiSet] from a [RIterableOnce].
+  ///
+  /// Returns [elems] directly when it is already an [RMultiSet]; otherwise
+  /// materialises it into an [IMultiSet].
   static RMultiSet<A> from<A>(RIterableOnce<A> elems) => switch (elems) {
     final RMultiSet<A> ms => ms,
     _ => IMultiSet.from(elems),
   };
 
+  /// Creates an [RMultiSet] from a [RIterableOnce] of `(element, count)` pairs.
   static RMultiSet<A> fromOccurences<A>(RIterableOnce<(A, int)> elems) => switch (elems) {
     final RMultiSet<A> ms => ms,
     _ => from(elems.flatMap((occ) => views.Fill(occ.$2, occ.$1))),
   };
 
+  /// Creates an [RMultiSet] from a Dart [Iterable].
   static RMultiSet<A> fromDartIterable<A>(Iterable<A> elems) =>
       RMultiSet.from(RIterator.fromDart(elems.iterator));
 
   @override
   RMultiSet<B> collect<B>(Function1<A, Option<B>> f) => RMultiSet.from(super.collect(f));
 
+  /// Applies [f] to each `(element, count)` pair, keeping only [Some] results.
   RMultiSet<B> collectOccurances<B>(Function1<(A, int), Option<(B, int)>> f) => flatMapOccurences(
     (kvs) => f(kvs).fold(
       () => const views.Empty(),
@@ -30,8 +43,11 @@ mixin RMultiSet<A> on RIterableOnce<A>, RIterable<A> {
   @override
   RMultiSet<A> concat(RIterableOnce<A> suffix) => RMultiSet.from(super.concat(suffix));
 
+  /// Returns a new multiset formed by adding all `(element, count)` pairs
+  /// from [that].
   RMultiSet<A> concatOccurences(RIterable<(A, int)> that) => RMultiSet.fromOccurences(that);
 
+  /// Returns true if [elem] appears at least once in this multiset.
   bool contains(A elem) => occurrences.contains(elem);
 
   @override
@@ -49,16 +65,22 @@ mixin RMultiSet<A> on RIterableOnce<A>, RIterable<A> {
   @override
   RMultiSet<A> filterNot(Function1<A, bool> p) => RMultiSet.from(super.filterNot(p));
 
+  /// Returns a new multiset keeping only the `(element, count)` pairs that
+  /// satisfy [p].
   RMultiSet<A> filterOccurences(Function1<(A, int), bool> p) =>
       RMultiSet.fromOccurences(views.Filter(occurrences, p, false));
 
   @override
   RMultiSet<B> flatMap<B>(Function1<A, RIterableOnce<B>> f) => RMultiSet.from(super.flatMap(f));
 
+  /// Returns a new multiset by applying [f] to each `(element, count)` pair
+  /// and concatenating the resulting occurrence sequences.
   RMultiSet<B> flatMapOccurences<B>(
     Function1<(A, int), RIterableOnce<(B, int)>> f,
   ) => RMultiSet.fromOccurences(views.FlatMap(occurrences, f));
 
+  /// Returns the number of times [elem] appears in this multiset, or 0 if
+  /// it is absent.
   int get(A elem) => occurrences.getOrElse(elem, () => 0);
 
   @override
@@ -85,9 +107,11 @@ mixin RMultiSet<A> on RIterableOnce<A>, RIterable<A> {
   @override
   RMultiSet<B> map<B>(Function1<A, B> f) => RMultiSet.from(super.map(f));
 
+  /// Returns a new multiset by applying [f] to each `(element, count)` pair.
   RMultiSet<B> mapOccurences<B>(Function1<(A, int), (B, int)> f) =>
       RMultiSet.fromOccurences(views.Map<(A, int), (B, int)>(occurrences, f));
 
+  /// The underlying map from each distinct element to its occurrence count.
   RMap<A, int> get occurrences;
 
   @override

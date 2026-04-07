@@ -15,21 +15,43 @@ import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
 
+/// An immutable, O(1)-memory integer range.
+///
+/// Elements are computed on demand from [start], [end], and [step]. All
+/// [IndexedSeq] operations are available. Most operations return another
+/// [Range]; those that cannot (e.g. [map]) fall back to a general sequence.
+///
+/// Construct with [Range.exclusive] (half-open `[start, end)`) or
+/// [Range.inclusive] (closed `[start, end]`).
+///
+/// ```dart
+/// Range.exclusive(0, 5).toIList();           // IList(0, 1, 2, 3, 4)
+/// Range.inclusive(1, 5, 2).toIList();        // IList(1, 3, 5)
+/// Range.exclusive(5, 0, -1).toIList();       // IList(5, 4, 3, 2, 1)
+/// ```
 abstract class Range with RIterableOnce<int>, RIterable<int>, RSeq<int>, IndexedSeq<int> {
+  /// The first value in the range.
   final int start;
+
+  /// The bound of the range (exclusive or inclusive, see [isInclusive]).
   final int end;
+
+  /// The increment between successive elements.
   final int step;
 
   Range(this.start, this.end, this.step);
 
+  /// Creates a half-open range `[start, end)` with the given [step].
   factory Range.exclusive(int start, int end, [int step = 1]) => _RangeExclusive(start, end, step);
 
+  /// Creates a closed range `[start, end]` with the given [step].
   factory Range.inclusive(int start, int end, [int step = 1]) => _RangeInclusive(start, end, step);
 
   @override
   bool get isEmpty =>
       (start > end && step > 0) || (start < end && step < 0) || (start == end && !isInclusive);
 
+  /// Whether [end] is included in the range.
   bool get isInclusive;
 
   @override
@@ -42,6 +64,7 @@ abstract class Range with RIterableOnce<int>, RIterable<int>, RSeq<int>, Indexed
     }
   }
 
+  /// Returns a copy of this range with the given [step].
   Range by(int step) => _copy(step: step);
 
   @override
@@ -111,11 +134,17 @@ abstract class Range with RIterableOnce<int>, RIterable<int>, RSeq<int>, Indexed
     }
   }
 
+  /// Returns a half-open (exclusive) version of this range.
+  ///
+  /// Returns `this` if already exclusive.
   Range exclusive() => !isInclusive ? this : Range.exclusive(start, end, step);
 
   @override
   RIterator<Range> grouped(int size) => _RangeGroupedIterator(this, size);
 
+  /// Returns a closed (inclusive) version of this range.
+  ///
+  /// Returns `this` if already inclusive.
   Range inclusive() => isInclusive ? this : Range.inclusive(start, end, step);
 
   @override

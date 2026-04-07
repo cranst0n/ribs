@@ -25,13 +25,37 @@ part 'set/set2.dart';
 part 'set/set3.dart';
 part 'set/set4.dart';
 
+/// Creates an [ISet] from a Dart [Iterable].
+///
+/// ```dart
+/// final s = iset([1, 2, 3]);
+/// ```
 ISet<A> iset<A>(Iterable<A> as) => ISet.of(as);
 
+/// An immutable, unordered set with no duplicate elements.
+///
+/// `ISet` uses a small-set optimization for up to four elements, backed by
+/// [IHashSet] (a CHAMP trie) for larger collections.
+///
+/// Construct with [iset], [ISet.of], [ISet.from], or [ISet.empty]. Use
+/// [ISet.builder] when building incrementally.
+///
+/// ```dart
+/// final s = iset([1, 2, 3]);
+/// final s2 = s + 4;        // ISet(1, 2, 3, 4)
+/// final s3 = s2 - 2;       // ISet(1, 3, 4)
+/// s3.contains(1);           // true
+/// ```
 mixin ISet<A> on RIterable<A>, RSet<A> {
+  /// Returns a mutable builder that accumulates elements into an [ISet].
   static ISetBuilder<A> builder<A>() => ISetBuilder();
 
+  /// Returns an empty [ISet].
   static ISet<A> empty<A>() => _EmptySet<A>();
 
+  /// Creates an [ISet] from any [RIterableOnce].
+  ///
+  /// Returns [xs] directly when it is already an [ISet], avoiding a copy.
   static ISet<A> from<A>(RIterableOnce<A> xs) => switch (xs) {
     final _EmptySet<A> s => s,
     final _Set1<A> s => s,
@@ -42,6 +66,7 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
     _ => ISetBuilder<A>().addAll(xs).result(),
   };
 
+  /// Creates an [ISet] from a Dart [Iterable].
   static ISet<A> of<A>(Iterable<A> xs) => from(RIterator.fromDart(xs.iterator));
 
   /// Creates a new set with an additonal element [a].
@@ -65,6 +90,7 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
     return result;
   }
 
+  /// Returns the elements of this set that are not in [that].
   ISet<A> diff(ISet<A> that) =>
       foldLeft(ISet.empty<A>(), (result, elem) => that.contains(elem) ? result : result + elem);
 
@@ -77,6 +103,8 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
   @override
   ISet<A> dropWhile(Function1<A, bool> p) => super.dropWhile(p).toISet();
 
+  /// Returns a new set with [elem] removed. Returns this set unchanged if
+  /// [elem] is not a member.
   ISet<A> excl(A elem);
 
   @override
@@ -100,6 +128,8 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
     Function1<A, B> f,
   ) => super.groupMap(key, f).mapValues((a) => a.toISet());
 
+  /// Returns a new set that contains [elem] in addition to all elements of
+  /// this set. Returns this set unchanged if [elem] is already a member.
   ISet<A> incl(A elem);
 
   @override
@@ -108,6 +138,7 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
   @override
   RIterator<ISet<A>> get inits => super.inits.map((a) => a.toISet());
 
+  /// Returns the elements that are present in both this set and [that].
   ISet<A> intersect(ISet<A> that) => filter(that.contains).toISet();
 
   @override
@@ -127,6 +158,7 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
     return (a.toISet(), b.toISet());
   }
 
+  /// Returns a new set with all elements in [that] removed.
   ISet<A> removedAll(RIterableOnce<A> that) =>
       that.iterator.foldLeft(this, (acc, elem) => acc - elem);
 
@@ -158,8 +190,13 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
     return (a.toISet(), b.toISet());
   }
 
+  /// Returns `true` if every element of this set is also contained in [that].
   bool subsetOf(ISet<A> that) => forall(that.contains);
 
+  /// Returns an iterator over all subsets of this set.
+  ///
+  /// If [length] is provided, only subsets of exactly that size are returned.
+  /// When [length] is out of range `[0, size]`, an empty iterator is returned.
   RIterator<ISet<A>> subsets({int? length}) {
     if (length != null) {
       if (0 <= length && length <= size) {
@@ -193,6 +230,7 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
     return this;
   }
 
+  /// Returns a new set containing all elements of both this set and [that].
   ISet<A> union(ISet<A> that) => concat(that);
 
   @override
@@ -205,6 +243,8 @@ mixin ISet<A> on RIterable<A>, RSet<A> {
   @override
   ISet<(A, int)> zipWithIndex() => super.zipWithIndex().toISet();
 
+  /// Returns `true` if [other] is an [ISet] containing exactly the same
+  /// elements as this set, regardless of insertion order.
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

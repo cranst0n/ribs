@@ -1,13 +1,31 @@
 import 'package:ribs_core/ribs_core.dart';
 
+/// Creates an [IQueue] from a Dart [Iterable].
+///
+/// ```dart
+/// final q = iqueue([1, 2, 3]);
+/// ```
 IQueue<A> iqueue<A>(Iterable<A> as) => IQueue._(nil(), as.toIList());
 
+/// An immutable FIFO queue backed by two [IList]s.
+///
+/// Enqueue and dequeue are amortized O(1). Iteration yields elements in
+/// FIFO order (front to back).
+///
+/// Construct with [iqueue], [IQueue.from], or [IQueue.empty].
+///
+/// ```dart
+/// final q = iqueue([1, 2, 3]);
+/// final (head, rest) = q.dequeue();  // head == 1
+/// rest.front;                         // 2
+/// ```
 final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   final IList<A> _in;
   final IList<A> _out;
 
   IQueue._(this._in, this._out);
 
+  /// Returns an empty [IQueue].
   static IQueue<A> empty<A>() => IQueue._(nil(), nil());
 
   /// Creates an IQueue from the given Ribs [RIterableOnce].
@@ -90,6 +108,9 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   @override
   IQueue<A> dropWhile(Function1<A, bool> p) => from(super.dropWhile(p));
 
+  /// Removes and returns the front element together with the remaining queue.
+  ///
+  /// Throws [RangeError] if the queue is empty.
   (A, IQueue<A>) dequeue() {
     if (_out.isEmpty && _in.nonEmpty) {
       final rev = _in.reverse();
@@ -101,10 +122,13 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     }
   }
 
+  /// Returns `Some((front, rest))` when non-empty, or [None] when empty.
   Option<(A, IQueue<A>)> dequeueOption() => Option.when(() => nonEmpty, dequeue);
 
+  /// Returns a new queue with [elem] added at the back.
   IQueue<A> enqueue(A elem) => IQueue._(_in.prepended(elem), _out);
 
+  /// Returns a new queue with all elements of [iter] added at the back.
   IQueue<A> enqueueAll(RIterable<A> iter) => appendedAll(iter);
 
   @override
@@ -128,6 +152,7 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     return result;
   }
 
+  /// The front (oldest) element. Alias for [head].
   A get front => head;
 
   @override
@@ -207,6 +232,9 @@ final class IQueue<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   @override
   IQueue<A> removeAt(int idx) => from(super.removeAt(idx));
 
+  /// Returns a new queue with the first element satisfying [p] removed.
+  ///
+  /// Returns this queue unchanged if no element matches.
   IQueue<A> removeFirst(Function1<A, bool> p) => from(indexWhere(p).fold(() => this, removeAt));
 
   @override

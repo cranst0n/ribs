@@ -15,6 +15,23 @@ import 'dart:math';
 
 import 'package:ribs_core/ribs_core.dart';
 
+/// An immutable, lazily-evaluated (potentially infinite) sequence.
+///
+/// Elements are computed on demand and memoized after first evaluation.
+/// Operations like [map], [filter], [take], and [drop] return new lazy lists
+/// without forcing evaluation. Operations marked "Will force evaluation" in
+/// their doc comment traverse the whole list eagerly.
+///
+/// Construct with [ILazyList.from], [ILazyList.fromDart], [ILazyList.fill],
+/// [ILazyList.tabulate], [ILazyList.continually], [ILazyList.ints],
+/// [ILazyList.iterate], or [ILazyList.unfold]. Use [ILazyList.builder] when
+/// building incrementally.
+///
+/// ```dart
+/// // infinite sequence of natural numbers
+/// final nats = ILazyList.ints(0);
+/// nats.take(5).toIList(); // IList(0, 1, 2, 3, 4)
+/// ```
 final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   late Function0<_State<A>>? _lazyState;
   bool _stateEvaluated = false;
@@ -45,15 +62,22 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     return res;
   }
 
+  /// Returns a mutable builder that accumulates elements into an [ILazyList].
   static ILazyListBuilder<A> builder<A>() => ILazyListBuilder();
 
+  /// Returns an infinite lazy list where every element is [elem].
   static ILazyList<A> continually<A>(A elem) => _newLL(() => _sCons(elem, continually(elem)));
 
+  /// Returns an empty [ILazyList].
   static ILazyList<A> empty<A>() => _newLL(() => _Empty<A>()).force();
 
+  /// Creates a lazy list of length [len] where every element is [elem].
   static ILazyList<A> fill<A>(int len, A elem) =>
       len > 0 ? _newLL(() => _sCons(elem, fill(len - 1, elem))) : empty<A>();
 
+  /// Creates an [ILazyList] from any [RIterableOnce].
+  ///
+  /// Returns [coll] directly when it is already an [ILazyList].
   static ILazyList<A> from<A>(RIterableOnce<A> coll) {
     if (coll is ILazyList<A>) {
       return coll;
@@ -64,14 +88,21 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     }
   }
 
+  /// Returns an infinite lazy list of integers beginning at [start],
+  /// incrementing by [step] (default 1).
   static ILazyList<int> ints(int start, [int step = 1]) =>
       _newLL(() => _sCons(start, ints(start + step, step)));
 
+  /// Returns an infinite lazy list produced by repeatedly applying [f],
+  /// starting from the value `start()`.
   static ILazyList<A> iterate<A>(Function0<A> start, Function1<A, A> f) => _newLL(() {
     final head = start();
     return _sCons(head, iterate(() => f(head), f));
   });
 
+  /// Creates a lazy list of length [n] where element `i` is `f(i)`.
+  ///
+  /// Returns an empty list when `n <= 0`.
   static ILazyList<A> tabulate<A>(int n, Function1<int, A> f) {
     ILazyList<A> at(int index) {
       if (index < n) {
@@ -84,6 +115,10 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     return at(0);
   }
 
+  /// Creates a lazy list by unfolding [initial] state with [f].
+  ///
+  /// Each call to [f] either returns `Some((element, nextState))` to emit
+  /// an element and continue, or [None] to terminate the list.
   static ILazyList<A> unfold<A, S>(
     S initial,
     Function1<S, Option<(A, S)>> f,
@@ -366,6 +401,10 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     return result;
   }
 
+  /// Forces evaluation of the entire list and returns `this`.
+  ///
+  /// After calling [force], all elements are memoized. Has no effect on an
+  /// already-evaluated list.
   ILazyList<A> force() {
     ILazyList<A> these = this;
     ILazyList<A> those = this;
@@ -473,6 +512,8 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   @override
   int get knownSize => knownIsEmpty ? 0 : -1;
 
+  /// Appends all elements produced by [suffix] lazily, without evaluating
+  /// [suffix] until the end of this list is reached.
   ILazyList<A> lazyAppendedAll(Function0<RIterableOnce<A>> suffix) {
     return _newLL(() {
       if (isEmpty) {
@@ -588,6 +629,9 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     }
   }
 
+  /// Prepends a lazily-computed element [f] to the front of this list.
+  ///
+  /// [f] is not called until the first element is demanded.
   ILazyList<A> prependedLazy(Function0<A> f) => _newLL(() => _sCons(f(), this));
 
   @override
@@ -622,6 +666,9 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     }
   }
 
+  /// Returns a new lazy list with the first element satisfying [p] removed.
+  ///
+  /// Returns this list unchanged if no element matches.
   ILazyList<A> removeFirst(Function1<A, bool> p) {
     if (knownIsEmpty) {
       return this;
@@ -901,7 +948,14 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   // ///////////////////////////////////////////////////////////////////////////
   // ///////////////////////////////////////////////////////////////////////////
 
+  /// `true` if the list has already been evaluated and is empty.
+  ///
+  /// Unlike [isEmpty], this does not force evaluation.
   bool get knownIsEmpty => _stateEvaluated && isEmpty;
+
+  /// `true` if the list has already been evaluated and is non-empty.
+  ///
+  /// Unlike [nonEmpty], this does not force evaluation.
   bool get knownNonEmpty => _stateEvaluated && !isEmpty;
 
   // ///////////////////////////////////////////////////////////////////////////
@@ -1101,6 +1155,10 @@ final class _Cons<A> extends _State<A> {
   String toString() => 'ILazyList.State.Cons($head, $tail)';
 }
 
+/// A mutable builder for constructing [ILazyList] instances.
+///
+/// Elements are appended lazily; the output list is not evaluated until
+/// iterated. Obtain via [ILazyList.builder].
 final class ILazyListBuilder<A> {
   late _DeferredState<A> _next;
   late ILazyList<A> _list;
@@ -1109,6 +1167,7 @@ final class ILazyListBuilder<A> {
     clear();
   }
 
+  /// Appends all elements from [elems] to this builder and returns `this`.
   ILazyListBuilder<A> addAll(RIterableOnce<A> elems) {
     if (elems.knownSize != 0) {
       final deferred = _DeferredState<A>();
@@ -1121,6 +1180,7 @@ final class ILazyListBuilder<A> {
     return this;
   }
 
+  /// Appends a single element [elem] to this builder and returns `this`.
   ILazyListBuilder<A> addOne(A elem) {
     final deferred = _DeferredState<A>();
     _next.init(() => ILazyList._sCons(elem, ILazyList._newLL(() => deferred.eval())));
@@ -1128,12 +1188,14 @@ final class ILazyListBuilder<A> {
     return this;
   }
 
+  /// Resets this builder to an empty state so it can be reused.
   void clear() {
     final deferred = _DeferredState<A>();
     _list = ILazyList._newLL(() => deferred.eval());
     _next = deferred;
   }
 
+  /// Returns the [ILazyList] containing all elements added so far.
   ILazyList<A> result() {
     _next.init(() => _Empty<A>());
     return _list;
@@ -1155,5 +1217,6 @@ final class _DeferredState<A> {
 }
 
 extension ILazyListNestedOps<A> on ILazyList<ILazyList<A>> {
+  /// Combines all nested lazy lists into one using concatenation.
   ILazyList<A> flatten() => flatMap(identity);
 }

@@ -13,20 +13,42 @@
 
 import 'package:ribs_core/ribs_core.dart';
 
+/// Creates an [IChain] from a Dart [Iterable].
+///
+/// ```dart
+/// final c = ichain([1, 2, 3]);
+/// ```
 IChain<A> ichain<A>(Iterable<A> as) => IChain.fromDart(as);
 
-/// Sequence collection that provides constant time append, prepend and concat.
+/// An immutable sequence that provides O(1) append, prepend, and concat.
+///
+/// [IChain] is represented as a binary tree of appends, so all of
+/// `appended`, `prepended`, and `concat` are O(1). Iteration is O(n).
+/// Use [IChain] when you need to frequently build up sequences by
+/// concatenation and pay for traversal later.
+///
+/// ```dart
+/// final c = ichain([1, 2]) + 3;        // O(1)
+/// final d = ichain([4, 5]);
+/// final e = c.concat(d);               // O(1)
+/// e.toIList();                         // IList(1, 2, 3, 4, 5)
+/// ```
 sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   const IChain._();
 
+  /// Returns an empty [IChain].
   static IChain<A> empty<A>() => _Empty<A>();
 
+  /// Creates an [IChain] from any [RSeq], avoiding a copy when possible.
   static IChain<A> fromSeq<A>(RSeq<A> iseq) => switch (iseq) {
     _ when iseq.isEmpty => _Empty<A>(),
     _ when iseq.size == 1 => _Singleton(iseq.head),
     _ => _Wrap(iseq),
   };
 
+  /// Creates an [IChain] from any [RIterableOnce].
+  ///
+  /// Returns [elems] directly when it is already an [IChain].
   static IChain<A> from<A>(RIterableOnce<A> elems) {
     if (elems is IChain<A>) {
       return elems;
@@ -37,9 +59,10 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     }
   }
 
-  /// Creates an [IChain] from the given Dart [Iterable].
+  /// Creates an [IChain] from a Dart [Iterable].
   static IChain<A> fromDart<A>(Iterable<A> elems) => from(RIterator.fromDart(elems.iterator));
 
+  /// Returns an [IChain] containing the single element [a].
   static IChain<A> one<A>(A a) => _Singleton(a);
 
   @override
@@ -155,6 +178,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   @override
   IChain<A> get init => initLast().map((a) => a.$1).getOrElse(() => empty());
 
+  /// Returns `Some((init, last))` when non-empty, or [None] when empty.
   Option<(IChain<A>, A)> initLast() {
     if (this is _NonEmpty<A>) {
       var c = this as _NonEmpty<A>;
@@ -331,6 +355,7 @@ sealed class IChain<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
     return result;
   }
 
+  /// Returns `Some((head, tail))` when non-empty, or [None] when empty.
   Option<(A, IChain<A>)> uncons() {
     if (this is _NonEmpty<A>) {
       var c = this as _NonEmpty<A>;

@@ -13,6 +13,10 @@
 
 import 'package:ribs_core/ribs_core.dart';
 
+/// An immutable key-value map from keys of type [K] to values of type [V].
+///
+/// [RMap] iterates over `(K, V)` pairs. The concrete immutable implementation
+/// is [IMap]. Mutable implementations include [MMap].
 mixin RMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
   /// Returns the value associated with the given [key], or the [defaultValue]
   /// of this map (which could potentially throw).
@@ -21,6 +25,8 @@ mixin RMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
   /// Returns true if this map contains the key [key], false otherwise.
   bool contains(K key);
 
+  /// Called by [operator []] when [key] is absent. Throws by default; override
+  /// to supply a fallback value.
   V defaultValue(K key) => throw Exception("No such value for key: '$key'");
 
   /// Returns the value for the given key [key] as a [Some], or [None] if this
@@ -30,8 +36,10 @@ mixin RMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)> {
   /// Returns a [RIterable] of all the keys stored in the map.
   RIterable<K> get keys => keysIterator.toISet();
 
+  /// Returns an [RIterator] over all keys of this map.
   RIterator<K> get keysIterator => iterator.map((kv) => kv.$1);
 
+  /// Returns an [RSet] of all keys in this map.
   RSet<K> get keySet => keysIterator.toISet();
 
   /// Returns the value for the given key [key], or [orElse] if this map doesn't

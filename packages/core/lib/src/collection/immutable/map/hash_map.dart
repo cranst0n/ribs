@@ -13,11 +13,17 @@
 
 part of '../imap.dart';
 
+/// An immutable hash-array mapped trie (CHAMP) implementation of [IMap].
+///
+/// Used for maps with more than four entries. Lookup, insertion, and removal
+/// are effectively O(log n) with a very low constant factor due to the wide
+/// branching factor of the trie.
 final class IHashMap<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V>, IMap<K, V> {
   final BitmapIndexedMapNode<K, V> _rootNode;
 
   IHashMap._(this._rootNode);
 
+  /// Returns an empty [IHashMap].
   static IHashMap<K, V> empty<K, V>() => IHashMap._(MapNode.empty());
 
   @override
@@ -77,12 +83,18 @@ final class IHashMap<K, V> with RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K
       newRootNode == _rootNode ? this : IHashMap._(newRootNode);
 }
 
+/// A mutable builder that constructs an [IHashMap] incrementally.
+///
+/// Mutations are performed directly on an un-aliased trie node. Once
+/// [result] is called the internal root is aliased, so subsequent mutations
+/// automatically copy-on-write.
 class IHashMapBuilder<K, V> {
   IHashMap<K, V>? _aliased;
   BitmapIndexedMapNode<K, V> _rootNode;
 
   IHashMapBuilder() : _rootNode = _newEmptyRootNode();
 
+  /// Adds all key-value pairs from [elems] to this builder.
   IHashMapBuilder<K, V> addAll(RIterableOnce<(K, V)> elems) {
     // TODO: Optimize
     final it = elems.iterator;
@@ -93,6 +105,7 @@ class IHashMapBuilder<K, V> {
     return this;
   }
 
+  /// Adds a single key-value pair to this builder.
   IHashMapBuilder<K, V> addOne((K, V) elem) {
     _ensureUnaliased();
     final h = elem.$1.hashCode;
@@ -101,12 +114,16 @@ class IHashMapBuilder<K, V> {
     return this;
   }
 
+  /// Adds a single key-value pair with a pre-computed [originalHash] to avoid
+  /// recomputing it.
   IHashMapBuilder<K, V> addOneWithHash((K, V) elem, int originalHash) {
     _ensureUnaliased();
     _update(_rootNode, elem.$1, elem.$2, originalHash, Hashing.improve(originalHash), 0);
     return this;
   }
 
+  /// Adds a single key-value pair with both the pre-computed [originalHash]
+  /// and the improved [hash] to avoid recomputing either.
   IHashMapBuilder<K, V> addOneWithHashes(
     (K, V) elem,
     int originalHash,
@@ -117,11 +134,13 @@ class IHashMapBuilder<K, V> {
     return this;
   }
 
+  /// Resets this builder so it can be reused to build a new [IHashMap].
   void clear() {
     _aliased = null;
     if (_rootNode.size > 0) _rootNode = _newEmptyRootNode();
   }
 
+  /// Returns the [IMap] containing all key-value pairs added so far.
   IMap<K, V> result() {
     if (_rootNode.size == 0) {
       return IHashMap.empty();
@@ -241,12 +260,15 @@ class IHashMapBuilder<K, V> {
     _aliased = null;
   }
 
+  /// Returns `true` if [result] has been called and the internal root is
+  /// currently aliased by an [IHashMap] instance.
   bool get isAliased => _aliased != null;
 
   void _copyElems() {
     _rootNode = _rootNode.copy();
   }
 
+  /// The number of key-value pairs accumulated so far.
   int get size => _rootNode.size;
 
   static BitmapIndexedMapNode<K, V> _newEmptyRootNode<K, V>() =>

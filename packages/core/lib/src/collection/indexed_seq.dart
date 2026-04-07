@@ -14,8 +14,16 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_core/src/collection/indexed_seq_views.dart' as iseqviews;
 
-/// Seqs with efficient [] and length operators
+/// An [RSeq] with efficient O(1) random access via `operator []` and [length].
+///
+/// [IndexedSeq] is the base type for sequences that can retrieve any element
+/// by index in constant time. The concrete immutable implementation is
+/// [IVector]. The mutable implementation is [ArrayDeque].
 mixin IndexedSeq<A> on RIterable<A>, RSeq<A> {
+  /// Creates an [IndexedSeq] from a [RIterableOnce].
+  ///
+  /// Returns [elems] directly when it is already an [IndexedSeq]; otherwise
+  /// materialises it into an [IVector].
   static IndexedSeq<A> from<A>(RIterableOnce<A> elems) {
     if (elems is IndexedSeq<A>) {
       return elems;
@@ -24,6 +32,7 @@ mixin IndexedSeq<A> on RIterable<A>, RSeq<A> {
     }
   }
 
+  /// Creates an [IndexedSeq] from a Dart [Iterable].
   static IndexedSeq<A> fromDart<A>(Iterable<A> elems) => from(RIterator.fromDart(elems.iterator));
 
   @override

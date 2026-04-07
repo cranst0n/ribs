@@ -27,17 +27,45 @@ part 'vector/builder.dart';
 part 'vector/vector_slice_builder.dart';
 part 'vector/iterator.dart';
 
+/// Creates an [IVector] from a Dart [Iterable].
+///
+/// ```dart
+/// final v = ivec([1, 2, 3]);
+/// ```
 IVector<A> ivec<A>(Iterable<A> as) => IVector.fromDart(as);
 
+/// An immutable, indexed sequence backed by a Radix-Balanced Finger Tree.
+///
+/// Provides effectively O(1) indexed access, update, append, and prepend for
+/// collections of any practical size (up to 2^31 elements). The internal
+/// representation scales automatically across six tree depths as the vector
+/// grows.
+///
+/// Construct with [ivec], [IVector.fromDart], [IVector.from], [IVector.fill],
+/// [IVector.tabulate], or [IVector.empty]. Use [IVector.builder] when building
+/// incrementally.
+///
+/// ```dart
+/// final v = ivec([1, 2, 3]);
+/// final v2 = v.appended(4);     // IVector(1, 2, 3, 4)
+/// final v3 = v2.prepended(0);   // IVector(0, 1, 2, 3, 4)
+/// v3[2];                         // 2
+/// v3.updated(2, 99);             // IVector(0, 1, 99, 3, 4)
+/// ```
 sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A> {
   final _Arr1 _prefix1;
 
   IVector._(this._prefix1);
 
+  /// Returns a mutable builder that accumulates elements into an [IVector].
   static IVectorBuilder<A> builder<A>() => IVectorBuilder();
 
+  /// Returns an empty [IVector].
   static IVector<A> empty<A>() => _Vector0();
 
+  /// Creates an [IVector] from any [RIterableOnce].
+  ///
+  /// Returns [elems] directly when it is already an [IVector], avoiding a copy.
   static IVector<A> from<A>(RIterableOnce<A> elems) {
     if (elems is IVector<A>) {
       return elems;
@@ -53,22 +81,28 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
     }
   }
 
+  /// Creates an [IVector] from a Dart [Iterable].
   static IVector<A> fromDart<A>(Iterable<A> elems) => from(RIterator.fromDart(elems.iterator));
 
+  /// Creates an [IVector] of length [n] with every element set to [elem].
   static IVector<A> fill<A>(int n, A elem) {
     final b = IVectorBuilder<A>();
     b._initSparse(n, elem);
     return b.result();
   }
 
+  /// Creates a 2-dimensional [IVector] of shape `n1 × n2`, filled with [elem].
   static IVector<IVector<A>> fill2<A>(int n1, int n2, A elem) => fill(n1, fill(n2, elem));
 
+  /// Creates a 3-dimensional [IVector] of shape `n1 × n2 × n3`, filled with [elem].
   static IVector<IVector<IVector<A>>> fill3<A>(int n1, int n2, int n3, A elem) =>
       fill(n1, fill2(n2, n3, elem));
 
+  /// Creates a 4-dimensional [IVector] of shape `n1 × n2 × n3 × n4`, filled with [elem].
   static IVector<IVector<IVector<IVector<A>>>> fill4<A>(int n1, int n2, int n3, int n4, A elem) =>
       fill(n1, fill3(n2, n3, n4, elem));
 
+  /// Creates a 5-dimensional [IVector] of shape `n1 × n2 × n3 × n4 × n5`, filled with [elem].
   static IVector<IVector<IVector<IVector<IVector<A>>>>> fill5<A>(
     int n1,
     int n2,
@@ -78,6 +112,10 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
     A elem,
   ) => fill(n1, fill4(n2, n3, n4, n5, elem));
 
+  /// Creates an [IVector] of length [n] where each element at index `i` is
+  /// computed by applying [f] to `i`.
+  ///
+  /// Returns an empty vector when `n <= 0`.
   static IVector<A> tabulate<A>(int n, Function1<int, A> f) {
     if (n > 0) {
       final b = IVectorBuilder<A>();
@@ -94,9 +132,13 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
     }
   }
 
+  /// Creates a 2-dimensional [IVector] of shape `n1 × n2` using [f] to
+  /// compute element `(i1, i2)`.
   static IVector<IVector<A>> tabulate2<A>(int n1, int n2, Function2<int, int, A> f) =>
       tabulate(n1, (i1) => tabulate(n2, (i2) => f(i1, i2)));
 
+  /// Creates a 3-dimensional [IVector] of shape `n1 × n2 × n3` using [f] to
+  /// compute element `(i1, i2, i3)`.
   static IVector<IVector<IVector<A>>> tabulate3<A>(
     int n1,
     int n2,
@@ -104,6 +146,8 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
     Function3<int, int, int, A> f,
   ) => tabulate(n1, (i1) => tabulate2(n2, n3, (i2, i3) => f(i1, i2, i3)));
 
+  /// Creates a 4-dimensional [IVector] of shape `n1 × n2 × n3 × n4` using [f]
+  /// to compute element `(i1, i2, i3, i4)`.
   static IVector<IVector<IVector<IVector<A>>>> tabulate4<A>(
     int n1,
     int n2,
@@ -112,6 +156,8 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
     Function4<int, int, int, int, A> f,
   ) => tabulate(n1, (i1) => tabulate3(n2, n3, n4, (i2, i3, i4) => f(i1, i2, i3, i4)));
 
+  /// Creates a 5-dimensional [IVector] of shape `n1 × n2 × n3 × n4 × n5`
+  /// using [f] to compute element `(i1, i2, i3, i4, i5)`.
   static IVector<IVector<IVector<IVector<IVector<A>>>>> tabulate5<A>(
     int n1,
     int n2,
@@ -127,6 +173,7 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
     _ => _prefix1.length,
   };
 
+  /// Returns a new vector with [elem] added at the end.
   @override
   IVector<A> appended(A elem);
 
@@ -250,6 +297,7 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
   @override
   int get knownSize => length;
 
+  /// Returns a new vector produced by applying [f] to each element.
   @override
   IVector<B> map<B>(Function1<A, B> f);
 
@@ -290,6 +338,7 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
   @override
   RIterator<IVector<A>> permutations() => super.permutations().map((a) => a.toIVector());
 
+  /// Returns a new vector with [elem] added at the front.
   @override
   IVector<A> prepended(A elem);
 
@@ -308,6 +357,9 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
   @override
   IVector<A> removeAt(int idx) => super.removeAt(idx).toIVector();
 
+  /// Returns a new vector with the first element satisfying [p] removed.
+  ///
+  /// Returns this vector unchanged if no element matches.
   IVector<A> removeFirst(Function1<A, bool> p) => indexWhere(p).fold(() => this, removeAt);
 
   @override
@@ -388,9 +440,12 @@ sealed class IVector<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq
   @override
   String toString() => 'IVector${mkString(start: '(', sep: ', ', end: ')')}';
 
+  /// Returns a vector containing the elements from index [from] (inclusive)
+  /// to [until] (exclusive). Out-of-bound indices are clamped silently.
   @override
   IVector<A> slice(int from, int until);
 
+  /// Returns a new vector with the element at [index] replaced by [elem].
   @override
   IVector<A> updated(int index, A elem);
 

@@ -1,8 +1,13 @@
 import 'package:ribs_core/src/option.dart';
 import 'package:test/test.dart';
 
+/// Returns a [Matcher] that matches a [Some] value.
+///
+/// If [matcher] is provided, the matched value inside [Some] must also satisfy
+/// it. If omitted, any [Some] value matches.
 Matcher isSome([Object? matcher]) => _IsSome(matcher);
 
+/// Returns a [Matcher] that matches a [None] value.
 Matcher isNone() => isA<None>();
 
 class _IsSome extends Matcher {

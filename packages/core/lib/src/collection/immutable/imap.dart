@@ -24,13 +24,38 @@ part 'map/map2.dart';
 part 'map/map3.dart';
 part 'map/map4.dart';
 
+/// Creates an [IMap] from a Dart [Map].
+///
+/// ```dart
+/// final m = imap({'a': 1, 'b': 2});
+/// ```
 IMap<K, V> imap<K, V>(Map<K, V> m) => IMap.fromDart(m);
 
+/// An immutable key-value map.
+///
+/// [IMap] uses a small-map optimization for up to four entries, backed by
+/// [IHashMap] (a CHAMP trie) for larger collections. All keys must be
+/// distinct; inserting a duplicate key replaces the existing value.
+///
+/// Construct with [imap], [IMap.fromDart], [IMap.from], or [IMap.empty].
+/// Use [IMap.builder] when building incrementally.
+///
+/// ```dart
+/// final m = imap({'a': 1, 'b': 2});
+/// m.get('a');                // Some(1)
+/// (m + ('c', 3)).size;       // 3
+/// (m - 'b').keys.toIList();  // IList('a')
+/// ```
 mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
+  /// Returns a mutable builder that accumulates entries into an [IMap].
   static IMapBuilder<K, V> builder<K, V>() => IMapBuilder();
 
+  /// Returns an empty [IMap].
   static IMap<K, V> empty<K, V>() => _EmptyMap();
 
+  /// Creates an [IMap] from any [RIterableOnce] of key-value pairs.
+  ///
+  /// Returns [elems] directly when it is already an [IMap].
   static IMap<K, V> from<K, V>(RIterableOnce<(K, V)> elems) => switch (elems) {
     final _EmptyMap<K, V> m => m,
     final _Map1<K, V> m => m,
@@ -41,9 +66,11 @@ mixin IMap<K, V> on RIterableOnce<(K, V)>, RIterable<(K, V)>, RMap<K, V> {
     _ => IMapBuilder<K, V>().addAll(elems).result(),
   };
 
+  /// Creates an [IMap] from a Dart [Map].
   static IMap<K, V> fromDart<K, V>(Map<K, V> m) =>
       fromDartIterable(m.entries.map((e) => (e.key, e.value)));
 
+  /// Creates an [IMap] from a Dart [Iterable] of key-value pairs.
   static IMap<K, V> fromDartIterable<K, V>(Iterable<(K, V)> elems) =>
       from(RIterator.fromDart(elems.iterator));
 
