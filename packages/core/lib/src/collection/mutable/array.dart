@@ -88,6 +88,8 @@ final class Array<A> {
   /// Returns a copy of this array with the same length.
   Array<A> clone() => copyOf(this, length);
 
+  /// Returns a new array containing only the elements for which [f] returns
+  /// [Some], in their original order.
   Array<B> collect<B>(Function1<A, Option<B>> f) {
     final b = ArrayBuilder<B>();
 

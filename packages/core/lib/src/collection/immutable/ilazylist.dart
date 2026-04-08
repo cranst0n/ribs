@@ -22,7 +22,7 @@ import 'package:ribs_core/ribs_core.dart';
 /// without forcing evaluation. Operations marked "Will force evaluation" in
 /// their doc comment traverse the whole list eagerly.
 ///
-/// Construct with [ILazyList.from], [ILazyList.fromDart], [ILazyList.fill],
+/// Construct with [ILazyList.from], [ILazyList.fill],
 /// [ILazyList.tabulate], [ILazyList.continually], [ILazyList.ints],
 /// [ILazyList.iterate], or [ILazyList.unfold]. Use [ILazyList.builder] when
 /// building incrementally.

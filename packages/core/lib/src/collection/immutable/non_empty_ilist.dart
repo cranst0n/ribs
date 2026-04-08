@@ -190,6 +190,9 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   @override
   IList<A> removeAt(int idx) => toIList().removeAt(idx);
 
+  /// Returns a new list with the first element satisfying [p] removed.
+  ///
+  /// Returns this list unchanged if no element matches.
   IList<A> removeFirst(Function1<A, bool> p) => toIList().removeFirst(p);
 
   @override
@@ -334,16 +337,22 @@ final class NonEmptyIList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   int get hashCode => MurmurHash3.listHash(toIList());
 }
 
+/// Operations available when [NonEmptyIList] elements are themselves [NonEmptyIList]s.
 extension NonEmptyIListNestedOps<A> on NonEmptyIList<NonEmptyIList<A>> {
   /// Combines all nested lists into one list using concatenation.
   NonEmptyIList<A> flatten() => head.concat(_tail.flatMap((a) => a.toIList()));
 }
 
+/// Operations available when [NonEmptyIList] elements are [Either] values.
 extension NonEmptyIListEitherOps<A, B> on NonEmptyIList<Either<A, B>> {
+  /// Sequences this list of [Either] values into a single [Either].
+  ///
+  /// Returns the first [Left] encountered, or a [Right] wrapping the list of
+  /// all [Right] values if no [Left] is present.
   Either<A, NonEmptyIList<B>> sequence() => traverseEither(identity);
 }
 
-/// Operations avaiable when [IList] elemention are of type [Option].
+/// Operations available when [NonEmptyIList] elements are [Option] values.
 extension NonEmptyIListOptionOps<A> on NonEmptyIList<Option<A>> {
   /// Accumulates all elements in this list as one [Option]. If any element is
   /// a [None], [None] will be returned. If all elements are [Some], then the

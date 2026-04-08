@@ -39,6 +39,11 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
     }
   }
 
+  /// Creates an [ArrayDeque] from a [RIterableOnce].
+  ///
+  /// Returns [elems] directly when it is already an [ArrayDeque]; otherwise
+  /// copies elements into a new deque, pre-sizing the backing array when the
+  /// element count is known.
   static ArrayDeque<A> from<A>(RIterableOnce<A> elems) {
     if (elems is ArrayDeque<A>) {
       return elems;
@@ -58,6 +63,7 @@ class ArrayDeque<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, IndexedSeq<A>,
     }
   }
 
+  /// Creates an [ArrayDeque] from a Dart [Iterable].
   static ArrayDeque<A> fromDart<A>(Iterable<A> elems) => from(RIterator.fromDart(elems.iterator));
 
   @override
