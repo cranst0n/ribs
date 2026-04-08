@@ -79,29 +79,95 @@ void main() {
       Codec.cstring,
     );
 
-    test('choice', () {
-      final codec = Codec.choice([Codec.uint4, Codec.int32]);
+    group('choice', () {
+      test('encode uses first succeeding codec', () {
+        final codec = Codec.choice([Codec.uint4, Codec.int32]);
 
-      codec
-          .encode(1)
-          .fold(
-            (err) => fail('choice codec should not fail: $err'),
-            (result) => expect(result.length, 4),
-          );
+        codec
+            .encode(1)
+            .fold(
+              (err) => fail('choice codec should not fail: $err'),
+              (result) => expect(result.length, 4), // uint4 fits
+            );
 
-      codec
-          .encode(16)
-          .fold(
-            (err) => fail('choice codec should not fail: $err'),
-            (result) => expect(result.length, 32),
-          );
+        codec
+            .encode(16)
+            .fold(
+              (err) => fail('choice codec should not fail: $err'),
+              (result) => expect(result.length, 32), // uint4 max is 15, falls through to int32
+            );
 
-      codec
-          .encode(1024)
-          .fold(
-            (err) => fail('choice codec should not fail: $err'),
-            (result) => expect(result.length, 32),
-          );
+        codec
+            .encode(1024)
+            .fold(
+              (err) => fail('choice codec should not fail: $err'),
+              (result) => expect(result.length, 32),
+            );
+      });
+
+      test('encode fails when all codecs fail', () {
+        final codec = Codec.choice([Codec.uint4, Codec.uint8]); // both unsigned
+        codec
+            .encode(-1)
+            .fold(
+              (err) => expect(err, isNotNull),
+              (_) => fail('expected encode to fail for -1'),
+            );
+      });
+
+      test('encode fails with empty choices', () {
+        final codec = Codec.choice<int>([]);
+        codec
+            .encode(0)
+            .fold(
+              (err) => expect(err, isNotNull),
+              (_) => fail('expected encode to fail with no choices'),
+            );
+      });
+
+      test('decode uses first succeeding codec', () {
+        final codec = Codec.choice([Codec.uint4, Codec.int32]);
+        final bits = Codec.uint4.encode(7).getOrElse(() => fail('encode failed'));
+        codec
+            .decode(bits)
+            .fold(
+              (err) => fail('choice decode should not fail: $err'),
+              (result) => expect(result.value, 7),
+            );
+      });
+
+      test('decode falls through to next codec when first fails', () {
+        // uint8 requires 8 bits; uint4 only provides 4, so uint8 fails
+        final codec = Codec.choice([Codec.uint8, Codec.uint4]);
+        final bits = Codec.uint4.encode(5).getOrElse(() => fail('encode failed'));
+        codec
+            .decode(bits)
+            .fold(
+              (err) => fail('choice decode should not fail: $err'),
+              (result) => expect(result.value, 5),
+            );
+      });
+
+      test('decode fails when all codecs fail', () {
+        final codec = Codec.choice([Codec.uint4, Codec.int32]);
+        // Empty bitvector: neither uint4 (needs 4 bits) nor int32 (needs 32) can decode
+        codec
+            .decode(BitVector.empty)
+            .fold(
+              (err) => expect(err, isNotNull),
+              (_) => fail('expected decode to fail on empty bits'),
+            );
+      });
+
+      test('decode fails with empty choices', () {
+        final codec = Codec.choice<int>([]);
+        codec
+            .decode(BitVector.empty)
+            .fold(
+              (err) => expect(err, isNotNull),
+              (_) => fail('expected decode to fail with no choices'),
+            );
+      });
     });
 
     testCodec(
