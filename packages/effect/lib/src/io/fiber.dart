@@ -93,8 +93,7 @@ final class IOFiber<A> {
                 _resumeTag = _AsyncContinueCanceledWithFinalizerR;
                 _resumeData = Fn1(fin);
 
-                final expectedGen = ++_resumeGeneration;
-                _scheduleResume(expectedGen);
+                _scheduleResume(++_resumeGeneration);
               });
             }
           }
@@ -177,9 +176,7 @@ final class IOFiber<A> {
 
   void _run() {
     _activeFibers.add(_selfRef); // Register
-
-    final expectedGen = ++_resumeGeneration;
-    _scheduleResume(expectedGen);
+    _scheduleResume(++_resumeGeneration);
   }
 
   void _execR() {
@@ -239,8 +236,7 @@ final class IOFiber<A> {
       if (nextCede <= 0) {
         _resumeTag = _AutoCedeR;
         _resumeIO = cur0;
-        final expectedGen = ++_resumeGeneration;
-        _scheduleResume(expectedGen);
+        _scheduleResume(++_resumeGeneration);
         break runLoop;
       } else if (_shouldFinalize) {
         cur0 = _prepareFiberForCancelation();
@@ -318,8 +314,7 @@ final class IOFiber<A> {
             }
           case _Sleep(:final duration):
             _resumeTag = _SleepR;
-            final expectedGen = ++_resumeGeneration;
-            _scheduleResumeAfter(duration, expectedGen);
+            _scheduleResumeAfter(duration, ++_resumeGeneration);
 
             _state = FiberState.suspended;
 
@@ -328,8 +323,7 @@ final class IOFiber<A> {
             cur0 = _succeeded(_runtime.now);
           case _Cede():
             _resumeTag = _CedeR;
-            final expectedGen = ++_resumeGeneration;
-            _scheduleResume(expectedGen);
+            _scheduleResume(++_resumeGeneration);
 
             _state = FiberState.suspended;
 
@@ -358,8 +352,6 @@ final class IOFiber<A> {
                   // Only resume the fiber if it's currently suspended and waiting
                   // specifically for this async result to be completed.
                   if (_resumeTag == _AsyncGetR && _resumeData == resultF) {
-                    final nextGen = ++_resumeGeneration;
-
                     if (!_shouldFinalize) {
                       result.fold(
                         (err) {
@@ -376,7 +368,7 @@ final class IOFiber<A> {
                       _resumeData = null;
                     }
 
-                    _scheduleResume(nextGen);
+                    _scheduleResume(++_resumeGeneration);
                   }
                 }
               });
