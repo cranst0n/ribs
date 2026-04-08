@@ -5,6 +5,12 @@ repository: https://github.com/cranst0n/ribs
 description: >
   Property based testing.
 
+topics:
+  - property-based-testing
+  - testing
+  - quickcheck
+  - functional-programming
+
 resolution: workspace
 environment:
   sdk: ">=3.7.0 <4.0.0"

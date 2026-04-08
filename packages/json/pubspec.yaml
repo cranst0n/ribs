@@ -6,6 +6,12 @@ description: >
   Library provides fully typed JSON parsing, encoding and decoding. Also
   supports streaming parsing.
 
+topics:
+  - json
+  - codec
+  - parsing
+  - functional-programming
+
 resolution: workspace
 environment:
   sdk: ">=3.7.0 <4.0.0"

@@ -5,6 +5,13 @@ repository: https://github.com/cranst0n/ribs
 description: >
   Provides Rill I/O constructors and pipes using dart:io.
 
+topics:
+  - streaming
+  - io
+  - filesystem
+  - networking
+  - function-programming
+
 resolution: workspace
 environment:
   sdk: ">=3.7.0 <4.0.0"

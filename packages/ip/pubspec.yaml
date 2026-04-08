@@ -5,6 +5,11 @@ repository: https://github.com/cranst0n/ribs
 description: >
   Typesafe representations for hosts, ports and addresses.
 
+topics:
+  - networking
+  - ip-address
+  - typesafe
+
 resolution: workspace
 environment:
   sdk: ">=3.7.0 <4.0.0"

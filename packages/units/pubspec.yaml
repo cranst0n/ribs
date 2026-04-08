@@ -5,6 +5,12 @@ repository: https://github.com/cranst0n/ribs
 description: >
   API for dimensional analysis.
 
+topics:
+  - units
+  - dimensional-analysis
+  - physics
+  - mathematics
+
 resolution: workspace
 environment:
   sdk: ">=3.7.0 <4.0.0"

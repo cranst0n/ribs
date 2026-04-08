@@ -5,6 +5,12 @@ repository: https://github.com/cranst0n/ribs
 description: >
   ribs_sql intergrations for postgres.
 
+topics:
+  - postgres
+  - database
+  - sql
+  - functional-programming
+
 resolution: workspace
 environment:
   sdk: ">=3.7.0 <4.0.0"

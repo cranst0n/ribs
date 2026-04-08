@@ -3,7 +3,12 @@ version: 1.0.0-dev.1
 homepage: https://cranst0n.github.io/ribs/
 repository: https://github.com/cranst0n/ribs
 description: >
-  A rate limiter that can be used with ribs_effect IO type. 
+  A rate limiter that can be used with ribs_effect IO type.
+
+topics:
+  - rate-limiting
+  - concurrency
+  - functional-programming
 
 resolution: workspace
 environment:

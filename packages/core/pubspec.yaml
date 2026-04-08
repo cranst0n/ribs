@@ -7,6 +7,13 @@ description: >
   Option, Either, State, Validated, as well as collection hierarchy
   inspired by the Scala programming language.
 
+topics:
+  - functional-programming
+  - collections
+  - immutable
+  - option
+  - either
+
 resolution: workspace
 environment:
   sdk: ">=3.7.0 <4.0.0"
