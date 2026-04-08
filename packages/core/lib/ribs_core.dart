@@ -1,6 +1,7 @@
 export 'src/applicative.dart';
 export 'src/collection/collection.dart';
 export 'src/either.dart';
+export 'src/eval.dart';
 export 'src/fn.dart';
 export 'src/function.dart';
 export 'src/functor.dart';

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:ribs_binary/ribs_binary.dart';
-import 'package:ribs_core/ribs_core.dart';
+import 'package:ribs_core/ribs_core.dart' hide Eval;
 import 'package:ribs_effect/ribs_effect.dart';
 // ignore: implementation_imports
 import 'package:ribs_effect/src/resource.dart';
