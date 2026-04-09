@@ -164,6 +164,28 @@ extension StringOps on String {
     return (res1.toString(), res2.toString());
   }
 
+  /// Returns `true` if the specified subregion of this string matches the
+  /// specified subregion of [other]. Returns `false` if any index is out of
+  /// bounds.
+  bool regionMatches(int toffset, String other, int ooffset, int len) {
+    if (toffset < 0 || ooffset < 0 || toffset + len > length || ooffset + len > other.length) {
+      return false;
+    } else {
+      return substring(toffset, toffset + len) == other.substring(ooffset, ooffset + len);
+    }
+  }
+
+  /// Case-insensitive variant of [regionMatches]. Returns `false` if any index
+  /// is out of bounds.
+  bool regionMatchesIgnoreCase(int toffset, String other, int ooffset, int len) {
+    if (toffset < 0 || ooffset < 0 || toffset + len > length || ooffset + len > other.length) {
+      return false;
+    } else {
+      return substring(toffset, toffset + len).toLowerCase() ==
+          other.substring(ooffset, ooffset + len).toLowerCase();
+    }
+  }
+
   /// An [RIterator] over the individual characters of this string.
   RIterator<String> get riterator => RIterator.tabulate(length, (ix) => this[ix]);
 

@@ -496,5 +496,73 @@ void main() {
         expect(''.takeWhile((c) => c == 'a'), '');
       });
     });
+
+    group('regionMatches', () {
+      test('matching region returns true', () {
+        expect('foobar'.regionMatches(3, 'barfoo', 0, 3), isTrue);
+      });
+
+      test('non-matching region returns false', () {
+        expect('foobar'.regionMatches(0, 'barfoo', 0, 3), isFalse);
+      });
+
+      test('zero length region always matches (within bounds)', () {
+        expect('foo'.regionMatches(1, 'bar', 1, 0), isTrue);
+      });
+
+      test('case-sensitive: different case returns false', () {
+        expect('fooBAR'.regionMatches(3, 'barfoo', 0, 3), isFalse);
+      });
+
+      test('negative toffset returns false', () {
+        expect('hello'.regionMatches(-1, 'hello', 0, 3), isFalse);
+      });
+
+      test('negative ooffset returns false', () {
+        expect('hello'.regionMatches(0, 'hello', -1, 3), isFalse);
+      });
+
+      test('region extends past end of this returns false', () {
+        expect('hello'.regionMatches(3, 'hello', 0, 5), isFalse);
+      });
+
+      test('region extends past end of other returns false', () {
+        expect('hello'.regionMatches(0, 'hello', 3, 5), isFalse);
+      });
+    });
+
+    group('regionMatchesIgnoreCase', () {
+      test('matching region same case returns true', () {
+        expect('foobar'.regionMatchesIgnoreCase(3, 'barfoo', 0, 3), isTrue);
+      });
+
+      test('matching region different case returns true', () {
+        expect('fooBAR'.regionMatchesIgnoreCase(3, 'barfoo', 0, 3), isTrue);
+      });
+
+      test('non-matching region returns false', () {
+        expect('foobar'.regionMatchesIgnoreCase(0, 'barfoo', 0, 3), isFalse);
+      });
+
+      test('zero length region always matches (within bounds)', () {
+        expect('foo'.regionMatchesIgnoreCase(1, 'bar', 1, 0), isTrue);
+      });
+
+      test('negative toffset returns false', () {
+        expect('hello'.regionMatchesIgnoreCase(-1, 'hello', 0, 3), isFalse);
+      });
+
+      test('negative ooffset returns false', () {
+        expect('hello'.regionMatchesIgnoreCase(0, 'hello', -1, 3), isFalse);
+      });
+
+      test('region extends past end of this returns false', () {
+        expect('hello'.regionMatchesIgnoreCase(3, 'hello', 0, 5), isFalse);
+      });
+
+      test('region extends past end of other returns false', () {
+        expect('hello'.regionMatchesIgnoreCase(0, 'hello', 3, 5), isFalse);
+      });
+    });
   });
 }
