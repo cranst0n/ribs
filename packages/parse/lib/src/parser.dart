@@ -38,6 +38,8 @@ part 'impl/voided.dart';
 part 'impl/with_context.dart';
 part 'impl/with_string.dart';
 
+/// Mutable parse state threaded through all parser combinators during a single
+/// [Parser0.parse] or [Parser0.parseAll] invocation.
 final class State {
   final String str;
 
@@ -50,7 +52,23 @@ final class State {
   State(this.str);
 }
 
+/// A parser that may succeed without consuming any input.
+///
+/// [Parser0] is the base type for all parsers. On success it produces a value
+/// of type [A]; on failure it records an error without throwing.
+///
+/// [Parser] is the subtype guaranteed to consume at least one character on
+/// every success. Prefer [Parser] when possible — it prevents accidental
+/// infinite loops in repetition combinators such as [rep0].
+///
+/// Parsers are assembled from the static factories on [Parsers] and combined
+/// with the instance methods below. The combinators are lazy and allocate no
+/// input-specific state until [parse] or [parseAll] is called.
 sealed class Parser0<A> {
+  /// Runs this parser on [str] and returns the remaining unparsed input paired
+  /// with the parsed value, or a [ParseError] on failure.
+  ///
+  /// Unlike [parseAll], trailing input after a successful match is allowed.
   Either<ParseError, (String, A)> parse(String str) {
     final state = State(str);
     final result = _parseMut(state);
@@ -70,6 +88,10 @@ sealed class Parser0<A> {
     }
   }
 
+  /// Runs this parser on [str] and requires the entire input to be consumed.
+  ///
+  /// Returns the parsed value on success, or a [ParseError] if the parser
+  /// fails or if any input remains after a successful match.
   Either<ParseError, A> parseAll(String str) {
     final state = State(str);
     final result = _parseMut(state);
@@ -99,21 +121,37 @@ sealed class Parser0<A> {
     }
   }
 
+  /// Tries this parser, falling back to [that] if this one fails without
+  /// consuming input. Alias for [orElse].
   Parser0<A> operator |(covariant Parser0<A> that) => orElse(that);
 
+  /// Returns a parser that succeeds with [b] whenever this parser succeeds,
+  /// discarding the matched value.
   Parser0<B> as<B>(B b) => Parsers.as0(this, b);
 
+  /// Wraps this parser so that it always restores the input offset on failure,
+  /// enabling the failure to be caught by [orElse] even after partial input
+  /// has been consumed.
   Parser0<A> get backtrack => Parsers.backtrack0(this);
 
+  /// Matches [b], then this parser, then [c], returning only the result of
+  /// this parser.
   Parser0<A> between(Parser0<dynamic> b, Parser0<dynamic> c) =>
       b.voided.product(product(c.voided)).map((tuple) => tuple.$2.$1);
 
+  /// Returns a parser that tries [pb] first; on success wraps its result in
+  /// [Left], otherwise tries this parser and wraps its result in [Right].
   Parser0<Either<B, A>> eitherOr<B>(covariant Parser0<B> pb) => Parsers.eitherOr0(this, pb);
 
+  /// Sequences this parser with a function that chooses the next parser based
+  /// on the parsed value.
   Parser0<B> flatMap<B>(Function1<A, Parser0<B>> f) => Parsers.flatMap0(this, f);
 
+  /// Transforms the parsed value with [f].
   Parser0<B> map<B>(Function1<A, B> f) => Parsers.map0(this, f);
 
+  /// Applies [f] to the parsed value; succeeds with the [Some] result or
+  /// fails (without consuming) when [f] returns [None].
   Parser0<B> mapFilter<B>(Function1<A, Option<B>> f) {
     return Parsers.select0<Unit, B>(
       map((a) {
@@ -126,6 +164,8 @@ sealed class Parser0<A> {
     );
   }
 
+  /// Succeeds with the parsed value only when [p] returns `true`; fails
+  /// (without consuming) otherwise.
   Parser0<A> filter(Function1<A, bool> p) {
     return Parsers.select0<Unit, A>(
       map((a) => p(a) ? Right(a) : Left(Unit())),
@@ -133,43 +173,76 @@ sealed class Parser0<A> {
     );
   }
 
+  /// A parser that succeeds (consuming no input) only when this parser would
+  /// fail at the current position, and fails when this parser would succeed.
   Parser0<Unit> get not => Parsers.not(this);
 
+  /// Succeeds with [Some] of the parsed value, or [None] if this parser fails
+  /// without consuming input.
   Parser0<Option<A>> get opt =>
       Parsers.oneOf0(ilist([Parsers.map0(this, (a) => a.some), Parsers.pure(none<A>())]));
 
+  /// Tries this parser, then [that] if this one fails without consuming input.
   Parser0<A> orElse(covariant Parser0<A> that) => Parsers.oneOf0(ilist([this, that]));
 
+  /// Runs this parser followed by [that], returning both results as a tuple.
   Parser0<(A, B)> product<B>(Parser0<B> that) => Parsers.product0(this, that);
 
+  /// Runs this parser followed by [that], discarding the result of this parser.
   Parser0<B> productR<B>(Parser0<B> that) => voided.product(that).map((t) => t.$2);
 
+  /// Runs this parser followed by [that], discarding the result of [that].
   Parser0<A> productL<B>(Parser0<B> that) => product(that.voided).map((t) => t.$1);
 
+  /// Returns a [Soft0] view that uses soft (backtracking) product combinators.
+  ///
+  /// In a soft product `a.soft.product(b)`, a failure in `b` backtracks to
+  /// before `a` ran, allowing the failure to be caught by [orElse].
   Soft0<A> get soft => Soft0(this);
 
+  /// Returns a parser that succeeds with the substring of the input matched by
+  /// this parser, instead of its original return value.
   Parser0<String> get string => Parsers.stringP0(this);
 
+  /// Succeeds when this parser would succeed at the current position but
+  /// consumes no input.
   Parser0<Unit> get peek => Parsers.peek(this);
 
+  /// Matches [b], then this parser, then [b] again, returning only the result
+  /// of this parser.
   Parser0<A> surroundedBy(Parser<dynamic> b) => between(b, b);
 
+  /// Returns a parser that runs this parser and discards the result, producing
+  /// [Unit].
   Parser0<Unit> get voided => Parsers.voided0(this);
 
+  /// Promotes this [Parser0] so it can be sequenced with a [Parser] to produce
+  /// a [Parser] result.
+  ///
+  /// All combinators on [With1] return [Parser] instead of [Parser0], which is
+  /// useful when at least one side of a product is known to consume input.
   With1<A> get with1 => With1(this);
 
+  /// Attaches a human-readable context label [str] to any error produced by
+  /// this parser, making failure messages easier to diagnose.
   Parser0<A> withContext(String str) => Parsers.withContext0(this, str);
 
+  /// Returns a parser that produces both the parsed value and the substring of
+  /// input that was consumed.
   Parser0<(A, String)> get withString => Parsers.withString0(this);
 
   A? _parseMut(State state);
 }
 
-//
-//
-//
-//
-//
+/// A parser that is guaranteed to consume at least one character of input on
+/// every successful match.
+///
+/// [Parser] extends [Parser0] and adds repetition combinators ([rep], [rep0],
+/// [repSep], etc.) that would loop infinitely if the element parser could
+/// succeed without consuming input.
+///
+/// Most leaf parsers ([Parsers.anyChar], [Parsers.charIn], [Parsers.string],
+/// etc.) return [Parser].
 sealed class Parser<A> extends Parser0<A> {
   @override
   Parser<A> operator |(Parser<A> that) => orElse(that);
@@ -226,6 +299,9 @@ sealed class Parser<A> extends Parser0<A> {
   @override
   Parser<B> productR<B>(Parser0<B> that) => voided.product(that).map((t) => t.$2);
 
+  /// Repeats this parser zero or more times, collecting results into an
+  /// [IList]. Pass [min] to require at least that many matches; pass [max] to
+  /// cap the number of matches.
   Parser0<IList<A>> rep0({int? min, int? max}) {
     if (min == null || min == 0) {
       return repAs0(Accumulator0.ilist(), max: max);
@@ -234,31 +310,51 @@ sealed class Parser<A> extends Parser0<A> {
     }
   }
 
+  /// Repeats this parser one or more times, collecting results into a
+  /// [NonEmptyIList]. Pass [min] (default 1) or [max] to control the count.
   Parser<NonEmptyIList<A>> rep({int? min, int? max}) =>
       repAs(Accumulator.nel(), min: min, max: max);
 
+  /// Repeats this parser zero or more times, accumulating results with [acc].
+  /// Pass [max] to cap the number of repetitions.
   Parser0<B> repAs0<B>(Accumulator0<A, B> acc, {int? max}) => Parsers.repAs0(this, acc, max: max);
 
+  /// Repeats this parser one or more times (or at least [min] times),
+  /// accumulating results with [acc]. Pass [max] to cap repetitions.
   Parser<B> repAs<B>(Accumulator<A, B> acc, {int? min, int? max}) =>
       Parsers.repAs(this, acc, min ?? 1, max: max);
 
+  /// Repeats this parser exactly [times] times, accumulating with [acc].
   Parser<B> repExactlyAs<B>(int times, Accumulator<A, B> acc) =>
       Parsers.repExactlyAs(this, times, acc);
 
+  /// Repeats this parser zero or more times with [sep] between each element,
+  /// collecting results into an [IList]. Pass [min]/[max] to control count.
   Parser0<IList<A>> repSep0(Parser0<dynamic> sep, {int? min, int? max}) =>
       Parsers.repSep0(this, sep, min: min ?? 0, max: max);
 
+  /// Repeats this parser one or more times with [sep] between each element,
+  /// collecting results into a [NonEmptyIList]. Pass [min]/[max] to control
+  /// count.
   Parser<NonEmptyIList<A>> repSep(Parser0<dynamic> sep, {int? min, int? max}) =>
       Parsers.repSep(this, sep, min: min ?? 1, max: max);
 
+  /// Repeats this parser zero or more times, stopping when [sep] matches at
+  /// the current position.
   Parser0<IList<A>> repUntil0(Parser0<dynamic> sep) => Parsers.repUntil0(this, sep);
 
+  /// Repeats this parser zero or more times until [end] matches, accumulating
+  /// with [acc].
   Parser0<B> repUntilAs0<B>(Parser0<dynamic> end, Accumulator0<A, B> acc) =>
       Parsers.repUntilAs0(this, end, acc);
 
+  /// Repeats this parser one or more times until [end] matches, accumulating
+  /// with [acc].
   Parser<B> repUntilAs<B>(Parser0<dynamic> end, Accumulator<A, B> acc) =>
       Parsers.repUntilAs(this, end, acc);
 
+  /// Repeats this parser one or more times, stopping when [sep] matches at
+  /// the current position.
   Parser<NonEmptyIList<A>> repUntil(Parser0<dynamic> sep) => Parsers.repUntil(this, sep);
 
   @override
@@ -280,16 +376,31 @@ sealed class Parser<A> extends Parser0<A> {
   Parser<A> withContext(String str) => Parsers.withContext(this, str);
 }
 
-//
-//
-//
-//
-//
+/// Static factory and combinator namespace for [Parser0] and [Parser].
+///
+/// All parser construction starts here. The methods fall into several groups:
+///
+/// - **Character parsers**: [anyChar], [char], [charIn], [charInRange],
+///   [charWhere], [charsWhile], [charsWhile0]
+/// - **String parsers**: [string], [string0], [stringIn], [ignoreCase]
+/// - **Structure**: [pure], [fail], [failWith], [end], [start], [index],
+///   [caret], [defer], [recursive]
+/// - **Combinators**: [not], [peek], [oneOf], [oneOf0], [flatMap0],
+///   [flatMap01], [flatMap10], [select], [select0], [map], [map0]
+/// - **Products**: [product0], [product10], [product01], [softProduct0],
+///   [softProduct10], [softProduct01]
+/// - **Repetition**: [repAs], [repAs0], [repExactlyAs], [repSep], [repSep0],
+///   [repUntil], [repUntil0], [repUntilAs], [repUntilAs0]
+/// - **String capture**: [stringP], [stringP0], [withString], [withString0]
+/// - **Utility**: [voided], [voided0], [as], [as0], [backtrack], [backtrack0],
+///   [withContext], [withContext0], [until], [until0]
 final class Parsers {
   Parsers._();
 
+  /// A parser that matches any single character of input.
   static final Parser<String> anyChar = AnyChar();
 
+  /// Returns a parser that succeeds with [b] whenever [pa] succeeds.
   static Parser0<B> as0<B>(Parser0<dynamic> pa, B b) {
     switch (pa) {
       case final Parser<dynamic> p:
@@ -307,6 +418,7 @@ final class Parsers {
     }
   }
 
+  /// [Parser] variant of [as0].
   static Parser<B> as<B>(Parser<dynamic> pa, B b) {
     final v = pa.voided;
 
@@ -329,6 +441,8 @@ final class Parsers {
     }
   }
 
+  /// Wraps [pa] so that the input offset is always restored on failure,
+  /// enabling [orElse] to catch failures even after partial consumption.
   static Parser0<A> backtrack0<A>(Parser0<A> pa) {
     return switch (pa) {
       final Parser<A> p1 => backtrack(p1),
@@ -339,6 +453,7 @@ final class Parsers {
     };
   }
 
+  /// [Parser] variant of [backtrack0].
   static Parser<A> backtrack<A>(Parser<A> pa) {
     return switch (pa) {
       final pa when _doesBacktrack(pa) => pa,
@@ -347,8 +462,14 @@ final class Parsers {
     };
   }
 
+  /// A parser that succeeds with the current [Caret] (line/column position)
+  /// without consuming any input.
   static Parser0<Caret> get caret => GetCaret();
 
+  /// A parser that matches exactly the single character [char] and discards
+  /// the result.
+  ///
+  /// Common single characters are cached to reduce allocations.
   static Parser<Unit> char(String char) {
     final cidx = Char.fromString(char).codeUnit - 32;
 
@@ -367,6 +488,8 @@ final class Parsers {
 
   static Parser<Unit> _charImpl(String char) => charIn(ilist([char])).voided;
 
+  /// A parser that matches any single character contained in [cs] and returns
+  /// the matched character.
   static Parser<String> charIn(RIterableOnce<String> cs) {
     switch (cs) {
       default:
@@ -382,12 +505,16 @@ final class Parsers {
     }
   }
 
+  /// A parser that matches any single character whose code unit falls in the
+  /// inclusive range [[start], [end]].
   static Parser<String> charInRange(String start, String end) {
     return CharIn.fromRanges(nel(CharsRange((Char.fromString(start), Char.fromString(end)))));
   }
 
+  /// A parser that matches any single character that appears in [str].
   static Parser<String> charInString(String str) => charIn(str.split('').toIList());
 
+  /// A parser that matches any single character for which [p] returns `true`.
   static Parser<String> charWhere(Function1<Char, bool> p) =>
       anyChar.filter((s) => p(Char.fromString(s)));
 
@@ -399,28 +526,46 @@ final class Parsers {
   /// `charIn(set).rep().string` but avoids per-character virtual dispatch.
   static Parser<String> charsWhile(bool Function(Char) predicate) => CharsWhile(predicate);
 
+  /// Creates a [Parser0] whose construction is deferred until first use.
+  ///
+  /// Use this to break circular references in recursive grammars. Prefer
+  /// [recursive] when the recursion is self-contained.
   static Parser0<A> defer0<A>(Function0<Parser0<A>> pa) => Defer0(pa);
 
+  /// Creates a [Parser] whose construction is deferred until first use.
+  ///
+  /// See [defer0] for details.
   static Parser<A> defer<A>(Function0<Parser<A>> pa) => Defer(pa);
 
+  /// Tries [first]; on success returns [Right]. Falls back to [second] and
+  /// returns [Left].
   static Parser0<Either<A, B>> eitherOr0<A, B>(
     Parser0<B> first,
     Parser0<A> second,
   ) => oneOf0(ilist([first.map((a) => Right(a)), second.map((b) => Left(b))]));
 
+  /// [Parser] variant of [eitherOr0].
   static Parser<Either<A, B>> eitherOr<A, B>(
     Parser<B> first,
     Parser<A> second,
   ) => oneOf(ilist([first.map((a) => Right(a)), second.map((b) => Left(b))]));
 
+  /// A [Parser0] that always succeeds with the empty string without consuming
+  /// input.
   static final Parser0<String> emptyStringParser0 = Pure('');
 
+  /// A parser that succeeds (producing [Unit]) only at the end of input.
   static Parser0<Unit> get end => EndParser();
 
+  /// A parser that always fails without consuming input or recording a message.
   static Parser<A> fail<A>() => Fail();
 
+  /// A parser that always fails with [message] as the error text, without
+  /// consuming input.
   static Parser<A> failWith<A>(String message) => FailWith(message);
 
+  /// Sequences [pa] with a function [f] that selects the next parser based on
+  /// the result. The return type is [Parser0].
   static Parser0<B> flatMap0<A, B>(
     Parser0<A> pa,
     Function1<A, Parser0<B>> f,
@@ -432,6 +577,8 @@ final class Parsers {
     ),
   };
 
+  /// Like [flatMap0] but [f] must return a [Parser], so the overall result is
+  /// a [Parser] (guaranteed to consume input when [f]'s parser runs).
   static Parser<B> flatMap01<A, B>(
     Parser0<A> pa,
     Function1<A, Parser<B>> f,
@@ -443,6 +590,8 @@ final class Parsers {
     ),
   };
 
+  /// Like [flatMap0] but [pa] is a [Parser], so the overall result is a
+  /// [Parser] (pa itself guarantees consumption).
   static Parser<B> flatMap10<A, B>(
     Parser<A> pa,
     Function1<A, Parser0<B>> f,
@@ -455,25 +604,39 @@ final class Parsers {
     ),
   };
 
+  /// A parser that matches any key in [charMap] (each key must be a single
+  /// character) and returns the associated value.
   static Parser<A> fromCharMap<A>(IMap<String, A> charMap) =>
       charIn(charMap.keys).map((key) => charMap[key]);
 
+  /// A [Parser0] that matches any key in [charMap] as a string literal and
+  /// returns the associated value. Empty string keys are supported.
   static Parser0<A> fromStringMap0<A>(IMap<String, A> charMap) =>
       stringIn0(charMap.keys).map((key) => charMap[key]);
 
+  /// A [Parser] that matches any key in [charMap] as a string literal and
+  /// returns the associated value. All keys must be non-empty.
   static Parser<A> fromStringMap<A>(IMap<String, A> charMap) =>
       stringIn(charMap.keys).map((key) => charMap[key]);
 
+  /// A [Parser0] that matches [str] case-insensitively. Succeeds with [Unit]
+  /// if [str] is empty.
   static Parser0<Unit> ignoreCase0(String str) => str.isEmpty ? unit : ignoreCase(str);
 
+  /// A [Parser] that matches [str] case-insensitively and produces [Unit].
   static Parser<Unit> ignoreCase(String str) => IgnoreCase(str.toLowerCase());
 
+  /// A parser that matches [char] regardless of case and returns the matched
+  /// character.
   static Parser<String> ignoreCaseChar(String char) =>
       charIn([char.toLowerCase(), char.toUpperCase()].toIList());
 
+  /// A parser that matches any character in [chars] regardless of case.
   static Parser<String> ignoreCaseCharIn(RIterableOnce<String> chars) =>
       charIn(chars.flatMap((c) => ilist([c.toLowerCase(), c.toUpperCase()])));
 
+  /// A parser that matches any character whose lower- or upper-case form falls
+  /// in the inclusive range [[start], [end]].
   static Parser<String> ignoreCaseCharInRange(String start, String end) {
     final lowerStart = Char.fromString(start.toLowerCase());
     final lowerEnd = Char.fromString(end.toLowerCase());
@@ -492,15 +655,23 @@ final class Parsers {
     }
   }
 
+  /// A parser that matches any character in [str] regardless of case.
   static Parser<String> ignoreCaseCharInString(String str) =>
       ignoreCaseCharIn(str.split('').toIList());
 
+  /// A parser that succeeds with the current byte offset into the input
+  /// without consuming any input.
   static Parser0<int> get index => Index();
 
+  /// A [Parser0] that consumes exactly [len] characters and returns them as a
+  /// string. When [len] is 0 it always succeeds with the empty string.
   static Parser0<String> length0(int len) => len > 0 ? length(len) : emptyStringParser0;
 
+  /// A [Parser] that consumes exactly [len] characters and returns them as a
+  /// string. [len] must be positive.
   static Parser<String> length(int len) => Length(len);
 
+  /// Transforms the value produced by [p] with [f]. Returns [Parser0].
   static Parser0<B> map0<A, B>(Parser0<A> p, Function1<A, B> f) {
     return switch (p) {
       final Parser<A> p1 => map(p1, f),
@@ -518,6 +689,7 @@ final class Parsers {
     };
   }
 
+  /// Transforms the value produced by [p] with [f]. Returns [Parser].
   static Parser<B> map<A, B>(Parser<A> p, Function1<A, B> f) {
     return _hasKnownResult(p).fold(
       () {
@@ -532,6 +704,9 @@ final class Parsers {
     );
   }
 
+  /// Returns a parser that succeeds (producing [Unit]) only when [pa] would
+  /// fail at the current position, and fails when [pa] would succeed.
+  /// Consumes no input in either case.
   static Parser0<Unit> not(Parser0<dynamic> pa) {
     return switch (voided0(pa)) {
       final Fail<dynamic> _ || FailWith<dynamic> _ => unit,
@@ -540,11 +715,15 @@ final class Parsers {
     };
   }
 
+  /// Tries each parser in [ps] in order, returning the result of the first one
+  /// that succeeds. A parser is only tried when the preceding one fails without
+  /// consuming input (committed failures propagate immediately).
   static Parser0<A> oneOf0<A>(IList<Parser0<A>> ps) {
     final res = _oneOf0Internal(ps);
     return _hasKnownResult(res).fold(() => res, (a) => res.as(a));
   }
 
+  /// [Parser] variant of [oneOf0].
   static Parser<A> oneOf<A>(IList<Parser<A>> ps) {
     final res = _oneOfInternal(ps);
     return _hasKnownResult(res).fold(() => res, (a) => res.as(a));
@@ -698,6 +877,8 @@ final class Parsers {
     }
   }
 
+  /// Returns a parser that succeeds when [pa] would succeed but consumes no
+  /// input.
   static Parser0<Unit> peek(Parser0<dynamic> pa) {
     return switch (pa) {
       final Peek peek => peek,
@@ -706,6 +887,7 @@ final class Parsers {
     };
   }
 
+  /// Runs [first] then [second], returning both results as a tuple.
   static Parser0<(A, B)> product0<A, B>(
     Parser0<A> first,
     Parser0<B> second,
@@ -719,6 +901,7 @@ final class Parsers {
     },
   };
 
+  /// Like [product0] but [first] is a [Parser], so the result is a [Parser].
   static Parser<(A, B)> product10<A, B>(
     Parser<A> first,
     Parser0<B> second,
@@ -731,6 +914,7 @@ final class Parsers {
     },
   };
 
+  /// Like [product0] but [second] is a [Parser], so the result is a [Parser].
   static Parser<(A, B)> product01<A, B>(
     Parser0<A> first,
     Parser<B> second,
@@ -740,8 +924,20 @@ final class Parsers {
     _ => Prod(first, second),
   };
 
+  /// A [Parser0] that always succeeds with [a] without consuming any input.
   static Parser0<A> pure<A>(A a) => Pure(a);
 
+  /// Creates a self-referential [Parser] for recursive grammars.
+  ///
+  /// [f] receives a reference to the parser being constructed and must return
+  /// the fully built parser. The reference is safe to use only inside other
+  /// deferred combinators (e.g. as an argument to [defer]).
+  ///
+  /// Example:
+  /// ```dart
+  /// final expr = Parsers.recursive<int>((self) =>
+  ///   digits | char('(').productR(self).productL(char(')')));
+  /// ```
   static Parser<A> recursive<A>(Function1<Parser<A>, Parser<A>> f) {
     late Parser<A> result;
     // ignore: join_return_with_assignment
@@ -749,6 +945,8 @@ final class Parsers {
     return result;
   }
 
+  /// Repeats [p1] zero or more times, accumulating with [acc]. Pass [max] to
+  /// cap repetitions.
   static Parser0<B> repAs0<A, B>(
     Parser<A> p1,
     Accumulator0<A, B> acc, {
@@ -780,6 +978,8 @@ final class Parsers {
     }
   }
 
+  /// Repeats [p1] at least [min] times, accumulating with [acc]. Pass [max] to
+  /// cap repetitions.
   static Parser<B> repAs<A, B>(
     Parser<A> p1,
     Accumulator<A, B> acc,
@@ -797,6 +997,7 @@ final class Parsers {
     }
   }
 
+  /// Repeats [p] exactly [times] times, accumulating with [acc].
   static Parser<B> repExactlyAs<A, B>(
     Parser<A> p,
     int times,
@@ -810,6 +1011,8 @@ final class Parsers {
     }
   }
 
+  /// Repeats [p1] separated by [sep], collecting zero or more results into an
+  /// [IList]. Pass [min]/[max] to control the number of elements.
   static Parser0<IList<A>> repSep0<A>(
     Parser<A> p1,
     Parser0<dynamic> sep, {
@@ -845,6 +1048,8 @@ final class Parsers {
     }
   }
 
+  /// Repeats [p1] separated by [sep], collecting one or more results into a
+  /// [NonEmptyIList]. Pass [min]/[max] to control the number of elements.
   static Parser<NonEmptyIList<A>> repSep<A>(
     Parser<A> p1,
     Parser0<dynamic> sep, {
@@ -873,28 +1078,37 @@ final class Parsers {
     }
   }
 
+  /// Repeats [p] zero or more times, stopping as soon as [end] matches.
   static Parser0<IList<A>> repUntil0<A>(
     Parser<A> p,
     Parser0<dynamic> end,
   ) => not(end).with1.productR(p).rep0();
 
+  /// Repeats [p] one or more times, stopping as soon as [end] matches.
   static Parser<NonEmptyIList<A>> repUntil<A>(
     Parser<A> p,
     Parser0<dynamic> end,
   ) => not(end).with1.productR(p).rep();
 
+  /// Repeats [p] zero or more times until [end] matches, accumulating with
+  /// [acc].
   static Parser0<B> repUntilAs0<A, B>(
     Parser<A> p,
     Parser0<dynamic> end,
     Accumulator0<A, B> acc,
   ) => not(end).with1.productR(p).repAs0(acc);
 
+  /// Repeats [p] one or more times until [end] matches, accumulating with
+  /// [acc].
   static Parser<B> repUntilAs<A, B>(
     Parser<A> p,
     Parser0<dynamic> end,
     Accumulator<A, B> acc,
   ) => not(end).with1.productR(p).repAs(acc);
 
+  /// Selective functor combinator: if [p] returns [Left(a)], runs [fn] to
+  /// obtain a function and applies it to `a`; if [p] returns [Right(b)],
+  /// returns `b` without running [fn].
   static Parser0<B> select0<A, B>(
     Parser0<Either<A, B>> p,
     Parser0<Function1<A, B>> fn,
@@ -911,6 +1125,7 @@ final class Parsers {
     ),
   );
 
+  /// [Parser] variant of [select0].
   static Parser<B> select<A, B>(
     Parser<Either<A, B>> p,
     Parser0<Function1<A, B>> fn,
@@ -927,6 +1142,8 @@ final class Parsers {
     ),
   );
 
+  /// Like [product0] but a failure in [second] backtracks to before [first]
+  /// ran, so the combined failure can be caught by [oneOf0] / [orElse].
   static Parser0<(A, B)> softProduct0<A, B>(
     Parser0<A> first,
     Parser0<B> second,
@@ -940,6 +1157,8 @@ final class Parsers {
     },
   };
 
+  /// Like [softProduct0] but [first] is a [Parser], so the result is a
+  /// [Parser].
   static Parser<(A, B)> softProduct10<A, B>(
     Parser<A> first,
     Parser0<B> second,
@@ -952,6 +1171,8 @@ final class Parsers {
     },
   };
 
+  /// Like [softProduct0] but [second] is a [Parser], so the result is a
+  /// [Parser].
   static Parser<(A, B)> softProduct01<A, B>(
     Parser0<A> first,
     Parser<B> second,
@@ -962,12 +1183,18 @@ final class Parsers {
     _ => SoftProd(first, second),
   };
 
+  /// A parser that succeeds (producing [Unit]) only at the start of input.
   static Parser0<Unit> get start => StartParser();
 
+  /// A [Parser0] that matches [str] exactly, producing [Unit]. Succeeds
+  /// immediately (without consuming input) when [str] is empty.
   static Parser0<Unit> string0(String str) => str.isEmpty ? unit : Str(str);
 
+  /// A [Parser] that matches [str] exactly and produces [Unit].
   static Parser<Unit> string(String str) => Str(str);
 
+  /// Returns a parser that produces the substring matched by [pa] instead of
+  /// [pa]'s original value. [Parser0] variant.
   static Parser0<String> stringP0(Parser0<dynamic> pa) {
     return switch (pa) {
       final Parser<dynamic> s1 => stringP(s1),
@@ -979,6 +1206,8 @@ final class Parsers {
     };
   }
 
+  /// Returns a parser that produces the substring matched by [pa] instead of
+  /// [pa]'s original value. [Parser] variant.
   static Parser<String> stringP(Parser<dynamic> pa) {
     return switch (pa) {
       final str when _matchesString(str) => str as Parser<String>,
@@ -993,6 +1222,9 @@ final class Parsers {
     };
   }
 
+  /// A [Parser0] that matches any of the given [strings] and returns the
+  /// matched string. Empty strings are supported and result in an immediate
+  /// success fallback.
   static Parser0<String> stringIn0(RIterable<String> strings) {
     if (strings.exists((s) => s.isEmpty)) {
       return Parsers.oneOf0(
@@ -1006,6 +1238,9 @@ final class Parsers {
     }
   }
 
+  /// A [Parser] that matches any of the given non-empty [strings] and returns
+  /// the matched string. Uses a trie internally for efficient longest-match
+  /// dispatch.
   static Parser<String> stringIn(RIterable<String> strings) {
     final distinct = strings.toIList().distinct();
 
@@ -1018,12 +1253,19 @@ final class Parsers {
     }
   }
 
+  /// A [Parser0] that always succeeds with [Unit] without consuming input.
   static final Parser0<Unit> unit = pure(Unit());
 
+  /// Consumes zero or more characters, stopping just before [p] would match,
+  /// and returns the consumed substring.
   static Parser0<String> until0(Parser0<dynamic> p) => repUntil0(anyChar, p).string;
 
+  /// Consumes one or more characters, stopping just before [p] would match,
+  /// and returns the consumed substring.
   static Parser<String> until(Parser0<dynamic> p) => repUntil(anyChar, p).string;
 
+  /// Returns a parser that runs [pa] and discards the result, producing
+  /// [Unit]. [Parser0] variant.
   static Parser0<Unit> voided0(Parser0<dynamic> pa) {
     switch (pa) {
       case final Parser<dynamic> p1:
@@ -1045,6 +1287,8 @@ final class Parsers {
     }
   }
 
+  /// Returns a parser that runs [pa] and discards the result, producing
+  /// [Unit]. [Parser] variant.
   static Parser<Unit> voided(Parser<dynamic> pa) {
     return switch (pa) {
       final Void<dynamic> v => v,
@@ -1057,6 +1301,8 @@ final class Parsers {
     };
   }
 
+  /// Attaches context label [ctx] to any error produced by [p0], making
+  /// failure messages easier to diagnose. [Parser0] variant.
   static Parser0<A> withContext0<A>(Parser0<A> p0, String ctx) {
     return switch (p0) {
       final Void0<A> v0 => Void0(withContext0(v0.parser, ctx)) as Parser0<A>,
@@ -1065,6 +1311,8 @@ final class Parsers {
     };
   }
 
+  /// Attaches context label [ctx] to any error produced by [p]. [Parser]
+  /// variant.
   static Parser<A> withContext<A>(Parser<A> p, String ctx) {
     return switch (p) {
       final Void<A> v => Void(withContext(v.parser, ctx)) as Parser<A>,
@@ -1072,6 +1320,8 @@ final class Parsers {
     };
   }
 
+  /// Returns a parser that produces both the parsed value and the substring
+  /// consumed by [pa]. [Parser0] variant.
   static Parser0<(A, String)> withString0<A>(Parser0<A> pa) {
     return switch (pa) {
       final Parser<A> p1 => withString(p1),
@@ -1082,6 +1332,8 @@ final class Parsers {
     };
   }
 
+  /// Returns a parser that produces both the parsed value and the substring
+  /// consumed by [pa]. [Parser] variant.
   static Parser<(A, String)> withString<A>(Parser<A> pa) {
     return switch (pa) {
       final Fail<dynamic> f => f.widen(),
@@ -1860,46 +2112,78 @@ final class Parsers {
   };
 }
 
+/// A view of a [Parser0] that exposes combinators returning [Parser].
+///
+/// Obtained via [Parser0.with1]. Use it when you need to sequence a
+/// [Parser0] with a [Parser] and want the result to be typed as [Parser].
 extension type With1<A>(Parser0<A> parser) {
+  /// Matches [b], then this parser, then [c], returning only this parser's
+  /// result. All three parsers must be [Parser] so the whole sequence is
+  /// guaranteed to consume input.
   Parser<A> between(Parser<dynamic> b, Parser<dynamic> c) =>
       b.voided.product(parser.product(c.voided)).map((tup) => tup.$2.$1);
 
+  /// Sequences this parser with [f] where [f] returns a [Parser], producing
+  /// a [Parser] result.
   Parser<B> flatMap<B>(Function1<A, Parser<B>> f) => Parsers.flatMap01(parser, f);
 
+  /// Runs this parser then [that] ([Parser]), returning both results. The
+  /// result is a [Parser].
   Parser<(A, B)> product<B>(Parser<B> that) => Parsers.product01(parser, that);
 
+  /// Runs this parser then [that], discarding [that]'s result.
   Parser<A> productL<B>(Parser<B> that) =>
       Parsers.product01(parser, Parsers.voided(that)).map((t) => t.$1);
 
+  /// Runs this parser (voided) then [that], returning [that]'s result.
   Parser<B> productR<B>(Parser<B> that) =>
       Parsers.product01(Parsers.voided0(parser), that).map((t) => t.$2);
 
+  /// Returns a [Soft01] view using soft (backtracking) product combinators.
   Soft01<A> get soft => Soft01(parser);
 
+  /// Matches [that], then this parser, then [that] again.
   Parser<A> surroundedBy(Parser<dynamic> that) => between(that, that);
 }
 
+/// A view of a [Parser0] that uses soft (backtracking) product combinators.
+///
+/// In a soft product `a.soft.product(b)`, a failure in `b` rewinds the offset
+/// to before `a` ran, so [Parser0.orElse] / [Parsers.oneOf0] can catch it.
+///
+/// Obtained via [Parser0.soft].
 final class Soft0<A> {
   final Parser0<A> parser;
 
   const Soft0(this.parser);
 
+  /// Matches [b] (soft), then this parser (soft), then [c], returning only
+  /// this parser's result.
   Parser0<A> between(Parser0<dynamic> b, Parser0<dynamic> c) =>
       b.voided.soft.product(parser.soft.product(c.voided)).map((t) => t.$2.$1);
 
+  /// Soft product: runs this parser then [that]; failure in [that] backtracks
+  /// to before this parser ran.
   Parser0<(A, B)> product<B>(Parser0<B> that) => Parsers.softProduct0(parser, that);
 
+  /// Soft product keeping only this parser's result.
   Parser0<A> productL<B>(Parser0<B> that) =>
       Parsers.softProduct0(parser, Parsers.voided0(that)).map((t) => t.$1);
 
+  /// Soft product keeping only [that]'s result.
   Parser0<B> productR<B>(Parser0<B> that) =>
       Parsers.softProduct0(Parsers.voided0(parser), that).map((t) => t.$2);
 
+  /// Soft version of [Parser0.surroundedBy].
   Parser0<A> surroundedBy(Parser0<dynamic> that) => between(that, that);
 
+  /// Returns a [Soft01] view for sequencing with a [Parser].
   Soft01<A> get with1 => Soft01(parser);
 }
 
+/// [Soft0] specialization for [Parser], where all combinators return [Parser].
+///
+/// Obtained via [Parser.soft].
 final class Soft<A> extends Soft0<A> {
   final Parser<A> parser1; // better way to do this?
 
@@ -1924,17 +2208,27 @@ final class Soft<A> extends Soft0<A> {
   Parser<A> surroundedBy(Parser0<dynamic> that) => between(that, that);
 }
 
+/// A soft [Parser0] view whose combinators require a [Parser] on the other
+/// side, producing a [Parser] result.
+///
+/// Obtained via [Soft0.with1] or [With1.soft].
 extension type Soft01<A>(Parser0<A> parser) {
+  /// Soft product with a [Parser], returning both results.
   Parser<(A, B)> product<B>(Parser<B> that) => Parsers.softProduct01(parser, that);
 
+  /// Soft product keeping only [that]'s result.
   Parser<B> productR<B>(Parser<B> that) =>
       Parsers.softProduct01(Parsers.voided0(parser), that).map((t) => t.$2);
 
+  /// Soft product keeping only this parser's result.
   Parser<A> productL<B>(Parser<B> that) =>
       Parsers.softProduct01(parser, Parsers.voided(that)).map((t) => t.$1);
 
+  /// Matches [b], then this parser (soft), then [c], returning only this
+  /// parser's result.
   Parser<A> between(Parser<dynamic> b, Parser<dynamic> c) =>
       b.voided.product(parser.soft.product(c.voided)).map((t) => t.$2.$1);
 
+  /// Soft version of surroundedBy.
   Parser<A> surroundedBy(Parser<dynamic> b) => between(b, b);
 }
