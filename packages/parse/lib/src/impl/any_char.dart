@@ -10,7 +10,9 @@ final class AnyChar extends Parser<String> {
       state.offset += 1;
       return char;
     } else {
-      state.error = Eval.later(() => IChain.one(Expectation.inRange(offset, Char(0), Char(state.str.length))));
+      state.error = Eval.later(
+        () => IChain.one(Expectation.inRange(offset, Char(0), Char(state.str.length))),
+      );
       return '\u0000';
     }
   }

@@ -1031,8 +1031,7 @@ void main() {
       // Build 10 lines; fail on line 7 so beforeElipsis fires
       final input = List.generate(10, (i) => 'line$i').join('\n');
       final line7offset = input.indexOf('line7');
-      final result =
-          Parsers.length(line7offset).productR(Parsers.string('NOPE')).parse(input);
+      final result = Parsers.length(line7offset).productR(Parsers.string('NOPE')).parse(input);
       final err = result.fold((e) => e, (_) => fail('Expected failure'));
       final str = err.toString();
       expect(str, contains('...'));
@@ -1043,8 +1042,7 @@ void main() {
       // 6 lines; fail on line 1 so afterContext lines (2,3) are included
       final input = List.generate(6, (i) => 'L$i').join('\n');
       final line1offset = input.indexOf('L1');
-      final result =
-          Parsers.length(line1offset).productR(Parsers.string('NOPE')).parse(input);
+      final result = Parsers.length(line1offset).productR(Parsers.string('NOPE')).parse(input);
       final err = result.fold((e) => e, (_) => fail('Expected failure'));
       final str = err.toString();
       expect(str, contains('L1'));
@@ -1424,11 +1422,13 @@ void main() {
 
     test('oneOf with voided parsers produces Void(OneOf(...))', () {
       // All parsers are Void, so the Void-lifting optimization fires
-      final p = Parsers.oneOf(ilist([
-        Parsers.string('a').voided,
-        Parsers.string('b').voided,
-        Parsers.string('c').voided,
-      ]));
+      final p = Parsers.oneOf(
+        ilist([
+          Parsers.string('a').voided,
+          Parsers.string('b').voided,
+          Parsers.string('c').voided,
+        ]),
+      );
       expectSuccess(p, 'aX', Unit(), remaining: 'X');
       expectSuccess(p, 'bX', Unit(), remaining: 'X');
       expectFailure(p, 'dX', offset: 0);
@@ -1436,10 +1436,12 @@ void main() {
 
     test('oneOf with string parsers produces StringP(OneOf(...))', () {
       // All parsers are StringP, so the StringP-lifting optimization fires
-      final p = Parsers.oneOf(ilist([
-        Parsers.string('alpha').string,
-        Parsers.string('beta').string,
-      ]));
+      final p = Parsers.oneOf(
+        ilist([
+          Parsers.string('alpha').string,
+          Parsers.string('beta').string,
+        ]),
+      );
       expectSuccess(p, 'alpha!', 'alpha', remaining: '!');
       expectSuccess(p, 'beta!', 'beta', remaining: '!');
       expectFailure(p, 'gamma', offset: 0);
@@ -1476,11 +1478,7 @@ void main() {
     test('chained maps reassociate correctly', () {
       // p.map(f1).map(f2).map(f3) should produce the same result as
       // applying all three in sequence, regardless of internal structure.
-      final p =
-          Parsers.anyChar
-              .map((s) => s.codeUnitAt(0))
-              .map((n) => n + 1)
-              .map((n) => n * 2);
+      final p = Parsers.anyChar.map((s) => s.codeUnitAt(0)).map((n) => n + 1).map((n) => n * 2);
       expectSuccess(p, 'A', ('A'.codeUnitAt(0) + 1) * 2);
     });
 

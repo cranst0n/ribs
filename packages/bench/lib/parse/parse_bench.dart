@@ -409,11 +409,8 @@ class RibsFullRequestBenchmark extends BenchmarkBase {
         .productL(Parsers.string('.'))
         .product(digits)
         .map(((String, String) t) => 'HTTP/${t.$1}.${t.$2}');
-    final requestLine = method
-        .productL(sp)
-        .product(target.productL(sp).product(version))
-        .productL(crlf)
-        .voided;
+    final requestLine =
+        method.productL(sp).product(target.productL(sp).product(version)).productL(crlf).voided;
     final name = Parsers.charsWhile(_isTcharChar);
     final value = Parsers.charsWhile(_isFieldCharChar).map((String s) => s.trim());
     final headerLine = name.productL(Parsers.string(':')).product(value).productL(crlf).voided;
