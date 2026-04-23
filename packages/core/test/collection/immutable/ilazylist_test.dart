@@ -7,10 +7,10 @@ void main() {
       expect(ILazyList.empty<int>().isEmpty, isTrue);
     });
 
-    test('equality', () {
+    test('equality uses identity', () {
       final s = ILazyList.ints(0);
-
-      expect(s.prepended(1).prepended(0), s.prepended(1).prepended(0));
+      expect(s, s);
+      expect(s.prepended(1).prepended(0), isNot(s.prepended(1).prepended(0)));
     });
 
     test('does not not force head', () {

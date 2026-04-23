@@ -940,7 +940,11 @@ final class ILazyList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   @override
   ILazyList<(A, int)> zipWithIndex() => zip(ILazyList.ints(0));
 
-  // TODO: hashCode / ==
+  @override
+  int get hashCode => identityHashCode(this);
+
+  @override
+  bool operator ==(Object other) => identical(this, other);
 
   @override
   String toString() => addStringNoForce(StringBuffer('ILazyList'), '(', ', ', ')').toString();
