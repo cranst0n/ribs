@@ -45,7 +45,8 @@ void main() {
     });
 
     test('complex concatenation builds correct sql and params', () {
-      final f = 'SELECT * FROM person WHERE age > '.fr +
+      final f =
+          'SELECT * FROM person WHERE age > '.fr +
           Fragment.param(18, Put.integer) +
           ' AND city = '.fr +
           Fragment.param('NYC', Put.string);

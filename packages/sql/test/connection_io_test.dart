@@ -7,12 +7,10 @@ import 'package:test/test.dart';
 // Minimal stub — pure/delay/lift tests never invoke these methods.
 class _StubConnection extends SqlConnection {
   @override
-  IO<IList<Row>> executeQuery(String sql, StatementParameters params) =>
-      throw UnimplementedError();
+  IO<IList<Row>> executeQuery(String sql, StatementParameters params) => throw UnimplementedError();
 
   @override
-  IO<int> executeUpdate(String sql, StatementParameters params) =>
-      throw UnimplementedError();
+  IO<int> executeUpdate(String sql, StatementParameters params) => throw UnimplementedError();
 
   @override
   Rill<Row> streamQuery(String sql, StatementParameters params, {int chunkSize = 64}) =>

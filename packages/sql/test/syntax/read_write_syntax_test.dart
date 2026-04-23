@@ -45,8 +45,7 @@ void main() {
     });
 
     group('Tuple4', () {
-      final rw =
-          (ReadWrite.integer, ReadWrite.string, ReadWrite.dubble, ReadWrite.integer).tupled;
+      final rw = (ReadWrite.integer, ReadWrite.string, ReadWrite.dubble, ReadWrite.integer).tupled;
 
       test('length is 4', () {
         expect(rw.length, 4);
