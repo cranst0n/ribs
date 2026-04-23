@@ -127,6 +127,16 @@ void main() {
       expect(testLeft.isRight, isFalse);
     });
 
+    test('leftOption', () {
+      expect(testLeft.leftOption, 'left'.some);
+      expect(testRight.leftOption, none<String>());
+    });
+
+    test('rightOption', () {
+      expect(testRight.rightOption, 1.some);
+      expect(testLeft.rightOption, none<int>());
+    });
+
     test('leftMap', () {
       expect(testRight.leftMap(reverseString), testRight);
       expect(testLeft.leftMap(reverseString), isLeft('tfel'));

@@ -109,6 +109,12 @@ sealed class Either<A, B> implements Monad<B> {
   /// Returns true if this is a [Right], otherwise false is returned.
   bool get isRight => !isLeft;
 
+  /// Returns the [Left] value wrapped in a [Some], or [None] if this is a [Right].
+  Option<A> get leftOption => fold(Some.new, (_) => none<A>());
+
+  /// Returns the [Right] value wrapped in a [Some], or [None] if this is a [Left].
+  Option<B> get rightOption => fold((_) => none<B>(), Some.new);
+
   /// Returns a new Either by applying [f] to the value of this instance if
   /// it is a [Left].
   Either<C, B> leftMap<C>(Function1<A, C> f) =>
