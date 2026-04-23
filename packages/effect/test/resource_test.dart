@@ -411,7 +411,7 @@ void main() {
       expect(rightReleased, isTrue);
     });
 
-    group('propogate the exit case', () {
+    group('propagate the exit case', () {
       test('use successfully, test left', () async {
         ExitCase? got;
         final r = Resource.unit.onFinalizeCase((ec) => IO.exec(() => got = ec));

@@ -256,7 +256,7 @@ of `CancelableOperation`.
 
 `IO` also allows you to build cancelable operations.
 
-<<< @/../snippets/lib/src/effect/io.dart#cancelation-1
+<<< @/../snippets/lib/src/effect/io.dart#cancellation-1
 
 This is obviously a contrived example but exhibits that you have a great deal
 of power controlling the execution of an `IO`.

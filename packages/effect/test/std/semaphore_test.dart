@@ -120,7 +120,7 @@ void main() {
       expect(test, succeeds(Unit()));
     });
 
-    test('allow cancelation if blocked waiting for permit', () {
+    test('allow cancellation if blocked waiting for permit', () {
       final test = sc(0).flatMap((sem) {
         return IO.ref(false).flatMap((ref) {
           return sem.permit().surround(IO.unit).onCancel(ref.setValue(true)).start().flatMap((f) {
@@ -155,7 +155,7 @@ void main() {
       expect(op, succeeds(0));
     });
 
-    test('acquireN does not leak permits upon cancelation', () {
+    test('acquireN does not leak permits upon cancellation', () {
       final op = sc(1).flatMap((sem) {
         return sem.acquireN(2).timeout(1.second).attempt().productR(sem.acquire());
       });

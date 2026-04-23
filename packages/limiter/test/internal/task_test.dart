@@ -18,17 +18,17 @@ void main() {
     expect(test.ticked, succeeds());
   });
 
-  test('Task propogates results', () {
+  test('Task propagates results', () {
     final test = executeAndWait(IO.sleep(1.second).as(42));
     expect(test.ticked, succeeds(42));
   });
 
-  test('Task propogates error', () {
+  test('Task propagates error', () {
     final test = executeAndWait(IO.raiseError<Unit>(Exception('BOOM')));
     expect(test.ticked, errors());
   });
 
-  test('Task propogates cancelation', () {
+  test('Task propagates cancellation', () {
     final test = executeAndWait(IO.sleep(1.second).productR(IO.canceled));
     expect(test.ticked, cancels);
   });

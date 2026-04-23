@@ -3,7 +3,7 @@ part of '../io.dart';
 /// Registers an asynchronous callback with the IO runtime.
 ///
 /// The [body] receives a callback to signal completion and returns an
-/// optional finalizer [IO] for cleanup on cancelation.
+/// optional finalizer [IO] for cleanup on cancellation.
 final class _Async<A> extends IO<A> {
   final AsyncBodyWithFin<A> body;
 
@@ -40,7 +40,7 @@ final class _Attempt<A> extends IO<Either<Object, A>> {
   String toString() => 'Attempt($ioa)';
 }
 
-/// Triggers self-cancelation of the current fiber.
+/// Triggers self-cancellation of the current fiber.
 final class _Canceled extends IO<Unit> {
   const _Canceled();
 
@@ -49,7 +49,7 @@ final class _Canceled extends IO<Unit> {
 }
 
 /// Introduces an asynchronous boundary, yielding control back to the
-/// runtime scheduler for fairness and cancelation checking.
+/// runtime scheduler for fairness and cancellation checking.
 final class _Cede extends IO<Unit> {
   const _Cede();
 
@@ -131,7 +131,7 @@ final class _Now extends IO<DateTime> {
   String toString() => 'Now';
 }
 
-/// Attaches a cancelation finalizer [fin] to [ioa]. If [ioa] is canceled,
+/// Attaches a cancellation finalizer [fin] to [ioa]. If [ioa] is canceled,
 /// [fin] is guaranteed to run.
 final class _OnCancel<A> extends IO<A> {
   final IO<A> ioa;
@@ -216,8 +216,8 @@ final class _Traced<A> extends IO<A> {
   String toString() => 'Traced($label)';
 }
 
-/// Masks cancelation for the duration of [body]. The [Poll] passed to
-/// [body] allows selective re-enabling of cancelation for sub-regions.
+/// Masks cancellation for the duration of [body]. The [Poll] passed to
+/// [body] allows selective re-enabling of cancellation for sub-regions.
 final class _Uncancelable<A> extends IO<A> {
   final Function1<Poll, IO<A>> body;
 
@@ -227,7 +227,7 @@ final class _Uncancelable<A> extends IO<A> {
   String toString() => 'Uncancelable<$A>($body)';
 }
 
-/// Re-enables cancelation for [ioa] within an [_Uncancelable] region.
+/// Re-enables cancellation for [ioa] within an [_Uncancelable] region.
 /// Used internally by the [Poll] mechanism.
 final class _UnmaskRunLoop<A> extends IO<A> {
   final IO<A> ioa;

@@ -3,15 +3,13 @@ part of '../io.dart';
 /// The execution state of an [IOFiber].
 enum FiberState { running, suspended }
 
-/// A handle to a running [IO] that allows for cancelation of the [IO] or
-/// waiting for completion.
 /// A handle to a running [IO] computation, providing the ability to
 /// [cancel] the computation or [join] on its result.
 ///
 /// An [IOFiber] is created by [IO.start] or [IO.racePair] and represents
 /// a lightweight logical thread of execution within the [IORuntime].
 /// The fiber's run loop interprets the [IO] AST, executing each node
-/// and maintaining continuation, finalizer, and cancelation state.
+/// and maintaining continuation, finalizer, and cancellation state.
 final class IOFiber<A> {
   /// The set of all currently active fibers, tracked via weak references
   /// to support [dumpFibers] diagnostics without preventing GC.
@@ -46,7 +44,7 @@ final class IOFiber<A> {
   var _conts = ByteStack(4);
   var _contData = Stack<Object>(2);
 
-  Fn1<Either<Object, Unit>, void>? _cancelationFinalizer;
+  Fn1<Either<Object, Unit>, void>? _cancellationFinalizer;
 
   late final _TraceRingBuffer _traceBuffer = _TraceRingBuffer(
     IOTracingConfig.traceBufferSize,
@@ -56,7 +54,7 @@ final class IOFiber<A> {
 
   Outcome<A>? _outcome;
 
-  /// Bitfield tracking cancelation and finalization status, as well as the
+  /// Bitfield tracking cancellation and finalization status, as well as the
   /// number of active uncancelable masks.
   int _masks = 0;
 
@@ -203,12 +201,12 @@ final class IOFiber<A> {
       _runLoop(_failed(error, stackTrace));
 
   void _asyncContinueCanceledR() {
-    final fin = _prepareFiberForCancelation();
+    final fin = _prepareFiberForCancellation();
     _runLoop(fin);
   }
 
   void _asyncContinueCanceledWithFinalizerR(Fn1<Either<Object, Unit>, void> cb) {
-    final fin = _prepareFiberForCancelation(cb);
+    final fin = _prepareFiberForCancellation(cb);
     _runLoop(fin);
   }
 
@@ -239,7 +237,7 @@ final class IOFiber<A> {
         _scheduleResume(++_resumeGeneration);
         break runLoop;
       } else if (_shouldFinalize) {
-        cur0 = _prepareFiberForCancelation();
+        cur0 = _prepareFiberForCancellation();
       } else {
         switch (cur0) {
           case _Pure(:final value):
@@ -415,7 +413,7 @@ final class IOFiber<A> {
             _masks |= _canceledFlag;
 
             if (_isUnmasked) {
-              final fin = _prepareFiberForCancelation();
+              final fin = _prepareFiberForCancellation();
               cur0 = fin;
             } else {
               cur0 = _succeeded(Unit());
@@ -508,7 +506,7 @@ final class IOFiber<A> {
     _callbacks = _callbacks.push(cb);
   }
 
-  IO<dynamic> _prepareFiberForCancelation([
+  IO<dynamic> _prepareFiberForCancellation([
     Fn1<Either<Object, Unit>, void>? cb,
   ]) {
     if (_finalizers.nonEmpty) {
@@ -518,9 +516,9 @@ final class IOFiber<A> {
         _conts.clear();
         _contData.clear();
 
-        _conts = _conts.push(_CancelationLoopK);
+        _conts = _conts.push(_CancellationLoopK);
 
-        _cancelationFinalizer = cb;
+        _cancellationFinalizer = cb;
 
         _masks += _masksUnit;
       }
@@ -562,8 +560,8 @@ final class IOFiber<A> {
           } catch (e, s) {
             return _failed(e, s);
           }
-        case _CancelationLoopK:
-          return _cancelationLoopSuccessK();
+        case _CancellationLoopK:
+          return _cancellationLoopSuccessK();
         case _HandleErrorWithK:
           _contData.pop(); // Discard handler
         case _OnCancelK:
@@ -593,8 +591,8 @@ final class IOFiber<A> {
           _contData.pop(); // Discard function
         case _FlatMapK:
           _contData.pop(); // Discard function
-        case _CancelationLoopK:
-          return _cancelationLoopFailureK(error, stackTrace);
+        case _CancellationLoopK:
+          return _cancellationLoopFailureK(error, stackTrace);
         case _HandleErrorWithK:
           final fn = _contData.pop() as Fn2<Object, StackTrace?, IO<dynamic>>;
           try {
@@ -647,14 +645,14 @@ final class IOFiber<A> {
     return const _EndFiber();
   }
 
-  IO<dynamic> _cancelationLoopSuccessK() {
+  IO<dynamic> _cancellationLoopSuccessK() {
     if (_finalizers.nonEmpty) {
       // still more finalizers to execute
-      _conts = _conts.push(_CancelationLoopK);
+      _conts = _conts.push(_CancellationLoopK);
       return _finalizers.pop();
     } else {
       // last finalizer has finished running...
-      _cancelationFinalizer?.call(Right<Object, Unit>(Unit()));
+      _cancellationFinalizer?.call(Right<Object, Unit>(Unit()));
 
       _done(Canceled());
 
@@ -662,7 +660,8 @@ final class IOFiber<A> {
     }
   }
 
-  IO<dynamic> _cancelationLoopFailureK(Object err, [StackTrace? st]) => _cancelationLoopSuccessK();
+  IO<dynamic> _cancellationLoopFailureK(Object err, [StackTrace? st]) =>
+      _cancellationLoopSuccessK();
 
   /// Prints a diagnostic dump of all active fibers to stdout.
   ///
@@ -745,7 +744,7 @@ const int _SleepR = 9;
 // ---------------------------------------------------------------------------
 // Mask bitfield layout:
 //   bit 0 (_canceledFlag):   fiber has been asked to cancel
-//   bit 1 (_finalizingFlag): fiber is running cancelation finalizers
+//   bit 1 (_finalizingFlag): fiber is running cancellation finalizers
 //   bits 2+: count of active uncancelable masks (incremented by _masksUnit)
 // ---------------------------------------------------------------------------
 const int _canceledFlag = 0x1;
@@ -759,7 +758,7 @@ const int _masksUnit = 0x4;
 const int _RunTerminusK = 0;
 const int _MapK = 1;
 const int _FlatMapK = 2;
-const int _CancelationLoopK = 3;
+const int _CancellationLoopK = 3;
 const int _HandleErrorWithK = 4;
 const int _OnCancelK = 5;
 const int _UncancelableK = 6;

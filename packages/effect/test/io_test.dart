@@ -179,7 +179,7 @@ void main() {
       });
     });
 
-    group('cancelation', () {
+    group('cancellation', () {
       test('implement never with non-terminating semantics', () {
         expect(
           IO.never<int>().timeout(2.seconds),
@@ -444,7 +444,7 @@ void main() {
         );
       });
 
-      test('await uncancelable blocks in cancelation', () {
+      test('await uncancelable blocks in cancellation', () {
         var started = false;
 
         final markStarted = IO.exec(() => started = true);
@@ -460,7 +460,7 @@ void main() {
         expect(test, nonTerminating);
       });
 
-      test('await cancelation of cancelation of uncancelable never', () {
+      test('await cancellation of cancellation of uncancelable never', () {
         var started = false;
         var started2 = false;
 
@@ -625,7 +625,7 @@ void main() {
         expect(test, succeeds(Unit()));
       });
 
-      test('not finalize after uncancelable with suppressed cancelation (succeeded)', () async {
+      test('not finalize after uncancelable with suppressed cancellation (succeeded)', () async {
         var finalized = false;
 
         final test =
@@ -638,7 +638,7 @@ void main() {
         expect(finalized, isFalse);
       });
 
-      test('not finalize after uncancelable with suppressed cancelation (errored)', () async {
+      test('not finalize after uncancelable with suppressed cancellation (errored)', () async {
         const err = 'boom';
 
         var finalized = false;
@@ -1394,7 +1394,7 @@ void main() {
     );
   });
 
-  test('short circuit cancelation', () async {
+  test('short circuit cancellation', () async {
     final output = List<String>.empty(growable: true);
 
     IO<Unit> appendOutput(String s) => IO.exec(() => output.add(s));
@@ -1438,7 +1438,7 @@ void main() {
     final io = IO.uncancelable((poll) {
       return appendOutput('A')
           .flatTap((_) => appendOutput('B'))
-          .flatMap((a) => IO.canceled) // Mark fiber for cancelation
+          .flatMap((a) => IO.canceled) // Mark fiber for cancellation
           .flatTap((_) => appendOutput('C'))
           .flatMap(
             (_) => poll(

@@ -16,12 +16,12 @@ sealed class ExitCase {
   /// Creates an [ExitCase] to signal an error was encountered.
   factory ExitCase.errored(Object error, [StackTrace? stackTrace]) => _Errored(error, stackTrace);
 
-  /// Creates an [ExitCase] to signal a cancelation.
+  /// Creates an [ExitCase] to signal a cancellation.
   factory ExitCase.canceled() => const _Canceled();
 
   /// Applies the appropriate function to the instance of this [ExitCase].
   ///
-  /// [canceled] will be applied if this instance signals cancelation.
+  /// [canceled] will be applied if this instance signals cancellation.
   /// [errored] will be applied if this instance signals error.
   /// [succeeded] will be applied if this instance signals success.
   B fold<B>(
@@ -30,7 +30,7 @@ sealed class ExitCase {
     Function0<B> succeeded,
   );
 
-  /// Returns `true` if this instance signals cancelation, `false` otherwise.
+  /// Returns `true` if this instance signals cancellation, `false` otherwise.
   bool get isCanceled => fold(() => true, (_, _) => false, () => false);
 
   /// Returns `true` if this instance signals an error, `false` otherwise.

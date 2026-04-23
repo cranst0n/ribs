@@ -113,7 +113,7 @@ void main() {
       });
     });
 
-    test('propogate error from closing the root scope', () {
+    test('propagate error from closing the root scope', () {
       final s1 = Rill.bracket(IO.pure(1), (_) => IO.unit);
       final s2 = Rill.bracket(IO.pure('a'), (_) => IO.raiseError('BOOM'));
 
@@ -893,7 +893,7 @@ void main() {
       expect(test.ticked, succeeds(ilist([0, 1, 5, 2, 3, 4, 6, 7, 8, 9])));
     });
 
-    test('merge - error propogation (right)', () async {
+    test('merge - error propagation (right)', () async {
       final failure = Rill.pure(42).delayBy(200.milliseconds).append(() => Rill.raiseError('BOOM'));
       final infinite = Rill.repeatEval(IO.pure(0).delayBy(50.milliseconds));
 
@@ -906,7 +906,7 @@ void main() {
       );
     });
 
-    test('merge - error propogation (left)', () async {
+    test('merge - error propagation (left)', () async {
       final failure = Rill.pure(42).delayBy(200.milliseconds).append(() => Rill.raiseError('BOOM'));
       final infinite = Rill.repeatEval(IO.pure(0).delayBy(50.milliseconds));
 

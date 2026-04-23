@@ -66,7 +66,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   /// Runs both [ioa] and [iob] together, returning a tuple of both results
   /// if both of them are successful. If either of them results in an error or
-  /// is canceled, that error or cancelation is propogated.
+  /// is canceled, that error or cancellation is propagated.
   static IO<(A, B)> both<A, B>(IO<A> ioa, IO<B> iob) => _both(ioa, iob).traced('both');
   static IO<(A, B)> _both<A, B>(IO<A> ioa, IO<B> iob) => IO._uncancelable(
     (poll) => poll(_racePair(ioa, iob))._flatMap(
@@ -149,7 +149,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   }
 
   /// Introduces an asynchronous boundary in the IO runtime loop that can
-  /// be used for cancelation checking and fairness, among other things.
+  /// be used for cancellation checking and fairness, among other things.
   static const IO<Unit> cede = _Cede();
 
   /// Suspends the synchronous evaluation of [thunk] in [IO].
@@ -168,7 +168,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   static IO<Unit> _exec<A>(Function0<A> thunk) => _Delay(thunk)._voided();
 
   /// Creates an [IO] that returns the value or error of the underlying
-  /// [CancelableOperation]. If new [IO] is canceled, the cancelation request
+  /// [CancelableOperation]. If new [IO] is canceled, the cancellation request
   /// will be forwarded to the underlying  [CancelableOperation].
   static IO<A> fromCancelableOperation<A>(IO<CancelableOperation<A>> op) {
     return op
@@ -445,7 +445,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   IO<A> flatTap<B>(Function1<A, IO<B>> f) => _flatTap(f).traced('flatTap');
   IO<A> _flatTap<B>(Function1<A, IO<B>> f) => _flatMap((a) => f(a)._as(a));
 
-  /// Continually re-evaluate this [IO] forever, until an error or cancelation.
+  /// Continually re-evaluate this [IO] forever, until an error or cancellation.
   IO<Never> foreverM() => _foreverM().traced('foreverM');
   IO<Never> _foreverM() => _flatMap((_) => _foreverM());
 
@@ -751,7 +751,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// with the [Outcome] of the evaluation as well as a function that can be
   /// called to cancel the future. The [Future] will not complete with an error,
   /// since the value itself is capable of conveying an error was encountered.
-  /// If the evaluation has already finished, the cancelation function is a
+  /// If the evaluation has already finished, the cancellation function is a
   /// no-op.
   (Future<A>, Function0<Future<Unit>>) unsafeRunFutureCancelable({
     IORuntime? runtime,
@@ -781,7 +781,7 @@ sealed class IO<A> with Functor<A>, Applicative<A>, Monad<A> {
 
   /// Starts the evaluation of this IO and returns  a function that can be
   /// called to cancel the evaluation. If the evaluation has already finished,
-  /// the cancelation function is a no-op.
+  /// the cancellation function is a no-op.
   Function0<Future<Unit>> unsafeRunCancelable({
     IORuntime? runtime,
   }) => unsafeRunFutureCancelable(runtime: runtime).$2;
@@ -845,7 +845,7 @@ extension IOExceptionOps<A> on IO<Either<Object, A>> {
 
 /// Utility class to create unmasked blocks within an uncancelable [IO] region.
 abstract class Poll {
-  /// Re-enables cancelation for [ioa]. If the fiber was interrupted while
+  /// Re-enables cancellation for [ioa]. If the fiber was interrupted while
   /// evaluating the uncancelable region, the exception will be observed
   /// within this nested scope.
   IO<A> call<A>(IO<A> ioa);
@@ -857,7 +857,7 @@ class _RuntimePoll extends Poll {
 
   _RuntimePoll(this._id, this._fiber);
 
-  /// Creates an IO that allows cancelation within the scope of [ioa].
+  /// Creates an IO that allows cancellation within the scope of [ioa].
   @override
   IO<A> call<A>(IO<A> ioa) => _UnmaskRunLoop(ioa, _id, _fiber);
 }

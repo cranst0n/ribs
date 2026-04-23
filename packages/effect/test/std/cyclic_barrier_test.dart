@@ -34,7 +34,7 @@ void main() {
       expect(test, nonTerminating);
     });
 
-    test('should clean up upon cancelation of await', () {
+    test('should clean up upon cancellation of await', () {
       final test = newBarrier(2).flatMap((barrier) {
         return barrier.await().timeoutTo(1.second, IO.unit).productR(barrier.await());
       });

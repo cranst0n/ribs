@@ -71,7 +71,7 @@ sealed class Resource<A> with Functor<A>, Applicative<A>, Monad<A> {
   static Resource<Unit> get canceled => Resource.eval(IO.canceled);
 
   /// Introduces an asynchronous boundary in the Resource/IO runtime loop that
-  /// can be used for cancelation checking and fairness, among other things.
+  /// can be used for cancellation checking and fairness, among other things.
   static Resource<Unit> get cede => Resource.eval(IO.cede);
 
   /// Lifts the given [IO] [a] into a Resource, providing no finalizer.

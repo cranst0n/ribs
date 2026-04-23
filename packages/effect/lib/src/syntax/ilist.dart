@@ -19,7 +19,7 @@ extension IListIOOps<A> on IList<IO<A>> {
 extension IOIListOps<A> on IList<A> {
   /// {@template ilist_parTraverseIO}
   /// **Asynchronously** applies [f] to each element of this list and collects
-  /// the results into a new list. If an error or cancelation is encountered
+  /// the results into a new list. If an error or cancellation is encountered
   /// for any element, that result is returned and all other elements will be
   /// canceled if possible.
   /// {@endtemplate}
@@ -35,7 +35,7 @@ extension IOIListOps<A> on IList<A> {
 
   /// {@template ilist_parTraverseIO_}
   /// **Asynchronously** applies [f] to each element of this list, discarding
-  /// any results. If an error or cancelation is encountered for any element,
+  /// any results. If an error or cancellation is encountered for any element,
   /// that result is returned and all other elements will be canceled if
   /// possible.
   /// {@endtemplate}
@@ -51,7 +51,7 @@ extension IOIListOps<A> on IList<A> {
 
   /// {@template ilist_traverseIO}
   /// Applies [f] to each element of this list and collects the results into a
-  /// new list. If an error or cancelation is encountered for any element,
+  /// new list. If an error or cancellation is encountered for any element,
   /// that result is returned and any additional elements will not be evaluated.
   /// {@endtemplate}
   IO<IList<B>> traverseIO<B>(Function1<A, IO<B>> f) {
@@ -66,7 +66,7 @@ extension IOIListOps<A> on IList<A> {
 
   /// {@template ilist_traverseIO_}
   /// Applies [f] to each element of this list, discarding any results. If an
-  /// error or cancelation is encountered for any element, that result is
+  /// error or cancellation is encountered for any element, that result is
   /// returned and any additional elements will not be evaluated.
   /// {@endtemplate}
   IO<Unit> traverseIO_<B>(Function1<A, IO<B>> f) {
@@ -80,7 +80,7 @@ extension IOIListOps<A> on IList<A> {
   }
 
   /// Applies [f] to each element of this list and collects the results into a
-  /// new list that is flattened using concatenation. If an error or cancelation
+  /// new list that is flattened using concatenation. If an error or cancellation
   /// is encountered for any element, that result is returned and any additional
   /// elements will not be evaluated.
   IO<IList<B>> flatTraverseIO<B>(Function1<A, IO<IList<B>>> f) =>
@@ -89,7 +89,7 @@ extension IOIListOps<A> on IList<A> {
   /// {@template ilist_traverseFilterIO}
   /// Applies [f] to each element of this list and collects the results into a
   /// new list. Any results from [f] that are [None] are discarded from the
-  /// resulting list. If an error or cancelation is encountered for any element,
+  /// resulting list. If an error or cancellation is encountered for any element,
   /// that result is returned and any additional elements will not be evaluated.
   /// {@endtemplate}
   IO<IList<B>> traverseFilterIO<B>(Function1<A, IO<Option<B>>> f) => traverseIO(f).map(

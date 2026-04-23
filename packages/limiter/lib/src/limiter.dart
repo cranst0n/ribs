@@ -137,12 +137,12 @@ class LimiterImpl extends Limiter {
     return IO.uncancelable((poll) {
       return Task.create(job).flatMap((task) {
         return queue.enqueue(task.executable, priority: priority).flatMap((id) {
-          final propogateCancelation = queue.delete(id).flatMap((deleted) {
+          final propagateCancellation = queue.delete(id).flatMap((deleted) {
             // task has already be dequeued and running
             return task.cancel.whenA(!deleted);
           });
 
-          return poll(task.awaitResult).onCancel(propogateCancelation);
+          return poll(task.awaitResult).onCancel(propagateCancellation);
         });
       });
     });
