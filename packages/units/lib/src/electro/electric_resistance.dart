@@ -5,14 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class ElectricResistance extends Quantity<ElectricResistance> {
   ElectricResistance(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [ElectricResistance].
-  ElectricResistance operator +(ElectricResistance that) =>
-      ElectricResistance(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [ElectricResistance].
-  ElectricResistance operator -(ElectricResistance that) =>
-      ElectricResistance(value - that.to(unit), unit);
-
   /// Converts this to microohms (µΩ).
   ElectricResistance get toMicroohms => to(microohms).microohms;
 

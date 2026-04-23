@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class MagneticFlux extends Quantity<MagneticFlux> {
   MagneticFlux(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [MagneticFlux].
-  MagneticFlux operator +(MagneticFlux that) => MagneticFlux(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [MagneticFlux].
-  MagneticFlux operator -(MagneticFlux that) => MagneticFlux(value - that.to(unit), unit);
-
   /// Converts this to microwebers (µWb).
   MagneticFlux get toMicrowebers => to(microwebers).microwebers;
 

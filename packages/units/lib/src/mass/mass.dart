@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Mass extends Quantity<Mass> {
   Mass(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Mass].
-  Mass operator +(Mass that) => Mass(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Mass].
-  Mass operator -(Mass that) => Mass(value - that.to(unit), unit);
-
   /// Multiplies this mass by [that] acceleration to produce [Force] in newtons.
   Force operator *(Acceleration that) =>
       Force.newtons(toKilograms.value * that.toMetersPerSecondSquared.value);

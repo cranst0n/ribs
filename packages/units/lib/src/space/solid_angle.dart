@@ -7,12 +7,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class SolidAngle extends Quantity<SolidAngle> {
   SolidAngle(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [SolidAngle].
-  SolidAngle operator +(SolidAngle that) => SolidAngle(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [SolidAngle].
-  SolidAngle operator -(SolidAngle that) => SolidAngle(value - that.to(unit), unit);
-
   /// Converts this to millisteradians (msr).
   SolidAngle get toMillisteradians => to(millisteradians).millisteradians;
 

@@ -7,12 +7,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class AngularVelocity extends Quantity<AngularVelocity> {
   AngularVelocity(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [AngularVelocity].
-  AngularVelocity operator +(AngularVelocity that) => AngularVelocity(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [AngularVelocity].
-  AngularVelocity operator -(AngularVelocity that) => AngularVelocity(value - that.to(unit), unit);
-
   /// Converts this to radians per second (rad/s).
   AngularVelocity get toRadiansPerSecond => to(radiansPerSecond).radiansPerSecond;
 

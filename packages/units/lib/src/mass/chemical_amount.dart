@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class ChemicalAmount extends Quantity<ChemicalAmount> {
   ChemicalAmount(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [ChemicalAmount].
-  ChemicalAmount operator +(ChemicalAmount that) => ChemicalAmount(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [ChemicalAmount].
-  ChemicalAmount operator -(ChemicalAmount that) => ChemicalAmount(value - that.to(unit), unit);
-
   /// Converts this to moles (mol).
   ChemicalAmount get toMoles => to(moles).moles;
 

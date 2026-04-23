@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Density extends Quantity<Density> {
   Density(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Density].
-  Density operator +(Density that) => Density(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Density].
-  Density operator -(Density that) => Density(value - that.to(unit), unit);
-
   /// Converts this to kilograms per cubic meter (kg/m³).
   Density get toKilogramsPerCubicMeter => to(kilogramsPerCubicMeter).kilogramsPerCubicMeter;
 

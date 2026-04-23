@@ -23,12 +23,14 @@ final class Temperature extends Quantity<Temperature> {
   ///
   /// The addend is converted to [unit] without zero-offset adjustment so that
   /// adding temperatures behaves as adding scalar magnitudes.
+  @override
   Temperature operator +(Temperature that) =>
       Temperature(value + that._convert(unit, withOffset: false).value, unit);
 
   /// Returns the difference of degree magnitudes in the units of this [Temperature].
   ///
   /// The subtrahend is converted to [unit] without zero-offset adjustment.
+  @override
   Temperature operator -(Temperature that) =>
       Temperature(value - that._convert(unit, withOffset: false).value, unit);
 

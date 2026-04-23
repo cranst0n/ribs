@@ -6,12 +6,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Luminance extends Quantity<Luminance> {
   Luminance(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Luminance].
-  Luminance operator +(Luminance that) => Luminance(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Luminance].
-  Luminance operator -(Luminance that) => Luminance(value - that.to(unit), unit);
-
   /// Converts this to nits (cd/m²).
   Luminance get toNits => to(nits).nits;
 

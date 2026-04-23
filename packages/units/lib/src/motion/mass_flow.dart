@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class MassFlow extends Quantity<MassFlow> {
   MassFlow(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [MassFlow].
-  MassFlow operator +(MassFlow that) => MassFlow(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [MassFlow].
-  MassFlow operator -(MassFlow that) => MassFlow(value - that.to(unit), unit);
-
   /// Converts this to kilograms per second (kg/s).
   MassFlow get toKilogramsPerSecond => to(kilogramsPerSecond).kilogramsPerSecond;
 

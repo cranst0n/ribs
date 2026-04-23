@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class SpectralPower extends Quantity<SpectralPower> {
   SpectralPower(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [SpectralPower].
-  SpectralPower operator +(SpectralPower that) => SpectralPower(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [SpectralPower].
-  SpectralPower operator -(SpectralPower that) => SpectralPower(value - that.to(unit), unit);
-
   /// Converts this to milliwatts per meter (mW/m).
   SpectralPower get toMilliwattsPerMeter => to(milliwattsPerMeter).milliwattsPerMeter;
 

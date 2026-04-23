@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Each extends Quantity<Each> {
   Each(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Each].
-  Each operator +(Each that) => Each(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Each].
-  Each operator -(Each that) => Each(value - that.to(unit), unit);
-
   /// Converts this to individual items.
   Each get toEach => to(each).each;
 

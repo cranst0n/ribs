@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Pressure extends Quantity<Pressure> {
   Pressure(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Pressure].
-  Pressure operator +(Pressure that) => Pressure(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Pressure].
-  Pressure operator -(Pressure that) => Pressure(value - that.to(unit), unit);
-
   /// Converts this to pascals (Pa).
   Pressure get toPascals => to(pascals).pascals;
 

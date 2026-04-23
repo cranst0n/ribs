@@ -5,14 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class ElectricPotential extends Quantity<ElectricPotential> {
   ElectricPotential(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [ElectricPotential].
-  ElectricPotential operator +(ElectricPotential that) =>
-      ElectricPotential(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [ElectricPotential].
-  ElectricPotential operator -(ElectricPotential that) =>
-      ElectricPotential(value - that.to(unit), unit);
-
   /// Divides this voltage by [that] resistance to produce [ElectricCurrent] in amperes (Ohm's law: I = V/R).
   ElectricCurrent operator /(ElectricResistance that) =>
       ElectricCurrent.amperes(toVolts.value / that.toOhms.value);

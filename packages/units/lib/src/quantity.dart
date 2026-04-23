@@ -24,6 +24,16 @@ abstract class Quantity<A extends Quantity<A>> {
   /// Creates a quantity with [value] in [unit].
   Quantity(this.value, this.unit);
 
+  /// Returns the sum of this quantity and [that], expressed in [unit].
+  ///
+  /// [that] is converted to [unit] before adding, so mixed-unit addition is safe.
+  A operator +(A that) => unit.call(value + that.to(unit));
+
+  /// Returns the difference of this quantity and [that], expressed in [unit].
+  ///
+  /// [that] is converted to [unit] before subtracting, so mixed-unit subtraction is safe.
+  A operator -(A that) => unit.call(value - that.to(unit));
+
   /// Returns true if this quantity is greater than [that].
   ///
   /// [that] is converted to [unit] before comparing.

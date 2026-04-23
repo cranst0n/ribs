@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Energy extends Quantity<Energy> {
   Energy(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Energy].
-  Energy operator +(Energy that) => Energy(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Energy].
-  Energy operator -(Energy that) => Energy(value - that.to(unit), unit);
-
   /// Divides this energy by [that] time to produce [Power] in watts.
   Power operator /(Time that) => Power.watts(toJoules.value / that.toSeconds.value);
 

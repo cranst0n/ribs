@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Momentum extends Quantity<Momentum> {
   Momentum(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Momentum].
-  Momentum operator +(Momentum that) => Momentum(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Momentum].
-  Momentum operator -(Momentum that) => Momentum(value - that.to(unit), unit);
-
   /// Converts this to newton-seconds (N·s).
   Momentum get toNewtonSeconds => to(newtonSeconds).newtonSeconds;
 

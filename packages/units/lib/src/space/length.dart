@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Length extends Quantity<Length> {
   Length(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Length].
-  Length operator +(Length that) => Length(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Length].
-  Length operator -(Length that) => Length(value - that.to(unit), unit);
-
   /// Divides this length by [that] time to produce a [Velocity] in m/s.
   Velocity operator /(Time that) => Velocity.metersPerSecond(toMeters.value / that.toSeconds.value);
 

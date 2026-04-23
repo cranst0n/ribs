@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Volume extends Quantity<Volume> {
   Volume(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Volume].
-  Volume operator +(Volume that) => Volume(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Volume].
-  Volume operator -(Volume that) => Volume(value - that.to(unit), unit);
-
   /// Divides this volume by [that] time to produce a [VolumeFlow] in m³/s.
   VolumeFlow operator /(Time that) =>
       VolumeFlow.cubicMetersPerSecond(toCubicMeters.value / that.toSeconds.value);

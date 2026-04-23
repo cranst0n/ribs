@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Acceleration extends Quantity<Acceleration> {
   Acceleration(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Acceleration].
-  Acceleration operator +(Acceleration that) => Acceleration(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Acceleration].
-  Acceleration operator -(Acceleration that) => Acceleration(value - that.to(unit), unit);
-
   /// Converts this to meters per second squared (m/s²).
   Acceleration get toMetersPerSecondSquared => to(metersPerSecondSquared).metersPerSecondSquared;
 

@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Irradiance extends Quantity<Irradiance> {
   Irradiance(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Irradiance].
-  Irradiance operator +(Irradiance that) => Irradiance(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Irradiance].
-  Irradiance operator -(Irradiance that) => Irradiance(value - that.to(unit), unit);
-
   /// Converts this to milliwatts per square meter (mW/m²).
   Irradiance get toMilliwattsPerSquareMeter =>
       to(milliwattsPerSquareMeter).milliwattsPerSquareMeter;

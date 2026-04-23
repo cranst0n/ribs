@@ -5,14 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class MagneticFluxDensity extends Quantity<MagneticFluxDensity> {
   MagneticFluxDensity(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [MagneticFluxDensity].
-  MagneticFluxDensity operator +(MagneticFluxDensity that) =>
-      MagneticFluxDensity(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [MagneticFluxDensity].
-  MagneticFluxDensity operator -(MagneticFluxDensity that) =>
-      MagneticFluxDensity(value - that.to(unit), unit);
-
   /// Converts this to nanoteslas (nT).
   MagneticFluxDensity get toNanoteslas => to(nanoteslas).nanoteslas;
 

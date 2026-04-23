@@ -12,12 +12,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Information extends Quantity<Information> {
   Information(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Information].
-  Information operator +(Information that) => Information(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Information].
-  Information operator -(Information that) => Information(value - that.to(unit), unit);
-
   /// Converts this to bytes (B).
   Information get toBytes => to(bytes).bytes;
 

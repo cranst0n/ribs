@@ -6,12 +6,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class ThermalCapacity extends Quantity<ThermalCapacity> {
   ThermalCapacity(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [ThermalCapacity].
-  ThermalCapacity operator +(ThermalCapacity that) => ThermalCapacity(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [ThermalCapacity].
-  ThermalCapacity operator -(ThermalCapacity that) => ThermalCapacity(value - that.to(unit), unit);
-
   /// Converts this to joules per kelvin (J/K).
   ThermalCapacity get toJoulesPerKelvin => to(joulesPerKelvin).joulesPerKelvin;
 

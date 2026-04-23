@@ -6,12 +6,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Radiance extends Quantity<Radiance> {
   Radiance(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Radiance].
-  Radiance operator +(Radiance that) => Radiance(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Radiance].
-  Radiance operator -(Radiance that) => Radiance(value - that.to(unit), unit);
-
   /// Converts this to milliwatts per steradian per square meter (mW/sr/m²).
   Radiance get toMilliwattsPerSteradianPerSquareMeter =>
       to(milliwattsPerSteradianPerSquareMeter).milliwattsPerSteradianPerSquareMeter;

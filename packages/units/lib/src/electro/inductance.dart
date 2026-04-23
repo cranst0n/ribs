@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Inductance extends Quantity<Inductance> {
   Inductance(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Inductance].
-  Inductance operator +(Inductance that) => Inductance(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Inductance].
-  Inductance operator -(Inductance that) => Inductance(value - that.to(unit), unit);
-
   /// Converts this to picohenries (pH).
   Inductance get toPicohenries => to(picohenries).picohenries;
 

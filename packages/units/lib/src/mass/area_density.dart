@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class AreaDensity extends Quantity<AreaDensity> {
   AreaDensity(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [AreaDensity].
-  AreaDensity operator +(AreaDensity that) => AreaDensity(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [AreaDensity].
-  AreaDensity operator -(AreaDensity that) => AreaDensity(value - that.to(unit), unit);
-
   /// Converts this to kilograms per square meter (kg/m²).
   AreaDensity get toKilogramsPerSquareMeter => to(kilogramsPerSquareMeter).kilogramsPerSquareMeter;
 

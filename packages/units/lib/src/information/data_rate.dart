@@ -11,12 +11,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class DataRate extends Quantity<DataRate> {
   DataRate(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [DataRate].
-  DataRate operator +(DataRate that) => DataRate(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [DataRate].
-  DataRate operator -(DataRate that) => DataRate(value - that.to(unit), unit);
-
   /// Converts this to bytes per second (B/s).
   DataRate get toBytesPerSecond => to(bytesPerSecond).bytesPerSecond;
 

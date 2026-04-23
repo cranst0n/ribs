@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Velocity extends Quantity<Velocity> {
   Velocity(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Velocity].
-  Velocity operator +(Velocity that) => Velocity(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Velocity].
-  Velocity operator -(Velocity that) => Velocity(value - that.to(unit), unit);
-
   /// Divides this velocity by [that] time to produce an [Acceleration] in m/s².
   Acceleration operator /(Time that) =>
       Acceleration.metersPerSecondSquared(toMetersPerSecond.value / that.toSeconds.value);

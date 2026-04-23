@@ -9,12 +9,6 @@ final class Time extends Quantity<Time> {
   /// intermediate representation.
   factory Time.fromDuration(Duration d) => microseconds(d.inMicroseconds);
 
-  /// Returns the sum of this and [that] in the units of this [Time].
-  Time operator +(Time that) => Time(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Time].
-  Time operator -(Time that) => Time(value - that.to(unit), unit);
-
   /// Converts this to nanoseconds.
   Time get toNanoseconds => to(nanoseconds).nanoseconds;
 

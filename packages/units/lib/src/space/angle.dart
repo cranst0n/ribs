@@ -7,12 +7,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Angle extends Quantity<Angle> {
   Angle(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Angle].
-  Angle operator +(Angle that) => Angle(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Angle].
-  Angle operator -(Angle that) => Angle(value - that.to(unit), unit);
-
   /// Divides this angle by [that] time to produce an [AngularVelocity] in rad/s.
   AngularVelocity operator /(Time that) =>
       AngularVelocity.radiansPerSecond(toRadians.value / that.toSeconds.value);

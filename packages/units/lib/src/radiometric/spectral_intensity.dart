@@ -6,14 +6,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class SpectralIntensity extends Quantity<SpectralIntensity> {
   SpectralIntensity(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [SpectralIntensity].
-  SpectralIntensity operator +(SpectralIntensity that) =>
-      SpectralIntensity(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [SpectralIntensity].
-  SpectralIntensity operator -(SpectralIntensity that) =>
-      SpectralIntensity(value - that.to(unit), unit);
-
   /// Converts this to milliwatts per steradian per meter (mW/sr/m).
   SpectralIntensity get toMilliwattsPerSteradianPerMeter =>
       to(milliwattsPerSteradianPerMeter).milliwattsPerSteradianPerMeter;

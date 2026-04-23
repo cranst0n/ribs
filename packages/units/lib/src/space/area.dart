@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Area extends Quantity<Area> {
   Area(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Area].
-  Area operator +(Area that) => Area(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Area].
-  Area operator -(Area that) => Area(value - that.to(unit), unit);
-
   /// Multiplies this area by [that] length to produce a [Volume].
   ///
   /// The result unit is chosen to match the unit of `this` where possible

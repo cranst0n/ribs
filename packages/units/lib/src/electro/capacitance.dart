@@ -5,12 +5,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Capacitance extends Quantity<Capacitance> {
   Capacitance(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Capacitance].
-  Capacitance operator +(Capacitance that) => Capacitance(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Capacitance].
-  Capacitance operator -(Capacitance that) => Capacitance(value - that.to(unit), unit);
-
   /// Converts this to femtofarads (fF).
   Capacitance get toFemtofarads => to(femtofarads).femtofarads;
 

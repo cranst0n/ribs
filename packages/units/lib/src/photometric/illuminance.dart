@@ -6,12 +6,6 @@ import 'package:ribs_units/ribs_units.dart';
 final class Illuminance extends Quantity<Illuminance> {
   Illuminance(super.value, super.unit);
 
-  /// Returns the sum of this and [that] in the units of this [Illuminance].
-  Illuminance operator +(Illuminance that) => Illuminance(value + that.to(unit), unit);
-
-  /// Returns the difference between this and [that] in the units of this [Illuminance].
-  Illuminance operator -(Illuminance that) => Illuminance(value - that.to(unit), unit);
-
   /// Converts this to millilux (mlx).
   Illuminance get toMillilux => to(millilux).millilux;
 
