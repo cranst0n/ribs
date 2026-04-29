@@ -52,10 +52,10 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
   Chunk<O> operator +(Chunk<O> that) => concat(that);
 
   @override
-  Chunk<O> appended(O elem) => from(super.appended(elem));
+  Chunk<O> appended(O elem) => concat(Chunk.singleton(elem));
 
   @override
-  Chunk<O> appendedAll(RIterableOnce<O> suffix) => from(super.appendedAll(suffix));
+  Chunk<O> appendedAll(RIterableOnce<O> suffix) => concat(Chunk.from(suffix));
 
   @override
   Chunk<B> collect<B>(Function1<O, Option<B>> f) => from(super.collect(f));
@@ -114,7 +114,13 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
   Chunk<O> filterNot(Function1<O, bool> p) => from(super.filterNot(p));
 
   @override
-  Chunk<B> flatMap<B>(Function1<O, RIterableOnce<B>> f) => from(super.flatMap(f));
+  Chunk<B> flatMap<B>(Function1<O, RIterableOnce<B>> f) {
+    final bldr = <B>[];
+
+    foreach((a) => f(a).foreach(bldr.add));
+
+    return bldr.isEmpty ? Chunk.empty() : _BoxedChunk(List.of(bldr, growable: false));
+  }
 
   @override
   IMap<K, Chunk<O>> groupBy<K>(Function1<O, K> f) => super.groupBy(f).mapValues(Chunk.from);
@@ -127,7 +133,7 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
   RIterator<Chunk<O>> grouped(int size) => super.grouped(size).map(Chunk.from);
 
   @override
-  Chunk<O> get init => from(super.init);
+  Chunk<O> get init => isEmpty ? Chunk.empty() : take(size - 1);
 
   @override
   RIterator<Chunk<O>> get inits => super.inits.map(Chunk.from);
@@ -175,8 +181,21 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
 
   @override
   (Chunk<O>, Chunk<O>) partition(Function1<O, bool> p) {
-    final (a, b) = super.partition(p);
-    return (from(a), from(b));
+    final yes = <O>[];
+    final no = <O>[];
+
+    foreach((a) {
+      if (p(a)) {
+        yes.add(a);
+      } else {
+        no.add(a);
+      }
+    });
+
+    return (
+      yes.isEmpty ? Chunk.empty() : _BoxedChunk(List.of(yes, growable: false)),
+      no.isEmpty ? Chunk.empty() : _BoxedChunk(List.of(no, growable: false)),
+    );
   }
 
   @override
@@ -193,10 +212,10 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
   RIterator<IndexedSeq<O>> permutations() => super.permutations().map(Chunk.from);
 
   @override
-  Chunk<O> prepended(O elem) => from(super.prepended(elem));
+  Chunk<O> prepended(O elem) => Chunk.singleton(elem).concat(this);
 
   @override
-  Chunk<O> prependedAll(RIterableOnce<O> prefix) => from(super.prependedAll(prefix));
+  Chunk<O> prependedAll(RIterableOnce<O> prefix) => Chunk.from(prefix).concat(this);
 
   @override
   Chunk<O> removeAt(int idx) => from(super.removeAt(idx));
@@ -236,7 +255,16 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
   }
 
   @override
-  Chunk<O> slice(int from, int until) => Chunk.from(super.slice(from, until));
+  Chunk<O> slice(int from, int until) {
+    final lo = from < 0 ? 0 : from;
+    final hi = until > size ? size : until;
+
+    if (lo >= hi) {
+      return Chunk.empty();
+    } else {
+      return drop(lo).take(hi - lo);
+    }
+  }
 
   @override
   RIterator<Chunk<O>> sliding(int size, [int step = 1]) =>
@@ -638,27 +666,53 @@ class _SliceChunk<A> extends Chunk<A> {
   };
 
   @override
-  Chunk<A> filter(Function1<A, bool> p) {
-    final result = <A>[];
-
+  void foreach<U>(Function1<A, U> f) {
     if (underlying is _BoxedChunk<A>) {
+      final src = (underlying as _BoxedChunk<A>)._values;
+
+      for (var i = 0; i < _length; i++) {
+        f(src[offset + i]);
+      }
+    } else {
+      compact().foreach(f);
+    }
+  }
+
+  @override
+  B foldLeft<B>(B z, Function2<B, A, B> f) {
+    if (underlying is _BoxedChunk<A>) {
+      final src = (underlying as _BoxedChunk<A>)._values;
+      var acc = z;
+
+      for (var i = 0; i < _length; i++) {
+        acc = f(acc, src[offset + i]);
+      }
+
+      return acc;
+    } else {
+      return compact().foldLeft(z, f);
+    }
+  }
+
+  @override
+  Chunk<A> filter(Function1<A, bool> p) {
+    if (underlying is _BoxedChunk<A>) {
+      final result = <A>[];
+
       final src = (underlying as _BoxedChunk<A>)._values;
 
       for (var i = 0; i < _length; i++) {
         final v = src[offset + i];
         if (p(v)) result.add(v);
       }
-    } else {
-      for (var i = 0; i < _length; i++) {
-        final v = underlying[offset + i];
-        if (p(v)) result.add(v);
-      }
-    }
 
-    if (result.isEmpty) {
-      return Chunk.empty();
+      if (result.isEmpty) {
+        return Chunk.empty();
+      } else {
+        return _BoxedChunk(List.of(result, growable: false));
+      }
     } else {
-      return _BoxedChunk(List.of(result, growable: false));
+      return compact().filter(p);
     }
   }
 
@@ -673,11 +727,44 @@ class _SliceChunk<A> extends Chunk<A> {
         List<B>.generate(_length, (i) => f(src[offset + i]), growable: false),
       );
     } else {
-      return _BoxedChunk(
-        List<B>.generate(_length, (i) => f(underlying[offset + i]), growable: false),
-      );
+      return compact().map(f);
     }
   }
+
+  @override
+  (Chunk<A>, Chunk<A>) splitAt(int n) {
+    if (n <= 0) {
+      return (Chunk.empty(), this);
+    } else if (n >= _length) {
+      return (this, Chunk.empty());
+    } else {
+      return (take(n), drop(n));
+    }
+  }
+
+  @override
+  (Chunk<A>, Chunk<A>) span(Function1<A, bool> p) {
+    var count = 0;
+    var found = false;
+
+    foreach((a) {
+      if (!found) {
+        if (p(a)) {
+          count++;
+        } else {
+          found = true;
+        }
+      }
+    });
+
+    return splitAt(count);
+  }
+
+  @override
+  Chunk<A> takeWhile(Function1<A, bool> p) => span(p).$1;
+
+  @override
+  Chunk<A> dropWhile(Function1<A, bool> p) => span(p).$2;
 
   @override
   int get size => _length;
@@ -723,6 +810,75 @@ class _ConcatChunk<A> extends Chunk<A> {
       return left[index];
     } else {
       return right[index - left.size];
+    }
+  }
+
+  @override
+  void foreach<U>(Function1<A, U> f) {
+    left.foreach(f);
+    right.foreach(f);
+  }
+
+  @override
+  B foldLeft<B>(B z, Function2<B, A, B> f) => right.foldLeft(left.foldLeft(z, f), f);
+
+  @override
+  Chunk<B> map<B>(Function1<A, B> f) => _ConcatChunk(left.map(f), right.map(f));
+
+  @override
+  Chunk<B> collect<B>(Function1<A, Option<B>> f) => left.collect(f).concat(right.collect(f));
+
+  @override
+  Chunk<A> filter(Function1<A, bool> p) => left.filter(p).concat(right.filter(p));
+
+  @override
+  (Chunk<A>, Chunk<A>) splitAt(int n) {
+    if (n <= 0) {
+      return (Chunk.empty(), this);
+    } else if (n >= _size) {
+      return (this, Chunk.empty());
+    } else if (n == left.size) {
+      return (left, right);
+    } else if (n < left.size) {
+      final (ll, lr) = left.splitAt(n);
+      return (ll, lr.concat(right));
+    } else {
+      final (rl, rr) = right.splitAt(n - left.size);
+      return (left.concat(rl), rr);
+    }
+  }
+
+  @override
+  (Chunk<A>, Chunk<A>) span(Function1<A, bool> p) {
+    final (ll, lr) = left.span(p);
+
+    if (lr.isEmpty) {
+      final (rl, rr) = right.span(p);
+      return (left.concat(rl), rr);
+    } else {
+      return (ll, lr.concat(right));
+    }
+  }
+
+  @override
+  Chunk<A> takeWhile(Function1<A, bool> p) {
+    final (ll, lr) = left.span(p);
+
+    if (lr.isEmpty) {
+      return left.concat(right.takeWhile(p));
+    } else {
+      return ll;
+    }
+  }
+
+  @override
+  Chunk<A> dropWhile(Function1<A, bool> p) {
+    final (_, lr) = left.span(p);
+
+    if (lr.isEmpty) {
+      return right.dropWhile(p);
+    } else {
+      return lr.concat(right);
     }
   }
 
