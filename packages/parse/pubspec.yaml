@@ -2,6 +2,7 @@ name: ribs_parse
 version: 1.0.0-dev.1
 homepage: https://cranst0n.github.io/ribs/
 repository: https://github.com/cranst0n/ribs
+publish_to: none
 description: >
   Parser combinator library, a port of the Scala cats-parse project.
   Provides composable, immutable parsers with PEG semantics, suitable
@@ -13,8 +14,8 @@ environment:
 
 dependencies:
   collection: ^1.19.1 # binarySearch, SplayTreeSet
-  meta:      ^1.10.0
-  ribs_core: ^1.0.0-dev.14
+  meta:       ^1.10.0
+  ribs_core:  ^1.0.0-dev.15
 
 dev_dependencies:
   lint:  ^2.8.0

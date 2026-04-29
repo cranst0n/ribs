@@ -17,14 +17,14 @@ environment:
 
 dependencies:
   postgres:    ^3.5.0
-  ribs_core:   ^1.0.0-dev.14
-  ribs_effect: ^1.0.0-dev.3
+  ribs_core:   ^1.0.0-dev.15
+  ribs_effect: ^1.0.0-dev.4
   ribs_rill:   ^1.0.0-dev.1
   ribs_sql:    ^1.0.0-dev.1
 
 dev_dependencies:
   lint:       ^2.8.0
   lints:      ^6.1.0
-  ribs_check: ^1.0.0-dev.8
+  ribs_check: ^1.0.0-dev.9
   test:       ^1.0.0
   testainers: ^0.3.0

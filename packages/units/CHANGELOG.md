@@ -1,4 +1,4 @@
-## Unreleased breaking
+## 1.0.0-dev.11
 
 - Fix `Time.fromDuration` to be factory constructor.
 

@@ -1,5 +1,5 @@
 name: ribs_binary
-version: 1.0.0-dev.10
+version: 1.0.0-dev.11
 homepage: https://cranst0n.github.io/ribs/
 repository: https://github.com/cranst0n/ribs
 description: >
@@ -19,12 +19,12 @@ environment:
 
 dependencies:
   meta:      ^1.10.0
-  ribs_core: ^1.0.0-dev.14
+  ribs_core: ^1.0.0-dev.15
 
 dev_dependencies:
   code_builder: ^4.11.1
   dart_style:   ^3.1.3
   lint:         ^2.8.0
   lints:        ^6.1.0
-  ribs_check:   ^1.0.0-dev.8
+  ribs_check:   ^1.0.0-dev.9
   test:         ^1.0.0
