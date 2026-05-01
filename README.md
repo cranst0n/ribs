@@ -10,7 +10,7 @@
 
 ---
 
-| | |
+| Package Version | Description |
 |---:|---|
 | [![binary](https://img.shields.io/pub/v/ribs_binary?label=ribs_binary&color=0088ff)](https://pub.dev/packages/ribs_binary) | Binary codecs |
 | [![check](https://img.shields.io/pub/v/ribs_check?label=ribs_check&color=0088ff)](https://pub.dev/packages/ribs_check) | Property-based testing |
@@ -18,13 +18,13 @@
 | [![effect](https://img.shields.io/pub/v/ribs_effect?label=ribs_effect&color=0088ff)](https://pub.dev/packages/ribs_effect) | Effect system & concurrency primitives |
 | [![ip](https://img.shields.io/pub/v/ribs_ip?label=ribs_ip&color=0088ff)](https://pub.dev/packages/ribs_ip) | Typesafe hosts, ports, and addresses |
 | [![json](https://img.shields.io/pub/v/ribs_json?label=ribs_json&color=0088ff)](https://pub.dev/packages/ribs_json) | JSON parsing and codecs |
-| ![limiter](https://img.shields.io/badge/ribs__limiter-unpublished-f00000) | Concurrency rate limiting |
+| ![limiter](https://img.shields.io/pub/v/ribs_limiter?label=ribs_limiter&color=0088ff) | Concurrency rate limiting |
 | [![optics](https://img.shields.io/pub/v/ribs_optics?label=ribs_optics&color=0088ff)](https://pub.dev/packages/ribs_optics) | Lenses and optics |
-| ![postgres](https://img.shields.io/badge/ribs__postgres-unpublished-f00000) | PostgreSQL transactors |
-| ![rill](https://img.shields.io/badge/ribs__rill-unpublished-f00000) | Pure functional streaming |
-| ![rill_io](https://img.shields.io/badge/ribs__rill__io-unpublished-f00000) | I/O for rill |
-| ![sql](https://img.shields.io/badge/ribs__sql-unpublished-f00000) | Pure functional SQL integration |
-| ![sqlite](https://img.shields.io/badge/ribs__sqlite-unpublished-f00000) | SQLite transactors |
+| ![postgres](https://img.shields.io/pub/v/ribs_postgres?label=ribs_postgres&color=0088ff) | PostgreSQL transactors |
+| ![rill](https://img.shields.io/pub/v/ribs_rill?label=ribs_rill&color=0088ff) | Pure functional streaming |
+| ![rill_io](https://img.shields.io/pub/v/ribs_rill_io?label=ribs_rill_io&color=0088ff) | I/O for rill |
+| ![sql](https://img.shields.io/pub/v/ribs_sql?label=ribs_sql&color=0088ff) | Pure functional SQL integration |
+| ![sqlite](https://img.shields.io/pub/v/ribs_sqlite?label=ribs_sqlite&color=0088ff) | SQLite transactors |
 | [![units](https://img.shields.io/pub/v/ribs_units?label=ribs_units&color=0088ff)](https://pub.dev/packages/ribs_units) | Dimensional analysis / units of measure |
 
 ### Credits
