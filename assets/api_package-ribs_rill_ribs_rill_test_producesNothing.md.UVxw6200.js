@@ -1,0 +1,13 @@
+import { o as openBlock, c as createElementBlock, a as createStaticVNode, _ as _export_sfc } from "./app.DPRVx0Pz.js";
+const __pageData = JSON.parse('{"title":"producesNothing function","description":"API documentation for the producesNothing function from ribs_rill_test","frontmatter":{"title":"producesNothing function","description":"API documentation for the producesNothing function from ribs_rill_test","category":"Functions","library":"ribs_rill_test","outline":false,"editLink":false,"prev":false,"next":false},"headers":[],"relativePath":"api/package-ribs_rill_ribs_rill_test/producesNothing.md","filePath":"api/package-ribs_rill_ribs_rill_test/producesNothing.md"}');
+const _sfc_main = { name: "api/package-ribs_rill_ribs_rill_test/producesNothing.md" };
+function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
+  return openBlock(), createElementBlock("div", null, [..._cache[0] || (_cache[0] = [
+    createStaticVNode('<h1 id="producesnothing" tabindex="-1">producesNothing <a class="header-anchor" href="#producesnothing" aria-label="Permalink to &quot;producesNothing&quot;">​</a></h1><div class="member-signature"><pre><code><span class="type">Matcher</span> <span class="fn">producesNothing</span>()</code></pre></div><p>Matches a <a href="/ribs/api/package-ribs_rill_ribs_rill/Rill.html">Rill</a> that succeeds without emitting any elements.</p><div class="language-dart vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">dart</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">expect</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">Rill</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">empty</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">&gt;(), </span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">producesNothing</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">());</span></span></code></pre></div>', 4)
+  ])]);
+}
+const producesNothing = /* @__PURE__ */ _export_sfc(_sfc_main, [["render", _sfc_render]]);
+export {
+  __pageData,
+  producesNothing as default
+};
