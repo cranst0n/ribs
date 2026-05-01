@@ -3,7 +3,8 @@ version: 1.0.0-dev.1
 homepage: https://cranst0n.github.io/ribs/
 repository: https://github.com/cranst0n/ribs
 description: >
-  ribs_sql intergrations for postgres.
+  PostgreSQL driver integration for ribs_sql, bringing functional IO-managed
+  connections and streaming queries to Postgres.
 
 topics:
   - postgres
@@ -16,7 +17,7 @@ environment:
   sdk: ">=3.7.0 <4.0.0"
 
 dependencies:
-  postgres:    ^3.5.0
+  postgres:    ^3.5.7
   ribs_core:   ^1.0.0-dev.15
   ribs_effect: ^1.0.0-dev.4
   ribs_rill:   ^1.0.0-dev.1

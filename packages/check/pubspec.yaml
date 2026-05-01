@@ -3,7 +3,8 @@ version: 1.0.0-dev.9
 homepage: https://cranst0n.github.io/ribs/
 repository: https://github.com/cranst0n/ribs
 description: >
-  Property based testing.
+  QuickCheck-style property-based testing with composable generators and
+  automatic shrinking to find edge cases.
 
 topics:
   - property-based-testing

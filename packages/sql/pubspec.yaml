@@ -3,7 +3,8 @@ version: 1.0.0-dev.1
 homepage: https://cranst0n.github.io/ribs/
 repository: https://github.com/cranst0n/ribs
 description: >
-  Functional SQL database interactions.
+  Functional SQL database layer with type-safe queries, streaming results via
+  ribs_rill, and ribs_effect based resource management.
 
 topics:
   - sql

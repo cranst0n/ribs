@@ -3,7 +3,8 @@ version: 1.0.0-dev.4
 homepage: https://cranst0n.github.io/ribs/
 repository: https://github.com/cranst0n/ribs
 description: >
-  Provides effect types like IO, Ref and Resource.
+  Functional effect system with IO monad, safe concurrent state (Ref), and
+  resource management and pure synchronziation primitive (Deferred).
 
 topics:
   - functional-programming

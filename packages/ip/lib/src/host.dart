@@ -238,7 +238,7 @@ sealed class IpAddress extends Host {
 
   /// Returns `true` if this is an IPv6 address in the `::ffff:0:0/96`
   /// (IPv4-mapped) block.
-  bool get isMappedV4 => fold((_) => false, Ipv6Address.MappedV4Block.contains);
+  bool get isMappedV4 => fold((_) => false, Ipv6Address.mappedV4Block.contains);
 
   /// The IP version of this address.
   IpVersion get version => fold((_) => IpVersion.v4, (_) => IpVersion.v6);
@@ -328,7 +328,7 @@ final class Ipv4Address extends IpAddress {
   const Ipv4Address._(super._bytes);
 
   /// The wildcard IPv4 address `0.0.0.0`.
-  static final Wildcard = Ipv4Address._(Uint8List.fromList([0, 0, 0, 0]));
+  static final wildcard = Ipv4Address._(Uint8List.fromList([0, 0, 0, 0]));
 
   /// Returns the IPv4 loopback addresses for the current host.
   static IO<IList<IpAddress>> loopback() =>
@@ -703,14 +703,14 @@ final class Ipv6Address extends IpAddress {
   Ipv6Address previous() => Ipv6Address.fromBigInt(toBigInt() - BigInt.one);
 
   @override
-  bool get isMulticast => MulticastRangeStart <= this && this <= MulticastRangeEnd;
+  bool get isMulticast => multicastRangeStart <= this && this <= multicastRangeEnd;
 
   @override
   Option<Multicast<Ipv6Address>> asMulticast() => Multicast.fromIpAddress(this);
 
   @override
   bool get isSourceSpecificMulticast =>
-      SourceSpecificMulticastRangeStart <= this && this <= SourceSpecificMulticastRangeEnd;
+      sourceSpecificMulticastRangeStart <= this && this <= sourceSpecificMulticastRangeEnd;
 
   @override
   Option<SourceSpecificMulticastStrict<Ipv6Address>> asSourceSpecificMulticast() =>
@@ -838,10 +838,10 @@ final class Ipv6Address extends IpAddress {
   }
 
   /// First IP address in the IPv6 multicast range (ff00::).
-  static final MulticastRangeStart = fromBytes(255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+  static final multicastRangeStart = fromBytes(255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
   /// Last IP address in the IPv6 multicast range (ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff).
-  static final MulticastRangeEnd = fromBytes(
+  static final multicastRangeEnd = fromBytes(
     255,
     255,
     255,
@@ -861,7 +861,7 @@ final class Ipv6Address extends IpAddress {
   );
 
   /// First IP address in the IPv6 source specific multicast range (ff30::).
-  static final SourceSpecificMulticastRangeStart = fromBytes(
+  static final sourceSpecificMulticastRangeStart = fromBytes(
     255,
     48,
     0,
@@ -881,7 +881,7 @@ final class Ipv6Address extends IpAddress {
   );
 
   /// Last IP address in the IPv6 source specific multicast range (ff3f:ffff:ffff:ffff:ffff:ffff:ffff:ffff).
-  static final SourceSpecificMulticastRangeEnd = fromBytes(
+  static final sourceSpecificMulticastRangeEnd = fromBytes(
     255,
     63,
     255,
@@ -902,7 +902,7 @@ final class Ipv6Address extends IpAddress {
 
   /// The IPv4-mapped address block `::ffff:0:0/96`.
   /// Used by [IpAddress.isMappedV4] and [IpAddress.collapseMappedV4].
-  static Cidr<Ipv6Address> MappedV4Block = Cidr.of(
+  static Cidr<Ipv6Address> mappedV4Block = Cidr.of(
     Ipv6Address.fromBytes(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 0, 0, 0, 0),
     96,
   );

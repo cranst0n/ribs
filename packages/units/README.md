@@ -1,6 +1,6 @@
 # ribs_units
 
-`ribs_units` is a type-safe library for working with dimensional quantities and units of measure in Dart. Heavily inspired by [Squants](http://www.squants.com/), it provides an expressive API for handling physical and digital quantities while preventing common "unit mismatch" bugs.
+`ribs_units` is a type-safe library for working with dimensional quantities and units of measure in Dart. Heavily inspired by [Squants](https://github.com/typelevel/squants), it provides an expressive API for handling physical and digital quantities while preventing common "unit mismatch" bugs.
 
 ## Features
 

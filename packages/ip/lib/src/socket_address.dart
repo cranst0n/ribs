@@ -31,10 +31,10 @@ final class SocketAddress<A extends Host> {
   const SocketAddress(this.host, this.port);
 
   /// The wildcard socket address `0.0.0.0:0`.
-  static final Wildcard = SocketAddress(Ipv4Address.Wildcard, Port.Wildcard);
+  static final Wildcard = SocketAddress(Ipv4Address.wildcard, Port.Wildcard);
 
   /// Returns a wildcard host socket address bound to [port].
-  static SocketAddress withPort(Port port) => SocketAddress(Ipv4Address.Wildcard, port);
+  static SocketAddress withPort(Port port) => SocketAddress(Ipv4Address.wildcard, port);
 
   /// Parses [value] as a socket address with any supported host type
   /// (IP address, hostname, or IDN), returning [None] if parsing fails.

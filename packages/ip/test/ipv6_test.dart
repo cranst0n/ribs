@@ -101,8 +101,8 @@ void main() {
     });
 
     test('isMulticast', () {
-      final ssmStart = Ipv6Address.MulticastRangeStart;
-      final ssmEnd = Ipv6Address.MulticastRangeEnd;
+      final ssmStart = Ipv6Address.multicastRangeStart;
+      final ssmEnd = Ipv6Address.multicastRangeEnd;
 
       expect(ssmStart.isMulticast, isTrue);
       expect(ssmStart.next().isMulticast, isTrue);
@@ -114,8 +114,8 @@ void main() {
     });
 
     test('isSourceSpecificMulticast', () {
-      final ssmStart = Ipv6Address.SourceSpecificMulticastRangeStart;
-      final ssmEnd = Ipv6Address.SourceSpecificMulticastRangeEnd;
+      final ssmStart = Ipv6Address.sourceSpecificMulticastRangeStart;
+      final ssmEnd = Ipv6Address.sourceSpecificMulticastRangeEnd;
 
       expect(ssmStart.isSourceSpecificMulticast, isTrue);
       expect(ssmStart.next().isSourceSpecificMulticast, isTrue);

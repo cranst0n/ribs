@@ -3,7 +3,8 @@ version: 1.0.0-dev.11
 homepage: https://cranst0n.github.io/ribs/
 repository: https://github.com/cranst0n/ribs
 description: >
-  API for dimensional analysis.
+  Type-safe units of measurement with dimensional analysis that catches unit
+  mismatch errors at compile time.
 
 topics:
   - units
