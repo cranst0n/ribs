@@ -53,7 +53,6 @@ void main(List<String> args) {
   genFile(
     'lib/src/syntax/generated/tuple_validated_nel.dart',
     TupleValidatedNelOpsGenerator.generate,
-    fnArity,
   );
 
   // IList
