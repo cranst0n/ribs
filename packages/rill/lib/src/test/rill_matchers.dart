@@ -4,11 +4,60 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_rill/src/rill.dart';
 import 'package:test/test.dart';
 
+/// Matches a [Rill] that fails with an error satisfying [matcher].
+///
+/// If [matcher] is omitted, any non-null error matches. The [Rill] must
+/// fail — a successful or cancelled run causes the test to fail.
+///
+/// ```dart
+/// expect(Rill.raiseError('oops'), producesError(isA<String>()));
+/// ```
 Matcher producesError([Object? matcher]) => _ProducesError(matcher ?? anyOf(isNotNull, isNull));
+
+/// Matches a [Rill] that emits elements in the exact order given by [expected].
+///
+/// [expected] may be a Dart [Iterable] or a [RIterableOnce]. The [Rill] must
+/// succeed — a failure or cancellation causes the test to fail.
+///
+/// ```dart
+/// expect(Rill.emits([1, 2, 3]), producesInOrder([1, 2, 3]));
+/// ```
 Matcher producesInOrder(Object expected) => _ProducesInOrder(expected);
+
+/// Matches a [Rill] that succeeds without emitting any elements.
+///
+/// ```dart
+/// expect(Rill.empty<int>(), producesNothing());
+/// ```
 Matcher producesNothing() => _ProducesNothing();
+
+/// Matches a [Rill] that emits exactly the single element [a].
+///
+/// Shorthand for `producesInOrder([a])`.
+///
+/// ```dart
+/// expect(Rill.emit(42), producesOnly(42));
+/// ```
 Matcher producesOnly<A>(A a) => _ProducesInOrder([a]);
+
+/// Matches a [Rill] that produces the same outcome (success, error, or
+/// cancellation) and the same elements as [expected].
+///
+/// Both rills are run to completion and their results compared.
+///
+/// ```dart
+/// expect(myRill, producesSameAs(Rill.emits([1, 2, 3])));
+/// ```
 Matcher producesSameAs<A>(Rill<A> expected) => _ProducesSameAs(expected);
+
+/// Matches a [Rill] that emits the same elements as [expected] in any order.
+///
+/// [expected] may be a Dart [Iterable] or a [RIterableOnce]. The [Rill] must
+/// succeed and contain exactly the same multiset of elements.
+///
+/// ```dart
+/// expect(Rill.emits([3, 1, 2]), producesUnordered([1, 2, 3]));
+/// ```
 Matcher producesUnordered(Object expected) => _ProducesUnordered(expected);
 
 class _ProducesError extends AsyncMatcher {

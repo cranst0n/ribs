@@ -4,7 +4,13 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
+/// Interop extension for converting a [Rill] to a Dart [Stream].
 extension ToDartStreamOps<O> on Rill<O> {
+  /// Converts this [Rill] to a single-subscription Dart [Stream].
+  ///
+  /// The [Rill] runs when the stream is listened to and is cancelled when the
+  /// subscription is cancelled. Errors from the [Rill] are forwarded to the
+  /// stream's error channel.
   Stream<O> toDartStream() {
     late StreamController<O> controller;
     IOFiber<Unit>? activeFiber;

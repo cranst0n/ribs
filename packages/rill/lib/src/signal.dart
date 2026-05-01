@@ -2,7 +2,15 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
+/// A read-only view of a value that can be observed over time.
+///
+/// [continuous] polls repeatedly; [discrete] emits only when the value
+/// changes. The concrete implementation is [SignallingRef], which also
+/// implements [Ref] and can be written to.
 abstract class Signal<A> {
+  /// Returns a derived [Signal] that skips consecutive equal values.
+  ///
+  /// Uses `==` by default; supply [eq] for a custom equality check.
   Signal<A> changes({Function2<A, A, bool>? eq}) => _ChangesSignal(this, eq ?? (a, b) => a == b);
 
   /// Emits the current value repeatedly, regardless of whether it changed.
@@ -13,15 +21,23 @@ abstract class Signal<A> {
   /// updates are dropped. It guarantees you always get the *latest* value.
   Rill<A> get discrete;
 
+  /// Returns the current value paired with a [Rill] of future changes.
+  ///
+  /// The returned [Resource] ensures that the subscription is active before the
+  /// caller reads the current value, preventing missed updates.
   Resource<(A, Rill<A>)> getAndDiscreteUpdates() =>
       discrete.pull.uncons1.flatMap(Pull.outputOption1).rillNoScope.compile.resource.onlyOrError;
 
+  /// Returns the current value of the signal.
   IO<A> value();
 
+  /// Blocks until the signal's value satisfies [p].
   IO<Unit> waitUntil(Function1<A, bool> p) => discrete.forall((a) => !p(a)).compile.drain;
 }
 
+/// Functor operations for [Signal].
 extension SignalMapOps<A> on Signal<A> {
+  /// Returns a derived [Signal] whose value is [f] applied to this signal's value.
   Signal<B> map<B>(Function1<A, B> f) => _MappedSignal(this, f);
 }
 
@@ -61,7 +77,12 @@ class _MappedSignal<A, B> extends Signal<B> {
       outer.getAndDiscreteUpdates().mapN((a, updates) => (f(a), updates.map(f)));
 }
 
+/// A mutable, observable reference — a [Ref] that also acts as a [Signal].
+///
+/// Writes via [Ref] methods (e.g. [setValue], [update]) immediately notify all
+/// [discrete] subscribers. [continuous] polls the current value without waiting.
 abstract class SignallingRef<A> implements Ref<A>, Signal<A> {
+  /// Creates a [SignallingRef] with the given [initial] value.
   static IO<SignallingRef<A>> of<A>(A initial) => Ref.of(
     _State<A>(initial, 0, imap({})),
   ).product(Ref.of(1)).mapN((state, ids) => _SignallingRefImpl(state, ids));

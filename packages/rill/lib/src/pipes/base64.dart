@@ -2,6 +2,16 @@ import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
+/// Pipes for base64 encoding and decoding.
+///
+/// Obtained via [Pipes.base64] or `Base64Pipes()`. All operations are
+/// streaming — large inputs are processed chunk-by-chunk without buffering
+/// the entire input in memory.
+///
+/// ```dart
+/// final encoded = Rill.emits(['SGVsbG8='])
+///     .through(Pipes.base64.decode);
+/// ```
 final class Base64Pipes {
   static final Base64Pipes _singleton = Base64Pipes._();
 
@@ -9,9 +19,13 @@ final class Base64Pipes {
 
   Base64Pipes._();
 
+  /// Decodes base64-encoded strings to raw bytes using the standard alphabet.
   Pipe<String, int> get decode => decodeWithAlphabet(Alphabets.base64);
+
+  /// Encodes raw bytes to base64 strings using the standard alphabet.
   Pipe<int, String> get encode => encodeWithAlphabet(Alphabets.base64);
 
+  /// Decodes base64-encoded strings to raw bytes using [alphabet].
   Pipe<String, int> decodeWithAlphabet(Base64Alphabet alphabet) {
     const paddingError =
         'Malformed padding - final quantum may optionally be padded with one or two padding characters such that the quantum is completed';
@@ -122,6 +136,7 @@ final class Base64Pipes {
     return (rill) => go(_State(0, 0, 0), rill).rillNoScope;
   }
 
+  /// Encodes raw bytes to base64 strings using [alphabet].
   Pipe<int, String> encodeWithAlphabet(Base64Alphabet alphabet) {
     (String, ByteVector) encode(ByteVector c) {
       final bytes = c.toByteArray();

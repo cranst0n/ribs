@@ -1,7 +1,12 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
+/// Operations on a [Rill] of [Either] values.
 extension RethrowOps<A> on Rill<Either<Object, A>> {
+  /// Unwraps [Right] values and raises the first [Left] value as an error.
+  ///
+  /// Elements before the first [Left] are emitted normally; everything after
+  /// is discarded once the error is raised.
   Rill<A> get rethrowError {
     return chunks().flatMap((c) {
       Option<Object> errOpt = none();

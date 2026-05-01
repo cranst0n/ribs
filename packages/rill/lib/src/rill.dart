@@ -12,8 +12,36 @@ part 'compiler.dart';
 part 'pull.dart';
 part 'to_pull.dart';
 
+/// A function that transforms a [Rill<I>] into a [Rill<O>].
+///
+/// Pipes are plain functions and compose with [Rill.through]:
+/// ```dart
+/// Pipe<int, String> stringify = (s) => s.map((n) => n.toString());
+/// source.through(stringify);
+/// ```
 typedef Pipe<I, O> = Function1<Rill<I>, Rill<O>>;
 
+/// A lazy, effectful, chunked stream of values of type [O].
+///
+/// Every [Rill] is backed by a [Pull<O, Unit>]. Operations are lazy — nothing
+/// executes until a compile terminal (e.g. [compile.drain]) is called.
+/// Elements are delivered in [Chunk]s for efficiency; most operators are
+/// chunk-transparent.
+///
+/// ## Creating a Rill
+/// ```dart
+/// Rill.emit(42)                  // single element
+/// Rill.emits([1, 2, 3])          // multiple elements
+/// Rill.eval(someIO)              // effectful single element
+/// Rill.repeatEval(IO.now)        // infinite effectful stream
+/// Channel.bounded<int>(16).map((ch) => ch.rill)  // from a Channel
+/// ```
+///
+/// ## Running a Rill
+/// ```dart
+/// await rill.compile.drain.run();
+/// await rill.compile.toIList.run();
+/// ```
 class Rill<O> {
   final Pull<O, Unit> underlying;
 
@@ -23,6 +51,10 @@ class Rill<O> {
 
   Rill._(this.underlying);
 
+  /// Emits the elapsed time since stream subscription at a fixed [period].
+  ///
+  /// When [dampen] is `true` (default), missed ticks due to slow consumers are
+  /// coalesced into a single emission; set to `false` to emit all missed ticks.
   static Rill<Duration> awakeEvery(Duration period, {bool dampen = true}) {
     return Rill.eval(IO.now).flatMap((start) {
       return _fixedRate(
@@ -33,40 +65,62 @@ class Rill<O> {
     });
   }
 
+  /// Emits the acquired resource [R] and releases it via [release] when the
+  /// stream's scope closes.
   static Rill<R> bracket<R>(IO<R> acquire, Function1<R, IO<Unit>> release) =>
       bracketFull((_) => acquire, (r, _) => release(r));
 
+  /// Like [bracket] but [release] receives the [ExitCase] (succeeded, errored,
+  /// or canceled) so it can react accordingly.
   static Rill<R> bracketCase<R>(IO<R> acquire, Function2<R, ExitCase, IO<Unit>> release) =>
       bracketFull((_) => acquire, release);
 
+  /// Fully general resource bracket: [acquire] is cancelable (via [Poll]) and
+  /// [release] receives the [ExitCase].
   static Rill<R> bracketFull<R>(
     Function1<Poll, IO<R>> acquire,
     Function2<R, ExitCase, IO<Unit>> release,
   ) => Pull.acquireCancelable(acquire, release).flatMap(Pull.output1).rillNoScope;
 
+  /// Emits a single pre-built [Chunk].
   static Rill<O> chunk<O>(Chunk<O> values) => Pull.output(values).rillNoScope;
 
+  /// Infinite stream that repeats [o] forever, emitting [chunkSize] copies per chunk.
   static Rill<O> constant<O>(O o, {int chunkSize = 256}) =>
       chunkSize > 0 ? chunk(Chunk.fill(chunkSize, o)).repeat() : Rill.empty();
 
+  /// Emits the elapsed time since subscription, polling on every element.
   static Rill<Duration> duration() =>
       Rill.eval(IO.now).flatMap((t0) => Rill.repeatEval(IO.now.map((now) => now.difference(t0))));
 
+  /// Emits a single [value] and terminates.
   static Rill<O> emit<O>(O value) => Pull.output1(value).rillNoScope;
 
+  /// Emits all elements of [values] in order and terminates.
   static Rill<O> emits<O>(List<O> values) => Rill.chunk(Chunk.fromList(values));
 
+  /// Evaluates [io] once and emits its result.
   static Rill<O> eval<O>(IO<O> io) => Pull.eval(io).flatMap(Pull.output1).rillNoScope;
 
+  /// Evaluates [io] for its side effect and emits no elements.
   static Rill<O> exec<O>(IO<Unit> io) => Rill._noScope(Pull.eval(io).flatMap((_) => Pull.done));
 
+  /// An empty stream that terminates immediately without emitting any elements.
   static Rill<O> empty<O>() => Rill._noScope(Pull.done);
 
+  /// Emits [Unit] repeatedly, waiting [period] after each emission.
+  ///
+  /// Unlike [fixedRate], the interval is measured from the end of the previous
+  /// emission, so each tick fires at least [period] after the last.
   static Rill<Unit> fixedDelay(Duration period) => sleep(period).repeat();
 
+  /// Emits [Unit] at a fixed rate, attempting to maintain the cadence even if
+  /// a consumer is slow. When [dampen] is `true`, missed ticks are collapsed.
   static Rill<Unit> fixedRate(Duration period, {bool dampen = true}) =>
       Rill.eval(IO.now).flatMap((t) => _fixedRate(period, t, dampen));
 
+  /// Like [fixedRate] but emits immediately on subscription before waiting for
+  /// the first interval.
   static Rill<Unit> fixedRateStartImmediately(Duration period, {bool dampen = true}) =>
       Rill.eval(IO.now).flatMap((t) => Rill.unit.append(() => _fixedRate(period, t, dampen)));
 
@@ -100,17 +154,26 @@ class Rill<O> {
     }
   }
 
+  /// Evaluates [io] to obtain a [Rill] and then runs it.
   static Rill<O> force<O>(IO<Rill<O>> io) => Rill.eval(io).flatMap(identity);
 
+  /// Emits the right value of [either], or raises the left value as an error.
   static Rill<O> fromEither<E extends Object, O>(Either<E, O> either) =>
       either.fold((err) => Rill.raiseError(err), (o) => Rill.emit(o));
 
+  /// Drains a Dart [Iterator] into a stream, batching elements into chunks of
+  /// [chunkSize].
   static Rill<O> fromIterator<O>(Iterator<O> it, {int chunkSize = 64}) =>
       fromRIterator(RIterator.fromDart(it), chunkSize: chunkSize);
 
+  /// Emits the value inside [option], or produces an empty stream for [none].
   static Rill<O> fromOption<E extends Object, O>(Option<O> option) =>
       option.fold(() => Rill.empty(), (o) => Rill.emit(o));
 
+  /// Consumes [queue] indefinitely, emitting each dequeued value.
+  ///
+  /// The stream never terminates on its own; cancel it externally. The optional
+  /// [limit] caps the maximum number of elements batched per chunk.
   static Rill<O> fromQueueUnterminated<O>(
     Queue<O> queue, {
     int? limit,
@@ -142,6 +205,7 @@ class Rill<O> {
     }
   }
 
+  /// Like [fromQueueUnterminated] but reads pre-chunked values from [queue].
   static Rill<O> fromQueueUnterminatedChunk<O>(
     Queue<Chunk<O>> queue, {
     int? limit,
@@ -151,11 +215,13 @@ class Rill<O> {
     limit: limit,
   );
 
+  /// Consumes [queue] until a [none] sentinel is dequeued, then terminates.
   static Rill<O> fromQueueNoneUnterminated<O>(
     Queue<Option<O>> queue, {
     int? limit,
   }) => _awaitNoneTerminated(queue, limit ?? Integer.maxValue);
 
+  /// Like [fromQueueNoneUnterminated] but reads pre-chunked values.
   static Rill<O> fromQueueNoneUnterminatedChunk<O>(
     Queue<Option<Chunk<O>>> queue, {
     int? limit,
@@ -234,6 +300,8 @@ class Rill<O> {
     }
   }
 
+  /// Drains an [RIterator] into a stream, batching elements into chunks of
+  /// [chunkSize].
   static Rill<O> fromRIterator<O>(RIterator<O> it, {int chunkSize = 64}) {
     assert(chunkSize > 0, 'Rill.fromRIterator: chunkSize must be positive');
     IO<Option<(Chunk<O>, RIterator<O>)>> getNextChunk(RIterator<O> i) {
@@ -253,6 +321,10 @@ class Rill<O> {
     return Rill.unfoldChunkEval(it, getNextChunk);
   }
 
+  /// Bridges a Dart [Stream] into a [Rill].
+  ///
+  /// Events are buffered according to [strategy] (default: drop oldest, buffer
+  /// size 100). The subscription is cancelled when the [Rill]'s scope closes.
   static Rill<O> fromStream<O>(
     Stream<O> stream, {
     OverflowStrategy strategy = const _DropOldest(100),
@@ -291,6 +363,8 @@ class Rill<O> {
     });
   }
 
+  /// Infinite stream starting at [start] and applying [f] to produce each
+  /// subsequent element, emitting [chunkSize] elements per chunk.
   static Rill<O> iterate<O>(
     O start,
     Function1<O, O> f, {
@@ -313,16 +387,22 @@ class Rill<O> {
     return loop(start).rillNoScope;
   }
 
+  /// Like [iterate] but [f] returns an [IO] evaluated for each step.
   static Rill<O> iterateEval<O>(O start, Function1<O, IO<O>> f) =>
       Rill.emit(start).append(() => Rill.eval(f(start)).flatMap((o) => iterateEval(o, f)));
 
+  /// A stream that never emits and never terminates.
   static final Rill<Never> never = Rill.eval(IO.never());
 
+  /// Emits a single [value] without introducing a new scope. Alias for [emit].
   static Rill<O> pure<O>(O value) => Rill._noScope(Pull.output1(value));
 
+  /// A stream that immediately fails with [error].
   static Rill<O> raiseError<O>(Object error, [StackTrace? stackTrace]) =>
       Pull.raiseError(error, stackTrace).rillNoScope;
 
+  /// Emits integers from [start] (inclusive) to [stopExclusive] (exclusive)
+  /// with a configurable [step] (may be negative) and [chunkSize].
   static Rill<int> range(
     int start,
     int stopExclusive, {
@@ -358,8 +438,13 @@ class Rill<O> {
     }
   }
 
+  /// Evaluates [fo] repeatedly and emits each result, running forever.
   static Rill<O> repeatEval<O>(IO<O> fo) => Rill.eval(fo).repeat();
 
+  /// Runs a [Resource] as a single-element stream.
+  ///
+  /// The resource is acquired when the stream starts and released when the
+  /// stream's scope closes.
   static Rill<O> resource<O>(Resource<O> r) {
     return switch (r) {
       Pure(:final value) => Rill.emit(value),
@@ -373,6 +458,11 @@ class Rill<O> {
     }.scope;
   }
 
+  /// Retries [fo] up to [maxAttempts] times with exponentially-growing delays.
+  ///
+  /// [nextDelay] maps the current delay to the next one. An optional [retriable]
+  /// predicate determines which errors should trigger a retry (defaults to all).
+  /// Raises the last error if all attempts are exhausted.
   static Rill<O> retry<O>(
     IO<O> fo,
     Duration delay,
@@ -392,15 +482,25 @@ class Rill<O> {
         .rethrowError;
   }
 
+  /// Emits [Unit] after [duration] has elapsed.
   static Rill<Unit> sleep(Duration duration) => Rill.eval(IO.sleep(duration));
 
+  /// Waits [duration] and emits no elements (useful for delaying concatenated streams).
   static Rill<O> sleep_<O>(Duration duration) => Rill.exec(IO.sleep(duration));
 
+  /// Starts [fo] as a background fiber and emits the resulting [IOFiber].
+  ///
+  /// The fiber is cancelled when the stream's scope closes.
   static Rill<IOFiber<O>> supervise<O>(IO<O> fo) =>
       Rill.bracket(fo.start(), (fiber) => fiber.cancel());
 
+  /// Defers construction of the stream until it is first run.
   static Rill<O> suspend<O>(Function0<Rill<O>> f) => Pull.suspend(() => f().underlying).rillNoScope;
 
+  /// Generates a stream by repeatedly applying [f] to a state [s].
+  ///
+  /// [f] returns [Some((element, nextState))] to continue or [none] to end the
+  /// stream. Elements are batched into chunks of [chunkSize].
   static Rill<O> unfold<S, O>(
     S s,
     Function1<S, Option<(O, S)>> f, {
@@ -439,12 +539,15 @@ class Rill<O> {
     return loop(s).rillNoScope;
   }
 
+  /// Like [unfold] but [f] returns a whole [Chunk] per step rather than a
+  /// single element.
   static Rill<O> unfoldChunk<S, O>(
     S s,
     Function1<S, Option<(Chunk<O>, S)>> f, {
     int chunkSize = 64,
   }) => unfold(s, f, chunkSize: chunkSize).flatMap(Rill.chunk);
 
+  /// Like [unfold] but each step evaluates an [IO] for the next state and element.
   static Rill<O> unfoldEval<S, O>(S s, Function1<S, IO<Option<(O, S)>>> f) {
     Pull<O, Unit> loop(S currentState) {
       return Pull.eval(f(currentState)).flatMap((opt) {
@@ -458,6 +561,7 @@ class Rill<O> {
     return loop(s).rillNoScope;
   }
 
+  /// Like [unfoldEval] but each step produces a [Chunk].
   static Rill<O> unfoldChunkEval<S, O>(S s, Function1<S, IO<Option<(Chunk<O>, S)>>> f) {
     Pull<O, Unit> loop(S currentState) {
       return Pull.eval(f(currentState)).flatMap((opt) {
@@ -471,23 +575,35 @@ class Rill<O> {
     return loop(s).rillNoScope;
   }
 
+  /// A pre-allocated single-element stream emitting [Unit].
   static final Rill<Unit> unit = Pull.outUnit.rillNoScope;
 
+  /// Concatenates this stream with [other]. Alias for [append].
   Rill<O> operator +(Rill<O> other) => underlying.flatMap((_) => other.underlying).rillNoScope;
 
+  /// Appends a [sleep_] of [duration] after this stream ends, then terminates.
   Rill<O> andWait(Duration duration) => append(() => Rill.sleep_<O>(duration));
 
+  /// Runs this stream to completion, then runs [s2].
   Rill<O> append(Function0<Rill<O>> s2) => underlying.append(() => s2().underlying).rillNoScope;
 
+  /// Replaces every element with [o2].
   Rill<O2> as<O2>(O2 o2) => map((_) => o2);
 
+  /// Wraps each element in [Right] and errors in [Left], so errors become
+  /// values and the stream never fails.
   Rill<Either<Object, O>> attempt() =>
       map((o) => o.asRight<Object>()).handleErrorWith((err) => Rill.emit(Left<Object, O>(err)));
 
+  /// Like [attempt] but retries on failure using the delays from [delays].
   Rill<Either<Object, O>> attempts(Rill<Duration> delays) => attempt().append(
     () => delays.flatMap((delay) => Rill.sleep(delay).flatMap((_) => attempt())),
   );
 
+  /// Fans this stream out to all [pipes] simultaneously and merges their outputs.
+  ///
+  /// Each pipe receives every element. The stream is buffered through a [Topic]
+  /// so all subscribers start at the same element.
   Rill<O2> broadcastThrough<O2>(IList<Pipe<O, O2>> pipes) {
     final rillF = (
       Topic.create<Chunk<O>>(),
@@ -511,6 +627,7 @@ class Rill<O> {
     return Rill.force(rillF);
   }
 
+  /// Re-chunks the stream so each chunk has at most [n] elements.
   Rill<O> buffer(int n) {
     if (n <= 0) {
       return this;
@@ -526,12 +643,18 @@ class Rill<O> {
     }
   }
 
+  /// Emits only elements that differ from the previous element (using `==`
+  /// by default, or a custom [eq]).
   Rill<O> changes({Function2<O, O, bool>? eq}) => filterWithPrevious(eq ?? (a, b) => a != b);
 
+  /// Like [changes] but compares by a key extracted with [f].
   Rill<O> changesBy<O2>(Function1<O, O2> f) => filterWithPrevious((a, b) => f(a) != f(b));
 
+  /// Like [changes] but uses a custom two-argument predicate [f] to decide
+  /// whether consecutive elements differ.
   Rill<O> changesWith(Function2<O, O, bool> f) => filterWithPrevious((a, b) => f(a, b));
 
+  /// Collects the entire stream into a single emitted [Chunk].
   Rill<Chunk<O>> chunkAll() {
     Pull<Chunk<O>, Unit> loop(Rill<O> s, Chunk<O> acc) {
       return s.pull.uncons.flatMap((hdtl) {
@@ -545,8 +668,10 @@ class Rill<O> {
     return loop(this, Chunk.empty()).rillNoScope;
   }
 
+  /// Re-emits this stream as a stream of its underlying [Chunk]s.
   Rill<Chunk<O>> chunks() => underlying.unconsFlatMap(Pull.output1).rillNoScope;
 
+  /// Splits any chunk larger than [n] elements into chunks of at most [n].
   Rill<Chunk<O>> chunkLimit(int n) {
     Pull<Chunk<O>, Unit> breakup(Chunk<O> ch) {
       if (ch.size <= n) {
@@ -560,6 +685,10 @@ class Rill<O> {
     return underlying.unconsFlatMap(breakup).rillNoScope;
   }
 
+  /// Merges consecutive chunks until the accumulated size is at least [n].
+  ///
+  /// If the stream ends before [n] elements are available and
+  /// [allowFewerTotal] is `true`, the partial chunk is emitted.
   Rill<Chunk<O>> chunkMin(int n, {bool allowFewerTotal = true}) => repeatPull((p) {
     return p.unconsMin(n, allowFewerTotal: allowFewerTotal).flatMap((hdtl) {
       return hdtl.foldN(
@@ -569,6 +698,10 @@ class Rill<O> {
     });
   });
 
+  /// Groups elements into chunks of exactly [n] elements.
+  ///
+  /// If [allowFewer] is `true` (default), the last chunk may be smaller when
+  /// the stream ends.
   Rill<Chunk<O>> chunkN(int n, {bool allowFewer = true}) {
     assert(n > 0, 'n must be positive');
     return repeatPull((tp) {
@@ -581,6 +714,11 @@ class Rill<O> {
     });
   }
 
+  /// Runs [that] concurrently as a background stream.
+  ///
+  /// Elements of [that] are discarded; it is run only for its side effects.
+  /// When this foreground stream ends, [that] is cancelled. If [that] fails,
+  /// the foreground stream is interrupted with the error.
   Rill<O> concurrently<O2>(Rill<O2> that) {
     return _concurrentlyAux(that).flatMapN((startBack, fore) => startBack.flatMap((_) => fore));
   }
@@ -617,17 +755,25 @@ class Rill<O> {
     return Rill.eval(frill);
   }
 
+  /// Prepends [c] to this stream.
   Rill<O> cons(Chunk<O> c) => c.isEmpty ? this : Rill.chunk(c).append(() => this);
 
+  /// Prepends a single element [o] to this stream.
   Rill<O> cons1(O o) => Rill.emit(o).append(() => this);
 
+  /// Applies [f] to each element, emitting only the [Some] results.
   Rill<O2> collect<O2>(Function1<O, Option<O2>> f) => mapChunks((c) => c.collect(f));
 
+  /// Emits only the first [Some] result of [f].
   Rill<O2> collectFirst<O2>(Function1<O, Option<O2>> f) => collect(f).take(1);
 
+  /// Emits [Some] results of [f] until [f] returns [none], then terminates.
   Rill<O2> collectWhile<O2>(Function1<O, Option<O2>> f) =>
       map(f).takeWhile((b) => b.isDefined).unNone;
 
+  /// Emits only the latest element after the stream has been quiet for [d].
+  ///
+  /// Intermediate elements that arrive within [d] of each other are dropped.
   Rill<O> debounce(Duration d) {
     final rillF = Channel.bounded<O>(1).flatMap((chan) {
       return IO.ref(none<O>()).map((ref) {
@@ -659,8 +805,10 @@ class Rill<O> {
     return Rill.force(rillF);
   }
 
+  /// Delays the start of this stream by [duration].
   Rill<O> delayBy(Duration duration) => Rill.sleep_<O>(duration).append(() => this);
 
+  /// Removes the first element for which [p] returns `true`.
   Rill<O> delete(Function1<O, bool> p) =>
       pull
           .takeWhile((o) => !p(o))
@@ -677,16 +825,21 @@ class Rill<O> {
     });
   }
 
+  /// Consumes all elements for their side effects and emits nothing.
   Rill<Never> drain() => underlying.unconsFlatMap((_) => Pull.done).rillNoScope;
 
+  /// Skips the first [n] elements and emits the rest.
   Rill<O> drop(int n) =>
       pull
           .drop(n)
           .flatMap((opt) => opt.fold(() => Pull.done, (rest) => rest.pull.echo))
           .rillNoScope;
 
+  /// Removes the last element from the stream.
   Rill<O> get dropLast => dropLastIf((_) => true);
 
+  /// Removes the last element if [p] returns `true` for it; otherwise
+  /// the stream is unchanged.
   Rill<O> dropLastIf(Function1<O, bool> p) {
     Pull<O, Unit> go(Chunk<O> last, Rill<O> s) {
       return s.pull.uncons.flatMap((hdtl) {
@@ -714,6 +867,7 @@ class Rill<O> {
     }).rillNoScope;
   }
 
+  /// Removes the last [n] elements from the stream, buffering as needed.
   Rill<O> dropRight(int n) {
     if (n <= 0) {
       return this;
@@ -734,21 +888,27 @@ class Rill<O> {
     }
   }
 
+  /// Drops elements while [p] is true and also drops the first element for
+  /// which [p] is false.
   Rill<O> dropThrough(Function1<O, bool> p) =>
       pull
           .dropThrough(p)
           .flatMap((tl) => tl.map((tl) => tl.pull.echo).getOrElse(() => Pull.done))
           .rillNoScope;
 
+  /// Drops elements while [p] is true, then emits the rest.
   Rill<O> dropWhile(Function1<O, bool> p) =>
       pull
           .dropWhile(p)
           .flatMap((tl) => tl.map((tl) => tl.pull.echo).getOrElse(() => Pull.done))
           .rillNoScope;
 
+  /// Merges this stream and [that] concurrently, wrapping elements in [Left]
+  /// and [Right] respectively.
   Rill<Either<O, O2>> either<O2>(Rill<O2> that) =>
       map((o) => o.asLeft<O2>()).merge(that.map((o2) => o2.asRight<O>()));
 
+  /// Keeps only elements for which the effectful predicate [p] returns `true`.
   Rill<O> evalFilter(Function1<O, IO<bool>> p) =>
       underlying
           .flatMapOutput(
@@ -756,9 +916,11 @@ class Rill<O> {
           )
           .rillNoScope;
 
+  /// Removes elements for which the effectful predicate [p] returns `true`.
   Rill<O> evalFilterNot(Function1<O, IO<bool>> p) =>
       flatMap((o) => Rill.eval(p(o)).ifM(() => Rill.empty(), () => Rill.emit(o)));
 
+  /// Effectful fold: runs [f] for each element and emits the final accumulator.
   Rill<O2> evalFold<O2>(O2 z, Function2<O2, O, IO<O2>> f) {
     Pull<O2, Unit> go(O2 z, Rill<O> r) {
       return r.pull.uncons1.flatMap((hdtl) {
@@ -772,14 +934,17 @@ class Rill<O> {
     return go(z, this).rillNoScope;
   }
 
+  /// Transforms each element by evaluating the effectful function [f].
   Rill<O2> evalMap<O2>(Function1<O, IO<O2>> f) =>
       underlying.flatMapOutput((o) => Pull.eval(f(o)).flatMap(Pull.output1)).rillNoScope;
 
+  /// Effectful filter-map: evaluates [f] and emits [Some] results, dropping [none].
   Rill<O> evalMapFilter(Function1<O, IO<Option<O>>> f) =>
       underlying
           .flatMapOutput((o) => Pull.eval(f(o)).flatMap((opt) => Pull.outputOption1(opt)))
           .rillNoScope;
 
+  /// Like [scan] but the accumulation function [f] returns an [IO].
   Rill<O2> evalScan<O2>(O2 z, Function2<O2, O, IO<O2>> f) {
     Pull<O2, Unit> go(O2 z, Rill<O> s) {
       return s.pull.uncons1.flatMap((hdtl) {
@@ -793,16 +958,23 @@ class Rill<O> {
     return Pull.output1(z).append(() => go(z, this)).rillNoScope;
   }
 
+  /// Evaluates [f] for its side effect on each element, re-emitting the
+  /// original element unchanged.
   Rill<O> evalTap<O2>(Function1<O, IO<O2>> f) =>
       underlying.flatMapOutput((o) => Pull.eval(f(o)).flatMap((_) => Pull.output1(o))).rillNoScope;
 
+  /// Emits `true` if any element satisfies [p], otherwise emits `false`.
   Rill<bool> exists(Function1<O, bool> p) =>
       pull.forall((o) => !p(o)).flatMap((r) => Pull.output1(!r)).rillNoScope;
 
+  /// Emits only elements for which [p] returns `true`.
   Rill<O> filter(Function1<O, bool> p) => mapChunks((c) => c.filter(p));
 
+  /// Emits only elements for which [p] returns `false`.
   Rill<O> filterNot(Function1<O, bool> p) => mapChunks((c) => c.filterNot(p));
 
+  /// Emits an element only if [p] returns `true` for the previous and current
+  /// element. The very first element is always emitted.
   Rill<O> filterWithPrevious(Function2<O, O, bool> p) {
     Pull<O, Unit> go(O last, Rill<O> s) {
       return s.pull.uncons.flatMap((hdtl) {
@@ -841,24 +1013,32 @@ class Rill<O> {
     }).rillNoScope;
   }
 
+  /// Maps each element to a stream via [f] and concatenates the results.
   Rill<O2> flatMap<O2>(Function1<O, Rill<O2>> f) =>
       underlying.flatMapOutput((o) => f(o).underlying).rillNoScope;
 
+  /// Folds the stream into a single value, emitting it when the stream ends.
   Rill<O2> fold<O2>(O2 z, Function2<O2, O, O2> f) =>
       pull.fold(z, f).flatMap(Pull.output1).rillNoScope;
 
+  /// Like [fold] but uses the first element as the initial accumulator.
   Rill<O> fold1(Function2<O, O, O> f) =>
       pull.fold1(f).flatMap((opt) => opt.map(Pull.output1).getOrElse(() => Pull.done)).rillNoScope;
 
+  /// Emits `true` if all elements satisfy [p], otherwise emits `false`.
   Rill<bool> forall(Function1<O, bool> p) =>
       pull.forall(p).flatMap((res) => Pull.output1(res)).rillNoScope;
 
+  /// Evaluates [f] for each element as a side effect and emits nothing.
   Rill<Never> foreach(Function1<O, IO<Unit>> f) =>
       underlying.flatMapOutput((o) => Pull.eval(f(o))).rillNoScope;
 
+  /// Groups consecutive elements that share the same key (returned by [f])
+  /// into `(key, chunk)` pairs, emitting one pair per run of equal keys.
   Rill<(O2, Chunk<O>)> groupAdjacentBy<O2>(Function1<O, O2> f) =>
       groupAdjacentByLimit(Integer.maxValue, f);
 
+  /// Like [groupAdjacentBy] but caps each group at [limit] elements.
   Rill<(O2, Chunk<O>)> groupAdjacentByLimit<O2>(int limit, Function1<O, O2> f) {
     Pull<(O2, Chunk<O>), Unit> go(Option<(O2, Chunk<O>)> current, Rill<O> s) {
       Pull<(O2, Chunk<O>), Unit> doChunk(
@@ -927,6 +1107,9 @@ class Rill<O> {
     return go(none(), this).rillNoScope;
   }
 
+  /// Accumulates elements into chunks, emitting whenever [chunkSize] is reached
+  /// or [timeout] has elapsed since the first buffered element — whichever
+  /// comes first.
   Rill<Chunk<O>> groupWithin(int chunkSize, Duration timeout) {
     if (chunkSize <= 0) throw ArgumentError('Rill.groupWithin: chunkSize must be > 0');
 
@@ -1007,15 +1190,22 @@ class Rill<O> {
     });
   }
 
+  /// Recovers from any error by switching to the stream returned by [f].
   Rill<O> handleErrorWith(Function1<Object, Rill<O>> f) =>
       underlying.handleErrorWith((err) => f(err).underlying).rillNoScope;
 
+  /// Emits at most the first element, then terminates.
   Rill<O> get head => take(1);
 
+  /// Creates a [Signal] that holds the latest element emitted by this stream.
+  ///
+  /// The signal starts with [initial] and is updated in the background. The
+  /// [Resource] ensures the background fiber is cancelled on release.
   Resource<Signal<O>> holdResource(O initial) => Resource.eval(
     SignallingRef.of(initial),
   ).flatTap((sig) => foreach((n) => sig.setValue(n)).compile.drain.background());
 
+  /// Runs [fallback] if this stream emits no elements.
   Rill<O> ifEmpty(Function0<Rill<O>> fallback) =>
       pull.uncons.flatMap((hdtl) {
         return hdtl.foldN(
@@ -1024,10 +1214,14 @@ class Rill<O> {
         );
       }).rillNoScope;
 
+  /// Emits the value produced by [o] if this stream is empty.
   Rill<O> ifEmptyEmit(Function0<O> o) => ifEmpty(() => Rill.emit(o()));
 
+  /// Alternates elements from this stream and [that], stopping when either ends.
   Rill<O> interleave(Rill<O> that) => zip(that).flatMap((t) => Rill.emits([t.$1, t.$2]));
 
+  /// Like [interleave] but continues with the longer stream after the shorter ends,
+  /// treating missing elements as absent.
   Rill<O> interleaveAll(Rill<O> that) => map(
     (o) => Option(o),
   ).zipAll<Option<O>>(that.map((o) => Option(o)), none(), none()).flatMap((t) {
@@ -1035,6 +1229,7 @@ class Rill<O> {
     return Rill.chunk(Chunk.from(thisOpt)).append(() => Rill.chunk(Chunk.from(thatOpt)));
   });
 
+  /// Inserts [separator] between every pair of adjacent elements.
   Rill<O> intersperse(O separator) {
     Chunk<O> doChunk(Chunk<O> hd, bool isFirst) {
       final bldr = <O>[];
@@ -1068,8 +1263,11 @@ class Rill<O> {
     }).rillNoScope;
   }
 
+  /// Cancels the stream after [duration] has elapsed. Alias for
+  /// `interruptWhen(IO.sleep(duration))`.
   Rill<O> interruptAfter(Duration duration) => interruptWhen(IO.sleep(duration));
 
+  /// Cancels this stream when [signal] completes (regardless of its result).
   Rill<O> interruptWhen<B>(IO<B> signal) {
     return Rill.eval(IO.deferred<Unit>()).flatMap((stopEvent) {
       final startSignalFiber = signal.attempt().flatMap((_) => stopEvent.complete(Unit())).start();
@@ -1081,8 +1279,10 @@ class Rill<O> {
     });
   }
 
+  /// Cancels this stream when [signal]'s value becomes `true`.
   Rill<O> interruptWhenSignaled(Signal<bool> signal) => interruptWhenTrue(signal.discrete);
 
+  /// Cancels this stream when [haltWhenTrue] emits `true`.
   Rill<O> interruptWhenTrue(Rill<bool> haltWhenTrue) {
     final rillF = (
       IO.deferred<Unit>(),
@@ -1119,6 +1319,8 @@ class Rill<O> {
     return Rill.force(rillF);
   }
 
+  /// Emits a [heartbeat] value whenever no element has been received for
+  /// [maxIdle], keeping the consumer from timing out.
   Rill<O> keepAlive(Duration maxIdle, IO<O> heartbeat) {
     return Rill.eval(Queue.unbounded<Option<Chunk<O>>>()).flatMap((queue) {
       final producer = chunks()
@@ -1150,16 +1352,21 @@ class Rill<O> {
     });
   }
 
+  /// Emits the last element wrapped in [Some], or [none] if the stream is empty.
   Rill<Option<O>> get last => pull.last.flatMap(Pull.output1).rillNoScope;
 
+  /// Emits the last element, or the value from [fallback] if the stream is empty.
   Rill<O> lastOr(Function0<O> fallback) =>
       pull.last
           .flatMap((o) => o.fold(() => Pull.output1(fallback()), (o) => Pull.output1(o)))
           .rillNoScope;
 
+  /// Transforms each element by applying [f].
   Rill<O2> map<O2>(Function1<O, O2> f) =>
       pull.echo.unconsFlatMap((hd) => Pull.output(hd.map(f))).rillNoScope;
 
+  /// Stateful map: threads a state [S] through the stream, emitting `(state, output)`
+  /// pairs.
   Rill<(S, O2)> mapAccumulate<S, O2>(S initial, Function2<S, O, (S, O2)> f) {
     (S, (S, O2)) go(S s, O a) {
       final (newS, newO) = f(s, a);
@@ -1176,13 +1383,24 @@ class Rill<O> {
   Rill<O2> mapAsyncUnordered<O2>(int maxConcurrent, Function1<O, IO<O2>> f) =>
       parEvalMapUnordered(maxConcurrent, f);
 
+  /// Transforms each underlying [Chunk] directly.
+  ///
+  /// More efficient than [map] when [f] can be applied to an entire chunk at
+  /// once (e.g. [Chunk.map] or [Chunk.filter]).
   Rill<O2> mapChunks<O2>(Function1<Chunk<O>, Chunk<O2>> f) =>
       underlying.unconsFlatMap((hd) => Pull.output(f(hd))).rillNoScope;
 
+  /// Suppresses all errors, turning a failed stream into an empty one.
   Rill<O> get mask => handleErrorWith((_) => Rill.empty());
 
+  /// Merges this stream and [that] concurrently, emitting elements from
+  /// whichever side produces first.
+  ///
+  /// The merged stream terminates when both sides have completed.
   Rill<O> merge(Rill<O> that) => _merge(that, (s, fin) => Rill.exec<O>(fin).append(() => s));
 
+  /// Like [merge] but waits for the downstream consumer to finish processing
+  /// each chunk before releasing resources.
   Rill<O> mergeAndAwaitDownstream(Rill<O> that) => _merge(that, (s, fin) => s.onFinalize(fin));
 
   Rill<O> _merge(
@@ -1261,29 +1479,42 @@ class Rill<O> {
     return Rill.force(rillF);
   }
 
+  /// Merges this stream and [that], terminating as soon as either side ends.
   Rill<O> mergeHaltBoth(Rill<O> that) =>
       noneTerminate().merge(that.noneTerminate()).unNoneTerminate;
 
+  /// Merges this stream and [that], terminating when this (left) stream ends.
   Rill<O> mergeHaltL(Rill<O> that) =>
       noneTerminate().merge(that.map((o) => Option(o))).unNoneTerminate;
 
+  /// Merges this stream and [that], terminating when [that] (right) stream ends.
   Rill<O> mergeHaltR(Rill<O> that) => that.mergeHaltL(this);
 
+  /// Throttles this stream to emit at most one element per [rate].
   Rill<O> metered(Duration rate) => Rill.fixedRate(rate).zipRight(this);
 
+  /// Like [metered] but emits the first element immediately.
   Rill<O> meteredStartImmediately(Duration rate) =>
       Rill.fixedRateStartImmediately(rate).zipRight(this);
 
+  /// Wraps each element in [Some] and appends a terminal [none] sentinel.
   Rill<Option<O>> noneTerminate() => map((o) => Option(o)).append(() => Rill.emit(none()));
 
+  /// Runs [s2] after this stream ends, whether it succeeded or errored.
   Rill<O> onComplete(Function0<Rill<O>> s2) =>
       handleErrorWith((e) => s2().append(() => Pull.fail(e).rillNoScope)).append(() => s2());
 
+  /// Runs [finalizer] when this stream's scope closes (success, error, or cancel).
   Rill<O> onFinalize(IO<Unit> finalizer) => onFinalizeCase((_) => finalizer);
 
+  /// Like [onFinalize] but [finalizer] receives the [ExitCase].
   Rill<O> onFinalizeCase(Function1<ExitCase, IO<Unit>> finalizer) =>
       Rill.bracketCase(IO.unit, (_, ec) => finalizer(ec)).flatMap((_) => this);
 
+  /// Maps elements concurrently via [f], preserving output order.
+  ///
+  /// At most [maxConcurrent] evaluations run simultaneously. Use
+  /// [parEvalMapUnordered] if order does not matter.
   Rill<O2> parEvalMap<O2>(int maxConcurrent, Function1<O, IO<O2>> f) {
     if (maxConcurrent == 1) {
       return evalMap(f);
@@ -1298,9 +1529,12 @@ class Rill<O> {
     }
   }
 
+  /// Like [parEvalMap] with no concurrency limit (unbounded parallelism).
   Rill<O2> parEvalMapUnbounded<O2>(Function1<O, IO<O2>> f) =>
       _parEvalMapImpl(Integer.maxValue, Channel.unbounded(), true, f);
 
+  /// Like [parEvalMap] but emits results as soon as they are ready, without
+  /// preserving input order.
   Rill<O2> parEvalMapUnordered<O2>(int maxConcurrent, Function1<O, IO<O2>> f) {
     if (maxConcurrent == 1) {
       return evalMap(f);
@@ -1315,6 +1549,7 @@ class Rill<O> {
     }
   }
 
+  /// Like [parEvalMapUnordered] with no concurrency limit.
   Rill<O2> parEvalMapUnorderedUnbounded<O2>(Function1<O, IO<O2>> f) =>
       _parEvalMapImpl(Integer.maxValue, Channel.unbounded(), false, f);
 
@@ -1412,6 +1647,8 @@ class Rill<O> {
     return Rill.force(action);
   }
 
+  /// Pauses emission whenever [pauseWhenTrue] emits `true` and resumes when
+  /// it emits `false`.
   Rill<O> pauseWhen(Rill<bool> pauseWhenTrue) {
     return Rill.eval(SignallingRef.of(false)).flatMap((pauseSignal) {
       return pauseWhenSignal(
@@ -1420,6 +1657,7 @@ class Rill<O> {
     });
   }
 
+  /// Like [pauseWhen] but driven by a [Signal] rather than a [Rill].
   Rill<O> pauseWhenSignal(Signal<bool> pauseWhneTrue) {
     final waitToResume = pauseWhneTrue.waitUntil((x) => !x);
     final pauseIfNeeded = Rill.exec<O>(
@@ -1436,6 +1674,9 @@ class Rill<O> {
   /// Access the Pull API for this Rill.
   ToPull<O> get pull => ToPull(this);
 
+  /// Randomly re-sizes chunks by a factor between [minFactor] and [maxFactor].
+  ///
+  /// Useful for testing that consumers handle arbitrary chunk boundaries.
   Rill<O> rechunkRandomly({double minFactor = 0.1, double maxFactor = 2.0, int? seed}) {
     if (minFactor <= 0 || maxFactor < minFactor) {
       throw ArgumentError('Invalid rechunk factors. Ensure 0 < minFactor <= maxFactor');
@@ -1474,12 +1715,17 @@ class Rill<O> {
     });
   }
 
+  /// Alias for [fold1].
   Rill<O> reduce(Function2<O, O, O> f) => fold1(f);
 
+  /// Repeats this stream indefinitely.
   Rill<O> repeat() => append(repeat);
 
+  /// Repeats this stream [n] additional times (total = original + n copies).
   Rill<O> repeatN(int n) => n > 0 ? append(() => repeatN(n - 1)) : Rill.empty();
 
+  /// Low-level combinator: calls [f] with a [ToPull] handle and repeats until
+  /// [f] returns [none].
   Rill<O2> repeatPull<O2>(Function1<ToPull<O>, Pull<O2, Option<Rill<O>>>> f) {
     Pull<O2, Unit> go(ToPull<O> tp) {
       return f(tp).flatMap((tail) {
@@ -1490,9 +1736,13 @@ class Rill<O> {
     return go(pull).rillNoScope;
   }
 
+  /// Emits [z] followed by each running accumulation of [f] applied to
+  /// consecutive elements (i.e. a running fold).
   Rill<O2> scan<O2>(O2 z, Function2<O2, O, O2> f) =>
       Pull.output1(z).append(() => _scan(z, f)).rillNoScope;
 
+  /// Like [scan] but uses the first element as the initial accumulator (no
+  /// seed value emitted).
   Rill<O> scan1(Function2<O, O, O> f) =>
       pull.uncons.flatMap((hdtl) {
         return hdtl.foldN(
@@ -1514,16 +1764,25 @@ class Rill<O> {
     );
   });
 
+  /// Chunk-level [scan]: threads state through each chunk, emitting transformed
+  /// chunks.
   Rill<O2> scanChunks<S, O2>(S initial, Function2<S, Chunk<O>, (S, Chunk<O2>)> f) =>
       scanChunksOpt(initial, (s) => Some((c) => f(s, c)));
 
+  /// Like [scanChunks] but allows early termination: returning [none] from [f]
+  /// stops the scan.
   Rill<O2> scanChunksOpt<S, O2>(
     S initial,
     Function1<S, Option<Function1<Chunk<O>, (S, Chunk<O2>)>>> f,
   ) => pull.scanChunksOpt(initial, f).voided.rillNoScope;
 
+  /// Wraps this stream in a new resource [Scope].
+  ///
+  /// Resources acquired inside the stream are released when the scope closes.
   Rill<O> get scope => Pull.scope(underlying).rillNoScope;
 
+  /// Emits overlapping windows of [size] elements, advancing [step] elements
+  /// between windows.
   Rill<Chunk<O>> sliding(int size, {int step = 1}) {
     assert(size > 0 && step > 0, 'size and step must be positive');
     Pull<Chunk<O>, Unit> stepNotSmallerThanSize(Rill<O> s, Chunk<O> prev) {
@@ -1594,11 +1853,18 @@ class Rill<O> {
     }
   }
 
+  /// Zips this stream against a fixed-delay ticker so elements are emitted
+  /// at most once per [delay].
+  ///
+  /// When [startImmediately] is `true` (default), the first element is emitted
+  /// without waiting.
   Rill<O> spaced(Duration delay, {bool startImmediately = true}) {
     final start = startImmediately ? Rill.unit : Rill.empty<Unit>();
     return start.append(() => Rill.fixedDelay(delay)).zipRight(this);
   }
 
+  /// Splits the stream into sub-chunks at elements for which [p] is true;
+  /// delimiter elements are dropped.
   Rill<Chunk<O>> split(Function1<O, bool> p) {
     Pull<Chunk<O>, Unit> go(Chunk<O> buffer, Rill<O> s) {
       return s.pull.uncons.flatMap((hdtl) {
@@ -1622,6 +1888,11 @@ class Rill<O> {
     return go(Chunk.empty(), this).rillNoScope;
   }
 
+  /// Maps each element to a stream via [f], cancelling the previous inner stream
+  /// when a new element arrives.
+  ///
+  /// Only the inner stream corresponding to the latest element runs at any
+  /// given time.
   Rill<O2> switchMap<O2>(Function1<O, Rill<O2>> f) {
     final IO<Rill<O2>> rillF = Semaphore.permits(1).flatMap((guard) {
       return IO.ref(none<Deferred<Unit>>()).map((haltRef) {
@@ -1655,27 +1926,42 @@ class Rill<O> {
     return Rill.force(rillF);
   }
 
+  /// Drops the first element and emits the rest.
   Rill<O> get tail => drop(1);
 
+  /// Emits at most the first [n] elements, then terminates.
   Rill<O> take(int n) => pull.take(n).voided.rillNoScope;
 
+  /// Emits only the last [n] elements, buffering the full stream first.
   Rill<O> takeRight(int n) => pull.takeRight(n).flatMap(Pull.output).rillNoScope;
 
+  /// Takes elements while [p] is true and also takes the first failing element.
   Rill<O> takeThrough(Function1<O, bool> p) => pull.takeThrough(p).voided.rillNoScope;
 
+  /// Takes elements while [p] is true.
+  ///
+  /// When [takeFailure] is `true`, also emits the first element for which [p]
+  /// is false (equivalent to [takeThrough]).
   Rill<O> takeWhile(Function1<O, bool> p, {bool takeFailure = false}) =>
       pull.takeWhile(p, takeFailure: takeFailure).voided.rillNoScope;
 
+  /// Applies a [Pipe] to this stream. Equivalent to `f(this)`.
   Rill<O2> through<O2>(Pipe<O, O2> f) => f(this);
 
+  /// Alias for `interruptWhen(IO.sleep(timeout))`.
   Rill<O> timeout(Duration timeout) => interruptWhen(IO.sleep(timeout));
 
+  /// Pairs elements from this stream and [that] in lock-step, stopping when
+  /// either ends.
   Rill<(O, O2)> zip<O2>(Rill<O2> that) => zipWith(that, (o, o2) => (o, o2));
 
+  /// Zips with [other] and keeps only this stream's elements.
   Rill<O> zipLeft<O2>(Rill<O2> other) => zipWith(other, (a, _) => a);
 
+  /// Zips with [other] and keeps only [other]'s elements.
   Rill<O2> zipRight<O2>(Rill<O2> other) => zipWith(other, (_, b) => b);
 
+  /// Zips with [that], combining pairs via [f], stopping when either stream ends.
   Rill<O3> zipWith<O2, O3>(Rill<O2> that, Function2<O, O2, O3> f) {
     Pull<O3, Unit> loop(Rill<O> s1, Rill<O2> s2) {
       return s1.pull.uncons.flatMap((hdtl1) {
@@ -1705,9 +1991,11 @@ class Rill<O> {
     return loop(this, that).rillNoScope;
   }
 
+  /// Zips with [that], padding the shorter stream with [padLeft] or [padRight].
   Rill<(O, O2)> zipAll<O2>(Rill<O2> that, O padLeft, O2 padRight) =>
       zipAllWith(that, padLeft, padRight, (o, o2) => (o, o2));
 
+  /// Like [zipAll] but combines pairs via [f].
   Rill<O3> zipAllWith<O2, O3>(Rill<O2> that, O padLeft, O2 padRight, Function2<O, O2, O3> f) {
     Pull<O3, Unit> loop(Rill<O> s1, Rill<O2> s2) {
       return s1.pull.uncons.flatMap((hdtl1) {
@@ -1742,8 +2030,11 @@ class Rill<O> {
     return loop(this, that).rillNoScope;
   }
 
+  /// Emits the latest pair `(thisValue, thatValue)` whenever either stream
+  /// produces a new element.
   Rill<(O, O2)> zipLatest<O2>(Rill<O2> that) => zipLatestWith(that, (o, o2) => (o, o2));
 
+  /// Like [zipLatest] but combines the latest pair via [f].
   Rill<O3> zipLatestWith<O2, O3>(Rill<O2> that, Function2<O, O2, O3> f) {
     return Rill.eval(Queue.unbounded<Either<Object, Option<O3>>>()).flatMap((queue) {
       return Rill.eval(Ref.of<Option<O>>(none())).flatMap((refLeft) {
@@ -1795,6 +2086,7 @@ class Rill<O> {
     });
   }
 
+  /// Pairs each element with its zero-based index.
   Rill<(O, int)> zipWithIndex() => scanChunks(0, (index, c) {
     var idx = index;
 
@@ -1807,6 +2099,7 @@ class Rill<O> {
     return (idx, out);
   });
 
+  /// Pairs each element with the next one. The last element is paired with [none].
   Rill<(O, Option<O>)> zipWithNext() {
     Pull<(O, Option<O>), Unit> go(O last, Rill<O> s) {
       return s.pull.uncons.flatMap((hdtl) {
@@ -1831,9 +2124,11 @@ class Rill<O> {
     }).rillNoScope;
   }
 
+  /// Pairs each element with the previous one. The first element is paired with [none].
   Rill<(Option<O>, O)> zipWithPrevious() =>
       mapAccumulate(none<O>(), (prev, next) => (Option(next), (prev, next))).map((x) => x.$2);
 
+  /// Pairs each element with both its predecessor and successor.
   Rill<(Option<O>, O, Option<O>)> zipWithPreviousAndNext() =>
       zipWithPrevious().zipWithNext().map((tuple) {
         final ((prev, curr), next) = tuple;
@@ -1844,11 +2139,13 @@ class Rill<O> {
         );
       });
 
+  /// Pairs each element with the accumulated state *before* applying [f] to it.
   Rill<(O, O2)> zipWithScan<O2>(O2 z, Function2<O2, O, O2> f) => mapAccumulate(
     z,
     (s, o) => (f(s, o), (o, s)),
   ).mapN((_, v) => v);
 
+  /// Pairs each element with the accumulated state *after* applying [f] to it.
   Rill<(O, O2)> zipWithScan1<O2>(O2 z, Function2<O2, O, O2> f) => mapAccumulate(
     z,
     (s, o) {
@@ -1857,6 +2154,7 @@ class Rill<O> {
     },
   ).mapN((_, v) => v);
 
+  /// Access the compile API to run this stream and aggregate its output.
   RillCompile<O> get compile => RillCompile(underlying);
 
   Rill<O2> _mapNoScope<O2>(Function1<O, O2> f) => Pull.mapOutputNoScope(this, f).rillNoScope;
@@ -1883,11 +2181,17 @@ extension RillNeverOps on Rill<Never> {
   Rill<O2> widen<O2>() => (underlying as Pull<O2, Unit>).rillNoScope;
 }
 
+/// Controls how a [Rill.fromStream] buffer behaves when it is full.
 sealed class OverflowStrategy {
   const OverflowStrategy();
 
+  /// Drop the oldest buffered element to make room for the new one.
   factory OverflowStrategy.dropOldest(int bufferSize) => _DropOldest(bufferSize);
+
+  /// Drop the incoming element when the buffer is full.
   factory OverflowStrategy.dropNewest(int bufferSize) => _DropNewest(bufferSize);
+
+  /// Never drop elements; the buffer grows without bound.
   factory OverflowStrategy.unbounded() => const _Unbounded();
 }
 

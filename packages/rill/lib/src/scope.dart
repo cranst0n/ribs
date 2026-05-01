@@ -2,12 +2,28 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
+/// A hold on a [Scope] that defers its closure until the lease is released.
+///
+/// Acquire via [Scope.lease]; release via [cancel] when the hold is no longer
+/// needed. When all outstanding leases on a closed scope are released, the
+/// scope's finalizers run.
 class Lease {
+  /// Releases this lease.
+  ///
+  /// If this was the last outstanding lease and the scope has already been
+  /// closed, the scope's finalizers run immediately. Returns [Right] on
+  /// success or [Left] with an aggregated error if any finalizer failed.
   final IO<Either<Object, Unit>> cancel;
 
   const Lease(this.cancel);
 }
 
+/// Tracks resource finalizers for a subtree of a [Pull] computation.
+///
+/// Scopes form a parent-child tree. Resources acquired inside a child scope
+/// are released (in LIFO order) when that scope closes. If a parent scope
+/// closes, it propagates closure to all of its children first. Errors from
+/// multiple finalizers are aggregated via [CompositeFailure].
 class Scope {
   static int _idCounter = 0;
 
@@ -26,6 +42,10 @@ class Scope {
     this._pendingClose,
   ) : id = _idCounter++;
 
+  /// Creates a new scope, optionally nested under [parent].
+  ///
+  /// A child scope automatically registers a finalizer in [parent] so it is
+  /// closed when the parent closes.
   static IO<Scope> create([Scope? parent]) {
     return (
       IO.ref(nil<Function1<ExitCase, IO<Unit>>>()),
@@ -52,8 +72,13 @@ class Scope {
     });
   }
 
+  /// Returns `true` if this scope has no parent.
   bool get isRoot => parent == null;
 
+  /// Registers [finalizer] to run when this scope is closed.
+  ///
+  /// If the scope is already closed, [finalizer] is invoked immediately with
+  /// [ExitCase.canceled].
   IO<Unit> register(Function1<ExitCase, IO<Unit>> finalizer) {
     return _closed.value().flatMap((isClosed) {
       if (isClosed) {
@@ -64,6 +89,10 @@ class Scope {
     });
   }
 
+  /// Acquires a [Lease] that prevents this scope from running its finalizers
+  /// until the lease is released.
+  ///
+  /// Throws [StateError] if the scope is already closed.
   IO<Lease> lease() {
     return _closed.value().flatMap((isClosed) {
       if (isClosed) {
@@ -89,6 +118,11 @@ class Scope {
     });
   }
 
+  /// Closes this scope with exit case [ec], running all registered finalizers.
+  ///
+  /// Idempotent: returns [Right] immediately if already closed. If outstanding
+  /// leases exist, finalizers are deferred until all are released. Errors from
+  /// multiple finalizers are aggregated into a [CompositeFailure].
   IO<Either<Object, Unit>> close(ExitCase ec) {
     return _closed.getAndSet(true).flatMap((wasClosed) {
       if (wasClosed) {

@@ -3,38 +3,57 @@ part of 'rill.dart';
 /// A `Pull` describes a process that can emit outputs of type [O], evaluate
 /// effects of type `IO`, and eventually return a result of type [R].
 sealed class Pull<O, R> {
+  /// Acquires a resource that will be released with [release] when the
+  /// enclosing [Scope] closes.
+  ///
+  /// The acquisition itself is not cancelable. Use [acquireCancelable] if
+  /// the acquisition should be interruptible.
   static Pull<Never, R> acquire<R>(
     IO<R> acquire,
     Function2<R, ExitCase, IO<Unit>> release,
   ) => _Acquire(acquire, Fn2(release), cancelable: false);
 
+  /// Like [acquire] but the acquisition [IO] is wrapped in [IO.uncancelable]
+  /// so that a cancellation request is only honoured after the resource is
+  /// fully acquired and its finalizer is registered.
   static Pull<Never, R> acquireCancelable<R>(
     Function1<Poll, IO<R>> acquire,
     Function2<R, ExitCase, IO<Unit>> release,
   ) => _Acquire(IO.uncancelable(acquire), Fn2(release), cancelable: true);
 
+  /// A pull that emits no elements and terminates successfully. Alias for [unit].
   static final Pull<Never, Unit> done = unit;
 
+  /// Lifts an [IO] into a Pull that evaluates it and returns the result.
   static Pull<Never, R> eval<R>(IO<R> io) => _Eval(io);
 
+  /// A Pull that immediately fails with [err].
   static Pull<Never, Never> fail(Object err, [StackTrace? stackTrace]) => _Fail(err, stackTrace);
 
+  /// A Pull that returns the current [Scope] without emitting any output.
   static Pull<Never, Scope> getScope = const _GetScope();
 
+  /// Maps the output of [s] via [f] without introducing a new [Scope].
   static Pull<P, Unit> mapOutputNoScope<O, P>(Rill<O> s, Function1<O, P> f) =>
       s.pull.echo.unconsFlatMap((hd) => Pull.output(hd.map(f)));
 
+  /// Emits [chunk], or does nothing if [chunk] is empty.
   static Pull<O, Unit> output<O>(Chunk<O> chunk) => chunk.isEmpty ? Pull.done : _Output(chunk);
 
+  /// Emits a single element [value].
   static Pull<O, Unit> output1<O>(O value) => _Output(chunk([value]));
 
+  /// Emits [opt]'s value if it is [Some], otherwise emits nothing.
   static Pull<O, Unit> outputOption1<O>(Option<O> opt) =>
       opt.map(output1).getOrElse(() => Pull.done);
 
+  /// A pre-allocated pull that emits a single [Unit] element.
   static final Pull<Unit, Unit> outUnit = _Output(Chunk.unit);
 
+  /// A Pull that emits nothing and returns [r].
   static Pull<Never, R> pure<R>(R r) => _Pure(r);
 
+  /// Alias for [fail].
   static Pull<Never, Never> raiseError(Object err, [StackTrace? stackTrace]) =>
       _Fail(err, stackTrace);
 
@@ -52,6 +71,8 @@ sealed class Pull<O, R> {
     IO<Either<Object, Unit>> haltWhen,
   ) => _InterruptWhen(pull, haltWhen);
 
+  /// Wraps [pull] in a fresh [Scope], closing it (with the appropriate
+  /// [ExitCase]) when [pull] completes, errors, or is cancelled.
   static Pull<O, Unit> scope<O>(Pull<O, Unit> pull) => _OpenScope<O>().flatMap((newScope) {
     return _RunInScope<O, Unit>(pull, newScope)
         .handleErrorWith<O>(
@@ -70,8 +91,11 @@ sealed class Pull<O, R> {
         });
   });
 
+  /// Defers construction of a [Pull] until it is stepped, preventing stack
+  /// overflow for recursive definitions.
   static Pull<O, R> suspend<O, R>(Function0<Pull<O, R>> f) => Pull.unit.flatMap((_) => f());
 
+  /// A Pull that emits nothing and returns [Unit].
   static Pull<Never, Unit> unit = _Pure(Unit());
 
   const Pull();
@@ -82,6 +106,7 @@ sealed class Pull<O, R> {
   /// If [O] is not a subtype of [O2], this function will throw a [TypeError] at runtime.
   Pull<O2, R2> append<O2, R2>(Function0<Pull<O2, R2>> next) => flatMap((_) => next());
 
+  /// Replaces the result value with [s].
   Pull<O, R2> as<R2>(R2 s) => map((_) => s);
 
   /// Runs this pull, then uses the result to determine the next pull.
@@ -106,20 +131,31 @@ sealed class Pull<O, R> {
   Pull<O2, R> handleErrorWith<O2>(Function1<Object, Pull<O2, R>> f) =>
       _Handle(this as Pull<O2, R>, Fn1(f));
 
+  /// Discards the result value, replacing it with [Unit].
   Pull<O, Unit> get voided => as(Unit());
 }
 
+/// Flattening operation for a [Pull] whose result is itself a [Pull].
 extension PullFlattenOps<O, R> on Pull<O, Pull<O, R>> {
+  /// Sequences the inner pull after the outer, merging their outputs.
   Pull<O, R> flatten() => flatMap(identity);
 }
 
 /// Operations available ONLY when the result type is [Unit].
 /// This ensures we can only inspect a "streaming" pull, not a calculated result.
+/// Operations available ONLY when the result type is [Unit].
+/// This ensures we can only inspect a "streaming" pull, not a calculated result.
 extension PullOps<O> on Pull<O, Unit> {
+  /// Converts this [Pull] into a [Rill] wrapped in its own [Scope].
   Rill<O> get rill => Rill._scoped(this);
 
+  /// Converts this [Pull] into a [Rill] without introducing a new [Scope].
+  ///
+  /// Use when the pull is already scoped (e.g. inside a [Rill.bracketFull]).
   Rill<O> get rillNoScope => Rill._noScope(this);
 
+  /// Processes each output element through [f], emitting the resulting pulls
+  /// in sequence and merging their outputs into the stream.
   Pull<O2, Unit> flatMapOutput<O2>(Function1<O, Pull<O2, Unit>> f) {
     return Pull.getScope.flatMap((scope) {
       return Pull.eval(_stepPull(this, scope)).flatMap((step) {
@@ -163,6 +199,8 @@ extension PullOps<O> on Pull<O, Unit> {
     });
   }
 
+  /// Repeatedly peels off the next chunk and passes it to [f], concatenating
+  /// the resulting pulls until the stream is exhausted.
   Pull<O2, Unit> unconsFlatMap<O2>(Function1<Chunk<O>, Pull<O2, Unit>> f) {
     return uncons.flatMap<O2, Unit>((hdtl) {
       return hdtl.foldN<Pull<O2, Unit>>(

@@ -91,7 +91,7 @@ void main() {
                 .productR(
                   Rill.emits(
                     second,
-                  ).through(Files.writeAll(path, flags: Flags.Append)).compile.drain,
+                  ).through(Files.writeAll(path, flags: Flags.append)).compile.drain,
                 )
                 .productR(Files.readAll(path).compile.toIList);
           });
@@ -397,7 +397,7 @@ void main() {
             const bytes = [0, 1, 2, 3, 4, 5, 6];
 
             return Rill.emits(bytes)
-                .through(Files.writeRotate(computePath, 3, Flags.Write))
+                .through(Files.writeRotate(computePath, 3, Flags.write))
                 .compile
                 .drain
                 .productR(
@@ -441,7 +441,7 @@ void main() {
             const bytes = [10, 20, 30, 40];
 
             return Rill.emits(bytes)
-                .through(Files.writeRotate(computePath, 2, Flags.Write))
+                .through(Files.writeRotate(computePath, 2, Flags.write))
                 .compile
                 .drain
                 .productR(
@@ -617,12 +617,12 @@ void main() {
 
           final result = Files.tempFile
               .use((path) {
-                return Files.writeCursor(path, Flags.Write)
+                return Files.writeCursor(path, Flags.write)
                     .use((cursor) {
                       return cursor.write(first).flatMap((c2) => c2.write(second));
                     })
                     .productR(
-                      Files.readCursor(path, Flags.Read).use((cursor) {
+                      Files.readCursor(path, Flags.read).use((cursor) {
                         return cursor.seek(3).read(3);
                       }),
                     );

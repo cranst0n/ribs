@@ -8,7 +8,12 @@ class _Interruption {
   const _Interruption();
 }
 
+/// Concurrent fan-in operations on a [Rill] of [Rill]s.
 extension ParJoinOps<O> on Rill<Rill<O>> {
+  /// Runs all inner streams concurrently with no concurrency limit.
+  ///
+  /// Equivalent to `parJoin(Integer.maxValue)`. Use [parJoin] when you need
+  /// to cap the number of simultaneously running streams.
   Rill<O> parJoinUnbounded() => parJoin(Integer.maxValue);
 
   /// Runs [maxOpen] inner streams concurrently.

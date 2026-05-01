@@ -135,13 +135,13 @@ final class Files {
 
   /// Reads the entire contents of the file at [path] as a byte stream.
   ///
-  /// Emits chunks of at most [chunkSize] bytes. Uses [Flags.Read] by
+  /// Emits chunks of at most [chunkSize] bytes. Uses [Flags.read] by
   /// default unless custom [flags] are specified.
   static Rill<int> readAll(
     Path path, {
     Flags? flags,
     int chunkSize = _defaultChunkSize,
-  }) => Rill.resource(Files.readCursor(path, flags ?? Flags.Read)).flatMap((cursor) {
+  }) => Rill.resource(Files.readCursor(path, flags ?? Flags.read)).flatMap((cursor) {
     return cursor.readAll(chunkSize).voided.rill;
   });
 
@@ -154,7 +154,7 @@ final class Files {
     int chunkSize = _defaultChunkSize,
     required int start,
     required int end,
-  }) => Rill.resource(Files.readCursor(path, Flags.Read)).flatMap((cursor) {
+  }) => Rill.resource(Files.readCursor(path, Flags.read)).flatMap((cursor) {
     return cursor.seek(start).readUntil(chunkSize, end).voided.rill;
   });
 
@@ -190,7 +190,7 @@ final class Files {
     int chunkSize = _defaultChunkSize,
     int offset = 0,
     Duration pollDelay = const Duration(seconds: 1),
-  }) => Rill.resource(readCursor(path, Flags.Read)).flatMap((cursor) {
+  }) => Rill.resource(readCursor(path, Flags.read)).flatMap((cursor) {
     return cursor.seek(offset).tail(chunkSize, pollDelay).voided.rill;
   });
 
@@ -217,11 +217,11 @@ final class Files {
 
   /// A [Pipe] that writes all incoming byte chunks to the file at [path].
   ///
-  /// Uses [Flags.Write] by default (create + truncate) unless custom
+  /// Uses [Flags.write] by default (create + truncate) unless custom
   /// [flags] are specified.
   static Pipe<int, Never> writeAll(Path path, {Flags? flags}) =>
       (rill) => Rill.resource(
-        writeCursor(path, flags ?? Flags.Write),
+        writeCursor(path, flags ?? Flags.write),
       ).flatMap((cursor) => cursor.writeAll(rill).voided.rill);
 
   /// Opens the file at [path] and returns a resource-managed [WriteCursor].

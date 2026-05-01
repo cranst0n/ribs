@@ -30,8 +30,10 @@ class ToPull<O> {
     }
   }
 
+  /// Like [dropWhile] but also drops the first element for which [p] is false.
   Pull<Never, Option<Rill<O>>> dropThrough(Function1<O, bool> p) => _dropWhile(p, true);
 
+  /// Drops elements while [p] is true and returns the remainder of the rill.
   Pull<Never, Option<Rill<O>>> dropWhile(Function1<O, bool> p) => _dropWhile(p, false);
 
   Pull<Never, Option<Rill<O>>> _dropWhile(Function1<O, bool> p, bool dropFailure) {
@@ -54,6 +56,7 @@ class ToPull<O> {
   /// Runs the underlying pull, effectively "echoing" the rill.
   Pull<O, Unit> get echo => self.underlying;
 
+  /// Folds the entire rill into a single value, returning it as the Pull result.
   Pull<Never, O2> fold<O2>(O2 z, Function2<O2, O, O2> f) => uncons.flatMap((hdtl) {
     return hdtl.foldN(
       () => Pull.pure(z),
@@ -64,6 +67,7 @@ class ToPull<O> {
     );
   });
 
+  /// Folds using [f] with no initial accumulator, returning [none] for empty streams.
   Pull<Never, Option<O>> fold1(Function2<O, O, O> f) => uncons.flatMap((hdtl) {
     return hdtl.foldN(
       () => Pull.pure(none()),
@@ -84,6 +88,7 @@ class ToPull<O> {
     });
   }
 
+  /// Returns the last element emitted, or [none] if the rill is empty.
   Pull<Never, Option<O>> get last {
     Pull<Never, Option<O>> go(Option<O> prev, Rill<O> s) {
       return s.pull.uncons.flatMap((hdtl) {
@@ -97,6 +102,8 @@ class ToPull<O> {
     return go(none(), self);
   }
 
+  /// Peeks at the next chunk without consuming it; the chunk is prepended back
+  /// to the remainder so subsequent pulls see the same data.
   Pull<Never, Option<(Chunk<O>, Rill<O>)>> get peek => uncons.flatMap(
     (hdtl) => hdtl.foldN(
       () => Pull.pure(const None()),
@@ -104,6 +111,7 @@ class ToPull<O> {
     ),
   );
 
+  /// Like [peek] but exposes the first single element instead of the whole chunk.
   Pull<Never, Option<(O, Rill<O>)>> get peek1 => uncons.flatMap(
     (hdtl) => hdtl.foldN(
       () => Pull.pure(const None()),
@@ -111,9 +119,11 @@ class ToPull<O> {
     ),
   );
 
+  /// Runs a stateful transformation chunk-by-chunk, emitting transformed chunks.
   Pull<O2, S> scanChunks<S, O2>(S initial, Function2<S, Chunk<O>, (S, Chunk<O2>)> f) =>
       scanChunksOpt(initial, (s) => Some((c) => f(s, c)));
 
+  /// Like [scanChunks] but allows early termination by returning [none] from [f].
   Pull<O2, S> scanChunksOpt<S, O2>(
     S initial,
     Function1<S, Option<Function1<Chunk<O>, (S, Chunk<O2>)>>> f,
@@ -163,6 +173,7 @@ class ToPull<O> {
     }
   }
 
+  /// Emits the last [n] elements as a single chunk, consuming the full rill.
   Pull<Never, Chunk<O>> takeRight(int n) {
     Pull<Never, Chunk<O>> go(Chunk<O> acc, Rill<O> s) {
       return s.pull.unconsN(n, allowFewer: true).flatMap((hdtl) {
@@ -180,8 +191,13 @@ class ToPull<O> {
     }
   }
 
+  /// Like [takeWhile] but also emits the first element for which [p] is false.
   Pull<O, Option<Rill<O>>> takeThrough(Function1<O, bool> p) => _takeWhile(p, true);
 
+  /// Emits elements while [p] is true and returns the remainder of the rill.
+  ///
+  /// When [takeFailure] is `true`, the first failing element is emitted before
+  /// stopping (equivalent to [takeThrough]).
   Pull<O, Option<Rill<O>>> takeWhile(Function1<O, bool> p, {bool takeFailure = false}) =>
       _takeWhile(p, takeFailure);
 
@@ -213,6 +229,7 @@ class ToPull<O> {
     });
   }
 
+  /// Peels off exactly one element, wrapping the remainder into a [Rill].
   Pull<Never, Option<(O, Rill<O>)>> get uncons1 {
     return uncons.flatMap((hdtl) {
       return hdtl.foldN(
@@ -225,6 +242,7 @@ class ToPull<O> {
     });
   }
 
+  /// Peels off a chunk of at most [n] elements, wrapping the remainder.
   Pull<Never, Option<(Chunk<O>, Rill<O>)>> unconsLimit(int n) {
     if (n <= 0) {
       return Pull.pure(Some((Chunk.empty(), self)));
@@ -245,6 +263,10 @@ class ToPull<O> {
     }
   }
 
+  /// Accumulates at least [n] elements into a single chunk before returning.
+  ///
+  /// Returns [none] if the stream ends with fewer than [n] elements and
+  /// [allowFewerTotal] is `false`; otherwise returns whatever was accumulated.
   Pull<Never, Option<(Chunk<O>, Rill<O>)>> unconsMin(
     int n, {
     bool allowFewerTotal = false,
@@ -277,6 +299,10 @@ class ToPull<O> {
     }
   }
 
+  /// Peels off exactly [n] elements in a single chunk.
+  ///
+  /// If the stream ends before [n] elements are available and [allowFewer] is
+  /// `true`, returns what was accumulated; otherwise returns [none].
   Pull<Never, Option<(Chunk<O>, Rill<O>)>> unconsN(
     int n, {
     bool allowFewer = false,

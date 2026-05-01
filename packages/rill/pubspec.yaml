@@ -3,7 +3,8 @@ version: 1.0.0-dev.1
 homepage: https://cranst0n.github.io/ribs/
 repository: https://github.com/cranst0n/ribs
 description: >
-  Pure functional streaming library.
+  Functional, pull-based, chunked streaming with resource-safe finalizers,
+  back-pressured channels, and observable signals — inspired by Scala's FS2.
 
 topics:
   - streaming

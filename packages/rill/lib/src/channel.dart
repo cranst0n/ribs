@@ -2,30 +2,88 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
+/// A concurrent channel that supports sending and receiving values across
+/// fibers, with configurable back-pressure.
+///
+/// A [Channel] behaves like a bounded queue: producers call [send] to enqueue
+/// values and consumers read them via [rill]. When the channel is full,
+/// [send] semantically blocks the calling fiber until space is available.
+/// When the channel is empty, [rill] suspends until a value arrives.
+///
+/// Create a channel with one of the factory constructors:
+/// ```dart
+/// final ch = await Channel.bounded<int>(16).run();
+/// final ch = await Channel.synchronous<int>().run(); // rendezvous
+/// final ch = await Channel.unbounded<int>().run();
+/// ```
+///
+/// Close the channel when no more values will be sent; the consumer [rill]
+/// will terminate after draining any remaining buffered values.
 mixin Channel<A> {
+  /// Creates a channel with a fixed-size buffer of [capacity] elements.
+  ///
+  /// Senders block when the buffer is full and are unblocked in FIFO order
+  /// as consumers drain elements.
   static IO<Channel<A>> bounded<A>(int capacity) => _BoundedChannel.create(capacity);
 
+  /// Creates a synchronous (rendezvous) channel with no internal buffer.
+  ///
+  /// Every [send] blocks until a consumer is ready to receive, and vice versa.
+  /// Equivalent to `bounded(0)`.
   static IO<Channel<A>> synchronous<A>() => bounded(0);
 
+  /// Creates an unbounded channel that never blocks senders.
+  ///
+  /// Use with care — an unbounded channel can grow without limit if producers
+  /// outpace consumers.
   static IO<Channel<A>> unbounded<A>() => bounded(Integer.maxValue);
 
+  /// A [Pipe] that forwards all elements of the input [Rill] into this channel
+  /// and closes the channel when the input stream ends.
+  ///
+  /// The pipe terminates as soon as the channel is closed (either by the input
+  /// ending or by an external [close] call), discarding any remaining input.
   Pipe<A, Never> get sendAll;
 
+  /// Sends [a] to the channel, blocking if the channel buffer is full.
+  ///
+  /// Returns [Right] on success, or [Left] with [ChannelClosed] if the channel
+  /// was already closed before or during the send.
   IO<Either<ChannelClosed, Unit>> send(A a);
 
+  /// Attempts to send [a] to the channel without blocking.
+  ///
+  /// Returns [Right<true>] if the value was enqueued, [Right<false>] if the
+  /// buffer was full, or [Left] with [ChannelClosed] if the channel is closed.
   IO<Either<ChannelClosed, bool>> trySend(A a);
 
+  /// A [Rill] that emits every value sent to this channel.
+  ///
+  /// The stream suspends when the channel is empty and terminates after the
+  /// channel is closed and all buffered values have been emitted.
   Rill<A> get rill;
 
+  /// Closes the channel, preventing any further sends.
+  ///
+  /// Consumers will continue to receive buffered values before [rill]
+  /// terminates. Returns [Left] with [ChannelClosed] if already closed.
   IO<Either<ChannelClosed, Unit>> close();
 
+  /// Sends [a] and then closes the channel atomically.
+  ///
+  /// Equivalent to sending [a] followed by [close], but guaranteed to be
+  /// atomic — no other send can interleave between the two operations.
+  /// Returns [Left] with [ChannelClosed] if the channel was already closed.
   IO<Either<ChannelClosed, Unit>> closeWithElement(A a);
 
+  /// An [IO] that evaluates to `true` if the channel has been closed.
   IO<bool> get isClosed;
 
+  /// An [IO] that blocks until the channel is closed.
   IO<Unit> get closed;
 }
 
+/// Sentinel value returned when an operation is attempted on a closed [Channel].
 final class ChannelClosed {
   static final ChannelClosed _singleton = ChannelClosed._();
 

@@ -2,12 +2,11 @@ import 'dart:typed_data';
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// Convenience constructor — creates a [Chunk] from any [Iterable].
 Chunk<O> chunk<O>(Iterable<O> as) => Chunk.fromDart(as);
 
 /// A strictly strict, immutable sequence of values, optimized for indexed based access
 /// and efficient concatenation.
-///
-/// TODO: Many functions inherited from RSeq, IndexedSeq, etc. can probably be optimized.
 sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O> {
   const Chunk();
 
@@ -15,24 +14,31 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
   static Chunk<int> bytes(Uint8List bytes) =>
       bytes.isEmpty ? Chunk.empty() : _Uint8ListChunk(bytes);
 
+  /// Creates a [Chunk<int>] backed by a [ByteVector].
   static Chunk<int> byteVector(ByteVector bv) => _ByteVectorChunk(bv);
 
   /// Creates a chunk of [n] copies of [a].
   static Chunk<O> constant<O>(int n, O a) => n <= 0 ? Chunk.empty() : _ConstantChunk(a, n);
 
+  /// Creates an empty chunk.
   static Chunk<O> empty<O>() => _EmptyChunk<O>();
 
+  /// Alias for [constant].
   static Chunk<O> fill<O>(int n, O a) => constant(n, a);
 
+  /// Creates a [Chunk] from a [RIterableOnce].
   static Chunk<O> from<O>(RIterableOnce<O> iterable) => fromList(iterable.toList());
 
+  /// Creates a [Chunk] from a Dart [Iterable].
   static Chunk<O> fromDart<O>(Iterable<O> iterable) => fromList(iterable.toList());
 
+  /// Creates a [Chunk] from a Dart [List], copying the elements.
   static Chunk<O> fromList<O>(List<O> list) {
     if (list.isEmpty) return empty();
     return _BoxedChunk(List.of(list, growable: false));
   }
 
+  /// Creates a single-element chunk.
   static Chunk<O> singleton<O>(O a) => _SingletonChunk(a);
 
   /// Creates a [Chunk] of [count] elements produced by [f].
@@ -44,11 +50,14 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
     return _BoxedChunk(List<O>.generate(count, f, growable: false));
   }
 
+  /// A pre-allocated singleton chunk containing [Unit].
   static final unit = Chunk.singleton(Unit());
 
+  /// Returns the element at [idx]. Throws [RangeError] if out of bounds.
   @override
   O operator [](int idx);
 
+  /// Concatenates two chunks. Alias for [concat].
   Chunk<O> operator +(Chunk<O> that) => concat(that);
 
   @override
@@ -158,6 +167,9 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
   @override
   Chunk<B> map<B>(Function1<O, B> f) => from(super.map(f));
 
+  /// Maps each element while threading a state value [S] through the traversal.
+  ///
+  /// Returns the final accumulated state paired with the transformed chunk.
   (S, Chunk<B>) mapAccumulate<S, B>(S initial, Function2<S, O, (S, B)> f) {
     final bldr = <B>[];
 
@@ -220,6 +232,8 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
   @override
   Chunk<O> removeAt(int idx) => from(super.removeAt(idx));
 
+  /// Removes the first element for which [p] returns `true`, returning this
+  /// chunk unchanged if no element matches.
   Chunk<O> removeFirst(Function1<O, bool> p) => indexWhere(p).fold(() => this, removeAt);
 
   @override
@@ -234,6 +248,11 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
   @override
   Chunk<B> scanRight<B>(B z, Function2<O, B, B> op) => from(super.scanRight(z, op));
 
+  /// Like [scanLeft] but omits the initial accumulator from the output chunk
+  /// and instead returns it as the second element of the pair.
+  ///
+  /// Useful for channel consumers that need the carry-over state without
+  /// re-emitting the seed value.
   (Chunk<B>, B) scanLeftCarry<B>(B initial, Function2<B, O, B> op) => _scanLeft(initial, op, false);
 
   (Chunk<B>, B) _scanLeft<B>(B initial, Function2<B, O, B> op, bool emitZero) {
@@ -365,11 +384,18 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
   }
 }
 
+/// Byte-oriented operations for [Chunk<int>].
 extension ChunkByteOps on Chunk<int> {
+  /// Interprets this byte chunk as a [BitVector].
   BitVector get toBitVector => toByteVector.bits;
 
+  /// Wraps this chunk as a zero-copy [ByteVector] view.
   ByteVector get toByteVector => ByteVector.viewAt(At((i) => this[i]), size);
 
+  /// Returns a [Uint8List] view of this chunk's bytes.
+  ///
+  /// Returns the underlying array directly when the backing representation
+  /// already is a [Uint8List]; otherwise copies.
   Uint8List get asUint8List {
     return switch (this) {
       final _ByteVectorChunk bv => bv.asUint8List,

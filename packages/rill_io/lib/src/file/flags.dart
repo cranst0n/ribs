@@ -38,15 +38,15 @@ enum Flag {
 /// ```
 final class Flags {
   /// Opens a file for reading only.
-  static final Read = Flags(ilist([Flag.read]));
+  static final read = Flags(ilist([Flag.read]));
 
   /// Opens a file for writing, creating it if it doesn't exist and
   /// truncating it to zero bytes if it does.
-  static final Write = Flags(ilist([Flag.write, Flag.create, Flag.truncate]));
+  static final write = Flags(ilist([Flag.write, Flag.create, Flag.truncate]));
 
   /// Opens a file for appending, creating it if it doesn't exist. Writes
   /// are always performed at the end of the file.
-  static final Append = Flags(ilist([Flag.write, Flag.create, Flag.append]));
+  static final append = Flags(ilist([Flag.write, Flag.create, Flag.append]));
 
   /// The underlying list of individual [Flag] values.
   final IList<Flag> value;

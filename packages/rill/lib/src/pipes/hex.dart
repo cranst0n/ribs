@@ -2,6 +2,15 @@ import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
+/// Pipes for hexadecimal encoding and decoding.
+///
+/// Obtained via [Pipes.hex] or `HexPipes()`. The decoder automatically strips
+/// an optional `0x` or `0X` prefix from the input stream.
+///
+/// ```dart
+/// final bytes = Rill.emits(['deadbeef'])
+///     .through(Pipes.hex.decode);
+/// ```
 final class HexPipes {
   static final HexPipes _singleton = HexPipes._();
 
@@ -9,9 +18,15 @@ final class HexPipes {
 
   HexPipes._();
 
+  /// Decodes lowercase hexadecimal strings to raw bytes.
   Pipe<String, int> get decode => decodeWithAlphabet(Alphabets.hexLower);
+
+  /// Encodes raw bytes to lowercase hexadecimal strings.
   Pipe<int, String> get encode => encodeWithAlphabet(Alphabets.hexLower);
 
+  /// Decodes hexadecimal strings to raw bytes using [alphabet].
+  ///
+  /// Strips a leading `0x` or `0X` prefix if present.
   Pipe<String, int> decodeWithAlphabet(HexAlphabet alphabet) {
     (Chunk<int>, int, bool) decode1(String str, int hi0, bool midByte0) {
       final bldr = <int>[];
@@ -78,6 +93,7 @@ final class HexPipes {
     return (rill) => dropPrefix(rill, '').rillNoScope;
   }
 
+  /// Encodes raw bytes to hexadecimal strings using [alphabet].
   Pipe<int, String> encodeWithAlphabet(HexAlphabet alphabet) =>
       (rill) => rill.chunks().map((c) => ByteVector.from(c).toHex(alphabet));
 }

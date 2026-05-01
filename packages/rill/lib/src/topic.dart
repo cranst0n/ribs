@@ -2,6 +2,7 @@ import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 
+/// Sentinel value returned when an operation is attempted on a closed [Topic].
 final class TopicClosed {
   static const TopicClosed instance = TopicClosed._();
 
@@ -10,7 +11,16 @@ final class TopicClosed {
   const TopicClosed._();
 }
 
+/// A publish-subscribe hub for concurrent streams.
+///
+/// Multiple producers publish values via [publish1] or the [publish] pipe;
+/// multiple consumers receive their own copy of every published value by
+/// subscribing via [subscribe] or [subscribeAwait].
+///
+/// Close the topic with [close] when no more values will be published;
+/// all subscriber streams will drain and then terminate.
 abstract class Topic<A> {
+  /// Creates a new open [Topic].
   static IO<Topic<A>> create<A>() {
     return Ref.of(TopicState.initial<A>()).flatMap((state) {
       return SignallingRef.of(0).flatMap((subscriberCount) {
@@ -21,23 +31,37 @@ abstract class Topic<A> {
     });
   }
 
+  /// A [Pipe] that publishes all input elements to this topic and closes it
+  /// when the input stream ends.
   Pipe<A, Never> get publish;
 
+  /// Publishes a single value to all current subscribers.
+  ///
+  /// Returns [Left] with [TopicClosed] if the topic is already closed.
   IO<Either<TopicClosed, Unit>> publish1(A a);
 
+  /// Returns a [Rill] that receives every value published after the
+  /// subscription is registered, buffering at most [maxQueued] elements.
   Rill<A> subscribe(int maxQueued);
 
+  /// Like [subscribe] with an unbounded buffer.
   Rill<A> subscribeUnbounded() => subscribe(Integer.maxValue);
 
+  /// Like [subscribe] but returns a [Resource] whose acquisition blocks until
+  /// the subscriber is fully registered, preventing missed publishes.
   Resource<Rill<A>> subscribeAwait(int maxQueued);
 
+  /// Like [subscribeAwait] with an unbounded buffer.
   Resource<Rill<A>> subscribeAwaitUnbounded() => subscribeAwait(Integer.maxValue);
 
   /// Signal of active subscribers.
   Rill<int> get subscribers;
 
+  /// Closes the topic, signalling all subscribers that no more values will be
+  /// published. Returns [Left] with [TopicClosed] if already closed.
   IO<Either<TopicClosed, Unit>> get close;
 
+  /// An [IO] that evaluates to `true` if the topic has been closed.
   IO<bool> get isClosed;
 
   /// Semantically blocks until the topic gets closed.
