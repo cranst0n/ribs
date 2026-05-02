@@ -51,7 +51,7 @@ completely generic in terms of what the underlying operation is doing.
 The `IO.retrying` function provides additional ways to customize the retry
 behavior of your operation. Here's an example:
 
-<<< @/../snippets/lib/src/effect/io_retry.dart#custom-retry
+<<< @/../snippets/lib/src/effect/io_retry.dart#custom-retrying
 
 Let's look at each argument to see what's available to you:
 

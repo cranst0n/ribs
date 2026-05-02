@@ -74,7 +74,7 @@ melos:
 
     doc:
       run: |
-        dart pub global run dartdoc_vitepress \
+        dart pub global run dartdoc_modern \
           --format vitepress \
           --workspace-docs \
           --exclude-packages 'ribs_bench,ribs_http,ribs_workspace,snippets' \

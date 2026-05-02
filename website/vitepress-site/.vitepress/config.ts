@@ -119,7 +119,7 @@ const guideSidebar = {
       text: 'Rill',
       collapsed: true,
       items: [
-        { text: 'ARill', link: '/guide/rill/arill' },
+        { text: 'Rill', link: '/guide/rill/rill' },
         { text: 'Chunk', link: '/guide/rill/chunk' },
         { text: 'Pull', link: '/guide/rill/pull' },
         { text: 'Pipe', link: '/guide/rill/pipe' },
