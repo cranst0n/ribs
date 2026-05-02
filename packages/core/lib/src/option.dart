@@ -185,6 +185,7 @@ extension OptionNestedOps<A> on Option<Option<A>> {
   Option<A> flatten() => fold(() => none<A>(), identity);
 }
 
+/// Additional combinators on [Option].
 extension OptionOps<A> on Option<A> {
   bool contains(A elem) => fold(() => false, (value) => value == elem);
 

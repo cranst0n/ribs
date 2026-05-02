@@ -4,16 +4,21 @@ import 'package:ribs_core/ribs_core.dart';
 /// Function type alias that a [Decoder] must fulfill.
 typedef DecodeF<A> = Function1<BitVector, Either<Err, DecodeResult<A>>>;
 
+/// The result of a successful [Decoder.decode] call, carrying the decoded
+/// [value] and the unconsumed [remainder] of the input [BitVector].
 final class DecodeResult<A> {
   final A value;
   final BitVector remainder;
 
   const DecodeResult(this.value, this.remainder);
 
+  /// Constructs a [DecodeResult] with an empty remainder.
   factory DecodeResult.successful(A value) => DecodeResult(value, BitVector.empty);
 
+  /// Transforms the decoded value using [f], preserving the [remainder].
   DecodeResult<B> map<B>(Function1<A, B> f) => DecodeResult(f(value), remainder);
 
+  /// Applies [f] to the [remainder], transforming it.
   DecodeResult<A> mapRemainder(Function1<BitVector, BitVector> f) =>
       DecodeResult(value, f(remainder));
 
@@ -21,21 +26,30 @@ final class DecodeResult<A> {
   String toString() => 'DecodeResult($value, ${remainder.toHex()})';
 }
 
+/// Typeclass for binary decoding: consumes a prefix of a [BitVector] and
+/// produces a typed [DecodeResult] or an [Err].
 abstract mixin class Decoder<A> {
+  /// Decodes a value from the start of [bv], returning the decoded value and
+  /// any unconsumed remainder, or an [Err] on failure.
   Either<Err, DecodeResult<A>> decode(BitVector bv);
 
+  /// Transforms the successfully decoded value using [f].
   Decoder<B> map<B>(Function1<A, B> f) =>
       instance<B>((bv) => decode(bv).map((a) => DecodeResult(f(a.value), a.remainder)));
 
+  /// Chains this decoder with another selected by the decoded value.
   Decoder<B> flatMap<B>(Function1<A, Decoder<B>> f) =>
       instance((bv) => decode(bv).flatMap((a) => f(a.value).decode(a.remainder)));
 
+  /// Like [map], but allows the transform [f] to fail with an [Err].
   Decoder<B> emap<B>(Function1<A, Either<Err, B>> f) => instance(
     (bv) => decode(bv).flatMap((a) => f(a.value).map((b) => DecodeResult(b, a.remainder))),
   );
 
+  /// Creates a [Decoder] from a raw [DecodeF] function.
   static Decoder<A> instance<A>(DecodeF<A> decode) => _DecoderF(decode);
 
+  /// Decodes two fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1)> tuple2<T0, T1>(
     Decoder<T0> decode0,
     Decoder<T1> decode1,
@@ -49,6 +63,7 @@ abstract mixin class Decoder<A> {
         ),
   );
 
+  /// Decodes three fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1, T2)> tuple3<T0, T1, T2>(
     Decoder<T0> decode0,
     Decoder<T1> decode1,
@@ -61,6 +76,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes four fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1, T2, T3)> tuple4<T0, T1, T2, T3>(
     Decoder<T0> decode0,
     Decoder<T1> decode1,
@@ -74,6 +90,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes five fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1, T2, T3, T4)> tuple5<T0, T1, T2, T3, T4>(
     Decoder<T0> decode0,
     Decoder<T1> decode1,
@@ -88,6 +105,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes six fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1, T2, T3, T4, T5)> tuple6<T0, T1, T2, T3, T4, T5>(
     Decoder<T0> decode0,
     Decoder<T1> decode1,
@@ -103,6 +121,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes seven fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1, T2, T3, T4, T5, T6)> tuple7<T0, T1, T2, T3, T4, T5, T6>(
     Decoder<T0> decode0,
     Decoder<T1> decode1,
@@ -119,6 +138,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes eight fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7)> tuple8<T0, T1, T2, T3, T4, T5, T6, T7>(
     Decoder<T0> decode0,
     Decoder<T1> decode1,
@@ -138,6 +158,7 @@ abstract mixin class Decoder<A> {
     );
   });
 
+  /// Decodes nine fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8)> tuple9<T0, T1, T2, T3, T4, T5, T6, T7, T8>(
     Decoder<T0> decode0,
     Decoder<T1> decode1,
@@ -165,6 +186,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes ten fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)>
   tuple10<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(
     Decoder<T0> decode0,
@@ -195,6 +217,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes eleven fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)>
   tuple11<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
     Decoder<T0> decode0,
@@ -227,6 +250,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes twelve fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)>
   tuple12<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
     Decoder<T0> decode0,
@@ -261,6 +285,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes thirteen fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)>
   tuple13<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
     Decoder<T0> decode0,
@@ -297,6 +322,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes fourteen fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)>
   tuple14<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
     Decoder<T0> decode0,
@@ -335,6 +361,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes fifteen fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)>
   tuple15<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
     Decoder<T0> decode0,
@@ -375,6 +402,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes sixteen fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)>
   tuple16<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
     Decoder<T0> decode0,
@@ -417,6 +445,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes seventeen fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)>
   tuple17<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
     Decoder<T0> decode0,
@@ -461,6 +490,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes eighteen fields sequentially, returning the results as a typed tuple.
   static Decoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)>
   tuple18<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>(
     Decoder<T0> decode0,
@@ -507,6 +537,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes nineteen fields sequentially, returning the results as a typed tuple.
   static Decoder<
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
   >
@@ -557,6 +588,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes twenty fields sequentially, returning the results as a typed tuple.
   static Decoder<
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
   >
@@ -609,6 +641,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes twenty-one fields sequentially, returning the results as a typed tuple.
   static Decoder<
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
   >
@@ -685,6 +718,7 @@ abstract mixin class Decoder<A> {
     });
   });
 
+  /// Decodes twenty-two fields sequentially, returning the results as a typed tuple.
   static Decoder<
     (
       T0,

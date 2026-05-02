@@ -1927,6 +1927,7 @@ class _CodecF<A> extends Codec<A> {
   Either<Err, BitVector> encode(A a) => encoder.encode(a);
 }
 
+/// Extension providing additional combinators on [Codec].
 extension CodecOps<A> on Codec<A> {
   Codec<Option<A>> optional(Codec<bool> indicator) => Codec.option(indicator, this);
 }

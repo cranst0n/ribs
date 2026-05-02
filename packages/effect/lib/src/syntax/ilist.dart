@@ -16,6 +16,7 @@ extension IListIOOps<A> on IList<IO<A>> {
   IO<Unit> parSequence_() => parTraverseIO_(identity);
 }
 
+/// [IO]-specific traversal and parallel operations on [IList].
 extension IOIListOps<A> on IList<A> {
   /// {@template ilist_parTraverseIO}
   /// **Asynchronously** applies [f] to each element of this list and collects
@@ -100,6 +101,7 @@ extension IOIListOps<A> on IList<A> {
   );
 }
 
+/// Concurrency operations on [IList] using bounded parallelism.
 extension IListConcurrencyOps<A> on IList<A> {
   /// Maps [f] over the list concurrently, running at most [n] tasks at a time.
   IO<IList<B>> parTraverseION<B>(int n, IO<B> Function(A) f) {
@@ -126,6 +128,7 @@ extension IListResourceOps<A> on IList<Resource<A>> {
   Resource<Unit> parSequence_() => parTraverseResource_(identity);
 }
 
+/// [Resource]-specific traversal and parallel operations on [IList].
 extension ResourceIListOps<A> on IList<A> {
   /// {@template ilist_parTraverseResource}
   /// **Asynchronously** applies [f] to each element of this list and collects

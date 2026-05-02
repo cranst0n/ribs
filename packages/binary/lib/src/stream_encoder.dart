@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:ribs_binary/ribs_binary.dart';
 
+/// A [StreamTransformer] that encodes each element using an [Encoder],
+/// emitting the resulting [BitVector] for each successful encoding.
 class StreamEncoder<A> implements StreamTransformer<A, BitVector> {
   final Encoder<A> encoder;
 

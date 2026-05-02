@@ -1,5 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 
+/// Numeric aggregation operations for [RIterableOnce] of [int].
 extension RIterableIntOps on RIterableOnce<int> {
   /// Returns the sum of all elements in this list
   int sum() {
@@ -26,6 +27,7 @@ extension RIterableIntOps on RIterableOnce<int> {
   }
 }
 
+/// Numeric aggregation operations for [RIterableOnce] of [double].
 extension RIterableDoubleOps on RIterableOnce<double> {
   /// Returns the sum of all elements in this list
   double sum() {
@@ -52,6 +54,7 @@ extension RIterableDoubleOps on RIterableOnce<double> {
   }
 }
 
+/// Conversion operations for [RIterable] of 2-tuples.
 extension RIterableTuple2Ops<A, B> on RIterable<(A, B)> {
   /// Creates a new [IMap] where element tuple element of this list is used to
   /// create a key and value respectively.

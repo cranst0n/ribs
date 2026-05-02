@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:ribs_binary/ribs_binary.dart';
 
+/// A [StreamTransformer] that applies a [Decoder] to a stream of [BitVector]
+/// chunks, emitting decoded values as they arrive.
 class StreamDecoder<To> implements StreamTransformer<BitVector, To> {
   final Decoder<To> decoder;
 

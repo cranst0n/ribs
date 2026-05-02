@@ -1,5 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 
+/// Interoperability extensions from Dart [Iterable] to ribs collection types.
 extension IterableOps<A> on Iterable<A> {
   /// Converts this [Iterable] to an [IList].
   IList<A> toIList() => IList.fromDart(this);

@@ -1645,6 +1645,7 @@ abstract class Codec<A> extends Decoder<A> with Encoder<A> {
   );
 }
 
+/// Syntax for creating [KeyValueCodec] instances from a field-name string.
 extension KeyValueCodecOps on String {
   KeyValueCodec<A> as<A>(Codec<A> codec) => KeyValueCodec(this, codec);
 }

@@ -1,6 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
+/// [IO]-specific traversal operations on [NonEmptyIList].
 extension IONonEmptyIListOps<A> on NonEmptyIList<A> {
   /// Applies [f] to each element of this list and collects the results into a
   /// new list. If an error or cancellation is encountered for any element,

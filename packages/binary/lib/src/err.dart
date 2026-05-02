@@ -1,5 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 
+/// Base type for errors that occur during binary decoding or encoding.
 sealed class Err {
   String get message;
   IList<String> get context;
@@ -17,6 +18,7 @@ sealed class Err {
   static Err insufficientBits(int needed, int have) => InsufficientBits(needed, have, nil());
 }
 
+/// A general-purpose codec error with a freeform [message].
 final class General extends Err {
   @override
   final String message;
@@ -29,6 +31,7 @@ final class General extends Err {
   Err pushContext(String ctx) => General(message, context.appended(ctx));
 }
 
+/// Error indicating that decoding requires more bits than are available.
 final class InsufficientBits extends Err {
   final int needed;
   final int have;

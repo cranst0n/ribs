@@ -2,6 +2,7 @@ import 'package:ribs_core/ribs_core.dart';
 
 part 'generated/tuple_validated_nel.dart';
 
+/// Syntax for lifting arbitrary values into [Validated].
 extension ValidatedSyntaxOps<A> on A {
   /// Lifts this value into a [Validated], specifically an [Invalid].
   Validated<A, B> invalid<B>() => Validated.invalid(this);

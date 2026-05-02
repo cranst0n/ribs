@@ -1,11 +1,16 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// Function type alias for encoding a value of type [A] to a [BitVector].
 typedef EncodeF<A> = Function1<A, Either<Err, BitVector>>;
 
+/// Class for binary encoding: converts a value of type [A] into a
+/// [BitVector] or an [Err].
 abstract mixin class Encoder<A> {
+  /// Creates an [Encoder] from a raw [EncodeF] function.
   static Encoder<A> instance<A>(EncodeF<A> encode) => _EncoderF(encode);
 
+  /// Encodes [a] with [encodeA] and [b] with [encodeB], concatenating the results.
   static Either<Err, BitVector> encodeBoth<A, B>(
     Encoder<A> encodeA,
     A a,
@@ -13,15 +18,19 @@ abstract mixin class Encoder<A> {
     B b,
   ) => encodeA.encode(a).flatMap((bvA) => encodeB.encode(b).map((bvB) => bvA.concat(bvB)));
 
+  /// Encodes a single value of [A] to a [BitVector].
   Either<Err, BitVector> encode(A a);
 
+  /// Adapts this encoder to accept values of [B] by first applying [f].
   Encoder<B> contramap<B>(Function1<B, A> f) => Encoder.instance<B>((b) => encode(f(b)));
 
+  /// Encodes all values in [as] and concatenates the resulting bits.
   Either<Err, BitVector> encodeAll(Iterable<A> as) => as.fold(
     Either.right(BitVector.empty),
     (acc, a) => encode(a).flatMap((res) => acc.map((acc) => acc.concat(res))),
   );
 
+  /// Encodes two fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1)> tuple2<T0, T1>(
     Encoder<T0> encode0,
     Encoder<T1> encode1,
@@ -30,6 +39,7 @@ abstract mixin class Encoder<A> {
         encode0.encode(tuple.$1).flatMap((bits) => encode1.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes three fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1, T2)> tuple3<T0, T1, T2>(
     Encoder<T0> encode0,
     Encoder<T1> encode1,
@@ -41,6 +51,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode2.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes four fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1, T2, T3)> tuple4<T0, T1, T2, T3>(
     Encoder<T0> encode0,
     Encoder<T1> encode1,
@@ -54,6 +65,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode3.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes five fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1, T2, T3, T4)> tuple5<T0, T1, T2, T3, T4>(
     Encoder<T0> encode0,
     Encoder<T1> encode1,
@@ -69,6 +81,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode4.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes six fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1, T2, T3, T4, T5)> tuple6<T0, T1, T2, T3, T4, T5>(
     Encoder<T0> encode0,
     Encoder<T1> encode1,
@@ -86,6 +99,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode5.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes seven fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1, T2, T3, T4, T5, T6)> tuple7<T0, T1, T2, T3, T4, T5, T6>(
     Encoder<T0> encode0,
     Encoder<T1> encode1,
@@ -105,6 +119,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode6.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes eight fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1, T2, T3, T4, T5, T6, T7)> tuple8<T0, T1, T2, T3, T4, T5, T6, T7>(
     Encoder<T0> encode0,
     Encoder<T1> encode1,
@@ -126,6 +141,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode7.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes nine fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8)> tuple9<T0, T1, T2, T3, T4, T5, T6, T7, T8>(
     Encoder<T0> encode0,
     Encoder<T1> encode1,
@@ -149,6 +165,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode8.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes ten fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)>
   tuple10<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(
     Encoder<T0> encode0,
@@ -175,6 +192,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode9.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes eleven fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)>
   tuple11<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
     Encoder<T0> encode0,
@@ -203,6 +221,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode10.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes twelve fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)>
   tuple12<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
     Encoder<T0> encode0,
@@ -233,6 +252,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode11.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes thirteen fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)>
   tuple13<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
     Encoder<T0> encode0,
@@ -265,6 +285,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode12.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes fourteen fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)>
   tuple14<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
     Encoder<T0> encode0,
@@ -299,6 +320,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode13.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes fifteen fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)>
   tuple15<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
     Encoder<T0> encode0,
@@ -335,6 +357,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode14.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes sixteen fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)>
   tuple16<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
     Encoder<T0> encode0,
@@ -373,6 +396,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode15.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes seventeen fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)>
   tuple17<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
     Encoder<T0> encode0,
@@ -413,6 +437,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode16.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes eighteen fields sequentially, concatenating the resulting bits.
   static Encoder<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)>
   tuple18<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>(
     Encoder<T0> encode0,
@@ -455,6 +480,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode17.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes nineteen fields sequentially, concatenating the resulting bits.
   static Encoder<
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
   >
@@ -501,6 +527,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode18.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes twenty fields sequentially, concatenating the resulting bits.
   static Encoder<
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
   >
@@ -549,6 +576,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode19.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes twenty-one fields sequentially, concatenating the resulting bits.
   static Encoder<
     (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
   >
@@ -621,6 +649,7 @@ abstract mixin class Encoder<A> {
     ).encode(tuple.init).flatMap((bits) => encode20.encode(tuple.last).map(bits.concat)),
   );
 
+  /// Encodes twenty-two fields sequentially, concatenating the resulting bits.
   static Encoder<
     (
       T0,

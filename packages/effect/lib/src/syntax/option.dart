@@ -1,6 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
+/// [IO]-specific operations on [Option].
 extension IOOptionOps<A> on Option<A> {
   /// If this is a [Some], returns the result of applying [f] to the value,
   /// otherwise an [IO] with a [None] is returned.
@@ -12,6 +13,7 @@ extension IOOptionOps<A> on Option<A> {
       fold(() => IO.unit, (a) => f(a).map((_) => Unit()));
 }
 
+/// Operations for sequencing [Option] of [IO] values.
 extension OptionIOOps<A> on Option<IO<A>> {
   /// Returns an [IO] that will return [None] if this is a [None], or the
   /// evaluation of the [IO] lifted into an [Option], specifically a [Some].

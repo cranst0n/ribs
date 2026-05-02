@@ -1220,6 +1220,7 @@ final class _DeferredState<A> {
   }
 }
 
+/// Flattening operations for nested [ILazyList] values.
 extension ILazyListNestedOps<A> on ILazyList<ILazyList<A>> {
   /// Combines all nested lazy lists into one using concatenation.
   ILazyList<A> flatten() => flatMap(identity);

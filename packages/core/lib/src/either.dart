@@ -201,6 +201,7 @@ final class Right<A, B> extends Either<A, B> {
   Either<A, C> map<C>(Function1<B, C> f) => Right(f(b));
 }
 
+/// Additional combinators on nested [Either] values.
 extension EitherNestedOps<A, B> on Either<A, Either<A, B>> {
   /// Extracts the nested [Either] via [fold].
   Either<A, B> flatten() => fold((a) => Either.left<A, B>(a), identity);

@@ -37,6 +37,7 @@ extension IListNullableOps<A> on IList<A?> {
   IList<A> noNulls() => foldLeft(nil(), (acc, elem) => elem == null ? acc : acc.appended(elem));
 }
 
+/// Unzip operations for [IList] of 2-tuples.
 extension IListTuple2UnzipOps<A, B> on IList<(A, B)> {
   /// Returns 2 new lists as a tuple. The first list is all the first items
   /// from each tuple element of this list. The second list is all the second
@@ -45,6 +46,7 @@ extension IListTuple2UnzipOps<A, B> on IList<(A, B)> {
       foldLeft((nil<A>(), nil<B>()), (acc, ab) => (acc.$1.appended(ab.$1), acc.$2.appended(ab.$2)));
 }
 
+/// Unzip operations for [IList] of 3-tuples.
 extension IListTuple3UnzipOps<A, B, C> on IList<(A, B, C)> {
   /// Returns 3 new lists as a tuple. The first list is all the first items
   /// from each tuple element of this list. The second list is all the second

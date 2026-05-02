@@ -982,6 +982,7 @@ final class _IListIterator<A> extends RIterator<A> {
   }
 }
 
+/// Flattening operations for nested [IList] values.
 extension IListNestedOps<A> on IList<IList<A>> {
   /// Combines all nested lists into one list using concatenation.
   IList<A> flatten() => foldLeft(nil<A>(), (z, a) => z.concat(a));

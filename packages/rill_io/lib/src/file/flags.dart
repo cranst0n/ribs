@@ -1,5 +1,6 @@
 import 'package:ribs_core/ribs_core.dart';
 
+/// A single file-open option. Combine multiple flags using [Flags].
 enum Flag {
   /// Open file for read access.
   read,

@@ -1407,7 +1407,7 @@ class Rill<O> {
     Rill<O> that,
     Function2<Rill<O>, IO<Unit>, Rill<O>> f,
   ) {
-    final rillF = SignallingRef.of<(MergeState, MergeState)>((none(), none())).flatMap((
+    final rillF = SignallingRef.of<(_MergeState, _MergeState)>((none(), none())).flatMap((
       bothStates,
     ) {
       return Channel.synchronous<Rill<O>>().flatMap((output) {
@@ -1425,7 +1425,7 @@ class Rill<O> {
             });
           }
 
-          Option<Either<Object, Unit>> bothStopped((MergeState, MergeState) state) {
+          Option<Either<Object, Unit>> bothStopped((_MergeState, _MergeState) state) {
             return switch (state) {
               (Some(value: final r1), Some(value: final r2)) => Some(
                 CompositeFailure.fromResults(r1, r2),
@@ -2211,4 +2211,4 @@ class _Unbounded extends OverflowStrategy {
   const _Unbounded();
 }
 
-typedef MergeState = Option<Either<Object, Unit>>;
+typedef _MergeState = Option<Either<Object, Unit>>;

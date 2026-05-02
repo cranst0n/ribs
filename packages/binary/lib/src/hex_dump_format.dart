@@ -3,6 +3,7 @@ import 'dart:convert' as convert;
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_core/ribs_core.dart';
 
+/// Configuration for formatting a [BitVector] as a hex dump.
 final class HexDumpFormat {
   final bool includeAddressColumn;
   final int dataColumnCount;

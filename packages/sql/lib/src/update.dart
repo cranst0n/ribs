@@ -115,6 +115,7 @@ extension UpdateStringOps on String {
   ) => UpdateReturning(this, write, read);
 }
 
+/// Extension providing update-query construction on [Fragment].
 extension FragmentUpdateOps on Fragment {
   Update0 get update0 => Update0(sql);
 }

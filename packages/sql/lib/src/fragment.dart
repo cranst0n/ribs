@@ -39,6 +39,7 @@ final class Fragment {
   static Fragment fromParts(String sql, StatementParameters params) => Fragment._(sql, params);
 }
 
+/// Syntax for lifting SQL strings into [Fragment].
 extension FragmentStringOps on String {
   /// Wraps this SQL string in a [Fragment] with no parameters.
   Fragment get fr => Fragment.raw(this);

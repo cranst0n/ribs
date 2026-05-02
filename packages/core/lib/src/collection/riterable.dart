@@ -310,6 +310,7 @@ mixin RIterable<A> on RIterableOnce<A> {
   }
 }
 
+/// Unzip operations for [RIterable] of 2-tuples.
 extension RibsIterableTuple2Ops<A, B> on RIterable<(A, B)> {
   /// Splits a collection of pairs into two separate collections.
   (RIterable<A>, RIterable<B>) unzip() => (

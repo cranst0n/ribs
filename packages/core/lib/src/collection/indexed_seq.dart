@@ -158,6 +158,7 @@ mixin IndexedSeq<A> on RIterable<A>, RSeq<A> {
   };
 }
 
+/// Unzip operations for [IndexedSeq] of 2-tuples.
 extension IndexedSeqTuple2Ops<A, B> on IndexedSeq<(A, B)> {
   (IndexedSeq<A>, IndexedSeq<B>) unzip() => (
     iseqviews.Map(this, (a) => a.$1),

@@ -322,6 +322,7 @@ class _SubsetsOfNItr<A> extends RIterator<ISet<A>> {
   }
 }
 
+/// Flattening operations for nested [ISet] values.
 extension ISetNestedOps<A> on ISet<ISet<A>> {
   /// Combines all nested set into one set using concatenation.
   ISet<A> flatten() => fold(iset({}), (z, a) => z.concat(a.toIList()));
