@@ -962,8 +962,7 @@ final class IDN extends Host {
   static Uri uriDecode(Uri uri) => uri.replace(host: domainToUnicode(uri.host));
 
   /// Encodes the host component of [uri] to Punycode.
-  static Uri uriEncode(Uri uri) =>
-      uri.replace(host: domainToAscii(Uri.decodeComponent(uri.host)));
+  static Uri uriEncode(Uri uri) => uri.replace(host: domainToAscii(Uri.decodeComponent(uri.host)));
 
   /// Decodes a Punycode-encoded label string to Unicode.
   static String toUnicode(String s) => domainToUnicode(s);
