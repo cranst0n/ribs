@@ -958,23 +958,20 @@ final class IDN extends Host {
   @override
   int get hashCode => Object.hash(toString(), 'IDN'.hashCode);
 
-  /// The Punycode codec used for encoding/decoding IDN labels.
-  static const domainCodec = PunycodeCodec();
-
   /// Decodes the host component of [uri] from Punycode to Unicode.
-  static Uri uriDecode(Uri uri) => uri.replace(host: domainCodec.decode(uri.host));
+  static Uri uriDecode(Uri uri) => uri.replace(host: domainToUnicode(uri.host));
 
   /// Encodes the host component of [uri] to Punycode.
   static Uri uriEncode(Uri uri) =>
-      uri.replace(host: domainCodec.encode(Uri.decodeComponent(uri.host)));
+      uri.replace(host: domainToAscii(Uri.decodeComponent(uri.host)));
 
   /// Decodes a Punycode-encoded label string to Unicode.
-  static String toUnicode(String s) => domainCodec.decode(s);
+  static String toUnicode(String s) => domainToUnicode(s);
 
   /// Encodes a Unicode domain string to its Punycode representation,
   /// returning [None] if encoding fails.
   static Option<String> toAscii(String s) =>
-      Either.catching(() => domainCodec.encode(s), (err, _) => err).toOption();
+      Either.catching(() => domainToAscii(s, validate: false), (err, _) => err).toOption();
 
   /// Returns the Unicode string representation of this IDN.
   @override

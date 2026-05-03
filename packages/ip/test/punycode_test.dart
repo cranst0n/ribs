@@ -3,8 +3,7 @@ import 'package:ribs_ip/ribs_ip.dart';
 import 'package:test/test.dart';
 
 void main() {
-  const domainCodec = PunycodeCodec();
-  const codec = PunycodeCodec.simple();
+  const codec = PunycodeCodec();
 
   group('Punycode', () {
     group('string', () {
@@ -19,8 +18,8 @@ void main() {
     group('domain', () {
       for (final testCase in testDomains) {
         test(testCase.name, () {
-          expect(domainCodec.encode(testCase.decoded), testCase.encoded);
-          expect(domainCodec.decode(testCase.encoded), testCase.decoded);
+          expect(domainToAscii(testCase.decoded, validate: false), testCase.encoded);
+          expect(domainToUnicode(testCase.encoded), testCase.decoded);
         });
       }
     });
@@ -28,7 +27,7 @@ void main() {
     group('separator', () {
       for (final testCase in testSeparators) {
         test(testCase.name, () {
-          expect(domainCodec.encode(testCase.decoded), testCase.encoded);
+          expect(domainToAscii(testCase.decoded), testCase.encoded);
         });
       }
     });

@@ -15,7 +15,7 @@ environment:
   sdk: ">=3.7.0 <4.0.0"
 
 dependencies:
-  punycoder:   ^0.2.2
+  punycoder:   ^0.3.0
   ribs_core:   ^1.0.0-dev.15
   ribs_effect: ^1.0.0-dev.4
 
