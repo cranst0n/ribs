@@ -8,11 +8,11 @@
     <meta name="generator" content="VitePress v1.6.4">
     <link rel="preload stylesheet" href="/ribs/assets/style.Do7VOCkO.css" as="style">
     <link rel="preload stylesheet" href="/ribs/vp-icons.css" as="style">
-    <script type="module" src="/ribs/assets/chunks/metadata.3136bdc0.js"></script>
-    <script type="module" src="/ribs/assets/app.BMYSslgd.js"></script>
-    <link rel="modulepreload" href="/ribs/assets/chunks/@localSearchIndexroot.C7wt0HR2.js">
-    <link rel="modulepreload" href="/ribs/assets/app.BMYSslgd.js">
-    <link rel="modulepreload" href="/ribs/assets/api_package-ribs_postgres_ribs_postgres_PostgresConnection.md.lgFG7j-J.lean.js">
+    <script type="module" src="/ribs/assets/chunks/metadata.60d5b818.js"></script>
+    <script type="module" src="/ribs/assets/app.K7a8k4dr.js"></script>
+    <link rel="modulepreload" href="/ribs/assets/chunks/@localSearchIndexroot.Ba4GYzza.js">
+    <link rel="modulepreload" href="/ribs/assets/app.K7a8k4dr.js">
+    <link rel="modulepreload" href="/ribs/assets/api_package-ribs_postgres_ribs_postgres_PostgresConnection.md.BOv-_FU6.lean.js">
     <link rel="icon" href="/ribs/logo.png" type="image/png">
     <script id="check-dark-mode">(()=>{const e=localStorage.getItem("vitepress-theme-appearance")||"dark",a=window.matchMedia("(prefers-color-scheme: dark)").matches;(!e||e==="auto"?a:e==="dark")&&document.documentElement.classList.add("dark")})();</script>
     <script id="check-mac-os">document.documentElement.classList.toggle("mac",/Mac|iPhone|iPod|iPad/i.test(navigator.platform));</script>
@@ -49,7 +49,7 @@
 <span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">    (statement, ec) {</span></span>
 <span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">      final</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> dispose </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> IO</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">fromFutureF</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(() </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> statement.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">dispose</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">()).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">voided</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">();</span></span>
 <span class="line"></span>
-<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">      &amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">#</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">47</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">;</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">#</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">47</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">; </span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">On</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> cancellation, the </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">in-</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">flight query holds the connection</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">&#39;s internal</span></span>
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">      &amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">#</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">47</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">;</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">#</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">47</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">; </span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">On</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> cancelation, the </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">in-</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">flight query holds the connection</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">&#39;s internal</span></span>
 <span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">      &amp;#47;&amp;#47; operation lock. statement.dispose() would hang indefinitely waiting</span></span>
 <span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">      &amp;#47;&amp;#47; for that lock (which only releases when the server finishes the</span></span>
 <span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">      &amp;#47;&amp;#47; query). Force-closing the connection first interrupts the pending</span></span>
@@ -79,7 +79,7 @@
 <span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">          final continueConsume = rightOpts.forall((opt) =&gt; opt.isDefined);</span></span>
 <span class="line"></span>
 <span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">          if (continueConsume) {</span></span>
-<span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">            &amp;#47;&amp;#47; all Somes so send all</span></span>
+<span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">            &amp;#47;&amp;#47; all Somes, so send all</span></span>
 <span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">            final Rill&lt;Row&gt; err = errOpt.fold(</span></span>
 <span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">              () =&gt; Rill.empty(),</span></span>
 <span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">              (err) =&gt; Rill.raiseError(err),</span></span>
@@ -114,7 +114,7 @@
 <span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">            ),</span></span>
 <span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">      );</span></span>
 <span class="line"></span>
-<span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">      &amp;#47;&amp;#47; On cancellation, skip sub.cancel() — the outer bracketCase will</span></span>
+<span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">      &amp;#47;&amp;#47; On cancelation, skip sub.cancel() — the outer bracketCase will</span></span>
 <span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">      &amp;#47;&amp;#47; force-close the connection, which causes the subscription to</span></span>
 <span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">      &amp;#47;&amp;#47; terminate naturally via onError&amp;#47;onDone. Calling sub.cancel() here</span></span>
 <span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">      &amp;#47;&amp;#47; would race with the force-close and could block on the operation</span></span>
