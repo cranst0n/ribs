@@ -62,7 +62,7 @@ final class Query<A> {
     );
   });
 
-  /// Returns [Some] if 1 rows is returned, [None] if 0,
+  /// Returns [Some] if 1 row is returned, [None] if 0,
   /// and errors if more than 1 row is returned.
   ConnectionIO<Option<A>> option() => ConnectionIO.fromConnection((conn) {
     return conn.executeQuery(fragment.sql, fragment.params).flatMap(
@@ -156,7 +156,7 @@ final class ParameterizedQuery<P, A> {
   /// failing if there are none.
   ConnectionIO<NonEmptyIList<A>> nel(P params) => apply(params).nel();
 
-  /// Applies the given [params] to the query and returns [Some] if 1 rows is returned,
+  /// Applies the given [params] to the query and returns [Some] if 1 row is returned,
   /// [None] if 0, and fails if more than 1 row is returned.
   ConnectionIO<Option<A>> option(P params) => apply(params).option();
 
@@ -180,6 +180,6 @@ final class ParameterizedQuery<P, A> {
 /// Extension to construct a [ParameterizedQuery] from a plain SQL string with no parameters.
 extension ParameterizedQueryStringOps on String {
   /// Creates a [ParameterizedQuery] from this SQL string.
-  ParameterizedQuery<P, A> parmeteriedQuery<P, A>(Read<A> read, Write<P> write) =>
+  ParameterizedQuery<P, A> parameterizedQuery<P, A>(Read<A> read, Write<P> write) =>
       ParameterizedQuery(this, read, write);
 }

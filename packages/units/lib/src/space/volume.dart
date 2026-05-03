@@ -253,7 +253,7 @@ final class Tablespoons extends VolumeUnit {
 
 /// Teaspoons (tsp) — one third of a tablespoon.
 final class Teaspoons extends VolumeUnit {
-  const Teaspoons._() : super('teaspon', 'tsp', _UsGallonsConversionFactor / 128 / 6);
+  const Teaspoons._() : super('teaspoon', 'tsp', _UsGallonsConversionFactor / 128 / 6);
 }
 
 /// Extension methods for constructing [Volume] values from [num].

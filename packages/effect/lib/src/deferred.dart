@@ -19,7 +19,7 @@ final class Deferred<A> {
   /// referential transparency.
   static IO<Deferred<A>> of<A>() => IO.delay(() => Deferred._());
 
-  /// Creates a new Deferred..
+  /// Creates a new Deferred.
   ///
   /// This is marked as 'unsafe' since it allocates mutable state and thus
   /// isn't referentially transparent.

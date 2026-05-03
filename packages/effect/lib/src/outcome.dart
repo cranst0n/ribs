@@ -75,7 +75,7 @@ sealed class Outcome<A> {
   int get hashCode;
 }
 
-/// Succsseful [Outcome] of an [IO] evaluation, yielding a result.
+/// Successful [Outcome] of an [IO] evaluation, yielding a result.
 final class Succeeded<A> extends Outcome<A> {
   /// The successful value.
   final A value;

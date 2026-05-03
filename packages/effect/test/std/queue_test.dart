@@ -562,7 +562,7 @@ class QueueTests {
     Function1<Q, IO<int>> take,
     Function2<Q, Option<int>, IO<IList<int>>> tryTakeN,
   ) {
-    test('ensure offerers are awakened by tryTakeN after cancellation', () {
+    test('ensure offerers are awakened by tryTakeN after cancelation', () {
       final test = constructor(4).flatMap((q) {
         return IList.range(0, 4)
             .traverseIO_((n) {

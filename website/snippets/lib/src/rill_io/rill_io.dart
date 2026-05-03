@@ -63,7 +63,7 @@ IO<Unit> echoServer(SocketAddress<Ipv4Address> addr, {int maxConnections = 100})
 /// - [Network.bindAndAccept] to stream incoming connections as a `Rill`
 /// - [IO.ref] for shared mutable state across concurrent fibers
 /// - [parEvalMap] for bounded concurrency over the connection stream
-/// - [guarantee] to log disconnections on success, error, or cancellation
+/// - [guarantee] to log disconnections on success, error, or cancelation
 IO<Unit> loggingEchoServer({int port = 9090, int maxConnections = 100}) => IO.ref(0).flatMap((
   Ref<int> counter,
 ) {

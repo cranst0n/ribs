@@ -22,7 +22,7 @@ about when and how many times it has already been executed.
 `IO<A>` is a lazy, referentially transparent description of an effect. Creating
 an `IO` does nothing on its own — it is a *blueprint*. The same `IO` value can
 be reused, composed, and executed any number of times without surprising
-behaviour:
+behavior:
 
 <<< @/../snippets/lib/src/effect/io.dart#io-3
 
@@ -77,12 +77,12 @@ combine policies with `and`/`or`.
 ## Concurrency model
 
 `ribs_effect` implements a *green-thread* concurrency model on top of Dart's
-event loop. A `Fiber` is a lightweight, cancellable unit of concurrency — far
+event loop. A `Fiber` is a lightweight, cancelable unit of concurrency — far
 cheaper than a Dart `Isolate` (~270 bytes for a created fiber). Calling `.start()`
 on any `IO` forks it onto a new fiber, and fibers can be joined, cancelled, or
 raced with `IO.race` and `IO.both`.
 
-Cancellation is *cooperative and safe*: when a fiber is cancelled, any
+Cancelation is *cooperative and safe*: when a fiber is cancelled, any
 `Resource` finalizers and `IO.onCancel` handlers it holds are guaranteed to run.
 
 ## Execution

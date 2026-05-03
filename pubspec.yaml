@@ -29,6 +29,12 @@ dev_dependencies:
 
 melos:
   scripts:
+    codegen:
+      run: |
+        melos exec --dir-exists="codegen" -- dart codegen/generate.dart
+        melos exec -- dart format --show=changed .
+      description: Run code generation for all packages that have a codegen/ directory, then format.
+
     test:
       run: melos exec -c 1 --fail-fast -- dart test
       description: Run all dart tests in this project.

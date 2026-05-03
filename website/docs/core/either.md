@@ -23,10 +23,10 @@ a non-empty alias. Let's see what happens when we try to create a few users:
 
 <<< @/../snippets/lib/src/core/either.dart#create-user-2
 
-We can see that the function works as intended which is great but consider
+We can see that the function works as intended, which is great but consider
 the results returned in the failure case when the user's name and/or alias is
 empty. They're all `None`. It would be much better if we could return a reason
-why the user couldn't be created right? So let's do better using the `Either`
+why the user couldn't be created, right? So let's do better using the `Either`
 type:
 
 <<< @/../snippets/lib/src/core/either.dart#create-user-3
@@ -37,7 +37,7 @@ to help them navigate our application.
 
 :::info
 We said earlier that the "happy" path for `Option` is `Some` vs. the failure
-path of `None`. So what is the happy/failure paths for `Either`? Looking at
+path of `None`. So what are the happy/failure paths for `Either`? Looking at
 the previous examples, it should become clear that the happy path is `Right`
 while the failure path is `Left`. This is by convention so you could choose
 to ignore this, but be aware that many combinators in the Either API treat
@@ -49,7 +49,7 @@ the Right side as the happy path, leading to the statement that `Either` is
 
 ### map
 
-Much like `Option` the `map` method on `Either` will apply a function to
+Much like `Option`, the `map` method on `Either` will apply a function to
 the value, so long as the `Either` is an instance of `Right`:
 
 <<< @/../snippets/lib/src/core/either.dart#map-1

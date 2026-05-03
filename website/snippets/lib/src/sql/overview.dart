@@ -29,7 +29,7 @@ final personWrite = (Write.string, Write.integer).tupled.contramap(
 // SqliteTransactor.memory() gives a Resource<Transactor> backed by an
 // in-memory SQLite database. Use .file(path) for a persistent database.
 // Resource ensures the connection is closed on success, error, or
-// cancellation.
+// cancelation.
 IO<Unit> runWithTransactor() => SqliteTransactor.memory().use((xa) {
   // xa : Transactor — passed to .transact() on every ConnectionIO
   return IO.unit;
@@ -116,7 +116,7 @@ ConnectionIO<int> insertReturningId(String label) =>
 // #region sql-strategy
 // Strategy controls the four transaction lifecycle hooks. The default strategy
 // issues BEGIN before the ConnectionIO, COMMIT on success, and ROLLBACK on any
-// error or fiber cancellation. Override individual hooks when needed — for
+// error or fiber cancelation. Override individual hooks when needed — for
 // example to use SAVEPOINTs or to add application-level auditing.
 final customStrategy = Strategy(
   before: ConnectionIO.fromConnection((conn) => conn.beginTransaction()),
@@ -131,7 +131,7 @@ final Resource<Transactor> xa = SqliteTransactor.memory(strategy: customStrategy
 
 // #region sql-transaction
 // .transact(xa) wraps the entire ConnectionIO in BEGIN / COMMIT.
-// Any error — including fiber cancellation — triggers an automatic ROLLBACK.
+// Any error — including fiber cancelation — triggers an automatic ROLLBACK.
 IO<Unit> runTransaction(Transactor xa2) =>
     createTable().flatMap((_) => insertMany()).flatMap((_) => queryAll()).transact(xa2).voided();
 // #endregion sql-transaction

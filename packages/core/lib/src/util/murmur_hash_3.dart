@@ -41,7 +41,7 @@ sealed class MurmurHash3 {
 
   /// Like [mix], but for the last element in a hash computation.
   ///
-  /// Skips the final rotation step, which can improve avalanche behaviour
+  /// Skips the final rotation step, which can improve avalanche behavior
   /// for the last value mixed in.
   static int mixLast(int hash, int data) => _mixLast(hash, data);
 

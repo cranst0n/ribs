@@ -29,7 +29,7 @@ features:
     title: Rill
     details: Purely functional, composable streaming library powered by Pull.
       Build efficient chunked data pipelines with built-in resource safety and
-      cancellation.
+      cancelation.
   - icon: 📄
     title: JSON
     details: Type-safe JSON encoding and decoding via composable Codec values.

@@ -78,7 +78,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// Generates a 7-tuple of independent values from this generator.
   Gen<(A, A, A, A, A, A, A)> get tuple7 => tuple6.flatMap((t) => map(t.appended));
 
-  /// Generates a 8-tuple of independent values from this generator.
+  /// Generates an 8-tuple of independent values from this generator.
   Gen<(A, A, A, A, A, A, A, A)> get tuple8 => tuple7.flatMap((t) => map(t.appended));
 
   /// Generates a 9-tuple of independent values from this generator.
@@ -87,7 +87,7 @@ final class Gen<A> with Functor<A>, Applicative<A>, Monad<A> {
   /// Generates a 10-tuple of independent values from this generator.
   Gen<(A, A, A, A, A, A, A, A, A, A)> get tuple10 => tuple9.flatMap((t) => map(t.appended));
 
-  /// Generates a 11-tuple of independent values from this generator.
+  /// Generates an 11-tuple of independent values from this generator.
   Gen<(A, A, A, A, A, A, A, A, A, A, A)> get tuple11 => tuple10.flatMap((t) => map(t.appended));
 
   /// Generates a 12-tuple of independent values from this generator.

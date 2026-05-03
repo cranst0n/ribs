@@ -56,7 +56,7 @@ extension RIterableDoubleOps on RIterableOnce<double> {
 
 /// Conversion operations for [RIterable] of 2-tuples.
 extension RIterableTuple2Ops<A, B> on RIterable<(A, B)> {
-  /// Creates a new [IMap] where element tuple element of this list is used to
+  /// Creates a new [IMap] where each tuple element of this list is used to
   /// create a key and value respectively.
   IMap<A, B> toIMap() => IMap.from(this);
 }

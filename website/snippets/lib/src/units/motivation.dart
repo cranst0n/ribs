@@ -87,14 +87,14 @@ void information() {
 // #region motivation-temperature
 void temperature() {
   // Scale conversions (Celsius ↔ Fahrenheit ↔ Kelvin) account for zero-point offsets.
-  final boiling = 100.celcius;
+  final boiling = 100.celsius;
   print(boiling.toFahrenheit); // Temperature(212.0, fahrenheit)
   print(boiling.toKelvin); // Temperature(373.15, kelvin)
 
   // Degree conversions (deltas) omit the zero-point offset.
   // A 10 °C increase is an 18 °F increase, not 50 °F.
-  final delta = 10.celcius;
-  print(delta.toCelsiusDegrees); // Temperature(10.0, celcius)  — no offset
+  final delta = 10.celsius;
+  print(delta.toCelsiusDegrees); // Temperature(10.0, celsius)  — no offset
   print(delta.toFahrenheitDegrees); // Temperature(18.0, fahrenheit) — 10 × 9/5
 }
 // #endregion motivation-temperature

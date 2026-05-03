@@ -169,7 +169,7 @@ void main() {
     });
 
     test('ParameterizedQuery.stream with params', () {
-      final byMinAge = 'SELECT name FROM person WHERE age >= ? ORDER BY name'.parmeteriedQuery(
+      final byMinAge = 'SELECT name FROM person WHERE age >= ? ORDER BY name'.parameterizedQuery(
         Read.string,
         Write.integer,
       );
@@ -239,7 +239,7 @@ void main() {
       );
     });
 
-    test('rolls back on fiber cancellation', () {
+    test('rolls back on fiber cancelation', () {
       final insert = 'INSERT INTO person (name, age) VALUES (?, ?)'
           .update((Write.string, Write.integer).tupled)
           .run(('Rollback', 42))
@@ -306,7 +306,7 @@ void main() {
       );
     });
 
-    test('connection is returned to pool after fiber cancellation', () {
+    test('connection is returned to pool after fiber cancelation', () {
       final test = Deferred.of<Unit>().flatMap((acquired) {
         return ConnectionIO.lift(
           acquired.complete(Unit()),
@@ -315,7 +315,7 @@ void main() {
               .value()
               .productR(fiber.cancel())
               .productR(
-                // Would block if cancellation didn't trigger the signalDone Completer.
+                // Would block if cancelation didn't trigger the signalDone Completer.
                 'SELECT 1'.query(Read.integer).unique().transact(singleXa),
               );
         });
@@ -325,10 +325,10 @@ void main() {
     });
 
     test(
-      'connection is returned to pool after stream query fiber cancellation',
+      'connection is returned to pool after stream query fiber cancelation',
       () async {
         // A streaming query that blocks for 30 s server-side, holding the pool's
-        // sole connection for the duration unless the fiber is cancelled first.
+        // sole connection for the duration unless the fiber is canceled first.
         final fiber =
             await 'SELECT pg_sleep(30)::text'
                 .query(Read.string)

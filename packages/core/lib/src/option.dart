@@ -7,8 +7,8 @@ Option<A> none<A>() => const None();
 /// Represents optional values.
 ///
 /// Instances of `Option` are either a [Some] or [None]. At first glance,
-/// [Option] may seem just like a nullabled type (e.g. `Option<int>` <-> int?),
-/// but [Option] provide far more combinators to give greater power and
+/// [Option] may seem just like a nullable type (e.g. `Option<int>` <-> int?),
+/// but [Option] provides far more combinators to give greater power and
 /// flexibility. There are also conversions to move between optional and
 /// nullable types.
 @immutable
@@ -85,11 +85,11 @@ sealed class Option<A> with RIterableOnce<A> {
   @override
   RIterableOnce<A> takeWhile(Function1<A, bool> p) => toIList().takeWhile(p);
 
-  /// If this is a [Some] a [Left] is returned with the value. It this is a
+  /// If this is a [Some] a [Left] is returned with the value. If this is a
   /// [None], a [Right] is returned with the result of evaluating [ifEmpty].
   Either<A, X> toLeft<X>(Function0<X> ifEmpty);
 
-  /// If this is a [Some] a [Right] is returned with the value. It this is a
+  /// If this is a [Some] a [Right] is returned with the value. If this is a
   /// [None], a [Left] is returned with the result of evaluating [ifEmpty].
   Either<X, A> toRight<X>(Function0<X> ifEmpty);
 

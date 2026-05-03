@@ -94,7 +94,7 @@ open a `WriteCursor` directly via `Files.writeCursor(path, Flags.Append)`.
 
 `Network` provides TCP and UDP socket operations. All sockets are managed as
 `Resource` values — they are closed automatically when the resource scope exits,
-regardless of success, error, or cancellation.
+regardless of success, error, or cancelation.
 
 ### TCP client
 

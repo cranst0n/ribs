@@ -119,5 +119,4 @@ Exception get singleEnterViolation =>
 Exception get runningViolation =>
     Exception('The number of fibers in the barrier can never go below zero.');
 
-Exception get limitViolation =>
-    Exception('The number of fibers in the barrier can never go below zero.');
+Exception get limitViolation => Exception('The concurrency limit must be greater than zero.');

@@ -7,7 +7,7 @@ Full documentation is available at the [ribs website](https://cranst0n.github.io
 ## Key Features
 
 - **Chunked by default**: All streams operate on `Chunk<O>` internally for high throughput without sacrificing element-at-a-time ergonomics.
-- **Resource safety**: Streams carry their own resource lifecycle — finalizers always run on success, error, and cancellation via `bracket`/`bracketCase`.
+- **Resource safety**: Streams carry their own resource lifecycle — finalizers always run on success, error, and cancelation via `bracket`/`bracketCase`.
 - **Composable via `Pipe`**: Stream transformations are plain functions `Rill<I> → Rill<O>`, composed with `through`.
 - **Concurrent primitives**: `Channel`, `Signal`/`SignallingRef`, and `Topic` enable safe producer/consumer and reactive patterns.
 - **Rich operator set**: `flatMap`, `merge`, `parEvalMap`, `groupWithin`, `debounce`, `interruptWhen`, and many more.

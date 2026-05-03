@@ -61,7 +61,7 @@ IO<IList<int>> signalContinuous() {
 // #endregion signal-continuous
 
 // #region signal-interrupt
-// interruptWhenSignaled is the standard cancellation-token pattern.
+// interruptWhenSignaled is the standard cancelation-token pattern.
 // The stream producer does not need to know who signals the stop or when.
 IO<Unit> signalInterrupt() {
   return SignallingRef.of(false).flatMap((SignallingRef<bool> stop) {

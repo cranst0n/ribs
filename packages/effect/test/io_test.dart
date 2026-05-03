@@ -179,7 +179,7 @@ void main() {
       });
     });
 
-    group('cancellation', () {
+    group('cancelation', () {
       test('implement never with non-terminating semantics', () {
         expect(
           IO.never<int>().timeout(2.seconds),
@@ -389,7 +389,7 @@ void main() {
         expect(finalized, isTrue);
       });
 
-      test('first canceller backpressures subsequent cancellers', () {
+      test('first canceler backpressures subsequent cancelers', () {
         var started = false;
         var started2 = false;
 
@@ -444,7 +444,7 @@ void main() {
         );
       });
 
-      test('await uncancelable blocks in cancellation', () {
+      test('await uncancelable blocks in cancelation', () {
         var started = false;
 
         final markStarted = IO.exec(() => started = true);
@@ -460,7 +460,7 @@ void main() {
         expect(test, nonTerminating);
       });
 
-      test('await cancellation of cancellation of uncancelable never', () {
+      test('await cancelation of cancelation of uncancelable never', () {
         var started = false;
         var started2 = false;
 
@@ -625,7 +625,7 @@ void main() {
         expect(test, succeeds(Unit()));
       });
 
-      test('not finalize after uncancelable with suppressed cancellation (succeeded)', () async {
+      test('not finalize after uncancelable with suppressed cancelation (succeeded)', () async {
         var finalized = false;
 
         final test =
@@ -638,7 +638,7 @@ void main() {
         expect(finalized, isFalse);
       });
 
-      test('not finalize after uncancelable with suppressed cancellation (errored)', () async {
+      test('not finalize after uncancelable with suppressed cancelation (errored)', () async {
         const err = 'boom';
 
         var finalized = false;
@@ -1394,7 +1394,7 @@ void main() {
     );
   });
 
-  test('short circuit cancellation', () async {
+  test('short circuit cancelation', () async {
     final output = List<String>.empty(growable: true);
 
     IO<Unit> appendOutput(String s) => IO.exec(() => output.add(s));
@@ -1438,7 +1438,7 @@ void main() {
     final io = IO.uncancelable((poll) {
       return appendOutput('A')
           .flatTap((_) => appendOutput('B'))
-          .flatMap((a) => IO.canceled) // Mark fiber for cancellation
+          .flatMap((a) => IO.canceled) // Mark fiber for cancelation
           .flatTap((_) => appendOutput('C'))
           .flatMap(
             (_) => poll(
@@ -1952,7 +1952,7 @@ void main() {
     var canceled = false;
     final (future, cancel) =
         IO.never<int>().onCancel(IO.exec(() => canceled = true)).unsafeRunFutureCancelable();
-    // Silence the unhandled exception from cancellation
+    // Silence the unhandled exception from cancelation
     future.ignore();
     await cancel();
     expect(canceled, isTrue);

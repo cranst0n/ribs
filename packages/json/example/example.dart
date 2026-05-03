@@ -92,7 +92,7 @@ Future<void> main() async {
 
     print('  Successfully parsed ${parsedElements.length} independent elements from the stream:');
     for (final item in parsedElements) {
-      // Formatted printind using ribs_json Printer
+      // Formatted printing using ribs_json Printer
       print('    - ${item.printWith(Printer.noSpaces)}');
     }
   } catch (e, st) {

@@ -81,7 +81,7 @@ sealed class Either<A, B> implements Monad<B> {
   Either<A, B> filterOrElse(Function1<B, bool> p, Function0<A> zero) =>
       fold((_) => left<A, B>(zero()), (b) => p(b) ? this : left(zero()));
 
-  /// Applies [f] to this value is this is a [Right]. If this is a [Left], then
+  /// Applies [f] to this value if this is a [Right]. If this is a [Left], then
   /// the original value is returned.
   @override
   Either<A, C> flatMap<C>(Function1<B, Either<A, C>> f);
@@ -99,7 +99,7 @@ sealed class Either<A, B> implements Monad<B> {
   /// Applies side effect [f] if this is a [Right].
   void foreach<U>(Function1<B, U> f) => fold((_) {}, f);
 
-  /// Returns thes value if this is a [Right], otherwise, the result of
+  /// Returns the value if this is a [Right], otherwise, the result of
   /// evaluating [orElse] is returned.
   B getOrElse(Function0<B> orElse) => fold((_) => orElse(), identity);
 
@@ -162,7 +162,7 @@ sealed class Either<A, B> implements Monad<B> {
 }
 
 /// One of two possible instances of [Either], generally used to indicate
-/// and error, or failure of some kind.
+/// an error, or failure of some kind.
 final class Left<A, B> extends Either<A, B> {
   final A a;
 

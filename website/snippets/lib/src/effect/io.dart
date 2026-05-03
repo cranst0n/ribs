@@ -246,8 +246,8 @@ Future<void> outcomeSnippet() async {
   // #endregion io-outcome
 }
 
-Future<void> cancellationSnippet() async {
-  // #region cancellation-1
+Future<void> cancelationSnippet() async {
+  // #region cancelation-1
   int count = 0;
 
   // Our IO program
@@ -272,5 +272,5 @@ Future<void> cancellationSnippet() async {
   // Show the Outcome of the IO as well as confirmation that our `onCancel`
   // handlers have been called since the IO was canceled
   print('Outcome: $outcome | count: $count'); // Outcome: Canceled | count: 6
-  // #endregion cancellation-1
+  // #endregion cancelation-1
 }

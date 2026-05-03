@@ -24,7 +24,7 @@ unit systems. Errors like these famously brought down the
 [Mars Climate Orbiter](https://en.wikipedia.org/wiki/Mars_Climate_Orbiter)
 (a unit mismatch between pound-force seconds and newton seconds).
 
-Comments and naming conventions are the only defence, and they are not enforced.
+Comments and naming conventions are the only defense, and they are not enforced.
 
 ## The solution: units as types
 
@@ -58,7 +58,7 @@ conversion.
 ## Dimensional arithmetic
 
 Some operations between quantity types produce a different quantity type.
-`ribs_units` encodes this at the type level:
+`ribs_units` encodes this at the type-level:
 
 <<< @/../snippets/lib/src/units/motivation.dart#motivation-arithmetic
 

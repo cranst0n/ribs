@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
-/// Operations avaiable when [IList] elements are of type [IO].
+/// Operations available when [IList] elements are of type [IO].
 extension IListIOOps<A> on IList<IO<A>> {
   /// Alias for `traverseIO`, using [identity] as the function parameter.
   IO<IList<A>> sequence() => traverseIO(identity);
@@ -20,7 +20,7 @@ extension IListIOOps<A> on IList<IO<A>> {
 extension IOIListOps<A> on IList<A> {
   /// {@template ilist_parTraverseIO}
   /// **Asynchronously** applies [f] to each element of this list and collects
-  /// the results into a new list. If an error or cancellation is encountered
+  /// the results into a new list. If an error or cancelation is encountered
   /// for any element, that result is returned and all other elements will be
   /// canceled if possible.
   /// {@endtemplate}
@@ -36,7 +36,7 @@ extension IOIListOps<A> on IList<A> {
 
   /// {@template ilist_parTraverseIO_}
   /// **Asynchronously** applies [f] to each element of this list, discarding
-  /// any results. If an error or cancellation is encountered for any element,
+  /// any results. If an error or cancelation is encountered for any element,
   /// that result is returned and all other elements will be canceled if
   /// possible.
   /// {@endtemplate}
@@ -52,7 +52,7 @@ extension IOIListOps<A> on IList<A> {
 
   /// {@template ilist_traverseIO}
   /// Applies [f] to each element of this list and collects the results into a
-  /// new list. If an error or cancellation is encountered for any element,
+  /// new list. If an error or cancelation is encountered for any element,
   /// that result is returned and any additional elements will not be evaluated.
   /// {@endtemplate}
   IO<IList<B>> traverseIO<B>(Function1<A, IO<B>> f) {
@@ -67,7 +67,7 @@ extension IOIListOps<A> on IList<A> {
 
   /// {@template ilist_traverseIO_}
   /// Applies [f] to each element of this list, discarding any results. If an
-  /// error or cancellation is encountered for any element, that result is
+  /// error or cancelation is encountered for any element, that result is
   /// returned and any additional elements will not be evaluated.
   /// {@endtemplate}
   IO<Unit> traverseIO_<B>(Function1<A, IO<B>> f) {
@@ -81,7 +81,7 @@ extension IOIListOps<A> on IList<A> {
   }
 
   /// Applies [f] to each element of this list and collects the results into a
-  /// new list that is flattened using concatenation. If an error or cancellation
+  /// new list that is flattened using concatenation. If an error or cancelation
   /// is encountered for any element, that result is returned and any additional
   /// elements will not be evaluated.
   IO<IList<B>> flatTraverseIO<B>(Function1<A, IO<IList<B>>> f) =>
@@ -90,7 +90,7 @@ extension IOIListOps<A> on IList<A> {
   /// {@template ilist_traverseFilterIO}
   /// Applies [f] to each element of this list and collects the results into a
   /// new list. Any results from [f] that are [None] are discarded from the
-  /// resulting list. If an error or cancellation is encountered for any element,
+  /// resulting list. If an error or cancelation is encountered for any element,
   /// that result is returned and any additional elements will not be evaluated.
   /// {@endtemplate}
   IO<IList<B>> traverseFilterIO<B>(Function1<A, IO<Option<B>>> f) => traverseIO(f).map(
@@ -128,7 +128,6 @@ extension IListResourceOps<A> on IList<Resource<A>> {
   Resource<Unit> parSequence_() => parTraverseResource_(identity);
 }
 
-/// [Resource]-specific traversal and parallel operations on [IList].
 extension ResourceIListOps<A> on IList<A> {
   /// {@template ilist_parTraverseResource}
   /// **Asynchronously** applies [f] to each element of this list and collects

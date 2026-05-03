@@ -7,7 +7,7 @@ sidebar_position: 2
 
 ## Motivation
 
-The `Option` type signifies the presence or absense of a value. In some
+The `Option` type signifies the presence or absence of a value. In some
 circumstances, a function won't be able to give a resulting value for every
 input. These are called *partial functions* (as opposed to *total functions*)
 since they are only defined for certain inputs. Let's have a look at an
@@ -18,14 +18,14 @@ example of a naively implemented partial function:
 The intent is to find the maximum value in the provided `List<int>`. But what
 happens if the list is empty? In this example the function will `throw`.
 Exceptions are not an option when building purely functional programs.
-They require that the context of caller be known at all times in order to
+They require that the context of the caller be known at all times in order to
 reason about what the ultimate value of the function will be.
 
 Do we return 0? Do we return -99999? Either of
 those result in an ambiguous result that the caller of the function will need
-interpret. This violates one of the core tenets of functional programming:
+to interpret. This violates one of the core tenets of functional programming:
 **Local Reasoning**. The caller shouldn't need to interpret the value. The
-**type** of the value should convey that on it's own.
+**type** of the value should convey that on its own.
 
 So let's improve on the initial implementation of our function to use the
 `Option` type:
@@ -61,16 +61,16 @@ Compare that version with the null checking to this version using `Option`:
 
 <<< @/../snippets/lib/src/core/option.dart#combinators-3
 
-Now consider how this very small scenario would look like when you try to
+Now consider what this very small scenario would look like when you try to
 compose the results from 3 functions together. Then 10 functions. The `Option`
 API shines in these cases because functions compose. On top of this simple
-excersice, `Option` has a number of additional combinators like `map`, `filter`
+exercise, `Option` has a number of additional combinators like `map`, `filter`
 and others.
 
 ### flatMap
 
-Another common scenario arises when you want to feed one functions `Option<A>`
-into another functions parameter:
+Another common scenario arises when you want to feed one function's `Option<A>`
+into another function's parameter:
 
 <<< @/../snippets/lib/src/core/option.dart#flatmap-1
 
@@ -80,14 +80,14 @@ alone isn't possible.
 
 ### mapN
 
-Our final scenario, but certainly not last you'll encounter in the wild, arises
+Our final scenario, but certainly not the last you'll encounter in the wild, arises
 when you have a few `Option` values and want to combine them into something else.
 Our starting point looks like this:
 
 <<< @/../snippets/lib/src/core/option.dart#mapN-1
 
 While this strategy works, you can certainly make the argument that it's not
-particularly readable. Because this is such a common scenario, ribs includes a
+particularly readable. Because this is such a common scenario, Ribs includes a
 `mapN` combinator that takes care of all the messy `flatMap` and `map`-ing
 for you:
 
@@ -103,5 +103,5 @@ size 22.
 for other data types as well including `Either`, `IO` and many more.
 :::
 
-This is hardly an exhautive list of the `Option` combinators so be sure to
+This is hardly an exhaustive list of the `Option` combinators so be sure to
 explore the full API.

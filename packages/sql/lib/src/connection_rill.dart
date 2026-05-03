@@ -1,7 +1,7 @@
 import 'package:ribs_rill/ribs_rill.dart';
 import 'package:ribs_sql/ribs_sql.dart';
 
-/// A deferred streaming query that produces a [Rill] that output elements of
+/// A deferred streaming query that produces a [Rill] that outputs elements of
 /// type [A] when transacted.
 ///
 /// Analogous to [ConnectionIO] but for streaming: the database connection is

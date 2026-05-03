@@ -15,7 +15,7 @@ concrete `Transactor` implementations:
 | `PostgresPoolTransactor` | `pg.Pool`-managed pool | Production, concurrent workloads |
 
 Both return `Resource<Transactor>`, guaranteeing the underlying connection or
-pool is closed cleanly on success, error, or fiber cancellation.
+pool is closed cleanly on success, error, or fiber cancelation.
 
 :::note Placeholder conversion
 The PostgreSQL wire protocol uses `$1`, `$2`, … positional placeholders, but
@@ -43,7 +43,7 @@ connection-level options.
 `PostgresPoolTransactor` wraps `pg.Pool` from the `postgres` package. Each
 `transact()` call borrows a session from the pool, runs the `ConnectionIO`
 inside a database transaction, and returns the session automatically — even on
-error or fiber cancellation.
+error or fiber cancelation.
 
 ### From endpoints
 

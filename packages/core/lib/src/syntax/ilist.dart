@@ -20,7 +20,7 @@ extension IListEitherOps<A, B> on IList<Either<A, B>> {
   }
 }
 
-/// Operations avaiable when [IList] elements are of type [Option].
+/// Operations available when [IList] elements are of type [Option].
 extension IListOptionOps<A> on IList<Option<A>> {
   /// Accumulates all elements in this list as one [Option]. If any element is
   /// a [None], [None] will be returned. If all elements are [Some], then the
@@ -31,7 +31,7 @@ extension IListOptionOps<A> on IList<Option<A>> {
   IList<A> unNone() => foldLeft(nil(), (acc, elem) => elem.fold(() => acc, (a) => acc.appended(a)));
 }
 
-/// Operations avaiable when [IList] elements are nullable.
+/// Operations available when [IList] elements are nullable.
 extension IListNullableOps<A> on IList<A?> {
   /// Returns a new list with all null elements removed.
   IList<A> noNulls() => foldLeft(nil(), (acc, elem) => elem == null ? acc : acc.appended(elem));

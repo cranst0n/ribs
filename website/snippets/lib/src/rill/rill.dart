@@ -55,7 +55,7 @@ IO<Unit> rillEffects() =>
 IO<Unit> rillResource() => Rill.bracket(
       // acquire: runs when the stream starts
       IO.print('opened connection').productR(IO.pure('conn')),
-      // release: always runs when the stream ends — success, error, or cancellation
+      // release: always runs when the stream ends — success, error, or cancelation
       (String conn) => IO.print('closed: $conn'),
     )
     .flatMap(

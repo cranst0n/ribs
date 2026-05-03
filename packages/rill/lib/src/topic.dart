@@ -162,7 +162,7 @@ class TopicImpl<A> implements Topic<A> {
         switch (st) {
           case Active(:final subscribers, :final nextId):
             // _After_ we remove the bounded channel for this
-            // subscriber, we need to drain it to unblock to
+            // subscriber, we need to drain it to unblock the
             // publish loop which might have already enqueued
             // something.
             final drainChannel = subscribers

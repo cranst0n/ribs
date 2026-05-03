@@ -57,7 +57,7 @@ Rill<O> take(int n) => pull.take(n).flatMap((tail) => Pull.done).rillNoScope;
 ```
 
 The `Rill` type is meant to be the primary API. Drop down to `Pull` only when
-you need behaviour that `Rill` does not expose.
+you need behavior that `Rill` does not expose.
 
 ## Pull anatomy
 

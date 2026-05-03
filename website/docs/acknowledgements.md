@@ -25,11 +25,11 @@ Large portions of Ribs are directly derived from the following libraries:
 | [doobie](https://github.com/typelevel/doobie)           | Pure SQL abstraction layer                                  |
 | [ip4s](https://github.com/Comcast/ip4s)                 | Immutable types for network addresses & operations.         |
 | [monocle](https://www.optics.dev/Monocle/)              | Optics                                                      |
-| [sqaunts](https://github.com/typelevel/squants)         | Typesafe Dimensonal Analysis                                |
+| [squants](https://github.com/typelevel/squants)         | Typesafe Dimensional Analysis                               |
 | [upperbound](https://github.com/SystemFw/upperbound)    | Purely functional rate limiter                              |
-| [dart-check](https://github.com/wigahluk/dart-check)    | Property based testing                                      |
+| [dart-check](https://github.com/wigahluk/dart-check)    | Property-based testing                                      |
 
-In addition to these libraries, additional inspiration/motivation was provided by:
+Alongside these libraries, additional inspiration/motivation was provided by:
 
 | Library                                                    |                                                                             |
 | ---------------------------------------------------------- | --------------------------------------------------------------------------- |
@@ -38,5 +38,5 @@ In addition to these libraries, additional inspiration/motivation was provided b
 | [fpdart](https://github.com/SandroMaglione/fpdart)         | The current de-facto FP library for Dart provides a great dev experience.  |
 
 All of these libraries are worth exploring and represent tremendous value to
-the entire Dart ecosystem. Much of what Ribs has become is directly possible
-because of these libraries.
+the Dart ecosystem. Much of what Ribs has become is directly possible because
+of these libraries.

@@ -26,15 +26,15 @@ final class State<S, A> with Functor<A>, Applicative<A>, Monad<A> {
   /// Applies [f] to the current state.
   State<S, A> modify(Function1<S, S> f) => State((s) => _run(s)((a, b) => (f(a), b)));
 
-  /// Runs the computation with [state] as the intial state. Returns the a tuple
+  /// Runs the computation with [state] as the initial state. Returns a tuple
   /// of the final state and the resulting value.
   (S, A) run(S state) => _run(state);
 
-  /// Runs the computation with [state] as the intial state and returns
+  /// Runs the computation with [state] as the initial state and returns
   /// the resulting value.
   A runA(S state) => run(state).$2;
 
-  /// Runs the computation with [state] as the intial state and returns
+  /// Runs the computation with [state] as the initial state and returns
   /// the final state.
   S runS(S state) => run(state).$1;
 
@@ -42,7 +42,7 @@ final class State<S, A> with Functor<A>, Applicative<A>, Monad<A> {
   /// the state.
   State<S, S> state() => State((s) => _run(s)((s, _) => (s, s)));
 
-  /// Returns a [State] that will apply [f] to it's resulting value and current
+  /// Returns a [State] that will apply [f] to its resulting value and current
   /// state. Like [map], but both components can be modified.
   State<S, B> transform<B>(Function2<S, A, (S, B)> f) => State((s) => _run(s)(f));
 }

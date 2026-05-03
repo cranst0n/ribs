@@ -15,7 +15,7 @@ sidebar_position: 2
 
 Both return `Resource<Transactor>`. The `Resource` wrapper guarantees the
 underlying connection (or pool) is closed cleanly on success, error, or fiber
-cancellation.
+cancelation.
 
 ## SqliteTransactor — single connection
 

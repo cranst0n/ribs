@@ -27,7 +27,7 @@ observation.
 
 | Use case | Recommended type |
 |---|---|
-| Cancellation token — stop a rill from outside | `Signal<bool>` + `interruptWhenSignaled` |
+| Cancelation token — stop a rill from outside | `Signal<bool>` + `interruptWhenSignaled` |
 | Pause / resume a rill | `Signal<bool>` + `pauseWhenSignal` |
 | Live progress counter observed by multiple fibers | `SignallingRef<int>` |
 | Read-only view of changing state | `Signal<A>` (from `map` or `holdResource`) |
@@ -68,9 +68,9 @@ rate regardless of how often the underlying value changes.
 
 <<< @/../snippets/lib/src/rill/signal.dart#signal-continuous
 
-## Cancellation: `interruptWhenSignaled`
+## Cancelation: `interruptWhenSignaled`
 
-`Signal<bool>` is the standard cancellation-token pattern for `Rill`. The
+`Signal<bool>` is the standard cancelation-token pattern for `Rill`. The
 rill does not need to know who signals the stop or when — it simply observes
 the signal and terminates when it becomes `true`.
 
@@ -78,7 +78,7 @@ the signal and terminates when it becomes `true`.
 
 Related rill methods that accept a `Signal<bool>`:
 
-| Method | Behaviour |
+| Method | Behavior |
 |---|---|
 | `rill.interruptWhenSignaled(signal)` | Terminate when signal becomes `true` |
 | `rill.pauseWhenSignal(signal)` | Suspend while signal is `true`; resume when `false` |

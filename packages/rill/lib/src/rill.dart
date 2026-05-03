@@ -324,7 +324,7 @@ class Rill<O> {
   /// Bridges a Dart [Stream] into a [Rill].
   ///
   /// Events are buffered according to [strategy] (default: drop oldest, buffer
-  /// size 100). The subscription is cancelled when the [Rill]'s scope closes.
+  /// size 100). The subscription is canceled when the [Rill]'s scope closes.
   static Rill<O> fromStream<O>(
     Stream<O> stream, {
     OverflowStrategy strategy = const _DropOldest(100),
@@ -490,7 +490,7 @@ class Rill<O> {
 
   /// Starts [fo] as a background fiber and emits the resulting [IOFiber].
   ///
-  /// The fiber is cancelled when the stream's scope closes.
+  /// The fiber is canceled when the stream's scope closes.
   static Rill<IOFiber<O>> supervise<O>(IO<O> fo) =>
       Rill.bracket(fo.start(), (fiber) => fiber.cancel());
 
@@ -717,7 +717,7 @@ class Rill<O> {
   /// Runs [that] concurrently as a background stream.
   ///
   /// Elements of [that] are discarded; it is run only for its side effects.
-  /// When this foreground stream ends, [that] is cancelled. If [that] fails,
+  /// When this foreground stream ends, [that] is canceled. If [that] fails,
   /// the foreground stream is interrupted with the error.
   Rill<O> concurrently<O2>(Rill<O2> that) {
     return _concurrentlyAux(that).flatMapN((startBack, fore) => startBack.flatMap((_) => fore));
@@ -1122,7 +1122,7 @@ class Rill<O> {
           .drain
           .guarantee(queue.offer(const None()));
 
-      // Consumer: buffers data and races agaist timeout
+      // Consumer: buffers data and races against timeout
       //
       // [deadline]: Monotonic time (micros) the current buffer MUST be emitted or null for empty buffer
       Pull<Chunk<O>, Unit> consumeLoop(Chunk<O> buffer, int? deadline) {

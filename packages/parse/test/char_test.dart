@@ -172,19 +172,19 @@ void main() {
     });
   });
 
-  group('toLoweCase (toLowercase)', () {
+  group('toLowerCase', () {
     test('converts uppercase ASCII to lowercase', () {
-      expect(char('A').toLoweCase, equals(char('a')));
-      expect(char('Z').toLoweCase, equals(char('z')));
-      expect(char('M').toLoweCase, equals(char('m')));
+      expect(char('A').toLowerCase, equals(char('a')));
+      expect(char('Z').toLowerCase, equals(char('z')));
+      expect(char('M').toLowerCase, equals(char('m')));
     });
 
     test('leaves lowercase unchanged', () {
-      expect(char('a').toLoweCase, equals(char('a')));
+      expect(char('a').toLowerCase, equals(char('a')));
     });
 
     test('leaves digits and symbols unchanged', () {
-      expect(char('0').toLoweCase, equals(char('0')));
+      expect(char('0').toLowerCase, equals(char('0')));
     });
   });
 

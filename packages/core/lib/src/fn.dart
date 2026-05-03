@@ -24,7 +24,7 @@ import 'package:ribs_core/ribs_core.dart';
 // function, which performs its own checked cast internally.
 //
 // In short, `Fn0`, `Fn1`, and `Fn2` exist to give functions class-like
-// variance behaviour so they can live safely in a heterogeneous,
+// variance behavior so they can live safely in a heterogeneous,
 // type-erased collection without violating Dart's runtime type system.
 
 /// A nominal wrapper around a zero-argument function `() -> A`.

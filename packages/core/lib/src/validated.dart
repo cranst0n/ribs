@@ -6,12 +6,12 @@ typedef ValidatedNel<E, A> = Validated<NonEmptyIList<E>, A>;
 
 /// Represents one of 2 possible values: [Valid] or [Invalid].
 ///
-/// Validated is somewhat simililar to [Either] with the exception that
+/// Validated is somewhat similar to [Either] with the exception that
 /// [Validated] does not form a [Monad] and thus does not have a flatMap
 /// function. This gives [Validated] a unique power however in that it can
 /// support error accumulation, specifically in the form of a [ValidatedNel].
 ///
-/// Validated is right biased so function like [map] operate on the Valid value,
+/// Validated is right biased so functions like [map] operate on the Valid value,
 /// if present.
 sealed class Validated<E, A> implements Functor<A> {
   /// Lifts the given value [e] into an [Invalid].
@@ -53,15 +53,15 @@ sealed class Validated<E, A> implements Functor<A> {
   Validated<E, A> ensureOr(Function1<A, bool> p, Function1<A, E> onFailure) =>
       fold((a) => this, (a) => p(a) ? this : Validated.invalid(onFailure(a)));
 
-  /// Returns true if this instance has a valid value to passes the given
+  /// Returns true if this instance has a valid value to pass the given
   /// predicate [p].
   bool exists(Function1<A, bool> p) => fold((_) => false, p);
 
-  /// Returns true if this instance has a valid value to passes the given
+  /// Returns true if this instance has a valid value to pass the given
   /// predicate [p].
   bool forall(Function1<A, bool> p) => fold((_) => true, p);
 
-  /// Applies the given side-effet [f] for every valid value this instance
+  /// Applies the given side-effect [f] for every valid value this instance
   /// represents.
   void foreach(Function1<A, void> f) => fold((_) => Unit(), f);
 
@@ -72,7 +72,7 @@ sealed class Validated<E, A> implements Functor<A> {
   /// Returns true if this instance is a [Valid], otherwise false is returned.
   bool get isValid => fold((_) => false, (_) => true);
 
-  /// Returns true if this instance is a [Invalid], otherwise false is returned.
+  /// Returns true if this instance is an [Invalid], otherwise false is returned.
   bool get isInvalid => !isValid;
 
   /// Returns a new validated by applying [f] to the value of this instance if

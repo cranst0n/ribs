@@ -6,12 +6,12 @@ import 'package:ribs_rill/ribs_rill.dart';
 /// A connected TCP socket, providing bidirectional byte-stream I/O.
 ///
 /// A [Socket] exposes a [reads] stream for incoming data and [write] /
-/// [writes] for outgoing data. Obtain one via [Network.client] (which
+/// [writes] for outgoing data. Obtain one via [Network.connect] (which
 /// returns a resource-managed socket that is automatically closed on
 /// release) or from a server's accepted connection stream.
 ///
 /// ```dart
-/// Network.client(host, port).use((socket) {
+/// Network.connect(address).use((socket) {
 ///   final response = socket.reads.through(Pipes.text.utf8.decode);
 ///   return socket.write(requestBytes).flatMap((_) => response.compile.string);
 /// });

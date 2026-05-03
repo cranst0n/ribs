@@ -84,7 +84,7 @@ final last = t3.last; // true
 - **`NonEmptyIList`**: An `IList` guaranteed to contain at least one element.
 - **`ILazyList`**: A lazy, potentially infinite linked list.
 - **`IMultiDict`**: Immutable map that associates keys with multiple values.
-- ** **Many More!**
+- **Many More!**
 
 Mutable variants also exist (`ListBuffer`, `Array`, `HashMap`, etc.) for use when performance dictates mutability under the hood.
 

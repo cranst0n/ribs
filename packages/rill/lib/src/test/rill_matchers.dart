@@ -17,7 +17,7 @@ Matcher producesError([Object? matcher]) => _ProducesError(matcher ?? anyOf(isNo
 /// Matches a [Rill] that emits elements in the exact order given by [expected].
 ///
 /// [expected] may be a Dart [Iterable] or a [RIterableOnce]. The [Rill] must
-/// succeed — a failure or cancellation causes the test to fail.
+/// succeed — a failure or cancelation causes the test to fail.
 ///
 /// ```dart
 /// expect(Rill.emits([1, 2, 3]), producesInOrder([1, 2, 3]));
@@ -41,7 +41,7 @@ Matcher producesNothing() => _ProducesNothing();
 Matcher producesOnly<A>(A a) => _ProducesInOrder([a]);
 
 /// Matches a [Rill] that produces the same outcome (success, error, or
-/// cancellation) and the same elements as [expected].
+/// cancelation) and the same elements as [expected].
 ///
 /// Both rills are run to completion and their results compared.
 ///

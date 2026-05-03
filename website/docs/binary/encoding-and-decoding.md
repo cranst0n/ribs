@@ -5,11 +5,11 @@ sidebar_position: 2
 
 # Encoding and Decoding
 
-Much like Ribs JSON library, Ribs lets you define binary `Codec`s that make it
+Much like the Ribs JSON library, Ribs lets you define binary `Codec`s that make it
 very easy to get complete control over decoding and encoding your Dart objects
 to binary data.
 
-Let's start with a hypothical set of models.
+Let's start with a hypothetical set of models.
 
 <<< @/../snippets/lib/src/binary/codecs.dart#codecs-1
 
@@ -35,7 +35,7 @@ Next, we'll define a `Codec` for `Message`, the superclass of `Info` and `Debug`
 <<< @/../snippets/lib/src/binary/codecs.dart#codecs-3
 
 Here we use `discriminatedBy` to allow us to properly encode and decode
-instances of `Message` by prefixing an unique indentifier tag before each
+instances of `Message` by prefixing a unique identifier tag before each
 message. In this particular instance, that tag is an 8-bit integer.
 
 The only pieces left are the codecs for `Header` and `Document`:

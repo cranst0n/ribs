@@ -52,7 +52,7 @@ acquire/release — but there is a better way.
 ## The `permit()` idiom
 
 Manually pairing `acquire` with `release` is error-prone: a thrown exception or
-fiber cancellation between the two will leak the permit permanently. `permit()`
+fiber cancelation between the two will leak the permit permanently. `permit()`
 wraps the pair in a `Resource`, which guarantees the release runs no matter how
 the body exits.
 

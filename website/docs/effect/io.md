@@ -17,12 +17,12 @@ the original implementation.
 
 ## Motivation
 
-While Darts `Future` type has it's uses, it suffers from issues that make
+While Dart's `Future` type has its uses, it suffers from issues that make
 it unsuitable for pure functional programming. Consider the following code:
 
 <<< @/../snippets/lib/src/effect/io.dart#io-1
 
-If you run this code, you should notice that the value of `x` and `y` are
+If you run this code, you should notice that the values of `x` and `y` are
 always the same. Can you see why this is problematic? Now consider this piece
 of code where we replace each reference to `fut` with the expression that `fut`
 evaluated to:
@@ -52,7 +52,7 @@ features:
 * Asynchronous Execution
 * Error Handling
 * Resource Safety
-* Cancellation
+* Cancelation
 
 
 ## Asynchronous Execution
@@ -95,8 +95,8 @@ illustrates one case where `IO.async_` is useful.
 :::
 
 The only difference between `IO.async` and `IO.async_` is that with `IO.async`
-you can include a cancellation finalizer. Since `Future` doesn't have a
-mechanism for cancellation, we can safely use `IO.async_`.
+you can include a cancelation finalizer. Since `Future` doesn't have a
+mechanism for cancelation, we can safely use `IO.async_`.
 
 :::tip
 To see an example of using `IO.async`, check out the implementation of `IO.fromCancelableOperation`.
@@ -120,7 +120,7 @@ demonstrates using `Exception`s paired with `try`/`catch`/`finally` to manage
 errors in your programs. But it's already been established that throwing
 exceptions is a side-effect. This rules out throwing them in our pure FP programs.
 
-That begs the question on how we create and handle errors using `IO`.
+That raises the question of how we create and handle errors using `IO`.
 
 <<< @/../snippets/lib/src/effect/io.dart#error-handling-1
 
@@ -155,11 +155,11 @@ For running an arbitrary collection of IOs concurrently see
 ### IO.sleep
 
 `IO.sleep(duration)` suspends the current fiber for the given duration. It is
-an asynchronous boundary, which means cancellation is checked when it resumes.
+an asynchronous boundary, which means cancelation is checked when it resumes.
 
 ### timeout and timeoutTo
 
-`io.timeout(duration)` races the IO against a timer; if the timer wins a
+`io.timeout(duration)` races the IO against a timer; if the timer wins, a
 `TimeoutException` is raised. `io.timeoutTo(duration, fallback)` returns the
 `fallback` IO instead.
 
@@ -182,7 +182,7 @@ an asynchronous boundary, which means cancellation is checked when it resumes.
 | `replicate_(n)` | `IO<Unit>` | Run sequentially *n* times, discard results |
 | `iterateWhile(p)` | `IO<A>` | Repeat while predicate on the result holds |
 | `iterateUntil(p)` | `IO<A>` | Repeat until predicate on the result holds |
-| `foreverM()` | `IO<Nothing>` | Repeat until error or cancellation |
+| `foreverM()` | `IO<Nothing>` | Repeat until error or cancelation |
 
 ## Traversing Collections with IO
 
@@ -207,8 +207,8 @@ as soon as any one fails.
 
 ## Safe Resource Handling
 
-Let's begin with a fairly typical resource pattern used in Dart program that
-want's opens a file, writes some data and then wants to make sure the file
+Let's begin with a fairly typical resource pattern used in a Dart program that
+opens a file, writes some data and then wants to make sure the file
 resource is closed:
 
 <<< @/../snippets/lib/src/effect/io.dart#safe-resources-1
@@ -217,7 +217,7 @@ Now let's write an equivalent program using `IO`:
 
 <<< @/../snippets/lib/src/effect/io.dart#safe-resources-2
 
-This version using `IO` has all the resource safety guarentees of the `try`/`catch` version but
+This version using `IO` has all the resource safety guarantees of the `try`/`catch` version but
 doesn't use `Exception`s to avoid side-effects.
 
 :::tip
@@ -252,20 +252,20 @@ You must still take care on controlling the evaluation of the `Future`.
 `IO.fromFuture` but is able to take advantage of some of the advanced features
 of `CancelableOperation`.
 
-## Cancellation
+## Cancelation
 
 `IO` also allows you to build cancelable operations.
 
-<<< @/../snippets/lib/src/effect/io.dart#cancellation-1
+<<< @/../snippets/lib/src/effect/io.dart#cancelation-1
 
 This is obviously a contrived example but exhibits that you have a great deal
 of power controlling the execution of an `IO`.
 
-Also note that an `IO` can only be checked for cancellation at it's asynchronous
+Also note that an `IO` can only be checked for cancelation at its asynchronous
 boundaries. Types of asynchronous boundaries include:
 
 * `IO.sleep`
-* `IO.cede` (or autoCede occurances)
+* `IO.cede` (or autoCede occurrences)
 * `IO.async`
 
 ## Outcome

@@ -14,7 +14,7 @@ sealed class Pull<O, R> {
   ) => _Acquire(acquire, Fn2(release), cancelable: false);
 
   /// Like [acquire] but the acquisition [IO] is wrapped in [IO.uncancelable]
-  /// so that a cancellation request is only honoured after the resource is
+  /// so that a cancelation request is only honoured after the resource is
   /// fully acquired and its finalizer is registered.
   static Pull<Never, R> acquireCancelable<R>(
     Function1<Poll, IO<R>> acquire,
@@ -72,7 +72,7 @@ sealed class Pull<O, R> {
   ) => _InterruptWhen(pull, haltWhen);
 
   /// Wraps [pull] in a fresh [Scope], closing it (with the appropriate
-  /// [ExitCase]) when [pull] completes, errors, or is cancelled.
+  /// [ExitCase]) when [pull] completes, errors, or is canceled.
   static Pull<O, Unit> scope<O>(Pull<O, Unit> pull) => _OpenScope<O>().flatMap((newScope) {
     return _RunInScope<O, Unit>(pull, newScope)
         .handleErrorWith<O>(
@@ -141,8 +141,6 @@ extension PullFlattenOps<O, R> on Pull<O, Pull<O, R>> {
   Pull<O, R> flatten() => flatMap(identity);
 }
 
-/// Operations available ONLY when the result type is [Unit].
-/// This ensures we can only inspect a "streaming" pull, not a calculated result.
 /// Operations available ONLY when the result type is [Unit].
 /// This ensures we can only inspect a "streaming" pull, not a calculated result.
 extension PullOps<O> on Pull<O, Unit> {
@@ -450,7 +448,7 @@ IO<_Step<O, R>> _stepInterruptWhen<O, R>(_InterruptWhen<O, R> pull, Scope scope)
                 (_) => _StepError<O, R>(err),
               ),
             ),
-        // Right(unit) — clean cancellation
+        // Right(unit) — clean cancelation
         (_) => scope
             .close(ExitCase.canceled())
             .map(

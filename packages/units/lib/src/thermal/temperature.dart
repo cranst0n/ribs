@@ -41,7 +41,7 @@ final class Temperature extends Quantity<Temperature> {
   Temperature get toFahrenheit => _convert(fahrenheit);
 
   /// Converts this temperature to the Celsius scale.
-  Temperature get toCelsius => _convert(celcius);
+  Temperature get toCelsius => _convert(celsius);
 
   /// Converts this temperature to the Kelvin scale.
   Temperature get toKelvin => _convert(kelvin);
@@ -53,7 +53,7 @@ final class Temperature extends Quantity<Temperature> {
   Temperature get toFahrenheitDegrees => _convert(fahrenheit, withOffset: false);
 
   /// Converts this temperature *magnitude* to Celsius degrees (no offset).
-  Temperature get toCelsiusDegrees => _convert(celcius, withOffset: false);
+  Temperature get toCelsiusDegrees => _convert(celsius, withOffset: false);
 
   /// Converts this temperature *magnitude* to Kelvin degrees (no offset).
   Temperature get toKelvinDegrees => _convert(kelvin, withOffset: false);
@@ -66,7 +66,7 @@ final class Temperature extends Quantity<Temperature> {
       unit is Kelvin ? super.toString() : '${value.toStringAsFixed(1)}${unit.symbol}';
 
   /// Unit for degrees Celsius (°C).
-  static const celcius = Celcius._();
+  static const celsius = Celsius._();
 
   /// Unit for degrees Fahrenheit (°F).
   static const fahrenheit = Fahrenheit._();
@@ -79,7 +79,7 @@ final class Temperature extends Quantity<Temperature> {
 
   /// All supported [Temperature] units.
   static const units = {
-    celcius,
+    celsius,
     fahrenheit,
     kelvin,
     rankine,
@@ -95,14 +95,14 @@ final class Temperature extends Quantity<Temperature> {
     if (toScale == unit) {
       return this;
     } else if (withOffset) {
-      if (unit is Fahrenheit && toScale is Celcius) {
-        return TemperatureConversions.fahrenheitToCelsiusScale(value).celcius;
-      } else if (unit is Celcius && toScale is Fahrenheit) {
+      if (unit is Fahrenheit && toScale is Celsius) {
+        return TemperatureConversions.fahrenheitToCelsiusScale(value).celsius;
+      } else if (unit is Celsius && toScale is Fahrenheit) {
         return TemperatureConversions.celsiusToFahrenheitScale(value).fahrenheit;
-      } else if (unit is Celcius && toScale is Kelvin) {
+      } else if (unit is Celsius && toScale is Kelvin) {
         return TemperatureConversions.celsiusToKelvinScale(value).kelvin;
-      } else if (unit is Kelvin && toScale is Celcius) {
-        return TemperatureConversions.kelvinToCelsiusScale(value).celcius;
+      } else if (unit is Kelvin && toScale is Celsius) {
+        return TemperatureConversions.kelvinToCelsiusScale(value).celsius;
       } else if (unit is Fahrenheit && toScale is Kelvin) {
         return TemperatureConversions.fahrenheitToKelvinScale(value).kelvin;
       } else if (unit is Kelvin && toScale is Fahrenheit) {
@@ -111,24 +111,24 @@ final class Temperature extends Quantity<Temperature> {
         return TemperatureConversions.fahrenheitToRankineScale(value).rankine;
       } else if (unit is Rankine && toScale is Fahrenheit) {
         return TemperatureConversions.rankineToFahrenheitScale(value).fahrenheit;
-      } else if (unit is Celcius && toScale is Rankine) {
+      } else if (unit is Celsius && toScale is Rankine) {
         return TemperatureConversions.celsiusToRankineScale(value).rankine;
-      } else if (unit is Rankine && toScale is Celcius) {
-        return TemperatureConversions.rankineToCelsiusScale(value).celcius;
+      } else if (unit is Rankine && toScale is Celsius) {
+        return TemperatureConversions.rankineToCelsiusScale(value).celsius;
       } else if (unit is Kelvin && toScale is Rankine) {
         return TemperatureConversions.kelvinToRankineScale(value).rankine;
       } else if (unit is Rankine && toScale is Kelvin) {
         return TemperatureConversions.rankineToKelvinScale(value).kelvin;
       }
     } else {
-      if (unit is Fahrenheit && toScale is Celcius) {
-        return TemperatureConversions.fahrenheitToCelsiusDegrees(value).celcius;
-      } else if (unit is Celcius && toScale is Fahrenheit) {
+      if (unit is Fahrenheit && toScale is Celsius) {
+        return TemperatureConversions.fahrenheitToCelsiusDegrees(value).celsius;
+      } else if (unit is Celsius && toScale is Fahrenheit) {
         return TemperatureConversions.celsiusToFahrenheitDegrees(value).fahrenheit;
-      } else if (unit is Celcius && toScale is Kelvin) {
+      } else if (unit is Celsius && toScale is Kelvin) {
         return TemperatureConversions.celsiusToKelvinDegrees(value).kelvin;
-      } else if (unit is Kelvin && toScale is Celcius) {
-        return TemperatureConversions.kelvinToCelsiusDegrees(value).celcius;
+      } else if (unit is Kelvin && toScale is Celsius) {
+        return TemperatureConversions.kelvinToCelsiusDegrees(value).celsius;
       } else if (unit is Fahrenheit && toScale is Kelvin) {
         return TemperatureConversions.fahrenheitToKelvinDegrees(value).kelvin;
       } else if (unit is Kelvin && toScale is Fahrenheit) {
@@ -137,10 +137,10 @@ final class Temperature extends Quantity<Temperature> {
         return TemperatureConversions.fahrenheitToRankineDegrees(value).rankine;
       } else if (unit is Rankine && toScale is Fahrenheit) {
         return TemperatureConversions.rankineToFahrenheitDegrees(value).fahrenheit;
-      } else if (unit is Celcius && toScale is Rankine) {
+      } else if (unit is Celsius && toScale is Rankine) {
         return TemperatureConversions.celsiusToRankineDegrees(value).rankine;
-      } else if (unit is Rankine && toScale is Celcius) {
-        return TemperatureConversions.rankineToCelsiusDegrees(value).celcius;
+      } else if (unit is Rankine && toScale is Celsius) {
+        return TemperatureConversions.rankineToCelsiusDegrees(value).celsius;
       } else if (unit is Kelvin && toScale is Rankine) {
         return TemperatureConversions.kelvinToRankineDegrees(value).rankine;
       } else if (unit is Rankine && toScale is Kelvin) {
@@ -167,8 +167,8 @@ abstract class TemperatureScale extends UnitOfMeasure<Temperature> {
 }
 
 /// The Celsius temperature scale (°C).
-final class Celcius extends TemperatureScale {
-  const Celcius._() : super('celcius', '°C');
+final class Celsius extends TemperatureScale {
+  const Celsius._() : super('celsius', '°C');
 
   @override
   double converterFrom(double value) => TemperatureConversions.celsiusToKelvinScale(value);
@@ -315,7 +315,7 @@ class TemperatureConversions {
 /// Extension methods for constructing [Temperature] values from [num].
 extension TemperatureOps on num {
   /// Creates a [Temperature] of this value in degrees Celsius.
-  Temperature get celcius => Temperature.celcius(this);
+  Temperature get celsius => Temperature.celsius(this);
 
   /// Creates a [Temperature] of this value in degrees Fahrenheit.
   Temperature get fahrenheit => Temperature.fahrenheit(this);

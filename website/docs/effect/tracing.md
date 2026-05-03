@@ -71,7 +71,7 @@ through the operations you compose.
 
 A **fiber dump** is a one-shot snapshot of every active fiber: its current
 status and the contents of its trace buffer. It is useful for diagnosing
-hangs, deadlocks, and unexpected concurrency behaviour — situations where
+hangs, deadlocks, and unexpected concurrency behavior — situations where
 there is no error outcome to inspect.
 
 ### Manual dump

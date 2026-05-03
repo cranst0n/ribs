@@ -123,7 +123,7 @@ final class PathToRoot {
         () => acc.lastOption.exists((pe) => pe is ObjectKey),
         () => acc.appended(PathElem.objectKey((op as Field).key)),
         () =>
-            'Attempt to move to sibling field, but cursor history didnt indicate we were in an object.',
+            "Attempt to move to sibling field, but cursor history didn't indicate we were in an object.",
       );
     });
   }

@@ -37,7 +37,7 @@ final class PostgresConnection extends SqlConnection {
       (statement, ec) {
         final dispose = IO.fromFutureF(() => statement.dispose()).voided();
 
-        // On cancellation, the in-flight query holds the connection's internal
+        // On cancelation, the in-flight query holds the connection's internal
         // operation lock. statement.dispose() would hang indefinitely waiting
         // for that lock (which only releases when the server finishes the
         // query). Force-closing the connection first interrupts the pending
@@ -67,7 +67,7 @@ final class PostgresConnection extends SqlConnection {
             final continueConsume = rightOpts.forall((opt) => opt.isDefined);
 
             if (continueConsume) {
-              // all Somes so send all
+              // all Somes, so send all
               final Rill<Row> err = errOpt.fold(
                 () => Rill.empty(),
                 (err) => Rill.raiseError(err),
@@ -102,7 +102,7 @@ final class PostgresConnection extends SqlConnection {
               ),
         );
 
-        // On cancellation, skip sub.cancel() — the outer bracketCase will
+        // On cancelation, skip sub.cancel() — the outer bracketCase will
         // force-close the connection, which causes the subscription to
         // terminate naturally via onError/onDone. Calling sub.cancel() here
         // would race with the force-close and could block on the operation

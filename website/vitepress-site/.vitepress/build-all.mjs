@@ -9,7 +9,7 @@
  * Each partial build is merged into dist/ and cleaned up immediately, so
  * disk usage stays low. The merged site works because each HTML page loads
  * its own hashed app.js; cross-section navigation falls back to a full page
- * reload (VitePress's default behaviour for unknown routes).
+ * reload (VitePress's default behavior for unknown routes).
  *
  * To add a new package: regenerate api/ with `melos run doc`, then run
  * `melos run website-build` — no changes to this file or config.ts needed.

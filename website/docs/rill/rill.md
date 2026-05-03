@@ -5,11 +5,11 @@ sidebar_position: 10
 
 # Rill
 
-`Rill<O>` is Ribs' **purely functional, effect-ful stream** type. It lazily
+`Rill<O>` is Ribs' **purely functional, effectful stream** type. It lazily
 describes a sequence of zero or more values of type `O`, where producing each
 value may involve arbitrary `IO` effects.
 
-## Motivation: why not Dart's `Stream`?
+## Motivation: Why not Dart's `Stream`?
 
 Dart's built-in `Stream` is fine for simple event handling, but its properties
 make it unsuitable for purely functional programs.
@@ -82,7 +82,7 @@ Every terminal operation on a `Rill` returns an `IO`:
 | `compile.last` | `IO<Option<O>>` | Get the last element |
 
 This means a `Rill` pipeline always runs inside IO's fiber system, inheriting
-IO's cancellation, error handling, and concurrency semantics. It composes
+IO's cancelation, error handling, and concurrency semantics. It composes
 naturally with every other IO primitive: `Ref`, `Deferred`, `Semaphore`, etc.
 
 Effects within the rill are expressed with `evalMap` and `evalTap`, which
@@ -212,7 +212,7 @@ Use `parEvalMap` for the one-IO-per-element case; reach for `flatMap` +
 `parJoin` when each element should produce a full sub-rill.
 :::
 
-### Error propagation and cancellation
+### Error propagation and cancelation
 
 If any inner rill raises an error, `parJoin` immediately cancels all
 remaining inner rills and propagates the error to the outer rill. If the

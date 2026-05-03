@@ -29,7 +29,7 @@ field whose existence depends on runtime state.
 
 <<< @/../snippets/lib/src/optics/optional.dart#optional-use
 
-The conditional behaviour of `replace` and `modify` is what distinguishes
+The conditional behavior of `replace` and `modify` is what distinguishes
 `Optional` from `Lens`: calling them on a structure where the focus is absent
 returns the original structure untouched.
 

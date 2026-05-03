@@ -683,7 +683,7 @@ void main() {
   });
 
   group('onCancel', () {
-    test('runs cancellation hook when use is canceled', () {
+    test('runs cancelation hook when use is canceled', () {
       final test = IO.ref(false).flatMap((canceled) {
         final res = Resource.eval(IO.sleep(5.seconds)).onCancel(
           Resource.eval(IO.exec(() {})).flatTap(
@@ -736,7 +736,7 @@ void main() {
       expect(got, Outcome.errored<int>(err));
     });
 
-    test('runs finalizer on cancellation', () async {
+    test('runs finalizer on cancelation', () async {
       Outcome<int>? got;
       final res = Resource.canceled
           .as(42)

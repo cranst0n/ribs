@@ -1,7 +1,7 @@
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
 
-/// An internal wrapper around an [IO] job that provides cancellation and
+/// An internal wrapper around an [IO] job that provides cancelation and
 /// result signalling for the limiter's executor.
 final class Task<A> {
   final IO<A> task;
@@ -9,7 +9,7 @@ final class Task<A> {
   final Deferred<Unit> stopSignal;
 
   /// Creates a [Task] wrapping [fa], with fresh [Deferred] values for
-  /// result delivery and cancellation signalling.
+  /// result delivery and cancelation signalling.
   static IO<Task<A>> create<A>(IO<A> fa) {
     return (
       Deferred.of<Outcome<A>>(),
@@ -52,7 +52,7 @@ final class Task<A> {
       IO.uncancelable((_) => stopSignal.complete(Unit()).productR(result.value().voided()));
 
   /// Waits for the task's [Outcome] and re-raises errors or propagates
-  /// cancellation.
+  /// cancelation.
   IO<A> get awaitResult =>
       result.value().flatMap((value) => value.embed(IO.canceled.productR(IO.never())));
 }

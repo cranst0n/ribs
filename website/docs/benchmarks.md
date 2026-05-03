@@ -1,7 +1,7 @@
 # Benchmarks
 
 To the greatest extent possible, performance is optimized to be competitive with the standard
-library. While some ribs features can lag behind their built in counterparts, tt's not uncommon for
+library. While some ribs features can lag behind their built in counterparts, it's not uncommon for
 ribs to outperform the standard library in certain scenarios. Ultimately the best way to determine
 if ribs is right for your use-case is to test and measure yourself.
 

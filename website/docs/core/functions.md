@@ -44,7 +44,7 @@ It's often the case you'll want to feed the output of one function into another:
 <<< @/../snippets/lib/src/core/function.dart#andThen-1
 
 While this example is a bit trivial, you'll likely come across instances on
-your FP journey where chaining two function into a single value that you can
+your FP journey where chaining two functions into a single value that you can
 then pass around will result in a cleaner and more composable solution.
 
 ### compose
@@ -88,12 +88,12 @@ the answer is most definitely yes! Ribs provides this ability out of the box:
 ## Tupled
 
 One last, but very useful function that Ribs provides is the ability to convert
-functions from accepts a set of individual arguments to one that accepts a tuple
+functions that accept a set of individual arguments to one that accepts a tuple
 of the same argument types:
 
 <<< @/../snippets/lib/src/core/function.dart#tupled-1
 
 You may be asking why this would ever be useful but it becomes more apparent as
-you start working with generic endcoders/decoders, data classes (which Dart doesn't
+you start working with generic encoders/decoders, data classes (which Dart doesn't
 currently support) and tuple destructuring among other things. It's always
 good to stick this one in your back pocket to pull out when the situation arises.

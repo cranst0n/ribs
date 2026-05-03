@@ -54,7 +54,7 @@ extension type Char(int codeUnit) {
 
   /// Returns the lower-case equivalent of this character if it is an ASCII
   /// upper-case letter; otherwise returns `this` unchanged.
-  Char get toLoweCase => isUpperCase ? Char(codeUnit + 32) : this;
+  Char get toLowerCase => isUpperCase ? Char(codeUnit + 32) : this;
 
   /// Returns a one-character [String] containing this code unit.
   String get asString => String.fromCharCode(codeUnit);

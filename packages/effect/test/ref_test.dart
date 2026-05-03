@@ -105,7 +105,7 @@ void main() {
       expect(passed, isTrue);
     });
 
-    test('flatModifyFull - finalizer should mask cancellation', () async {
+    test('flatModifyFull - finalizer should mask cancelation', () async {
       var passed = false;
       var failed = false;
 

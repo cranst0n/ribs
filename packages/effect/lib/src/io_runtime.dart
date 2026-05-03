@@ -31,7 +31,7 @@ abstract class IORuntime {
   /// Schedules [task] for asynchronous execution on the event loop.
   void schedule(Function0<void> task);
 
-  /// Schedules [onWake] after [delay] and returns a cancellation function.
+  /// Schedules [onWake] after [delay] and returns a cancelation function.
   Function0<void> scheduleAfter(Duration delay, Function0<void> onWake);
 
   /// The global default runtime backed by [Timer.run] and [Timer].

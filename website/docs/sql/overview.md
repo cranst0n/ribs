@@ -49,7 +49,7 @@ SQLite, `SqliteTransactor` provides two constructors:
 - **`SqliteTransactor.file(path)`** — persistent file-backed database
 
 Both return `Resource<Transactor>`, which guarantees the connection is closed
-on success, error, or cancellation:
+on success, error, or cancelation:
 
 <<< @/../snippets/lib/src/sql/overview.dart#sql-transactor
 
@@ -62,7 +62,7 @@ runs around each `ConnectionIO`:
 |---|---|---|
 | `before` | `BEGIN` | Start the transaction |
 | `after` | `COMMIT` | Commit on success |
-| `oops` | `ROLLBACK` | Roll back on error or cancellation |
+| `oops` | `ROLLBACK` | Roll back on error or cancelation |
 | `always` | no-op | Guaranteed cleanup, runs unconditionally |
 
 `Strategy.defaultStrategy()` covers the common case. Pass a custom `Strategy`
@@ -157,7 +157,7 @@ collects all returned rows:
 
 `ConnectionIO<A>` is a pure description of database work — it does nothing
 until you call `.transact(xa)`. Calling `transact` wraps the operation in a
-`BEGIN` / `COMMIT` block. Any error, including fiber cancellation, triggers an
+`BEGIN` / `COMMIT` block. Any error, including fiber cancelation, triggers an
 automatic `ROLLBACK`:
 
 <<< @/../snippets/lib/src/sql/overview.dart#sql-transaction

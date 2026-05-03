@@ -164,7 +164,7 @@ final class Acres extends AreaUnit {
 
 /// Barns (b) — 10⁻²⁸ m², used in nuclear and particle physics cross-sections.
 final class Barnes extends AreaUnit {
-  const Barnes._() : super('barne', 'b', 1e-28);
+  const Barnes._() : super('barn', 'b', 1e-28);
 }
 
 /// Extension methods for constructing [Area] values from [num].

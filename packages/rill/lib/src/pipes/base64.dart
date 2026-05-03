@@ -106,7 +106,7 @@ final class Base64Pipes {
       } else {
         return switch (state.mod) {
           0 => Chunk.empty<int>().asRight(),
-          1 => 'Final base 64 quantum had only 1 digit - must hav at least 2 digits'.asLeft(),
+          1 => 'Final base 64 quantum had only 1 digit - must have at least 2 digits'.asLeft(),
           2 => chunk([(state.buffer >> 4) & 0xff]).asRight(),
           3 =>
             chunk([

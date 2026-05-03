@@ -40,7 +40,7 @@ final decoded = codec.decode(encoded.getOrElse(() => BitVector.empty));
 ### Composing Complex Codecs
 
 You can build complex codecs by composing smaller ones by using the `product` function on a tuple
-of `Codec`s. Just provied a function to convert the tuple to your type and a function to convert
+of `Codec`s. Just provide a function to convert the tuple to your type and a function to convert
 your type to a tuple.
 
 ```dart

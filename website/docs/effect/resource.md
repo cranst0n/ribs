@@ -32,7 +32,7 @@ canceled. The same two-file copy using `bracket` looks like this:
 
 <<< @/../snippets/lib/src/effect/resource.dart#io-bracket
 
-This is already safer than `try`/`finally` — cancellation is handled
+This is already safer than `try`/`finally` — cancelation is handled
 correctly, and the release is guaranteed. But notice the shape: each
 additional resource adds another level of nesting. With three or more
 resources, `bracket` chains become a rightward-growing pyramid that is hard to
@@ -40,7 +40,7 @@ read and harder to refactor.
 
 :::info
 These examples use the built in `dart:io` functions to read/write to file. Ribs
-also provides it's own functional ways of reading and writing files and sockets
+also provides its own functional ways of reading and writing files and sockets
 in the `ribs_rill_io` package that seamlessly integrates with `IO` and `Resource`,
 eliminating most of the noisy boilerplate you see in this contrived example.
 :::
@@ -73,7 +73,7 @@ fiber is canceled:
 
 `use` returns a plain `IO<B>`, so the result integrates naturally with the
 rest of your `IO` program. You can observe the outcome to react to success,
-failure, or cancellation:
+failure, or cancelation:
 
 <<< @/../snippets/lib/src/effect/resource.dart#file-example-outcome
 

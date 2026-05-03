@@ -482,10 +482,10 @@ final class Ipv4Address extends IpAddress {
   /// Last IP address in the IPv4 multicast range (239.255.255.255).
   static final multicastRangeEnd = fromBytes(239, 255, 255, 255);
 
-  /// First IP address in the IPv4 source specific multicast range (232.0.0.0).
+  /// First IP address in the IPv4 source-specific multicast range (232.0.0.0).
   static final sourceSpecificMulticastRangeStart = fromBytes(232, 0, 0, 0);
 
-  /// Last IP address in the IPv4 source specific multicast range (232.255.255.255).
+  /// Last IP address in the IPv4 source-specific multicast range (232.255.255.255).
   static final sourceSpecificMulticastRangeEnd = fromBytes(232, 255, 255, 255);
 }
 
@@ -860,7 +860,7 @@ final class Ipv6Address extends IpAddress {
     255,
   );
 
-  /// First IP address in the IPv6 source specific multicast range (ff30::).
+  /// First IP address in the IPv6 source-specific multicast range (ff30::).
   static final sourceSpecificMulticastRangeStart = fromBytes(
     255,
     48,
@@ -880,7 +880,7 @@ final class Ipv6Address extends IpAddress {
     0,
   );
 
-  /// Last IP address in the IPv6 source specific multicast range (ff3f:ffff:ffff:ffff:ffff:ffff:ffff:ffff).
+  /// Last IP address in the IPv6 source-specific multicast range (ff3f:ffff:ffff:ffff:ffff:ffff:ffff:ffff).
   static final sourceSpecificMulticastRangeEnd = fromBytes(
     255,
     63,

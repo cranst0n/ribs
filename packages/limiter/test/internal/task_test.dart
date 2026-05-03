@@ -28,7 +28,7 @@ void main() {
     expect(test.ticked, errors());
   });
 
-  test('Task propagates cancellation', () {
+  test('Task propagates cancelation', () {
     final test = executeAndWait(IO.sleep(1.second).productR(IO.canceled));
     expect(test.ticked, cancels);
   });

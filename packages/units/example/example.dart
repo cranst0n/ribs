@@ -29,8 +29,8 @@ void main() {
   print('\nFile Size: $fileSize');
   print('File Size in Megabytes: ${fileSize.toMegabytes}');
 
-  // Temperature (Note the spelling in the library: celcius)
-  final boilingPoint = 100.celcius;
+  // Temperature (Note the spelling in the library: celsius)
+  final boilingPoint = 100.celsius;
   print('\nBoiling point: $boilingPoint');
   print('In Fahrenheit: ${boilingPoint.toFahrenheit}');
   print('In Kelvin: ${boilingPoint.toKelvin}');

@@ -67,7 +67,7 @@ final class PostgresPoolTransactor extends Transactor {
       IO.async((cb) {
         final signalDone = Completer<void>();
 
-        // Call pg.PoolwithConnection with async callback.
+        // Call pg.Pool.withConnection with async callback.
         // The connection is held open until `signalDone` is completed
         // by the release action.
         _pool

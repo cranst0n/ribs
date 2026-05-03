@@ -8,7 +8,7 @@ sidebar_position: 3
 Converting between your domain models and JSON is such a common task when
 building useful programs, every language under the sun is saturated with
 libraries that have their own flavor of filling the developer need. Each
-undoubtedly comes with it's own set of pros and cons. Hopefully this page
+undoubtedly comes with its own set of pros and cons. Hopefully this page
 will convince you that Ribs JSON brings enough utility to be considered
 amongst other solutions in the Dart ecosystem.
 
@@ -28,7 +28,7 @@ each type:
 
 <<< @/../snippets/lib/src/json/codecs.dart#codecs-2
 
-There's a bit to take in here so we can break it down into a few pieces an analyze them
+There's a bit to take in here so we can break it down into a few pieces and analyze them
 one at a time:
 
 The first `Decoder` we define is the `petTypeDecoder` which expects to find an
@@ -46,14 +46,14 @@ will decide how those values are combined. In this case, we have:
 * The `petTypeDecoder` we already defined expects to find an int value at the key
     `type` which will then be `map`ped to a `PetType`.
 * A function that declares the 3 values should be combined to create a new
-    instance of `User`.
+    instance of `Pet`.
 
-Since the input is valid in this small example, a new instance of `Right(User)`
+Since the input is valid in this small example, a new instance of `Right(Pet)`
 is what we end up with.
 
 ## Error handling
 
-Now let's revist the definition of our `petTypeDecoder` above. It has a fatal
+Now let's revisit the definition of our `petTypeDecoder` above. It has a fatal
 flaw which we can address using the `Decoder` API. Consider the following
 example:
 
@@ -62,11 +62,11 @@ example:
 The last call to `Json.decode` throws an exception. This is because the integer
 value (100) doesn't correspond to a valid `PetType` enum value. What is to be
 done? The best first step is to consult the API to see what combinators are
-availble on `Decoder` to handle such scenarios. Here's an improved solution:
+available on `Decoder` to handle such scenarios. Here's an improved solution:
 
 <<< @/../snippets/lib/src/json/codecs.dart#codecs-4
 
-`Decoder.emap` allows you to map a value but provide a function that return
+`Decoder.emap` allows you to map a value but provide a function that returns
 an `Either<String, A>>` which allows you the developer to determine how
 errors during decoding should be handled.
 
@@ -76,7 +76,7 @@ Finally, encoding and decoding `enum`s is so common that the API provides a
 <<< @/../snippets/lib/src/json/codecs.dart#codecs-enumeration
 
 :::tip
-`Decoder.emap` only scratches the surface of how you can customize a Decoders
+`Decoder.emap` only scratches the surface of how you can customize a Decoder's
 behavior. Browse the API to see what else is available.
 :::
 
@@ -84,7 +84,7 @@ behavior. Browse the API to see what else is available.
 
 Next in line is seeing how we can use the `Encoder` class to convert our domain
 models into `Json`. The strategy is similar to the one we took with our decoders.
-build one for each data type, and pies them together to build a more elaborate and
+build one for each data type, and piece them together to build a more elaborate and
 complex `Encoder`.
 
 <<< @/../snippets/lib/src/json/codecs.dart#codecs-5

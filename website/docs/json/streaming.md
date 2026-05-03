@@ -11,7 +11,7 @@ begins. The parser is exposed through `JsonTransformer`, a
 `StreamTransformerBase` that plugs directly into Dart's `Stream` API. For
 `ribs_rill` users, a thin bridge makes it equally at home in a `Rill` pipeline.
 
-The behaviour is controlled by `AsyncParserMode`:
+The behavior is controlled by `AsyncParserMode`:
 
 | Mode | Description |
 |---|---|

@@ -14,7 +14,7 @@ any re-initialisation.
 :::info
 `CyclicBarrier` models the same primitive as `java.util.concurrent.CyclicBarrier`,
 but every operation is an `IO` effect that integrates naturally with fiber
-cancellation, resource safety, and the rest of the `ribs_effect` ecosystem.
+cancelation, resource safety, and the rest of the `ribs_effect` ecosystem.
 :::
 
 ## Core operations
@@ -51,7 +51,7 @@ re-creation needed.
 All three fibers go through two rounds. The barrier resets between round 1
 and round 2 with no additional setup.
 
-## Cancellation safety
+## Cancelation safety
 
 A fiber waiting at the barrier can be canceled at any time. The barrier
 restores its slot so the remaining capacity is unchanged and other fibers are

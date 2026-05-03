@@ -6,7 +6,7 @@ sidebar_position: 70
 # Retry
 
 It's very common to encounter calculations in the wild that can fail for any
-number or reasons. When making an HTTP call, for example, the operation could
+number of reasons. When making an HTTP call, for example, the operation could
 fail due to:
 
 * Server is down
@@ -17,7 +17,7 @@ fail due to:
 
 This is only a few of the countless ways in which things can go sideways. Any
 time you're interacting with the world outside your program such as a network
-or file system, failure *is* an option. In certains circumstance, like in an
+or file system, failure *is* an option. In certain circumstances, like in an
 HTTP request as described above, it may be worthwhile to retry the operation
 and hope that things go better the next time. Because this situation is so
 common, Ribs provides a retry mechanism for `IO` out of the box.
@@ -57,12 +57,12 @@ Let's look at each argument to see what's available to you:
 
 * **policy**: In this example, `RetryPolicy.contantDelay` is given, which will
 continually retry a failed operation after a specified delay.
-* **wasSuccessful**: Logic you can provide to inspect a successful compuation
+* **wasSuccessful**: Logic you can provide to inspect a successful computation
 and force another retry attempt.
 * **isWorthRetrying**: Logic you can provide to inspect the `RuntimeException`
-and determine if the opration should be retried again, overriding the policy.
+and determine if the operation should be retried again, overriding the policy.
 * **onError**: A side effect that is run every time the underlying `IO`
-encounters an error. In this case, the cumulative number or retries is
+encounters an error. In this case, the cumulative number of retries is
 printed to stdout.
 * **onFailure**: A side effect that is run every time the result from the
 underlying `IO` fails the `wasSuccessful` predicate.

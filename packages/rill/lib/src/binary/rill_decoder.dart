@@ -130,7 +130,7 @@ class RillDecoder<A> {
                     if (!once && err is InsufficientBits) {
                       return done;
                     } else {
-                      return Pull.raiseError('Codec Error: err');
+                      return Pull.raiseError('Codec Error: $err');
                     }
                   },
                 );

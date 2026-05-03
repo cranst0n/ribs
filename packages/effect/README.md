@@ -8,8 +8,8 @@ At the core of the library is `IO`, a data type that describes an effect as a va
 
 - **Purely Functional**: Side-effects are deferred until the "end of the world," making your code easier to reason about and test.
 - **Fiber-based Concurrency**: Lightweight fibers provide efficient concurrency that's easier to manage than raw Futures.
-- **Interruption/Cancellation**: Built-in support for safely canceling running tasks.
-- **Resource Safety**: Guaranteed cleanup of resources (like file handles or sockets) even in the face of errors or cancellation.
+- **Interruption/Cancelation**: Built-in support for safely canceling running tasks.
+- **Resource Safety**: Guaranteed cleanup of resources (like file handles or sockets) even in the face of errors or cancelation.
 - **Rich Standard Library**: Includes concurrent primitives like `Ref`, `Deferred`, `Semaphore`, and `Queue`.
 
 ## Documentation
@@ -92,7 +92,7 @@ final tasks = ilist([
 final results = await tasks.parSequence().unsafeRunFuture();
 ```
 
-### Fiber Cancellation
+### Fiber Cancelation
 Fibers can be canceled to stop ongoing work. This is handled safely, ensuring that any attached finalizers are executed.
 
 ```dart
@@ -104,12 +104,12 @@ final program = IO.print('Working...').delayBy(Duration(seconds: 10))
 await program.unsafeRunFuture();
 ```
 
-### Fine Grained Cancellation
-Use `uncancelable` to prevent an effect from being interrupted. You can use the provided `Poll` to create specific regions where cancellation is allowed again.
+### Fine Grained Cancelation
+Use `uncancelable` to prevent an effect from being interrupted. You can use the provided `Poll` to create specific regions where cancelation is allowed again.
 
 ```dart
 final safeOperation = IO.uncancelable((poll) =>
-  IO.print('Acquired') .flatMap((_) =>
+  IO.print('Acquired').flatMap((_) =>
     poll(IO.print('Interruptible work...'))
       .guarantee(IO.print('Released'))
   )

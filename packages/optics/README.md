@@ -6,7 +6,7 @@ Optics are particularly useful when you need to update a nested field in a deep 
 
 ## Key Optics
 
-- **Lens**: Zoms into a specific field of a product type (e.g., a Class). Supports both `get` and `set`.
+- **Lens**: Zooms into a specific field of a product type (e.g., a Class). Supports both `get` and `set`.
 - **Prism**: Zooms into a specific case of a sum type (e.g., a sealed class or enum). Useful for narrowing types.
 - **Optional**: Like a Lens, but for a field that may or may not exist.
 - **Iso**: A lossless, reversible transformation between two types.

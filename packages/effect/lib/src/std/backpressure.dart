@@ -5,29 +5,29 @@ import 'package:ribs_effect/ribs_effect.dart';
 ///
 /// [Backpressure] wraps an [IO] effect with a [Semaphore]-based gate. When
 /// the concurrency limit ([bound]) is reached, the behavior depends on the
-/// chosen [BackpressureStategy]:
+/// chosen [BackpressureStrategy]:
 ///
-/// - [BackpressureStategy.lossy]: excess calls return [None] immediately,
+/// - [BackpressureStrategy.lossy]: excess calls return [None] immediately,
 ///   dropping the work.
-/// - [BackpressureStategy.lossless]: excess calls block (semantically) until
+/// - [BackpressureStrategy.lossless]: excess calls block (semantically) until
 ///   a permit becomes available.
 abstract class Backpressure {
   /// Creates a [Backpressure] with the given [strategy] and concurrency
   /// [bound].
-  static IO<Backpressure> create(BackpressureStategy strategy, int bound) =>
+  static IO<Backpressure> create(BackpressureStrategy strategy, int bound) =>
       Semaphore.permits(bound).map(
         (sem) => switch (strategy) {
-          BackpressureStategy.lossy => _BackpressureLossy(bound, sem),
-          BackpressureStategy.lossless => _BackpressureLossless(bound, sem),
+          BackpressureStrategy.lossy => _BackpressureLossy(bound, sem),
+          BackpressureStrategy.lossless => _BackpressureLossless(bound, sem),
         },
       );
 
   /// Creates a lossless [Backpressure] that blocks when the [bound] is reached.
-  static IO<Backpressure> lossless(int bound) => create(BackpressureStategy.lossless, bound);
+  static IO<Backpressure> lossless(int bound) => create(BackpressureStrategy.lossless, bound);
 
   /// Creates a lossy [Backpressure] that drops work when the [bound] is
   /// reached.
-  static IO<Backpressure> lossy(int bound) => create(BackpressureStategy.lossy, bound);
+  static IO<Backpressure> lossy(int bound) => create(BackpressureStrategy.lossy, bound);
 
   /// Runs [io] if a permit is available, returning [Some] with the result.
   ///
@@ -38,7 +38,7 @@ abstract class Backpressure {
 }
 
 /// The strategy used by [Backpressure] when the concurrency limit is reached.
-enum BackpressureStategy { lossy, lossless }
+enum BackpressureStrategy { lossy, lossless }
 
 final class _BackpressureLossy extends Backpressure {
   final int bound;

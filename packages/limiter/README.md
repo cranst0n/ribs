@@ -11,7 +11,7 @@ Full documentation is available at the [ribs website](https://cranst0n.github.io
 - **Bounded Queue**: Optionally limit the number of pending jobs, raising `LimitReachedException` when the queue is full.
 - **Priority Scheduling**: Submit jobs with a priority; higher-priority jobs are dequeued first.
 - **Dynamic Configuration**: Adjust `minInterval` and `maxConcurrent` at runtime without restarting.
-- **Cancellation-Safe**: Canceling a submitted job removes it from the queue (if not yet running) or cancels the underlying fiber.
+- **Cancelation-Safe**: Canceling a submitted job removes it from the queue (if not yet running) or cancels the underlying fiber.
 - **Resource-Safe**: The limiter is exposed as a `Resource<Limiter>`, ensuring the background executor fiber is always cleaned up.
 
 ## Usage

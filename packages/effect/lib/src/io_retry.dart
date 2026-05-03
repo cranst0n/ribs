@@ -121,7 +121,7 @@ final class _DelayAndRetry extends RetryDecision {
 /// Policy that will render decisions on whether or not to attempt to retry a
 /// failed [IO].
 class RetryPolicy {
-  /// Function that that will render a decision on the given [RetryStatus].
+  /// Function that will render a decision on the given [RetryStatus].
   final Function1<RetryStatus, RetryDecision> decideOn;
 
   RetryPolicy(this.decideOn);
@@ -295,13 +295,13 @@ extension RetryOps<A> on IO<A> {
   /// failed attempts according to the policy.
   ///
   /// [wasSuccessful] can be provided to further filter any successful
-  /// evalations with undesirable results, so they may be retried.
+  /// evaluations with undesirable results, so they may be retried.
   ///
   /// [isWorthRetrying] can be provided to short-circuit any attempt to retry
   /// if some kind of error is encountered that may eliminate any need to retry.
   ///
   /// [onError] can be provided to perform the given side-effect for each
-  /// error eencounted.
+  /// error encountered.
   ///
   /// [onFailure] can be provided in conjunction with [wasSuccessful] to
   /// perform the given side-effect when a successful evaluation fails to

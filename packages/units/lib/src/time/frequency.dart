@@ -85,7 +85,7 @@ final class Gigahertz extends FrequencyUnit {
 
 /// Terahertz (THz).
 final class Terahertz extends FrequencyUnit {
-  const Terahertz._() : super('terrahertz', 'THz', MetricSystem.Tera);
+  const Terahertz._() : super('terahertz', 'THz', MetricSystem.Tera);
 }
 
 /// Revolutions per minute (rpm).

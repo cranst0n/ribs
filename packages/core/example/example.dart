@@ -84,7 +84,7 @@ void main() {
   // Validate the inputs
   final parsedActions = actions.map((tuple) => BankAction.parse(tuple.$1, tuple.$2));
 
-  // Partition parsed actions into failures and valid actions (Lefts = errors, Rights = succeess)
+  // Partition parsed actions into failures and valid actions (Lefts = errors, Rights = success)
   final (failures, validActions) = parsedActions.partitionMap((v) => v.toEither());
 
   if (failures.nonEmpty) {

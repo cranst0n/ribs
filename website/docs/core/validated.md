@@ -8,8 +8,8 @@ sidebar_position: 4
 The `Validated` type, like `Either` represents the existence of one of two
 types. An instance of `Validated` is an instance of `Valid` or `Invalid`.
 
-Additionaly `ValidatedNel<E, A>` is an alias of type `Validated<NonEmptyIList<E>, A>`
-which describes either one or more errors (`NonEmptyIList<A>>`) or a successful
+Additionally, `ValidatedNel<E, A>` is an alias of type `Validated<NonEmptyIList<E>, A>`
+which describes either one or more errors (`NonEmptyIList<E>`) or a successful
 value (`A`).
 
 :::info

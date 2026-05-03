@@ -5,7 +5,7 @@ import 'package:ribs_core/ribs_core.dart';
 /// Convenience constructor — creates a [Chunk] from any [Iterable].
 Chunk<O> chunk<O>(Iterable<O> as) => Chunk.fromDart(as);
 
-/// A strictly strict, immutable sequence of values, optimized for indexed based access
+/// A strict, immutable sequence of values, optimized for index-based access
 /// and efficient concatenation.
 sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O> {
   const Chunk();

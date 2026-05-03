@@ -15,7 +15,7 @@ open permanently for any subsequent `await()` calls.
 :::info
 `CountDownLatch` models the same primitive as `java.util.concurrent.CountDownLatch`,
 but every operation is an `IO` effect that integrates naturally with fiber
-cancellation, resource safety, and the rest of the `ribs_effect` ecosystem.
+cancelation, resource safety, and the rest of the `ribs_effect` ecosystem.
 :::
 
 ## Core operations

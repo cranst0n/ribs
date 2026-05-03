@@ -217,7 +217,7 @@ void main() {
     });
 
     test('ParameterizedQuery.stream with params', () {
-      final byMinAge = 'SELECT name FROM person WHERE age >= ? ORDER BY name'.parmeteriedQuery(
+      final byMinAge = 'SELECT name FROM person WHERE age >= ? ORDER BY name'.parameterizedQuery(
         Read.string,
         Write.integer,
       );
@@ -287,7 +287,7 @@ void main() {
       );
     });
 
-    test('rolls back on fiber cancellation', () {
+    test('rolls back on fiber cancelation', () {
       final insertAndHang = 'INSERT INTO person (name, age) VALUES (?, ?)'
           .update((Write.string, Write.integer).tupled)
           .run(('Rollback', 42))
@@ -353,14 +353,14 @@ void main() {
       expect(raise.productR(select1), succeeds());
     });
 
-    test('connection is returned to pool after fiber cancellation', () {
+    test('connection is returned to pool after fiber cancelation', () {
       final test = Deferred.of<Unit>().flatMap((acquired) {
         return ConnectionIO.lift(acquired.complete(Unit()))
             .productR(ConnectionIO.never<Unit>())
             .transact(poolXa)
             .start()
             .flatMap((fiber) => acquired.value().productR(fiber.cancel()))
-            // Would block if cancellation didn't return the lease to the pool.
+            // Would block if cancelation didn't return the lease to the pool.
             .productR('SELECT 1'.query(Read.integer).unique().transact(poolXa));
       });
 

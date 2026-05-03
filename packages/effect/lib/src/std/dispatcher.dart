@@ -81,7 +81,7 @@ abstract class Dispatcher {
   /// all pending effects to complete before stopping. If false (the default),
   /// the worker is stopped immediately.
   ///
-  /// Note: individual task cancellation sets a skip flag. If the task has
+  /// Note: individual task cancelation sets a skip flag. If the task has
   /// already started running, it continues but its result is discarded.
   static Resource<Dispatcher> sequential({bool waitForAll = false}) {
     return Resource.eval(Queue.unbounded<IO<Unit>>()).flatMap(

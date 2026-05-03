@@ -28,7 +28,7 @@ abstract class Limiter {
   ///   unbounded). Throws [LimitReachedException] if exceeded.
   ///
   /// The [Resource] manages the background executor — when released, the
-  /// executor is cancelled and all pending jobs are abandoned.
+  /// executor is canceled and all pending jobs are abandoned.
   static Resource<Limiter> start(
     Duration minInterval, {
     int? maxConcurrent,
@@ -74,7 +74,7 @@ abstract class Limiter {
   ///
   /// The job is enqueued with the given [priority] (higher values are
   /// dispatched first; default is 0). Returns an [IO] that completes with
-  /// the job's result once it finishes. Cancelling the returned [IO]
+  /// the job's result once it finishes. Canceling the returned [IO]
   /// cancels the job (removing it from the queue or interrupting it if
   /// already running).
   IO<A> submit<A>(
@@ -137,12 +137,12 @@ class LimiterImpl extends Limiter {
     return IO.uncancelable((poll) {
       return Task.create(job).flatMap((task) {
         return queue.enqueue(task.executable, priority: priority).flatMap((id) {
-          final propagateCancellation = queue.delete(id).flatMap((deleted) {
-            // task has already be dequeued and running
+          final propagateCancelation = queue.delete(id).flatMap((deleted) {
+            // task has already been dequeued and running
             return task.cancel.whenA(!deleted);
           });
 
-          return poll(task.awaitResult).onCancel(propagateCancellation);
+          return poll(task.awaitResult).onCancel(propagateCancelation);
         });
       });
     });

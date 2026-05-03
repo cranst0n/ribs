@@ -35,7 +35,7 @@ abstract class Order<A> {
     });
   }
 
-  /// Creates a new [Order] for type `A` by applying [f] to and instances and
+  /// Creates a new [Order] for type `A` by applying [f] to any instances and
   /// comparing the resulting [Comparable].
   static Order<A> by<A, B extends Comparable<dynamic>>(Function1<A, B> f) =>
       Order.from((a, b) => f(a).compareTo(f(b)));
@@ -56,7 +56,7 @@ abstract class Order<A> {
   /// Order for [String] type.
   static final strings = Order.fromComparable<String>();
 
-  /// Compares to instances and returns:
+  /// Compares two instances and returns:
   ///
   /// * < 0: If [x] is considered to be less than [y]
   /// * 0: If [x] is considered to be equal to [y]

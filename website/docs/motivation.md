@@ -15,7 +15,7 @@ Ribs is a suite of libraries that addresses those problems head-on:
 - Collections that can never be accidentally mutated
 - Optional values and errors that are part of the type, not hidden surprises
 - Resources that are guaranteed to be released, no matter what goes wrong
-- Concurrent code with real cancellation support
+- Concurrent code with real cancelation support
 - Safe, composable data streams with automatic cleanup
 
 None of these ideas require you to think about category theory or learn new
@@ -147,7 +147,7 @@ This works for a single resource. It becomes unwieldy quickly:
 value**. You define how to acquire a resource and how to release it once.
 Multiple resources combine with `flatMap` or `both`. Ribs guarantees the
 release runs in every exit scenario — normal completion, error, or
-mid-flight cancellation — with no extra effort from the caller.
+mid-flight cancelation — with no extra effort from the caller.
 
 Resource safety stops being a thing you have to remember. It becomes structural.
 
@@ -162,7 +162,7 @@ to another function without it already being in flight.
 
 This makes several important patterns difficult:
 
-**Cancellation.** Dart does not have a standard way to cancel a `Future`. You
+**Cancelation.** Dart does not have a standard way to cancel a `Future`. You
 can use `CancelToken` patterns, but they require threading a token through every
 layer of code and checking it manually. There is no guarantee cleanup runs when
 a computation is abandoned.
@@ -178,20 +178,20 @@ mocking infrastructure that the test doesn't really care about.
 `IO<A>` is a *description* of a computation — it does nothing when constructed,
 only when explicitly executed. This small distinction has large consequences:
 
-- **Cancellation is built in.** Any `IO` can be cancelled at any `await`
+- **Cancelation is built in.** Any `IO` can be cancelled at any `await`
   point. Cleanup registered with `Resource` or `bracket` runs automatically
-  when a cancellation occurs.
+  when a cancelation occurs.
 - **Timeouts compose naturally.** Wrap any `IO` with a timeout; if it
   exceeds the limit, cleanup runs and the caller gets an error.
 - **Concurrency with safety.** `IO.both`, `IO.parMapN`, and `IO.parSequence`
   run multiple computations concurrently and join their results. If one fails,
   the others are cancelled and any acquired resources are released.
-- **Retry policies.** Declare retry behaviour declaratively —
+- **Retry policies.** Declare retry behavior declaratively —
   exponential backoff, maximum attempts, jitter — and attach it to any `IO`
   without modifying the operation itself.
 
 For simple `async`/`await` code, `Future` remains entirely appropriate.
-`IO` is the right tool when you need cancellation, structured concurrency,
+`IO` is the right tool when you need cancelation, structured concurrency,
 or reliable cleanup in the face of failure.
 
 ---
@@ -259,7 +259,7 @@ are designed to compose:
 - `Either` and `Option` are used throughout ribs as the standard way to
   express failure and absence. You do not need to translate between error
   conventions at each library boundary.
-- Immutable collections are the natural data types for a codebase that favours
+- Immutable collections are the natural data types for a codebase that favors
   values over mutation. Pass them between `IO` computations, emit them from
   `Rill` streams, and store them in concurrent state — confident that sharing
   never produces unexpected mutation.

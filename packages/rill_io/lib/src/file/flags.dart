@@ -17,7 +17,7 @@ enum Flag {
   /// Creates the file if it doesn't exist.
   create,
 
-  /// Creates the file if it doesn't exists, but fails if it already exists.
+  /// Creates the file if it doesn't exist, but fails if it already exists.
   createNew,
 
   /// File should be deleted after it's closed.
@@ -32,10 +32,10 @@ enum Flag {
 ///
 /// ```dart
 /// // Open for reading:
-/// Files.open(path, Flags.Read);
+/// Files.open(path, Flags.read);
 ///
 /// // Open for writing with delete-on-close:
-/// Files.open(path, Flags.Write | Flag.deleteOnClose);
+/// Files.open(path, Flags.write | Flag.deleteOnClose);
 /// ```
 final class Flags {
   /// Opens a file for reading only.
