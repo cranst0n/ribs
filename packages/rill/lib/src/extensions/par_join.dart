@@ -19,8 +19,8 @@ extension ParJoinOps<O> on Rill<Rill<O>> {
   /// Runs [maxOpen] inner streams concurrently.
   ///
   /// - Waits for all inner streams to finish.
-  /// - If any stream fails, the error is propagated and all other streams are cancelled.
-  /// - If the output stream is interrupted, all running streams are cancelled.
+  /// - If any stream fails, the error is propagated and all other streams are canceled.
+  /// - If the output stream is interrupted, all running streams are canceled.
   Rill<O> parJoin(int maxOpen) {
     assert(maxOpen > 0, 'maxOpen must be greater than 0, was: $maxOpen');
 

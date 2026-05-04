@@ -1,4 +1,4 @@
-import 'package:ribs_core/src/either.dart';
+import 'package:ribs_core/ribs_core.dart';
 import 'package:test/test.dart';
 
 /// Returns a [Matcher] that matches a [Left] value.

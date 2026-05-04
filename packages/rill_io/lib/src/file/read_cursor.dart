@@ -96,7 +96,7 @@ extension type ReadCursor((FileHandle, int) _repr) {
   /// Reads chunks of at most [chunkSize] bytes. When the end of the file is
   /// reached, the [Pull] sleeps for [pollDelay] before retrying, allowing it
   /// to pick up newly appended content. This [Pull] never terminates on its
-  /// own — it must be cancelled or interrupted externally.
+  /// own — it must be canceled or interrupted externally.
   Pull<int, ReadCursor> tail(int chunkSize, Duration pollDelay) {
     return readPull(chunkSize).flatMap((nextOpt) {
       return nextOpt.foldN(

@@ -1,6 +1,6 @@
 import 'package:ribs_binary/ribs_binary.dart';
 import 'package:ribs_rill/ribs_rill.dart';
-import 'package:ribs_rill/ribs_rill_test.dart';
+import 'package:ribs_test/ribs_test_rill.dart';
 import 'package:test/test.dart';
 
 void main() {

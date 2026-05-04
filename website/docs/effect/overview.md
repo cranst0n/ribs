@@ -40,7 +40,7 @@ produce a value of type `A`, perform side effects, raise errors, or never comple
 
 `Resource<A>` models the *acquire-use-release* lifecycle of a value that needs
 cleanup. Finalizers are guaranteed to run regardless of whether the inner
-computation succeeds, fails, or is cancelled. Nested resources finalize in
+computation succeeds, fails, or is canceled. Nested resources finalize in
 LIFO order.
 
 ### Ref
@@ -79,10 +79,10 @@ combine policies with `and`/`or`.
 `ribs_effect` implements a *green-thread* concurrency model on top of Dart's
 event loop. A `Fiber` is a lightweight, cancelable unit of concurrency — far
 cheaper than a Dart `Isolate` (~270 bytes for a created fiber). Calling `.start()`
-on any `IO` forks it onto a new fiber, and fibers can be joined, cancelled, or
+on any `IO` forks it onto a new fiber, and fibers can be joined, canceled, or
 raced with `IO.race` and `IO.both`.
 
-Cancelation is *cooperative and safe*: when a fiber is cancelled, any
+Cancelation is *cooperative and safe*: when a fiber is canceled, any
 `Resource` finalizers and `IO.onCancel` handlers it holds are guaranteed to run.
 
 ## Execution

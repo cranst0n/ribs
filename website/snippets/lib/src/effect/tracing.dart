@@ -30,7 +30,7 @@ Future<void> tracingError() async {
           .unsafeRunFutureOutcome();
 
   outcome.fold(
-    () => print('cancelled'),
+    () => print('canceled'),
     (Object err, StackTrace? trace) {
       print('Error: $err');
 

@@ -1,8 +1,8 @@
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_effect/ribs_effect_test.dart';
 import 'package:ribs_ip/ribs_ip.dart';
 import 'package:ribs_rill/ribs_rill.dart';
 import 'package:ribs_rill_io/ribs_rill_io.dart';
+import 'package:ribs_test/ribs_test_effect.dart';
 import 'package:test/test.dart';
 
 void main() {

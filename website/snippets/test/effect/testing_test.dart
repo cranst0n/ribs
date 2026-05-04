@@ -2,7 +2,7 @@
 
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
-import 'package:ribs_effect/ribs_effect_test.dart';
+import 'package:ribs_test/ribs_test_effect.dart';
 import 'package:test/test.dart';
 
 // #region testing-matchers
@@ -109,9 +109,53 @@ void realWorldTickerTest() {
 }
 // #endregion testing-ticker-realworld
 
+// #region testing-ticker-manual
+void manualTickerTest() {
+  test('step-by-step time control', () async {
+    int count = 0;
+    final io = IO.sleep(1.second).productR(IO.delay(() => ++count)).replicate_(3);
+    final ticker = io.ticked;
+
+    // tick() lets the fiber run its startup step and schedule the first sleep.
+    ticker.tick();
+    expect(count, 0); // the sleep hasn't fired yet
+
+    ticker.advanceAndTick(1.second); // first sleep fires
+    expect(count, 1);
+
+    ticker.advanceAndTick(1.second); // second sleep fires
+    expect(count, 2);
+
+    ticker.advanceAndTick(1.second); // third sleep fires
+    expect(count, 3);
+
+    expect(await ticker.outcome, Outcome.succeeded(Unit()));
+  });
+}
+// #endregion testing-ticker-manual
+
+// #region testing-expect-io
+void expectIOTest() {
+  // expectIO lifts an expectLater call into IO, so assertions compose inside
+  // an IO program. Useful when testing concurrent behavior.
+  test('assert inside an IO program', () {
+    final test = IO
+        .both(
+          IO.pure(1).delayBy(100.milliseconds),
+          IO.pure(2).delayBy(200.milliseconds),
+        )
+        .flatMap((pair) => expectIO(pair, (1, 2)));
+
+    expect(test, succeeds());
+  });
+}
+// #endregion testing-expect-io
+
 void main() {
   group('IO matchers', matchersTests);
   group('advanced matchers', advancedMatchersTests);
   group('Ticker', tickerTests);
   group('Ticker real-world', realWorldTickerTest);
+  group('Ticker manual', manualTickerTest);
+  group('expectIO', expectIOTest);
 }

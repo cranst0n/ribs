@@ -8,8 +8,8 @@ import 'package:ribs_rill/ribs_rill.dart';
 extension ToDartStreamOps<O> on Rill<O> {
   /// Converts this [Rill] to a single-subscription Dart [Stream].
   ///
-  /// The [Rill] runs when the stream is listened to and is cancelled when the
-  /// subscription is cancelled. Errors from the [Rill] are forwarded to the
+  /// The [Rill] runs when the stream is listened to and is canceled when the
+  /// subscription is canceled. Errors from the [Rill] are forwarded to the
   /// stream's error channel.
   Stream<O> toDartStream() {
     late StreamController<O> controller;

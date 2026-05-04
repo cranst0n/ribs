@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/ribs_core_test.dart';
 import 'package:ribs_rill/src/chunk.dart';
+import 'package:ribs_test/ribs_test_core.dart';
 import 'package:test/test.dart';
 
 void main() {

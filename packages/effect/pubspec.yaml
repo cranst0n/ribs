@@ -18,9 +18,7 @@ environment:
 
 dependencies:
   async:     ^2.13.0
-  matcher:   ^0.12.17
   ribs_core: ^1.0.0-dev.15
-  test:      ^1.0.0
   web:       ^1.1.1
 
 dev_dependencies:
@@ -29,3 +27,5 @@ dev_dependencies:
   lint:         ^2.8.0
   lints:        ^6.1.0
   ribs_check:   ^1.0.0-dev.9
+  ribs_test:    ^1.0.0-dev.1
+  test:         ^1.0.0

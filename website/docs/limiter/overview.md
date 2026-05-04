@@ -15,7 +15,7 @@ so urgent work can be promoted ahead of lower-priority items already waiting.
 
 :::tip
 `Limiter` is created as a `Resource<Limiter>`. When the resource scope closes,
-the background executor fiber is cancelled and all pending jobs are dropped
+the background executor fiber is canceled and all pending jobs are dropped
 cleanly — no manual teardown required.
 :::
 

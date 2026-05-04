@@ -24,9 +24,10 @@ dependencies:
   sqlite3_connection_pool: ^0.2.0+1
 
 dev_dependencies:
-  lint:  ^2.8.0
-  lints: ^6.1.0
-  test:  ^1.0.0
+  lint:      ^2.8.0
+  lints:     ^6.1.0
+  ribs_test: ^1.0.0-dev.1
+  test:      ^1.0.0
 
 # At the time of this writing, build hooks will not respect user defines in this
 # location so these should be placed in the toplevel pubspec.yaml

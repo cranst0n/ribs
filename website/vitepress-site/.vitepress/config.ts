@@ -112,7 +112,6 @@ const guideSidebar = {
         { text: 'Supervisor', link: '/guide/effect/supervisor' },
         { text: 'Dispatcher', link: '/guide/effect/dispatcher' },
         { text: 'Tracing', link: '/guide/effect/tracing' },
-        { text: 'Testing', link: '/guide/effect/testing' },
       ],
     },
     {
@@ -188,6 +187,15 @@ const guideSidebar = {
       collapsed: true,
       items: [
         { text: 'Overview', link: '/guide/limiter/overview' },
+      ],
+    },
+    {
+      text: 'Test',
+      collapsed: true,
+      items: [
+        { text: 'Core', link: '/guide/test/core' },
+        { text: 'Effect', link: '/guide/test/effect' },
+        { text: 'Rill', link: '/guide/test/rill' },
       ],
     },
   ],

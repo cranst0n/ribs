@@ -1,7 +1,7 @@
 import 'package:ribs_check/ribs_check.dart';
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_core/ribs_core_test.dart';
 import 'package:ribs_ip/src/mac_address.dart';
+import 'package:ribs_test/ribs_test_core.dart';
 import 'package:test/test.dart';
 
 import 'arbitraries.dart';

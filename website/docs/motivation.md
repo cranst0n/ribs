@@ -167,7 +167,7 @@ can use `CancelToken` patterns, but they require threading a token through every
 layer of code and checking it manually. There is no guarantee cleanup runs when
 a computation is abandoned.
 
-**Structured lifecycle.** When a parent operation is cancelled or fails, its
+**Structured lifecycle.** When a parent operation is canceled or fails, its
 child tasks should be cleaned up. With raw `Future`, this requires significant
 manual coordination.
 
@@ -178,14 +178,14 @@ mocking infrastructure that the test doesn't really care about.
 `IO<A>` is a *description* of a computation — it does nothing when constructed,
 only when explicitly executed. This small distinction has large consequences:
 
-- **Cancelation is built in.** Any `IO` can be cancelled at any `await`
+- **Cancelation is built in.** Any `IO` can be canceled at any `await`
   point. Cleanup registered with `Resource` or `bracket` runs automatically
   when a cancelation occurs.
 - **Timeouts compose naturally.** Wrap any `IO` with a timeout; if it
   exceeds the limit, cleanup runs and the caller gets an error.
 - **Concurrency with safety.** `IO.both`, `IO.parMapN`, and `IO.parSequence`
   run multiple computations concurrently and join their results. If one fails,
-  the others are cancelled and any acquired resources are released.
+  the others are canceled and any acquired resources are released.
 - **Retry policies.** Declare retry behavior declaratively —
   exponential backoff, maximum attempts, jitter — and attach it to any `IO`
   without modifying the operation itself.
@@ -200,7 +200,7 @@ or reliable cleanup in the face of failure.
 
 Dart's `Stream` API covers the common case of reading values over time. But
 it does not model resource lifecycle. If a consumer stops reading a stream —
-because it found what it needed, hit an error, or was cancelled — the producer
+because it found what it needed, hit an error, or was canceled — the producer
 may keep running, and the underlying resource (a file handle, a socket, a
 database cursor) may never be closed.
 

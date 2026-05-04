@@ -1200,7 +1200,7 @@ class Rill<O> {
   /// Creates a [Signal] that holds the latest element emitted by this stream.
   ///
   /// The signal starts with [initial] and is updated in the background. The
-  /// [Resource] ensures the background fiber is cancelled on release.
+  /// [Resource] ensures the background fiber is canceled on release.
   Resource<Signal<O>> holdResource(O initial) => Resource.eval(
     SignallingRef.of(initial),
   ).flatTap((sig) => foreach((n) => sig.setValue(n)).compile.drain.background());
@@ -1888,7 +1888,7 @@ class Rill<O> {
     return go(Chunk.empty(), this).rillNoScope;
   }
 
-  /// Maps each element to a stream via [f], cancelling the previous inner stream
+  /// Maps each element to a stream via [f], canceling the previous inner stream
   /// when a new element arrives.
   ///
   /// Only the inner stream corresponding to the latest element runs at any

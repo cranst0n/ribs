@@ -64,7 +64,7 @@ final class Strategy {
   /// Runs after a successful program (e.g. `COMMIT`).
   final ConnectionIO<Unit> after;
 
-  /// Runs when the program fails or is cancelled (e.g. `ROLLBACK`).
+  /// Runs when the program fails or is canceled (e.g. `ROLLBACK`).
   final ConnectionIO<Unit> oops;
 
   /// Runs unconditionally after [after] or [oops] (e.g. cleanup).

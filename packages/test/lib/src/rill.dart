@@ -1,13 +1,13 @@
 // ignore: implementation_imports
 import 'package:matcher/src/expect/async_matcher.dart';
 import 'package:ribs_core/ribs_core.dart';
-import 'package:ribs_rill/src/rill.dart';
+import 'package:ribs_rill/ribs_rill.dart';
 import 'package:test/test.dart';
 
 /// Matches a [Rill] that fails with an error satisfying [matcher].
 ///
 /// If [matcher] is omitted, any non-null error matches. The [Rill] must
-/// fail — a successful or cancelled run causes the test to fail.
+/// fail — a successful or canceled run causes the test to fail.
 ///
 /// ```dart
 /// expect(Rill.raiseError('oops'), producesError(isA<String>()));

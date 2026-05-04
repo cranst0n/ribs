@@ -2,7 +2,7 @@
 import 'package:matcher/src/expect/async_matcher.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart';
-import 'package:ribs_effect/ribs_effect_test.dart';
+import 'package:ribs_test/src/io_runtime.dart';
 import 'package:test/test.dart';
 
 /// A matcher that asserts an [IO] completes successfully.

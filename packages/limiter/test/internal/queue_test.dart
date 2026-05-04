@@ -1,9 +1,9 @@
 import 'package:ribs_check/ribs_check.dart';
 import 'package:ribs_core/ribs_core.dart';
 import 'package:ribs_effect/ribs_effect.dart' hide Queue;
-import 'package:ribs_effect/ribs_effect_test.dart';
 import 'package:ribs_limiter/src/internal/queue.dart';
 import 'package:ribs_rill/ribs_rill.dart';
+import 'package:ribs_test/ribs_test_effect.dart';
 import 'package:test/test.dart';
 
 void main() {
