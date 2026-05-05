@@ -17,9 +17,9 @@ environment:
 
 dependencies:
   matcher:     ^0.12.0
-  ribs_core:   ^1.0.0-dev.15
-  ribs_effect: ^1.0.0-dev.4
-  ribs_rill:   ^1.0.0-dev.1
+  ribs_core:   ^1.0.0-dev.16
+  ribs_effect: ^1.0.0-dev.5
+  ribs_rill:   ^1.0.0-dev.2
   test:        ^1.0.0
 
 dev_dependencies:

@@ -1,3 +1,13 @@
+## 1.0.0-dev.6
+
+### Breaking Changes
+
+- Rename static members to follow Dart camelCase naming conventions.
+
+### Bug Fixes
+
+- Update punycoder dependency.
+
 ## 1.0.0-dev.5
 
 - Breaking API changes.

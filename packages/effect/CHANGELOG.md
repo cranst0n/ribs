@@ -1,3 +1,10 @@
+## 1.0.0-dev.5
+
+### Breaking Changes
+
+- Remove `ribs_effect_test.dart` test utilities library. `TestIORuntime` and
+  IO outcome matchers are now provided by the `ribs_test` package.
+
 ## 1.0.0-dev.4
 
 ### Breaking Changes

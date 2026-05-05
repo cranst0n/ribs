@@ -1,3 +1,7 @@
+## 1.0.0-dev.17
+
+- Update dependencies.
+
 ## 1.0.0-dev.16
 
 ### Bug Fixes

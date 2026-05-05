@@ -1,3 +1,7 @@
+## 1.0.0-dev.10
+
+- Update dependencies.
+
 ## 1.0.0-dev.9
 
 ### Breaking Changes

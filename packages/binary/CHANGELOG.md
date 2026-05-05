@@ -1,3 +1,8 @@
+## 1.0.0-dev.12
+
+- Add API documentation to `Codec`, `Decoder`, `Encoder`, `StreamDecoder`,
+  `StreamEncoder`, and related types.
+
 ## 1.0.0-dev.11
 
 ### Breaking Changes

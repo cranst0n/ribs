@@ -1,3 +1,15 @@
+## 1.0.0-dev.16
+
+### Breaking Changes
+
+- Remove `ribs_core_test.dart` test utilities library. Matchers for `Option`,
+  `Either`, and `Validated` are now provided by the `ribs_test` package.
+
+### Bug Fixes
+
+- Fix incorrect arity limit on `ValidatedNel` tuple syntax extensions (now
+  supports up to arity 22).
+
 ## 1.0.0-dev.15
 
 ### Breaking Changes

@@ -1,3 +1,7 @@
+## 1.0.0-dev.12
+
+- Update dependencies.
+
 ## 1.0.0-dev.11
 
 - Fix `Time.fromDuration` to be factory constructor.
