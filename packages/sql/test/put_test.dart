@@ -22,12 +22,9 @@ void main() {
         expect(Put.bigInt.encode(BigInt.from(9999999999999)), BigInt.from(9999999999999));
       });
 
-      test('boolean encodes true as 1', () {
-        expect(Put.boolean.encode(true), 1);
-      });
-
-      test('boolean encodes false as 0', () {
-        expect(Put.boolean.encode(false), 0);
+      test('boolean encodes bool directly', () {
+        expect(Put.boolean.encode(true), true);
+        expect(Put.boolean.encode(false), false);
       });
 
       test('dateTime encodes as ISO 8601 string', () {

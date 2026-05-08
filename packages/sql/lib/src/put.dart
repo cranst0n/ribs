@@ -14,7 +14,7 @@ abstract mixin class Put<A> {
 
   /// Sets the parameter at position [n] in [params], returning updated params.
   StatementParameters setParameter(StatementParameters params, int n, A value) =>
-      params.setParameter(n, value);
+      params.setParameter(n, encode(value));
 
   /// Adapts this [Put] to accept a different type [B] by applying [f]
   /// before encoding.
@@ -28,8 +28,8 @@ abstract mixin class Put<A> {
     (v) => v,
   ).contramap<ByteVector>((bv) => bv.toByteArray());
 
-  /// Encodes a boolean parameter (stored as 0/1 integer).
-  static final Put<bool> boolean = integer.contramap((b) => b ? 1 : 0);
+  /// Encodes a boolean parameter.
+  static final Put<bool> boolean = instance((v) => v);
 
   /// Encodes a [DateTime] parameter (stored as an ISO 8601 string).
   static final Put<DateTime> dateTime = string.contramap((dt) => dt.toIso8601String());

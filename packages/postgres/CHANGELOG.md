@@ -1,3 +1,7 @@
+## 1.0.0-dev.3
+
+- Update `ribs_sql` dependency to `^1.0.0-dev.3`.
+
 ## 1.0.0-dev.2
 
 - Update dependencies.

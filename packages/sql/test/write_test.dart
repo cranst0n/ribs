@@ -30,19 +30,19 @@ void main() {
         expect(Write.boolean.encode(false).toList, [false]);
       });
 
-      test('dateTime stores DateTime directly', () {
+      test('dateTime encodes DateTime as ISO 8601 string', () {
         final dt = DateTime.utc(2024, 6, 15);
-        expect(Write.dateTime.encode(dt).toList, [dt]);
+        expect(Write.dateTime.encode(dt).toList, [dt.toIso8601String()]);
       });
 
-      test('blob stores ByteVector directly', () {
+      test('blob encodes ByteVector as byte list', () {
         final bv = ByteVector.fromDart([1, 2, 3]);
-        expect(Write.blob.encode(bv).toList, [bv]);
+        expect(Write.blob.encode(bv).toList, [bv.toByteArray()]);
       });
 
-      test('json stores Json object directly', () {
+      test('json encodes Json as compact JSON string', () {
         final json = Json.obj([('k', Json.str('v'))]);
-        expect(Write.json.encode(json).toList, [json]);
+        expect(Write.json.encode(json).toList, ['{"k":"v"}']);
       });
     });
 

@@ -55,9 +55,9 @@ void main() {
       expect(f.params.toList, [18, 'NYC']);
     });
 
-    test('param encodes boolean as 0/1', () {
-      expect(Fragment.param(true, Put.boolean).params.toList, [1]);
-      expect(Fragment.param(false, Put.boolean).params.toList, [0]);
+    test('param stores boolean directly', () {
+      expect(Fragment.param(true, Put.boolean).params.toList, [true]);
+      expect(Fragment.param(false, Put.boolean).params.toList, [false]);
     });
   });
 }

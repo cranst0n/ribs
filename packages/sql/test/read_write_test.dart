@@ -37,24 +37,24 @@ void main() {
         expect(ReadWrite.boolean.encode(true).toList, [true]);
       });
 
-      test('dateTime reads ISO string; write stores DateTime directly', () {
+      test('dateTime reads ISO string; write encodes DateTime as ISO string', () {
         final dt = DateTime.utc(2024, 3, 10);
         expect(ReadWrite.dateTime.unsafeGet(row([dt.toIso8601String()]), 0), dt);
-        expect(ReadWrite.dateTime.encode(dt).toList, [dt]);
+        expect(ReadWrite.dateTime.encode(dt).toList, [dt.toIso8601String()]);
       });
 
-      test('blob reads List<int>; write stores ByteVector directly', () {
+      test('blob reads List<int>; write encodes ByteVector as byte list', () {
         final bytes = [5, 6, 7];
         final bv = ByteVector.fromDart(bytes);
         expect(ReadWrite.blob.unsafeGet(row([bytes]), 0), bv);
-        expect(ReadWrite.blob.encode(bv).toList, [bv]);
+        expect(ReadWrite.blob.encode(bv).toList, [bytes]);
       });
 
-      test('json reads JSON string; write stores Json object directly', () {
+      test('json reads JSON string; write encodes Json as compact JSON string', () {
         final json = Json.str('test');
         final encoded = Printer.noSpaces.print(json);
         expect(ReadWrite.json.unsafeGet(row([encoded]), 0), json);
-        expect(ReadWrite.json.encode(json).toList, [json]);
+        expect(ReadWrite.json.encode(json).toList, [encoded]);
       });
     });
 
