@@ -31,7 +31,7 @@ final class SocketAddress<A extends Host> {
   const SocketAddress(this.host, this.port);
 
   /// The wildcard socket address `0.0.0.0:0`.
-  static final Wildcard = SocketAddress(Ipv4Address.wildcard, Port.Wildcard);
+  static final wildcard = SocketAddress(Ipv4Address.wildcard, Port.Wildcard);
 
   /// Returns a wildcard host socket address bound to [port].
   static SocketAddress withPort(Port port) => SocketAddress(Ipv4Address.wildcard, port);

@@ -77,7 +77,7 @@ IO<Unit> loggingEchoServer({int port = 9090, int maxConnections = 100}) => IO.re
   });
 
   return Network.bindAndAccept(
-    SocketAddress.Wildcard,
+    SocketAddress.wildcard,
   ).parEvalMap(maxConnections, handle).compile.drain;
 });
 // #endregion rill-io-realworld

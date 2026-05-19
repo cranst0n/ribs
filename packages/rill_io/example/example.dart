@@ -72,7 +72,7 @@ IO<Unit> networkExample() {
   return IO
       .print('\n=== TCP Echo ===')
       .productR(
-        Network.bind(SocketAddress.Wildcard).use((server) {
+        Network.bind(SocketAddress.wildcard).use((server) {
           return IO
               .print('Bound on ${server.localAddress}')
               .productR(IO.both(serve(server), runClient(server.localAddress)).voided());
