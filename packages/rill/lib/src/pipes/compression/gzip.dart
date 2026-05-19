@@ -12,6 +12,7 @@ import 'package:ribs_rill/src/pipes/compression/gzip_platform/gzip_platform.dart
 class GZipPipes {
   static final GZipPipes _singleton = GZipPipes._();
 
+  /// Returns the singleton [GZipPipes] instance.
   factory GZipPipes() => _singleton;
 
   GZipPipes._();

@@ -16,6 +16,7 @@ import 'package:ribs_rill/src/pipes/utf8.dart';
 final class TextPipes {
   static final TextPipes _singleton = TextPipes._();
 
+  /// Returns the singleton [TextPipes] instance.
   factory TextPipes() => _singleton;
 
   TextPipes._();

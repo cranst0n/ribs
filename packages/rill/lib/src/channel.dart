@@ -87,6 +87,7 @@ mixin Channel<A> {
 final class ChannelClosed {
   static final ChannelClosed _singleton = ChannelClosed._();
 
+  /// Returns the singleton [ChannelClosed] instance.
   factory ChannelClosed() => _singleton;
 
   ChannelClosed._();

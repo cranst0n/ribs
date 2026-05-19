@@ -7,6 +7,7 @@ part of 'rill.dart';
 class RillCompile<O> {
   final Pull<O, Unit> _pull;
 
+  /// Creates a [RillCompile] that drives [_pull] to completion.
   RillCompile(this._pull);
 
   /// Counts all emitted elements.
@@ -125,6 +126,7 @@ extension RillCompilerIntOps on RillCompile<int> {
 class RillResourceCompile<O> {
   final Pull<O, Unit> _pull;
 
+  /// Creates a [RillResourceCompile] that drives [_pull] to completion.
   RillResourceCompile(this._pull);
 
   /// Counts all emitted elements.

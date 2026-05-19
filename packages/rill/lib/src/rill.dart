@@ -43,6 +43,7 @@ typedef Pipe<I, O> = Function1<Rill<I>, Rill<O>>;
 /// await rill.compile.toIList.run();
 /// ```
 class Rill<O> {
+  /// The underlying [Pull] that drives this stream.
   final Pull<O, Unit> underlying;
 
   factory Rill._scoped(Pull<O, Unit> pull) => Pull.scope(pull).rillNoScope;
@@ -2183,6 +2184,7 @@ extension RillNeverOps on Rill<Never> {
 
 /// Controls how a [Rill.fromStream] buffer behaves when it is full.
 sealed class OverflowStrategy {
+  /// Base constructor for [OverflowStrategy] subtypes.
   const OverflowStrategy();
 
   /// Drop the oldest buffered element to make room for the new one.

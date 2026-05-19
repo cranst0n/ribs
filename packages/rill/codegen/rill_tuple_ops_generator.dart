@@ -74,6 +74,7 @@ final class RillTupleOpsGenerator {
       (b) =>
           b
             ..name = 'collectN'
+            ..docs.add('/// Like [collect] but [f] accepts the tuple fields as separate parameters.')
             ..types.add(refer(returnTypeParam))
             ..requiredParameters.add(_functionParam(size, 'Option<$returnTypeParam>'))
             ..returns = refer('Rill<$returnTypeParam>')
@@ -89,6 +90,7 @@ final class RillTupleOpsGenerator {
       (b) =>
           b
             ..name = 'evalMapN'
+            ..docs.add('/// Like [evalMap] but [f] accepts the tuple fields as separate parameters.')
             ..types.add(refer(returnTypeParam))
             ..requiredParameters.add(_functionParam(size, 'IO<$returnTypeParam>'))
             ..returns = refer('Rill<$returnTypeParam>')
@@ -104,6 +106,7 @@ final class RillTupleOpsGenerator {
       (b) =>
           b
             ..name = 'evalTapN'
+            ..docs.add('/// Like [evalTap] but [f] accepts the tuple fields as separate parameters.')
             ..types.add(refer('T${size + 1}'))
             ..requiredParameters.add(_functionParam(size, 'IO<T${size + 1}>'))
             ..returns = refer(selfType)
@@ -119,6 +122,7 @@ final class RillTupleOpsGenerator {
       (b) =>
           b
             ..name = 'filterN'
+            ..docs.add('/// Like [filter] but [f] accepts the tuple fields as separate parameters.')
             ..requiredParameters.add(_functionParam(size, 'bool'))
             ..returns = refer(selfType)
             ..body = const Code('filter(f.tupled)')
@@ -133,6 +137,9 @@ final class RillTupleOpsGenerator {
       (b) =>
           b
             ..name = 'filterNotN'
+            ..docs.add(
+              '/// Like [filterNot] but [f] accepts the tuple fields as separate parameters.',
+            )
             ..requiredParameters.add(_functionParam(size, 'bool'))
             ..returns = refer(selfType)
             ..body = const Code('filterNot(f.tupled)')
@@ -147,6 +154,7 @@ final class RillTupleOpsGenerator {
       (b) =>
           b
             ..name = 'flatMapN'
+            ..docs.add('/// Like [flatMap] but [f] accepts the tuple fields as separate parameters.')
             ..types.add(refer(returnTypeParam))
             ..requiredParameters.add(_functionParam(size, 'Rill<$returnTypeParam>'))
             ..returns = refer('Rill<$returnTypeParam>')
@@ -162,6 +170,7 @@ final class RillTupleOpsGenerator {
       (b) =>
           b
             ..name = 'mapN'
+            ..docs.add('/// Like [map] but [f] accepts the tuple fields as separate parameters.')
             ..types.add(refer(returnTypeParam))
             ..requiredParameters.add(_functionParam(size, returnTypeParam))
             ..returns = refer('Rill<$returnTypeParam>')
@@ -177,6 +186,9 @@ final class RillTupleOpsGenerator {
       (b) =>
           b
             ..name = 'parEvalMapN'
+            ..docs.add(
+              '/// Like [parEvalMap] but [f] accepts the tuple fields as separate parameters.',
+            )
             ..types.add(refer(returnTypeParam))
             ..requiredParameters.addAll([
               _maxConcurrentParam(),
@@ -195,6 +207,9 @@ final class RillTupleOpsGenerator {
       (b) =>
           b
             ..name = 'parEvalMapUnboundedN'
+            ..docs.add(
+              '/// Like [parEvalMapUnbounded] but [f] accepts the tuple fields as separate parameters.',
+            )
             ..types.add(refer(returnTypeParam))
             ..requiredParameters.add(_functionParam(size, 'IO<$returnTypeParam>'))
             ..returns = refer('Rill<$returnTypeParam>')
@@ -210,6 +225,9 @@ final class RillTupleOpsGenerator {
       (b) =>
           b
             ..name = 'parEvalMapUnorderedN'
+            ..docs.add(
+              '/// Like [parEvalMapUnordered] but [f] accepts the tuple fields as separate parameters.',
+            )
             ..types.add(refer(returnTypeParam))
             ..requiredParameters.addAll([
               _maxConcurrentParam(),
@@ -228,6 +246,9 @@ final class RillTupleOpsGenerator {
       (b) =>
           b
             ..name = 'parEvalMapUnorderedUnboundedN'
+            ..docs.add(
+              '/// Like [parEvalMapUnorderedUnbounded] but [f] accepts the tuple fields as separate parameters.',
+            )
             ..types.add(refer(returnTypeParam))
             ..requiredParameters.add(_functionParam(size, 'IO<$returnTypeParam>'))
             ..returns = refer('Rill<$returnTypeParam>')

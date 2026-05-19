@@ -14,6 +14,7 @@ import 'package:ribs_rill/ribs_rill.dart';
 final class HexPipes {
   static final HexPipes _singleton = HexPipes._();
 
+  /// Returns the singleton [HexPipes] instance.
   factory HexPipes() => _singleton;
 
   HexPipes._();

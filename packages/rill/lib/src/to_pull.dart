@@ -2,8 +2,10 @@ part of 'rill.dart';
 
 /// Provides high-level inspection methods for a Rills's underlying Pull.
 class ToPull<O> {
+  /// The stream being inspected.
   final Rill<O> self;
 
+  /// Creates a [ToPull] view over [self].
   ToPull(this.self);
 
   /// Skips the first [n] elements and returns the remainder of the rill.

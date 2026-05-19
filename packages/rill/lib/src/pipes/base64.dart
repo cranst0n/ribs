@@ -15,6 +15,7 @@ import 'package:ribs_rill/ribs_rill.dart';
 final class Base64Pipes {
   static final Base64Pipes _singleton = Base64Pipes._();
 
+  /// Returns the singleton [Base64Pipes] instance.
   factory Base64Pipes() => _singleton;
 
   Base64Pipes._();

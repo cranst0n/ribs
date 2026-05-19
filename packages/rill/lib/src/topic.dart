@@ -4,8 +4,10 @@ import 'package:ribs_rill/ribs_rill.dart';
 
 /// Sentinel value returned when an operation is attempted on a closed [Topic].
 final class TopicClosed {
+  /// The singleton [TopicClosed] value.
   static const TopicClosed instance = TopicClosed._();
 
+  /// Returns the singleton [TopicClosed] instance.
   factory TopicClosed() => instance;
 
   const TopicClosed._();

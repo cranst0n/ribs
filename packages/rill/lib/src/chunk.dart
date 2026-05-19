@@ -153,6 +153,10 @@ sealed class Chunk<O> with RIterableOnce<O>, RIterable<O>, RSeq<O>, IndexedSeq<O
   @override
   Chunk<O> intersperse(O x) => from(super.intersperse(x));
 
+  /// Whether this chunk is backed by a single contiguous array.
+  ///
+  /// `false` for [_SliceChunk] and [_ConcatChunk], which may require a copy
+  /// to produce a flat representation. Call [compact] to normalize.
   bool get isCompact => true;
 
   @override

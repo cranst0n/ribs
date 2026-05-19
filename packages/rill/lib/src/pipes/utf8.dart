@@ -15,6 +15,7 @@ import 'package:ribs_rill/ribs_rill.dart';
 final class Utf8Pipes {
   static final Utf8Pipes _singleton = Utf8Pipes._();
 
+  /// Returns the singleton [Utf8Pipes] instance.
   factory Utf8Pipes() => _singleton;
 
   Utf8Pipes._();

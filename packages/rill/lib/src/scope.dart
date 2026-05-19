@@ -15,6 +15,7 @@ class Lease {
   /// success or [Left] with an aggregated error if any finalizer failed.
   final IO<Either<Object, Unit>> cancel;
 
+  /// Creates a [Lease] whose [cancel] action releases the hold on the scope.
   const Lease(this.cancel);
 }
 
@@ -27,7 +28,10 @@ class Lease {
 class Scope {
   static int _idCounter = 0;
 
+  /// Unique numeric identifier for this scope, assigned at creation time.
   final int id;
+
+  /// The parent scope, or `null` if this is the root scope.
   final Scope? parent;
   final Ref<IList<Function1<ExitCase, IO<Unit>>>> _finalizers;
   final Ref<bool> _closed;

@@ -98,6 +98,7 @@ sealed class Pull<O, R> {
   /// A Pull that emits nothing and returns [Unit].
   static Pull<Never, Unit> unit = _Pure(Unit());
 
+  /// Base constructor for internal [Pull] subtypes.
   const Pull();
 
   /// **Unsafe Cast Warning**:
