@@ -74,7 +74,9 @@ final class RillTupleOpsGenerator {
       (b) =>
           b
             ..name = 'collectN'
-            ..docs.add('/// Like [collect] but [f] accepts the tuple fields as separate parameters.')
+            ..docs.add(
+              '/// Like [collect] but [f] accepts the tuple fields as separate parameters.',
+            )
             ..types.add(refer(returnTypeParam))
             ..requiredParameters.add(_functionParam(size, 'Option<$returnTypeParam>'))
             ..returns = refer('Rill<$returnTypeParam>')
@@ -90,7 +92,9 @@ final class RillTupleOpsGenerator {
       (b) =>
           b
             ..name = 'evalMapN'
-            ..docs.add('/// Like [evalMap] but [f] accepts the tuple fields as separate parameters.')
+            ..docs.add(
+              '/// Like [evalMap] but [f] accepts the tuple fields as separate parameters.',
+            )
             ..types.add(refer(returnTypeParam))
             ..requiredParameters.add(_functionParam(size, 'IO<$returnTypeParam>'))
             ..returns = refer('Rill<$returnTypeParam>')
@@ -106,7 +110,9 @@ final class RillTupleOpsGenerator {
       (b) =>
           b
             ..name = 'evalTapN'
-            ..docs.add('/// Like [evalTap] but [f] accepts the tuple fields as separate parameters.')
+            ..docs.add(
+              '/// Like [evalTap] but [f] accepts the tuple fields as separate parameters.',
+            )
             ..types.add(refer('T${size + 1}'))
             ..requiredParameters.add(_functionParam(size, 'IO<T${size + 1}>'))
             ..returns = refer(selfType)
@@ -154,7 +160,9 @@ final class RillTupleOpsGenerator {
       (b) =>
           b
             ..name = 'flatMapN'
-            ..docs.add('/// Like [flatMap] but [f] accepts the tuple fields as separate parameters.')
+            ..docs.add(
+              '/// Like [flatMap] but [f] accepts the tuple fields as separate parameters.',
+            )
             ..types.add(refer(returnTypeParam))
             ..requiredParameters.add(_functionParam(size, 'Rill<$returnTypeParam>'))
             ..returns = refer('Rill<$returnTypeParam>')
