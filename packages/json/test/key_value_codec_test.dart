@@ -415,6 +415,39 @@ void main() {
       test('missing field', () {
         expect(codec.decode(Json.obj([('a', Json.number(1))])), isLeft());
       });
+
+      test('required field with null value fails', () {
+        expect(
+          codec.decode(Json.obj([('a', Json.number(1)), ('b', Json.Null)])),
+          isLeft(),
+        );
+      });
+    });
+
+    group('productN with optional and nullable', () {
+      final optCodec = KeyValueCodec.tuple2(
+        kv('a'),
+        KeyValueCodec('b', Codec.integer.optional()),
+      );
+
+      final nullCodec = KeyValueCodec.tuple2(
+        kv('a'),
+        KeyValueCodec('b', Codec.integer.nullable()),
+      );
+
+      test('missing optional key decodes as None', () {
+        expect(
+          optCodec.decode(Json.obj([('a', Json.number(1))])),
+          (1, none<int>()).asRight<DecodingFailure>(),
+        );
+      });
+
+      test('missing nullable key decodes as null', () {
+        expect(
+          nullCodec.decode(Json.obj([('a', Json.number(1))])),
+          (1, null as int?).asRight<DecodingFailure>(),
+        );
+      });
     });
 
     group('instance methods', () {

@@ -100,6 +100,67 @@ void main() {
       Animal.codec,
     );
 
+    group('product3 with optional and nullable fields', () {
+      test('round trips when all fields are present', () {
+        const a = PersonWithOptionals('alice', Some(5), 'label');
+
+        expect(
+          PersonWithOptionals.codec.decode(PersonWithOptionals.codec.encode(a)),
+          isRight(a),
+        );
+      });
+
+      test('round trips when optional/nullable fields are None/null', () {
+        final a = PersonWithOptionals('alice', none<int>(), null);
+
+        expect(
+          PersonWithOptionals.codec.decode(PersonWithOptionals.codec.encode(a)),
+          isRight(a),
+        );
+      });
+
+      test('decodes missing optional field as None', () {
+        final json = Json.fromJsonObject(
+          JsonObject.fromIterable([
+            ('name', Codec.string.encode('alice')),
+            ('label', Codec.string.encode('foo')),
+          ]),
+        );
+
+        expect(
+          PersonWithOptionals.codec.decode(json),
+          isRight(PersonWithOptionals('alice', none<int>(), 'foo')),
+        );
+      });
+
+      test('decodes missing nullable field as null', () {
+        final json = Json.fromJsonObject(
+          JsonObject.fromIterable([
+            ('name', Codec.string.encode('alice')),
+            ('count', Codec.integer.encode(5)),
+          ]),
+        );
+
+        expect(
+          PersonWithOptionals.codec.decode(json),
+          isRight(const PersonWithOptionals('alice', Some(5), null)),
+        );
+      });
+
+      test('decodes missing optional and nullable fields', () {
+        final json = Json.fromJsonObject(
+          JsonObject.fromIterable([
+            ('name', Codec.string.encode('alice')),
+          ]),
+        );
+
+        expect(
+          PersonWithOptionals.codec.decode(json),
+          isRight(PersonWithOptionals('alice', none<int>(), null)),
+        );
+      });
+    });
+
     testCodec(
       'nonEmptyIList',
       Gen.nonEmptyIList(Gen.positiveInt, 500),
@@ -393,6 +454,32 @@ final class Cat extends Animal {
   ).product(Cat.new, (c) => (c.name, c.age, c.lives));
 
   static final gen = (Gen.alphaNumString(10), Gen.integer, Gen.integer).tupled.map(Cat.new.tupled);
+}
+
+final class PersonWithOptionals {
+  final String name;
+  final Option<int> count;
+  final String? label;
+
+  const PersonWithOptionals(this.name, this.count, this.label);
+
+  static final codec = (
+    'name'.as(Codec.string),
+    'count'.as(Codec.integer.optional()),
+    'label'.as(Codec.string.nullable()),
+  ).product(PersonWithOptionals.new, (p) => (p.name, p.count, p.label));
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! PersonWithOptionals) {
+      return false;
+    } else {
+      return other.name == name && other.count == count && other.label == label;
+    }
+  }
+
+  @override
+  int get hashCode => Object.hash(name, count, label);
 }
 
 final class HermitCrab extends Animal {

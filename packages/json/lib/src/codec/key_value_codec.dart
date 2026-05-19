@@ -75,8 +75,15 @@ final class KeyValueCodec<A> extends Codec<A> {
     KeyValueCodec<A> codec,
   ) {
     final v = obj.tryGet(codec.key);
-    if (v == null) return DecodingFailure(MissingField(), nil<CursorOp>()).asLeft();
-    return codec.value.decode(v);
+
+    if (v == null) {
+      // Allow optional/nullable codecs to treat a missing key as null/None.
+      return codec.value
+          .decode(const JNull())
+          .leftMap((_) => DecodingFailure(MissingField(), nil<CursorOp>()));
+    } else {
+      return codec.value.decode(v);
+    }
   }
 
   // Here for performance reasons, to avoid the overhead of creating a new Codec for each field when decoding.

@@ -1,3 +1,9 @@
+## 1.0.0-dev.18
+
+### Bug Fixes
+
+- Fix `optional()` and `nullable()` fields in product codecs (`KeyValueCodec.productN`) incorrectly failing with `MissingField`.
+
 ## 1.0.0-dev.17
 
 - Update dependencies.
