@@ -1,5 +1,5 @@
 name: ribs_sql
-version: 1.0.0-dev.3
+version: 1.0.0-dev.4
 homepage: https://cranst0n.github.io/ribs/
 repository: https://github.com/cranst0n/ribs
 description: >
@@ -19,7 +19,7 @@ dependencies:
   ribs_binary: ^1.0.0-dev.12
   ribs_core:   ^1.0.0-dev.16
   ribs_effect: ^1.0.0-dev.5
-  ribs_json:   ^1.0.0-dev.16
+  ribs_json:   ^1.0.0-dev.18
   ribs_rill:   ^1.0.0-dev.2
 
 dev_dependencies:
