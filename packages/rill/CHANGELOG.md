@@ -1,3 +1,9 @@
+## 1.0.0-dev.3
+
+### Bug Fixes
+
+- Update `ribs_core` dependency.
+
 ## 1.0.0-dev.2
 
 ### Breaking Changes

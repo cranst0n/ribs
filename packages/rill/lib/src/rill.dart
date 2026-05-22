@@ -1227,7 +1227,13 @@ class Rill<O> {
     (o) => Option(o),
   ).zipAll<Option<O>>(that.map((o) => Option(o)), none(), none()).flatMap((t) {
     final (thisOpt, thatOpt) = t;
-    return Rill.chunk(Chunk.from(thisOpt)).append(() => Rill.chunk(Chunk.from(thatOpt)));
+    return Rill.chunk(
+      Chunk.from(thisOpt.fold(() => nil<O>(), (a) => ilist([a]))),
+    ).append(
+      () => Rill.chunk(
+        Chunk.from(thatOpt.fold(() => nil<O>(), (a) => ilist([a]))),
+      ),
+    );
   });
 
   /// Inserts [separator] between every pair of adjacent elements.

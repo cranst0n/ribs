@@ -1,3 +1,12 @@
+## 1.0.0-dev.17
+
+### Breaking Changes
+
+- `Option` no longer mixes in `RIterableOnce`. Code that relied on `Option`
+  being a `RIterableOnce` (e.g. passing one to a method that accepts
+  `RIterableOnce`) must be updated. Use `.fold(() => nil<A>(), (a) => ilist([a]))`
+  where an `IList` representation is needed.
+
 ## 1.0.0-dev.16
 
 ### Breaking Changes

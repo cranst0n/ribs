@@ -132,7 +132,7 @@ extension<A, B> on IList<Either<A, B>> {
   (IList<B>, Option<A>) get spanRightsAndFirstLeft {
     final (rightPrefix, rest) = span((ab) => ab.isRight);
 
-    final bs = rightPrefix.flatMap((ab) => ab.rightOption.toIList());
+    final bs = rightPrefix.flatMap<B>((ab) => ab.toIList());
     final a = rest.headOption.flatMap((ab) => ab.leftOption);
 
     return (bs, a);

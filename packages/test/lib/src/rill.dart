@@ -105,6 +105,8 @@ class _ProducesInOrder extends AsyncMatcher {
         (a) {
           if (expected is Iterable) {
             expect(a, ilist(expected as Iterable));
+          } else if (expected is Option) {
+            expect(a, (expected as Option).fold(() => nil<dynamic>(), (v) => ilist([v])));
           } else if (expected is RIterableOnce) {
             expect(a, (expected as RIterableOnce).toIList());
           } else {
@@ -201,6 +203,15 @@ class _ProducesUnordered extends AsyncMatcher {
               a.size == iterable.length &&
                   a.forall((a0) => iterable.contains(a0)) &&
                   ilist(iterable).forall((a0) => a.contains(a0)),
+              isTrue,
+            );
+          } else if (expected is Option) {
+            final iterable = (expected as Option).fold(() => nil<dynamic>(), (v) => ilist([v]));
+
+            expect(
+              a.size == iterable.size &&
+                  a.forall((a0) => iterable.contains(a0)) &&
+                  iterable.forall((a0) => a.contains(a0)),
               isTrue,
             );
           } else if (expected is RIterableOnce) {

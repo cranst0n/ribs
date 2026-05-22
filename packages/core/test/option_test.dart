@@ -104,11 +104,6 @@ void main() {
       expect(testNone.orElse(() => testNone), isNone());
     });
 
-    test('toIList', () {
-      expect(testSome.toIList(), IList.fromDart([1]));
-      expect(testNone.toIList(), isEmpty);
-    });
-
     test('toLeft', () {
       expect(testSome.toLeft(() => 'right'), isLeft(1));
       expect(testNone.toLeft(() => 'right'), isRight('right'));

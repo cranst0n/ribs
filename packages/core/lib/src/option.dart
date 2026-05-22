@@ -12,7 +12,7 @@ Option<A> none<A>() => const None();
 /// flexibility. There are also conversions to move between optional and
 /// nullable types.
 @immutable
-sealed class Option<A> with RIterableOnce<A> {
+sealed class Option<A> {
   /// Creates an [Option] from the nullable value. If the value is null, a
   /// [None] will be returned. If the value is non-null, a [Some] will be
   /// returned.
@@ -33,57 +33,49 @@ sealed class Option<A> with RIterableOnce<A> {
   factory Option.when(Function0<bool> condition, Function0<A> a) =>
       condition() ? Some(a()) : const None();
 
-  @override
-  Option<B> collect<B>(Function1<A, Option<B>> f) => flatMap(f);
+  /// Returns `true` if this is a [Some] and the value satisfies [p].
+  bool exists(Function1<A, bool> p) => fold(() => false, p);
 
-  @override
-  Option<A> drop(int n) => filter((_) => n <= 0);
+  /// Returns this option if it is non-empty and [p] returns `true` for the
+  /// value. Otherwise returns [None].
+  Option<A> filter(Function1<A, bool> p);
 
-  @override
-  Option<A> dropWhile(Function1<A, bool> p) => filterNot(p);
+  /// Returns this option if it is empty or [p] returns `false` for the value.
+  /// Otherwise returns [None].
+  Option<A> filterNot(Function1<A, bool> p) => filter((a) => !p(a));
 
-  @override
-  RIterator<A> get iterator;
+  /// Returns the result of applying [f] to the contained value if this is a
+  /// [Some], or [None] if this is a [None].
+  Option<B> flatMap<B>(Function1<A, Option<B>> f);
 
   /// Returns the result of applying `f` to this [Option] value if non-empty.
   /// Otherwise, returns the result of `ifEmpty`.
   B fold<B>(Function0<B> ifEmpty, Function1<A, B> f);
 
+  /// Applies [op] to the seed [z] and the contained value, or returns [z] for [None].
+  B foldLeft<B>(B z, Function2<B, A, B> op) => fold(() => z, (a) => op(z, a));
+
+  /// Applies [op] to the contained value and seed [z], or returns [z] for [None].
+  B foldRight<B>(B z, Function2<A, B, B> op) => fold(() => z, (a) => op(a, z));
+
+  /// Returns `true` if this is a [None], or if the value satisfies [p].
+  bool forall(Function1<A, bool> p) => fold(() => true, p);
+
+  /// Applies [f] to the value if this is a [Some]; does nothing for [None].
+  void foreach<U>(Function1<A, U> f) => fold(() {}, f);
+
   /// Returns true if this Option is a [Some], false if it's a [None].
   bool get isDefined => this is Some;
 
-  @override
+  /// Returns `true` if this is a [None], `false` if it's a [Some].
   bool get isEmpty => this is None;
 
-  @override
-  Option<A> filter(Function1<A, bool> p);
-
-  @override
-  Option<A> filterNot(Function1<A, bool> p) => filter((a) => !p(a));
-
-  @override
-  Option<B> flatMap<B>(Function1<A, Option<B>> f);
-
-  @override
+  /// Applies [f] to the contained value and wraps the result in [Some], or
+  /// returns [None] if this is a [None].
   Option<B> map<B>(Function1<A, B> f);
 
-  @override
+  /// Returns `true` if this is a [Some], `false` if it's a [None].
   bool get nonEmpty => this is Some;
-
-  @override
-  RIterableOnce<B> scanLeft<B>(B z, Function2<B, A, B> op) => toIList().scanLeft(z, op);
-
-  @override
-  RIterableOnce<A> slice(int from, int until) => toIList().slice(from, until);
-
-  @override
-  (RIterableOnce<A>, RIterableOnce<A>) span(Function1<A, bool> p) => toIList().span(p);
-
-  @override
-  RIterableOnce<A> take(int n) => toIList().take(n);
-
-  @override
-  RIterableOnce<A> takeWhile(Function1<A, bool> p) => toIList().takeWhile(p);
 
   /// If this is a [Some] a [Left] is returned with the value. If this is a
   /// [None], a [Right] is returned with the result of evaluating [ifEmpty].
@@ -123,9 +115,6 @@ final class Some<A> extends Option<A> {
   B fold<B>(Function0<B> ifEmpty, Function1<A, B> f) => f(value);
 
   @override
-  RIterator<A> get iterator => RIterator.single(value);
-
-  @override
   Option<B> map<B>(Function1<A, B> f) => Some(f(value));
 
   @override
@@ -158,9 +147,6 @@ final class None extends Option<Never> {
   B fold<B>(Function0<B> ifEmpty, Function1<Never, B> f) => ifEmpty();
 
   @override
-  RIterator<Never> get iterator => RIterator.empty();
-
-  @override
   Option<B> map<B>(Function1<Never, B> f) => this;
 
   @override
@@ -187,6 +173,7 @@ extension OptionNestedOps<A> on Option<Option<A>> {
 
 /// Additional combinators on [Option].
 extension OptionOps<A> on Option<A> {
+  /// Returns `true` if this is a [Some] whose value equals [elem].
   bool contains(A elem) => fold(() => false, (value) => value == elem);
 
   /// Returns the value if this is a [Some], or throws a [StateError] if this
