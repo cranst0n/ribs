@@ -27,9 +27,9 @@ final class Update<A> {
   });
 
   /// Executes this update once for each value in [values].
-  ConnectionIO<Unit> runMany(Iterable<A> values) =>
+  ConnectionIO<Unit> runMany(RIterableOnce<A> values) =>
       ConnectionIO.fromConnection((SqlConnection conn) {
-        return values.fold<IO<Unit>>(
+        return values.foldLeft<IO<Unit>>(
           IO.pure(Unit()),
           (io, value) => io.flatMap(
             (_) => conn.executeUpdate(sql, write.encode(value)).map((_) => Unit()),

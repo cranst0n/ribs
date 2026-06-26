@@ -77,12 +77,14 @@ final countAll = 'SELECT COUNT(*) FROM person'.query(Read.integer).unique();
 ConnectionIO<Unit> program() {
   final setup = createPersonTable.run().productR<int>(createItemTable.run());
 
-  final seed = insertPerson.runMany([
-    const Person('Alice', 30),
-    const Person('Bob', 25),
-    const Person('Carol', 35),
-    const Person('Dave', 28),
-  ]);
+  final seed = insertPerson.runMany(
+    ilist([
+      const Person('Alice', 30),
+      const Person('Bob', 25),
+      const Person('Carol', 35),
+      const Person('Dave', 28),
+    ]),
+  );
 
   final insertItems = insertItemReturning
       .runMany(ilist(['Widget', 'Gadget', 'Doohickey']))

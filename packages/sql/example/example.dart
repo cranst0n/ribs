@@ -84,12 +84,14 @@ CREATE TABLE IF NOT EXISTS item (
   // Program — pure description, nothing runs until .transact(xa)
   // ---------------------------------------------------------------------------
 
-  final seedPeople = insertPerson.runMany([
-    const Person('Alice', 30),
-    const Person('Bob', 25),
-    const Person('Carol', 35),
-    const Person('Dave', 28),
-  ]);
+  final seedPeople = insertPerson.runMany(
+    ilist([
+      const Person('Alice', 30),
+      const Person('Bob', 25),
+      const Person('Carol', 35),
+      const Person('Dave', 28),
+    ]),
+  );
 
   final seedItems = insertItem
       .runMany(ilist(['Widget', 'Gadget', 'Doohickey']))

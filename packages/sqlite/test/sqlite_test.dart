@@ -43,7 +43,7 @@ void main() {
     });
 
     test('insert many rows', () {
-      final people = [('Alice', 30), ('Bob', 25), ('Carol', 35)];
+      final people = ilist([('Alice', 30), ('Bob', 25), ('Carol', 35)]);
 
       final test = 'INSERT INTO person (name, age) VALUES (?, ?)'
           .update((Write.string, Write.integer).tupled)
@@ -582,4 +582,4 @@ CREATE TABLE IF NOT EXISTS item (
 
 ConnectionIO<Unit> _insertPeople() => 'INSERT INTO person (name, age) VALUES (?, ?)'
     .update((Write.string, Write.integer).tupled)
-    .runMany([('Alice', 30), ('Bob', 25), ('Carol', 35)]);
+    .runMany(ilist([('Alice', 30), ('Bob', 25), ('Carol', 35)]));

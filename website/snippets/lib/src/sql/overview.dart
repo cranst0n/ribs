@@ -58,7 +58,7 @@ ConnectionIO<int> insertOne() => 'INSERT INTO person (name, age) VALUES (?, ?)'
 
 ConnectionIO<Unit> insertMany() => 'INSERT INTO person (name, age) VALUES (?, ?)'
     .update((Write.string, Write.integer).tupled)
-    .runMany([('Alice', 30), ('Bob', 25), ('Carol', 35)]);
+    .runMany(ilist([('Alice', 30), ('Bob', 25), ('Carol', 35)]));
 // #endregion sql-insert
 
 // #region sql-query
