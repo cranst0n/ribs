@@ -121,7 +121,11 @@ mixin RIterable<A> on RIterableOnce<A> {
   RIterator<RIterable<A>> grouped(int size) => iterator.grouped(size);
 
   /// Returns the first element of this collection, or throws if it is empty.
-  A get head => iterator.next();
+  A get head {
+    final it = iterator;
+    if (!it.hasNext) throw UnsupportedError("called 'head' on empty");
+    return it.next();
+  }
 
   /// Returns the first element of this collection as a [Some] if non-empty.
   /// If this collction is empty, [None] is returned.

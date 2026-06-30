@@ -4,6 +4,11 @@ import 'package:test/test.dart';
 
 void main() {
   group('IList', () {
+    test('head', () {
+      expect(ilist([1, 2, 3]).head, 1);
+      expect(() => nil<int>().head, throwsUnsupportedError);
+    });
+
     test('empty', () {
       expect(nil<int>(), nil<int>());
       expect(nil<int>().size, 0);
