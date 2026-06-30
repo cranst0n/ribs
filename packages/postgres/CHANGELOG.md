@@ -1,3 +1,7 @@
+## 1.0.0
+
+- First stable release.
+
 ## 1.0.0-dev.4
 
 - Update `ribs_core` and `ribs_rill` dependencies.

@@ -1,3 +1,7 @@
+## 1.0.0
+
+- First stable release.
+
 ## 1.0.0-dev.2
 
 - Add API documentation to `Files`, `FileHandle`, `ReadCursor`, and related types.

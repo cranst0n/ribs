@@ -1,3 +1,7 @@
+## 1.0.0
+
+- First stable release.
+
 ## 1.0.0-dev.12
 
 - Add API documentation to `Codec`, `Decoder`, `Encoder`, `StreamDecoder`,

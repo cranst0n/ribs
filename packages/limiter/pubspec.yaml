@@ -1,5 +1,5 @@
 name: ribs_limiter
-version: 1.0.0-dev.2
+version: 1.0.0
 homepage: https://cranst0n.github.io/ribs/
 repository: https://github.com/cranst0n/ribs
 description: >
@@ -15,13 +15,13 @@ environment:
   sdk: ">=3.7.0 <4.0.0"
 
 dependencies:
-  ribs_core:   ^1.0.0-dev.16
-  ribs_effect: ^1.0.0-dev.5
-  ribs_rill:   ^1.0.0-dev.2
+  ribs_core:   ^1.0.0
+  ribs_effect: ^1.0.0
+  ribs_rill:   ^1.0.0
 
 dev_dependencies:
   lint:       ^2.8.0
   lints:      ^6.1.0
-  ribs_check: ^1.0.0-dev.10
-  ribs_test:  ^1.0.0-dev.1
+  ribs_check: ^1.0.0
+  ribs_test:  ^1.0.0
   test:       ^1.0.0

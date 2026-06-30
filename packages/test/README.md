@@ -8,7 +8,7 @@ Add to your `pubspec.yaml` under `dev_dependencies`:
 
 ```yaml
 dev_dependencies:
-  ribs_test: ^1.0.0-dev.1
+  ribs_test: ^1.0.0
   test: ^1.0.0
 ```
 
