@@ -174,7 +174,7 @@ class ListBuffer<A> with RIterableOnce<A>, RIterable<A>, RSeq<A>, Buffer<A> {
   @override
   A get last {
     if (_last0 == null) {
-      throw StateError('last of empty ListBuffer');
+      throw UnsupportedError('last of empty ListBuffer');
     } else {
       return _last0!.head;
     }

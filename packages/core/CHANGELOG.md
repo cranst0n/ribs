@@ -10,6 +10,8 @@
   `StateError`.
 - Fix `Validated.hashCode` so an `Invalid` and `Valid` holding the same value no
   longer produce the same hash code.
+- `ListBuffer.last` on an empty buffer now throws an `UnsupportedError` instead
+  of a `StateError`.
 
 ## 1.0.0
 

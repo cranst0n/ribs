@@ -204,12 +204,7 @@ void main() {
     test('hashCode', () {
       expect(Either.right<int, int>(42).hashCode, Either.right<int, int>(42).hashCode);
       expect(Either.left<int, int>(42).hashCode, Either.left<int, int>(42).hashCode);
-
-      // Left(x) and Right(x) are unequal so they should hash differently
-      expect(
-        Either.left<int, int>(42).hashCode,
-        isNot(Either.right<int, int>(42).hashCode),
-      );
+      expect(Either.left<int, int>(42).hashCode, isNot(Either.right<int, int>(42).hashCode));
     });
 
     test('mapN', () {

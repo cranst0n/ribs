@@ -305,7 +305,7 @@ void main() {
     });
 
     test('last on empty throws', () {
-      expect(() => ListBuffer<int>().last, throwsStateError);
+      expect(() => ListBuffer<int>().last, throwsUnsupportedError);
     });
 
     test('lastOption on empty is None', () {
