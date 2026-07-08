@@ -12,6 +12,18 @@ import 'package:test/test.dart';
 import 'arbitraries.dart';
 
 void main() {
+  test('pipe namespace types are part of the public API', () {
+    // the types returned by Pipes.* accessors should be nameable by users
+    final TextPipes text = Pipes.text;
+    final Base64Pipes base64 = Pipes.text.base64;
+    final HexPipes hex = Pipes.text.hex;
+    final Utf8Pipes utf8 = Pipes.text.utf8;
+    final CompressionPipes compression = Pipes.compression;
+    final GZipPipes gzip = Pipes.compression.gzip;
+
+    expect([text, base64, hex, utf8, compression, gzip], everyElement(isNotNull));
+  });
+
   group('compression', () {
     intRill.forAll('gzip roundtrip', (rill) {
       final bytes = rill.map((i) => i & 0xff);

@@ -6,5 +6,5 @@ class GZipPlatformImpl implements GZipPlatform {
   Pipe<int, int> get decode => throw UnimplementedError('GZip.decode');
 
   @override
-  Pipe<int, int> get encode => throw UnimplementedError('GZip.decode');
+  Pipe<int, int> get encode => throw UnimplementedError('GZip.encode');
 }

@@ -1,8 +1,4 @@
 import 'package:ribs_rill/ribs_rill.dart';
-import 'package:ribs_rill/src/pipes/base64.dart';
-import 'package:ribs_rill/src/pipes/hex.dart';
-import 'package:ribs_rill/src/pipes/lines.dart';
-import 'package:ribs_rill/src/pipes/utf8.dart';
 
 /// A convenience namespace grouping text-oriented pipes.
 ///
