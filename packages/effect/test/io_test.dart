@@ -202,6 +202,19 @@ void main() {
         );
       });
 
+      test('canceled joiner removes its listener from the target fiber', () {
+        final test = IO.never<Unit>().start().flatMap((target) {
+          return target.join().start().flatMap((joiner) {
+            return IO
+                .sleep(100.milliseconds)
+                .productR(joiner.cancel())
+                .productR(IO.delay(() => target.listenerCount));
+          });
+        });
+
+        expect(test, succeeds(0));
+      });
+
       test('cancel flatMap continuations following a canceled uncancelable block', () {
         expect(
           IO.uncancelable((_) => IO.canceled).flatMap((_) => IO.unit),

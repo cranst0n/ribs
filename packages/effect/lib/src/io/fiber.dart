@@ -110,9 +110,13 @@ final class IOFiber<A> {
       return IO.pure(oc).traced('join');
     } else {
       return IO
-          ._async_<Outcome<A>>(
-            (cb) => _registerListener((oc) => cb(oc.asRight())),
-          )
+          ._async<Outcome<A>>((cb) {
+            return IO._delay(() {
+              void listener(Outcome<A> oc) => cb(oc.asRight());
+              _registerListener(listener);
+              return Some(IO._exec(() => _removeListener(listener)));
+            });
+          })
           .traced('join');
     }
   }
@@ -493,12 +497,20 @@ final class IOFiber<A> {
     }
   }
 
+  /// The number of completion listeners currently registered on this fiber.
+  @visibleForTesting
+  int get listenerCount => _callbacks.size;
+
   void _registerListener(Function1<Outcome<A>, void> cb) {
     if (_outcome == null) {
       _callbacks = _callbacks.push(cb);
     } else {
       cb(_outcome!);
     }
+  }
+
+  void _removeListener(Function1<Outcome<A>, void> cb) {
+    _callbacks.remove(cb);
   }
 
   void _setCallback(Function1<Outcome<A>, void> cb) {

@@ -1,3 +1,12 @@
+## 1.0.1
+
+### Bug Fixes
+
+- Fix a listener leak in `IOFiber.join`: the registered completion listener is
+  now removed when the joining `IO` is canceled, so repeatedly joining and
+  canceling a long-lived fiber (e.g. via `race` or `timeout`) no longer
+  accumulates listeners.
+
 ## 1.0.0
 
 - First stable release.
