@@ -4,6 +4,8 @@
 
 - Fix `Either.hashCode` so a `Left` and `Right` holding the same value no longer
   produce the same hash code.
+- Fix `None.hashCode` so it no longer collides with a `Some` whose value hashes
+  to `0`.
 
 ## 1.0.0
 

@@ -162,7 +162,7 @@ final class None extends Option<Never> {
   bool operator ==(Object other) => other is None;
 
   @override
-  int get hashCode => 0;
+  int get hashCode => 'None'.hashCode;
 }
 
 /// Additional functions that can be called on a nested [Option].

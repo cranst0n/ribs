@@ -127,6 +127,7 @@ void main() {
     test('hashCode', () {
       expect(Option.pure(1).hashCode, Option.pure(1).hashCode);
       expect(none<int>().hashCode, none<int>().hashCode);
+      expect(none<int>().hashCode, isNot(Option.pure(0).hashCode));
     });
 
     test('map2', () {
