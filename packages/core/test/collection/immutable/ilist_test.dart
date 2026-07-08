@@ -277,6 +277,9 @@ void main() {
 
       expect(nil<double>().foldLeft(100000.0, op), 100000.0);
       expect(ilist([10000.0, 1000.0, 100.0]).foldLeft(1.0, op), 1e-9);
+
+      expect(ilist(['a', 'b', 'c']).foldLeft('z', (a, b) => a + b), 'zabc');
+      expect(ilist([1, 2, 3, 4]).foldLeft(0, (a, b) => a - b), -10);
     });
 
     test('foldRight', () {
@@ -284,6 +287,9 @@ void main() {
 
       expect(nil<double>().foldRight(100000.0, op), 100000.0);
       expect(ilist([10000.0, 1000.0, 100.0]).foldRight(1.0, op), 1000.0);
+
+      expect(ilist(['a', 'b', 'c']).foldRight('z', (a, b) => a + b), 'abcz');
+      expect(ilist([1, 2, 3, 4]).foldRight(0, (a, b) => a - b), -2);
     });
 
     test('forall', () {

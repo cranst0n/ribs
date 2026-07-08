@@ -12,6 +12,8 @@
   longer produce the same hash code.
 - `ListBuffer.last` on an empty buffer now throws an `UnsupportedError` instead
   of a `StateError`.
+- Fix `IList.foldRight` so elements are combined in right-to-left order instead
+  of left-to-right.
 
 ## 1.0.0
 

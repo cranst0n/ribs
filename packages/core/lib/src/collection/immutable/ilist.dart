@@ -335,17 +335,7 @@ sealed class IList<A> with RIterableOnce<A>, RIterable<A>, RSeq<A> {
   }
 
   @override
-  B foldRight<B>(B z, Function2<A, B, B> op) {
-    var acc = z;
-    var these = this;
-
-    while (these.nonEmpty) {
-      acc = op(these.head, acc);
-      these = these.tail;
-    }
-
-    return acc;
-  }
+  B foldRight<B>(B z, Function2<A, B, B> op) => reverse().foldLeft(z, (b, a) => op(a, b));
 
   @override
   bool forall(Function1<A, bool> p) {
