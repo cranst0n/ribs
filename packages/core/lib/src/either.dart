@@ -158,7 +158,7 @@ sealed class Either<A, B> implements Monad<B> {
       fold((a) => other is Left && a == other.a, (b) => other is Right && b == other.b);
 
   @override
-  int get hashCode => fold((a) => a.hashCode, (b) => b.hashCode);
+  int get hashCode => fold((a) => Object.hash(#left, a), (b) => Object.hash(#right, b));
 }
 
 /// One of two possible instances of [Either], generally used to indicate

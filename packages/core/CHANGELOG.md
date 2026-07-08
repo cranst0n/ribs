@@ -1,3 +1,10 @@
+## 1.0.1
+
+### Bug Fixes
+
+- Fix `Either.hashCode` so a `Left` and `Right` holding the same value no longer
+  produce the same hash code.
+
 ## 1.0.0
 
 - First stable release.
