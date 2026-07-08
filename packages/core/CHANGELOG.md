@@ -8,6 +8,8 @@
   to `0`.
 - `Option.get` on a `None` now throws an `UnsupportedError` instead of a
   `StateError`.
+- Fix `Validated.hashCode` so an `Invalid` and `Valid` holding the same value no
+  longer produce the same hash code.
 
 ## 1.0.0
 

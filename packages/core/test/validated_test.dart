@@ -21,6 +21,10 @@ void main() {
       );
     });
 
+    test('hashCode distinguishes Invalid and Valid', () {
+      expect(42.invalid<int>().hashCode, isNot(42.valid<int>().hashCode));
+    });
+
     test('andThen', () {
       expect(
         42.valid<String>().andThen((x) => x.valid()),

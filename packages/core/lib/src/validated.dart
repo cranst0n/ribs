@@ -119,7 +119,7 @@ sealed class Validated<E, A> implements Functor<A> {
   );
 
   @override
-  int get hashCode => fold((e) => e.hashCode, (a) => a.hashCode);
+  int get hashCode => fold((e) => Object.hash(#invalid, e), (a) => Object.hash(#valid, a));
 }
 
 /// A [Validated] that represents a successful, or valid value.
