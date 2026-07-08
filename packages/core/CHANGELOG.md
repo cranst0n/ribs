@@ -6,6 +6,8 @@
   produce the same hash code.
 - Fix `None.hashCode` so it no longer collides with a `Some` whose value hashes
   to `0`.
+- `Option.get` on a `None` now throws an `UnsupportedError` instead of a
+  `StateError`.
 
 ## 1.0.0
 

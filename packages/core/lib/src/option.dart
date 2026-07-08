@@ -176,8 +176,8 @@ extension OptionOps<A> on Option<A> {
   /// Returns `true` if this is a [Some] whose value equals [elem].
   bool contains(A elem) => fold(() => false, (value) => value == elem);
 
-  /// Returns the value if this is a [Some], or throws a [StateError] if this
-  /// is a [None].
+  /// Returns the value if this is a [Some], or throws an [UnsupportedError]
+  /// if this is a [None].
   ///
   /// This is an unsafe, partial operation. Prefer [getOrElse], [fold], or
   /// pattern matching when the [Option] may be [None]. Use [get] only when
@@ -185,7 +185,7 @@ extension OptionOps<A> on Option<A> {
   ///
   /// See also [getOrNull] for a nullable alternative, and [getOrElse] for
   /// providing a fallback value.
-  A get get => fold(() => throw StateError('None.get'), identity);
+  A get get => fold(() => throw UnsupportedError('None.get'), identity);
 
   /// Returns the value if this is a [Some], or `null` if this is a [None].
   ///

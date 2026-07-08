@@ -65,7 +65,7 @@ void main() {
 
     test('get', () {
       expect(testSome.get, 1);
-      expect(() => testNone.get, throwsStateError);
+      expect(() => testNone.get, throwsUnsupportedError);
     });
 
     test('getOrNull', () {
