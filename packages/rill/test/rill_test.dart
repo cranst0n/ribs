@@ -728,6 +728,33 @@ void main() {
     });
   });
 
+  test('interruption during acquire still registers the finalizer', () {
+    // the acquire effect itself triggers the interrupt signal and then
+    // yields, so cancelation lands between the acquisition completing and
+    // the finalizer being registered in the scope; the resource must still
+    // be released
+    final test = IO.deferred<Unit>().flatMap((halt) {
+      return IO.ref(0).flatMap((acquired) {
+        return IO.ref(0).flatMap((released) {
+          final acquire = acquired
+              .update((n) => n + 1)
+              .productR(halt.complete(Unit()).voided())
+              .productR(IO.sleep(5.milliseconds));
+
+          final rill = Rill.bracket(acquire, (_) => released.update((n) => n + 1));
+
+          return rill
+              .interruptWhen(halt.value())
+              .compile
+              .drain
+              .productR(acquired.value().product(released.value()));
+        });
+      });
+    });
+
+    expect(test.ticked, succeeds((1, 1)));
+  });
+
   test('interruptWhen', () {
     IO<bool> signalAfter(Duration duration) => IO.pure(true).delayBy(duration);
 

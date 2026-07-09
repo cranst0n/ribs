@@ -404,13 +404,22 @@ IO<_Step<O, R>> _stepHandle<O, R>(_Handle<O, R> pull, Scope scope) {
 }
 
 IO<_Step<O, R>> _stepAcquire<O, R>(_Acquire<R> pull, Scope scope) {
-  return pull.acquire.redeemWith(
-    (err) => IO.pure(_StepError(err)),
-    (resource) {
-      final registerOp = scope.register((ec) => pull.release(resource, ec));
-      return registerOp.as(_Step.done<O, R>(resource));
-    },
-  );
+  // Mask acquisition and finalizer registration together so an interruption
+  // cannot land between the resource being acquired and its release being
+  // registered in the scope. For the cancelable variant, `poll` unmasks this
+  // layer, deferring to the `IO.uncancelable` the acquire is already wrapped
+  // in (which exposes the user's own poll regions).
+  return IO.uncancelable((poll) {
+    final acquire = pull.cancelable ? poll(pull.acquire) : pull.acquire;
+
+    return acquire.redeemWith(
+      (err) => IO.pure(_StepError(err)),
+      (resource) {
+        final registerOp = scope.register((ec) => pull.release(resource, ec));
+        return registerOp.as(_Step.done<O, R>(resource));
+      },
+    );
+  });
 }
 
 IO<_Step<O, R>> _stepRunInScope<O, R>(_RunInScope<O, R> pull) {
