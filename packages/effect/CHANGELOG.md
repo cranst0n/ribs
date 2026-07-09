@@ -8,6 +8,10 @@
   accumulates listeners.
 - Fix `Ref.access` and `Ref.tryModify` to compare snapshots by reference
   identity (`identical`) rather than value equality (`==`).
+- Fix `Semaphore` cancelation cleanup to locate a canceled request by its
+  shared gate (`identical(x.gate, req.gate)`) rather than by request-object
+  equality. Previously, canceling a blocked `acquireN` failed to remove its
+  waiting entry and release any permits it had partially acquired.
 
 ## 1.0.0
 

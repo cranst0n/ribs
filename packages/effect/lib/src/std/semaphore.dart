@@ -125,14 +125,18 @@ final class _SemaphoreImpl extends Semaphore {
                 state.modify((currentState) {
                   // both hold correctly even if the Request gets canceled
                   // after having been fulfilled
+                  // the queued entry is a derived instance (`req.of`), so match
+                  // on the shared gate rather than the request object itself
                   final permitsAcquiredSoFar =
                       n -
                       currentState.waiting
-                          .find((x) => x == req)
+                          .find((x) => identical(x.gate, req.gate))
                           .map((req) => req.n)
                           .getOrElse(() => 0);
 
-                  final waitingNow = currentState.waiting.filterNot((x) => x == req);
+                  final waitingNow = currentState.waiting.filterNot(
+                    (x) => identical(x.gate, req.gate),
+                  );
 
                   // releaseN is commutative, the separate Ref access is ok
                   return (_State(currentState.permits, waitingNow), releaseN(permitsAcquiredSoFar));

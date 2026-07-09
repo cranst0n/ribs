@@ -163,6 +163,25 @@ void main() {
       expect(op, succeeds(Unit()));
     });
 
+    test('canceled waiter does not release permits it never acquired', () {
+      final test = sc(0).flatMap((sem) {
+        return IO.ref(false).flatMap((acquired) {
+          // first waiter blocks at the front of the queue
+          return sem.acquire().productR(acquired.setValue(true)).start().flatMap((_) {
+            return IO.sleep(100.milliseconds).flatMap((_) {
+              // second waiter queues behind the first, then gets canceled;
+              // it holds 0 permits so its cleanup must release nothing
+              return sem.acquire().timeout(100.milliseconds).attempt().flatMap((_) {
+                return IO.sleep(100.milliseconds).productR(acquired.value());
+              });
+            });
+          });
+        });
+      });
+
+      expect(test, succeeds(false));
+    });
+
     test('available with no available permits', () {
       IO<(int, T)> withLock<T>(int n, Semaphore s, IO<T> check) => s
           .acquireN(n)
