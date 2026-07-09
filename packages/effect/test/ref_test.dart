@@ -73,6 +73,23 @@ void main() {
       expect(op, succeeds(true));
     });
 
+    test('access - setter should fail after ABA modification', () {
+      // A -> B -> A' where A' == A but is a different instance: the setter
+      // must observe the intervening modification and fail (identity CAS)
+      final op = IO.ref(_Box(1)).flatMap((r) {
+        return r.access().flatMap((valueAndSetter) {
+          final (_, setter) = valueAndSetter;
+          return r.setValue(_Box(2)).flatMap((_) {
+            return r.setValue(_Box(1)).flatMap((_) {
+              return setter(_Box(3)).map((success) => !success);
+            });
+          });
+        });
+      });
+
+      expect(op, succeeds(true));
+    });
+
     test('tryUpdate - modification occurs successfully', () {
       final op = IO.ref(0).flatMap((r) {
         return r.tryUpdate((a) => a + 1).flatMap((result) {
@@ -174,4 +191,18 @@ void main() {
 
     expect(test, succeeds(('0'.some, 3)));
   });
+}
+
+final class _Box {
+  final int value;
+
+  // non-const so every _Box(n) is a fresh instance; the ABA test relies on
+  // value-equal but non-identical instances
+  _Box(this.value);
+
+  @override
+  bool operator ==(Object other) => other is _Box && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
 }

@@ -6,6 +6,8 @@
   now removed when the joining `IO` is canceled, so repeatedly joining and
   canceling a long-lived fiber (e.g. via `race` or `timeout`) no longer
   accumulates listeners.
+- Fix `Ref.access` and `Ref.tryModify` to compare snapshots by reference
+  identity (`identical`) rather than value equality (`==`).
 
 ## 1.0.0
 

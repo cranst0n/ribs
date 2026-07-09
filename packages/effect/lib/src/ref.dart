@@ -83,7 +83,7 @@ class RefImpl<A> extends Ref<A> {
     final snapshot = _underlying;
 
     IO<bool> setter(A a) => IO.delay(() {
-      if (_underlying == snapshot) {
+      if (identical(_underlying, snapshot)) {
         _underlying = a;
         return true;
       } else {
@@ -127,7 +127,7 @@ class RefImpl<A> extends Ref<A> {
 
     return f(initial)(
       (u, b) {
-        if (initial == _underlying) {
+        if (identical(initial, _underlying)) {
           _underlying = u;
           return Some(b);
         } else {
