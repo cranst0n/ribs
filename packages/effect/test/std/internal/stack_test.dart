@@ -53,6 +53,27 @@ void main() {
     expect(s.nonEmpty, isTrue);
   });
 
+  test('remove', () {
+    var s = Stack<String>();
+
+    const a = 'a';
+    const b = 'b';
+    const c = 'c';
+
+    s = s.push(a);
+    s = s.push(b);
+    s = s.push(c);
+
+    expect(s.remove(b), isTrue);
+    expect(s.size, 2);
+    expect(s.remove(b), isFalse);
+
+    expect(s.pop(), c);
+    expect(s.pop(), a);
+    expect(s.isEmpty, isTrue);
+    expect(s.remove(a), isFalse);
+  });
+
   test('grows as necessary', () {
     var s = Stack<int>();
 

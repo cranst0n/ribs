@@ -61,6 +61,28 @@ extension type Stack<A>._(List<Object?> _list) {
     return item;
   }
 
+  /// Removes the first occurrence of [a] (searching from the top, compared by
+  /// identity), shifting any elements above it down. Returns `true` if [a]
+  /// was found and removed.
+  bool remove(A a) {
+    final size = _list[0]! as int;
+
+    for (var i = size; i >= 1; i--) {
+      if (identical(_list[i], a)) {
+        for (var j = i; j < size; j++) {
+          _list[j] = _list[j + 1];
+        }
+
+        _list[size] = null; // Null out to allow GC.
+        _list[0] = size - 1;
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   /// Returns the top element on this stack. The stack itself is unchanged.
   ///
   /// If this stack is empty, an exception will be thrown.
