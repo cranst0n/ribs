@@ -534,6 +534,59 @@ void main() {
         expect(got, ExitCase.canceled());
       });
     });
+
+    group('acquire failure', () {
+      test('left acquire error releases already-acquired right', () {
+        var rightReleased = false;
+
+        ExitCase? rightExit;
+
+        final left = Resource.eval(IO.sleep(1.second).productR(IO.raiseError<Unit>('BOOM')));
+
+        final right = Resource.makeCase(
+          IO.sleep(500.milliseconds),
+          (_, ec) => IO.exec(() {
+            rightReleased = true;
+            rightExit = ec;
+          }),
+        );
+
+        final ticker = Resource.both(left, right).use_().handleError((_) => Unit()).ticked;
+
+        ticker.tick();
+
+        // right has acquired; left has not yet errored
+        expect(rightReleased, isFalse);
+
+        ticker.tickAll();
+
+        expect(rightReleased, isTrue);
+        expect(rightExit?.isError, isTrue);
+      });
+
+      test('left acquire error mid-right-acquire still releases right', () {
+        // left errors while right is still acquiring: right's (uncancelable)
+        // acquire runs to completion and the acquired resource must still be
+        // released
+        var rightReleased = false;
+
+        final left = Resource.eval(
+          IO.sleep(500.milliseconds).productR(IO.raiseError<Unit>('BOOM')),
+        );
+
+        final right = Resource.make(
+          IO.sleep(1.second),
+          (_) => IO.exec(() => rightReleased = true),
+        );
+
+        final ticker = Resource.both(left, right).use_().handleError((_) => Unit()).ticked;
+
+        ticker.tick();
+        ticker.tickAll();
+
+        expect(rightReleased, isTrue);
+      });
+    });
   });
 
   group('surround', () {
@@ -931,6 +984,74 @@ void main() {
       final test = Resource.race(left, right).use(IO.pure);
 
       expect(test.ticked, errors('right-boom'));
+    });
+
+    test('canceled loser releases its acquired resource with ExitCase.canceled', () {
+      var loserReleased = false;
+
+      ExitCase? loserExit;
+
+      final left = Resource.make(IO.pure(1), (_) => IO.unit);
+
+      // loser is mid-acquire when left wins; its (uncancelable) acquire runs
+      // to completion and must then be released
+      final right = Resource.makeCase(
+        IO.sleep(1.second).as(2),
+        (_, ec) => IO.exec(() {
+          loserReleased = true;
+          loserExit = ec;
+        }),
+      );
+
+      final ticker = Resource.race(left, right).use(IO.pure).ticked;
+
+      ticker.tickAll();
+
+      expect(loserReleased, isTrue);
+      expect(loserExit, ExitCase.canceled());
+    });
+
+    test('winner finalizer runs with the exit case of use', () async {
+      ExitCase? winnerExit;
+
+      final left = Resource.makeCase(
+        IO.pure(1),
+        (_, ec) => IO.exec(() => winnerExit = ec),
+      );
+
+      final right = Resource.never<int>();
+
+      await expectLater(
+        Resource.race(left, right).use(IO.pure),
+        succeeds(const Left<int, int>(1)),
+      );
+
+      expect(winnerExit, ExitCase.succeeded());
+    });
+
+    test('one side erroring releases the loser once acquired', () {
+      var loserReleased = false;
+
+      ExitCase? loserExit;
+
+      final left = Resource.eval(
+        IO.sleep(500.milliseconds).productR(IO.raiseError<int>('BOOM')),
+      );
+
+      final right = Resource.makeCase(
+        IO.sleep(1.second).as(2),
+        (_, ec) => IO.exec(() {
+          loserReleased = true;
+          loserExit = ec;
+        }),
+      );
+
+      final ticker = Resource.race(left, right).use(IO.pure).ticked;
+
+      ticker.tickAll();
+
+      expect(loserReleased, isTrue);
+      expect(loserExit, ExitCase.canceled());
     });
   });
 }
