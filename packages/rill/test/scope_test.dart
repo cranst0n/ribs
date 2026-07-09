@@ -237,6 +237,55 @@ void main() {
 
         expect(result, succeeds(isRight()));
       });
+
+      test('finalizer runs exactly once when close races with lease release', () async {
+        // However `close` and the last `lease.cancel` interleave, the
+        // finalizer must run exactly once. Small autoCedeN values make fibers
+        // yield after a few interpreter steps; scanning several autoCedeN
+        // values and phase offsets (single-step `map` chains) exercises the
+        // possible step alignments of the two operations.
+        IO<Unit> spin(int n) {
+          var io = IO.unit;
+
+          for (var i = 0; i < n; i++) {
+            io = io.map((u) => u);
+          }
+
+          return io;
+        }
+
+        IO<int> once(int closeDelay, int releaseDelay) {
+          return IO.ref(0).flatMap((count) {
+            return Scope.create().flatMap((scope) {
+              return scope.register((_) => count.update((n) => n + 1)).flatMap((_) {
+                return scope.lease().flatMap((lease) {
+                  final closer = spin(closeDelay).productR(scope.close(ExitCase.succeeded()));
+                  final releaser = spin(releaseDelay).productR(lease.cancel);
+
+                  return IO.both(closer, releaser).productR(count.value());
+                });
+              });
+            });
+          });
+        }
+
+        var failures = 0;
+
+        for (var autoCedeN = 1; autoCedeN <= 6; autoCedeN++) {
+          final offsets = IList.range(
+            0,
+            12,
+          ).flatMap((i) => IList.range(0, 12).map((j) => (i, j)));
+
+          final counts = await offsets
+              .traverseIO((t) => once(t.$1, t.$2))
+              .unsafeRunFuture(runtime: RealIORuntime(autoCedeN: autoCedeN));
+
+          failures += counts.filter((c) => c != 1).size;
+        }
+
+        expect(failures, 0);
+      });
     });
   });
 }
