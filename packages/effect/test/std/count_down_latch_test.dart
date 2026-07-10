@@ -58,19 +58,21 @@ void main() {
 
     test('multiple waiters are all released', () {
       final test = CountDownLatch.create(1).flatMap((latch) {
-        return IO.both(
-          (latch.await(), latch.await(), latch.await()).parTupled,
-          IO.sleep(100.milliseconds).productR(latch.release()),
-        ).voided();
+        return IO
+            .both(
+              (latch.await(), latch.await(), latch.await()).parTupled,
+              IO.sleep(100.milliseconds).productR(latch.release()),
+            )
+            .voided();
       });
 
       expect(test, succeeds());
     });
 
     test('await is cancelable', () {
-      final test = CountDownLatch.create(1)
-          .flatMap((latch) => latch.await())
-          .timeoutTo(1.second, IO.unit);
+      final test = CountDownLatch.create(
+        1,
+      ).flatMap((latch) => latch.await()).timeoutTo(1.second, IO.unit);
 
       expect(test, succeeds());
     });
