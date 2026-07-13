@@ -34,9 +34,9 @@ cannot be mixed:
 
 <<< @/../snippets/lib/src/units/motivation.dart#motivation-typed-solution
 
-Adding `usMilesPerHour` and `kilometersPerHour` without conversion is still a
-compile-time error — they are both `Velocity`, so the `+` operator compiles,
-but the values are internally aligned to a common base unit. The conversion is
+Adding `usMilesPerHour` and `kilometersPerHour` requires no manual
+conversion — they are both `Velocity`, so the `+` operator compiles, and the
+values are internally aligned to a common base unit. The conversion is
 automatic and correct. `Length` and `Velocity` cannot be added at all.
 
 ---

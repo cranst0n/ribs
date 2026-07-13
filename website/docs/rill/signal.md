@@ -15,8 +15,10 @@ abstract class Signal<A> {
   Rill<A> get discrete;            // stream of changes (deduped)
   Rill<A> get continuous;          // stream of snapshots (every poll)
   IO<Unit> waitUntil(Function1<A, bool> p);  // block until condition holds
-  Signal<B> map<B>(Function1<A, B> f);       // derived signal
 }
+
+// provided as an extension method:
+Signal<B> map<B>(Function1<A, B> f);         // derived signal
 ```
 
 `SignallingRef<A>` is the concrete read-write implementation. It extends both
@@ -31,7 +33,7 @@ observation.
 | Pause / resume a rill | `Signal<bool>` + `pauseWhenSignal` |
 | Live progress counter observed by multiple fibers | `SignallingRef<int>` |
 | Read-only view of changing state | `Signal<A>` (from `map` or `holdResource`) |
-| Convert a `Rill` into always-readable state | `Rill.holdResource` |
+| Convert a `Rill` into always-readable state | `rill.holdResource` |
 
 ## Creating a SignallingRef
 

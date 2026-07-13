@@ -22,8 +22,8 @@ defined:
 ## With Rill
 
 If you are using `ribs_rill` and `ribs_rill_io`, the `RillEncoder` and
-`RillDecoder` types from `package:ribs_rill/binary.dart` plug directly into the
-`Rill` streaming pipeline as `Pipe`s.
+`RillDecoder` types from `package:ribs_rill/ribs_rill.dart` plug directly into
+the `Rill` streaming pipeline as `Pipe`s.
 
 ### RillEncoder
 

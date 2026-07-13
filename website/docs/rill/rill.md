@@ -126,7 +126,7 @@ A selection of the most commonly used combinators:
 | `scan(init, f)` | Emit running accumulated state |
 | `zipWithIndex()` | Pair each element with its index |
 | `changes()` | Emit only when the value differs from the previous |
-| `concat` | Append one rill after another |
+| `operator +` / `append` | Append one rill after another |
 
 :::info
 These are only the most common combinators `Rill` provides. Review the API docs
@@ -207,9 +207,12 @@ is not known up front or each outer element should fan out into multiple values.
 <<< @/../snippets/lib/src/rill/rill.dart#rill-par-join-dynamic
 
 :::info
-`rill.parEvalMap(n, f)` is exactly `rill.map((o) => Rill.eval(f(o))).parJoin(n)`.
-Use `parEvalMap` for the one-IO-per-element case; reach for `flatMap` +
-`parJoin` when each element should produce a full sub-rill.
+`rill.parEvalMapUnordered(n, f)` is exactly
+`rill.map((o) => Rill.eval(f(o))).parJoin(n)` — results arrive in completion
+order. `parEvalMap` is its order-preserving counterpart: same concurrency, but
+results are emitted in input order. Use one of those for the
+one-IO-per-element case; reach for `flatMap` + `parJoin` when each element
+should produce a full sub-rill.
 :::
 
 ### Error propagation and cancelation
@@ -219,7 +222,7 @@ remaining inner rills and propagates the error to the outer rill. If the
 outer rill itself is interrupted (e.g. via `interruptAfter`), all running
 inner rills are canceled before the combined rill terminates.
 
-`parJoinUnbounded()` is a convenience alias for `parJoin(Integer.MaxValue)` —
+`parJoinUnbounded()` is a convenience alias for `parJoin(Integer.maxValue)` —
 use it when you know the number of inner rills is bounded by the outer rill
 and you do not need an explicit cap.
 

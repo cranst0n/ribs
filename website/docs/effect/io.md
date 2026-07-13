@@ -41,7 +41,7 @@ program from above, using `IO` instead of `Future`.
 
 You'll notice there are some differences in the APIs between `Future` and `IO`
 but for the sake of this example, you can assume that `flatMap` is equivalent
-to `then` and `IO.println` is equivalent to `print`. If you squint hard enough,
+to `then` and `IO.print` is equivalent to `print`. If you squint hard enough,
 this `IO` version should look pretty similar to the original implementation
 where we defined `rng` using `Future`. ***However***, this piece of code is
 pure and referentially transparent because of the way `IO` is implemented.
@@ -182,7 +182,7 @@ an asynchronous boundary, which means cancelation is checked when it resumes.
 | `replicate_(n)` | `IO<Unit>` | Run sequentially *n* times, discard results |
 | `iterateWhile(p)` | `IO<A>` | Repeat while predicate on the result holds |
 | `iterateUntil(p)` | `IO<A>` | Repeat until predicate on the result holds |
-| `foreverM()` | `IO<Nothing>` | Repeat until error or cancelation |
+| `foreverM()` | `IO<Never>` | Repeat until error or cancelation |
 
 ## Traversing Collections with IO
 

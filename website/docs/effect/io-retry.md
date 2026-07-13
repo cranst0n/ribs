@@ -55,11 +55,11 @@ behavior of your operation. Here's an example:
 
 Let's look at each argument to see what's available to you:
 
-* **policy**: In this example, `RetryPolicy.contantDelay` is given, which will
+* **policy**: In this example, `RetryPolicy.constantDelay` is given, which will
 continually retry a failed operation after a specified delay.
 * **wasSuccessful**: Logic you can provide to inspect a successful computation
 and force another retry attempt.
-* **isWorthRetrying**: Logic you can provide to inspect the `RuntimeException`
+* **isWorthRetrying**: Logic you can provide to inspect the raised error
 and determine if the operation should be retried again, overriding the policy.
 * **onError**: A side effect that is run every time the underlying `IO`
 encounters an error. In this case, the cumulative number of retries is

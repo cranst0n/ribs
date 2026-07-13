@@ -52,7 +52,7 @@ for concurrent programs:
 | `tryOffer(a)` | `IO<bool>` | No | Enqueue if capacity is available |
 | `take()` | `IO<A>` | Yes, if empty | Dequeue the next item |
 | `tryTake()` | `IO<Option<A>>` | No | Dequeue if an item is available |
-| `tryTakeN(maxN)` | `IO<IList<A>>` | No | Dequeue up to N items at once |
+| `tryTakeN(maxN)` | `IO<IList<A>>` | No | Dequeue up to `maxN` items at once (`maxN` is an `Option<int>`; `None` takes all) |
 | `size()` | `IO<int>` | No | Current number of items |
 
 :::info

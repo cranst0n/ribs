@@ -37,7 +37,8 @@ the tuple to your domain type. `Write` works in the opposite direction via
 `.contramap`.
 
 Built-in primitives: `Read`/`Write`/`ReadWrite` for `integer`, `string`,
-`boolean`, `double`, `dateTime`, `bigInt`, `blob`, and `json`.
+`boolean`, `dubble` (so spelled, since `double` is reserved), `dateTime`,
+`bigInt`, `blob`, and `json`.
 
 ## Transactor
 

@@ -9,7 +9,7 @@ sidebar_position: 1
 alongside the types they check.
 
 ```dart
-import 'package:ribs_test/ribs_core_test.dart';
+import 'package:ribs_test/ribs_test_core.dart';
 ```
 
 ---

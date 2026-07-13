@@ -49,8 +49,8 @@ Numeric conversions let you round-trip integers through binary representations:
 
 <<< @/../snippets/lib/src/binary/bit_vector.dart#bitvector-byte-numeric
 
-Bitwise operations (`&`, `|`, `^`, `~`, `<<`, `>>`) work element-wise across two vectors of the
-same length:
+Bitwise operations are available too: `&`, `|`, and `^` work element-wise across two vectors of
+the same length, `~` negates a single vector, and `<<` / `>>` shift by a given count:
 
 <<< @/../snippets/lib/src/binary/bit_vector.dart#bitvector-byte-bitwise
 

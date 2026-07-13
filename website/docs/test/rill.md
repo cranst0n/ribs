@@ -9,7 +9,7 @@ on what it emits and how it finishes — whether that's success, an error, or
 cancelation.
 
 ```dart
-import 'package:ribs_test/ribs_rill_test.dart';
+import 'package:ribs_test/ribs_test_rill.dart';
 ```
 
 All matchers extend `AsyncMatcher` and work directly with `expect` /

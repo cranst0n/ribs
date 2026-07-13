@@ -91,7 +91,7 @@ someRill.through(topic.publish).compile.drain
 
 ## Observing subscriber count
 
-`topic.subscribers` is a `Rill<Int>` that emits the current number of active
+`topic.subscribers` is a `Rill<int>` that emits the current number of active
 subscribers each time it changes. It is backed by a `SignallingRef`, so it only
 emits on changes (like `Signal.discrete`).
 

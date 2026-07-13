@@ -108,7 +108,8 @@ type for byte streams — produced by `Files.readAll` for files and by
 
 Rather than bridging through Dart's `Stream` API, `AsyncParser` can be driven
 directly inside the Rill pipeline. A mutable parser is created once via
-`IO.delay`, and each `Chunk<int>` is fed to `parser.absorb` through `evalMap`,
+`IO.delay`, and each `Chunk<int>` is converted to a `Uint8List` and fed to
+`parser.absorb` through `evalMap`,
 keeping the side effect inside `IO`. A `finalAbsorb` step is appended with `+`
 to flush any buffered data when the source terminates — this is required for
 `singleValue` mode, which holds back the result until EOF.

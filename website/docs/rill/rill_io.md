@@ -69,8 +69,8 @@ Write helpers mirror the read API and return `Pipe<I, Never>` — apply them wit
 
 <<< @/../snippets/lib/src/rill_io/rill_io.dart#rill-io-files-write
 
-To append rather than truncate, pass `flags: Flags.Append` to `writeAll` or
-open a `WriteCursor` directly via `Files.writeCursor(path, Flags.Append)`.
+To append rather than truncate, pass `flags: Flags.append` to `writeAll` or
+open a `WriteCursor` directly via `Files.writeCursor(path, Flags.append)`.
 
 ### File management
 

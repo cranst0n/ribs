@@ -11,7 +11,7 @@ them back as a `Rill<A>`. When the producer is done, it closes the channel
 and the consumer's stream completes naturally.
 
 ```dart
-abstract mixin class Channel<A> {
+mixin Channel<A> {
   IO<Either<ChannelClosed, Unit>> send(A a);
   IO<Either<ChannelClosed, bool>> trySend(A a);
   IO<Either<ChannelClosed, Unit>> close();

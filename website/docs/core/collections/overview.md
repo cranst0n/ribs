@@ -18,9 +18,9 @@ Ribs replaces them with persistent, immutable-by-default equivalents providing t
   without defensive copies or surprise mutations.
 - **Structural sharing** — because values are immutable, new collections can reuse
   internal nodes from the old one.
-- **Null-safe lookups** — `get(key)` returns `Option<V>` instead of a nullable `V?`,
-  making absent-key handling explicit and composable rather than a source of
-  `NullPointerException`s.
+- **Explicit lookups** — `get(key)` returns `Option<V>` instead of a nullable `V?`,
+  making absent-key handling explicit and composable rather than something to
+  remember to null-check at every call site.
 - **Richer API** — operations like `updatedWith`, `groupMap`, `partitionMap`,
   `traverseEither`, and `subsets` are built in, reducing the need for hand-written loops.
 - **Integration with ribs** — types such as `IO`, `State`, and `Rill` work directly
@@ -194,7 +194,7 @@ In addition to everything from `RIterableOnce`, `RIterable` provides:
 
 ## RIterator
 
-`RIterator<A>` is the concrete cursor type. It mixes in `RIterableOnce<A>`
+`RIterator<A>` is the cursor type. It mixes in `RIterableOnce<A>`
 and adds the classic `hasNext`/`next()` interface, inheriting all the
 transformation and query operations from `RIterableOnce` on top of it.
 
@@ -237,8 +237,8 @@ Beyond what it inherits from `RIterableOnce`, `RIterator` provides:
 | Member | Description |
 |--------|-------------|
 | `concat(xs)` | This iterator followed by the elements of `xs` |
-| `distinct(f)` | Deduplicate by key `f`, preserving first occurrence |
-| `distinctBy(f)` | Same as `distinct` |
+| `distinct(f)` | Deduplicate elements by equality, preserving first occurrence |
+| `distinctBy(f)` | Deduplicate by key `f`, preserving first occurrence |
 | `grouped(n)` | Consecutive non-overlapping chunks of size `n` |
 | `sliding(size, step)` | Overlapping windows |
 | `padTo(len, elem)` | Extend to at least `len` elements, padding with `elem` |

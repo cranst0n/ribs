@@ -118,7 +118,7 @@ assignment operator `[]=` mutates silently, matching Dart's own `Map` API.
 single key can have multiple distinct values associated with it.
 
 Internally, it is backed by an `IMap<K, ISet<V>>`, which is exposed via the
-`sets` property. This means that adding the same `(key, value)` pair twice is
+`sets` property (typed as `RMap<K, ISet<V>>`). This means that adding the same `(key, value)` pair twice is
 idempotent — duplicates within a key's value set are ignored.
 
 **Construction:**
@@ -136,8 +136,8 @@ idempotent — duplicates within a key's value set are ignored.
   set. Adding an already-present entry is a no-op.
 - `containsEntry(entry)` takes a `(K, V)` tuple and checks for an exact
   key–value pair.
-- `sets` exposes the full `IMap<K, ISet<V>>` backing structure, which can
-  be iterated, filtered, and transformed like any other map.
+- `sets` exposes the full backing structure as an `RMap<K, ISet<V>>`, which
+  can be iterated, filtered, and transformed like any other map.
 
 **Use when:**
 - One key naturally corresponds to multiple values (e.g. tags on documents,

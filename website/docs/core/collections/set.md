@@ -103,8 +103,8 @@ has been added and exposes this as the `occurrences` map.
 - `operator -` removes one occurrence. If the count reaches zero, the element
   is no longer `contains`-able.
 - `get(elem)` returns the count (0 if absent), rather than a boolean.
-- `occurrences` provides the full `IMap<A, int>` of counts, which can be
-  iterated, filtered, and transformed like any other map.
+- `occurrences` provides the full map of counts (typed as `RMap<A, int>`),
+  which can be iterated, filtered, and transformed like any other map.
 
 **Use when:**
 - You need to count how many times each element appears (e.g. word frequency,

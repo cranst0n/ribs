@@ -53,7 +53,7 @@ Rill<O2> mapChunks<O2>(f) =>
     underlying.unconsFlatMap((hd) => Pull.output(f(hd))).rillNoScope;
 
 // take is:
-Rill<O> take(int n) => pull.take(n).flatMap((tail) => Pull.done).rillNoScope;
+Rill<O> take(int n) => pull.take(n).voided.rillNoScope;
 ```
 
 The `Rill` type is meant to be the primary API. Drop down to `Pull` only when

@@ -138,9 +138,8 @@ intermediate copying.
 
 ### NonEmptyIList
 
-`NonEmptyIList<A>` is an `IList` that is guaranteed by the type system to
-contain at least one element. It has a mandatory `head` field and an `IList`
-tail.
+`NonEmptyIList<A>` is a sequence that is guaranteed by the type system to
+contain at least one element. It has a mandatory `head` field and an `IList` tail.
 
 **The key difference from `IList`:** The compiler enforces non-emptiness.
 `head` is always defined — it is a field, not a method that might throw. Any

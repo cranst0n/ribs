@@ -9,7 +9,7 @@ programs. The matchers integrate with `package:test`'s `expect`/`expectLater`
 and work with both live futures and the virtual-time `Ticker`.
 
 ```dart
-import 'package:ribs_test/ribs_effect_test.dart';
+import 'package:ribs_test/ribs_test_effect.dart';
 ```
 
 ---

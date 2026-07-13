@@ -72,13 +72,13 @@ rate-limiting, connection pooling, and mutual exclusion.
 
 `ribs_effect` includes a retry combinator built on top of `IO`. Policies are
 composable values — cap the number of attempts, add exponential backoff, or
-combine policies with `and`/`or`.
+combine policies with `followedBy`, `join`, and `meet`.
 
 ## Concurrency model
 
 `ribs_effect` implements a *green-thread* concurrency model on top of Dart's
-event loop. A `Fiber` is a lightweight, cancelable unit of concurrency — far
-cheaper than a Dart `Isolate` (~270 bytes for a created fiber). Calling `.start()`
+event loop. A `Fiber` is a lightweight, cancelable unit of concurrency — a
+plain object, far cheaper than a Dart `Isolate`. Calling `.start()`
 on any `IO` forks it onto a new fiber, and fibers can be joined, canceled, or
 raced with `IO.race` and `IO.both`.
 

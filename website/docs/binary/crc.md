@@ -41,7 +41,8 @@ parameters directly to `Crc.of()` for an algorithm not covered by the presets:
 
 ## Incremental computation with CrcBuilder
 
-`Crc.builder()` returns a `CrcBuilder<BitVector>` that accumulates state across
+`Crc.builder()` (given the same five parameters as `Crc.of()`) returns a
+`CrcBuilder<BitVector>` that accumulates state across
 multiple `updated()` calls. This is useful when data arrives in chunks — for
 example during a streaming file read or network receive — without needing to
 buffer the whole message before computing the checksum.

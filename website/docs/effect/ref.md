@@ -84,4 +84,5 @@ the real fetch on a miss, updating the cache atomically before returning.
 
 Because the cache is a `Ref`, it can be passed to any number of concurrent
 fibers without risk of conflicting writes — every `update` is an atomic
-compare-and-swap under the hood.
+read-modify-write: it runs synchronously on Dart's single-threaded event
+loop, so no other fiber can observe or modify the value mid-update.

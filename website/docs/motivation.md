@@ -103,7 +103,7 @@ compile time error — it is a production incident.
 caller must handle both. The compiler enforces it.
 
 Errors become ordinary values. You can transform the success value with `map`,
-transform the failure description with `mapLeft`, chain operations that each
+transform the failure description with `leftMap`, chain operations that each
 might fail with `flatMap`, and convert the whole thing into a successful
 `Option` by discarding the error. Nothing is invisible.
 
@@ -183,9 +183,10 @@ only when explicitly executed. This small distinction has large consequences:
   when a cancelation occurs.
 - **Timeouts compose naturally.** Wrap any `IO` with a timeout; if it
   exceeds the limit, cleanup runs and the caller gets an error.
-- **Concurrency with safety.** `IO.both`, `IO.parMapN`, and `IO.parSequence`
-  run multiple computations concurrently and join their results. If one fails,
-  the others are canceled and any acquired resources are released.
+- **Concurrency with safety.** `IO.both`, along with the `parMapN` and
+  `parSequence` extensions, runs multiple computations concurrently and joins
+  their results. If one fails, the others are canceled and any acquired
+  resources are released.
 - **Retry policies.** Declare retry behavior declaratively —
   exponential backoff, maximum attempts, jitter — and attach it to any `IO`
   without modifying the operation itself.
