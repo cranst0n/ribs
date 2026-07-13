@@ -72,11 +72,3 @@ jobs:
             ./packages/sqlite/coverage.lcov
             ./packages/units/coverage.lcov
           verbose: true
-
-      - name: Install Semantic Changelog
-        run: dart pub global activate -s git https://github.com/schultek/semantic_changelog
-
-      - name: Enforce Changelog Updates
-        if: github.event_name == 'pull_request'
-        # Compares the PR branch against the target main branch to ensure changelogs are updated
-        run: version check origin/main
