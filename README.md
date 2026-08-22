@@ -1,4 +1,5 @@
 
+
 ### Ribs <img align="left" width="100" height="100" src="https://raw.githubusercontent.com/cranst0n/ribs/main/website/logo.png">
 **First-class functional programming for Dart**
 
@@ -37,7 +38,7 @@ the following libraries.
 * [cats-retry](https://github.com/cb372/cats-retry)
 * [circe](https://github.com/circe/circe)
 * [dart-check](https://github.com/wigahluk/dart-check)
-* [doobie](https://github.com/tpolecat/doobie)
+* [doobie](https://github.com/typelevel/doobie)
 * [fs2](https://github.com/typelevel/fs2)
 * [ip4s](https://github.com/Comcast/ip4s)
 * [jawn](https://github.com/typelevel/jawn)
