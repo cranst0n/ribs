@@ -10,7 +10,17 @@ import 'package:ribs_rill/ribs_rill.dart';
 ///
 /// ```dart
 /// final text = Rill.emits([72, 101, 108, 108, 111])
-///     .through(Pipes.utf8.decode);
+///     .through(Pipes.text.utf8.decode);
+/// ```
+///
+/// or
+///
+/// ```dart
+/// import 'package:ribs_rill/src/pipes/utf8.dart';
+///
+/// final utf8 = Utf8Pipes();
+/// final text = Rill.emits([72, 101, 108, 108, 111])
+///     .through(utf8.decode);
 /// ```
 final class Utf8Pipes {
   static final Utf8Pipes _singleton = Utf8Pipes._();
